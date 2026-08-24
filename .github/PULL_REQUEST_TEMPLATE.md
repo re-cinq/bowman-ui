@@ -1,45 +1,44 @@
-# Pull Request
+# Pull Request Template
 
 ## Why
-
-<!-- Describe the motivation and context for this change. Link relevant issues or ADRs. -->
-
-Closes #
+<!-- Explain the motivation and context for this change. What problem does it solve? -->
 
 ## What Changed
-
-<!-- Summarize the changes introduced by this PR. Keep it concise and focused. -->
+<!-- Describe the changes made in this PR. Include key implementation details. -->
 
 ## Alternatives Considered
-
-<!-- What other approaches were evaluated? Why was this approach chosen? -->
+<!-- What other approaches were evaluated? Why was this solution chosen? -->
 
 ## ADRs & Architecture
-
-<!-- Reference any Architecture Decision Records or design implications. -->
+<!-- Reference any Architecture Decision Records (ADRs) in the `adrs/` directory. Explain any architectural decisions or patterns introduced by this change. -->
 
 ## Testing
+<!-- Describe how this change was tested. Include manual testing steps, test cases added, or links to test output. -->
 
-<!-- Describe the testing strategy. Include manual and automated test coverage. -->
+---
 
-- [ ] Unit tests added/updated
-- [ ] Integration tests added/updated
-- [ ] Manual testing completed
-- [ ] Edge cases covered
+## Checklist
 
-## Code Quality Checklist
+### Code Quality
+- [ ] Linting passes (`npm run lint`)
+- [ ] TypeScript strict mode passes (`npm run type-check`)
+- [ ] All tests pass (`npm test`)
+- [ ] Build succeeds (`npm run build`)
 
-- [ ] Linting passes (`npm run lint` or equivalent)
-- [ ] TypeScript types are correct (no `any` unless justified)
-- [ ] All tests pass (`npm run test`)
-- [ ] No secrets, credentials, or sensitive data committed
-- [ ] Code follows project style guide
-- [ ] Documentation updated (README, JSDoc, storybook)
+### Security & Best Practices
+- [ ] No secrets, API keys, or credentials included
+- [ ] No console warnings or errors
+- [ ] No `any` types in public APIs
+- [ ] React best practices followed (functional components, proper dependency arrays)
 
-## Screenshots / Demo
+### Documentation & Types
+- [ ] JSDoc comments added for new exports
+- [ ] Props interfaces are fully typed and documented
+- [ ] README.md updated (if applicable)
+- [ ] Accessibility (a11y) considerations reviewed
 
-<!-- If UI changes, include screenshots or links to deployed previews. -->
-
-## Deployment Notes
-
-<!-- Any breaking changes, migration steps, or deployment considerations? -->
+### Before Merging
+- [ ] Branch naming follows convention (`<type>/<scope>-<description>`)
+- [ ] Commits follow Conventional Commits format
+- [ ] All CI checks pass
+- [ ] Minimum 1 approval received
