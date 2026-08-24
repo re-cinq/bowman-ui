@@ -2,282 +2,171 @@
 
 ## Overview
 
-**bowman-ui** is a React component library providing presentational building blocks for AI chat interfaces. It is a props-driven, dependency-minimal UI toolkit extracted from an internal application, designed to be consumed by applications that handle authentication, data-fetching, routing, and internationalization independently.
+bowman-ui is a presentational React component library for building AI chat interfaces. It provides props-driven UI building blocks extracted from an internal application, with no dependencies on authentication, data-fetching, routing, or internationalization. The library positions itself as "the face" to complement HAL (the engine), serving as a reusable foundational layer for chat-based AI applications.
 
-The package delivers reusable, accessible chat UI components without enforcing architectural patterns or external service integrations. Consumers supply data and labels; components render them.
-
-**Maturity**: Repository bootstrap phase. Package skeleton, build contract, and core components are being landed through structured epic issues (E3 project).
-
-**Naming Context**: HAL is the inference engine; Bowman is the user-facing interface.
-
----
+**Status**: Repository bootstrap phase. Core components are being delivered through the E3 epic issues.
 
 ## Key Capabilities
 
 ### Component Categories
+- **Message Rendering**: Display individual chat messages with formatting support
+- **Composer**: Input interface for users to compose and send messages
+- **Conversation Management**: List and navigation of conversations/threads
+- **App Shell**: Container/layout component for chat application structure
 
-1. **Message Rendering**
-   - Single message bubble component with support for different message types
-   - Handles sender attribution, timestamps, and styling variants
+### Design Philosophy
+- Props-driven architecture: Components accept all data and labels as props
+- No internal state management or side effects beyond UI interaction
+- Consumers (applications) are responsible for:
+  - Data fetching and management
+  - Authentication and authorization
+  - Routing between conversations
+  - Text localization/internationalization
+  - Styling and theming (via props)
 
-2. **Composer / Input**
-   - Text input component for composing messages
-   - Submit action handling via props callbacks
-   - State management hooks for composition flow
-
-3. **Conversation List**
-   - List view of conversations or message threads
-   - Selection and navigation support
-   - Minimal styling; consumer-provided themes apply
-
-4. **App Shell**
-   - Layout container for chat UI assembly
-   - Slots for header, sidebar, main content, footer
-   - No routing or state management imposed
-
-5. **Utility Hooks**
-   - Composition state management (e.g., `useComposerState`)
-   - Message list scrolling and lifecycle hooks
-
-### Design Constraints
-
-- **No Authentication**: Components assume user context is provided by consumer
-- **No Data Fetching**: All data passed as props; no API calls within components
-- **No Routing**: Navigation callbacks are prop-driven; router integration is consumer's responsibility
-- **No i18n**: Labels and strings supplied by consumer
-- **Accessibility-First**: All interactive components support keyboard navigation, ARIA attributes, and semantic HTML
-- **TypeScript Strict Mode**: All components strictly typed; no implicit `any`
-- **Minimal Dependencies**: React and React-DOM as peer dependencies only; no heavy utility libraries bundled
-
----
+### Distribution Format
+- Dual module support (ESM and CJS)
+- TypeScript type definitions included
+- Tree-shakeable exports using named exports
+- Minimal external dependencies
 
 ## Core Data Model
 
-### Component Props Philosophy
+### Component Props Architecture
 
-Components accept data as plain JavaScript objects with typed interfaces:
+Components follow a consistent props-driven pattern where consumers supply:
 
-```typescript
-interface MessageBubbleProps {
-  // Message content and metadata
-  id: string;
-  text: string;
-  sender: 'user' | 'assistant';
-  timestamp?: Date;
-  variant?: 'sent' | 'received';
-  
-  // Callbacks for interactions
-  onEdit?: (id: string, newText: string) => void;
-  onDelete?: (id: string) => void;
-  
-  // Styling customization (className or style props)
-  className?: string;
-}
+1. **Message Data**
+   - Content/text
+   - Author/sender information
+   - Timestamps
+   - Message type/status (sent, received, loading, error)
 
-interface ComposerProps {
-  // Controlled input value
-  value: string;
-  onChange: (text: string) => void;
-  
-  // Actions
-  onSubmit: (text: string) => void;
-  
-  // State
-  isLoading?: boolean;
-  isDisabled?: boolean;
-  
-  // Customization
-  placeholder?: string;
-}
+2. **Composer Data**
+   - Placeholder text/labels
+   - Submit handler callback
+   - Initial value (optional)
+   - Formatting options (if supported)
 
-interface ConversationListProps {
-  // Data
-  conversations: Array<{
-    id: string;
-    title: string;
-    lastMessage?: string;
-    timestamp?: Date;
-  }>;
-  
-  // Selection state
-  selectedId?: string;
-  onSelect: (id: string) => void;
-}
-```
+3. **Conversation List Data**
+   - List of conversation objects with metadata
+   - Selection/active state management
+   - Click handlers for navigation
 
-### Data Flow Pattern
+4. **UI Configuration**
+   - All user-visible strings passed as props (supports i18n)
+   - Theme/styling via className or CSS variable props
+   - Accessibility labels (aria-label, aria-describedby, etc.)
 
-- **Parent owns state**: Consumer application manages conversation data, user state, message history
-- **Components are presentational**: Props in, callbacks out
-- **No internal fetching**: Components do not make API calls or manage async loading (consumer handles via props `isLoading`, etc.)
-
----
+### No Internal Data Persistence
+- Components do not maintain conversation history
+- Components do not cache or store messages
+- All state relevant to rendering is provided via props
 
 ## User Roles
 
-### Primary Consumer Roles
+### Primary User: Application Developer
+- Integrates bowman-ui components into their chat application
+- Provides all data, labels, and handlers to components
+- Manages routing, authentication, and data fetching separately
+- Controls styling/theming via component props
 
-1. **Frontend Application Developer**
-   - Builds chat UIs using bowman-ui components
-   - Manages authentication, routing, API integration independently
-   - Supplies data and labels via props
-   - Applies theme/styling via CSS modules, Tailwind, CSS-in-JS, etc.
-
-2. **Design System Maintainer**
-   - Customizes component styling without modifying exported interfaces
-   - May wrap bowman-ui components with design tokens
-   - Enforces accessibility standards
-
-3. **End User (Implicit)**
-   - Interacts with assembled chat UI in consumer application
-   - Benefits from accessibility features and responsive design
-
----
+### Secondary User: End User (Chat Application User)
+- Interacts with rendered chat interface
+- Sends/receives messages
+- Manages conversations through provided UI
+- No awareness of bowman-ui as a library
 
 ## Business Rules
 
-### Component Behavior
+### Functional Requirements
+1. Components must render correctly given any valid props
+2. All exported components must be TypeScript strict mode compliant
+3. Components must support keyboard navigation (Tab, Enter, Escape, Arrow keys)
+4. Interactive elements must be semantically correct HTML (buttons vs divs, etc.)
+5. Accessible by WCAG AA standards (color contrast ≥4.5:1, ARIA attributes)
 
-1. **Message Rendering**
-   - Messages display in sender-attributed bubbles
-   - Timestamps and metadata are optional but recommended for clarity
-   - Edit/delete actions are callback-driven; no internal state mutation
+### Non-Functional Requirements
+1. **Zero External Coupling**
+   - No authentication mechanism
+   - No HTTP/API layer
+   - No routing integration
+   - No i18n framework dependency
+   - React 16.8+ and React-DOM as peer dependencies only
 
-2. **Composer Submission**
-   - Submit action fires only on valid input (non-empty text)
-   - Loading state prevents multiple submissions
-   - Consumers clear input via `onChange` callback after submission
-   - Character limits and validation are consumer's responsibility
+2. **Code Quality Standards**
+   - TypeScript strict: true mode mandatory
+   - All public APIs fully typed (no `any`)
+   - JSDoc comments on all exported components and props
+   - Functional components with hooks only
+   - Proper dependency arrays in useEffect/useMemo/useCallback
 
-3. **Conversation List**
-   - Single-selection model (one conversation active at a time)
-   - Selection state is read-only from component perspective (props-driven)
-   - List reorders/filters are consumer's responsibility
+3. **Accessibility Compliance**
+   - All interactive components have ARIA attributes
+   - Keyboard navigation fully supported
+   - Semantic HTML throughout
+   - Color contrast ratios enforced
 
-4. **Keyboard Navigation**
-   - All buttons support Enter and Space activation
-   - Composer supports Shift+Enter for newlines (configurable)
-   - Message bubbles support Tab navigation for edit/delete actions
-   - Escape key closes interactive overlays
+4. **Dependency Management**
+   - Minimal external dependencies
+   - No version conflicts with React 16.8+, 17.x, 18.x
+   - Lock file (package-lock.json or yarn.lock) committed
 
-5. **Accessibility (a11y)**
-   - Interactive elements have ARIA labels and roles
-   - Color contrast meets WCAG AA standards (4.5:1 for text)
-   - Semantic HTML used (buttons, nav, main, etc.)
-   - Focus management visible and logical
+5. **Distribution**
+   - ESM and CJS dual output
+   - Type definitions (*.d.ts) included
+   - No console logs in production builds
+   - Named exports for tree-shaking
 
-### Error Handling
-
-- Components do not throw; they accept error state via props
-- Error messages supplied by consumer (no built-in error UI)
-- Components gracefully degrade with missing optional props
-
-### Performance
-
-- Components use `React.memo` for expensive renders
-- Dependency arrays properly constructed to prevent unnecessary re-renders
-- No inline object/array literals in render; constants extracted
-- Message lists support virtualization at consumer level (if needed)
-
----
+### Breaking Change Policy
+- Major version bump required for breaking changes
+- Migration guide provided in CHANGELOG.md
+- Deprecation warnings added in minor versions before removal
 
 ## Success Metrics
 
-### Technical Metrics
+### Development Metrics
+- **Build Success**: `npm run build` produces error-free ESM/CJS output
+- **Code Quality**: 
+  - `npm run lint` passes with zero errors
+  - `npm run type-check` produces no TypeScript errors
+  - `npm test` passes with ≥80% coverage on exported components
+- **Compliance**: All PRs pass CI checks before merge
 
-1. **Build & Distribution**
-   - Successful ESM and CJS dual-module output
-   - Type definitions included and accurate
-   - Tree-shakeable exports (named exports prioritized)
-   - Bundle size < 50KB (gzipped) target for core components
+### Functional Metrics
+- **Component Completeness**: All components in E3 epic delivered with full props API
+- **Documentation**: Each component has JSDoc and usage examples in README
+- **Type Safety**: 100% of public APIs fully typed in strict mode
 
-2. **Code Quality**
-   - 100% TypeScript strict mode compliance
-   - Zero linting errors (ESLint configured)
-   - 80%+ test coverage for exported components
-   - All tests passing with React Testing Library
+### Adoption Metrics
+- **npm Registry**: Successfully published and installable
+- **Peer Dependency Compatibility**: Works with React 16.8+, 17.x, 18.x
+- **Consumer Integration**: Applications can use components with minimal additional dependencies
 
-3. **Accessibility**
-   - WCAG 2.1 Level AA conformance for all components
-   - Keyboard navigation fully supported
-   - Screen reader tested and announced correctly
-   - No axe violations in automated audits
+### Quality Metrics
+- **Accessibility**: All components pass WCAG AA automated checks
+- **Test Coverage**: Minimum 80% coverage on props and prop combinations
+- **Security**: No hardcoded secrets; dependencies regularly updated
 
-4. **Performance**
-   - Component renders < 16ms on modern hardware (60fps target)
-   - No memory leaks in hook cleanup
-   - Memoization applied where rendering cost is high
+## Constraints & Assumptions
 
-### Business Metrics
+### Out of Scope
+- Styling/CSS framework (components accept className/style props)
+- State management (Redux, Zustand, etc.)
+- Data fetching libraries
+- Authentication/authorization logic
+- Routing implementation
+- Message formatting engines (Markdown, rich text)
 
-1. **Adoption**
-   - Successful integration into internal application (HAL+Bowman pairing)
-   - Community contributions and issue resolution time < 7 days
+### In Scope
+- Semantic HTML and accessibility attributes
+- Keyboard event handling and focus management
+- Component composition patterns for extensibility
+- TypeScript strict mode compliance
+- Unit test coverage
 
-2. **Documentation**
-   - README covers all exported components with usage examples
-   - JSDoc complete for all props and exported functions
-   - CONTRIBUTING.md provides clear contribution workflow
-
-3. **Stability**
-   - Zero breaking changes without major version bump
-   - Semantic versioning followed consistently
-   - Deprecation warnings added before removal
-
-4. **Maintainability**
-   - CI/CD pipeline green for all PR commits
-   - Pre-publish checklist enforced (tests, lint, types, build)
-   - Lock file committed and synchronized across contributors
-
----
-
-## Compliance Constraints
-
-### Enforced Standards
-
-- **TypeScript**: `strict: true`, no implicit `any`, proper null/undefined handling
-- **React**: Functional components only, proper hook dependency arrays, no inline literals
-- **Linting**: ESLint configuration applied, all errors block PR merge
-- **Testing**: React Testing Library only, 80%+ coverage target
-- **Build**: ESM + CJS output, `.d.ts` type definitions included
-- **Dependencies**: React/ReactDOM peer dependencies only, no direct dependency conflicts
-
----
-
-## Architecture Notes
-
-### Repository Structure (Expected)
-
-```
-bowman-ui/
-├── src/
-│   ├── components/
-│   │   ├── MessageBubble.tsx
-│   │   ├── Composer.tsx
-│   │   ├── ConversationList.tsx
-│   │   └── AppShell.tsx
-│   ├── hooks/
-│   │   └── useComposerState.ts
-│   ├── types/
-│   │   └── index.ts
-│   └── index.ts (main export)
-├── tests/
-│   └── *.test.tsx
-├── .eslintrc.js
-├── tsconfig.json
-├── package.json
-└── README.md
-```
-
-### Export Pattern
-
-Named exports only for components and hooks; no default exports (tree-shaking friendly).
-
-```typescript
-export { MessageBubble } from './components/MessageBubble';
-export { Composer } from './components/Composer';
-export { useComposerState } from './hooks/useComposerState';
-
-export type { MessageBubbleProps } from './components/MessageBubble';
-export type { ComposerProps } from './components/Composer';
-```
+### Architecture Assumptions
+1. Consumers will wrap bowman-ui components in their own state management
+2. All data flows unidirectionally (props down, callbacks up)
+3. Styling is handled by consumers via CSS classes or inline styles
+4. i18n strings are prepared by consumers before passing to components

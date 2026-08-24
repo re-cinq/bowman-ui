@@ -1,44 +1,47 @@
-# Pull Request Template
+# Pull Request
 
 ## Why
-<!-- Explain the motivation and context for this change. What problem does it solve? -->
+<!-- Explain the motivation behind this change. What problem does it solve? Why is it necessary? -->
 
 ## What Changed
-<!-- Describe the changes made in this PR. Include key implementation details. -->
+<!-- Describe the specific changes made in this PR. Be concise but thorough. -->
 
 ## Alternatives Considered
-<!-- What other approaches were evaluated? Why was this solution chosen? -->
+<!-- What other approaches were evaluated? Why was this approach chosen? -->
 
 ## ADRs & Architecture
-<!-- Reference any Architecture Decision Records (ADRs) in the `adrs/` directory. Explain any architectural decisions or patterns introduced by this change. -->
+<!-- Reference any Architecture Decision Records. Explain any significant design decisions or architectural implications. -->
 
 ## Testing
-<!-- Describe how this change was tested. Include manual testing steps, test cases added, or links to test output. -->
+<!-- Describe how these changes were tested. Include manual testing steps or test output. -->
 
 ---
 
-## Checklist
+## Code Quality Checklist
 
-### Code Quality
 - [ ] Linting passes (`npm run lint`)
 - [ ] TypeScript strict mode passes (`npm run type-check`)
 - [ ] All tests pass (`npm test`)
 - [ ] Build succeeds (`npm run build`)
+- [ ] No hardcoded secrets, API keys, or credentials
+- [ ] No console warnings or errors in production code
+- [ ] Props interfaces documented with JSDoc
+- [ ] Accessibility considerations reviewed (ARIA, keyboard navigation, semantic HTML)
+- [ ] Commit messages follow Conventional Commits format
+- [ ] Branch name follows `<type>/<scope>-<description>` pattern
 
-### Security & Best Practices
-- [ ] No secrets, API keys, or credentials included
-- [ ] No console warnings or errors
-- [ ] No `any` types in public APIs
-- [ ] React best practices followed (functional components, proper dependency arrays)
+---
 
-### Documentation & Types
-- [ ] JSDoc comments added for new exports
-- [ ] Props interfaces are fully typed and documented
-- [ ] README.md updated (if applicable)
-- [ ] Accessibility (a11y) considerations reviewed
+## Type of Change
 
-### Before Merging
-- [ ] Branch naming follows convention (`<type>/<scope>-<description>`)
-- [ ] Commits follow Conventional Commits format
-- [ ] All CI checks pass
-- [ ] Minimum 1 approval received
+- [ ] New component or feature
+- [ ] Bug fix
+- [ ] Refactor
+- [ ] Documentation
+- [ ] Dependency update
+
+---
+
+## Related Issues
+
+Closes #
