@@ -1,0 +1,9 @@
+```yaml
+list: |
+  find . -type f \( -name "*.test.ts" -o -name "*.test.tsx" -o -name "*.spec.ts" -o -name "*.spec.tsx" \) -not -path "*/node_modules/*" | jq -R -s 'split("\n") | map(select(length > 0)) | map({id: ., name: (. | split("/") | .[-1] | split(".") | .[0:-2] | join(".")), file: ., startLine: null, endLine: null})'
+
+run: |
+  npm test -- --coverage --testNamePattern="{selector}" --json --outputFile=test-result.json 2>&1 && cat test-result.json | jq -r '.testResults[] | select(.numPassingTests > 0) | {passed: (.numPassingTests > 0), covered: .coverage | to_entries | map(select(.value.path != null) | {file: .value.path, startLine: .value.l | to_entries | map(select(.[1] > 0) | .[0] | tonumber) | min, endLine: .value.l | to_entries | map(select(.[1] > 0) | .[0] | tonumber) | max}) | group_by(.file) | map({file: .[0].file, startLine: map(.startLine) | min, endLine: map(.endLine) | max})}'
+
+coverage_format: json
+```
