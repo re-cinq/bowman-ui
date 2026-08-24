@@ -32,3 +32,11 @@ jobs:
         run: npm run test:coverage
       - name: Build
         run: npm run build
+      - name: Client directive check
+        run: node scripts/check-client-directives.mjs
+      # CONTRACT.md decision 4: next is not a dependency anywhere. Prove it
+      # against the installed tree, not just the manifest.
+      - name: next must be absent
+        run: |
+          test ! -d node_modules/next
+          ! grep -E '"next"[[:space:]]*:' package.json
