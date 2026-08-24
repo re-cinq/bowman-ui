@@ -1,0 +1,52 @@
+name: Publish
+
+# On a v* tag, build + test @re-cinq/bowman-ui and publish it to npm.
+#
+# Auth is tokenless via npm Trusted Publishing (OIDC): no NPM_TOKEN secret. It
+# needs `id-token: write` (below), npm >= 11.5.1 (upgraded below), and a trusted
+# publisher configured for @re-cinq/bowman-ui on npmjs.com pointing at this repo
+# and this workflow. The package's first-ever publish must be done once with a
+# token before the trusted publisher can be registered on npmjs.com.
+#
+# No workflow_dispatch: the version guard below runs unconditionally on every
+# execution, and tag pushes are the only way in.
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read
+  id-token: write # npm OIDC trusted publishing
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: "22"
+          registry-url: "https://registry.npmjs.org"
+      - name: Upgrade npm for OIDC trusted publishing
+        run: npm install -g npm@^11.5.1
+      # A tag whose package.json was never bumped republishes an existing
+      # version, which npm rejects with an error that reads like an auth
+      # failure. Fail here instead, naming the bump. Prerelease tags fail too:
+      # they are not published from this repo.
+      - name: Package version matches the release tag
+        run: ./scripts/check-version.sh "$GITHUB_REF_NAME"
+      - name: Install
+        run: npm ci --ignore-scripts
+      - name: Test (coverage gate)
+        run: npm run test:coverage
+      - name: Build
+        run: npm run build
+      # No --provenance: this repo was decided private at scaffold time
+      # (decider: Loredana Moanga, 2026-08-24). a recorded decision covers
+      # the exception (landing via issue 1486).
+      # If the repo goes public, restore --provenance in the same PR.
+      - name: Publish to npm
+        run: npm publish --access public

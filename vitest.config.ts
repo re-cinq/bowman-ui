@@ -1,0 +1,22 @@
+import react from "@vitejs/plugin-react";
+import { defineConfig } from "vitest/config";
+
+export default defineConfig({
+  plugins: [react()],
+  test: {
+    globals: true,
+    environment: "jsdom",
+    setupFiles: ["tests/setup.ts"],
+    coverage: {
+      provider: "v8",
+      include: ["src/**"],
+      // The barrel only re-exports; thresholds are enforced on real component code.
+      exclude: ["src/index.ts"],
+      // The floor starts high rather than low-and-ratcheting: C-17 puts
+      // characterization tests before each extraction, so every file arrives
+      // covered. If a real extraction cannot hold 90 on branches, lower it once,
+      // in that PR, with the number and reason recorded - and never again.
+      thresholds: { lines: 100, functions: 100, statements: 100, branches: 90 },
+    },
+  },
+});
