@@ -25,14 +25,24 @@ const packageJson = JSON.parse(readFileSync(resolve(process.cwd(), "package.json
 };
 
 describe("dist/styles.css", () => {
-  it("declares exactly the three keyframes bowman-fade-in, bowman-fade-dot and bowman-pulse-subtle", () => {
+  it("declares exactly the four keyframes bowman-fade-in, bowman-toast-fade-in, bowman-fade-dot and bowman-pulse-subtle", () => {
     const names = [...readStyles().matchAll(/@keyframes ([\w-]+)/g)].map((match) => match[1]);
-    expect(names).toEqual(["bowman-fade-in", "bowman-fade-dot", "bowman-pulse-subtle"]);
+    expect(names).toEqual([
+      "bowman-fade-in",
+      "bowman-toast-fade-in",
+      "bowman-fade-dot",
+      "bowman-pulse-subtle",
+    ]);
   });
 
   it("pairs each keyframe with a utility rule of the same name", () => {
     const css = readStyles();
-    for (const name of ["bowman-fade-in", "bowman-fade-dot", "bowman-pulse-subtle"]) {
+    for (const name of [
+      "bowman-fade-in",
+      "bowman-toast-fade-in",
+      "bowman-fade-dot",
+      "bowman-pulse-subtle",
+    ]) {
       expect(css).toMatch(new RegExp(`\\.${name} \\{\\n  animation: ${name} `));
     }
   });
@@ -51,12 +61,21 @@ describe("dist/styles.css", () => {
     expect(fadeIn).toMatch(/translateY/);
   });
 
-  it("neutralises all three animations under prefers-reduced-motion with no data-animations selector", () => {
+  it("restates translateX(-50%) in both stops of bowman-toast-fade-in", () => {
+    const toastFadeIn = keyframeBlock(readStyles(), "bowman-toast-fade-in");
+    const fromStop = toastFadeIn.match(/from \{[\s\S]*?\}/);
+    const toStop = toastFadeIn.match(/to \{[\s\S]*?\}/);
+    expect(fromStop?.[0]).toMatch(/translateX\(-50%\)/);
+    expect(toStop?.[0]).toMatch(/translateX\(-50%\)/);
+  });
+
+  it("neutralises all four animations under prefers-reduced-motion, touching no transform, with no data-animations selector", () => {
     const css = readStyles();
     const media = css.match(/@media \(prefers-reduced-motion: reduce\) \{[\s\S]*?\n\}/);
     expect(media?.[0]).toMatch(
-      /\.bowman-fade-in,\n {2}\.bowman-fade-dot,\n {2}\.bowman-pulse-subtle \{\n {4}animation: none;/
+      /\.bowman-fade-in,\n {2}\.bowman-toast-fade-in,\n {2}\.bowman-fade-dot,\n {2}\.bowman-pulse-subtle \{\n {4}animation: none;/
     );
+    expect(media?.[0]).not.toMatch(/transform/);
     expect(css).not.toMatch(/data-animations/);
   });
 });

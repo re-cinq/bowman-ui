@@ -164,7 +164,7 @@ may paper over the omission. The label is declared here; the component that
 renders it and its Danish wording belong to the message-list issue and to the
 consumer's catalogue.
 
-**The two `stringPropOnly` exceptions** (every other string-carrying export
+**The three `stringPropOnly` exceptions** (every other string-carrying export
 takes `labels`):
 
 - **The icons' `ariaLabel` prop** (all 23 icons). An icon carries at most one
@@ -177,6 +177,34 @@ takes `labels`):
   its single announcement string already arrives as the function-form label of
   decision 4, with an overridable English default and `null` to suppress
   (021's shipped precedent).
+- **`Toast`'s `message` prop.** The message is caller-supplied content with
+  nothing to default - the toast exists to display whatever transient
+  sentence the consumer already owns, so a one-key labels wrapper would add
+  ceremony without adding safety, the same shape as the icons' `ariaLabel`
+  and `useFocusGroups`' `announce`. Added by issue 025, which amended this
+  list in the same PR per the closed-list rule in
+  `specs/bowman-ui-labels-convention/spec.md`.
+
+## Toast (issue 025)
+
+- The component has **zero reachable call sites in Discovery**: `Toast` is
+  rendered only behind `{toastMessage && ...}`, and `setToastMessage` is
+  called only with `null` inside the toast's own `onClose` - the inline
+  "Copied!" span at `ChatMessage.tsx:214` replaced it. It has never rendered
+  in production; the reuse evidence for shipping it is nil beyond E4's need
+  for a transient notification surface outside a chat bubble - the same
+  thin-call-site-evidence precedent 021's Why section set for
+  `useReducedMotion`/`useSidebarState`/`ErrorBoundary`.
+- `duration={null}` disables auto-dismiss entirely: `setTimeout` is never
+  invoked, the library ships no close button, and dismissal is therefore
+  entirely the consumer's - unmounting the element is the only way out in
+  that mode.
+- The toast positions itself with a fixed `z-50` overlay
+  (`fixed bottom-8 left-1/2 z-50 -translate-x-1/2`), and takes no
+  `className`: the positioning and the fade animation's restated `-50%`
+  translate are one decision that stays together. A consumer needing
+  different placement renders its own element instead of overriding this
+  one.
 
 ## Seams left open on purpose
 
