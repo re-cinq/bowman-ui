@@ -152,6 +152,16 @@ describe("useFocusTrap", () => {
     expect(document.body).toHaveFocus();
   });
 
+  it("mounting closed with a trigger ref leaves focus on the element the user was already on", () => {
+    render(<button>outside</button>);
+    const outside = screen.getByRole("button", { name: "outside" });
+    outside.focus();
+
+    render(<Harness isOpen={false} onClose={vi.fn()} withTrigger />);
+
+    expect(outside).toHaveFocus();
+  });
+
   it("closing before the focus frame fires never steals focus into the closed trap", () => {
     const queue: FrameRequestCallback[] = [];
     const cancelled: number[] = [];
