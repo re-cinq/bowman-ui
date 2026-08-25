@@ -65,4 +65,11 @@ export type {
 } from "./components/ChatComposer.js";
 export { Toast } from "./components/Toast.js";
 export type { ToastProps } from "./components/Toast.js";
+export { ConversationList, defaultConversationListLabels } from "./components/ConversationList.js";
+export type {
+  ConversationLinkProps,
+  ConversationListItem,
+  ConversationListLabels,
+  ConversationListProps,
+} from "./components/ConversationList.js";
 export { resolveLabels } from "./labels.js";
