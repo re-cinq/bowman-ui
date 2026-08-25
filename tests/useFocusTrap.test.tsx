@@ -152,6 +152,27 @@ describe("useFocusTrap", () => {
     expect(document.body).toHaveFocus();
   });
 
+  it("closing before the focus frame fires never steals focus into the closed trap", () => {
+    const queue: FrameRequestCallback[] = [];
+    const cancelled: number[] = [];
+    vi.stubGlobal("requestAnimationFrame", (callback: FrameRequestCallback) => {
+      queue.push(callback);
+      return queue.length;
+    });
+    vi.stubGlobal("cancelAnimationFrame", (id: number) => {
+      cancelled.push(id);
+    });
+
+    const { rerender } = render(<Harness isOpen onClose={vi.fn()} withTrigger />);
+    rerender(<Harness isOpen={false} onClose={vi.fn()} withTrigger />);
+    for (const [index, callback] of queue.entries()) {
+      if (!cancelled.includes(index + 1)) callback(0);
+    }
+
+    expect(screen.getByRole("button", { name: "trigger" })).toHaveFocus();
+    expect(cancelled.length).toBeGreaterThan(0);
+  });
+
   it("an empty container leaves Tab handling alone", () => {
     render(<Harness isOpen onClose={vi.fn()} empty />);
     render(<button>outside</button>);

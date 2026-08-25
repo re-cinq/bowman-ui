@@ -17,10 +17,20 @@ import { useState, useEffect } from "react";
  * const animationDuration = prefersReducedMotion ? 0 : 300;
  */
 export function useReducedMotion(override?: boolean): boolean {
-  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+  // Lazy initializer reads the preference on first render so a reduced-motion
+  // user never sees a first-frame flash of animation. The typeof guard is not
+  // dead code here: "use client" components still server-render once, and
+  // render-phase code has no window there (effects, by contrast, are
+  // client-only).
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(() => {
+    if (override !== undefined) return override;
+    if (typeof window === "undefined" || typeof window.matchMedia !== "function") return false;
+    return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  });
 
   useEffect(() => {
     if (override !== undefined) return;
+    if (typeof window.matchMedia !== "function") return;
 
     const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
     setPrefersReducedMotion(mediaQuery.matches);

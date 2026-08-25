@@ -72,12 +72,18 @@ export function useFocusGroups(options: FocusGroupsOptions = {}): void {
       focusable.focus();
     } else {
       // If no focusable element, make the group itself focusable temporarily
+      const hadTabIndexAttribute = group.hasAttribute("tabindex");
       const originalTabIndex = group.tabIndex;
       group.tabIndex = -1;
       group.focus();
-      // Restore original tabIndex after focus
+      // Restore after focus: an element that carried no tabindex attribute
+      // gets it removed again rather than keeping a permanent tabindex="-1"
       requestAnimationFrame(() => {
-        group.tabIndex = originalTabIndex;
+        if (hadTabIndexAttribute) {
+          group.tabIndex = originalTabIndex;
+        } else {
+          group.removeAttribute("tabindex");
+        }
       });
     }
   }, []);

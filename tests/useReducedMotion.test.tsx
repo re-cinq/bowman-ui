@@ -1,4 +1,4 @@
-import { act, renderHook } from "@testing-library/react";
+import { act, render, renderHook } from "@testing-library/react";
 import { useReducedMotion } from "../src/hooks/useReducedMotion.js";
 
 type ChangeHandler = (event: { matches: boolean }) => void;
@@ -54,6 +54,26 @@ describe("useReducedMotion", () => {
       for (const handler of handlers) handler({ matches: true });
     });
     expect(result.current).toBe(true);
+  });
+
+  it("reports the preference on the very first render - no flash frame", () => {
+    stubMatchMedia(true);
+    const renders: boolean[] = [];
+    const Probe = () => {
+      renders.push(useReducedMotion());
+      return null;
+    };
+    render(<Probe />);
+
+    expect(renders[0]).toBe(true);
+  });
+
+  it("an environment without matchMedia reports false and does not throw", () => {
+    vi.stubGlobal("matchMedia", undefined);
+
+    const { result } = renderHook(() => useReducedMotion());
+
+    expect(result.current).toBe(false);
   });
 
   it("removes the change listener on unmount", () => {

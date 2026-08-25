@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef, useCallback, type RefObject } from "react";
 
 /**
  * Hook to trap focus within a container (for modals, drawers, dialogs)
@@ -23,8 +23,8 @@ import { useEffect, useRef, useCallback } from "react";
 export function useFocusTrap<T extends HTMLElement = HTMLDivElement>(
   isOpen: boolean,
   onClose: () => void,
-  triggerRef?: React.RefObject<HTMLElement | null>
-): React.RefObject<T | null> {
+  triggerRef?: RefObject<HTMLElement | null>
+): RefObject<T | null> {
   const containerRef = useRef<T | null>(null);
   const previousActiveElement = useRef<HTMLElement | null>(null);
 
@@ -95,10 +95,12 @@ export function useFocusTrap<T extends HTMLElement = HTMLDivElement>(
       // Focus first focusable element in container
       const focusableElements = getFocusableElements();
       if (focusableElements.length > 0) {
-        // Small delay to ensure DOM is ready
-        requestAnimationFrame(() => {
+        // Small delay to ensure DOM is ready; cancelled on close/unmount so a
+        // rapid open-then-close never races focus back into the closed trap
+        const frame = requestAnimationFrame(() => {
           focusableElements[0].focus();
         });
+        return () => cancelAnimationFrame(frame);
       }
     } else {
       // Return focus to trigger or previous element
