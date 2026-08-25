@@ -68,6 +68,30 @@ describe("useFocusGroups", () => {
     expect(screen.getByRole("button", { name: "header action" })).toHaveFocus();
   });
 
+  it("twelve unordered groups are visited in DOM order, wrapping back to the first", () => {
+    const names = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l"];
+    const ManyGroups = () => {
+      useFocusGroups({ announce: () => null });
+      return (
+        <>
+          {names.map((name) => (
+            <section key={name} data-focus-group={name}>
+              <button>{name}</button>
+            </section>
+          ))}
+        </>
+      );
+    };
+    render(<ManyGroups />);
+
+    const visited = names.map(() => {
+      pressF6();
+      return document.activeElement?.textContent;
+    });
+
+    expect(visited).toEqual([...names.slice(1), names[0]]);
+  });
+
   it('announces "Moved to main" in a role=status live region with inline clip styles and no class', () => {
     render(<Harness />);
 
