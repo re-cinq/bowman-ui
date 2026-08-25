@@ -39,9 +39,9 @@ export default [
         },
         {
           selector:
-            "TSPropertySignature > Identifier.key[name=/^(strings|texts|i18n|translations|messages)$/]",
+            "TSPropertySignature > Identifier.key[name=/^(strings|texts|t|i18n|translations|messages)$/]",
           message:
-            "The one string-override prop is `labels?: Partial<XLabels>` - not strings, texts, i18n, translations or messages. See CONTRACT.md § Labels.",
+            "The one string-override prop is `labels?: Partial<XLabels>` - not strings, texts, t, i18n, translations or messages. See CONTRACT.md § Labels.",
         },
       ],
       "no-restricted-imports": [
