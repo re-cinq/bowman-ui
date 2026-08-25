@@ -1,5 +1,21 @@
-```yaml
-list: npm test -- --listTests --json 2>/dev/null | jq '[.[] | {id: ., name: (. | split("/") | .[-1] | sub("\\.test\\.(ts|tsx|js)$"; "")), file: ., startLine: 1, endLine: null}]'
-run: npm test -- --coverage --testNamePattern="{selector}" --no-coverage 2>&1 | tee /tmp/test-output.txt && node -e "const fs=require('fs');const coverage=JSON.parse(fs.readFileSync('coverage/coverage-final.json','utf8'));const selector=process.env.TEST_SELECTOR||'';const covered=Object.entries(coverage).filter(([file])=>file.includes(selector)).flatMap(([file,data])=>data.fnMap?Object.values(data.fnMap).map(fn=>({file,startLine:fn.loc.start.line,endLine:fn.loc.end.line})):[]);const passed=/PASS/.test(fs.readFileSync('/tmp/test-output.txt','utf8'));console.log(JSON.stringify({passed,covered}))"
-coverage_format: json
-```
+# Lore test-command interface (lore_list_tests / lore_run_test).
+# Replaces the onboarding-generated draft, which was fenced markdown (invalid
+# YAML) and used Jest flags this Vitest repo does not understand.
+#
+# One entry today: the Vitest jsdom suite. The real-browser consumer suite
+# arrives with the Vite consumer app (issue 032) and is added here by issue
+# 189's completion PR - it does not exist yet, so nothing is being excluded.
+- id: bowman-ui-vitest
+  name: bowman-ui Vitest suite
+  cwd: .
+  description: >-
+    The jsdom unit/contract suite (Vitest 4, coverage-v8). Runs on every pull
+    request in .github/workflows/ci.yml as the "Test (coverage gate)" step.
+    Selectors are "<repo-relative-file>::<full test name>" as emitted by the
+    list command. The run command builds dist first (several tests assert the
+    built output) and zeroes the global coverage thresholds for the
+    single-test run, since the committed floor is only meaningful for the
+    whole suite.
+  list: node scripts/lore-list-tests.mjs
+  run: node scripts/lore-run-test.mjs "{selector}"
+  coverage_format: lcov
