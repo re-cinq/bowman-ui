@@ -244,6 +244,16 @@ describe("AppShell", () => {
       expect(getCloseButton()).toHaveFocus();
     });
 
+    it("mounting the shell leaves focus on whatever the page had focused", () => {
+      render(<button>outside</button>);
+      const outside = screen.getByRole("button", { name: "outside" });
+      outside.focus();
+
+      render(<AppShell renderSidebar={sidebarWithLink}>content</AppShell>);
+
+      expect(outside).toHaveFocus();
+    });
+
     it("closing the drawer returns focus to the hamburger", () => {
       render(<AppShell renderSidebar={sidebarWithLink}>content</AppShell>);
       fireEvent.click(getHamburger());
