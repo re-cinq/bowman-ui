@@ -1,0 +1,46 @@
+version: 2
+
+# Every third-party action in this repo is pinned to a full commit SHA, which is
+# the right call and also the reason this file exists: a SHA pin never drifts,
+# so without an updater it silently ages into an unpatched snapshot. Dependabot
+# rewrites the SHA and the trailing `# vX` comment together.
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "chore"
+    labels:
+      - "dependencies"
+
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "chore"
+    labels:
+      - "dependencies"
+    # devDependencies never reach a consumer (`files: ["dist"]`), so they move
+    # as one PR. Runtime dependencies land one at a time: react-markdown and
+    # remark-gfm are the only two, they render untrusted model output, and each
+    # deserves its own review rather than a line in a batch.
+    groups:
+      dev-dependencies:
+        dependency-type: "development"
+    ignore:
+      # Peer range is a tested claim, not a floor (CONTRACT.md decision 4).
+      # Widening it is a deliberate act with a test matrix behind it.
+      - dependency-name: "react"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "react-dom"
+        update-types: ["version-update:semver-major"]
+      # The dual TypeScript install is load-bearing: `typescript` (~6.x) feeds
+      # the lint stack because typescript-eslint caps its peer range below 7,
+      # while the `typescript7` alias is what build and typecheck invoke. A
+      # major bump on either half breaks that split silently (README § Development).
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "typescript7"
+        update-types: ["version-update:semver-major"]
