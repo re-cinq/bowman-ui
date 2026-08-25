@@ -6,6 +6,13 @@ Presentational React components for AI chat interfaces.
 
 The name follows the pairing the org chose: HAL Engine is the engine that thinks, Bowman is the face that talks to you.
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/hero-dark.png" />
+  <img alt="A chat surface composed from bowman-ui exports: sidebar with a conversation list, an assistant reply rendering a markdown list, code block and table, a thinking indicator, and the composer." src="docs/assets/hero-light.png" />
+</picture>
+
+_The picture follows your color scheme; the components follow your data._
+
 ## Install
 
 ```sh
@@ -55,6 +62,26 @@ entries
 ```
 
 The components own no scroll position: keeping the transcript pinned to the newest message while a reply streams is the consumer's job.
+
+## How it fits together
+
+Every piece on screen is one export:
+
+![Annotated screenshot labeling AppShell's renderSidebar slot, ConversationList, ChatMessage with markdownComponents, InlineThinkingIndicator, and ChatComposer on a rendered chat surface.](docs/assets/anatomy.png)
+
+Data flows one way in and one way out - the package never talks to a backend, it only renders what it is handed and reports what the user did:
+
+```mermaid
+flowchart LR
+  E["an engine that thinks"] -->|protocol events| A["your adapter"]
+  A -->|"ChatEntry[]"| B["bowman-ui: the face that talks"]
+  B -->|"onSubmit, onCopy, onFeedback, onDelete"| A
+  A -->|messages| E
+```
+
+On a phone the sidebar becomes a focus-trapped drawer behind the hamburger. It opens on request - every time, without argument:
+
+<img src="docs/assets/mobile-drawer.png" alt="The mobile drawer open over the chat surface: conversation list and new-chat button over a dimmed backdrop." width="300" />
 
 ## Labels and translations
 
