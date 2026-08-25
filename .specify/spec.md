@@ -2,171 +2,110 @@
 
 ## Overview
 
-bowman-ui is a presentational React component library for building AI chat interfaces. It provides props-driven UI building blocks extracted from an internal application, with no dependencies on authentication, data-fetching, routing, or internationalization. The library positions itself as "the face" to complement HAL (the engine), serving as a reusable foundational layer for chat-based AI applications.
+**bowman-ui** is a presentational React component library providing UI building blocks for AI chat interfaces. It is extracted from an internal application and published as `@re-cinq/bowman-ui` on npm. The library delivers props-driven, composable React components with no built-in authentication, data-fetching, routing, or internationalization (i18n) dependencies. Consumers are responsible for supplying data and labels; the components render them according to received props.
 
-**Status**: Repository bootstrap phase. Core components are being delivered through the E3 epic issues.
+**Naming convention**: HAL is the conversational engine; Bowman is the presentational face (the UI).
+
+**Current status**: Repository bootstrap phase. Package skeleton, build contracts, and component implementations are being delivered incrementally through the E3 epic issues.
 
 ## Key Capabilities
 
-### Component Categories
-- **Message Rendering**: Display individual chat messages with formatting support
-- **Composer**: Input interface for users to compose and send messages
-- **Conversation Management**: List and navigation of conversations/threads
-- **App Shell**: Container/layout component for chat application structure
-
-### Design Philosophy
-- Props-driven architecture: Components accept all data and labels as props
-- No internal state management or side effects beyond UI interaction
-- Consumers (applications) are responsible for:
-  - Data fetching and management
-  - Authentication and authorization
-  - Routing between conversations
-  - Text localization/internationalization
-  - Styling and theming (via props)
-
-### Distribution Format
-- Dual module support (ESM and CJS)
-- TypeScript type definitions included
-- Tree-shakeable exports using named exports
-- Minimal external dependencies
+1. **Message Rendering** — Display individual chat messages in configurable bubble/card layouts
+2. **Composer** — Text input and submission interface for user messages with optional formatting toolbar
+3. **Conversation List** — Render conversation threads or chat history with selection/navigation
+4. **App Shell** — Top-level application layout container (header, sidebar, main content area)
+5. **Props-Driven Architecture** — All behavior configured via React props; no internal state management or API calls
+6. **Type-Safe API** — Full TypeScript support with strict mode compliance; no implicit `any` types in public interfaces
+7. **Accessibility** — ARIA attributes, semantic HTML, keyboard navigation, and color contrast compliance
+8. **Dual Module Distribution** — ESM and CommonJS outputs for broad ecosystem compatibility
+9. **Tree-Shakeable Exports** — Named exports enable dead-code elimination in consuming applications
 
 ## Core Data Model
 
-### Component Props Architecture
+Components operate on simple, consumer-supplied data structures passed via props. No internal data model is imposed; the library is strictly presentational.
 
-Components follow a consistent props-driven pattern where consumers supply:
+### Typical Data Shapes (Consumer-Defined)
 
-1. **Message Data**
-   - Content/text
-   - Author/sender information
-   - Timestamps
-   - Message type/status (sent, received, loading, error)
+- **Message**: `{ id, role, content, timestamp?, metadata? }`
+- **Conversation**: `{ id, title, messages[], lastUpdated?, participants? }`
+- **User/Participant**: `{ id, name, avatar?, role? }`
+- **Composer State**: `{ text, attachments?, isSubmitting? }`
 
-2. **Composer Data**
-   - Placeholder text/labels
-   - Submit handler callback
-   - Initial value (optional)
-   - Formatting options (if supported)
+### Responsibility Boundary
 
-3. **Conversation List Data**
-   - List of conversation objects with metadata
-   - Selection/active state management
-   - Click handlers for navigation
-
-4. **UI Configuration**
-   - All user-visible strings passed as props (supports i18n)
-   - Theme/styling via className or CSS variable props
-   - Accessibility labels (aria-label, aria-describedby, etc.)
-
-### No Internal Data Persistence
-- Components do not maintain conversation history
-- Components do not cache or store messages
-- All state relevant to rendering is provided via props
+| Aspect | Owner |
+|--------|-------|
+| Data fetching | Consumer |
+| Authentication | Consumer |
+| State management | Consumer |
+| Routing | Consumer |
+| i18n/localization | Consumer |
+| Component rendering | bowman-ui |
+| Event callbacks | bowman-ui (via props) |
+| Styling/theming | Typically consumer (or CSS-in-JS integration) |
 
 ## User Roles
 
-### Primary User: Application Developer
-- Integrates bowman-ui components into their chat application
-- Provides all data, labels, and handlers to components
-- Manages routing, authentication, and data fetching separately
-- Controls styling/theming via component props
-
-### Secondary User: End User (Chat Application User)
-- Interacts with rendered chat interface
-- Sends/receives messages
-- Manages conversations through provided UI
-- No awareness of bowman-ui as a library
+1. **Consumer Application Developer** — Integrates bowman-ui into a chat or conversational AI application. Responsible for data flow, authentication, routing, and label provisioning.
+2. **bowman-ui Maintainer** — Develops, tests, and publishes components. Ensures TypeScript strict mode, accessibility, and test coverage compliance.
+3. **End User** — Interacts with rendered chat UI (messaging, scrolling, composer input); no direct interaction with bowman-ui APIs.
 
 ## Business Rules
 
-### Functional Requirements
-1. Components must render correctly given any valid props
-2. All exported components must be TypeScript strict mode compliant
-3. Components must support keyboard navigation (Tab, Enter, Escape, Arrow keys)
-4. Interactive elements must be semantically correct HTML (buttons vs divs, etc.)
-5. Accessible by WCAG AA standards (color contrast ≥4.5:1, ARIA attributes)
+### Component Design Principles
 
-### Non-Functional Requirements
-1. **Zero External Coupling**
-   - No authentication mechanism
-   - No HTTP/API layer
-   - No routing integration
-   - No i18n framework dependency
-   - React 16.8+ and React-DOM as peer dependencies only
+1. **Presentational Only** — No side effects, API calls, or complex state logic in components. All behavior is props-driven.
+2. **Composability** — Components combine to form larger layouts (e.g., MessageBubble + ConversationList + Composer form a complete chat interface).
+3. **Stateless by Default** — Components prefer controlled props over internal state; optional hooks (e.g., `useComposerState`) available for convenience.
+4. **No Opinion on Styling** — Components output semantic HTML and ARIA; styling is consumer responsibility (CSS, Tailwind, CSS-in-JS, etc.).
+5. **No Hard Dependencies on External Libraries** — React and React-DOM are peer dependencies; other packages should be minimal.
 
-2. **Code Quality Standards**
-   - TypeScript strict: true mode mandatory
-   - All public APIs fully typed (no `any`)
-   - JSDoc comments on all exported components and props
-   - Functional components with hooks only
-   - Proper dependency arrays in useEffect/useMemo/useCallback
+### API Stability
 
-3. **Accessibility Compliance**
-   - All interactive components have ARIA attributes
-   - Keyboard navigation fully supported
-   - Semantic HTML throughout
-   - Color contrast ratios enforced
+1. **Semantic Versioning** — MAJOR.MINOR.PATCH follows semver conventions.
+2. **Breaking Changes Require Major Version Bump** — Incompatible prop changes, removed components, or signature alterations require version major increment.
+3. **Deprecation Path** — Features scheduled for removal are marked with deprecation warnings in a minor release; removal occurs in the next major.
+4. **Type Safety as Contract** — Public component prop interfaces are exported and treated as API; TypeScript changes to props are breaking changes.
 
-4. **Dependency Management**
-   - Minimal external dependencies
-   - No version conflicts with React 16.8+, 17.x, 18.x
-   - Lock file (package-lock.json or yarn.lock) committed
+### Code Quality Mandates
 
-5. **Distribution**
-   - ESM and CJS dual output
-   - Type definitions (*.d.ts) included
-   - No console logs in production builds
-   - Named exports for tree-shaking
+1. **TypeScript Strict Mode** — `tsconfig.json` enforces `strict: true`; all files must compile without implicit `any`.
+2. **No Console Logs in Production** — Development aids removed before distribution.
+3. **Accessibility Baseline** — ARIA attributes, semantic HTML, keyboard support, and 4.5:1 color contrast minimum for text.
+4. **Test Coverage ≥80%** — Props, prop combinations, and user interactions covered by React Testing Library tests.
+5. **ESLint & Prettier Enforcement** — Consistent code formatting and linting; CI blocks merge on violations.
 
-### Breaking Change Policy
-- Major version bump required for breaking changes
-- Migration guide provided in CHANGELOG.md
-- Deprecation warnings added in minor versions before removal
+### Distribution & Consumption
+
+1. **Dual Module Support** — Both ESM and CJS outputs published; consumers can import via native or legacy bundler support.
+2. **Type Definitions Included** — `.d.ts` files bundled with package for full TypeScript IDE support.
+3. **Tree-Shakeable** — Named exports prioritized; unused components can be eliminated by bundlers.
+4. **No Internal Implementation Details Exposed** — Private modules, helper functions, and implementation utilities not exported; only public component contracts exposed.
+
+### Dependency Management
+
+1. **React ≥16.8** — Hooks-based architecture supports React 16.8+, 17.x, and 18.x via peer dependency.
+2. **No Breaking Dependency Shifts** — Major dependency updates (e.g., React major version) coordinated and clearly communicated.
+3. **Lock File Committed** — `package-lock.json` or `yarn.lock` versioned in Git for reproducible installs.
+4. **Security Updates Prioritized** — Npm audit findings addressed promptly; dependabot alerts monitored.
+
+### Git & Release Workflow
+
+1. **Conventional Commits** — All commits follow `<type>(<scope>): <subject>` format (feat, fix, refactor, test, docs, chore, ci, style).
+2. **Branch Naming** — `<type>/<scope>-<description>` (e.g., `feat/message-bubble`, `fix/composer-submit-bug`).
+3. **PR Gating** — All CI checks, linting, type-check, and tests must pass before merge.
+4. **Minimum 1 Approval** — Code review required before merge.
+5. **Git Tags on Release** — Version tag (e.g., `v1.0.0`) created on release commit; matches `package.json` version.
 
 ## Success Metrics
 
-### Development Metrics
-- **Build Success**: `npm run build` produces error-free ESM/CJS output
-- **Code Quality**: 
-  - `npm run lint` passes with zero errors
-  - `npm run type-check` produces no TypeScript errors
-  - `npm test` passes with ≥80% coverage on exported components
-- **Compliance**: All PRs pass CI checks before merge
-
-### Functional Metrics
-- **Component Completeness**: All components in E3 epic delivered with full props API
-- **Documentation**: Each component has JSDoc and usage examples in README
-- **Type Safety**: 100% of public APIs fully typed in strict mode
-
-### Adoption Metrics
-- **npm Registry**: Successfully published and installable
-- **Peer Dependency Compatibility**: Works with React 16.8+, 17.x, 18.x
-- **Consumer Integration**: Applications can use components with minimal additional dependencies
-
-### Quality Metrics
-- **Accessibility**: All components pass WCAG AA automated checks
-- **Test Coverage**: Minimum 80% coverage on props and prop combinations
-- **Security**: No hardcoded secrets; dependencies regularly updated
-
-## Constraints & Assumptions
-
-### Out of Scope
-- Styling/CSS framework (components accept className/style props)
-- State management (Redux, Zustand, etc.)
-- Data fetching libraries
-- Authentication/authorization logic
-- Routing implementation
-- Message formatting engines (Markdown, rich text)
-
-### In Scope
-- Semantic HTML and accessibility attributes
-- Keyboard event handling and focus management
-- Component composition patterns for extensibility
-- TypeScript strict mode compliance
-- Unit test coverage
-
-### Architecture Assumptions
-1. Consumers will wrap bowman-ui components in their own state management
-2. All data flows unidirectionally (props down, callbacks up)
-3. Styling is handled by consumers via CSS classes or inline styles
-4. i18n strings are prepared by consumers before passing to components
+1. **npm Download Rate** — Track `@re-cinq/bowman-ui` weekly/monthly downloads as indicator of adoption.
+2. **Type Coverage** — 100% of public API props typed; zero implicit `any` in strict mode.
+3. **Test Coverage** — Minimum 80% line/branch coverage reported by coverage tool; trends monitored per release.
+4. **Accessibility Conformance** — Components pass automated a11y tests (axe, Lighthouse); manual QA for keyboard navigation and screen reader compatibility.
+5. **Issue Resolution SLA** — Critical bugs (type errors, accessibility failures, breaking changes) addressed within 2 weeks; minor issues within 30 days.
+6. **Release Cadence** — Stable release every 4–8 weeks; hotfix releases as needed for critical bugs.
+7. **Bundle Size** — Monitor minified+gzipped size of distribution; growth tracked and justified per release.
+8. **Documentation Completeness** — README, JSDoc, and API documentation updated with each feature release; zero "undocumented prop" complaints.
+9. **Developer Experience** — DX surveys or feedback; ease of integration, clarity of examples, and IDE/TypeScript support.
+10. **GitHub Issues/PRs Responsiveness** — Average time to first response on issues <48 hours; PRs reviewed within 1 week.
