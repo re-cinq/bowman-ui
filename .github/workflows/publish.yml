@@ -40,6 +40,13 @@ jobs:
         run: ./scripts/check-version.sh "$GITHUB_REF_NAME"
       - name: Install
         run: npm ci --ignore-scripts
+      # A tag is cut from main, which CI already gated - but a tag can be cut
+      # from anything, and this is the last gate before the package is public
+      # and immutable. Cheap insurance against an unversioned republish.
+      - name: Lint (--max-warnings 0)
+        run: npm run lint
+      - name: Typecheck
+        run: npm run typecheck
       - name: Test (coverage gate)
         run: npm run test:coverage
       - name: Build
