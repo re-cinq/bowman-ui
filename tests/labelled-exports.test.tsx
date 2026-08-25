@@ -1,8 +1,19 @@
-import { render } from "@testing-library/react";
+import { fireEvent, render } from "@testing-library/react";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { ErrorBoundary, defaultErrorBoundaryLabels } from "../src/index.js";
-import type { ErrorBoundaryLabels } from "../src/index.js";
+import {
+  ChatMessage,
+  ErrorBoundary,
+  InlineThinkingIndicator,
+  defaultChatMessageLabels,
+  defaultErrorBoundaryLabels,
+  defaultInlineThinkingIndicatorLabels,
+} from "../src/index.js";
+import type {
+  ChatMessageLabels,
+  ErrorBoundaryLabels,
+  InlineThinkingIndicatorLabels,
+} from "../src/index.js";
 
 // CONTRACT.md § Labels enforcement (static, test-time - never a runtime
 // warning): every VALUE export of the barrel is classified below. Type-only
@@ -13,7 +24,7 @@ import type { ErrorBoundaryLabels } from "../src/index.js";
 //                    grandfathered shapes: icons' ariaLabel, useFocusGroups'
 //                    announce)
 //   noStrings      - renders/returns no user-visible or assistive string
-const labelsProp = ["ErrorBoundary"];
+const labelsProp = ["ErrorBoundary", "ChatMessage", "InlineThinkingIndicator"];
 
 const stringPropOnly = [
   "ArtifactsIcon",
@@ -52,6 +63,8 @@ const noStrings = [
   "useSidebarState",
   "resolveLabels",
   "defaultErrorBoundaryLabels",
+  "defaultChatMessageLabels",
+  "defaultInlineThinkingIndicatorLabels",
 ];
 
 // `export type { ... }` never matches: "type" sits between "export" and "{".
@@ -104,6 +117,27 @@ const errorBoundarySentinels = {
   retry: "⟦retry⟧",
 } satisfies Required<ErrorBoundaryLabels>;
 
+const chatMessageSentinels = {
+  userMessage: "⟦userMessage⟧",
+  assistantMessage: "⟦assistantMessage⟧",
+  copy: "⟦copy⟧",
+  copied: "⟦copied⟧",
+  copiedNotice: "⟦copiedNotice⟧",
+  feedbackPositive: "⟦feedbackPositive⟧",
+  feedbackNegative: "⟦feedbackNegative⟧",
+  feedbackNotice: "⟦feedbackNotice⟧",
+  thinking: "⟦thinking⟧",
+} satisfies Required<ChatMessageLabels>;
+
+const inlineThinkingIndicatorSentinels = {
+  thinking: "⟦thinking⟧",
+} satisfies Required<InlineThinkingIndicatorLabels>;
+
+// The fixture content carries no run of three Latin letters, so everything
+// user-shaped the harness renders (content, "LM" initials) passes the
+// LATIN_RUN check without its own strip entry.
+const numericContent = "4711 – ok";
+
 // Every labelsProp member needs an entry here: the harness renders it with
 // every label set to a unique sentinel. Adding a labelsProp component without
 // a harness fails the sentinel test by name.
@@ -121,6 +155,42 @@ const sentinelHarnesses: Record<
         silenced
       ).container,
   },
+  ChatMessage: {
+    sentinels: Object.values(chatMessageSentinels),
+    renderContainer: () => {
+      const { container, getAllByRole } = render(
+        <>
+          <ChatMessage
+            entry={{ id: "u1", role: "user", content: numericContent }}
+            userInitials="LM"
+            labels={chatMessageSentinels}
+          />
+          <ChatMessage
+            entry={{ id: "a1", role: "assistant", content: numericContent, isStreaming: false }}
+            userInitials="LM"
+            labels={chatMessageSentinels}
+          />
+          <ChatMessage
+            entry={{ id: "a2", role: "assistant", content: "", isStreaming: true }}
+            userInitials="LM"
+            labels={chatMessageSentinels}
+          />
+        </>
+      );
+      // Clicking copy and thumbs-up surfaces the interaction-only labels
+      // (copied, copiedNotice, feedbackNotice) so a hardcoded string on
+      // those paths cannot hide from the Latin-run check.
+      const [copyButton, thumbsUp] = getAllByRole("button");
+      fireEvent.click(copyButton);
+      fireEvent.click(thumbsUp);
+      return container;
+    },
+  },
+  InlineThinkingIndicator: {
+    sentinels: Object.values(inlineThinkingIndicatorSentinels),
+    renderContainer: () =>
+      render(<InlineThinkingIndicator labels={inlineThinkingIndicatorSentinels} />).container,
+  },
 };
 
 const stripSentinels = (text: string, sentinels: string[]): string =>
@@ -130,6 +200,18 @@ describe("the sentinel render check", () => {
   it("ErrorBoundary's sentinel labels cover every defaultErrorBoundaryLabels key", () => {
     expect(Object.keys(errorBoundarySentinels).sort()).toEqual(
       Object.keys(defaultErrorBoundaryLabels).sort()
+    );
+  });
+
+  it("ChatMessage's sentinel labels cover every defaultChatMessageLabels key", () => {
+    expect(Object.keys(chatMessageSentinels).sort()).toEqual(
+      Object.keys(defaultChatMessageLabels).sort()
+    );
+  });
+
+  it("InlineThinkingIndicator's sentinel labels cover every defaultInlineThinkingIndicatorLabels key", () => {
+    expect(Object.keys(inlineThinkingIndicatorSentinels).sort()).toEqual(
+      Object.keys(defaultInlineThinkingIndicatorLabels).sort()
     );
   });
 
