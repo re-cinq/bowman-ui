@@ -88,6 +88,10 @@ comparison components' non-extraction is a known fact, not an oversight.
   rendering test above and for the compile-time proof that the map is
   assignable to `react-markdown`'s `Components`
   ([validated by](../../tests/markdown-components.test.tsx#L88)).
+  **Superseded by 023:** the chat message extraction renders through
+  `react-markdown` at runtime, so 023 promoted `react-markdown` and
+  `remark-gfm` from devDependencies to `dependencies` - the zero-runtime-deps
+  claim above no longer holds (see `specs/bowman-ui-chat-message/spec.md`).
 - **Markdown styling is color-neutral.** The `bowman-md-*` rules use
   `currentColor` and `color-mix(...)` for backgrounds and borders instead of
   palette colors, so they work under either dark-mode strategy without the
