@@ -102,6 +102,24 @@ describe("ErrorBoundary", () => {
     expect(screen.getByText("second attempt")).toBeInTheDocument();
   });
 
+  it("the retry button inside a consumer form retries without submitting it", () => {
+    const onSubmit = vi.fn((event: React.FormEvent) => {
+      event.preventDefault();
+    });
+    render(
+      <form onSubmit={onSubmit}>
+        <ErrorBoundary>
+          <Bomb error={new Error("boom")} />
+        </ErrorBoundary>
+      </form>,
+      silenced
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Try again" }));
+
+    expect(onSubmit).not.toHaveBeenCalled();
+  });
+
   it("a custom fallback can drive recovery", () => {
     render(<RetryableBomb />, silenced);
 
