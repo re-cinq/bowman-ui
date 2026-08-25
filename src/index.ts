@@ -47,4 +47,14 @@ export { useSidebarState } from "./hooks/useSidebarState.js";
 export type { SidebarStateOptions } from "./hooks/useSidebarState.js";
 export { ErrorBoundary, defaultErrorBoundaryLabels } from "./components/ErrorBoundary.js";
 export type { ErrorBoundaryLabels } from "./components/ErrorBoundary.js";
+export { ChatMessage, defaultChatMessageLabels } from "./components/ChatMessage.js";
+export type { ChatMessageLabels, ChatMessageProps } from "./components/ChatMessage.js";
+export {
+  InlineThinkingIndicator,
+  defaultInlineThinkingIndicatorLabels,
+} from "./components/InlineThinkingIndicator.js";
+export type {
+  InlineThinkingIndicatorLabels,
+  InlineThinkingIndicatorProps,
+} from "./components/InlineThinkingIndicator.js";
 export { resolveLabels } from "./labels.js";
