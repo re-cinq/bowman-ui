@@ -35,6 +35,7 @@
 ## Checklist
 
 ### Code Quality
+
 - [ ] Linting passes (`npm run lint`)
 - [ ] TypeScript strict mode passes (`npm run type-check`)
 - [ ] All tests pass (`npm test`)
@@ -43,17 +44,20 @@
 - [ ] No hardcoded secrets, API keys, or credentials
 
 ### Documentation & Types
+
 - [ ] Component props are typed with JSDoc comments
 - [ ] Public API exports are documented
 - [ ] Breaking changes noted (if applicable)
 
 ### Accessibility & React Best Practices
+
 - [ ] Functional components with proper hooks usage
 - [ ] Dependency arrays checked (`useEffect`, `useMemo`, `useCallback`)
 - [ ] ARIA attributes present for interactive components (if applicable)
 - [ ] Semantic HTML used appropriately
 
 ### Before Merge
+
 - [ ] Commits follow Conventional Commits format
 - [ ] Branch is up to date with `main`
 - [ ] Requested reviewers have approved
