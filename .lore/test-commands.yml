@@ -1,5 +1,29 @@
 ```yaml
-list: npm test -- --listTests --json 2>/dev/null | jq '[.[] | {id: ., name: (. | split("/") | .[-1] | sub("\\.test\\.(ts|tsx|js)$"; "")), file: ., startLine: 1, endLine: null}]'
-run: npm test -- --coverage --testNamePattern="{selector}" --no-coverage 2>&1 | tee /tmp/test-output.txt && node -e "const fs=require('fs');const coverage=JSON.parse(fs.readFileSync('coverage/coverage-final.json','utf8'));const selector=process.env.TEST_SELECTOR||'';const covered=Object.entries(coverage).filter(([file])=>file.includes(selector)).flatMap(([file,data])=>data.fnMap?Object.values(data.fnMap).map(fn=>({file,startLine:fn.loc.start.line,endLine:fn.loc.end.line})):[]);const passed=/PASS/.test(fs.readFileSync('/tmp/test-output.txt','utf8'));console.log(JSON.stringify({passed,covered}))"
-coverage_format: json
+- id: bowman-ui
+  name: bowman-ui
+  cwd: .
+  list: |
+    npm test -- --listTests --json 2>/dev/null | jq -r '.[]' | while read file; do
+      node -e "
+        const fs = require('fs');
+        const content = fs.readFileSync('$file', 'utf8');
+        const lines = content.split('\n');
+        const tests = [];
+        lines.forEach((line, idx) => {
+          const match = line.match(/^\s*(it|test|describe)\s*\(\s*['\"]([^'\"]+)['\"]/);
+          if (match) {
+            tests.push({
+              id: '$file::' + match[2].replace(/\s+/g, '_'),
+              name: match[2],
+              file: '$file',
+              startLine: idx + 1,
+              endLine: idx + 1
+            });
+          }
+        });
+        console.log(JSON.stringify(tests));
+      "
+    done | jq -s 'flatten'
+  run: npm test -- --testNamePattern="{selector}" --coverage --coverageReporters=lcov 2>&1
+  coverage_format: lcov
 ```
