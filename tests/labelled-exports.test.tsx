@@ -4,16 +4,19 @@ import { resolve } from "node:path";
 import {
   ChatComposer,
   ChatMessage,
+  ConversationList,
   ErrorBoundary,
   InlineThinkingIndicator,
   defaultChatComposerLabels,
   defaultChatMessageLabels,
+  defaultConversationListLabels,
   defaultErrorBoundaryLabels,
   defaultInlineThinkingIndicatorLabels,
 } from "../src/index.js";
 import type {
   ChatComposerLabels,
   ChatMessageLabels,
+  ConversationListLabels,
   ErrorBoundaryLabels,
   InlineThinkingIndicatorLabels,
 } from "../src/index.js";
@@ -27,7 +30,13 @@ import type {
 //                    grandfathered shapes: icons' ariaLabel, useFocusGroups'
 //                    announce, Toast's message)
 //   noStrings      - renders/returns no user-visible or assistive string
-const labelsProp = ["ErrorBoundary", "ChatMessage", "InlineThinkingIndicator", "ChatComposer"];
+const labelsProp = [
+  "ErrorBoundary",
+  "ChatMessage",
+  "InlineThinkingIndicator",
+  "ChatComposer",
+  "ConversationList",
+];
 
 const stringPropOnly = [
   "ArtifactsIcon",
@@ -70,6 +79,7 @@ const noStrings = [
   "defaultChatMessageLabels",
   "defaultInlineThinkingIndicatorLabels",
   "defaultChatComposerLabels",
+  "defaultConversationListLabels",
 ];
 
 // `export type { ... }` never matches: "type" sits between "export" and "{".
@@ -144,6 +154,16 @@ const chatComposerSentinels = {
   send: "⟦send⟧",
 } satisfies Required<ChatComposerLabels>;
 
+// deleteConversation is the package's first function-form label in this
+// harness: the sentinel is computed per title, and the strip list carries the
+// one value the harness's numeric-titled item produces.
+const conversationListSentinels = {
+  conversations: "⟦conversations⟧",
+  noConversations: "⟦noConversations⟧",
+  loadingConversations: "⟦loadingConversations⟧",
+  deleteConversation: (title: string) => `⟦deleteConversation:${title}⟧`,
+} satisfies Required<ConversationListLabels>;
+
 // The fixture content carries no run of three Latin letters, so everything
 // user-shaped the harness renders (content, "LM" initials) passes the
 // LATIN_RUN check without its own strip entry.
@@ -207,6 +227,26 @@ const sentinelHarnesses: Record<
     renderContainer: () =>
       render(<ChatComposer onSubmit={() => {}} labels={chatComposerSentinels} />).container,
   },
+  ConversationList: {
+    sentinels: [
+      conversationListSentinels.conversations,
+      conversationListSentinels.noConversations,
+      conversationListSentinels.loadingConversations,
+      conversationListSentinels.deleteConversation(numericContent),
+    ],
+    renderContainer: () =>
+      render(
+        <>
+          <ConversationList
+            items={[{ id: "c1", title: numericContent, timestamp: "12–08", badge: "4711" }]}
+            onDelete={() => {}}
+            labels={conversationListSentinels}
+          />
+          <ConversationList items={[]} labels={conversationListSentinels} />
+          <ConversationList items={[]} isLoading labels={conversationListSentinels} />
+        </>
+      ).container,
+  },
 };
 
 const stripSentinels = (text: string, sentinels: string[]): string =>
@@ -234,6 +274,12 @@ describe("the sentinel render check", () => {
   it("ChatComposer's sentinel labels cover every defaultChatComposerLabels key", () => {
     expect(Object.keys(chatComposerSentinels).sort()).toEqual(
       Object.keys(defaultChatComposerLabels).sort()
+    );
+  });
+
+  it("ConversationList's sentinel labels cover every defaultConversationListLabels key", () => {
+    expect(Object.keys(conversationListSentinels).sort()).toEqual(
+      Object.keys(defaultConversationListLabels).sort()
     );
   });
 

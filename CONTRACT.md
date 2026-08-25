@@ -206,6 +206,18 @@ takes `labels`):
   different placement renders its own element instead of overriding this
   one.
 
+## renderLink (issue 029)
+
+`ConversationList`'s `renderLink(item, props)` slot is the package's routing
+seam: the org has two conversation lists and two routers (`next/link` in
+Discovery, Ember's `LinkTo` in the-expert-ui), so the row's interactive element
+is the consumer's. The consumer's element must spread **every** prop it is
+handed - `className`, `children`, `onClick` and `aria-current` alike. Dropping
+`onClick` silently breaks `onSelect` (and any consumer behaviour hung on it,
+such as Discovery's mobile-sidebar-closing `onNavigate`); dropping
+`aria-current` silences the active row for assistive tech. The default, when
+no `renderLink` is passed, is `<button type="button" {...props} />`.
+
 ## Seams left open on purpose
 
 - `package.json` declares `"sideEffects": ["*.css"]` now, so the stylesheet
