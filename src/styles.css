@@ -12,6 +12,20 @@
   animation: bowman-fade-in 0.2s ease-out;
 }
 
+@keyframes bowman-toast-fade-in {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+.bowman-toast-fade-in {
+  animation: bowman-toast-fade-in 0.2s ease-out;
+}
+
 @keyframes bowman-fade-dot {
   0%,
   100% {
@@ -44,6 +58,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .bowman-fade-in,
+  .bowman-toast-fade-in,
   .bowman-fade-dot,
   .bowman-pulse-subtle {
     animation: none;
