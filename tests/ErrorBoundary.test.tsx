@@ -72,6 +72,19 @@ describe("ErrorBoundary", () => {
     expect(alert.textContent).not.toMatch(/Something went wrong|Try again/);
   });
 
+  it("an explicit undefined label - a consumer's missed catalogue lookup - falls back to the English default", () => {
+    render(
+      <ErrorBoundary labels={{ title: undefined, retry: "Prøv igen" }}>
+        <Bomb error={new Error("boom")} />
+      </ErrorBoundary>,
+      silenced
+    );
+
+    const alert = screen.getByRole("alert");
+    expect(alert).toHaveTextContent("Something went wrong");
+    expect(screen.getByRole("button", { name: "Prøv igen" })).toBeInTheDocument();
+  });
+
   it("a fallback node wins over labels", () => {
     render(
       <ErrorBoundary fallback={<p>custom fallback</p>} labels={{ title: "ignored" }}>

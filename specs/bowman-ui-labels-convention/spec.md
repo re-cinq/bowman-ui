@@ -1,0 +1,97 @@
+# bowman-ui labels convention
+
+Issue: re-cinq/Otto#72 (`022-bowman-ui-labels-convention`). Discovery stays read-only: it is cited
+only as evidence for why the convention exists; nothing there changed. This issue ships the
+contract, the helper, the enforcement, and the retrofit of the one string-carrying component
+already in the repo - it moves no new component.
+
+## What ships
+
+- `src/labels.ts` -
+  `resolveLabels<T extends object>(defaults: Required<T>, overrides?: Partial<T>): Required<T>`,
+  the convention's shallow-merge helper. An override replaces its default key by key
+  ([validated by](../../tests/resolveLabels.test.ts#L16)); `undefined` as the whole overrides
+  argument returns the defaults ([validated by](../../tests/resolveLabels.test.ts#L24)); an
+  explicit `undefined` override value counts as missing - `resolveLabels(defaults, { copy: undefined })`
+  returns `"Copy message"`, not `undefined`, because that is what a consumer's optional-chained
+  catalogue lookup produces ([validated by](../../tests/resolveLabels.test.ts#L28)). A
+  function-valued label - the convention's interpolation form - overrides like any other key
+  ([validated by](../../tests/resolveLabels.test.ts#L32)). Neither argument is mutated
+  ([validated by](../../tests/resolveLabels.test.ts#L40)) and `Object.freeze`d defaults do not
+  throw ([validated by](../../tests/resolveLabels.test.ts#L50)).
+- `src/components/ErrorBoundary.tsx` retrofitted onto `resolveLabels` as the worked example:
+  `defaultErrorBoundaryLabels: Readonly<Required<ErrorBoundaryLabels>>` is exported, frozen, and
+  co-located with its type, so a key added to `ErrorBoundaryLabels` without a default fails
+  `npm run typecheck` - pinned by the `// @ts-expect-error` fixture in
+  `tests/types/labels-type-assertions.tsx`, compiled against the BUILT package through the single
+  `"."` exports entry ([validated by](../../tests/labels-dist.test.ts#L3)). The three Danish
+  labels render with no English remaining
+  ([validated by](../../tests/ErrorBoundary.test.tsx#L58)); no `labels` prop renders the three
+  021 English defaults unchanged ([validated by](../../tests/ErrorBoundary.test.tsx#L44)).
+- `eslint.config.mjs` gains a labels entry (core ESLint only): `no-restricted-syntax` selectors
+  banning bare Latin JSX text
+  ([validated by](../../tests/eslint-labels.test.ts#L54)), hardcoded string literals in the seven
+  assistive attributes ([validated by](../../tests/eslint-labels.test.ts#L63)), and
+  `strings`/`texts`/`i18n`/`translations`/`messages` property keys
+  ([validated by](../../tests/eslint-labels.test.ts#L72)), plus `no-restricted-imports` on
+  `next-intl` ([validated by](../../tests/eslint-labels.test.ts#L81)). The four red fixtures live
+  in `tests/fixtures/eslint-labels/`, globally ignored so the committed tree stays green;
+  `grep -rn "next-intl\|useTranslations" src/` returns nothing.
+- `tests/labelled-exports.test.tsx` - the export-partition test: every value export of
+  `src/index.ts` is classified into `labelsProp` / `stringPropOnly` / `noStrings`, and the sorted
+  union must equal the sorted parsed export names; an unclassified export fails by name with a
+  pointer at `CONTRACT.md § Labels` ([validated by](../../tests/labelled-exports.test.tsx#L67)).
+  The sentinel test renders every `labelsProp` member (today: `ErrorBoundary`, error state) with
+  every label a unique `⟦sentinel⟧` and asserts no run of three or more Latin letters survives in
+  `textContent` or in `aria-label`/`aria-placeholder`/`aria-roledescription`/`aria-valuetext`/
+  `title`/`placeholder`/`alt` outside the sentinels
+  ([validated by](../../tests/labelled-exports.test.tsx#L136)), with the sentinel set pinned to
+  the default-labels keys ([validated by](../../tests/labelled-exports.test.tsx#L130)).
+  **The check's own proof:** reverting 021's `labels` prop to a hardcoded
+  `"Something went wrong"` makes the sentinel test fail - the stray English survives sentinel
+  stripping and matches the Latin-run regex.
+- `CONTRACT.md § Labels` - Decisions 1-5, the flat-union key-naming rule, the function form for
+  interpolation, the two `stringPropOnly` exceptions with reasons, and `aiDisclosure` documented
+  as required-with-no-default under the EU AI Act.
+- Re-pinned prior behaviour (AC 39): `<LoadingIcon ariaLabel="Indlæser" />` renders
+  `aria-label="Indlæser"` with `"Loading"` nowhere in the output
+  ([validated by](../../tests/icons.test.tsx#L235)); the Danish `announce` assertion already
+  existed at [tests/useFocusGroups.test.tsx#L96](../../tests/useFocusGroups.test.tsx#L96) and is
+  referenced, not duplicated.
+
+## Recorded decisions, interpretations and deviations
+
+- **Behaviour change: explicit-`undefined` overrides.** 021's
+  `{ ...defaultLabels, ...this.props.labels }` spread let
+  `labels={{ title: undefined }}` blank the title. `resolveLabels` treats that key as missing and
+  renders the English default instead
+  ([validated by](../../tests/ErrorBoundary.test.tsx#L75)). This is the convention's intent; it
+  is the one observable behaviour change in the retrofit.
+- **Partition is over value exports.** The partition test statically parses `export { ... }`
+  blocks of `src/index.ts`; `export type { ... }` names are excluded by design - a type carries
+  no renderable string. Interfaces like `ErrorBoundaryLabels` are therefore not partition
+  members.
+- **Test path deviation.** The issue names `src/__tests__/labelled-exports.tsx`; this repo keeps
+  every test under `tests/` with a `.test.tsx` suffix (vitest's include pattern requires the
+  suffix), so the file is `tests/labelled-exports.test.tsx`. Same content, repo-conventional
+  location.
+- **Fixture-scope deviation.** The labels lint entry's `files` glob covers
+  `tests/fixtures/eslint-labels/**` alongside `src/**`, and the fixture directory sits in the
+  global `ignores`. `npm run lint` therefore never sees the fixtures, while the red-fixture test
+  lints them with `--no-ignore` against the exact committed rules rather than a copy of them.
+- **Placeholder deleted.** `src/Placeholder.tsx`, `tests/Placeholder.test.tsx` and the barrel
+  export are gone, sanctioned by 014's own design ("the first real extraction PR deletes them"):
+  six real `"use client"` files now exist, and Placeholder's hardcoded English text can neither
+  pass the new lint rule nor fit any partition bucket. `tests/build-contract.test.ts`'s
+  first-statement assertion now targets `dist/hooks/useDebounce.js`, a real directive-carrying
+  file ([validated by](../../tests/build-contract.test.ts#L34)). 014's deletion-trigger property
+  still holds without Placeholder: coverage includes all of `src/**` at the 100/100/100/90
+  floor, so deleting any component's test drops that file below threshold and fails
+  `npm run test:coverage`.
+- **`stringPropOnly` is a closed exception list.** The icons' `ariaLabel` (023 icons; a
+  destructuring default, deliberately outside lint rule (b)'s JSX-attribute reach) and
+  `useFocusGroups`' `announce` are grandfathered per `CONTRACT.md § Labels`; everything else with
+  strings takes `labels`.
+- **`aiDisclosure` is declared, not rendered.** The required label and its EU AI Act rationale
+  live in `CONTRACT.md § Labels`; the component that renders it and its Danish wording belong to
+  the message-list issue and the consumer's catalogue.

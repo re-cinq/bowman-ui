@@ -1,4 +1,3 @@
-export { Placeholder } from "./Placeholder.js";
 export type {
   ChatEntry,
   ChatEntryRole,
@@ -46,5 +45,6 @@ export type { FocusGroupsOptions } from "./hooks/useFocusGroups.js";
 export { useReducedMotion } from "./hooks/useReducedMotion.js";
 export { useSidebarState } from "./hooks/useSidebarState.js";
 export type { SidebarStateOptions } from "./hooks/useSidebarState.js";
-export { ErrorBoundary } from "./components/ErrorBoundary.js";
+export { ErrorBoundary, defaultErrorBoundaryLabels } from "./components/ErrorBoundary.js";
 export type { ErrorBoundaryLabels } from "./components/ErrorBoundary.js";
+export { resolveLabels } from "./labels.js";
