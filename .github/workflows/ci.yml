@@ -6,6 +6,14 @@ on:
     branches: [main]
   workflow_dispatch:
 
+# One in-flight run per ref. A stacked PR chain fans a single push out across
+# every branch above it, and superseded runs were previously left to finish.
+# main is exempt: its runs are the record of what actually landed, so they are
+# never cancelled by a later push.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
 # Least privilege: CI only builds and tests, never writes to the repo or the
 # registry. id-token belongs to the publish workflow alone.
 permissions:
@@ -26,6 +34,11 @@ jobs:
         run: npm ci --ignore-scripts
       - name: Lint (--max-warnings 0)
         run: npm run lint
+      # Checked, never auto-committed: writing formatting back would need
+      # contents: write, and this workflow's read-only token is worth more than
+      # the convenience. A red check here is fixed with `npm run prettier`.
+      - name: Format check
+        run: npm run prettier:check
       - name: Typecheck
         run: npm run typecheck
       - name: Test (coverage gate)
