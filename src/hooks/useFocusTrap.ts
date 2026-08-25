@@ -27,6 +27,7 @@ export function useFocusTrap<T extends HTMLElement = HTMLDivElement>(
 ): RefObject<T | null> {
   const containerRef = useRef<T | null>(null);
   const previousActiveElement = useRef<HTMLElement | null>(null);
+  const hasBeenOpen = useRef(false);
 
   // Get all focusable elements within the container
   const getFocusableElements = useCallback((): HTMLElement[] => {
@@ -89,25 +90,32 @@ export function useFocusTrap<T extends HTMLElement = HTMLDivElement>(
   // Focus management on open/close
   useEffect(() => {
     if (isOpen) {
+      hasBeenOpen.current = true;
       // Store current focus
       previousActiveElement.current = document.activeElement as HTMLElement;
 
       // Focus first focusable element in container
       const focusableElements = getFocusableElements();
-      if (focusableElements.length > 0) {
-        // Small delay to ensure DOM is ready; cancelled on close/unmount so a
-        // rapid open-then-close never races focus back into the closed trap
-        const frame = requestAnimationFrame(() => {
-          focusableElements[0].focus();
-        });
-        return () => cancelAnimationFrame(frame);
-      }
-    } else {
-      // Return focus to trigger or previous element
-      const returnTarget = triggerRef?.current || previousActiveElement.current;
-      if (returnTarget && typeof returnTarget.focus === "function") {
-        returnTarget.focus();
-      }
+      if (focusableElements.length === 0) return;
+
+      // Small delay to ensure DOM is ready; cancelled on close/unmount so a
+      // rapid open-then-close never races focus back into the closed trap
+      const frame = requestAnimationFrame(() => {
+        focusableElements[0].focus();
+      });
+      return () => cancelAnimationFrame(frame);
+    }
+
+    // Only a genuine open-then-close returns focus. Mounting closed must leave
+    // the page's focus untouched: with a triggerRef supplied, the unguarded
+    // version pulled focus onto the trigger the moment the consumer's shell
+    // rendered, stealing it from whatever the user was actually on.
+    if (!hasBeenOpen.current) return;
+
+    // Return focus to trigger or previous element
+    const returnTarget = triggerRef?.current || previousActiveElement.current;
+    if (returnTarget && typeof returnTarget.focus === "function") {
+      returnTarget.focus();
     }
   }, [isOpen, triggerRef, getFocusableElements]);
 
