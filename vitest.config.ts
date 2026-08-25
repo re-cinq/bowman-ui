@@ -11,7 +11,9 @@ export default defineConfig({
       provider: "v8",
       include: ["src/**"],
       // The barrel only re-exports; thresholds are enforced on real component code.
-      exclude: ["src/index.ts"],
+      // src/types/** is excluded because a types-only module emits no statements,
+      // so v8 has nothing to count there.
+      exclude: ["src/index.ts", "src/types/**"],
       // The floor starts high rather than low-and-ratcheting: C-17 puts
       // characterization tests before each extraction, so every file arrives
       // covered. If a real extraction cannot hold 90 on branches, lower it once,

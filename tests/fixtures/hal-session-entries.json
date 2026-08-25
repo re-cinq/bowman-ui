@@ -1,0 +1,32 @@
+{
+  "_meta": {
+    "source": "hal-engine docs/websocket-protocol.md §6.1-6.4",
+    "commit": "0fb475caae1dc3c07948911faf4c16510e263f88"
+  },
+  "entries": {
+    "user": {
+      "role": "user",
+      "content": "What is the weather in Berlin?",
+      "timestamp": "2026-01-15T14:30:00Z"
+    },
+    "assistant": {
+      "role": "assistant",
+      "content": "Berlin currently has a temperature of 18 degrees Celsius.",
+      "timestamp": "2026-01-15T14:30:01Z",
+      "isStreaming": false
+    },
+    "thinking": {
+      "role": "thinking",
+      "content": "I should look up the weather for Berlin using the get_weather tool.",
+      "isStreaming": false
+    },
+    "tool": {
+      "role": "tool",
+      "toolName": "get_weather",
+      "toolInput": {
+        "location": "Berlin",
+        "units": "celsius"
+      }
+    }
+  }
+}
