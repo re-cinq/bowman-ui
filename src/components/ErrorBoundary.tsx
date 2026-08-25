@@ -1,6 +1,7 @@
 "use client";
 
 import { Component, type ErrorInfo, type ReactNode } from "react";
+import { resolveLabels } from "../labels.js";
 
 export interface ErrorBoundaryLabels {
   title: string;
@@ -8,11 +9,15 @@ export interface ErrorBoundaryLabels {
   retry: string;
 }
 
-const defaultLabels: ErrorBoundaryLabels = {
+// The labels convention's worked example (CONTRACT.md § Labels): the type and
+// its complete English defaults are co-located, so a key added to
+// ErrorBoundaryLabels without a default is a compile error here, not an
+// `undefined` in the DOM.
+export const defaultErrorBoundaryLabels: Readonly<Required<ErrorBoundaryLabels>> = Object.freeze({
   title: "Something went wrong",
   description: "An unexpected error occurred. Please try again.",
   retry: "Try again",
-};
+});
 
 interface Props {
   children: ReactNode;
@@ -54,7 +59,7 @@ export class ErrorBoundary extends Component<Props, State> {
         return this.props.fallback;
       }
 
-      const labels = { ...defaultLabels, ...this.props.labels };
+      const labels = resolveLabels(defaultErrorBoundaryLabels, this.props.labels);
 
       return (
         <div
