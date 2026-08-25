@@ -33,16 +33,16 @@ Components operate on simple, consumer-supplied data structures passed via props
 
 ### Responsibility Boundary
 
-| Aspect | Owner |
-|--------|-------|
-| Data fetching | Consumer |
-| Authentication | Consumer |
-| State management | Consumer |
-| Routing | Consumer |
-| i18n/localization | Consumer |
-| Component rendering | bowman-ui |
-| Event callbacks | bowman-ui (via props) |
-| Styling/theming | Typically consumer (or CSS-in-JS integration) |
+| Aspect              | Owner                                         |
+| ------------------- | --------------------------------------------- |
+| Data fetching       | Consumer                                      |
+| Authentication      | Consumer                                      |
+| State management    | Consumer                                      |
+| Routing             | Consumer                                      |
+| i18n/localization   | Consumer                                      |
+| Component rendering | bowman-ui                                     |
+| Event callbacks     | bowman-ui (via props)                         |
+| Styling/theming     | Typically consumer (or CSS-in-JS integration) |
 
 ## User Roles
 
