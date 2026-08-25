@@ -22,13 +22,24 @@ updates:
       prefix: "chore"
     labels:
       - "dependencies"
-    # devDependencies never reach a consumer (`files: ["dist"]`), so they move
-    # as one PR. Runtime dependencies land one at a time: react-markdown and
-    # remark-gfm are the only two, they render untrusted model output, and each
-    # deserves its own review rather than a line in a batch.
+    # devDependencies never reach a consumer (`files: ["dist"]`), so the safe
+    # ones move as one PR. Majors are excluded from the group deliberately: the
+    # first batch this config produced carried five at once (eslint 9 -> 10,
+    # jsdom 27 -> 30, jest-dom 6 -> 7, plugin-react 5 -> 6, @eslint/js 9 -> 10),
+    # which is only reviewable by hand-running the full suite against the real
+    # codebase - and a Dependabot PR's own green check cannot do that while it
+    # targets a branch the components have not reached yet. Ungrouped majors
+    # arrive one per PR, each bisectable and each revertible on its own.
+    #
+    # Runtime dependencies are never grouped: react-markdown and remark-gfm are
+    # the only two, they render untrusted model output, and each deserves its
+    # own review rather than a line in a batch.
     groups:
       dev-dependencies:
         dependency-type: "development"
+        update-types:
+          - "minor"
+          - "patch"
     ignore:
       # Peer range is a tested claim, not a floor (CONTRACT.md decision 4).
       # Widening it is a deliberate act with a test matrix behind it.
