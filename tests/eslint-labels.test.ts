@@ -28,6 +28,7 @@ const lint = (): LintResult[] => {
       `${fixtureDir}/jsx-text.tsx`,
       `${fixtureDir}/attribute-literal.tsx`,
       `${fixtureDir}/strings-prop.ts`,
+      `${fixtureDir}/t-prop.ts`,
       `${fixtureDir}/next-intl-import.tsx`,
     ],
     { cwd: process.cwd(), encoding: "utf8" }
@@ -71,6 +72,15 @@ describe("the labels lint rules", () => {
 
   it("a strings?: Record<string, string> prop fails with the labels-prop-name message", () => {
     expect(messagesFor(results, "strings-prop.ts")).toContainEqual(
+      expect.objectContaining({
+        ruleId: "no-restricted-syntax",
+        message: expect.stringContaining("labels?: Partial<XLabels>"),
+      })
+    );
+  });
+
+  it("a t?: (key: string) => string prop fails with the labels-prop-name message", () => {
+    expect(messagesFor(results, "t-prop.ts")).toContainEqual(
       expect.objectContaining({
         ruleId: "no-restricted-syntax",
         message: expect.stringContaining("labels?: Partial<XLabels>"),
