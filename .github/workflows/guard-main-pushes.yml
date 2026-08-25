@@ -1,0 +1,109 @@
+name: Guard main pushes
+
+# The alarm for a commit that reaches main without a pull request.
+#
+# Branch protection is the lock; this is the smoke detector behind it. The
+# pattern it watches for is a real one this org has already been hit by
+# (re-cinq/lore#1062): a stolen token pushed commits straight to an unprotected
+# main, authored as github-actions[bot], with no PR anywhere.
+#
+# It matters more here than in a service repo. publish.yml fires on `v*` tags
+# and authenticates to npm through OIDC trusted publishing with no stored
+# secret to revoke - so push access to main is, transitively, the ability to
+# publish @re-cinq/bowman-ui as this org.
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: read
+
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Flag commits on main with no associated PR
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          BEFORE: ${{ github.event.before }}
+          AFTER: ${{ github.event.after }}
+          PUSHER: ${{ github.actor }}
+          CREATED: ${{ github.event.created }}
+          COMMIT_IDS: ${{ toJson(github.event.commits.*.id) }}
+        run: |
+          set -euo pipefail
+
+          # Branch creation carries no meaningful before-state to diff against.
+          if [ "$CREATED" = "true" ]; then
+            echo "main was just created - nothing to compare."
+            exit 0
+          fi
+
+          # A commit that arrived via a merged PR resolves to that PR here; one
+          # pushed directly resolves to none. An API error must count as "no PR"
+          # (fail closed): gh prints the raw error body to stdout, so trusting
+          # captured output would wave a commit through on any 4xx/5xx.
+          pr_count_for() {
+            local count
+            if ! count=$(gh api "repos/$REPO/commits/$1/pulls" --jq 'length'); then
+              echo "PR lookup for $1 failed - treating as no PR" >&2
+              echo 0
+              return
+            fi
+            case "$count" in
+              '' | *[!0-9]*) echo 0 ;;
+              *) echo "$count" ;;
+            esac
+          }
+
+          # The commit-to-PR index is eventually consistent: a squash-merge
+          # queried seconds after landing can still resolve to no PR. Re-check
+          # the unresolved set for up to 45s before flagging. Retrying the set
+          # rather than each commit bounds total sleep regardless of push size.
+          pending=$(echo "$COMMIT_IDS" | jq -r '.[]')
+          for pass in 1 2 3 4; do
+            unresolved=""
+            # Unquoted on purpose: word-splitting the newline-separated shas is
+            # the iteration mechanism.
+            for sha in $pending; do
+              if [ "$(pr_count_for "$sha")" = "0" ]; then
+                unresolved="${unresolved}${sha}"$'\n'
+              fi
+            done
+            pending="$unresolved"
+            [ -z "$pending" ] && break
+            if [ "$pass" -lt 4 ]; then
+              echo "Commit(s) still resolving to no PR after pass $pass, retrying in 15s..."
+              sleep 15
+            fi
+          done
+
+          if [ -z "$pending" ]; then
+            echo "All pushed commits trace to a PR - OK."
+            exit 0
+          fi
+
+          suspicious=""
+          for sha in $pending; do
+            if ! author=$(gh api "repos/$REPO/commits/$sha" \
+              --jq '.author.login // .commit.author.name // "unknown"' 2>/dev/null); then
+              author=unknown
+            fi
+            echo "::warning title=Direct push to main::$sha by $author has no associated PR"
+            suspicious="${suspicious}- \`${sha}\` - author \`${author}\`, no associated PR"$'\n'
+          done
+
+          title="Direct/unattributed push to main: ${AFTER:0:12}"
+          body=$(printf 'Push by `%s` to `main` (`%s`..`%s`) contains commit(s) with **no associated pull request** - a direct push or an unattributed bot commit.\n\n%s\nThis repo publishes to npm from a `v*` tag via OIDC trusted publishing, so push access to `main` is transitively publish access.\n\nIf this was an intentional admin action, close this issue. Otherwise investigate immediately, treat every reachable credential as exposed, and rotate.' "$PUSHER" "${BEFORE:0:12}" "${AFTER:0:12}" "$suspicious")
+          gh label create security --repo "$REPO" --color D93F0B --description "Security" 2>/dev/null || true
+          # The alarm must fire even when the label is unavailable: fall back to
+          # an unlabeled issue rather than dying on "'security' not found".
+          gh issue create --repo "$REPO" --label security --title "$title" --body "$body" \
+            || gh issue create --repo "$REPO" --title "$title" --body "$body"
+          # Loud on every channel: the issue is the durable alarm, the red check
+          # is the visible one.
+          exit 1
