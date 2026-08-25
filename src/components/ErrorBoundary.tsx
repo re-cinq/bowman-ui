@@ -16,7 +16,9 @@ const defaultLabels: ErrorBoundaryLabels = {
 
 interface Props {
   children: ReactNode;
-  /** Replaces the built-in fallback UI entirely; wins over `labels`. */
+  /** Replaces the built-in fallback UI entirely - including its `role="alert"`
+   *  wrapper, which the consumer must re-add if screen readers should announce
+   *  the failure; wins over `labels`. */
   fallback?: ReactNode;
   /** Overrides the built-in fallback's strings; English defaults apply per key. */
   labels?: Partial<ErrorBoundaryLabels>;

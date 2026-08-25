@@ -117,6 +117,21 @@ describe("useFocusGroups", () => {
     const main = document.querySelector('[data-focus-group="main"]') as HTMLElement;
     expect(main).toHaveFocus();
     expect(main.tabIndex).toBe(-1);
+    expect(main.hasAttribute("tabindex")).toBe(false);
+  });
+
+  it("a group that already carried a tabindex attribute gets it restored", () => {
+    const Preset = () => {
+      useFocusGroups();
+      return <section data-focus-group="preset" tabIndex={5} />;
+    };
+    render(<Preset />);
+
+    pressF6();
+
+    const preset = document.querySelector('[data-focus-group="preset"]') as HTMLElement;
+    expect(preset).toHaveFocus();
+    expect(preset.getAttribute("tabindex")).toBe("5");
   });
 
   it("non-F6 keys are ignored", () => {
