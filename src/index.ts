@@ -72,4 +72,6 @@ export type {
   ConversationListLabels,
   ConversationListProps,
 } from "./components/ConversationList.js";
+export { AppShell, defaultAppShellLabels } from "./components/AppShell.js";
+export type { AppShellLabels, AppShellProps, SidebarSlotContext } from "./components/AppShell.js";
 export { resolveLabels } from "./labels.js";
