@@ -91,7 +91,8 @@ already in the repo - it moves no new component.
 - **`stringPropOnly` is a closed exception list.** The icons' `ariaLabel` (023 icons; a
   destructuring default, deliberately outside lint rule (b)'s JSX-attribute reach) and
   `useFocusGroups`' `announce` are grandfathered per `CONTRACT.md § Labels`; everything else with
-  strings takes `labels`.
+  strings takes `labels`. Closed means an addition requires a `CONTRACT.md § Labels` amendment
+  in the PR that adds it - Toast's `message` (issue 025) did exactly this.
 - **`aiDisclosure` is declared, not rendered.** The required label and its EU AI Act rationale
   live in `CONTRACT.md § Labels`; the component that renders it and its Danish wording belong to
   the message-list issue and the consumer's catalogue.

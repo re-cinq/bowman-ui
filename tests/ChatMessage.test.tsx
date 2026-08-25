@@ -596,11 +596,14 @@ describe("ChatMessage", () => {
       }
     });
 
-    it('no file under src/ contains "prose" or "translateX", and "Discovery" appears nowhere in src/ or dist/', () => {
+    it('no file under src/ contains "prose", "translateX" lives only in styles.css (025\'s toast keyframe), and "Discovery" appears nowhere in src/ or dist/', () => {
+      const stylesheet = resolve(process.cwd(), "src/styles.css");
       for (const file of walk(resolve(process.cwd(), "src"))) {
         const content = readFileSync(file, "utf8");
         expect(content).not.toMatch(/\bprose\b/);
-        expect(content).not.toMatch(/translateX/);
+        if (file !== stylesheet) {
+          expect(content).not.toMatch(/translateX/);
+        }
         expect(content).not.toMatch(/Discovery/);
       }
       for (const file of walk(resolve(process.cwd(), "dist")).filter(
