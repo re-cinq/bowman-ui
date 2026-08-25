@@ -1,6 +1,13 @@
 "use client";
 
-import { useCallback, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type KeyboardEvent,
+  type ReactNode,
+} from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { CheckIcon, CopyIcon, ThumbsDownIcon, ThumbsUpIcon } from "../icons/index.js";
@@ -76,14 +83,26 @@ export function ChatMessage({
   const resolved = resolveLabels(defaultChatMessageLabels, labels);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [feedbackId, setFeedbackId] = useState<{ id: string; type: "up" | "down" } | null>(null);
+  const copiedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (copiedTimerRef.current !== null) clearTimeout(copiedTimerRef.current);
+    };
+  }, []);
 
   const copyToClipboard = useCallback(
     (text: string, entryId: string) => {
       // Optional-chained: an insecure-context browser has no
-      // navigator.clipboard and is a supported consumer environment.
-      navigator.clipboard?.writeText(text);
+      // navigator.clipboard and is a supported consumer environment. A denied
+      // permission rejects the promise; swallow it so no consumer window
+      // error handler fires - onCopy still reports the attempt either way.
+      navigator.clipboard?.writeText(text)?.catch?.(() => {});
       setCopiedId(entryId);
-      setTimeout(() => setCopiedId(null), 2000);
+      // A rapid second copy replaces the pending timer instead of letting the
+      // first one dismiss the new notice early.
+      if (copiedTimerRef.current !== null) clearTimeout(copiedTimerRef.current);
+      copiedTimerRef.current = setTimeout(() => setCopiedId(null), 2000);
       onCopy?.(text, entryId);
     },
     [onCopy]

@@ -480,69 +480,106 @@ describe("ChatMessage", () => {
       expect(screen.getByText("Thanks!").classList.contains("bowman-fade-in")).toBe(true);
     });
   });
-});
 
-describe("the extracted sources (grep acceptance criteria)", () => {
-  const componentPaths = [
-    "src/components/ChatMessage.tsx",
-    "src/components/InlineThinkingIndicator.tsx",
-  ];
-  const sources = componentPaths.map((path) => ({
-    path,
-    content: readFileSync(resolve(process.cwd(), path), "utf8"),
-  }));
+  describe("copy timer robustness (review fixes)", () => {
+    it("a rapid second copy keeps the notice for a full 2000ms from the second press", () => {
+      vi.useFakeTimers();
+      render(<ChatMessage entry={makeEntry()} userInitials="LM" />);
+      const article = screen.getByRole("article");
 
-  const walk = (dir: string): string[] => {
-    const files: string[] = [];
-    for (const entry of readdirSync(dir)) {
-      const fullPath = join(dir, entry);
-      if (statSync(fullPath).isDirectory()) {
-        files.push(...walk(fullPath));
-        continue;
+      fireEvent.keyDown(article, { key: "c", metaKey: true });
+      act(() => {
+        vi.advanceTimersByTime(1000);
+      });
+      fireEvent.keyDown(article, { key: "c", metaKey: true });
+      act(() => {
+        vi.advanceTimersByTime(1500);
+      });
+      expect(screen.getByText("Copied!")).toBeInTheDocument();
+
+      act(() => {
+        vi.advanceTimersByTime(600);
+      });
+      expect(screen.queryByText("Copied!")).not.toBeInTheDocument();
+      vi.useRealTimers();
+    });
+
+    it("a rejecting clipboard write is swallowed and onCopy still fires", async () => {
+      const onCopy = vi.fn();
+      writeTextMock.mockRejectedValueOnce(new Error("NotAllowedError"));
+      render(<ChatMessage entry={makeEntry()} userInitials="LM" onCopy={onCopy} />);
+
+      fireEvent.keyDown(screen.getByRole("article"), { key: "c", metaKey: true });
+      await act(async () => {});
+
+      expect(onCopy).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe("the extracted sources (grep acceptance criteria)", () => {
+    const componentPaths = [
+      "src/components/ChatMessage.tsx",
+      "src/components/InlineThinkingIndicator.tsx",
+    ];
+    const sources = componentPaths.map((path) => ({
+      path,
+      content: readFileSync(resolve(process.cwd(), path), "utf8"),
+    }));
+
+    const walk = (dir: string): string[] => {
+      const files: string[] = [];
+      for (const entry of readdirSync(dir)) {
+        const fullPath = join(dir, entry);
+        if (statSync(fullPath).isDirectory()) {
+          files.push(...walk(fullPath));
+          continue;
+        }
+        files.push(fullPath);
       }
-      files.push(fullPath);
-    }
-    return files;
-  };
+      return files;
+    };
 
-  it("ChatMessage.tsx carries no showDevInfo, conversationId, onRetryJudge or scores", () => {
-    expect(sources[0].content).not.toMatch(/showDevInfo|conversationId|onRetryJudge|scores/);
-  });
+    it("ChatMessage.tsx carries no showDevInfo, conversationId, onRetryJudge or scores", () => {
+      expect(sources[0].content).not.toMatch(/showDevInfo|conversationId|onRetryJudge|scores/);
+    });
 
-  it("neither file imports @clerk, swr, next-intl, next/, @discovery or @/ and every relative import ends in .js", () => {
-    for (const { content } of sources) {
-      expect(content).not.toMatch(/@clerk|swr|next-intl|next\/|@discovery|@\//);
-      const relativeImports = [...content.matchAll(/from\s+"(\.[^"]+)"/g)].map(([, spec]) => spec);
-      expect(relativeImports.length).toBeGreaterThan(0);
-      for (const spec of relativeImports) {
-        expect(spec).toMatch(/\.js$/);
+    it("neither file imports @clerk, swr, next-intl, next/, @discovery or @/ and every relative import ends in .js", () => {
+      for (const { content } of sources) {
+        expect(content).not.toMatch(/@clerk|swr|next-intl|next\/|@discovery|@\//);
+        const relativeImports = [...content.matchAll(/from\s+"(\.[^"]+)"/g)].map(
+          ([, spec]) => spec
+        );
+        expect(relativeImports.length).toBeGreaterThan(0);
+        for (const spec of relativeImports) {
+          expect(spec).toMatch(/\.js$/);
+        }
       }
-    }
-  });
+    });
 
-  it("neither file mentions rehype and no rehypePlugins prop is passed", () => {
-    for (const { content } of sources) {
-      expect(content).not.toMatch(/rehype/i);
-    }
-  });
+    it("neither file mentions rehype and no rehypePlugins prop is passed", () => {
+      for (const { content } of sources) {
+        expect(content).not.toMatch(/rehype/i);
+      }
+    });
 
-  it("GDPR: neither file calls console.*, localStorage, sessionStorage, fetch or sendBeacon", () => {
-    for (const { content } of sources) {
-      expect(content).not.toMatch(/console\.|localStorage|sessionStorage|fetch|sendBeacon/);
-    }
-  });
+    it("GDPR: neither file calls console.*, localStorage, sessionStorage, fetch or sendBeacon", () => {
+      for (const { content } of sources) {
+        expect(content).not.toMatch(/console\.|localStorage|sessionStorage|fetch|sendBeacon/);
+      }
+    });
 
-  it('no file under src/ contains "prose" or "translateX", and "Discovery" appears nowhere in src/ or dist/', () => {
-    for (const file of walk(resolve(process.cwd(), "src"))) {
-      const content = readFileSync(file, "utf8");
-      expect(content).not.toMatch(/\bprose\b/);
-      expect(content).not.toMatch(/translateX/);
-      expect(content).not.toMatch(/Discovery/);
-    }
-    for (const file of walk(resolve(process.cwd(), "dist")).filter(
-      (file) => file.endsWith(".js") || file.endsWith(".d.ts") || file.endsWith(".css")
-    )) {
-      expect(readFileSync(file, "utf8")).not.toMatch(/Discovery/);
-    }
+    it('no file under src/ contains "prose" or "translateX", and "Discovery" appears nowhere in src/ or dist/', () => {
+      for (const file of walk(resolve(process.cwd(), "src"))) {
+        const content = readFileSync(file, "utf8");
+        expect(content).not.toMatch(/\bprose\b/);
+        expect(content).not.toMatch(/translateX/);
+        expect(content).not.toMatch(/Discovery/);
+      }
+      for (const file of walk(resolve(process.cwd(), "dist")).filter(
+        (file) => file.endsWith(".js") || file.endsWith(".d.ts") || file.endsWith(".css")
+      )) {
+        expect(readFileSync(file, "utf8")).not.toMatch(/Discovery/);
+      }
+    });
   });
 });
