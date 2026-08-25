@@ -24,7 +24,7 @@
     "*.css"
   ],
   "scripts": {
-    "build": "node node_modules/typescript7/bin/tsc -p tsconfig.json && cp src/styles.css dist/styles.css",
+    "build": "rm -rf dist && node node_modules/typescript7/bin/tsc -p tsconfig.json && cp src/styles.css dist/styles.css",
     "typecheck": "node node_modules/typescript7/bin/tsc --noEmit -p tsconfig.json",
     "test": "npm run test:coverage",
     "test:coverage": "npm run build && vitest run --coverage",
