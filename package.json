@@ -19,6 +19,9 @@
   "files": [
     "dist"
   ],
+  "sideEffects": [
+    "*.css"
+  ],
   "scripts": {
     "build": "node node_modules/typescript7/bin/tsc -p tsconfig.json",
     "typecheck": "node node_modules/typescript7/bin/tsc --noEmit -p tsconfig.json",
