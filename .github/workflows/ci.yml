@@ -47,6 +47,11 @@ jobs:
         run: npm run build
       - name: Client directive check
         run: node scripts/check-client-directives.mjs
+      # The Lore test-command interface must not drift from the scripts it
+      # wraps: the committed list command has to keep emitting a parseable
+      # JSON array (issue 189).
+      - name: Lore list command emits parseable JSON
+        run: node scripts/lore-list-tests.mjs | jq -e 'type == "array" and length > 0' > /dev/null
       # CONTRACT.md decision 4: next is not a dependency anywhere. Prove it
       # against the installed tree, not just the manifest.
       - name: next must be absent
