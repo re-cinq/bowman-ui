@@ -30,9 +30,31 @@ Add two lines to your app's CSS entry:
 
 (Adjust the `@source` path so it points at the installed `dist` relative to your CSS file.)
 
-Tailwind CSS v4 is required: the stylesheet ships only what Tailwind cannot generate from a class name - three animation keyframes (`bowman-fade-in`, `bowman-fade-dot`, `bowman-pulse-subtle`) with their utility rules, the `bowman-md-*` markdown element styling used by `markdownComponents`, and an unconditional `prefers-reduced-motion` rule. Everything else on the components - layout, color, `dark:` variants - is plain Tailwind utility class names in the built files, and your own Tailwind v4 build generates their CSS by scanning the installed `dist`. That is what the `@source` line is for: Tailwind v4 does not scan `node_modules` by default, so without it the components render unstyled. How `dark:` resolves (media query or class strategy) stays your build's decision.
+Tailwind CSS v4 is required: the stylesheet ships only what Tailwind cannot generate from a class name - four animation keyframes (`bowman-fade-in`, `bowman-toast-fade-in`, `bowman-fade-dot`, `bowman-pulse-subtle`) with their utility rules, the `bowman-md-*` markdown element styling used by `markdownComponents`, and an unconditional `prefers-reduced-motion` rule. Everything else on the components - layout, color, `dark:` variants - is plain Tailwind utility class names in the built files, and your own Tailwind v4 build generates their CSS by scanning the installed `dist`. That is what the `@source` line is for: Tailwind v4 does not scan `node_modules` by default, so without it the components render unstyled. How `dark:` resolves (media query or class strategy) stays your build's decision.
 
 `styles.css` itself is plain CSS - no Tailwind at-rules - so a non-Tailwind consumer can import it too, but must then supply the utility styles the components reference by other means.
+
+## Rendering entries
+
+`ChatMessage` accepts only user and assistant entries - passing a `ThinkingChatEntry` or `ToolChatEntry` is a compile error, never a silent null render. A `ChatEntry[]` therefore needs a type guard before mapping:
+
+```tsx
+import {
+  ChatMessage,
+  type AssistantChatEntry,
+  type ChatEntry,
+  type UserChatEntry,
+} from "@re-cinq/bowman-ui";
+
+const isRenderable = (entry: ChatEntry): entry is UserChatEntry | AssistantChatEntry =>
+  entry.role === "user" || entry.role === "assistant";
+
+entries
+  .filter(isRenderable)
+  .map((entry) => <ChatMessage key={entry.id} entry={entry} userInitials="AB" />);
+```
+
+The components own no scroll position: keeping the transcript pinned to the newest message while a reply streams is the consumer's job.
 
 ## Icons
 
