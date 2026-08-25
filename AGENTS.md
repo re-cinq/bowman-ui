@@ -18,6 +18,7 @@ Agents should read repository files in this order:
 ```bash
 npm run build
 ```
+
 Compiles TypeScript components to distributable formats (ESM/CJS). Output typically goes to `dist/`.
 
 ### Test
@@ -25,7 +26,9 @@ Compiles TypeScript components to distributable formats (ESM/CJS). Output typica
 ```bash
 npm test
 ```
+
 Runs test suite (Jest or Vitest, default assumption). Watch mode:
+
 ```bash
 npm test -- --watch
 ```
@@ -35,7 +38,9 @@ npm test -- --watch
 ```bash
 npm run lint
 ```
+
 Runs ESLint on TypeScript and JSX files. Auto-fix:
+
 ```bash
 npm run lint -- --fix
 ```
@@ -45,6 +50,7 @@ npm run lint -- --fix
 ```bash
 npm run type-check
 ```
+
 Runs TypeScript compiler in check-only mode (no emit).
 
 ### Deploy
@@ -52,9 +58,11 @@ Runs TypeScript compiler in check-only mode (no emit).
 ```bash
 npm publish
 ```
+
 Publishes to npm registry. Requires authentication and version bump in `package.json`.
 
 Pre-publish checklist:
+
 - All tests passing
 - No linting errors
 - TypeScript strict mode compliance
@@ -73,6 +81,7 @@ Use **Conventional Commits** format:
 ```
 
 ### Types
+
 - `feat` — New component, prop, or feature
 - `fix` — Bug fix in component behavior
 - `refactor` — Code reorganization without behavioral change
@@ -83,14 +92,17 @@ Use **Conventional Commits** format:
 - `style` — Formatting only (Prettier, whitespace)
 
 ### Scope
+
 Component name or area (e.g., `composer`, `message-list`, `app-shell`).
 
 ### Subject
+
 - Imperative mood ("add MessageBubble component", not "added")
 - Lowercase start, no period
 - Max 50 characters
 
 ### Example
+
 ```
 feat(composer): add rich text formatting toolbar
 
@@ -120,18 +132,22 @@ Closes #42
 
 ```markdown
 ## Description
+
 Brief explanation of changes.
 
 ## Type of Change
+
 - [ ] New component
 - [ ] Bug fix
 - [ ] Refactor
 - [ ] Documentation
 
 ## Testing
+
 How to verify this works (manual steps or test output).
 
 ## Checklist
+
 - [ ] Linting passes (`npm run lint`)
 - [ ] Tests pass (`npm test`)
 - [ ] TypeScript strict mode (`npm run type-check`)
@@ -179,6 +195,7 @@ How to verify this works (manual steps or test output).
 ### Documentation
 
 1. **Component JSDoc**:
+
    ```typescript
    /**
     * MessageBubble renders a single chat message.
