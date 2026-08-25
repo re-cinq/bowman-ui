@@ -253,6 +253,7 @@ function AssistantMessage({
         {!entry.isStreaming && (
           <div className="-ml-1 flex items-center gap-2 opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100">
             <button
+              type="button"
               className="rounded p-1.5 text-slate-400 ring-offset-2 transition-colors hover:bg-slate-100 hover:text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:ring-offset-slate-950 dark:hover:bg-slate-800 dark:hover:text-slate-300 dark:focus:ring-blue-400"
               onClick={() => onCopy(entry.content, entry.id)}
               aria-label={copiedId === entry.id ? resolved.copied : resolved.copy}
@@ -272,6 +273,7 @@ function AssistantMessage({
             {showFeedback && (
               <>
                 <button
+                  type="button"
                   className={`rounded p-1.5 ring-offset-2 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 dark:ring-offset-slate-950 dark:focus:ring-blue-400 ${
                     feedbackId?.id === entry.id && feedbackId.type === "up"
                       ? "bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400"
@@ -284,6 +286,7 @@ function AssistantMessage({
                   <ThumbsUpIcon className="h-4 w-4" />
                 </button>
                 <button
+                  type="button"
                   className={`rounded p-1.5 ring-offset-2 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 dark:ring-offset-slate-950 dark:focus:ring-blue-400 ${
                     feedbackId?.id === entry.id && feedbackId.type === "down"
                       ? "bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400"
