@@ -169,6 +169,34 @@ describe("ChatMessage", () => {
     });
   });
 
+  describe("inside a consumer form", () => {
+    it("copy and both thumbs act without submitting the surrounding form", () => {
+      const onSubmit = vi.fn((event: React.FormEvent) => {
+        event.preventDefault();
+      });
+      const onCopy = vi.fn();
+      const onFeedback = vi.fn();
+      render(
+        <form onSubmit={onSubmit}>
+          <ChatMessage
+            entry={makeEntry()}
+            userInitials="LM"
+            onCopy={onCopy}
+            onFeedback={onFeedback}
+          />
+        </form>
+      );
+
+      fireEvent.click(screen.getByRole("button", { name: "Copy message" }));
+      fireEvent.click(screen.getByRole("button", { name: "Good response" }));
+      fireEvent.click(screen.getByRole("button", { name: "Bad response" }));
+
+      expect(onSubmit).not.toHaveBeenCalled();
+      expect(onCopy).toHaveBeenCalledTimes(1);
+      expect(onFeedback).toHaveBeenCalledTimes(2);
+    });
+  });
+
   describe("keyboard feedback", () => {
     it("ArrowUp with default props calls onFeedback zero times and does not preventDefault (adaptation b)", () => {
       const onFeedback = vi.fn();
