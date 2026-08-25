@@ -106,6 +106,78 @@ no `compilerOptions.paths`, and no file under `src/` contains the string
 `"@/`. Enforcement is the compiler: `moduleResolution: NodeNext` makes
 `npm run typecheck` fail on any extensionless or aliased relative import.
 
+## Labels
+
+How every user-visible or assistive string in the package works, settled by
+issue 022 before any string-carrying component beyond `ErrorBoundary` moves.
+The default app locale the package serves is Danish, nobody on the delivery
+team can review Danish copy, and the client's stated priority is
+Danish-specific nuance - so the package ships strings only as overridable
+English defaults and the Danish catalogue lives with the consumer that can
+review it.
+
+Decisions:
+
+1. **No locale catalogue ships.** No `da.json`, no `locales/`, no `Intl`
+   message format, no i18n runtime dependency (`next-intl` is lint-banned).
+   English defaults exist purely so a consumer can render a screen before
+   writing a catalogue; Danish strings belong to the consumer app, the only
+   place anyone can review them.
+2. **One prop shape: `labels?: Partial<XLabels>`.** Never `strings`, `texts`,
+   `t`, `messages`, `i18n`, `translations`, or a render prop (the alternates
+   are lint-banned as prop names). Each component co-locates its type
+   `XLabels` and `defaultXLabels: Readonly<Required<XLabels>>`, so a key added
+   without a default is a compile error rather than `undefined` in the DOM.
+   The merge helper is
+   `resolveLabels<T extends object>(defaults: Required<T>, overrides?: Partial<T>): Required<T>`
+   - a shallow merge that treats an explicit `undefined` override the same as
+     a missing one, since that is what a consumer's own optional-chained
+     catalogue lookup produces. `ErrorBoundary`
+     (`ErrorBoundaryLabels`/`defaultErrorBoundaryLabels`) is the worked example
+     every later component copies.
+3. **Composites take a flat union, forwarded as slices.** A component that
+   renders another labelled component takes the flat union of its own keys and
+   its children's - no nesting, no deep merge, no context provider. Key names
+   are therefore unique across the package by _concept_, not by component: two
+   different "close" actions become `closeMenu` and `dismissToast`, never two
+   keys both named `close`.
+4. **A label that interpolates a value is a function** -
+   `deletedCount: (count: number) => string` - never a template string with
+   placeholders. Danish word order and plural rules differ from English, and a
+   placeholder syntax would force the package to own a message-format runtime.
+   `useFocusGroups({ announce })` already uses this form; it generalises to
+   every interpolated label.
+5. **A label may be declared required** - present in `XLabels`, absent from
+   `defaultXLabels` - when a plausible English default would itself be the
+   defect. Enforcement of all of the above is static and at test time (the
+   export-partition test, the sentinel render test, and the
+   `no-restricted-syntax`/`no-restricted-imports` entries in
+   `eslint.config.mjs`), never a runtime console warning: the package writes
+   nothing to the console, per 021's GDPR rider.
+
+**Required label: `aiDisclosure`.** The message-list container's AI-disclosure
+line is declared required with **no default**. The EU AI Act obliges telling
+users they are talking to an AI, and the Act applies because the agent serves
+EU users regardless of where it is hosted - so a consumer cannot render the
+chat surface without supplying the sentence, and no plausible English default
+may paper over the omission. The label is declared here; the component that
+renders it and its Danish wording belong to the message-list issue and to the
+consumer's catalogue.
+
+**The two `stringPropOnly` exceptions** (every other string-carrying export
+takes `labels`):
+
+- **The icons' `ariaLabel` prop** (all 23 icons). An icon carries at most one
+  assistive string and is decorative - `aria-hidden` - unless the call site
+  supplies one, so a one-key labels object would add ceremony without adding
+  safety. `LoadingIcon`'s `"Loading"` destructuring default is the icon set's
+  only English string and is overridable per call site (020's shipped
+  precedent, re-pinned by 022's tests).
+- **`useFocusGroups`' `announce` option.** A hook has no JSX props surface;
+  its single announcement string already arrives as the function-form label of
+  decision 4, with an overridable English default and `null` to suppress
+  (021's shipped precedent).
+
 ## Seams left open on purpose
 
 - `package.json` declares `"sideEffects": ["*.css"]` now, so the stylesheet

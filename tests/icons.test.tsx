@@ -232,6 +232,12 @@ describe("LoadingIcon", () => {
     expect(screen.getByRole("img", { name: "Processing request" })).toBeInTheDocument();
   });
 
+  it('ariaLabel="Indlæser" renders aria-label="Indlæser" and "Loading" appears nowhere', () => {
+    const { container } = render(<icons.LoadingIcon ariaLabel="Indlæser" />);
+    expect(container.querySelector("svg")).toHaveAttribute("aria-label", "Indlæser");
+    expect(container.innerHTML).not.toContain("Loading");
+  });
+
   it("has animation class", () => {
     const svg = renderRootSvg(icons.LoadingIcon);
     // SVG className is an SVGAnimatedString, use getAttribute instead
