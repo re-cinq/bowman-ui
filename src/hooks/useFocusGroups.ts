@@ -46,14 +46,15 @@ export function useFocusGroups(options: FocusGroupsOptions = {}): void {
   const getFocusGroups = useCallback((): HTMLElement[] => {
     const groups = Array.from(document.querySelectorAll<HTMLElement>("[data-focus-group]"));
 
-    // Sort by order attribute if present, otherwise by DOM order
-    return groups.sort((a, b) => {
-      const orderA = parseInt(a.dataset.focusGroupOrder || "999", 10);
-      const orderB = parseInt(b.dataset.focusGroupOrder || "999", 10);
-      if (orderA !== orderB) return orderA - orderB;
-      // Fall back to DOM order
-      return groups.indexOf(a) - groups.indexOf(b);
-    });
+    // Sort by order attribute if present, otherwise by DOM order. Array#sort
+    // is stable and querySelectorAll already returns DOM order, so groups
+    // sharing an order need no tiebreak - and must not get one that calls
+    // indexOf on the very array sort is midway through reordering.
+    return groups.sort(
+      (a, b) =>
+        parseInt(a.dataset.focusGroupOrder || "999", 10) -
+        parseInt(b.dataset.focusGroupOrder || "999", 10)
+    );
   }, []);
 
   const focusFirstElement = useCallback((group: HTMLElement) => {
