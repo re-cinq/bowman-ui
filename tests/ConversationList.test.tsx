@@ -44,6 +44,12 @@ describe("ConversationList", () => {
       expect(rows[1].textContent).toContain("Faktura 9");
     });
 
+    it('the <ul> carries an explicit role="list", which list-style: none cannot strip', () => {
+      const { container } = render(<ConversationList items={[makeItem()]} />);
+
+      expect(container.querySelector("ul")).toHaveAttribute("role", "list");
+    });
+
     it('labels={{conversations: "Samtaler"}} names the <ul> "Samtaler"', () => {
       render(<ConversationList items={[makeItem()]} labels={{ conversations: "Samtaler" }} />);
 

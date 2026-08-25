@@ -173,7 +173,10 @@ export function ConversationList({
   }
 
   return (
-    <ul aria-label={resolved.conversations} className="list-none space-y-1">
+    // role="list" is redundant markup everywhere except Safari, where
+    // list-style: none strips a ul's list semantics and takes the accessible
+    // name with it. The explicit role keeps VoiceOver announcing the list.
+    <ul role="list" aria-label={resolved.conversations} className="list-none space-y-1">
       {items.map((item) => {
         const isActive = item.id === activeId;
         const linkProps: ConversationLinkProps = {
