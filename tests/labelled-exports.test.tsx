@@ -20,9 +20,9 @@ import type {
 // exports carry no strings and are excluded by design. A new export lands in
 // exactly one bucket:
 //   labelsProp     - takes labels?: Partial<XLabels> over English defaults
-//   stringPropOnly - takes its strings through a dedicated prop (the two
+//   stringPropOnly - takes its strings through a dedicated prop (the three
 //                    grandfathered shapes: icons' ariaLabel, useFocusGroups'
-//                    announce)
+//                    announce, Toast's message)
 //   noStrings      - renders/returns no user-visible or assistive string
 const labelsProp = ["ErrorBoundary", "ChatMessage", "InlineThinkingIndicator"];
 
@@ -51,6 +51,7 @@ const stringPropOnly = [
   "TrashIcon",
   "WarningIcon",
   "useFocusGroups",
+  "Toast",
 ];
 
 const noStrings = [

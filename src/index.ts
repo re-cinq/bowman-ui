@@ -57,4 +57,6 @@ export type {
   InlineThinkingIndicatorLabels,
   InlineThinkingIndicatorProps,
 } from "./components/InlineThinkingIndicator.js";
+export { Toast } from "./components/Toast.js";
+export type { ToastProps } from "./components/Toast.js";
 export { resolveLabels } from "./labels.js";
