@@ -2,11 +2,13 @@ import { fireEvent, render } from "@testing-library/react";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import {
+  AppShell,
   ChatComposer,
   ChatMessage,
   ConversationList,
   ErrorBoundary,
   InlineThinkingIndicator,
+  defaultAppShellLabels,
   defaultChatComposerLabels,
   defaultChatMessageLabels,
   defaultConversationListLabels,
@@ -14,6 +16,7 @@ import {
   defaultInlineThinkingIndicatorLabels,
 } from "../src/index.js";
 import type {
+  AppShellLabels,
   ChatComposerLabels,
   ChatMessageLabels,
   ConversationListLabels,
@@ -36,6 +39,7 @@ const labelsProp = [
   "InlineThinkingIndicator",
   "ChatComposer",
   "ConversationList",
+  "AppShell",
 ];
 
 const stringPropOnly = [
@@ -80,6 +84,7 @@ const noStrings = [
   "defaultInlineThinkingIndicatorLabels",
   "defaultChatComposerLabels",
   "defaultConversationListLabels",
+  "defaultAppShellLabels",
 ];
 
 // `export type { ... }` never matches: "type" sits between "export" and "{".
@@ -164,6 +169,12 @@ const conversationListSentinels = {
   deleteConversation: (title: string) => `⟦deleteConversation:${title}⟧`,
 } satisfies Required<ConversationListLabels>;
 
+const appShellSentinels = {
+  openSidebar: "⟦openSidebar⟧",
+  closeSidebar: "⟦closeSidebar⟧",
+  skipToMainContent: "⟦skipToMainContent⟧",
+} satisfies Required<AppShellLabels>;
+
 // The fixture content carries no run of three Latin letters, so everything
 // user-shaped the harness renders (content, "LM" initials) passes the
 // LATIN_RUN check without its own strip entry.
@@ -227,6 +238,19 @@ const sentinelHarnesses: Record<
     renderContainer: () =>
       render(<ChatComposer onSubmit={() => {}} labels={chatComposerSentinels} />).container,
   },
+  AppShell: {
+    sentinels: Object.values(appShellSentinels),
+    renderContainer: () =>
+      render(
+        <AppShell
+          labels={appShellSentinels}
+          brand={<span>4711</span>}
+          renderSidebar={() => <span>4712</span>}
+        >
+          {numericContent}
+        </AppShell>
+      ).container,
+  },
   ConversationList: {
     sentinels: [
       conversationListSentinels.conversations,
@@ -280,6 +304,12 @@ describe("the sentinel render check", () => {
   it("ConversationList's sentinel labels cover every defaultConversationListLabels key", () => {
     expect(Object.keys(conversationListSentinels).sort()).toEqual(
       Object.keys(defaultConversationListLabels).sort()
+    );
+  });
+
+  it("AppShell's sentinel labels cover every defaultAppShellLabels key", () => {
+    expect(Object.keys(appShellSentinels).sort()).toEqual(
+      Object.keys(defaultAppShellLabels).sort()
     );
   });
 
