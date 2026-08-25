@@ -2,14 +2,17 @@ import { fireEvent, render } from "@testing-library/react";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import {
+  ChatComposer,
   ChatMessage,
   ErrorBoundary,
   InlineThinkingIndicator,
+  defaultChatComposerLabels,
   defaultChatMessageLabels,
   defaultErrorBoundaryLabels,
   defaultInlineThinkingIndicatorLabels,
 } from "../src/index.js";
 import type {
+  ChatComposerLabels,
   ChatMessageLabels,
   ErrorBoundaryLabels,
   InlineThinkingIndicatorLabels,
@@ -24,7 +27,7 @@ import type {
 //                    grandfathered shapes: icons' ariaLabel, useFocusGroups'
 //                    announce, Toast's message)
 //   noStrings      - renders/returns no user-visible or assistive string
-const labelsProp = ["ErrorBoundary", "ChatMessage", "InlineThinkingIndicator"];
+const labelsProp = ["ErrorBoundary", "ChatMessage", "InlineThinkingIndicator", "ChatComposer"];
 
 const stringPropOnly = [
   "ArtifactsIcon",
@@ -66,6 +69,7 @@ const noStrings = [
   "defaultErrorBoundaryLabels",
   "defaultChatMessageLabels",
   "defaultInlineThinkingIndicatorLabels",
+  "defaultChatComposerLabels",
 ];
 
 // `export type { ... }` never matches: "type" sits between "export" and "{".
@@ -134,6 +138,12 @@ const inlineThinkingIndicatorSentinels = {
   thinking: "⟦thinking⟧",
 } satisfies Required<InlineThinkingIndicatorLabels>;
 
+const chatComposerSentinels = {
+  composerInput: "⟦composerInput⟧",
+  composerPlaceholder: "⟦composerPlaceholder⟧",
+  send: "⟦send⟧",
+} satisfies Required<ChatComposerLabels>;
+
 // The fixture content carries no run of three Latin letters, so everything
 // user-shaped the harness renders (content, "LM" initials) passes the
 // LATIN_RUN check without its own strip entry.
@@ -192,6 +202,11 @@ const sentinelHarnesses: Record<
     renderContainer: () =>
       render(<InlineThinkingIndicator labels={inlineThinkingIndicatorSentinels} />).container,
   },
+  ChatComposer: {
+    sentinels: Object.values(chatComposerSentinels),
+    renderContainer: () =>
+      render(<ChatComposer onSubmit={() => {}} labels={chatComposerSentinels} />).container,
+  },
 };
 
 const stripSentinels = (text: string, sentinels: string[]): string =>
@@ -213,6 +228,12 @@ describe("the sentinel render check", () => {
   it("InlineThinkingIndicator's sentinel labels cover every defaultInlineThinkingIndicatorLabels key", () => {
     expect(Object.keys(inlineThinkingIndicatorSentinels).sort()).toEqual(
       Object.keys(defaultInlineThinkingIndicatorLabels).sort()
+    );
+  });
+
+  it("ChatComposer's sentinel labels cover every defaultChatComposerLabels key", () => {
+    expect(Object.keys(chatComposerSentinels).sort()).toEqual(
+      Object.keys(defaultChatComposerLabels).sort()
     );
   });
 
