@@ -39,3 +39,12 @@ export {
   getAccessibleIconProps,
 } from "./icons/index.js";
 export type { IconProps, IconSvgProps } from "./icons/index.js";
+export { useDebounce } from "./hooks/useDebounce.js";
+export { useFocusTrap } from "./hooks/useFocusTrap.js";
+export { useFocusGroups } from "./hooks/useFocusGroups.js";
+export type { FocusGroupsOptions } from "./hooks/useFocusGroups.js";
+export { useReducedMotion } from "./hooks/useReducedMotion.js";
+export { useSidebarState } from "./hooks/useSidebarState.js";
+export type { SidebarStateOptions } from "./hooks/useSidebarState.js";
+export { ErrorBoundary } from "./components/ErrorBoundary.js";
+export type { ErrorBoundaryLabels } from "./components/ErrorBoundary.js";
