@@ -218,6 +218,30 @@ such as Discovery's mobile-sidebar-closing `onNavigate`); dropping
 `aria-current` silences the active row for assistive tech. The default, when
 no `renderLink` is passed, is `<button type="button" {...props} />`.
 
+## AppShell (issue 030)
+
+- **A consumer controlling `mobileSidebarOpen` owns closing it on
+  navigation.** The source app closed the drawer in a `usePathname` effect;
+  that behaviour is app-router-specific and cannot ship in the library. In
+  uncontrolled mode the drawer closes itself on the close button, `Escape`,
+  the backdrop, and the `close()` handed to the `"mobile"` sidebar slot -
+  route changes are invisible to it either way.
+- **Landmark ruling.** AppShell's drawer and rail wrappers are non-landmark
+  `div`s: the sidebar content that `renderSidebar` returns (issue 031's
+  `AppSidebar`) supplies the only `aside`/`nav` landmarks. Discovery's third
+  `aria-label` string, `"Mobile navigation"` on the drawer `aside`, is
+  deliberately dropped - keeping it would nest a labelled landmark around the
+  sidebar's own and double up in the rotor.
+- The two mobile-drawer accessibility defects are fixed in the extracted
+  copy, not the source: the closed drawer gets `inert` instead of
+  `aria-hidden` over still-tabbable content, and the body scroll lock
+  restores the prior `document.body.style.overflow` value instead of
+  clobbering it to `""`.
+
+Third deliberate fix: the mobile header stacks at `z-40` beneath the
+drawer/backdrop's `z-50` (the source gave both `z-50` and relied on DOM
+order).
+
 ## Seams left open on purpose
 
 - `package.json` declares `"sideEffects": ["*.css"]` now, so the stylesheet
