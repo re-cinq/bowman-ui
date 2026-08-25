@@ -6,12 +6,9 @@ Presentational React components for AI chat interfaces.
 
 The name follows the pairing the org chose: HAL Engine is the engine that thinks, Bowman is the face that talks to you.
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/hero-dark.png" />
-  <img alt="A chat surface composed from bowman-ui exports: sidebar with a conversation list, an assistant reply rendering a markdown list, code block and table, a thinking indicator, and the composer." src="docs/assets/hero-light.png" />
-</picture>
+<img alt="A chat surface composed from bowman-ui exports, split down the middle by a slider-style handle: the left half in light theme, the right half in dark. Sidebar with a conversation list, an assistant reply rendering a markdown list, code block and table, a thinking indicator, and the composer." src="docs/assets/hero-split.png" />
 
-_The picture follows your color scheme; the components follow your data._
+_One surface, both themes, frozen mid-slide - the closest thing to a slider a README will allow._
 
 ## Install
 
