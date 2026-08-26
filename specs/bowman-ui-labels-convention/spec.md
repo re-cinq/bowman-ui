@@ -30,11 +30,11 @@ already in the repo - it moves no new component.
   021 English defaults unchanged ([validated by](../../tests/ErrorBoundary.test.tsx#L44)).
 - `eslint.config.mjs` gains a labels entry (core ESLint only): `no-restricted-syntax` selectors
   banning bare Latin JSX text
-  ([validated by](../../tests/eslint-labels.test.ts#L53)), hardcoded string literals in the seven
-  assistive attributes ([validated by](../../tests/eslint-labels.test.ts#L60)), and
+  ([validated by](../../tests/eslint-labels.test.ts#L61)), hardcoded string literals in the seven
+  assistive attributes ([validated by](../../tests/eslint-labels.test.ts#L125)), and
   `strings`/`texts`/`i18n`/`translations`/`messages` property keys
-  ([validated by](../../tests/eslint-labels.test.ts#L69)), plus `no-restricted-imports` on
-  `next-intl` ([validated by](../../tests/eslint-labels.test.ts#L78)). The red fixtures live
+  ([validated by](../../tests/eslint-labels.test.ts#L134)), plus `no-restricted-imports` on
+  `next-intl` ([validated by](../../tests/eslint-labels.test.ts#L152)). The red fixtures live
   in `tests/fixtures/eslint-labels/`, globally ignored so the committed tree stays green - the
   original four plus the 2026-08-26 review's bypass set (expression-container and template
   literals, and the &&/ternary/+ conditional-render forms, as children and as assistive
@@ -52,28 +52,29 @@ already in the repo - it moves no new component.
   the default-labels keys ([validated by](../../tests/labelled-exports.test.tsx#L130)).
   **The check's own proof:** reverting 021's `labels` prop to a hardcoded
   `"Something went wrong"` makes the sentinel test fail - the stray English survives sentinel
-  stripping and matches the Latin-run regex.
+  stripping and matches the Latin-run regex
+  ([validated by](../../tests/labelled-exports.test.tsx#L316)).
 - `CONTRACT.md § Labels` - Decisions 1-5, the flat-union key-naming rule, the function form for
   interpolation, the two `stringPropOnly` exceptions with reasons, and `aiDisclosure` documented
   as required-with-no-default under the EU AI Act.
 - Re-pinned prior behaviour (AC 39): `<LoadingIcon ariaLabel="Indlæser" />` renders
   `aria-label="Indlæser"` with `"Loading"` nowhere in the output
   ([validated by](../../tests/icons.test.tsx#L235)); the Danish `announce` assertion already
-  existed at [tests/useFocusGroups.test.tsx#L96](../../tests/useFocusGroups.test.tsx#L96) and is
-  referenced, not duplicated.
+  existed and is referenced, not duplicated
+  ([validated by](../../tests/useFocusGroups.test.tsx#L120)).
 
 ## Recorded decisions, interpretations and deviations
 
 - **Behaviour change: explicit-`undefined` overrides.** 021's
   `{ ...defaultLabels, ...this.props.labels }` spread let
   `labels={{ title: undefined }}` blank the title. `resolveLabels` treats that key as missing and
-  renders the English default instead
-  ([validated by](../../tests/ErrorBoundary.test.tsx#L75)). This is the convention's intent; it
-  is the one observable behaviour change in the retrofit.
+  renders the English default instead. This is the convention's intent; it
+  is the one observable behaviour change in the retrofit
+  ([validated by](../../tests/ErrorBoundary.test.tsx#L75)).
 - **Partition is over value exports.** The partition test statically parses `export { ... }`
   blocks of `src/index.ts`; `export type { ... }` names are excluded by design - a type carries
   no renderable string. Interfaces like `ErrorBoundaryLabels` are therefore not partition
-  members.
+  members ([validated by](../../tests/labelled-exports.test.tsx#L100)).
 - **Test path deviation.** The issue names `src/__tests__/labelled-exports.tsx`; this repo keeps
   every test under `tests/` with a `.test.tsx` suffix (vitest's include pattern requires the
   suffix), so the file is `tests/labelled-exports.test.tsx`. Same content, repo-conventional
@@ -81,7 +82,8 @@ already in the repo - it moves no new component.
 - **Fixture-scope deviation.** The labels lint entry's `files` glob covers
   `tests/fixtures/eslint-labels/**` alongside `src/**`, and the fixture directory sits in the
   global `ignores`. `npm run lint` therefore never sees the fixtures, while the red-fixture test
-  lints them with `--no-ignore` against the exact committed rules rather than a copy of them.
+  lints them with `--no-ignore` against the exact committed rules rather than a copy of them
+  ([validated by](../../tests/eslint-labels.test.ts#L55)).
 - **Placeholder deleted.** `src/Placeholder.tsx`, `tests/Placeholder.test.tsx` and the barrel
   export are gone, sanctioned by 014's own design ("the first real extraction PR deletes them"):
   six real `"use client"` files now exist, and Placeholder's hardcoded English text can neither
@@ -95,7 +97,8 @@ already in the repo - it moves no new component.
   destructuring default, deliberately outside lint rule (b)'s JSX-attribute reach) and
   `useFocusGroups`' `announce` are grandfathered per `CONTRACT.md § Labels`; everything else with
   strings takes `labels`. Closed means an addition requires a `CONTRACT.md § Labels` amendment
-  in the PR that adds it - Toast's `message` (issue 025) did exactly this.
+  in the PR that adds it - Toast's `message` (issue 025) did exactly this
+  ([validated by](../../tests/labelled-exports.test.tsx#L100)).
 - **`aiDisclosure` is declared, not rendered.** The required label and its EU AI Act rationale
   live in `CONTRACT.md § Labels`; the component that renders it and its Danish wording belong to
   the message-list issue and the consumer's catalogue.
