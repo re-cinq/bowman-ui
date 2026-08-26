@@ -106,9 +106,9 @@ documents three exceptions with the reason above, and
 `specs/bowman-ui-labels-convention/spec.md`'s closed-list bullet now states
 that an addition requires exactly this kind of same-PR contract amendment.
 `tests/labelled-exports.test.tsx` classifies `Toast` under `stringPropOnly`
-([validated by](../../tests/labelled-exports.test.tsx#L54)) and the
+([validated by](../../tests/labelled-exports.test.tsx#L70)) and the
 partition still asserts the full barrel
-([validated by](../../tests/labelled-exports.test.tsx#L80)).
+([validated by](../../tests/labelled-exports.test.tsx#L100)).
 
 ## Carried across mechanically
 
@@ -137,7 +137,7 @@ partition still asserts the full barrel
 - **`translateX` ban narrowed.** 023's source sweep asserted no file under
   `src/` contains `translateX`; the toast keyframe now legitimately carries
   it in `src/styles.css`, so that assertion exempts `styles.css` alone
-  ([validated by](../../tests/ChatMessage.test.tsx#L535)) - component
+  ([validated by](../../tests/ChatMessage.test.tsx#L599)) - component
   sources remain banned from restating centring transforms.
 - **Precedent citation.** The issue cites "021 Decision 0" for shipping on
   thin call-site evidence; 021's spec has no such numbered decision - the
