@@ -224,7 +224,12 @@ EU users regardless of where it is hosted - so a consumer cannot render the
 chat surface without supplying the sentence, and no plausible English default
 may paper over the omission. The label is declared here; the component that
 renders it and its Danish wording belong to the message-list issue and to the
-consumer's catalogue.
+consumer's catalogue. Because the label is required, `ChatMessageList` (078)
+is the one component whose `labels` prop is itself required -
+`labels: Partial<ChatMessageListLabels> & Required<Pick<ChatMessageListLabels, "aiDisclosure">>`
+
+- the single exception decision 2's optional `labels?` shape reads subject
+  to; every other key still defaults per key.
 
 **The three `stringPropOnly` exceptions** (every other string-carrying export
 takes `labels`):
@@ -356,6 +361,18 @@ dialog to assistive tech - `role="dialog"`, `aria-modal="true"`, named by the
 supply the only rotor entries. The same review scoped the body scroll lock to
 the mobile breakpoint: at `min-width: 768px`, where `md:hidden` hides the
 drawer, the lock lifts and re-applies if the viewport narrows again.
+
+## Layout
+
+`ChatMessageList` (078) owns its scroll region: its root is
+`flex min-h-0 flex-1 flex-col` and the transcript scrolls inside
+`overflow-y-auto`. That only works when **the parent renders it inside a
+bounded flex column** - a chain of `flex` containers with a fixed height at
+the top (`h-screen`, `h-dvh`, or an explicit height) and `min-h-0` on every
+flex child down to the list. Without `min-h-0` a flex child never shrinks
+below its content, the region never overflows, and the page scrolls instead
+of the transcript. The library does not set the outer height; that is the
+consumer's layout decision.
 
 ## Seams left open on purpose
 

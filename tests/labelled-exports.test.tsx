@@ -8,6 +8,7 @@ import {
   AppSidebar,
   ChatComposer,
   ChatMessage,
+  ChatMessageList,
   ConversationList,
   ErrorBoundary,
   InlineThinkingIndicator,
@@ -18,6 +19,7 @@ import {
   defaultAppSidebarLabels,
   defaultChatComposerLabels,
   defaultChatMessageLabels,
+  defaultChatMessageListLabels,
   defaultConversationListLabels,
   defaultErrorBoundaryLabels,
   defaultInlineThinkingIndicatorLabels,
@@ -28,6 +30,7 @@ import type {
   AppSidebarLabels,
   ChatComposerLabels,
   ChatMessageLabels,
+  ChatMessageListLabels,
   ConversationListLabels,
   ErrorBoundaryLabels,
   InlineThinkingIndicatorLabels,
@@ -43,6 +46,8 @@ import {
 // exports carry no strings and are excluded by design. A new export lands in
 // exactly one bucket:
 //   labelsProp     - takes labels?: Partial<XLabels> over English defaults
+//                    (ChatMessageList's labels prop is required - aiDisclosure
+//                    has no default - but the shape is the same)
 //   stringPropOnly - takes its strings through a dedicated prop (the three
 //                    grandfathered shapes: icons' ariaLabel, useFocusGroups'
 //                    announce, Toast's message)
@@ -50,6 +55,7 @@ import {
 const labelsProp = [
   "ErrorBoundary",
   "ChatMessage",
+  "ChatMessageList",
   "InlineThinkingIndicator",
   "ThinkingIndicator",
   "ChatComposer",
@@ -99,6 +105,7 @@ const noStrings = [
   "resolveLabels",
   "defaultErrorBoundaryLabels",
   "defaultChatMessageLabels",
+  "defaultChatMessageListLabels",
   "defaultInlineThinkingIndicatorLabels",
   "defaultThinkingIndicatorLabels",
   "defaultChatComposerLabels",
@@ -169,6 +176,16 @@ const chatMessageSentinels = {
   thinking: "⟦thinking⟧",
   linkOpensInNewTab: "⟦linkOpensInNewTab⟧",
 } satisfies Required<ChatMessageLabels>;
+
+// aiDisclosure is the package's first required label: it sits in the
+// sentinel object (it must render) but not in defaultChatMessageListLabels,
+// so this one coverage check compares against defaults plus the key.
+const chatMessageListSentinels = {
+  ...chatMessageSentinels,
+  thinkingRegion: "⟦thinkingRegion⟧",
+  aiDisclosure: "⟦aiDisclosure⟧",
+  transcript: "⟦transcript⟧",
+} satisfies Required<ChatMessageListLabels>;
 
 const markdownComponentsSentinels = {
   linkOpensInNewTab: "⟦linkOpensInNewTab⟧",
@@ -263,6 +280,26 @@ const sentinelHarnesses: Record<
       // Clicking copy and thumbs-up surfaces the interaction-only labels
       // (copied, copiedNotice, feedbackNotice) so a hardcoded string on
       // those paths cannot hide from the Latin-run check.
+      const [copyButton, thumbsUp] = getAllByRole("button");
+      fireEvent.click(copyButton);
+      fireEvent.click(thumbsUp);
+      return container;
+    },
+  },
+  ChatMessageList: {
+    sentinels: Object.values(chatMessageListSentinels),
+    renderContainer: () => {
+      const { container, getAllByRole } = render(
+        <ChatMessageList
+          entries={[
+            { id: "u1", role: "user", content: numericContent },
+            { id: "a1", role: "assistant", content: numericContent, isStreaming: false },
+          ]}
+          userInitials="LM"
+          busy
+          labels={chatMessageListSentinels}
+        />
+      );
       const [copyButton, thumbsUp] = getAllByRole("button");
       fireEvent.click(copyButton);
       fireEvent.click(thumbsUp);
@@ -364,6 +401,12 @@ describe("the sentinel render check", () => {
   it("ChatMessage's sentinel labels cover every defaultChatMessageLabels key", () => {
     expect(Object.keys(chatMessageSentinels).sort()).toEqual(
       Object.keys(defaultChatMessageLabels).sort()
+    );
+  });
+
+  it("ChatMessageList's sentinel labels cover every defaultChatMessageListLabels key plus the required aiDisclosure", () => {
+    expect(Object.keys(chatMessageListSentinels).sort()).toEqual(
+      [...Object.keys(defaultChatMessageListLabels), "aiDisclosure"].sort()
     );
   });
 
