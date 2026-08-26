@@ -310,3 +310,40 @@ describe("review hardening (076 diff review)", () => {
     expect(styles).toMatch(/\.bowman-md-img \{/);
   });
 });
+
+describe("an authority-less special scheme is not a way around allowRelativeUrls", () => {
+  it.each([
+    "https:/api/logout",
+    "https:api/logout",
+    "https:/../admin",
+    "https:#anchor",
+    "https:?x=1",
+    "HTTPS:/api/logout",
+  ])(
+    "renders no anchor for %s, which a browser resolves against the reader's own origin",
+    (destination) => {
+      const { container } = renderMarkdown(`[4711](<${destination}>)`);
+
+      expect(container.querySelector("a")).toBeNull();
+      expect(screen.getByText("4711").tagName).toBe("SPAN");
+    }
+  );
+
+  it("the rejection survives allowRelativeUrls: true and an http opt-in", () => {
+    const transform = createUrlTransform({
+      allowedSchemes: ["https", "http"],
+      allowRelativeUrls: true,
+    });
+
+    expect([transform("https:/api/logout"), transform("http:api/x")]).toEqual(["", ""]);
+  });
+
+  it("mailto and tel keep their authority-less form", () => {
+    const transform = createUrlTransform();
+
+    expect([transform("mailto:support@havkat-rejser.invalid"), transform("tel:+4570123456")]).toEqual([
+      "mailto:support@havkat-rejser.invalid",
+      "tel:+4570123456",
+    ]);
+  });
+});

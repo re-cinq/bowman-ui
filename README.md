@@ -64,12 +64,12 @@ The components own no scroll position: keeping the transcript pinned to the newe
 
 The library treats assistant content as untrusted: the model that writes it has tool results from a third-party system in its context, so which URLs become clickable is the library's decision, not the model's. `ChatMessage` therefore renders markdown through its own URL policy instead of react-markdown's default filter. The default:
 
-| Field               | Default                      | Effect                                                                                          |
-| ------------------- | ---------------------------- | ----------------------------------------------------------------------------------------------- |
-| `allowedSchemes`    | `["https", "mailto", "tel"]` | Any other scheme (`http`, `javascript:`, `data:`, ...) renders as plain text, never an anchor   |
-| `allowRelativeUrls` | `false`                      | `[text](/api/logout)` renders as text; protocol-relative `//host` is always rejected            |
-| `linkTarget`        | `"_blank"`                   | Anchors open in a new tab, with a visually-hidden `linkOpensInNewTab` notice for screen readers |
-| `allowImages`       | `false`                      | `![alt](url)` renders the alt text; no image request leaves the reader's browser                |
+| Field               | Default                      | Effect                                                                                                                       |
+| ------------------- | ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `allowedSchemes`    | `["https", "mailto", "tel"]` | Any other scheme (`http`, `javascript:`, `data:`, ...) renders as plain text, never an anchor                                |
+| `allowRelativeUrls` | `false`                      | `[text](/api/logout)` renders as text; protocol-relative `//host` and authority-less `https:/api/logout` are always rejected |
+| `linkTarget`        | `"_blank"`                   | Anchors open in a new tab, with a visually-hidden `linkOpensInNewTab` notice for screen readers                              |
+| `allowImages`       | `false`                      | `![alt](url)` renders the alt text; no image request leaves the reader's browser                                             |
 
 A rejected URL renders its link text in a `<span>` - never an empty anchor, which would reload the page when clicked. Every rendered anchor carries `rel="noopener noreferrer"`, even with `linkTarget: "_self"`, so the chat URL never leaks in a `Referer` header. remark-gfm autolink literals (a bare `https://...` or `support@...` in prose) pass through the same policy; note that a bare `www.example.com` autolinks as `http://`, so it stays text unless `http` is allowed.
 
