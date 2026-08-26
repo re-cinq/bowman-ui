@@ -1,5 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { InlineThinkingIndicator, defaultInlineThinkingIndicatorLabels } from "../src/index.js";
+import { expectThinkingDots } from "./helpers/expect-thinking-dots.js";
 
 describe("InlineThinkingIndicator", () => {
   it('renders the default label "Thinking" with no labels prop', () => {
@@ -18,12 +19,7 @@ describe("InlineThinkingIndicator", () => {
   it("renders three bowman-fade-dot dots with staggered animation delays", () => {
     const { container } = render(<InlineThinkingIndicator />);
 
-    const dots = [...container.querySelectorAll(".bowman-fade-dot")];
-    expect(dots.map((dot) => (dot as HTMLElement).style.animationDelay)).toEqual([
-      "0s",
-      "0.2s",
-      "0.4s",
-    ]);
+    expectThinkingDots(container);
   });
 
   it('defaultInlineThinkingIndicatorLabels is frozen and holds exactly { thinking: "Thinking" }', () => {

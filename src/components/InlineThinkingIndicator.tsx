@@ -1,6 +1,7 @@
 "use client";
 
 import { resolveLabels } from "../labels.js";
+import { ThinkingDots } from "./ThinkingDots.js";
 
 export interface InlineThinkingIndicatorLabels {
   thinking: string;
@@ -27,20 +28,7 @@ export function InlineThinkingIndicator({ labels }: InlineThinkingIndicatorProps
   return (
     <div className="flex items-center gap-2 py-1">
       <span className="text-sm text-slate-500 dark:text-slate-400">{resolved.thinking}</span>
-      <span className="flex gap-0.5">
-        <span
-          className="bowman-fade-dot h-1 w-1 rounded-full bg-blue-500"
-          style={{ animationDelay: "0s" }}
-        />
-        <span
-          className="bowman-fade-dot h-1 w-1 rounded-full bg-blue-500"
-          style={{ animationDelay: "0.2s" }}
-        />
-        <span
-          className="bowman-fade-dot h-1 w-1 rounded-full bg-blue-500"
-          style={{ animationDelay: "0.4s" }}
-        />
-      </span>
+      <ThinkingDots />
     </div>
   );
 }
