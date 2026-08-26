@@ -118,20 +118,42 @@ function TypewriterTitle({
     };
   }, [text, isPlaceholder, reducedMotion]);
 
+  // The per-character spans are presentation only: assistive tech reads the
+  // plain full title (already the new one mid-animation) instead of a stream
+  // of one-letter text nodes. Hidden with inline styles so the package needs
+  // no stylesheet or Tailwind config from the consumer.
   return (
-    <span
-      className="block overflow-hidden whitespace-nowrap"
-      style={{ textOverflow: isAnimating ? "clip" : "ellipsis" }}
-    >
-      {chars.map((c, index) => (
-        <span
-          key={`${index}-${c.ch}`}
-          style={{ opacity: c.opacity, transition: "opacity 0.1s ease" }}
-        >
-          {c.ch}
-        </span>
-      ))}
-    </span>
+    <>
+      <span
+        style={{
+          position: "absolute",
+          width: "1px",
+          height: "1px",
+          padding: 0,
+          margin: "-1px",
+          overflow: "hidden",
+          clip: "rect(0, 0, 0, 0)",
+          whiteSpace: "nowrap",
+          border: 0,
+        }}
+      >
+        {text}
+      </span>
+      <span
+        aria-hidden="true"
+        className="block overflow-hidden whitespace-nowrap"
+        style={{ textOverflow: isAnimating ? "clip" : "ellipsis" }}
+      >
+        {chars.map((c, index) => (
+          <span
+            key={`${index}-${c.ch}`}
+            style={{ opacity: c.opacity, transition: "opacity 0.1s ease" }}
+          >
+            {c.ch}
+          </span>
+        ))}
+      </span>
+    </>
   );
 }
 
