@@ -185,6 +185,15 @@ takes `labels`):
   list in the same PR per the closed-list rule in
   `specs/bowman-ui-labels-convention/spec.md`.
 
+**Factories carrying strings sit in `labelsProp` too.** Issue 076's
+`createMarkdownComponents(options)` is not a component, but its result renders
+the `linkOpensInNewTab` notice, so it takes the convention's shape -
+`options.labels?: Partial<MarkdownComponentsLabels>` over frozen English
+defaults - and lives in the `labelsProp` partition bucket with its own
+sentinel harness, not in the closed `stringPropOnly` list. `ChatMessage`
+forwards its resolved `linkOpensInNewTab` slice to the factory, decision 3's
+flat-union forwarding.
+
 ## Toast (issue 025)
 
 - The component has **zero reachable call sites in Discovery**: `Toast` is
