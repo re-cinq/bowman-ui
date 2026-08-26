@@ -59,7 +59,7 @@ already in the repo - it moves no new component.
   as required-with-no-default under the EU AI Act.
 - Re-pinned prior behaviour (AC 39): `<LoadingIcon ariaLabel="Indlæser" />` renders
   `aria-label="Indlæser"` with `"Loading"` nowhere in the output
-  ([validated by](../../tests/icons.test.tsx#L235)); the Danish `announce` assertion already
+  ([validated by](../../tests/icons.test.tsx#L236)); the Danish `announce` assertion already
   existed and is referenced, not duplicated
   ([validated by](../../tests/useFocusGroups.test.tsx#L120)).
 
