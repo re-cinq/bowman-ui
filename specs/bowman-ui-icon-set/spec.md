@@ -98,7 +98,7 @@ lines) passes unchanged in meaning: no label → `aria-hidden="true"` and no
 `<SearchIcon strokeWidth={1.5} />` renders `stroke-width="1.5"` on the path
 ([validated by](../../tests/icons.test.tsx#L264)); `DatabaseIcon` defaults to
 `1.5` (source `index.tsx:374`,
-[validated by](../../tests/icons.test.tsx#L269)).
+[validated by](../../tests/icons.test.tsx#L275)).
 
 ## What does not move
 

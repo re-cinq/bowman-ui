@@ -35,7 +35,7 @@ and the runtime export set of `dist/index.js` is pinned separately by
 31 types after this issue; [validated by](../../tests/public-api.test.ts#L40)). `dist/components/ThinkingDots.{js,d.ts}` packs
 with the rest of `dist/`, but `package.json`'s `exports` map exposes only `"."`
 and `"./styles.css"`, so no consumer can deep-import the private component
-([validated by](../../tests/system-contract.test.ts#L28)).
+([validated by](../../tests/system-contract.test.ts#L30)).
 
 ## The decisions
 

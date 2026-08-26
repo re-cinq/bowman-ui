@@ -24,9 +24,9 @@ Exactly `ChatEntry`, `ChatEntryRole`, `UserChatEntry`, `AssistantChatEntry`,
 typecheck, and an `AssistantChatEntry` without `isStreaming` does not compile
 ([validated by](../../tests/types/chat.test.ts#L71)). No exported type declares
 `index`, `devMetadata`, `correlationId`, `traceId`, `timings`, `reflection`,
-`scores`, `tenantId`, `organizationId`, `timestamp`
-([validated by](../../tests/types/chat.test.ts#L95)) or an index signature
-([validated by](../../tests/types/chat.test.ts#L114)).
+`scores`, `tenantId`, `organizationId`, `timestamp` or an index signature
+([validated by](../../tests/types/chat.test.ts#L95),
+[L114](../../tests/types/chat.test.ts#L114)).
 `AssistantChatEntry.toolStatus?: string` is caller-supplied and has no HAL
 protocol counterpart. The module ships types only: `dist/types/chat.js` is a
 bare `export {};`, so nothing in it can log, serialize or persist the customer
