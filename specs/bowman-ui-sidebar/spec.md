@@ -31,7 +31,7 @@ sits in the `labelsProp` partition bucket
 ([partition](../../tests/labelled-exports.test.tsx#L46)) and passes the
 sentinel render with both labels set to sentinels
 ([harness](../../tests/labelled-exports.test.tsx#L265),
-[coverage](../../tests/labelled-exports.test.tsx#L340)).
+[coverage](../../tests/labelled-exports.test.tsx#L346)).
 
 ## The decisions
 
