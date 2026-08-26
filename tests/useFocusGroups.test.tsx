@@ -158,6 +158,75 @@ describe("useFocusGroups", () => {
     expect(preset.getAttribute("tabindex")).toBe("5");
   });
 
+  it("the live region is inserted empty and receives its text a frame later, so screen readers announce it", () => {
+    const frames: FrameRequestCallback[] = [];
+    vi.stubGlobal("requestAnimationFrame", (callback: FrameRequestCallback) => {
+      frames.push(callback);
+      return frames.length;
+    });
+    render(<Harness />);
+
+    pressF6();
+
+    const region = screen.getByRole("status");
+    expect(region).toHaveTextContent("");
+
+    act(() => {
+      for (const frame of frames) frame(0);
+    });
+    expect(region).toHaveTextContent("Moved to main");
+  });
+
+  it("F6 steps from the group that actually holds focus, not from the last F6 target", () => {
+    render(<Harness />);
+
+    screen.getByRole("button", { name: "main action" }).focus();
+    pressF6();
+
+    expect(screen.getByRole("button", { name: "header action" })).toHaveFocus();
+  });
+
+  it("Shift+F6 steps backward from the focused group even when the stored index points elsewhere", () => {
+    render(<Harness />);
+
+    pressF6();
+    expect(screen.getByRole("button", { name: "main action" })).toHaveFocus();
+
+    screen.getByRole("button", { name: "header action" }).focus();
+    pressF6(true);
+
+    expect(screen.getByRole("button", { name: "main action" })).toHaveFocus();
+  });
+
+  it("F6 with no groups on the page leaves the browser's own F6 behavior alone", () => {
+    const Groupless = () => {
+      useFocusGroups();
+      return <div>no groups here</div>;
+    };
+    render(<Groupless />);
+
+    const notPrevented = fireEvent.keyDown(document, { key: "F6" });
+
+    expect(notPrevented).toBe(true);
+  });
+
+  it("two mounted instances announce one F6 press exactly once", () => {
+    const Twice = () => {
+      useFocusGroups();
+      useFocusGroups();
+      return (
+        <main data-focus-group="main">
+          <button>main action</button>
+        </main>
+      );
+    };
+    render(<Twice />);
+
+    pressF6();
+
+    expect(screen.getAllByRole("status")).toHaveLength(1);
+  });
+
   it("non-F6 keys are ignored", () => {
     render(<Harness />);
 

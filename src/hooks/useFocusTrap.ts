@@ -11,6 +11,10 @@ import { useEffect, useRef, useCallback, type RefObject } from "react";
  * - Tab cycles through focusable elements
  * - Shift+Tab cycles backwards
  *
+ * Modal-only by design: while open, a Tab pressed with focus anywhere
+ * outside the container pulls focus back in. Do not use it for non-modal
+ * surfaces (popovers, toolbars) where the page behind stays interactive.
+ *
  * @param isOpen - Whether the container is open/active
  * @param onClose - Callback to close the container
  * @param triggerRef - Optional ref to the element that triggered the container (for focus return)
@@ -42,8 +46,16 @@ export function useFocusTrap<T extends HTMLElement = HTMLDivElement>(
       '[tabindex]:not([tabindex="-1"]):not([disabled])',
     ].join(",");
 
-    return Array.from(containerRef.current.querySelectorAll<HTMLElement>(selector)).filter(
-      (el) => el.offsetParent !== null // Filter out hidden elements
+    // checkVisibility with visibilityProperty tests display:none subtrees and
+    // visibility:hidden - the states that also remove an element from the tab
+    // order. Opacity stays untested on purpose: opacity-0 elements remain
+    // tabbable in browsers (this package's own reveal-on-focus buttons rely
+    // on that). The offsetParent fallback misreports fixed-position
+    // descendants as hidden but is all older engines offer.
+    return Array.from(containerRef.current.querySelectorAll<HTMLElement>(selector)).filter((el) =>
+      typeof el.checkVisibility === "function"
+        ? el.checkVisibility({ visibilityProperty: true })
+        : el.offsetParent !== null
     );
   }, []);
 
@@ -66,6 +78,14 @@ export function useFocusTrap<T extends HTMLElement = HTMLDivElement>(
 
         const firstElement = focusableElements[0];
         const lastElement = focusableElements[focusableElements.length - 1];
+
+        // Focus that escaped the trap (a programmatic move, a browser quirk)
+        // is pulled back in instead of tabbing on through the page behind.
+        if (!containerRef.current?.contains(document.activeElement)) {
+          event.preventDefault();
+          (event.shiftKey ? lastElement : firstElement).focus();
+          return;
+        }
 
         if (event.shiftKey) {
           // Shift+Tab: if on first element, wrap to last
