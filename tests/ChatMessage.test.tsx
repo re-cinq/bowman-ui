@@ -145,6 +145,24 @@ describe("ChatMessage", () => {
       expect(writeTextMock).toHaveBeenCalledWith("Booking 4711 er bekræftet");
     });
 
+    it('Cmd+C under Caps Lock - the key reports "C" - still copies', () => {
+      vi.useFakeTimers();
+      render(<ChatMessage entry={makeEntry()} userInitials="LM" />);
+
+      fireEvent.keyDown(screen.getByRole("article"), { key: "C", metaKey: true });
+
+      expect(writeTextMock).toHaveBeenCalledWith("Booking 4711 er bekræftet");
+    });
+
+    it("Cmd+Shift+C - the browser's inspect-element chord - copies nothing", () => {
+      vi.useFakeTimers();
+      render(<ChatMessage entry={makeEntry()} userInitials="LM" />);
+
+      fireEvent.keyDown(screen.getByRole("article"), { key: "C", metaKey: true, shiftKey: true });
+
+      expect(writeTextMock).not.toHaveBeenCalled();
+    });
+
     it("a non-empty window.getSelection suppresses the Cmd+C copy", () => {
       vi.useFakeTimers();
       vi.spyOn(window, "getSelection").mockReturnValue({
@@ -231,6 +249,23 @@ describe("ChatMessage", () => {
         "aria-pressed",
         "false"
       );
+    });
+
+    it("with arrowKeyFeedback, Alt+ArrowUp calls onFeedback zero times - modified arrows stay the browser's", () => {
+      const onFeedback = vi.fn();
+      render(
+        <ChatMessage
+          entry={makeEntry()}
+          userInitials="LM"
+          arrowKeyFeedback
+          onFeedback={onFeedback}
+        />
+      );
+
+      fireEvent.keyDown(screen.getByRole("article"), { key: "ArrowUp", altKey: true });
+      fireEvent.keyDown(screen.getByRole("article"), { key: "ArrowDown", altKey: true });
+
+      expect(onFeedback).not.toHaveBeenCalled();
     });
 
     it('with arrowKeyFeedback, ArrowDown calls onFeedback("entry-1", "down") and sets aria-pressed true on thumbs-down, false on thumbs-up (adaptation a)', () => {

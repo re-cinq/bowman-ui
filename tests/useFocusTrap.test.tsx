@@ -65,6 +65,7 @@ describe("useFocusTrap", () => {
     if (offsetParentDescriptor) {
       Object.defineProperty(HTMLElement.prototype, "offsetParent", offsetParentDescriptor);
     }
+    Reflect.deleteProperty(HTMLElement.prototype, "checkVisibility");
     vi.unstubAllGlobals();
   });
 
@@ -181,6 +182,40 @@ describe("useFocusTrap", () => {
 
     expect(screen.getByRole("button", { name: "trigger" })).toHaveFocus();
     expect(cancelled.length).toBeGreaterThan(0);
+  });
+
+  it("checkVisibility wins over offsetParent, so a fixed-position container's children are not treated as hidden", () => {
+    if (offsetParentDescriptor) {
+      Object.defineProperty(HTMLElement.prototype, "offsetParent", offsetParentDescriptor);
+    }
+    Object.defineProperty(HTMLElement.prototype, "checkVisibility", {
+      configurable: true,
+      value: () => true,
+    });
+
+    render(<Harness isOpen onClose={vi.fn()} />);
+
+    expect(screen.getByRole("button", { name: "first" })).toHaveFocus();
+  });
+
+  it("Tab while focus sits outside the open trap pulls it to the first element", () => {
+    render(<button>outside</button>);
+    render(<Harness isOpen onClose={vi.fn()} />);
+    screen.getByRole("button", { name: "outside" }).focus();
+
+    fireEvent.keyDown(document, { key: "Tab" });
+
+    expect(screen.getByRole("button", { name: "first" })).toHaveFocus();
+  });
+
+  it("Shift+Tab while focus sits outside the open trap pulls it to the last element", () => {
+    render(<button>outside</button>);
+    render(<Harness isOpen onClose={vi.fn()} />);
+    screen.getByRole("button", { name: "outside" }).focus();
+
+    fireEvent.keyDown(document, { key: "Tab", shiftKey: true });
+
+    expect(screen.getByRole("button", { name: "last" })).toHaveFocus();
   });
 
   it("an empty container leaves Tab handling alone", () => {

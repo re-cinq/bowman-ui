@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import { AppShell, type SidebarSlotContext } from "../src/index.js";
 
 const source = readFileSync(resolve(process.cwd(), "src/components/AppShell.tsx"), "utf8");
@@ -178,6 +178,46 @@ describe("AppShell", () => {
     });
   });
 
+  describe("dialog semantics (review fixes)", () => {
+    it('the open drawer is a modal dialog named "Menu" by default: role="dialog", aria-modal="true", aria-label', () => {
+      render(<AppShell>content</AppShell>);
+      fireEvent.click(getHamburger());
+
+      const drawer = getDrawer();
+      expect(drawer).toHaveAttribute("role", "dialog");
+      expect(drawer).toHaveAttribute("aria-modal", "true");
+      expect(drawer).toHaveAttribute("aria-label", "Menu");
+    });
+
+    it("the closed drawer carries no dialog semantics", () => {
+      render(<AppShell>content</AppShell>);
+
+      const drawer = getDrawer();
+      expect(drawer).not.toHaveAttribute("role");
+      expect(drawer).not.toHaveAttribute("aria-modal");
+      expect(drawer).not.toHaveAttribute("aria-label");
+    });
+
+    it('labels={{sidebarDialog: "Menu 4711"}} names the open dialog', () => {
+      render(<AppShell labels={{ sidebarDialog: "Menu 4711" }}>content</AppShell>);
+      fireEvent.click(getHamburger());
+
+      expect(getDrawer()).toHaveAttribute("aria-label", "Menu 4711");
+    });
+
+    // No aria-expanded: the hamburger only opens (the open drawer covers it
+    // behind the z-50 backdrop, and closing has its own controls), so an
+    // expanded state would promise a collapse the button cannot perform.
+    it("the hamburger names the drawer through aria-controls and carries no aria-expanded", () => {
+      render(<AppShell>content</AppShell>);
+
+      const hamburger = getHamburger();
+      expect(getDrawer().id).not.toBe("");
+      expect(hamburger.getAttribute("aria-controls")).toBe(getDrawer().id);
+      expect(hamburger).not.toHaveAttribute("aria-expanded");
+    });
+  });
+
   describe("inert on the closed drawer", () => {
     it("the closed drawer wrapper carries inert so its focusables are out of the tab order; the open wrapper carries none", () => {
       render(<AppShell renderSidebar={sidebarWithLink}>content</AppShell>);
@@ -274,6 +314,7 @@ describe("AppShell", () => {
   describe("the body scroll lock", () => {
     afterEach(() => {
       document.body.style.overflow = "";
+      vi.unstubAllGlobals();
     });
 
     it('with body overflow pre-set to "scroll", opening sets "hidden" and closing restores "scroll"', () => {
@@ -285,6 +326,40 @@ describe("AppShell", () => {
 
       fireEvent.click(getCloseButton());
       expect(document.body.style.overflow).toBe("scroll");
+    });
+
+    it("crossing to the desktop breakpoint while open releases the lock, and crossing back re-locks", () => {
+      document.body.style.overflow = "scroll";
+      const changeHandlers: Array<(event: { matches: boolean }) => void> = [];
+      let desktop = false;
+      vi.stubGlobal(
+        "matchMedia",
+        vi.fn((query: string) => ({
+          get matches() {
+            return query === "(min-width: 768px)" ? desktop : false;
+          },
+          addEventListener: (_type: string, handler: (event: { matches: boolean }) => void) => {
+            if (query === "(min-width: 768px)") changeHandlers.push(handler);
+          },
+          removeEventListener: vi.fn(),
+        }))
+      );
+
+      render(<AppShell>content</AppShell>);
+      fireEvent.click(getHamburger());
+      expect(document.body.style.overflow).toBe("hidden");
+
+      desktop = true;
+      act(() => {
+        for (const handler of changeHandlers) handler({ matches: true });
+      });
+      expect(document.body.style.overflow).toBe("scroll");
+
+      desktop = false;
+      act(() => {
+        for (const handler of changeHandlers) handler({ matches: false });
+      });
+      expect(document.body.style.overflow).toBe("hidden");
     });
 
     it('unmounting while open restores the prior "scroll" value', () => {

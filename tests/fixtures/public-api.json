@@ -70,6 +70,7 @@
     "ConversationListLabels",
     "ConversationListProps",
     "ErrorBoundaryLabels",
+    "ErrorBoundaryProps",
     "FocusGroupsOptions",
     "IconProps",
     "IconSvgProps",
