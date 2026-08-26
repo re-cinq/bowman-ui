@@ -8,12 +8,14 @@ import {
   ConversationList,
   ErrorBoundary,
   InlineThinkingIndicator,
+  ThinkingIndicator,
   defaultAppShellLabels,
   defaultChatComposerLabels,
   defaultChatMessageLabels,
   defaultConversationListLabels,
   defaultErrorBoundaryLabels,
   defaultInlineThinkingIndicatorLabels,
+  defaultThinkingIndicatorLabels,
 } from "../src/index.js";
 import type {
   AppShellLabels,
@@ -22,6 +24,7 @@ import type {
   ConversationListLabels,
   ErrorBoundaryLabels,
   InlineThinkingIndicatorLabels,
+  ThinkingIndicatorLabels,
 } from "../src/index.js";
 
 // CONTRACT.md § Labels enforcement (static, test-time - never a runtime
@@ -37,6 +40,7 @@ const labelsProp = [
   "ErrorBoundary",
   "ChatMessage",
   "InlineThinkingIndicator",
+  "ThinkingIndicator",
   "ChatComposer",
   "ConversationList",
   "AppShell",
@@ -82,6 +86,7 @@ const noStrings = [
   "defaultErrorBoundaryLabels",
   "defaultChatMessageLabels",
   "defaultInlineThinkingIndicatorLabels",
+  "defaultThinkingIndicatorLabels",
   "defaultChatComposerLabels",
   "defaultConversationListLabels",
   "defaultAppShellLabels",
@@ -152,6 +157,11 @@ const chatMessageSentinels = {
 const inlineThinkingIndicatorSentinels = {
   thinking: "⟦thinking⟧",
 } satisfies Required<InlineThinkingIndicatorLabels>;
+
+const thinkingIndicatorSentinels = {
+  thinking: "⟦thinking⟧",
+  thinkingRegion: "⟦thinkingRegion⟧",
+} satisfies Required<ThinkingIndicatorLabels>;
 
 const chatComposerSentinels = {
   composerInput: "⟦composerInput⟧",
@@ -233,6 +243,11 @@ const sentinelHarnesses: Record<
     renderContainer: () =>
       render(<InlineThinkingIndicator labels={inlineThinkingIndicatorSentinels} />).container,
   },
+  ThinkingIndicator: {
+    sentinels: Object.values(thinkingIndicatorSentinels),
+    renderContainer: () =>
+      render(<ThinkingIndicator labels={thinkingIndicatorSentinels} />).container,
+  },
   ChatComposer: {
     sentinels: Object.values(chatComposerSentinels),
     renderContainer: () =>
@@ -292,6 +307,12 @@ describe("the sentinel render check", () => {
   it("InlineThinkingIndicator's sentinel labels cover every defaultInlineThinkingIndicatorLabels key", () => {
     expect(Object.keys(inlineThinkingIndicatorSentinels).sort()).toEqual(
       Object.keys(defaultInlineThinkingIndicatorLabels).sort()
+    );
+  });
+
+  it("ThinkingIndicator's sentinel labels cover every defaultThinkingIndicatorLabels key", () => {
+    expect(Object.keys(thinkingIndicatorSentinels).sort()).toEqual(
+      Object.keys(defaultThinkingIndicatorLabels).sort()
     );
   });
 

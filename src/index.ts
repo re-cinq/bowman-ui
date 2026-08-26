@@ -57,6 +57,14 @@ export type {
   InlineThinkingIndicatorLabels,
   InlineThinkingIndicatorProps,
 } from "./components/InlineThinkingIndicator.js";
+export {
+  ThinkingIndicator,
+  defaultThinkingIndicatorLabels,
+} from "./components/ThinkingIndicator.js";
+export type {
+  ThinkingIndicatorLabels,
+  ThinkingIndicatorProps,
+} from "./components/ThinkingIndicator.js";
 export { ChatComposer, defaultChatComposerLabels } from "./components/ChatComposer.js";
 export type {
   ChatComposerHandle,
