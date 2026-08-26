@@ -6,11 +6,52 @@ cites this file instead of re-deriving them. Evidence paths reference
 
 ## 1. `"use client"` is per-file
 
-The directive is added only to files that use a client-only React API
-(`useState`, `useEffect`, `useRef`, `useCallback`, `useMemo`, `useReducer`,
-`useContext`, `useLayoutEffect`, `useSyncExternalStore`, `createContext`) or an
-`on[A-Z]` JSX handler. It must be the built file's first **statement**, not its
-literal first line - a leading docblock or comment may sit above it.
+The directive is added only to files that trigger a client-only rule. Since
+issue 137 the trigger list is measured off the AST, not a hand-written hook
+enumeration; the four rules, plus the JSX-handler rule, are:
+
+1. **A hook-shaped import**: a named or default import whose imported or
+   local name matches `/^use[A-Z]/`, from **any** module specifier - React's
+   own hooks, `usePathname` from `next/navigation`, a re-exported Clerk hook,
+   a relative `./useWidgetState.js` alike - or a hook-shaped namespace-member
+   call such as `React.useState(...)`.
+2. **A named import of `createContext`.**
+3. **A class extending `Component` or `PureComponent`**, bare or through a
+   namespace import (`React.Component`).
+4. **A value-position reference to a measured browser global.** The list is
+   the eighteen names probed `undefined` on server Node (`window`,
+   `document`, `navigator`, `localStorage`, `sessionStorage`, `matchMedia`,
+   `requestAnimationFrame`, `cancelAnimationFrame`, `IntersectionObserver`,
+   `ResizeObserver`, `MutationObserver`, `getComputedStyle`, `alert`,
+   `history`, `location`, `WebSocket`, `FileReader`, `XMLHttpRequest`);
+   `navigator` and `WebSocket` are defined on the Node 22 CI runtime and are
+   kept as silent-divergence cases - a server render reaching them throws
+   nothing, which is exactly why the static check must carry them. DOM
+   **type** names (`HTMLElement`, `Element`, `Node`, `SVGSVGElement`) are
+   excluded outright: they are erased at compile time and appear all over
+   server-safe code - `Icon.tsx`'s `forwardRef<SVGSVGElement>` is the
+   evidence. A `typeof window` guard still triggers (021 dropped the dead
+   guards; this package's policy is directives, not isomorphic guards), and
+   a local binding shadowing a listed global still triggers - both are the
+   check's fail-safe direction, over-requiring rather than missing a real
+   boundary.
+5. **An `on[A-Z]` JSX handler**, matched as an AST attribute node - the same
+   name inside a comment or a string literal does not fire.
+
+**No escape-hatch pragma.** Following `032`/`078`'s no-opt-out precedent: a
+false positive gets the file a directive, or the rule gets narrowed with the
+motivating file named in the narrowing PR. A comment that silences the check
+would decay into ambient noise the way every lint-disable does.
+
+**Known non-triggers.** Bare `use` is not a trigger, and `use(SomeContext)` -
+client-only in practice - is unmatched by every rule here; `078`'s RSC
+fixture build is the executable backstop that covers it. A file whose only
+client-ness is rendering an imported client component (a Clerk widget, a
+pure-JSX presentational wrapper) is likewise invisible to static per-file
+rules and belongs to `078` and to `032`'s forbidden-import question.
+
+The directive must be the built file's first **statement**, not its literal
+first line - a leading docblock or comment may sit above it.
 
 Evidence:
 
@@ -29,14 +70,16 @@ Evidence:
 - `src/index.ts` carries no directive; `dist/index.js` stays a plain
   re-export.
 
-Enforcement: `scripts/check-client-directives.mjs` fails the build when a
-`src/` file references a client-only API or handler without the directive as
-its first statement, and asserts every marked source file's `dist/**/*.js`
-counterpart opens with `"use client";` as its first statement (leading
-comments and blank lines ignored). It runs in `ci.yml` as the named step
-"Client directive check". This check is static; only a Next.js consumer
-importing from a server component proves the boundary holds - that
-verification is its own later issue.
+Enforcement: `scripts/check-client-directives.mjs` parses every `src/` file
+with `ts.createSourceFile` and fails the build when a file fires any rule
+above without the directive as its first statement, and asserts every marked
+source file's `dist/**/*.js` counterpart opens with `"use client";` as its
+first statement (leading comments and blank lines ignored). Reading imports
+off the AST is what lets `src/index.ts` re-export client-only names with no
+directive of its own: `export ... from` is not a reference. It runs in
+`ci.yml` as the named step "Client directive check". This check is static;
+only a Next.js consumer importing from a server component proves the boundary
+holds - that verification is `078`'s RSC fixture build.
 
 ## 2. One icon system: the local 24-icon set
 

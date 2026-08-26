@@ -2,57 +2,212 @@
 // Enforces CONTRACT.md decision 1: "use client" is per-file.
 //
 // Default mode (no argument):
-//   1. Every .ts/.tsx under src/ that references a client-only React API or an
-//      on[A-Z] JSX handler must carry "use client" as its first statement
-//      (leading comments and blank lines allowed).
+//   1. Every .ts/.tsx under src/ that triggers a client-only rule must carry
+//      "use client" as its first statement (leading comments and blank lines
+//      allowed). The rules, measured off the AST (issue 137):
+//        - a hook-shaped import: a named or default import whose imported or
+//          local name matches /^use[A-Z]/, from any module specifier, or a
+//          hook-shaped namespace-member call such as React.useState(...)
+//        - a named import of createContext
+//        - a class extending Component or PureComponent, bare or through a
+//          namespace import
+//        - a value-position reference to a measured browser global
+//        - an on[A-Z] JSX attribute (an AST attribute node - the same name
+//          inside a comment or string literal does not fire)
 //   2. Every source file that carries the directive must have a dist/**/*.js
 //      counterpart that opens with "use client"; as its first statement,
 //      ignoring leading comments and blank lines.
 //   3. src/index.ts carries no directive, and dist/index.js is a plain
 //      re-export.
 //
-// Detection is textual, not AST-based: a client-API name or on[A-Z]= pattern
-// inside a comment or string literal counts as a reference. That direction is
-// fail-safe (it can only over-require the directive, never miss a real client
-// boundary); issue 128 widens and hardens this check later.
+// Detection parses each file with ts.createSourceFile - names inside comments
+// and string literals never fire, and export ... from re-exports (the barrel
+// shape) are not references. Remaining imprecision points fail-safe: a
+// shadowed browser-global name or a typeof window guard still triggers, which
+// can only over-require the directive, never miss a real client boundary.
 //
 // With a directory argument, only check 1 runs against that directory - used
-// by the red-fixture test to prove the check catches the real case.
+// by the fixture tests to prove each rule fires (and stays quiet) on its own.
 //
 // Exits non-zero listing every violation on stderr.
 
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { join, relative, resolve } from "node:path";
 import process from "node:process";
+import ts from "typescript";
 
-const CLIENT_API =
-  /\b(useState|useEffect|useRef|useCallback|useMemo|useReducer|useContext|useLayoutEffect|useSyncExternalStore|createContext)\b/;
-const JSX_HANDLER = /\bon[A-Z][A-Za-z]*=\s*[{"']/;
-const DIRECTIVE = /^(['"])use client\1\s*;?/;
+const HOOK_NAME = /^use[A-Z]/;
+const JSX_HANDLER = /^on[A-Z]/;
 
-const stripLeadingTrivia = (source) => {
-  let rest = source;
-  for (;;) {
-    const trimmed = rest.replace(/^\s+/, "");
-    if (trimmed.startsWith("//")) {
-      const lineEnd = trimmed.indexOf("\n");
-      if (lineEnd === -1) return "";
-      rest = trimmed.slice(lineEnd + 1);
-      continue;
-    }
-    if (trimmed.startsWith("/*")) {
-      const blockEnd = trimmed.indexOf("*/");
-      if (blockEnd === -1) return "";
-      rest = trimmed.slice(blockEnd + 2);
-      continue;
-    }
-    return trimmed;
-  }
+// Measured with `node -e 'console.log(typeof <name>)'` probes: all eighteen
+// are undefined on Node v20.19.5. On v22.23.2 (what CI's node-version: "22"
+// resolves to today) navigator and WebSocket are defined - kept anyway as
+// silent-divergence cases: a server render that reaches them throws nothing,
+// which is exactly why the static check must carry them. DOM type names
+// (HTMLElement, Element, Node, SVGSVGElement) are excluded outright: they are
+// erased at compile time and appear all over server-safe code.
+const BROWSER_GLOBALS = new Set([
+  "window",
+  "document",
+  "navigator",
+  "localStorage",
+  "sessionStorage",
+  "matchMedia",
+  "requestAnimationFrame",
+  "cancelAnimationFrame",
+  "IntersectionObserver",
+  "ResizeObserver",
+  "MutationObserver",
+  "getComputedStyle",
+  "alert",
+  "history",
+  "location",
+  "WebSocket",
+  "FileReader",
+  "XMLHttpRequest",
+]);
+
+const scriptKindFor = (fileName) => {
+  if (fileName.endsWith(".tsx")) return ts.ScriptKind.TSX;
+  if (fileName.endsWith(".ts")) return ts.ScriptKind.TS;
+  return ts.ScriptKind.JS;
 };
 
-const hasDirectiveAsFirstStatement = (source) => DIRECTIVE.test(stripLeadingTrivia(source));
+const parse = (fileName, source) =>
+  ts.createSourceFile(fileName, source, ts.ScriptTarget.Latest, true, scriptKindFor(fileName));
 
-const usesClientOnlyApi = (source) => CLIENT_API.test(source) || JSX_HANDLER.test(source);
+const parseErrors = (sourceFile) =>
+  (sourceFile.parseDiagnostics ?? []).map((diagnostic) =>
+    ts.flattenDiagnosticMessageText(diagnostic.messageText, " ")
+  );
+
+const hasClientDirective = (sourceFile) => {
+  const [first] = sourceFile.statements;
+  return (
+    first !== undefined &&
+    ts.isExpressionStatement(first) &&
+    ts.isStringLiteral(first.expression) &&
+    first.expression.text === "use client"
+  );
+};
+
+const importTriggers = (statement) => {
+  const triggers = [];
+  const clause = statement.importClause;
+  if (clause === undefined || clause.isTypeOnly) return triggers;
+  if (clause.name !== undefined && HOOK_NAME.test(clause.name.text)) {
+    triggers.push(`imports ${clause.name.text} (hook-shaped import)`);
+  }
+  const bindings = clause.namedBindings;
+  if (bindings === undefined || !ts.isNamedImports(bindings)) return triggers;
+  for (const specifier of bindings.elements) {
+    if (specifier.isTypeOnly) continue;
+    const importedName = (specifier.propertyName ?? specifier.name).text;
+    const localName = specifier.name.text;
+    if (HOOK_NAME.test(importedName) || HOOK_NAME.test(localName)) {
+      triggers.push(`imports ${importedName} (hook-shaped import)`);
+      continue;
+    }
+    if (importedName === "createContext" || localName === "createContext") {
+      triggers.push("imports createContext");
+    }
+  }
+  return triggers;
+};
+
+const heritageName = (expression) => {
+  if (ts.isIdentifier(expression)) return expression.text;
+  if (ts.isPropertyAccessExpression(expression) && ts.isIdentifier(expression.name)) {
+    return expression.name.text;
+  }
+  return undefined;
+};
+
+const heritageTriggers = (node, sourceFile) => {
+  const triggers = [];
+  for (const clause of node.heritageClauses ?? []) {
+    if (clause.token !== ts.SyntaxKind.ExtendsKeyword) continue;
+    for (const type of clause.types) {
+      const name = heritageName(type.expression);
+      if (name === "Component" || name === "PureComponent") {
+        triggers.push(`extends ${type.expression.getText(sourceFile)} (class component)`);
+      }
+    }
+  }
+  return triggers;
+};
+
+const isValueReference = (identifier) => {
+  const parent = identifier.parent;
+  if (ts.isPropertyAccessExpression(parent)) return parent.expression === identifier;
+  if (ts.isPropertyAssignment(parent)) return parent.initializer === identifier;
+  if (ts.isVariableDeclaration(parent) || ts.isParameter(parent) || ts.isBindingElement(parent)) {
+    return parent.initializer === identifier;
+  }
+  if (
+    ts.isFunctionDeclaration(parent) ||
+    ts.isFunctionExpression(parent) ||
+    ts.isClassDeclaration(parent) ||
+    ts.isClassExpression(parent) ||
+    ts.isMethodDeclaration(parent) ||
+    ts.isMethodSignature(parent) ||
+    ts.isPropertyDeclaration(parent) ||
+    ts.isPropertySignature(parent) ||
+    ts.isGetAccessor(parent) ||
+    ts.isSetAccessor(parent) ||
+    ts.isEnumMember(parent)
+  ) {
+    return parent.name !== identifier;
+  }
+  if (ts.isQualifiedName(parent) || ts.isJsxAttribute(parent)) return false;
+  if (
+    ts.isLabeledStatement(parent) ||
+    ts.isBreakStatement(parent) ||
+    ts.isContinueStatement(parent)
+  ) {
+    return false;
+  }
+  return true;
+};
+
+const collectTriggers = (sourceFile) => {
+  const triggers = [];
+  const visit = (node) => {
+    if (
+      ts.isTypeNode(node) ||
+      ts.isInterfaceDeclaration(node) ||
+      ts.isTypeAliasDeclaration(node) ||
+      ts.isExportDeclaration(node) ||
+      ts.isHeritageClause(node)
+    ) {
+      return;
+    }
+    if (ts.isImportDeclaration(node)) {
+      triggers.push(...importTriggers(node));
+      return;
+    }
+    if (ts.isClassDeclaration(node) || ts.isClassExpression(node)) {
+      triggers.push(...heritageTriggers(node, sourceFile));
+    }
+    if (ts.isJsxAttribute(node) && ts.isIdentifier(node.name) && JSX_HANDLER.test(node.name.text)) {
+      triggers.push(`has JSX handler ${node.name.text}`);
+    }
+    if (
+      ts.isCallExpression(node) &&
+      ts.isPropertyAccessExpression(node.expression) &&
+      ts.isIdentifier(node.expression.name) &&
+      HOOK_NAME.test(node.expression.name.text)
+    ) {
+      triggers.push(`calls ${node.expression.getText(sourceFile)} (hook-shaped call)`);
+    }
+    if (ts.isIdentifier(node) && BROWSER_GLOBALS.has(node.text) && isValueReference(node)) {
+      triggers.push(`references browser global ${node.text}`);
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(sourceFile);
+  return [...new Set(triggers)];
+};
 
 const walk = (dir, extensions) => {
   const files = [];
@@ -69,13 +224,22 @@ const walk = (dir, extensions) => {
   return files;
 };
 
+const parsedFile = (file) => parse(file, readFileSync(file, "utf8"));
+
 const checkSourceDirection = (dir) => {
   const violations = [];
   for (const file of walk(dir, [".ts", ".tsx"])) {
-    const source = readFileSync(file, "utf8");
-    if (usesClientOnlyApi(source) && !hasDirectiveAsFirstStatement(source)) {
+    const path = relative(process.cwd(), file);
+    const sourceFile = parsedFile(file);
+    const errors = parseErrors(sourceFile);
+    if (errors.length > 0) {
+      violations.push(`${path}: does not parse - ${errors[0]}`);
+      continue;
+    }
+    const triggers = collectTriggers(sourceFile);
+    if (triggers.length > 0 && !hasClientDirective(sourceFile)) {
       violations.push(
-        `${relative(process.cwd(), file)}: references a client-only React API or JSX handler but "use client" is not its first statement`
+        `${path}: ${triggers.join(", ")} but "use client" is not its first statement`
       );
     }
   }
@@ -85,14 +249,13 @@ const checkSourceDirection = (dir) => {
 const checkBuiltDirection = (srcDir, distDir) => {
   const violations = [];
   for (const file of walk(srcDir, [".ts", ".tsx"])) {
-    const source = readFileSync(file, "utf8");
-    if (!hasDirectiveAsFirstStatement(source)) continue;
+    if (!hasClientDirective(parsedFile(file))) continue;
     const builtFile = join(distDir, relative(srcDir, file)).replace(/\.tsx?$/, ".js");
     if (!existsSync(builtFile)) {
       violations.push(`${relative(process.cwd(), builtFile)}: missing - run npm run build first`);
       continue;
     }
-    if (!hasDirectiveAsFirstStatement(readFileSync(builtFile, "utf8"))) {
+    if (!hasClientDirective(parsedFile(builtFile))) {
       violations.push(
         `${relative(process.cwd(), builtFile)}: built output does not open with "use client"; as its first statement`
       );
@@ -101,22 +264,13 @@ const checkBuiltDirection = (srcDir, distDir) => {
   return violations;
 };
 
-const isPlainReExport = (source) => {
-  const withoutComments = source.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
-  const statements = withoutComments
-    .split(";")
-    .map((statement) => statement.trim())
-    .filter((statement) => statement !== "");
-  return statements.every((statement) => statement.startsWith("export"));
-};
+const isPlainReExport = (sourceFile) =>
+  sourceFile.statements.every((statement) => ts.isExportDeclaration(statement));
 
 const checkBarrel = (srcDir, distDir) => {
   const violations = [];
   const barrelSource = join(srcDir, "index.ts");
-  if (
-    existsSync(barrelSource) &&
-    hasDirectiveAsFirstStatement(readFileSync(barrelSource, "utf8"))
-  ) {
+  if (existsSync(barrelSource) && hasClientDirective(parsedFile(barrelSource))) {
     violations.push('src/index.ts: the barrel must not carry "use client"');
   }
   const barrelBuilt = join(distDir, "index.js");
@@ -124,8 +278,8 @@ const checkBarrel = (srcDir, distDir) => {
     violations.push("dist/index.js: missing - run npm run build first");
     return violations;
   }
-  const built = readFileSync(barrelBuilt, "utf8");
-  if (hasDirectiveAsFirstStatement(built)) {
+  const built = parsedFile(barrelBuilt);
+  if (hasClientDirective(built)) {
     violations.push('dist/index.js: the built barrel must not carry "use client"');
   }
   if (!isPlainReExport(built)) {
