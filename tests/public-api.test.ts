@@ -43,7 +43,7 @@ describe("public API surface", () => {
     expect(Object.keys(built).sort()).toEqual(snapshot.values);
   });
 
-  it("the emitted type exports are exactly the 36 committed names", () => {
+  it("the emitted type exports are exactly the 37 committed names", () => {
     expect(declaredTypeExports()).toEqual(snapshot.types);
   });
 

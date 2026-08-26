@@ -30,12 +30,15 @@ already in the repo - it moves no new component.
   021 English defaults unchanged ([validated by](../../tests/ErrorBoundary.test.tsx#L44)).
 - `eslint.config.mjs` gains a labels entry (core ESLint only): `no-restricted-syntax` selectors
   banning bare Latin JSX text
-  ([validated by](../../tests/eslint-labels.test.ts#L54)), hardcoded string literals in the seven
-  assistive attributes ([validated by](../../tests/eslint-labels.test.ts#L63)), and
+  ([validated by](../../tests/eslint-labels.test.ts#L53)), hardcoded string literals in the seven
+  assistive attributes ([validated by](../../tests/eslint-labels.test.ts#L60)), and
   `strings`/`texts`/`i18n`/`translations`/`messages` property keys
-  ([validated by](../../tests/eslint-labels.test.ts#L72)), plus `no-restricted-imports` on
-  `next-intl` ([validated by](../../tests/eslint-labels.test.ts#L81)). The four red fixtures live
-  in `tests/fixtures/eslint-labels/`, globally ignored so the committed tree stays green;
+  ([validated by](../../tests/eslint-labels.test.ts#L69)), plus `no-restricted-imports` on
+  `next-intl` ([validated by](../../tests/eslint-labels.test.ts#L78)). The red fixtures live
+  in `tests/fixtures/eslint-labels/`, globally ignored so the committed tree stays green - the
+  original four plus the 2026-08-26 review's bypass set (expression-container and template
+  literals, and the &&/ternary/+ conditional-render forms, as children and as assistive
+  attribute values);
   `grep -rn "next-intl\|useTranslations" src/` returns nothing.
 - `tests/labelled-exports.test.tsx` - the export-partition test: every value export of
   `src/index.ts` is classified into `labelsProp` / `stringPropOnly` / `noStrings`, and the sorted

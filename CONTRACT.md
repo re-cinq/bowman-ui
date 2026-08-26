@@ -73,7 +73,7 @@ Evidence:
   package it carries the directive itself.
 - `components/icons/Icon.tsx` and `components/icons/index.tsx` are client-free
   by design: `forwardRef` is server-safe, and neither file uses a client-only
-  API or handler. They get **no** directive - and neither do the 24 icons,
+  API or handler. They get **no** directive - and neither do the 23 icons,
   which are pure SVG; stamping a directive on them would push needless JS into
   consumers' browser bundles. If the icon extraction (issue 019) finds an icon
   file that does use a client-only API, that file carries the directive and
@@ -100,7 +100,7 @@ directive of its own: `export ... from` is not a reference. It runs in
 only a Next.js consumer importing from a server component proves the boundary
 holds - that verification is `078`'s RSC fixture build.
 
-## 2. One icon system: the local 24-icon set
+## 2. One icon system: the local 23-icon set
 
 `lucide-react` does not come along, in any dependency field. In Discovery it is
 used in only three files - `app/chat/page.tsx`, `app/chat/[id]/page.tsx`, and
@@ -117,7 +117,7 @@ Consequences, recorded so no extraction PR "fixes" them:
   attach button is decorative everywhere it appears today. The composer takes
   an attachment slot instead.
 
-The exported prop type for the 24 icons must be public.
+The exported prop type for the 23 icons must be public.
 `components/icons/index.tsx:25` declares `BaseIconProps` module-private while
 every icon takes it, and the currently-exported `IconProps` (`Icon.tsx:21`, a
 `{name: string}` registry-lookup shape) is referenced by nothing else. A
@@ -347,6 +347,15 @@ assistive tech. The default, when no `renderNavLink` is passed, is
 Third deliberate fix: the mobile header stacks at `z-40` beneath the
 drawer/backdrop's `z-50` (the source gave both `z-50` and relied on DOM
 order).
+
+Fourth deliberate fix (the 2026-08-26 review): the open drawer is a modal
+dialog to assistive tech - `role="dialog"`, `aria-modal="true"`, named by the
+`sidebarDialog` label ("Menu") - and the hamburger carries
+`aria-expanded`/`aria-controls`. This does not revisit the landmark ruling:
+`dialog` is not a landmark role, so the sidebar's own `aside`/`nav` still
+supply the only rotor entries. The same review scoped the body scroll lock to
+the mobile breakpoint: at `min-width: 768px`, where `md:hidden` hides the
+drawer, the lock lifts and re-applies if the viewport narrows again.
 
 ## Seams left open on purpose
 
