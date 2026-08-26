@@ -9,6 +9,7 @@ import {
   ChatMessage,
   defaultChatMessageLabels,
   defaultInlineThinkingIndicatorLabels,
+  defaultMarkdownPolicy,
   type AssistantChatEntry,
   type ChatMessageLabels,
   type InlineThinkingIndicatorLabels,
@@ -40,7 +41,7 @@ const toolEntry: ToolChatEntry = {
 const Renderable = () => (
   <>
     <ChatMessage entry={userEntry} userInitials="LM" />
-    <ChatMessage entry={assistantEntry} userInitials="LM" />
+    <ChatMessage entry={assistantEntry} userInitials="LM" markdown={defaultMarkdownPolicy} />
     {/* @ts-expect-error -- Decision 1: a ThinkingChatEntry must fail the entry prop */}
     <ChatMessage entry={thinkingEntry} userInitials="LM" />
     {/* @ts-expect-error -- Decision 1: a ToolChatEntry must fail the entry prop */}
@@ -51,7 +52,7 @@ const Renderable = () => (
 const completeDefaults = defaultChatMessageLabels satisfies Readonly<Required<ChatMessageLabels>>;
 
 // @ts-expect-error -- a ChatMessageLabels key without a default must not
-// compile: an object missing `thinking` (the ninth key) is not a
+// compile: an object missing `linkOpensInNewTab` (076's tenth key) is not a
 // Readonly<Required<ChatMessageLabels>>.
 const incompleteDefaults: Readonly<Required<ChatMessageLabels>> = {
   userMessage: "Your message",
@@ -62,6 +63,7 @@ const incompleteDefaults: Readonly<Required<ChatMessageLabels>> = {
   feedbackPositive: "Good response",
   feedbackNegative: "Bad response",
   feedbackNotice: "Thanks!",
+  thinking: "Thinking",
 };
 
 const inlineComplete = defaultInlineThinkingIndicatorLabels satisfies Readonly<

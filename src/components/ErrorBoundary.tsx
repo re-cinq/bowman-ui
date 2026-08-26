@@ -19,7 +19,7 @@ export const defaultErrorBoundaryLabels: Readonly<Required<ErrorBoundaryLabels>>
   retry: "Try again",
 });
 
-interface Props {
+export interface ErrorBoundaryProps {
   children: ReactNode;
   /** Replaces the built-in fallback UI entirely - including its `role="alert"`
    *  wrapper, which the consumer must re-add if screen readers should announce
@@ -35,8 +35,8 @@ interface State {
   hasError: boolean;
 }
 
-export class ErrorBoundary extends Component<Props, State> {
-  constructor(props: Props) {
+export class ErrorBoundary extends Component<ErrorBoundaryProps, State> {
+  constructor(props: ErrorBoundaryProps) {
     super(props);
     this.state = { hasError: false };
   }

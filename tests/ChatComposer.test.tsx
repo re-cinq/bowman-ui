@@ -151,6 +151,17 @@ describe("ChatComposer", () => {
       expect(container.querySelector(".bowman-pulse-subtle")).not.toBeNull();
     });
 
+    it('busy marks the composer surface aria-busy="true"; idle and plain disabled mark it "false"', () => {
+      const { container, rerender } = render(<ChatComposer onSubmit={vi.fn()} busy />);
+      expect(container.firstElementChild).toHaveAttribute("aria-busy", "true");
+
+      rerender(<ChatComposer onSubmit={vi.fn()} />);
+      expect(container.firstElementChild).toHaveAttribute("aria-busy", "false");
+
+      rerender(<ChatComposer onSubmit={vi.fn()} disabled />);
+      expect(container.firstElementChild).toHaveAttribute("aria-busy", "false");
+    });
+
     it("disabled without busy disables both and the wrapper carries no pulse class", () => {
       const { container } = render(<ChatComposer onSubmit={vi.fn()} disabled />);
 

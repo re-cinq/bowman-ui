@@ -8,6 +8,7 @@
  * source component did not have.
  */
 import { render, screen } from "@testing-library/react";
+import { renderToStaticMarkup } from "react-dom/server";
 import { readFileSync, readdirSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { Toast } from "../src/index.js";
@@ -28,6 +29,23 @@ describe("Toast", () => {
     const status = screen.getByRole("status");
     expect(status).toHaveTextContent("Booking 4711 gemt");
     expect(status).toHaveAttribute("aria-live", "polite");
+  });
+
+  it("the visible pill carries the message from the first render while the status region starts empty - the announcement text enters a live region that already exists", () => {
+    const serverHtml = renderToStaticMarkup(
+      <Toast message="Booking 4711 gemt" onClose={() => {}} />
+    );
+
+    expect(serverHtml).toContain("Booking 4711 gemt");
+    expect(serverHtml).toMatch(/role="status"[^>]*><\/div>/);
+  });
+
+  it("the status region is a separate visually-hidden element, hidden with inline styles so no consumer stylesheet is required", () => {
+    render(<Toast message="Booking 4711 gemt" onClose={() => {}} />);
+
+    const status = screen.getByRole("status");
+    expect(status).not.toHaveClass("bowman-toast-fade-in");
+    expect(status.style).toMatchObject({ position: "absolute", width: "1px", height: "1px" });
   });
 
   it("with no duration prop, onClose is uncalled at 1999ms and called once at 2000ms", () => {
@@ -63,10 +81,16 @@ describe("Toast", () => {
     expect(onClose).not.toHaveBeenCalled();
   });
 
-  it("the rendered element carries bowman-toast-fade-in and the fixed bottom-8 left-1/2 z-50 -translate-x-1/2 positioning", () => {
+  // Re-pinned by the 2026-08-26 review: the positioning classes moved from
+  // the status element to a dedicated visible pill, so an empty live region
+  // never paints as an empty pill on the first frame.
+  it("the visible pill carries bowman-toast-fade-in and the fixed bottom-8 left-1/2 z-50 -translate-x-1/2 positioning, and is not the live region", () => {
     render(<Toast message="Booking 4711 gemt" onClose={() => {}} />);
 
-    expect(screen.getByRole("status")).toHaveClass(
+    const visible = screen.getByText("Booking 4711 gemt", {
+      selector: "div.bowman-toast-fade-in",
+    });
+    expect(visible).toHaveClass(
       "bowman-toast-fade-in",
       "fixed",
       "bottom-8",
@@ -74,6 +98,8 @@ describe("Toast", () => {
       "z-50",
       "-translate-x-1/2"
     );
+    expect(visible).not.toHaveAttribute("role");
+    expect(visible).toHaveAttribute("aria-hidden", "true");
   });
 
   it("a new onClose identity at 1000ms does not restart the countdown: the latest onClose fires once at 2000ms total", () => {

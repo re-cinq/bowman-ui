@@ -91,19 +91,27 @@ export function useFocusGroups(options: FocusGroupsOptions = {}): void {
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key !== "F6") return;
-
-      event.preventDefault();
+      // defaultPrevented: a second mounted instance leaves a press one
+      // instance has already handled alone, instead of moving focus twice.
+      if (event.key !== "F6" || event.defaultPrevented) return;
 
       const groups = getFocusGroups();
       if (groups.length === 0) return;
 
+      event.preventDefault();
+
       // Determine direction
       const direction = event.shiftKey ? -1 : 1;
 
+      // Step from the group that actually holds focus - the user may have
+      // tabbed or clicked elsewhere since the last F6. The stored index is
+      // only the fallback for focus outside every group.
+      const activeGroup = document.activeElement?.closest("[data-focus-group]");
+      const activeIndex = groups.findIndex((group) => group === activeGroup);
+      const fromIndex = activeIndex === -1 ? currentGroupIndex.current : activeIndex;
+
       // Calculate next index with wrapping
-      currentGroupIndex.current =
-        (currentGroupIndex.current + direction + groups.length) % groups.length;
+      currentGroupIndex.current = (fromIndex + direction + groups.length) % groups.length;
 
       // Focus the target group
       const targetGroup = groups[currentGroupIndex.current];
@@ -143,9 +151,16 @@ function announceToScreenReader(message: string): void {
   announcement.style.clip = "rect(0, 0, 0, 0)";
   announcement.style.whiteSpace = "nowrap";
   announcement.style.border = "0";
-  announcement.textContent = message;
 
+  // A live region inserted already holding its text is unreliably announced;
+  // insert it empty and write the text once the region exists in the tree.
+  // The frame always fires before the removal timer here: the announcement
+  // is keyboard-triggered, and a keydown implies a focused, visible tab
+  // where frames are not suspended.
   document.body.appendChild(announcement);
+  requestAnimationFrame(() => {
+    announcement.textContent = message;
+  });
 
   // Remove after announcement
   setTimeout(() => {
