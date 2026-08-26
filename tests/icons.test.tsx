@@ -61,9 +61,10 @@ describe("the icon set inventory", () => {
     );
   });
 
-  it("renders the 22 uniform icons through IconWrapper and only LoadingIcon through a raw <svg>", () => {
+  it("declares the 22 uniform icons as createUniformIcon calls over one IconWrapper site and only LoadingIcon as a raw <svg> - re-pinned from 22 repeated IconWrapper shells by the #50 path-table factory", () => {
     const source = readFileSync(resolve(process.cwd(), "src/icons/index.tsx"), "utf8");
-    expect(source.match(/<IconWrapper /g)).toHaveLength(22);
+    expect(source.match(/= createUniformIcon\(/g)).toHaveLength(22);
+    expect(source.match(/<IconWrapper /g)).toHaveLength(1);
     expect(source.match(/<svg/g)).toHaveLength(1);
   });
 
@@ -290,4 +291,17 @@ describe("className propagation", () => {
     // SVG className is an SVGAnimatedString, use getAttribute instead
     expect(svg.getAttribute("class")).toBe("h-6 w-6 text-blue-500");
   });
+});
+
+describe("uniform icon identity", () => {
+  it.each([...uniformIconNames])(
+    "%s carries its own displayName and Function.name - React DevTools and ErrorBoundary componentStacks must never report a factory-made icon as UniformIcon",
+    (name) => {
+      const icon = icons[name] as ((props: IconProps) => unknown) & { displayName?: string };
+      expect({ displayName: icon.displayName, functionName: icon.name }).toEqual({
+        displayName: name,
+        functionName: name,
+      });
+    }
+  );
 });
