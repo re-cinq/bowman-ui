@@ -8,11 +8,17 @@ Issue: issue 75 (`025-bowman-ui-toast`)
 auto-dismiss timer. No file in `discovery` changes. The component is dead code
 at the source - `setToastMessage` is called only with `null` inside the
 toast's own `onClose`, so `{toastMessage && <Toast/>}` never renders for a
-user - and ships anyway because E4's escalation and failover paths need a
-transient surface outside a chat bubble. The reuse evidence is nil beyond
-that dependency: the same thin-call-site-evidence precedent 021's Why
+user - and shipped on thin call-site evidence, the same precedent 021's Why
 section set when it shipped `useReducedMotion`, `useSidebarState` and
-`ErrorBoundary`. `CONTRACT.md § Toast (issue 025)` records all of this.
+`ErrorBoundary`. The two future users 025 named both declined it, recorded
+here as history:
+054 declined the escalation toast (the hand-off renders in the transcript);
+064 declined the failover toast (success silent, failure on 044's error
+frame). The component's only consumer in the org, measured by 097, is
+`044-support-agent-chat-wiring`'s `ChatScreen.tsx` in the support agent,
+which mounts it twice - a reconnect notice and a connection-failed notice,
+both persistent conditions. `CONTRACT.md § Toast (issue 025)` records the
+corrected justification.
 
 ## The public surface
 
@@ -47,8 +53,9 @@ effect keys on `[message, duration]`, and the timer calls
 - `duration={null}` calls `onClose` zero times after 60000ms of fake-timer
   advance and `setTimeout` is never invoked, asserted on a spy
   ([validated by](../../tests/Toast.test.tsx#L109)). The library ships no
-  close button, so in that mode dismissal is entirely the consumer's - an
-  error notification on a failover path must not vanish on its own.
+  close button, so in that mode dismissal is entirely the consumer's -
+  044's connection notices are conditions that persist for as long as they
+  hold and must not vanish on their own.
 
 All of 015's timer assertions pass unchanged: uncalled at 1999ms, called
 once at 2000ms ([validated by](../../tests/Toast.test.tsx#L33));
@@ -99,9 +106,9 @@ documents three exceptions with the reason above, and
 `specs/bowman-ui-labels-convention/spec.md`'s closed-list bullet now states
 that an addition requires exactly this kind of same-PR contract amendment.
 `tests/labelled-exports.test.tsx` classifies `Toast` under `stringPropOnly`
-([validated by](../../tests/labelled-exports.test.tsx#L54)) and the
+([validated by](../../tests/labelled-exports.test.tsx#L70)) and the
 partition still asserts the full barrel
-([validated by](../../tests/labelled-exports.test.tsx#L80)).
+([validated by](../../tests/labelled-exports.test.tsx#L100)).
 
 ## Carried across mechanically
 
@@ -130,12 +137,18 @@ partition still asserts the full barrel
 - **`translateX` ban narrowed.** 023's source sweep asserted no file under
   `src/` contains `translateX`; the toast keyframe now legitimately carries
   it in `src/styles.css`, so that assertion exempts `styles.css` alone
-  ([validated by](../../tests/ChatMessage.test.tsx#L535)) - component
+  ([validated by](../../tests/ChatMessage.test.tsx#L599)) - component
   sources remain banned from restating centring transforms.
 - **Precedent citation.** The issue cites "021 Decision 0" for shipping on
   thin call-site evidence; 021's spec has no such numbered decision - the
   precedent lives in its Why section, and is cited as such here and in
   `CONTRACT.md § Toast (issue 025)`.
-- Not shipped, per the issue: no toast stack, variants, severity styling,
-  close button or `useToast` hook - there is no user yet to validate any of
-  those designs against.
+- Not shipped, per the issue: no toast stack, variants, severity styling or
+  `useToast` hook - and the first real consumer confirms the call: 044
+  needs none of them (098 shows at most one notice at a time,
+  connection-failed taking precedence, a selection made in the screen
+  rather than the package). The close-button
+  question is closed by 097, not still unvalidated: both consumer uses are
+  persistent states, a close button would let a customer dismiss a
+  condition that is still true, and its `dismissToast` label would pull
+  `Toast` out of the `stringPropOnly` partition.

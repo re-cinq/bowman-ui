@@ -5,27 +5,33 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import {
   AppShell,
+  AppSidebar,
   ChatComposer,
   ChatMessage,
   ConversationList,
   ErrorBoundary,
   InlineThinkingIndicator,
+  ThinkingIndicator,
   createMarkdownComponents,
   createUrlTransform,
   defaultAppShellLabels,
+  defaultAppSidebarLabels,
   defaultChatComposerLabels,
   defaultChatMessageLabels,
   defaultConversationListLabels,
   defaultErrorBoundaryLabels,
   defaultInlineThinkingIndicatorLabels,
+  defaultThinkingIndicatorLabels,
 } from "../src/index.js";
 import type {
   AppShellLabels,
+  AppSidebarLabels,
   ChatComposerLabels,
   ChatMessageLabels,
   ConversationListLabels,
   ErrorBoundaryLabels,
   InlineThinkingIndicatorLabels,
+  ThinkingIndicatorLabels,
 } from "../src/index.js";
 import {
   defaultMarkdownComponentsLabels,
@@ -45,9 +51,11 @@ const labelsProp = [
   "ErrorBoundary",
   "ChatMessage",
   "InlineThinkingIndicator",
+  "ThinkingIndicator",
   "ChatComposer",
   "ConversationList",
   "AppShell",
+  "AppSidebar",
   "createMarkdownComponents",
 ];
 
@@ -92,9 +100,11 @@ const noStrings = [
   "defaultErrorBoundaryLabels",
   "defaultChatMessageLabels",
   "defaultInlineThinkingIndicatorLabels",
+  "defaultThinkingIndicatorLabels",
   "defaultChatComposerLabels",
   "defaultConversationListLabels",
   "defaultAppShellLabels",
+  "defaultAppSidebarLabels",
 ];
 
 // `export type { ... }` never matches: "type" sits between "export" and "{".
@@ -168,6 +178,11 @@ const inlineThinkingIndicatorSentinels = {
   thinking: "⟦thinking⟧",
 } satisfies Required<InlineThinkingIndicatorLabels>;
 
+const thinkingIndicatorSentinels = {
+  thinking: "⟦thinking⟧",
+  thinkingRegion: "⟦thinkingRegion⟧",
+} satisfies Required<ThinkingIndicatorLabels>;
+
 const chatComposerSentinels = {
   composerInput: "⟦composerInput⟧",
   composerPlaceholder: "⟦composerPlaceholder⟧",
@@ -189,6 +204,11 @@ const appShellSentinels = {
   closeSidebar: "⟦closeSidebar⟧",
   skipToMainContent: "⟦skipToMainContent⟧",
 } satisfies Required<AppShellLabels>;
+
+const appSidebarSentinels = {
+  sidebar: "⟦sidebar⟧",
+  mainNavigation: "⟦mainNavigation⟧",
+} satisfies Required<AppSidebarLabels>;
 
 // The fixture content carries no run of three Latin letters, so everything
 // user-shaped the harness renders (content, "LM" initials) passes the
@@ -253,6 +273,11 @@ const sentinelHarnesses: Record<
     renderContainer: () =>
       render(<InlineThinkingIndicator labels={inlineThinkingIndicatorSentinels} />).container,
   },
+  ThinkingIndicator: {
+    sentinels: Object.values(thinkingIndicatorSentinels),
+    renderContainer: () =>
+      render(<ThinkingIndicator labels={thinkingIndicatorSentinels} />).container,
+  },
   ChatComposer: {
     sentinels: Object.values(chatComposerSentinels),
     renderContainer: () =>
@@ -269,6 +294,20 @@ const sentinelHarnesses: Record<
         >
           {numericContent}
         </AppShell>
+      ).container,
+  },
+  AppSidebar: {
+    sentinels: Object.values(appSidebarSentinels),
+    renderContainer: () =>
+      render(
+        <AppSidebar
+          labels={appSidebarSentinels}
+          brand={<span>4711</span>}
+          navItems={[{ key: "4712", label: "4713", isActive: true }]}
+          footer={<span>4714</span>}
+        >
+          {numericContent}
+        </AppSidebar>
       ).container,
   },
   createMarkdownComponents: {
@@ -328,6 +367,12 @@ describe("the sentinel render check", () => {
     );
   });
 
+  it("ThinkingIndicator's sentinel labels cover every defaultThinkingIndicatorLabels key", () => {
+    expect(Object.keys(thinkingIndicatorSentinels).sort()).toEqual(
+      Object.keys(defaultThinkingIndicatorLabels).sort()
+    );
+  });
+
   it("ChatComposer's sentinel labels cover every defaultChatComposerLabels key", () => {
     expect(Object.keys(chatComposerSentinels).sort()).toEqual(
       Object.keys(defaultChatComposerLabels).sort()
@@ -343,6 +388,12 @@ describe("the sentinel render check", () => {
   it("AppShell's sentinel labels cover every defaultAppShellLabels key", () => {
     expect(Object.keys(appShellSentinels).sort()).toEqual(
       Object.keys(defaultAppShellLabels).sort()
+    );
+  });
+
+  it("AppSidebar's sentinel labels cover every defaultAppSidebarLabels key", () => {
+    expect(Object.keys(appSidebarSentinels).sort()).toEqual(
+      Object.keys(defaultAppSidebarLabels).sort()
     );
   });
 
