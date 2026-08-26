@@ -47,7 +47,7 @@ const runScript = (script: string, env: Record<string, string>) => {
       PATH: `${workDir}:${process.env.PATH}`,
       TMPDIR: workDir,
       FILES: '["README.md"]',
-      LORE_API_URL: "https://lore-api.example.test",
+      LORE_INGEST_URL: "https://lore-api.example.test",
       LORE_INGEST_TOKEN: "test-token",
       ...env,
     },
@@ -55,13 +55,13 @@ const runScript = (script: string, env: Record<string, string>) => {
 };
 
 describe.each([
-  ["ingest", extractRunBlock("Submit to Lore ingest API")],
+  ["ingest", extractRunBlock("Notify Lore to ingest")],
   ["graph", extractRunBlock("Project ${{ matrix.kind }} into the graph")],
 ])("%s step", (_stepName, script) => {
-  it("exits 1 with ::error when LORE_API_URL is empty", () => {
-    const result = runScript(script, { LORE_API_URL: "" });
+  it("exits 1 with ::error when LORE_INGEST_URL is empty", () => {
+    const result = runScript(script, { LORE_INGEST_URL: "" });
     expect(result.status).toBe(1);
-    expect(result.stdout).toContain("::error::LORE_API_URL");
+    expect(result.stdout).toContain("::error::LORE_INGEST_URL");
   });
 
   it("exits 1 with ::error when LORE_INGEST_TOKEN is empty", () => {
