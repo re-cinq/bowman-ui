@@ -3,13 +3,15 @@
 Issue: re-cinq/Otto#69 (`019-bowman-ui-stylesheet-entry`)
 
 `src/styles.css` is the package's only stylesheet: it ships what a consumer's
-Tailwind v4 build cannot generate from a class name, and nothing else. The
+Tailwind v4 build cannot generate from a class name, and nothing else
+([validated by](../../tests/styles.test.ts#L28)). The
 `"./styles.css"` export resolves to `dist/styles.css`, which the build script
 copies verbatim (`tsc` emits no assets, so `build` is
 `tsc -p tsconfig.json && cp src/styles.css dist/styles.css` - `cp` was chosen
-over a node script because CI and development both run on POSIX shells).
+over a node script because CI and development both run on POSIX shells)
+([validated by](../../tests/styles.test.ts#L84)).
 `dist/styles.css` ships in the tarball
-([validated by](../../tests/styles.test.ts#L80)) under the `sideEffects:
+([validated by](../../tests/styles.test.ts#L99)) under the `sideEffects:
 ["*.css"]` seam `018` left open - already present, not re-added
 ([validated by](../../tests/styles.test.ts#L72)).
 
@@ -22,7 +24,8 @@ Exactly three keyframes with their utility rules - `bowman-fade-in`,
 element styling and an unconditional reduced-motion rule. All class and
 keyframe names carry the `bowman-` prefix so they cannot collide with a
 consumer's own `animate-*` utilities; the issue prescribed `.bowman-fade-in`
-for the split fade and the other two follow the same convention. All rules are
+for the split fade and the other two follow the same convention
+([validated by](../../tests/styles.test.ts#L28)). All rules are
 unlayered, matching how `fade-dot` and `pulse-subtle` already win in Discovery's
 `globals.css` (only `.animate-fade-in` sat inside `@layer utilities` there).
 
@@ -41,8 +44,8 @@ Discovery's `fadeIn` keyframe animates
 `Toast.tsx:21`'s own static `-translate-x-1/2` centring hack, and for the
 uncentred spans at `ChatMessage.tsx:214,248` it makes them slide half their
 width left and snap back. `bowman-fade-in` animates opacity and `translateY`
-only ([validated by](../../tests/styles.test.ts#L47)); Toast keeps its centring
-in its own rule when it is extracted.
+only; Toast keeps its centring in its own rule when it is extracted
+([validated by](../../tests/styles.test.ts#L57)).
 
 ## Reduced motion
 
@@ -50,7 +53,7 @@ in its own rule when it is extracted.
 utility classes, with no `data-animations` attribute in any selector
 ([validated by](../../tests/styles.test.ts#L54)). The
 `NEXT_PUBLIC_FLAG_ANIMATIONS` escape hatch is Discovery plumbing and stays
-there.
+there ([validated by](../../tests/hooks-dist.test.ts#L73)).
 
 ## The typography-plugin replacement
 
@@ -110,7 +113,7 @@ comparison components' non-extraction is a known fact, not an oversight.
   "installed" under `node_modules/@re-cinq/bowman-ui`, `tailwindcss`
   symlinked) and runs the real Tailwind v4 CLI (`tailwindcss` +
   `@tailwindcss/cli`, devDependencies). `files: ["dist"]` keeps all of it out
-  of the tarball.
+  of the tarball ([validated by](../../tests/tailwind-build.test.ts#L71)).
 
 ## The real-build verification the issue demanded
 
@@ -130,4 +133,5 @@ Both results, from Tailwind v4.3.3 compiling the fixture consumer:
 The README's Styles section documents the two consumer lines, names Tailwind
 v4 as required and says why (the package ships only what Tailwind cannot
 generate; the utilities on the components come from the consumer's own build
-scanning the installed `dist`).
+scanning the installed `dist`)
+([validated by](../../tests/tailwind-build.test.ts#L71)).

@@ -6,7 +6,8 @@ Issue: re-cinq/Otto#80 (`030-bowman-ui-app-shell`)
 drawer, mobile header, `<main>` - extracted as `src/components/AppShell.tsx`
 (`AppShell`, `AppShellProps`, `SidebarSlotContext`, `AppShellLabels`,
 `defaultAppShellLabels`). The sidebar's own contents are issue 031's; this
-component imports none of them and renders whatever `renderSidebar` returns.
+component imports none of them and renders whatever `renderSidebar` returns
+([validated by](../../tests/AppShell.test.tsx#L70)).
 No file in `discovery` changes.
 
 ## The public surface
@@ -24,12 +25,13 @@ out for a consumer with its own
 
 `AppShellLabels` has four defaulted keys - `openSidebar`, `closeSidebar`,
 `skipToMainContent`, and `sidebarDialog` (the open drawer dialog's accessible
-name, added by the 2026-08-26 review) - per CONTRACT.md § Labels. `AppShell`
+name, added by the 2026-08-26 review) - per CONTRACT.md § Labels
+([validated by](../../tests/labelled-exports.test.tsx#L394)). `AppShell`
 sits in the `labelsProp` partition bucket
-([partition](../../tests/labelled-exports.test.tsx#L42)) and passes the
+([partition](../../tests/labelled-exports.test.tsx#L57)) and passes the
 sentinel render with all four labels set to sentinels; the harness opens the
 drawer so the dialog-name sentinel renders
-([harness](../../tests/labelled-exports.test.tsx#L242)).
+([harness](../../tests/labelled-exports.test.tsx#L287)).
 
 `renderSidebar({ variant, close })` is called exactly twice per render - once
 per position, `"desktop"` rail and `"mobile"` drawer - and both returned
@@ -37,7 +39,8 @@ trees are in the document
 ([validated by](../../tests/AppShell.test.tsx#L70)); omitting it still
 renders the frame ([validated by](../../tests/AppShell.test.tsx#L83)). The
 mobile copy needs `close` so tapping a nav item closes the drawer - the same
-slot idiom as `ConversationList`'s `renderLink`.
+slot idiom as `ConversationList`'s `renderLink`
+([validated by](../../tests/AppShell.test.tsx#L125)).
 
 `brand` renders inside the mobile header row with the centring spacer;
 omitted, the header shows the hamburger and no spacer, and the component
@@ -61,7 +64,8 @@ Controlled: with `mobileSidebarOpen={false}`, clicking the hamburger calls
 ([validated by](../../tests/AppShell.test.tsx#L146),
 [L162](../../tests/AppShell.test.tsx#L162)). A controlling consumer owns
 closing on navigation - recorded in CONTRACT.md § AppShell, because the
-source's `usePathname` effect is app-router-specific and cannot ship here.
+source's `usePathname` effect is app-router-specific and cannot ship here
+([validated by](../../tests/AppShell.test.tsx#L162)).
 
 ## The two accessibility fixes
 
@@ -74,7 +78,8 @@ source's `usePathname` effect is app-router-specific and cannot ship here.
    and the string `aria-hidden` appears nowhere in the source file
    ([validated by](../../tests/AppShell.test.tsx#L222),
    [L234](../../tests/AppShell.test.tsx#L234)). The rail and drawer stay two
-   DOM nodes because `inert` cannot be conditioned on a CSS breakpoint.
+   DOM nodes because `inert` cannot be conditioned on a CSS breakpoint
+   ([validated by](../../tests/AppShell.test.tsx#L222)).
 2. **The scroll lock restores the prior overflow value.** The source reset
    `document.body.style.overflow` to `""` on close
    (`AppMobileSidebar.tsx:51-60`), clobbering any other lock on the page.
@@ -105,7 +110,7 @@ wraps to the first, and closing returns focus to the hamburger
 from the drawer and backdrop; omitted, 021's `useReducedMotion` tracks
 `prefers-reduced-motion` and a non-matching `matchMedia` keeps both classes
 ([validated by](../../tests/AppShell.test.tsx#L367),
-[L305](../../tests/AppShell.test.tsx#L305)).
+[L305](../../tests/AppShell.test.tsx#L380)).
 
 ## The 015 characterization suite, ported
 
@@ -127,7 +132,7 @@ below.
 - `MenuIcon`/`CloseIcon` come from 020's set; imports are relative with `.js`
   extensions, and no `@clerk`, `swr`, `next-intl`, `next/`, `@discovery`,
   `@/` or `lucide-react` import survives
-  ([validated by](../../tests/AppShell.test.tsx#L329)).
+  ([validated by](../../tests/AppShell.test.tsx#L404)).
 - GDPR: the shell wraps a surface carrying customer questions and booking
   identifiers (`003-support-conversation-data-flow-record`). The source
   references no `console.`, `fetch`, `sendBeacon`, `localStorage`,
@@ -135,7 +140,8 @@ below.
   ([validated by](../../tests/AppShell.test.tsx#L407)), and the suite-wide
   console trap in `tests/setup.ts` fails any test that triggered a console
   call. Desktop collapse state is out of scope precisely because it is the
-  only thing here that would persist anything.
+  only thing here that would persist anything
+  ([validated by](../../tests/AppShell.test.tsx#L425)).
 - `dist/components/AppShell.js` opens with `"use client";` as its first
   statement per 018's positional check
   ([validated by](../../tests/app-shell-dist.test.ts#L30)), and `npm pack`
@@ -147,10 +153,12 @@ below.
 - **Header stacks at `z-40` under the drawer/backdrop's `z-50`** - a third
   deliberate fix: the source gave the mobile header and the drawer the same
   `z-50` and relied on DOM order, so the header could paint over the open
-  drawer's top strip. Pinned by a class assertion in the tests.
+  drawer's top strip. Pinned by a class assertion in the tests
+  ([validated by](../../tests/AppShell.test.tsx#L444)).
 - **`brand={null}` renders no spacer**, same as omitting the prop - `null` is
   the React idiom for intentionally-nothing, and an empty centring spacer with
-  no mark would be a layout surprise. Pinned by test.
+  no mark would be a layout surprise. Pinned by test
+  ([validated by](../../tests/AppShell.test.tsx#L454)).
   from the issue text
 
 - **Test locations.** The issue names `tests/components/AppShell.test.tsx`;
@@ -163,7 +171,8 @@ below.
   `offsetParent` getter plus a synchronous `requestAnimationFrame` stub -
   exactly as `tests/useFocusTrap.test.tsx` does, restored in `afterEach`.
   Removing the shim still makes the three focus assertions fail, which is
-  the property the issue was after.
+  the property the issue was after
+  ([validated by](../../tests/AppShell.test.tsx#L269)).
 - **Coverage floor.** The issue says "the 100 / 100 / 100 thresholds the
   repo-skeleton issue committed"; the committed floor is
   lines/functions/statements 100 with branches 90 (`vitest.config.ts`), and

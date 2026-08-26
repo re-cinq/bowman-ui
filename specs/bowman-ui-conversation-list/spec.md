@@ -14,7 +14,8 @@ title generation stay with the consumer. No file in `discovery` changes.
 
 `ConversationListItem` is the package's own five-field camelCase shape (`id`,
 `title`, `timestamp?`, `badge?`, `isPlaceholderTitle?`), not the nine-field
-snake_case API `Conversation`. `timestamp` arrives display-ready - the
+snake_case API `Conversation`
+([validated by](../../tests/ConversationList.test.tsx#L59)). `timestamp` arrives display-ready - the
 component reads no clock and no locale: no `Date` constructor,
 `toLocaleDateString` or `Intl` appears in the source, asserted by grep
 ([validated by](../../tests/ConversationList.test.tsx#L393)) - and `badge` is
@@ -28,9 +29,9 @@ a consumer-computed string rendered verbatim or not at all
 ([validated by](../../tests/ConversationList.test.tsx#L47),
 [L168](../../tests/ConversationList.test.tsx#L168)). `ConversationList` sits
 in the `labelsProp` partition bucket
-([partition](../../tests/labelled-exports.test.tsx#L38)) and passes the
+([partition](../../tests/labelled-exports.test.tsx#L52)) and passes the
 sentinel render across its list, empty and loading states, the function label
-included ([harness](../../tests/labelled-exports.test.tsx#L231)).
+included ([harness](../../tests/labelled-exports.test.tsx#L235)).
 
 ## The four decisions
 
@@ -86,7 +87,9 @@ and no `<ul>` ([validated by](../../tests/ConversationList.test.tsx#L200),
 Every 015 `ChatHistory` assertion with a counterpart on the extracted surface
 passes in `tests/ConversationList.test.tsx` after the flips below; the
 typewriter's 25ms two-phase stepping and one-pass replacement survive
-verbatim, driven by props instead of a mocked SWR hook.
+verbatim, driven by props instead of a mocked SWR hook
+([validated by](../../tests/ConversationList.test.tsx#L228),
+[L270](../../tests/ConversationList.test.tsx#L270)).
 
 | #   | Flip                                                                                                                                                                                                                                              | Reason                                                                              |
 | --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
@@ -118,7 +121,8 @@ consumer-computed `badge` string).
   `analytics` or `indexedDB`
   ([validated by](../../tests/ConversationList.test.tsx#L397)), and the
   suite-wide console trap in `tests/setup.ts` fails any test that triggered a
-  console call. Titles live only in React state.
+  console call. Titles live only in React state
+  ([validated by](../../tests/ConversationList.test.tsx#L403)).
 - `dist/components/ConversationList.js` opens with `"use client";` as its
   first statement per 018's positional check
   ([validated by](../../tests/conversation-list-dist.test.ts#L30)), and
