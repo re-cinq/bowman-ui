@@ -31,7 +31,7 @@ it("exits non-zero when the hook arrives as a React.useState namespace call", ()
   const result = runAgainst("tests/fixtures/client-directive-violation-namespace-hook");
   expect(result.status).not.toBe(0);
   expect(result.stderr).toContain("NamespaceHookNoDirective.ts");
-  expect(result.stderr).toContain("references React.useState (hook-shaped member)");
+  expect(result.stderr).toContain("references .useState (hook-shaped member)");
 });
 
 it("exits non-zero when a createContext import carries no directive", () => {
@@ -39,7 +39,7 @@ it("exits non-zero when a createContext import carries no directive", () => {
   expect(result.status).not.toBe(0);
   expect(result.stderr).toContain("CreateContextNoDirective.ts");
   expect(result.stderr).toContain("imports createContext");
-  expect(result.stderr).toContain("references React.createContext (createContext member)");
+  expect(result.stderr).toContain("references .createContext (createContext member)");
 });
 
 it("exits non-zero when a class extends Component with no hook and no handler", () => {
@@ -64,7 +64,7 @@ it("exits non-zero when a typeof window guard carries no directive", () => {
   expect(result.stderr).toContain("references browser global window");
 });
 
-it("exits zero for the barrel, type-only hook imports, and handlers in comments and strings", () => {
+it("exits zero for the barrel, type-only imports, implements clauses, and handlers in text", () => {
   const result = runAgainst("tests/fixtures/client-directive-clean");
   expect(result).toMatchObject({ status: 0, stderr: "" });
 });

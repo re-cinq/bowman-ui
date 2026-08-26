@@ -13,10 +13,13 @@ enumeration; the four rules, plus the JSX-handler rule, are:
 1. **A hook-shaped import**: a named or default import whose imported or
    local name matches `/^use[A-Z]/`, from **any** module specifier - React's
    own hooks, `usePathname` from `next/navigation`, a re-exported Clerk hook,
-   a relative `./useWidgetState.js` alike - or a hook-shaped namespace-member
-   reference such as `React.useState`.
-2. **A named import of `createContext`**, or a namespace-member reference
-   such as `React.createContext`.
+   a relative `./useWidgetState.js` alike - or a hook-shaped **member access**,
+   `React.useState` being the motivating namespace-import form. The member
+   rule looks only at the property name, whatever the receiver, so an
+   unrelated `config.useLegacyPaths` fires too: the check's fail-safe
+   direction, and cheaper than resolving receivers.
+2. **A named import of `createContext`**, or a member access named
+   `createContext` (`React.createContext`) on the same any-receiver terms.
 3. **A class extending `Component` or `PureComponent`**, bare or through a
    namespace import (`React.Component`).
 4. **A value-position reference to a measured browser global.** The list is
@@ -31,7 +34,8 @@ enumeration; the four rules, plus the JSX-handler rule, are:
    **type** names (`HTMLElement`, `Element`, `Node`, `SVGSVGElement`) are
    excluded outright: they are erased at compile time and appear all over
    server-safe code - `Icon.tsx`'s `forwardRef<SVGSVGElement>` is the
-   evidence. A `typeof window` guard still triggers (021 dropped the dead
+   evidence, and an `implements WebSocket` clause on a test double is a type
+   position that never fires. A `typeof window` guard still triggers (021 dropped the dead
    guards; this package's policy is directives, not isomorphic guards), and
    a value-position use of a listed name still triggers even where a local
    binding shadows it (the shadowing declaration itself does not) - both are
