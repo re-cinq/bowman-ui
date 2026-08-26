@@ -649,3 +649,84 @@ describe("ChatMessage", () => {
     });
   });
 });
+
+// 076's link-policy forwarding, appended after the 015 suite so the spec's
+// line anchors into the describes above stay valid.
+describe("markdown link policy (076)", () => {
+  it("an https link renders an anchor with target, the rel pair and the hidden notice", () => {
+    const { container } = render(
+      <ChatMessage
+        entry={makeEntry({ content: "Se [din booking](https://tms.example/booking/42)" })}
+        userInitials="LM"
+      />
+    );
+
+    const anchor = container.querySelector("a");
+    expect(anchor).toHaveAttribute("href", "https://tms.example/booking/42");
+    expect(anchor).toHaveAttribute("target", "_blank");
+    expect(anchor).toHaveAttribute("rel", "noopener noreferrer");
+    expect(anchor?.querySelector(".bowman-sr-only")?.textContent).toBe("(opens in a new tab)");
+  });
+
+  it("a javascript: link renders no anchor and no empty href, the text in a <span>", () => {
+    const { container } = render(
+      <ChatMessage
+        entry={makeEntry({ content: "[4711](javascript:alert(1))" })}
+        userInitials="LM"
+      />
+    );
+
+    expect(container.querySelector("a")).toBeNull();
+    expect(document.querySelectorAll('a[href=""]')).toHaveLength(0);
+    expect(screen.getByText("4711").tagName).toBe("SPAN");
+  });
+
+  it("the markdown prop merges over defaultMarkdownPolicy, so an http opt-in renders the anchor", () => {
+    const { container } = render(
+      <ChatMessage
+        entry={makeEntry({ content: "[4711](http://tms.example/x)" })}
+        userInitials="LM"
+        markdown={{ allowedSchemes: ["https", "http"] }}
+      />
+    );
+
+    expect(container.querySelector("a")).toHaveAttribute("href", "http://tms.example/x");
+  });
+
+  it("markdown allowedSchemes [] renders even an https link as text", () => {
+    const { container } = render(
+      <ChatMessage
+        entry={makeEntry({ content: "[4711](https://tms.example/x)" })}
+        userInitials="LM"
+        markdown={{ allowedSchemes: [] }}
+      />
+    );
+
+    expect(container.querySelector("a")).toBeNull();
+    expect(screen.getByText("4711").tagName).toBe("SPAN");
+  });
+
+  it("a linkOpensInNewTab label override reaches the notice", () => {
+    const { container } = render(
+      <ChatMessage
+        entry={makeEntry({ content: "[4711](https://tms.example/x)" })}
+        userInitials="LM"
+        labels={{ linkOpensInNewTab: "⟦notice⟧" }}
+      />
+    );
+
+    expect(container.querySelector(".bowman-sr-only")?.textContent).toBe("⟦notice⟧");
+  });
+
+  it("an image in assistant content renders alt text and no img under the default policy", () => {
+    const { container } = render(
+      <ChatMessage
+        entry={makeEntry({ content: "![alt text](https://host/p.png)" })}
+        userInitials="LM"
+      />
+    );
+
+    expect(container.querySelectorAll("img")).toHaveLength(0);
+    expect(container.textContent).toContain("alt text");
+  });
+});
