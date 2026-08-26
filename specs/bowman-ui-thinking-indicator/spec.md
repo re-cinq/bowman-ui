@@ -32,9 +32,10 @@ the same fixture pins it out of the public type surface
 ([validated by](../../tests/types/thinking-indicator-type-assertions.tsx#L10)),
 and the runtime export set of `dist/index.js` is pinned separately by
 [public-api](../../tests/public-api.test.ts#L40)'s exact snapshot (47 values,
-31 types after this issue). `dist/components/ThinkingDots.{js,d.ts}` packs
+31 types after this issue; [validated by](../../tests/public-api.test.ts#L40)). `dist/components/ThinkingDots.{js,d.ts}` packs
 with the rest of `dist/`, but `package.json`'s `exports` map exposes only `"."`
-and `"./styles.css"`, so no consumer can deep-import the private component.
+and `"./styles.css"`, so no consumer can deep-import the private component
+([validated by](../../tests/system-contract.test.ts#L28)).
 
 ## The decisions
 
@@ -47,7 +48,8 @@ and `"./styles.css"`, so no consumer can deep-import the private component.
    overrides neither English string appears anywhere in the rendered output
    ([validated by](../../tests/ThinkingIndicator.test.tsx#L19)). The
    attribute is kept rather than removed; whether a real screen reader
-   announces it over the live-region content is unverified follow-up work.
+   announces it over the live-region content is unverified follow-up work
+   ([validated by](../../tests/ThinkingIndicator.test.tsx#L12)).
 2. **The avatar slot is the glyph, not the circle** (018 decision 3).
    `assistantAvatar` renders inside the circle
    ([validated by](../../tests/ThinkingIndicator.test.tsx#L42)); with none
@@ -62,7 +64,8 @@ and `"./styles.css"`, so no consumer can deep-import the private component.
    Recorded asymmetry: `ChatMessage`'s assistant circle carries no
    `aria-hidden`, so a consumer-supplied avatar's accessible name is silenced
    here and not there - correct per the issue (the status region owns the
-   name), noted so the next reader finds it decided rather than drifted.
+   name), noted so the next reader finds it decided rather than drifted
+   ([validated by](../../tests/ThinkingIndicator.test.tsx#L59)).
 4. **One dots implementation, one dots assertion.** `ThinkingDots` owns the
    `flex gap-0.5` wrapper span and the three `bowman-fade-dot` dots at
    `animationDelay` `0s`/`0.2s`/`0.4s` - markup-identical to both source
@@ -85,7 +88,8 @@ built (issue 9), so - as with every prior extraction - equivalent tests are
 written here from the behaviors the acceptance criteria pin: the default and
 overridden labels, the `role="status"` semantics, the dot count, order,
 delays and class, the empty avatar circle, and the unconditional
-`aria-hidden`/pulse (`tests/ThinkingIndicator.test.tsx`).
+`aria-hidden`/pulse (`tests/ThinkingIndicator.test.tsx`;
+[validated by](../../tests/ThinkingIndicator.test.tsx#L12)).
 
 Two renames inherited from 019 rather than adapted here: the dots carry
 `bowman-fade-dot`, not the issue text's `animate-fade-dot`
@@ -97,7 +101,9 @@ deviation as 023's and 025's. One path correction: the labels partition lives
 at `tests/labelled-exports.test.tsx`, not the issue text's
 `src/__tests__/labelled-exports.tsx`, and the component tests at
 `tests/ThinkingIndicator.test.tsx`, not `tests/components/` - the repo's
-shipped layout since 022.
+shipped layout since 022
+([validated by](../../tests/ThinkingIndicator.test.tsx#L37),
+[L59](../../tests/ThinkingIndicator.test.tsx#L59)).
 
 ## Carried across mechanically
 
@@ -106,7 +112,8 @@ shipped layout since 022.
   harness ([validated by](../../tests/labelled-exports.test.tsx#L319)); the
   partition test still asserts the full barrel, which `ThinkingDots` never
   enters. The `thinkingRegion` sentinel lands in `aria-label`, one of the
-  seven checked attributes.
+  seven checked attributes
+  ([validated by](../../tests/labelled-exports.test.tsx#L376)).
 - No `@clerk`, `swr`, `next-intl`, `next/`, `@discovery` or `@/` import in
   either new file, and every relative import ends in `.js`
   ([validated by](../../tests/ThinkingIndicator.test.tsx#L107)).
@@ -117,13 +124,15 @@ shipped layout since 022.
   client-only API today; CONTRACT.md decision 1's recorded exception
   ([CONTRACT.md](../../CONTRACT.md#L31), amended in this issue) covers the
   chat surface's presentational components and the private subcomponents
-  they compose, extending 023's shipped `InlineThinkingIndicator` precedent.
+  they compose, extending 023's shipped `InlineThinkingIndicator` precedent
+  ([validated by](../../tests/thinking-indicator-dist.test.ts#L30)).
 - **GDPR.** The component renders only its own labels - no customer data
   reaches it. Neither file references `console.`, `localStorage`,
   `sessionStorage`, `fetch` or `sendBeacon`
   ([validated by](../../tests/ThinkingIndicator.test.tsx#L127)), and the
   suite-wide console trap 023 installed in `tests/setup.ts` fails any test
-  that writes to the console.
+  that writes to the console
+  ([validated by](../../tests/ThinkingIndicator.test.tsx#L127)).
 - `npm pack --dry-run` ships both built files with their `d.ts` counterparts
   ([validated by](../../tests/thinking-indicator-dist.test.ts#L38)).
 
