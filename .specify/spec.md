@@ -58,7 +58,7 @@ Components operate on simple, consumer-supplied data structures passed via props
 2. **Composability** — Components combine to form larger layouts (e.g., MessageBubble + ConversationList + Composer form a complete chat interface).
 3. **Stateless by Default** — Components prefer controlled props over internal state; optional hooks (e.g., `useComposerState`) available for convenience. ([validated by](../tests/AppShell.test.tsx#L146))
 4. **No Opinion on Styling** — Components output semantic HTML and ARIA; styling is consumer responsibility (CSS, Tailwind, CSS-in-JS, etc.). ([validated by](../tests/tailwind-build.test.ts#L75))
-5. **No Hard Dependencies on External Libraries** — React and React-DOM are peer dependencies; other packages should be minimal. ([validated by](../tests/system-contract.test.ts#L22), [L24](../tests/system-contract.test.ts#L39))
+5. **No Hard Dependencies on External Libraries** — React and React-DOM are peer dependencies; other packages should be minimal. ([validated by](../tests/system-contract.test.ts#L22), [L39](../tests/system-contract.test.ts#L39))
 
 ### API Stability
 
