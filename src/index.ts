@@ -8,8 +8,10 @@ export type {
   ChatStreamState,
   ChatErrorInfo,
 } from "./types/chat.js";
-export { markdownComponents } from "./markdown/components.js";
+export { createMarkdownComponents } from "./markdown/components.js";
 export type { MarkdownElementProps } from "./markdown/components.js";
+export { createUrlTransform, defaultMarkdownPolicy } from "./markdown/urlPolicy.js";
+export type { MarkdownPolicy } from "./markdown/urlPolicy.js";
 export {
   ArtifactsIcon,
   ChatIcon,
@@ -46,7 +48,7 @@ export { useReducedMotion } from "./hooks/useReducedMotion.js";
 export { useSidebarState } from "./hooks/useSidebarState.js";
 export type { SidebarStateOptions } from "./hooks/useSidebarState.js";
 export { ErrorBoundary, defaultErrorBoundaryLabels } from "./components/ErrorBoundary.js";
-export type { ErrorBoundaryLabels } from "./components/ErrorBoundary.js";
+export type { ErrorBoundaryLabels, ErrorBoundaryProps } from "./components/ErrorBoundary.js";
 export { ChatMessage, defaultChatMessageLabels } from "./components/ChatMessage.js";
 export type { ChatMessageLabels, ChatMessageProps } from "./components/ChatMessage.js";
 export {
@@ -57,6 +59,14 @@ export type {
   InlineThinkingIndicatorLabels,
   InlineThinkingIndicatorProps,
 } from "./components/InlineThinkingIndicator.js";
+export {
+  ThinkingIndicator,
+  defaultThinkingIndicatorLabels,
+} from "./components/ThinkingIndicator.js";
+export type {
+  ThinkingIndicatorLabels,
+  ThinkingIndicatorProps,
+} from "./components/ThinkingIndicator.js";
 export { ChatComposer, defaultChatComposerLabels } from "./components/ChatComposer.js";
 export type {
   ChatComposerHandle,
@@ -74,4 +84,11 @@ export type {
 } from "./components/ConversationList.js";
 export { AppShell, defaultAppShellLabels } from "./components/AppShell.js";
 export type { AppShellLabels, AppShellProps, SidebarSlotContext } from "./components/AppShell.js";
+export { AppSidebar, defaultAppSidebarLabels } from "./components/AppSidebar.js";
+export type {
+  AppSidebarLabels,
+  AppSidebarProps,
+  SidebarNavItem,
+  SidebarNavLinkProps,
+} from "./components/AppSidebar.js";
 export { resolveLabels } from "./labels.js";

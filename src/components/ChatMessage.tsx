@@ -3,6 +3,7 @@
 import {
   useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState,
   type KeyboardEvent,
@@ -12,7 +13,15 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { CheckIcon, CopyIcon, ThumbsDownIcon, ThumbsUpIcon } from "../icons/index.js";
 import { resolveLabels } from "../labels.js";
-import { markdownComponents } from "../markdown/components.js";
+import {
+  createMarkdownComponents,
+  defaultMarkdownComponentsLabels,
+} from "../markdown/components.js";
+import {
+  createUrlTransform,
+  defaultMarkdownPolicy,
+  type MarkdownPolicy,
+} from "../markdown/urlPolicy.js";
 import type { AssistantChatEntry, UserChatEntry } from "../types/chat.js";
 import { InlineThinkingIndicator } from "./InlineThinkingIndicator.js";
 
@@ -26,6 +35,7 @@ export interface ChatMessageLabels {
   feedbackNegative: string;
   feedbackNotice: string;
   thinking: string;
+  linkOpensInNewTab: string;
 }
 
 // The keyboard shortcuts are off by default (arrowKeyFeedback), so the
@@ -41,6 +51,7 @@ export const defaultChatMessageLabels: Readonly<Required<ChatMessageLabels>> = O
   feedbackNegative: "Bad response",
   feedbackNotice: "Thanks!",
   thinking: "Thinking",
+  linkOpensInNewTab: defaultMarkdownComponentsLabels.linkOpensInNewTab,
 });
 
 export interface ChatMessageProps {
@@ -63,6 +74,12 @@ export interface ChatMessageProps {
   arrowKeyFeedback?: boolean;
   /** Rendered last in the message column, streaming or not. */
   footer?: ReactNode;
+  /**
+   * Overrides the link and image policy for the assistant markdown, field by
+   * field over `defaultMarkdownPolicy` (https/mailto/tel links only, no
+   * relative URLs, new tab, no images).
+   */
+  markdown?: MarkdownPolicy;
   /** Overrides the component's strings; English defaults apply per key. */
   labels?: Partial<ChatMessageLabels>;
   onCopy?: (text: string, entryId: string) => void;
@@ -76,6 +93,7 @@ export function ChatMessage({
   showFeedback = true,
   arrowKeyFeedback = false,
   footer,
+  markdown,
   labels,
   onCopy,
   onFeedback,
@@ -121,8 +139,16 @@ export function ChatMessage({
       if (entry.role !== "assistant" || entry.isStreaming) return;
 
       // Cmd/Ctrl + C stays unconditional: it steals no navigation key and
-      // already yields to an active text selection.
-      if ((e.metaKey || e.ctrlKey) && e.key === "c" && !window.getSelection()?.toString()) {
+      // already yields to an active text selection. Lowercasing covers Caps
+      // Lock ("C"); Shift and Alt stay excluded so Cmd+Shift+C (the browser's
+      // inspect chord) keeps its meaning.
+      if (
+        (e.metaKey || e.ctrlKey) &&
+        !e.shiftKey &&
+        !e.altKey &&
+        e.key.toLowerCase() === "c" &&
+        !window.getSelection()?.toString()
+      ) {
         e.preventDefault();
         copyToClipboard(entry.content, entry.id);
       }
@@ -131,12 +157,14 @@ export function ChatMessage({
       // the keyboard path too, not just hide the thumbs.
       if (!showFeedback || !arrowKeyFeedback) return;
 
-      if (e.key === "ArrowUp" && !e.metaKey && !e.ctrlKey && !e.shiftKey) {
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+
+      if (e.key === "ArrowUp") {
         e.preventDefault();
         handleFeedback(entry.id, "up");
       }
 
-      if (e.key === "ArrowDown" && !e.metaKey && !e.ctrlKey && !e.shiftKey) {
+      if (e.key === "ArrowDown") {
         e.preventDefault();
         handleFeedback(entry.id, "down");
       }
@@ -159,6 +187,7 @@ export function ChatMessage({
         <AssistantMessage
           entry={entry}
           resolved={resolved}
+          markdown={markdown}
           copiedId={copiedId}
           feedbackId={feedbackId}
           showFeedback={showFeedback}
@@ -193,6 +222,7 @@ function UserMessage({ content, userInitials }: UserMessageProps) {
 interface AssistantMessageProps {
   entry: AssistantChatEntry;
   resolved: Required<ChatMessageLabels>;
+  markdown?: MarkdownPolicy;
   copiedId: string | null;
   feedbackId: { id: string; type: "up" | "down" } | null;
   showFeedback: boolean;
@@ -205,6 +235,7 @@ interface AssistantMessageProps {
 function AssistantMessage({
   entry,
   resolved,
+  markdown,
   copiedId,
   feedbackId,
   showFeedback,
@@ -213,6 +244,29 @@ function AssistantMessage({
   onCopy,
   onFeedback,
 }: AssistantMessageProps) {
+  // The memo keys on the resolved policy fields rather than the `markdown`
+  // object, so an inline `markdown={{...}}` literal does not hand ReactMarkdown
+  // fresh component identities - and a remounted markdown subtree - on every
+  // streaming token.
+  const { allowedSchemes, allowRelativeUrls, linkTarget, allowImages } = resolveLabels(
+    defaultMarkdownPolicy,
+    markdown
+  );
+  const schemesKey = JSON.stringify(allowedSchemes);
+  const linkOpensInNewTab = resolved.linkOpensInNewTab;
+  const { components, urlTransform } = useMemo(() => {
+    const policy = {
+      allowedSchemes: JSON.parse(schemesKey) as string[],
+      allowRelativeUrls,
+      linkTarget,
+      allowImages,
+    };
+    return {
+      components: createMarkdownComponents({ policy, labels: { linkOpensInNewTab } }),
+      urlTransform: createUrlTransform(policy),
+    };
+  }, [schemesKey, allowRelativeUrls, linkTarget, allowImages, linkOpensInNewTab]);
+
   // Once content or tool status has appeared for THIS entry id, never show
   // the thinking indicator again. The latch is keyed by entry.id and reset
   // on an id change: the source app happens to key its message list by id,
@@ -241,7 +295,11 @@ function AssistantMessage({
             </div>
           )}
           {entry.content && (
-            <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
+            <ReactMarkdown
+              remarkPlugins={[remarkGfm]}
+              components={components}
+              urlTransform={urlTransform}
+            >
               {entry.content}
             </ReactMarkdown>
           )}

@@ -11,7 +11,7 @@ copies verbatim (`tsc` emits no assets, so `build` is
 over a node script because CI and development both run on POSIX shells)
 ([validated by](../../tests/styles.test.ts#L84)).
 `dist/styles.css` ships in the tarball
-([validated by](../../tests/styles.test.ts#L80)) under the `sideEffects:
+([validated by](../../tests/styles.test.ts#L99)) under the `sideEffects:
 ["*.css"]` seam `018` left open - already present, not re-added
 ([validated by](../../tests/styles.test.ts#L72)).
 
@@ -94,8 +94,12 @@ comparison components' non-extraction is a known fact, not an oversight.
   **Superseded by 023:** the chat message extraction renders through
   `react-markdown` at runtime, so 023 promoted `react-markdown` and
   `remark-gfm` from devDependencies to `dependencies` - the zero-runtime-deps
-  claim above no longer holds (see `specs/bowman-ui-chat-message/spec.md`;
-  [validated by](../../tests/chat-message-dist.test.ts#L88)).
+  claim above no longer holds (see `specs/bowman-ui-chat-message/spec.md`).
+  **Superseded by 076:** the frozen `markdownComponents` constant became the
+  `createMarkdownComponents(options)` factory - the `a` renderer needs a link
+  policy and a label - and the map gained an `img` entry for the image gate;
+  the eighteen classed tags and their fixture test carry over unchanged (see
+  `specs/bowman-ui-markdown-link-policy/spec.md`).
 - **Markdown styling is color-neutral.** The `bowman-md-*` rules use
   `currentColor` and `color-mix(...)` for backgrounds and borders instead of
   palette colors, so they work under either dark-mode strategy without the

@@ -118,6 +118,7 @@ export const ChatComposer = forwardRef<ChatComposerHandle, ChatComposerProps>(fu
 
   return (
     <div
+      aria-busy={busy}
       className={`relative rounded-2xl border border-slate-200 bg-white shadow-sm transition-all focus-within:shadow-[0_0_0_4px_rgba(59,130,246,0.1)] focus-within:ring-2 focus-within:ring-blue-500/50 dark:border-slate-800 dark:bg-slate-900 dark:focus-within:shadow-[0_0_0_4px_rgba(96,165,250,0.1)] dark:focus-within:ring-blue-400/50 ${busy ? "bowman-pulse-subtle" : ""}`}
     >
       <textarea

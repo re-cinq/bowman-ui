@@ -340,6 +340,36 @@ describe("ConversationList", () => {
       });
     });
 
+    it('the full title "Booking 4711" is plain text for assistive tech, hidden with inline styles so no consumer stylesheet is required, and the per-character spans are aria-hidden', () => {
+      render(<ConversationList items={[makeItem()]} />);
+
+      const plainTitle = screen.getByText("Booking 4711");
+      expect(plainTitle.style).toMatchObject({ position: "absolute", width: "1px" });
+      expect(plainTitle.hasAttribute("class")).toBe(false);
+      expect(titleContainer()).toHaveAttribute("aria-hidden", "true");
+    });
+
+    it("mid-animation, assistive tech already reads the new title while the characters still show the old one", () => {
+      vi.useFakeTimers();
+      const { rerender } = render(
+        <ConversationList items={[makeItem({ title: "Ny samtale", isPlaceholderTitle: true })]} />
+      );
+
+      rerender(
+        <ConversationList
+          items={[makeItem({ title: "Booking 4711", isPlaceholderTitle: false })]}
+        />
+      );
+
+      expect(screen.getByText("Booking 4711")).toBeInTheDocument();
+      expect(titleContainer().textContent).toBe("Ny samtale");
+
+      act(() => {
+        vi.advanceTimersByTime(25 * 25);
+      });
+      expect(vi.getTimerCount()).toBe(0);
+    });
+
     it("a second list does not animate from the first list's titles - the previous-title record is component-scoped, not module-scoped", () => {
       vi.useFakeTimers();
       render(
