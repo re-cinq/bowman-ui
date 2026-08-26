@@ -12,41 +12,41 @@ No file in `discovery` changes.
 
 ## The public surface
 
-`children` render inside a `<main>` whose `id` defaults to `"main-content"`
-([validated by](../../tests/AppShell.test.tsx#L22)); `mainContentId` renames
-both the `<main>` and the skip link's `href` in the same file, so the two can
-no longer drift apart
-([validated by](../../tests/AppShell.test.tsx#L33)). The skip link is the
+`children` render inside a `<main>` whose `id` defaults to `"main-content"`;
+`mainContentId` renames both the `<main>` and the skip link's `href` in the
+same file, so the two can no longer drift apart
+([validated by](../../tests/AppShell.test.tsx#L22),
+[L33](../../tests/AppShell.test.tsx#L33)). The skip link is the
 first focusable element in the rendered tree and carries the resolved
-`skipToMainContent` label
-([validated by](../../tests/AppShell.test.tsx#L47)); `skipLink={false}` opts
+`skipToMainContent` label; `skipLink={false}` opts
 out for a consumer with its own
-([validated by](../../tests/AppShell.test.tsx#L58)).
+([validated by](../../tests/AppShell.test.tsx#L47),
+[L58](../../tests/AppShell.test.tsx#L58)).
 
 `AppShellLabels` has four defaulted keys - `openSidebar`, `closeSidebar`,
 `skipToMainContent`, and `sidebarDialog` (the open drawer dialog's accessible
 name, added by the 2026-08-26 review) - per CONTRACT.md § Labels
 ([validated by](../../tests/labelled-exports.test.tsx#L394)). `AppShell`
-sits in the `labelsProp` partition bucket
-([partition](../../tests/labelled-exports.test.tsx#L57)) and passes the
+sits in the `labelsProp` partition bucket and passes the
 sentinel render with all four labels set to sentinels; the harness opens the
 drawer so the dialog-name sentinel renders
-([harness](../../tests/labelled-exports.test.tsx#L287)).
+([partition](../../tests/labelled-exports.test.tsx#L57),
+[harness](../../tests/labelled-exports.test.tsx#L287)).
 
 `renderSidebar({ variant, close })` is called exactly twice per render - once
 per position, `"desktop"` rail and `"mobile"` drawer - and both returned
-trees are in the document
-([validated by](../../tests/AppShell.test.tsx#L70)); omitting it still
-renders the frame ([validated by](../../tests/AppShell.test.tsx#L83)). The
+trees are in the document; omitting it still
+renders the frame ([validated by](../../tests/AppShell.test.tsx#L70),
+[L83](../../tests/AppShell.test.tsx#L83)). The
 mobile copy needs `close` so tapping a nav item closes the drawer - the same
 slot idiom as `ConversationList`'s `renderLink`
 ([validated by](../../tests/AppShell.test.tsx#L125)).
 
 `brand` renders inside the mobile header row with the centring spacer;
 omitted, the header shows the hamburger and no spacer, and the component
-imports no logo ([validated by](../../tests/AppShell.test.tsx#L322),
-[L326](../../tests/AppShell.test.tsx#L326),
-[L409](../../tests/AppShell.test.tsx#L409)).
+imports no logo ([validated by](../../tests/AppShell.test.tsx#L404),
+[L412](../../tests/AppShell.test.tsx#L412),
+[L419](../../tests/AppShell.test.tsx#L419)).
 
 ## Open state
 
@@ -75,18 +75,17 @@ source's `usePathname` effect is app-router-specific and cannot ship here
    the tree said did not exist. The closed wrapper carries `inert` (React 19
    boolean prop; the pinned peer is `^19.0.0`), so the subtree leaves both
    the tab order and the accessibility tree; the open wrapper carries none,
-   and the string `aria-hidden` appears nowhere in the source file
-   ([validated by](../../tests/AppShell.test.tsx#L222),
-   [L234](../../tests/AppShell.test.tsx#L234)). The rail and drawer stay two
-   DOM nodes because `inert` cannot be conditioned on a CSS breakpoint
-   ([validated by](../../tests/AppShell.test.tsx#L222)).
+   and the string `aria-hidden` appears nowhere in the source file. The rail
+   and drawer stay two DOM nodes because `inert` cannot be conditioned on a
+   CSS breakpoint ([validated by](../../tests/AppShell.test.tsx#L222),
+   [L234](../../tests/AppShell.test.tsx#L234)).
 2. **The scroll lock restores the prior overflow value.** The source reset
    `document.body.style.overflow` to `""` on close
    (`AppMobileSidebar.tsx:51-60`), clobbering any other lock on the page.
    With overflow pre-set to `"scroll"`, opening sets `"hidden"`, closing
    restores `"scroll"`, and unmounting while open restores it too
-   ([validated by](../../tests/AppShell.test.tsx#L309),
-   [L321](../../tests/AppShell.test.tsx#L321)).
+   ([validated by](../../tests/AppShell.test.tsx#L320),
+   [L365](../../tests/AppShell.test.tsx#L365)).
 
 **Landmark ruling (recorded decision).** The drawer and rail wrappers are
 non-landmark `div`s: issue 031's `AppSidebar` supplies the only `aside`/`nav`
@@ -101,16 +100,16 @@ Opening moves focus to the close button - shell chrome, top-right,
 wraps to the first, and closing returns focus to the hamburger
 ([validated by](../../tests/AppShell.test.tsx#L269),
 [L277](../../tests/AppShell.test.tsx#L277),
-[L287](../../tests/AppShell.test.tsx#L287)). Escape and tab-cycling come from
+[L297](../../tests/AppShell.test.tsx#L297)). Escape and tab-cycling come from
 021's shared `useFocusTrap`, never a bespoke listener: the source contains no
 `"Escape"` string and adds no `document.addEventListener`
-([validated by](../../tests/AppShell.test.tsx#L270)).
+([validated by](../../tests/AppShell.test.tsx#L308)).
 
 `reducedMotion={true}` omits `transition-transform` and `transition-opacity`
 from the drawer and backdrop; omitted, 021's `useReducedMotion` tracks
 `prefers-reduced-motion` and a non-matching `matchMedia` keeps both classes
-([validated by](../../tests/AppShell.test.tsx#L367),
-[L305](../../tests/AppShell.test.tsx#L380)).
+([validated by](../../tests/AppShell.test.tsx#L377),
+[L384](../../tests/AppShell.test.tsx#L384)).
 
 ## The 015 characterization suite, ported
 
@@ -125,28 +124,27 @@ below.
 | b   | The three-children-as-props structure (stubbed `AppSidebar`/`AppMobileSidebar`/`AppMobileHeader`) → the `renderSidebar` slot called twice plus shell-owned header and drawer chrome ([L70](../../tests/AppShell.test.tsx#L70))                | The children were the dependency boundary; slots ship without Clerk, next-intl or `next/link` |
 | c   | 015's open/close cycle (`data-is-open` false → true after `onMenuClick` → false after `onClose`) → the drawer wrapper's observable state (`translate-x-0`/`inert`) through the same click sequence ([L91](../../tests/AppShell.test.tsx#L91)) | The observable cycle survives; the stub attribute becomes real DOM state                      |
 | d   | `inert` on the closed drawer - NET-NEW fix with no 015 baseline ([L222](../../tests/AppShell.test.tsx#L222))                                                                                                                                  | 015 stubbed `AppMobileSidebar`, so the `aria-hidden` defect was never pinned                  |
-| e   | Scroll-lock restore - NET-NEW fix with no 015 baseline ([L309](../../tests/AppShell.test.tsx#L309))                                                                                                                                           | Same: the lock lived in the stubbed child                                                     |
+| e   | Scroll-lock restore - NET-NEW fix with no 015 baseline ([L320](../../tests/AppShell.test.tsx#L320))                                                                                                                                           | Same: the lock lived in the stubbed child                                                     |
 
 ## Carried across mechanically
 
 - `MenuIcon`/`CloseIcon` come from 020's set; imports are relative with `.js`
   extensions, and no `@clerk`, `swr`, `next-intl`, `next/`, `@discovery`,
   `@/` or `lucide-react` import survives
-  ([validated by](../../tests/AppShell.test.tsx#L404)).
+  ([validated by](../../tests/AppShell.test.tsx#L431)).
 - GDPR: the shell wraps a surface carrying customer questions and booking
   identifiers (`003-support-conversation-data-flow-record`). The source
   references no `console.`, `fetch`, `sendBeacon`, `localStorage`,
-  `sessionStorage`, `indexedDB` or `analytics`
-  ([validated by](../../tests/AppShell.test.tsx#L407)), and the suite-wide
+  `sessionStorage`, `indexedDB` or `analytics`, and the suite-wide
   console trap in `tests/setup.ts` fails any test that triggered a console
   call. Desktop collapse state is out of scope precisely because it is the
   only thing here that would persist anything
   ([validated by](../../tests/AppShell.test.tsx#L425)).
 - `dist/components/AppShell.js` opens with `"use client";` as its first
-  statement per 018's positional check
-  ([validated by](../../tests/app-shell-dist.test.ts#L30)), and `npm pack`
+  statement per 018's positional check, and `npm pack`
   ships exactly the built pair
-  ([validated by](../../tests/app-shell-dist.test.ts#L36)).
+  ([validated by](../../tests/app-shell-dist.test.ts#L30),
+  [L36](../../tests/app-shell-dist.test.ts#L36)).
 
 ## Recorded deviations
 
@@ -159,7 +157,6 @@ below.
   the React idiom for intentionally-nothing, and an empty centring spacer with
   no mark would be a layout surprise. Pinned by test
   ([validated by](../../tests/AppShell.test.tsx#L454)).
-  from the issue text
 
 - **Test locations.** The issue names `tests/components/AppShell.test.tsx`;
   this repository keeps every test flat under `tests/`, and the partition

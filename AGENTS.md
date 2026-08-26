@@ -68,6 +68,17 @@ Pre-publish checklist:
 - TypeScript strict mode compliance
 - Git tag matches version (e.g., `v1.0.0`)
 
+## Spec Test Links
+
+Statements in `specs/*/spec.md` cite their validating tests with a trailing
+`([validated by](../../tests/X.test.tsx#Lnn))` parenthetical at the end of the
+statement (a list item is one statement; a paragraph counts per sentence).
+Anchors must land on the cited test's `it(`/`describe(` line or another
+content-carrying line. CI runs `node scripts/repoint-spec-anchors.mjs --check`
+against `origin/main`: it fails on anchors whose cited content moved (run the
+script without `--check` after editing a test file to re-point them) and on
+anchors landing on blank or closing-punctuation lines.
+
 ## Commit Conventions
 
 Use **Conventional Commits** format:

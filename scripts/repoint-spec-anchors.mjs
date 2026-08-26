@@ -14,12 +14,21 @@
 // same baseline is a no-op instead of a second translation. A spec whose
 // anchor set (the ordered list of test paths it cites) differs from the base
 // ref is skipped whole: its anchors were authored against the working tree,
-// and no baseline exists to repoint them from.
+// and no baseline exists to repoint them from. An individual anchor whose
+// line number differs from the base spec's at the same position was
+// deliberately retargeted by a spec edit: it is accepted as authored, never
+// rewritten, and reported as "retargeted (not checked)".
+//
+// Independent of any baseline, every anchor must land on a line that exists
+// and carries content: an anchor whose target file is missing, whose line is
+// beyond the end of the file, or whose line is blank or closing punctuation
+// is reported as rotten and fails the run in both modes (issue 46).
 //
 // --check rewrites nothing and exits 1 when any anchor is stale (its baseline
-// content now lives on a different line) or unresolved (that content no
-// longer exists). Without --check, stale anchors are rewritten in place and
-// unresolved ones are reported for manual fix with exit 1.
+// content now lives on a different line), unresolved (that content no
+// longer exists), or rotten. Without --check, stale anchors are rewritten in
+// place and unresolved or rotten ones are reported for manual fix with
+// exit 1.
 
 import { execFileSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
@@ -86,6 +95,18 @@ const workingFile = (path) => {
 const extractAnchors = (source) =>
   [...source.matchAll(ANCHOR)].map((match) => ({ path: match[1], line: Number(match[2]) }));
 
+const CONTENTLESS = /^[)\]}>,;]*$/;
+
+const rottenReason = (anchor, specDir) => {
+  const testPath = normalize(join(specDir, anchor.path));
+  const working = workingFile(testPath);
+  if (working === null) return `${testPath} does not exist in the working tree`;
+  const target = working.split("\n")[anchor.line - 1];
+  if (target === undefined) return `#L${anchor.line} is beyond the end of ${testPath}`;
+  if (CONTENTLESS.test(target.trim())) return `#L${anchor.line} lands on a blank or closing line`;
+  return null;
+};
+
 const sameAnchorPaths = (a, b) =>
   a.length === b.length && a.every((anchor, index) => anchor.path === b[index].path);
 
@@ -123,13 +144,20 @@ const specFiles = [
 
 let moved = 0;
 let upToDate = 0;
+let retargeted = 0;
 const unresolved = [];
 const staleDetails = [];
+const rotten = [];
 
 for (const spec of specFiles) {
   const source = readFileSync(join(root, spec), "utf8");
   const anchors = extractAnchors(source);
   if (anchors.length === 0) continue;
+  const specDir = dirname(spec);
+  for (const anchor of anchors) {
+    const reason = rottenReason(anchor, specDir);
+    if (reason) rotten.push(`${spec}: ${anchor.path}#L${anchor.line} -> ${reason}`);
+  }
   const baseSpec = baseFile(spec);
   if (baseSpec === null) {
     process.stderr.write(`skipped ${spec}: not present at ${baseRef}\n`);
@@ -142,12 +170,17 @@ for (const spec of specFiles) {
     );
     continue;
   }
-  const specDir = dirname(spec);
-  const resolutions = anchors.map((anchor, index) =>
-    resolveAnchor(anchor, baseAnchors[index].line, specDir)
-  );
+  const resolutions = anchors.map((anchor, index) => {
+    if (anchor.line !== baseAnchors[index].line) return { retargeted: true };
+    return resolveAnchor(anchor, baseAnchors[index].line, specDir);
+  });
   resolutions.forEach((resolution, index) => {
     const anchor = anchors[index];
+    if (resolution.retargeted) {
+      retargeted += 1;
+      upToDate += 1;
+      return;
+    }
     if (resolution.failure) {
       unresolved.push(`${spec}: ${anchor.path}#L${anchor.line} -> ${resolution.failure}`);
       return;
@@ -164,7 +197,13 @@ for (const spec of specFiles) {
   const rewritten = source.replace(ANCHOR, (whole, relPath) => {
     occurrence += 1;
     const resolution = resolutions[occurrence];
-    if (resolution.failure || resolution.expectedLine === anchors[occurrence].line) return whole;
+    if (
+      resolution.retargeted ||
+      resolution.failure ||
+      resolution.expectedLine === anchors[occurrence].line
+    ) {
+      return whole;
+    }
     return `${relPath}#L${resolution.expectedLine}`;
   });
   if (rewritten !== source) writeFileSync(join(root, spec), rewritten);
@@ -174,10 +213,12 @@ const movedLabel = checkMode ? "stale" : "repointed";
 process.stdout.write(
   `${movedLabel}: ${moved}, up to date: ${upToDate}, unresolved: ${unresolved.length}\n`
 );
+if (retargeted > 0) process.stdout.write(`retargeted (not checked): ${retargeted}\n`);
 if (checkMode) {
   for (const detail of staleDetails) process.stderr.write(`stale ${detail}\n`);
 }
 for (const detail of unresolved) process.stderr.write(`unresolved ${detail}\n`);
+for (const detail of rotten) process.stderr.write(`rotten ${detail}\n`);
 
-const failed = unresolved.length > 0 || (checkMode && moved > 0);
+const failed = rotten.length > 0 || unresolved.length > 0 || (checkMode && moved > 0);
 process.exit(failed ? 1 : 0);

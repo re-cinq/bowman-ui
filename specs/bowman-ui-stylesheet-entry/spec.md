@@ -10,18 +10,18 @@ copies verbatim (`tsc` emits no assets, so `build` is
 `tsc -p tsconfig.json && cp src/styles.css dist/styles.css` - `cp` was chosen
 over a node script because CI and development both run on POSIX shells)
 ([validated by](../../tests/styles.test.ts#L84)).
-`dist/styles.css` ships in the tarball
-([validated by](../../tests/styles.test.ts#L99)) under the `sideEffects:
+`dist/styles.css` ships in the tarball under the `sideEffects:
 ["*.css"]` seam `018` left open - already present, not re-added
-([validated by](../../tests/styles.test.ts#L72)).
+([validated by](../../tests/styles.test.ts#L99),
+[L91](../../tests/styles.test.ts#L91)).
 
 ## What ships
 
 Exactly three keyframes with their utility rules - `bowman-fade-in`,
-`bowman-fade-dot`, `bowman-pulse-subtle`
+`bowman-fade-dot`, `bowman-pulse-subtle` - plus the `bowman-md-*` markdown
+element styling and an unconditional reduced-motion rule
 ([validated by](../../tests/styles.test.ts#L28),
-[L33](../../tests/styles.test.ts#L33)) - plus the `bowman-md-*` markdown
-element styling and an unconditional reduced-motion rule. All class and
+[L38](../../tests/styles.test.ts#L38)). All class and
 keyframe names carry the `bowman-` prefix so they cannot collide with a
 consumer's own `animate-*` utilities; the issue prescribed `.bowman-fade-in`
 for the split fade and the other two follow the same convention
@@ -35,7 +35,7 @@ Absent on purpose, per the issue's reference table measured against Discovery
 outside `globals.css` itself returns nothing) and the ten `@theme` tokens
 (referenced nowhere outside `globals.css`). The file contains no `@theme`, no
 `@import` of any kind and no `@plugin`, so a non-Tailwind consumer can import
-it as plain CSS ([validated by](../../tests/styles.test.ts#L40)).
+it as plain CSS ([validated by](../../tests/styles.test.ts#L50)).
 
 ## The fadeIn split
 
@@ -51,27 +51,28 @@ only; Toast keeps its centring in its own rule when it is extracted
 
 `@media (prefers-reduced-motion: reduce)` sets `animation: none` on all three
 utility classes, with no `data-animations` attribute in any selector
-([validated by](../../tests/styles.test.ts#L54)). The
+([validated by](../../tests/styles.test.ts#L72)). The
 `NEXT_PUBLIC_FLAG_ANIMATIONS` escape hatch is Discovery plumbing and stays
 there ([validated by](../../tests/hooks-dist.test.ts#L73)).
 
 ## The typography-plugin replacement
 
-`@tailwindcss/typography` appears in no `package.json` field
-([validated by](../../tests/styles.test.ts#L76)) and no `src/` file contains
+`@tailwindcss/typography` appears in no `package.json` field and no `src/`
+file contains
 the string the plugin's classes are built from
-([validated by](../../tests/styles.test.ts#L96)). Instead, `markdownComponents`
+([validated by](../../tests/styles.test.ts#L95),
+[L115](../../tests/styles.test.ts#L115)). Instead, `markdownComponents`
 is a named export from the package root: a `react-markdown` `components` map
 covering exactly `p`, `a`, `ul`, `ol`, `li`, `code`, `pre`, `blockquote`,
 `h1`-`h3`, `table`, `thead`, `th`, `td`, `hr`, `strong`, `em`
 ([validated by](../../tests/markdown-components.test.tsx#L55)). Each element
 carries its `bowman-md-<tag>` class when a fixture containing every tag renders
-through `react-markdown` + `remark-gfm`
-([validated by](../../tests/markdown-components.test.tsx#L70)), incoming
-classes like `language-js` are merged rather than clobbered
-([validated by](../../tests/markdown-components.test.tsx#L75)), and the
+through `react-markdown` + `remark-gfm`, incoming
+classes like `language-js` are merged rather than clobbered, and the
 `node` prop `react-markdown` passes never reaches the DOM
-([validated by](../../tests/markdown-components.test.tsx#L83)).
+([validated by](../../tests/markdown-components.test.tsx#L74),
+[L79](../../tests/markdown-components.test.tsx#L79),
+[L87](../../tests/markdown-components.test.tsx#L87)).
 
 **Correction to the issue text**: "the one `prose` wrapper site
 (`ChatMessage.tsx:182`)" undercounts - `components/comparison/MessageList.tsx:381`
@@ -89,8 +90,7 @@ comparison components' non-extraction is a known fact, not an oversight.
   dependencies and consumers on any `react-markdown` v9/v10 stay compatible.
   `react-markdown` + `remark-gfm` were added as devDependencies for the
   rendering test above and for the compile-time proof that the map is
-  assignable to `react-markdown`'s `Components`
-  ([validated by](../../tests/markdown-components.test.tsx#L88)).
+  assignable to `react-markdown`'s `Components`.
   **Superseded by 023:** the chat message extraction renders through
   `react-markdown` at runtime, so 023 promoted `react-markdown` and
   `remark-gfm` from devDependencies to `dependencies` - the zero-runtime-deps
@@ -99,7 +99,8 @@ comparison components' non-extraction is a known fact, not an oversight.
   `createMarkdownComponents(options)` factory - the `a` renderer needs a link
   policy and a label - and the map gained an `img` entry for the image gate;
   the eighteen classed tags and their fixture test carry over unchanged (see
-  `specs/bowman-ui-markdown-link-policy/spec.md`).
+  `specs/bowman-ui-markdown-link-policy/spec.md`;
+  [validated by](../../tests/markdown-components.test.tsx#L92)).
 - **Markdown styling is color-neutral.** The `bowman-md-*` rules use
   `currentColor` and `color-mix(...)` for backgrounds and borders instead of
   palette colors, so they work under either dark-mode strategy without the
