@@ -28,6 +28,14 @@ Evidence:
   this section records the exception.
 - `src/index.ts` carries no directive; `dist/index.js` stays a plain
   re-export.
+- Recorded exception (023, widened by 024): presentational components of the
+  chat surface and the private subcomponents they compose carry the directive
+  even when the file happens to reference no client-only API today -
+  `InlineThinkingIndicator` shipped that way in 023, and 024 pins
+  `ThinkingIndicator` and `ThinkingDots` to the same shape - so a consumer
+  importing them from a server component gets a working client boundary
+  regardless of which internal a later edit adds state to. The "only" rule
+  above reads subject to this exception.
 
 Enforcement: `scripts/check-client-directives.mjs` fails the build when a
 `src/` file references a client-only API or handler without the directive as
