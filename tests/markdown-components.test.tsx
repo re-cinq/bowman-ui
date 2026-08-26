@@ -3,7 +3,7 @@ import { spawnSync } from "node:child_process";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
-import { markdownComponents } from "../src/index.js";
+import { createMarkdownComponents, createUrlTransform } from "../src/index.js";
 
 const fixtureMarkdown = `
 # Heading one
@@ -52,8 +52,8 @@ const coveredTags = [
   "em",
 ] as const;
 
-it("covers exactly the eighteen tags the issue names", () => {
-  expect(Object.keys(markdownComponents).sort()).toEqual([...coveredTags].sort());
+it("covers exactly the eighteen tags 019 named plus 076's img gate", () => {
+  expect(Object.keys(createMarkdownComponents()).sort()).toEqual([...coveredTags, "img"].sort());
 });
 
 describe("rendering the fixture through react-markdown with remark-gfm", () => {
@@ -61,7 +61,11 @@ describe("rendering the fixture through react-markdown with remark-gfm", () => {
 
   beforeEach(() => {
     ({ container } = render(
-      <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm]}
+        components={createMarkdownComponents()}
+        urlTransform={createUrlTransform()}
+      >
         {fixtureMarkdown}
       </ReactMarkdown>
     ));
