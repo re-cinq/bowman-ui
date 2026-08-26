@@ -6,7 +6,7 @@ The local SVG icon set moves from Discovery (`apps/web/components/icons/Icon.tsx
 and `index.tsx` on `main` at `1aa3647fa5f75997ceea6bdc11f3fa66cea79b29`) into
 `src/icons/Icon.tsx` and `src/icons/index.tsx`, re-exported from the root
 barrel `src/index.ts` - no `./icons` subpath, since `014` pinned `exports` to a
-single `"."` entry. `src/icons/index.tsx` exports exactly 23 icon components,
+single `"."` entry ([validated by](../../tests/icons-dist.test.ts#L4)). `src/icons/index.tsx` exports exactly 23 icon components,
 enumerated by name so a dropped icon fails the build rather than the consumer
 ([validated by](../../tests/icons.test.tsx#L58)), with path data byte-identical
 to the source, asserted attribute-by-attribute against a verbatim pre-move
@@ -27,29 +27,32 @@ Here the 22 uniform icons render `<IconWrapper {...svgProps}>`
 ([validated by](../../tests/icons.test.tsx#L116),
 [L125](../../tests/icons.test.tsx#L125)). `forwardRef` stays exactly as-is per
 `018` Decision 4 - rewriting it away would turn the `^19.0.0` peer range from a
-testing claim into a hard React 19 floor; the icons still take no `ref` prop.
+testing claim into a hard React 19 floor; the icons still take no `ref` prop
+([validated by](../../tests/icons-dist.test.ts#L4)).
 
 `LoadingIcon` is the explicit exception and keeps its own `<svg>`:
 `IconWrapper` hardcodes `stroke="currentColor"` on the root, which would put a
 stroke on the deliberately strokeless spinner path, and `LoadingIcon` composes
 its `className` (`` `animate-spin ${className || ""}` ``) rather than passing
-it through. The would-be regression is pinned: no root `stroke` attribute,
+it through ([validated by](../../tests/icons.test.tsx#L247),
+[L257](../../tests/icons.test.tsx#L257)). The would-be regression is pinned: no root `stroke` attribute,
 `class` containing `animate-spin`, `<path fill="currentColor">` with no stroke
 ([validated by](../../tests/icons.test.tsx#L241)). `animate-spin` is a Tailwind
 core utility, not one of the three keyframes `019` ships - `src/styles.css`
-gains no rule for it ([validated by](../../tests/icons.test.tsx#L108)); a
-consumer's Tailwind build generates it by scanning the installed `dist`.
+gains no rule for it; a consumer's Tailwind build generates it by scanning
+the installed `dist` ([validated by](../../tests/icons.test.tsx#L108)).
 `LoadingIcon`'s English `ariaLabel` default `"Loading"` (source `index.tsx:354`)
 is preserved as the icon set's only user-visible string, prop-overridable per
-call site ([validated by](../../tests/icons.test.tsx#L225),
-[L230](../../tests/icons.test.tsx#L230)); the icon set needs no `labels` prop
-and the `labels` issue does not touch it.
+call site; the icon set needs no `labels` prop and the `labels` issue does
+not touch it ([validated by](../../tests/icons.test.tsx#L225),
+[L230](../../tests/icons.test.tsx#L230)).
 
 ## The public props type: `IconProps`
 
 The module-private `BaseIconProps` (source `index.tsx:25`) is promoted to the
 public, exported `IconProps = {className?: string; ariaLabel?: string;
-strokeWidth?: number}`, and every one of the 23 icons is typed with it. A
+strokeWidth?: number}`, and every one of the 23 icons is typed with it
+([validated by](../../tests/icons-dist.test.ts#L4)). A
 type-level test compiles `const Wrapped = (p: IconProps) => <SendIcon {...p} />`
 against the built `dist` types through the self-referencing package import -
 the case `018` recorded as impossible before this issue
@@ -68,7 +71,8 @@ locally-renamed component variables, not the registry component, and the test
 suite imports only `getAccessibleIconProps`.
 
 `IconWrapper` and `getAccessibleIconProps` are exported from the root barrel
-and `IconSvgProps` as a type - `getAccessibleIconProps` returns a `Pick` of it.
+and `IconSvgProps` as a type - `getAccessibleIconProps` returns a `Pick` of it
+([validated by](../../tests/icons.test.tsx#L58)).
 All four resolve through the `"."` exports entry
 ([validated by](../../tests/icons-dist.test.ts#L4)) and `npm pack --dry-run`
 ships `dist/icons/Icon.{js,d.ts}` and `dist/icons/index.{js,d.ts}`
@@ -101,7 +105,7 @@ lines) passes unchanged in meaning: no label → `aria-hidden="true"` and no
 `LogoIcon` (source `index.tsx:158-169`) does not move: it is Discovery's sparkle
 mark, structurally unlike its 23 neighbours (no stroke, `fill="currentColor"`
 path, `strokeWidth` ignored), and `018` Decision 3 forbids a bundled default
-mark. `grep -rn "LogoIcon" src/` returns nothing
+mark ([validated by](../../tests/icons.test.tsx#L70)). `grep -rn "LogoIcon" src/` returns nothing
 ([validated by](../../tests/icons.test.tsx#L70)) and the README points a
 consumer wanting a brand mark at the `assistantAvatar` slot from `CONTRACT.md`
 ([validated by](../../tests/icons.test.tsx#L85)).
@@ -111,8 +115,9 @@ consumer wanting a brand mark at the `assistantAvatar` slot from `CONTRACT.md`
 No file under `src/icons/` carries `"use client"`
 ([validated by](../../tests/icons.test.tsx#L102)) - the icons use no
 client-only React API - and `scripts/check-client-directives.mjs` passes
-against the new files ([validated by](../../tests/client-directives.test.ts#L15)),
-the first exercise of `018`'s contract requirement against real extracted code.
+against the new files, the first exercise of `018`'s contract requirement
+against real extracted code
+([validated by](../../tests/client-directives.test.ts#L80)).
 Every relative import under `src/icons/` ends in `.js` and no file contains
 `"@/` ([validated by](../../tests/icons.test.tsx#L91)).
 
