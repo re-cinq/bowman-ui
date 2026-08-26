@@ -11,6 +11,14 @@ let consoleCalls: string[] = [];
 let originalConsoleError: typeof console.error;
 let originalConsoleWarn: typeof console.warn;
 
+// 076's rider on the same principle: no rendering path may initiate a network
+// request from model-authored content, so any fetch or XMLHttpRequest call
+// during a test fails that test. The wrappers record instead of throwing so
+// the failure names the request rather than surfacing as an unhandled error.
+let networkCalls: string[] = [];
+let originalFetch: typeof globalThis.fetch;
+let OriginalXMLHttpRequest: typeof globalThis.XMLHttpRequest;
+
 beforeEach(() => {
   consoleCalls = [];
   originalConsoleError = console.error;
@@ -21,10 +29,24 @@ beforeEach(() => {
   console.warn = (...args: unknown[]) => {
     consoleCalls.push(`console.warn: ${args.map(String).join(" ")}`);
   };
+  networkCalls = [];
+  originalFetch = globalThis.fetch;
+  OriginalXMLHttpRequest = globalThis.XMLHttpRequest;
+  globalThis.fetch = ((input: unknown) => {
+    networkCalls.push(`fetch: ${String(input)}`);
+    return new Promise<Response>(() => {});
+  }) as typeof globalThis.fetch;
+  globalThis.XMLHttpRequest = class {
+    constructor() {
+      networkCalls.push("XMLHttpRequest");
+    }
+  } as unknown as typeof globalThis.XMLHttpRequest;
 });
 
 afterEach(() => {
   console.error = originalConsoleError;
   console.warn = originalConsoleWarn;
-  expect(consoleCalls).toEqual([]);
+  globalThis.fetch = originalFetch;
+  globalThis.XMLHttpRequest = OriginalXMLHttpRequest;
+  expect({ consoleCalls, networkCalls }).toEqual({ consoleCalls: [], networkCalls: [] });
 });
