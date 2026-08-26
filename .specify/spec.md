@@ -2,7 +2,7 @@
 
 ## Overview
 
-**bowman-ui** is a presentational React component library providing UI building blocks for AI chat interfaces. It is extracted from an internal application and published as `@re-cinq/bowman-ui` on npm. The library delivers props-driven, composable React components with no built-in authentication, data-fetching, routing, or internationalization (i18n) dependencies. Consumers are responsible for supplying data and labels; the components render them according to received props.
+**bowman-ui** is a presentational React component library providing UI building blocks for AI chat interfaces. It is extracted from an internal application and published as `@re-cinq/bowman-ui` on npm ([validated by](../tests/system-contract.test.ts#L14)). The library delivers props-driven, composable React components with no built-in authentication, data-fetching, routing, or internationalization (i18n) dependencies ([validated by](../tests/ChatMessage.test.tsx#L574), [system-contract](../tests/system-contract.test.ts#L39)). Consumers are responsible for supplying data and labels; the components render them according to received props ([validated by](../tests/labelled-exports.test.tsx#L316)).
 
 **Naming convention**: HAL is the conversational engine; Bowman is the presentational face (the UI).
 
@@ -10,19 +10,19 @@
 
 ## Key Capabilities
 
-1. **Message Rendering** — Display individual chat messages in configurable bubble/card layouts
-2. **Composer** — Text input and submission interface for user messages with optional formatting toolbar
-3. **Conversation List** — Render conversation threads or chat history with selection/navigation
-4. **App Shell** — Top-level application layout container (header, sidebar, main content area)
-5. **Props-Driven Architecture** — All behavior configured via React props; no internal state management or API calls
-6. **Type-Safe API** — Full TypeScript support with strict mode compliance; no implicit `any` types in public interfaces
-7. **Accessibility** — ARIA attributes, semantic HTML, keyboard navigation, and color contrast compliance
-8. **Dual Module Distribution** — ESM and CommonJS outputs for broad ecosystem compatibility
-9. **Tree-Shakeable Exports** — Named exports enable dead-code elimination in consuming applications
+1. **Message Rendering** — Display individual chat messages in configurable bubble/card layouts ([validated by](../tests/ChatMessage.test.tsx#L49))
+2. **Composer** — Text input and submission interface for user messages with optional formatting toolbar ([validated by](../tests/ChatComposer.test.tsx#L31))
+3. **Conversation List** — Render conversation threads or chat history with selection/navigation ([validated by](../tests/ConversationList.test.tsx#L33))
+4. **App Shell** — Top-level application layout container (header, sidebar, main content area) ([validated by](../tests/AppShell.test.tsx#L22))
+5. **Props-Driven Architecture** — All behavior configured via React props; no internal state management or API calls ([validated by](../tests/ChatMessage.test.tsx#L593), [L342](../tests/ChatComposer.test.tsx#L342))
+6. **Type-Safe API** — Full TypeScript support with strict mode compliance; no implicit `any` types in public interfaces ([validated by](../tests/public-api.test.ts#L46), [system-contract](../tests/system-contract.test.ts#L52))
+7. **Accessibility** — ARIA attributes, semantic HTML, keyboard navigation, and color contrast compliance ([validated by](../tests/icons.test.tsx#L151), [L47](../tests/AppShell.test.tsx#L47), [L71](../tests/useFocusTrap.test.tsx#L71))
+8. **ESM-Only Distribution** — Single ESM output (`"type": "module"`) targeting modern bundlers and runtimes; no CommonJS build ([validated by](../tests/system-contract.test.ts#L30))
+9. **Tree-Shakeable Exports** — Named exports enable dead-code elimination in consuming applications ([validated by](../tests/public-api.test.ts#L40))
 
 ## Core Data Model
 
-Components operate on simple, consumer-supplied data structures passed via props. No internal data model is imposed; the library is strictly presentational.
+Components operate on simple, consumer-supplied data structures passed via props ([validated by](../tests/types/chat.test.ts#L182)). No internal data model is imposed; the library is strictly presentational ([validated by](../tests/types/chat.test.ts#L95)).
 
 ### Typical Data Shapes (Consumer-Defined)
 
@@ -54,39 +54,39 @@ Components operate on simple, consumer-supplied data structures passed via props
 
 ### Component Design Principles
 
-1. **Presentational Only** — No side effects, API calls, or complex state logic in components. All behavior is props-driven.
+1. **Presentational Only** — No side effects, API calls, or complex state logic in components. All behavior is props-driven. ([validated by](../tests/ChatMessage.test.tsx#L593), [L373](../tests/ConversationList.test.tsx#L373))
 2. **Composability** — Components combine to form larger layouts (e.g., MessageBubble + ConversationList + Composer form a complete chat interface).
-3. **Stateless by Default** — Components prefer controlled props over internal state; optional hooks (e.g., `useComposerState`) available for convenience.
-4. **No Opinion on Styling** — Components output semantic HTML and ARIA; styling is consumer responsibility (CSS, Tailwind, CSS-in-JS, etc.).
-5. **No Hard Dependencies on External Libraries** — React and React-DOM are peer dependencies; other packages should be minimal.
+3. **Stateless by Default** — Components prefer controlled props over internal state; optional hooks (e.g., `useComposerState`) available for convenience. ([validated by](../tests/AppShell.test.tsx#L146))
+4. **No Opinion on Styling** — Components output semantic HTML and ARIA; styling is consumer responsibility (CSS, Tailwind, CSS-in-JS, etc.). ([validated by](../tests/tailwind-build.test.ts#L75))
+5. **No Hard Dependencies on External Libraries** — React and React-DOM are peer dependencies; other packages should be minimal. ([validated by](../tests/system-contract.test.ts#L22), [L24](../tests/system-contract.test.ts#L39))
 
 ### API Stability
 
-1. **Semantic Versioning** — MAJOR.MINOR.PATCH follows semver conventions.
+1. **Semantic Versioning** — MAJOR.MINOR.PATCH follows semver conventions. ([validated by](../tests/system-contract.test.ts#L18))
 2. **Breaking Changes Require Major Version Bump** — Incompatible prop changes, removed components, or signature alterations require version major increment.
 3. **Deprecation Path** — Features scheduled for removal are marked with deprecation warnings in a minor release; removal occurs in the next major.
-4. **Type Safety as Contract** — Public component prop interfaces are exported and treated as API; TypeScript changes to props are breaking changes.
+4. **Type Safety as Contract** — Public component prop interfaces are exported and treated as API; TypeScript changes to props are breaking changes. ([validated by](../tests/public-api.test.ts#L46))
 
 ### Code Quality Mandates
 
-1. **TypeScript Strict Mode** — `tsconfig.json` enforces `strict: true`; all files must compile without implicit `any`.
-2. **No Console Logs in Production** — Development aids removed before distribution.
-3. **Accessibility Baseline** — ARIA attributes, semantic HTML, keyboard support, and 4.5:1 color contrast minimum for text.
-4. **Test Coverage ≥80%** — Props, prop combinations, and user interactions covered by React Testing Library tests.
+1. **TypeScript Strict Mode** — `tsconfig.json` enforces `strict: true`; all files must compile without implicit `any`. ([validated by](../tests/system-contract.test.ts#L52))
+2. **No Console Logs in Production** — Development aids removed before distribution. ([validated by](../tests/system-contract.test.ts#L72))
+3. **Accessibility Baseline** — ARIA attributes, semantic HTML, keyboard support, and 4.5:1 color contrast minimum for text. ([validated by](../tests/icons.test.tsx#L151), [L71](../tests/useFocusTrap.test.tsx#L71))
+4. **Test Coverage ≥80%** — Props, prop combinations, and user interactions covered by React Testing Library tests. ([validated by](../tests/system-contract.test.ts#L59))
 5. **ESLint & Prettier Enforcement** — Consistent code formatting and linting; CI blocks merge on violations.
 
 ### Distribution & Consumption
 
-1. **Dual Module Support** — Both ESM and CJS outputs published; consumers can import via native or legacy bundler support.
-2. **Type Definitions Included** — `.d.ts` files bundled with package for full TypeScript IDE support.
-3. **Tree-Shakeable** — Named exports prioritized; unused components can be eliminated by bundlers.
-4. **No Internal Implementation Details Exposed** — Private modules, helper functions, and implementation utilities not exported; only public component contracts exposed.
+1. **ESM-Only Distribution** — A single ESM build is published; the `.` export resolves to `dist/index.js` with no `require` condition, so consumers need native ESM or an ESM-aware bundler. ([validated by](../tests/system-contract.test.ts#L30))
+2. **Type Definitions Included** — `.d.ts` files bundled with package for full TypeScript IDE support. ([validated by](../tests/hooks-dist.test.ts#L52))
+3. **Tree-Shakeable** — Named exports prioritized; unused components can be eliminated by bundlers. ([validated by](../tests/public-api.test.ts#L40))
+4. **No Internal Implementation Details Exposed** — Private modules, helper functions, and implementation utilities not exported; only public component contracts exposed. ([validated by](../tests/types/chat.test.ts#L226), [L40](../tests/public-api.test.ts#L40))
 
 ### Dependency Management
 
-1. **React ≥16.8** — Hooks-based architecture supports React 16.8+, 17.x, and 18.x via peer dependency.
+1. **React ^19** — Hooks-based architecture requires React 19 via the `^19.0.0` peer ranges; AppShell relies on React 19's boolean `inert` prop. ([validated by](../tests/system-contract.test.ts#L26))
 2. **No Breaking Dependency Shifts** — Major dependency updates (e.g., React major version) coordinated and clearly communicated.
-3. **Lock File Committed** — `package-lock.json` or `yarn.lock` versioned in Git for reproducible installs.
+3. **Lock File Committed** — `package-lock.json` or `yarn.lock` versioned in Git for reproducible installs. ([validated by](../tests/system-contract.test.ts#L43))
 4. **Security Updates Prioritized** — Npm audit findings addressed promptly; dependabot alerts monitored.
 
 ### Git & Release Workflow
@@ -100,8 +100,8 @@ Components operate on simple, consumer-supplied data structures passed via props
 ## Success Metrics
 
 1. **npm Download Rate** — Track `@re-cinq/bowman-ui` weekly/monthly downloads as indicator of adoption.
-2. **Type Coverage** — 100% of public API props typed; zero implicit `any` in strict mode.
-3. **Test Coverage** — Minimum 80% line/branch coverage reported by coverage tool; trends monitored per release.
+2. **Type Coverage** — 100% of public API props typed; zero implicit `any` in strict mode. ([validated by](../tests/public-api.test.ts#L46), [system-contract](../tests/system-contract.test.ts#L52))
+3. **Test Coverage** — Minimum 80% line/branch coverage reported by coverage tool; trends monitored per release. ([validated by](../tests/system-contract.test.ts#L59))
 4. **Accessibility Conformance** — Components pass automated a11y tests (axe, Lighthouse); manual QA for keyboard navigation and screen reader compatibility.
 5. **Issue Resolution SLA** — Critical bugs (type errors, accessibility failures, breaking changes) addressed within 2 weeks; minor issues within 30 days.
 6. **Release Cadence** — Stable release every 4–8 weeks; hotfix releases as needed for critical bugs.
