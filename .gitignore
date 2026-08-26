@@ -1,3 +1,9 @@
 node_modules/
 dist/
 coverage/
+
+# Claude Code local artifacts. Prettier 3 reads this file, so listing them
+# here keeps `prettier --check .` green for any contributor running Claude
+# Code while the tracked .claude/settings.json stays formatted.
+.claude/settings.local.json
+.claude/worktrees/

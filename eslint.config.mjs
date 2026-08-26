@@ -33,7 +33,37 @@ export default [
         },
         {
           selector:
+            ":matches(JSXElement, JSXFragment) > JSXExpressionContainer > :matches(Literal[value=/[A-Za-z]{3}/], TemplateLiteral:has(TemplateElement[value.raw=/[A-Za-z]{3}/]))",
+          message:
+            "Hardcoded JSX text. User-visible strings come from a labels prop resolved over English defaults - see CONTRACT.md § Labels.",
+        },
+        {
+          // The conditional-render forms: {ok && "text"}, {ok ? "a" : "b"},
+          // {"a" + "b"}. A direct-child chain on purpose, twice over: a
+          // descendant combinator would cross into className templates and
+          // object literals inside {items.map(...)} callbacks, and the
+          // literal must sit directly under the rendering operator so a
+          // comparison operand ({variant === "desktop" && x}) never fires.
+          selector:
+            ':matches(JSXElement, JSXFragment) > JSXExpressionContainer > :matches(LogicalExpression, ConditionalExpression, BinaryExpression[operator="+"]) > :matches(Literal[value=/[A-Za-z]{3}/], TemplateLiteral:has(TemplateElement[value.raw=/[A-Za-z]{3}/]))',
+          message:
+            "Hardcoded JSX text. User-visible strings come from a labels prop resolved over English defaults - see CONTRACT.md § Labels.",
+        },
+        {
+          selector:
             "JSXAttribute[name.name=/^(aria-label|aria-placeholder|aria-roledescription|aria-valuetext|title|placeholder|alt)$/] > Literal[value=/[A-Za-z]{3}/]",
+          message:
+            "Hardcoded assistive string. aria-*/title/placeholder/alt text comes from a labels prop resolved over English defaults - see CONTRACT.md § Labels.",
+        },
+        {
+          selector:
+            "JSXAttribute[name.name=/^(aria-label|aria-placeholder|aria-roledescription|aria-valuetext|title|placeholder|alt)$/] > JSXExpressionContainer > :matches(Literal[value=/[A-Za-z]{3}/], TemplateLiteral:has(TemplateElement[value.raw=/[A-Za-z]{3}/]))",
+          message:
+            "Hardcoded assistive string. aria-*/title/placeholder/alt text comes from a labels prop resolved over English defaults - see CONTRACT.md § Labels.",
+        },
+        {
+          selector:
+            'JSXAttribute[name.name=/^(aria-label|aria-placeholder|aria-roledescription|aria-valuetext|title|placeholder|alt)$/] > JSXExpressionContainer > :matches(LogicalExpression, ConditionalExpression, BinaryExpression[operator="+"]) > :matches(Literal[value=/[A-Za-z]{3}/], TemplateLiteral:has(TemplateElement[value.raw=/[A-Za-z]{3}/]))',
           message:
             "Hardcoded assistive string. aria-*/title/placeholder/alt text comes from a labels prop resolved over English defaults - see CONTRACT.md § Labels.",
         },

@@ -117,7 +117,7 @@ No file under `src/icons/` carries `"use client"`
 client-only React API - and `scripts/check-client-directives.mjs` passes
 against the new files, the first exercise of `018`'s contract requirement
 against real extracted code
-([validated by](../../tests/client-directives.test.ts#L15)).
+([validated by](../../tests/client-directives.test.ts#L80)).
 Every relative import under `src/icons/` ends in `.js` and no file contains
 `"@/` ([validated by](../../tests/icons.test.tsx#L91)).
 

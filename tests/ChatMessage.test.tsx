@@ -145,6 +145,24 @@ describe("ChatMessage", () => {
       expect(writeTextMock).toHaveBeenCalledWith("Booking 4711 er bekræftet");
     });
 
+    it('Cmd+C under Caps Lock - the key reports "C" - still copies', () => {
+      vi.useFakeTimers();
+      render(<ChatMessage entry={makeEntry()} userInitials="LM" />);
+
+      fireEvent.keyDown(screen.getByRole("article"), { key: "C", metaKey: true });
+
+      expect(writeTextMock).toHaveBeenCalledWith("Booking 4711 er bekræftet");
+    });
+
+    it("Cmd+Shift+C - the browser's inspect-element chord - copies nothing", () => {
+      vi.useFakeTimers();
+      render(<ChatMessage entry={makeEntry()} userInitials="LM" />);
+
+      fireEvent.keyDown(screen.getByRole("article"), { key: "C", metaKey: true, shiftKey: true });
+
+      expect(writeTextMock).not.toHaveBeenCalled();
+    });
+
     it("a non-empty window.getSelection suppresses the Cmd+C copy", () => {
       vi.useFakeTimers();
       vi.spyOn(window, "getSelection").mockReturnValue({
@@ -231,6 +249,23 @@ describe("ChatMessage", () => {
         "aria-pressed",
         "false"
       );
+    });
+
+    it("with arrowKeyFeedback, Alt+ArrowUp calls onFeedback zero times - modified arrows stay the browser's", () => {
+      const onFeedback = vi.fn();
+      render(
+        <ChatMessage
+          entry={makeEntry()}
+          userInitials="LM"
+          arrowKeyFeedback
+          onFeedback={onFeedback}
+        />
+      );
+
+      fireEvent.keyDown(screen.getByRole("article"), { key: "ArrowUp", altKey: true });
+      fireEvent.keyDown(screen.getByRole("article"), { key: "ArrowDown", altKey: true });
+
+      expect(onFeedback).not.toHaveBeenCalled();
     });
 
     it('with arrowKeyFeedback, ArrowDown calls onFeedback("entry-1", "down") and sets aria-pressed true on thumbs-down, false on thumbs-up (adaptation a)', () => {
@@ -612,5 +647,86 @@ describe("ChatMessage", () => {
         expect(readFileSync(file, "utf8")).not.toMatch(/Discovery/);
       }
     });
+  });
+});
+
+// 076's link-policy forwarding, appended after the 015 suite so the spec's
+// line anchors into the describes above stay valid.
+describe("markdown link policy (076)", () => {
+  it("an https link renders an anchor with target, the rel pair and the hidden notice", () => {
+    const { container } = render(
+      <ChatMessage
+        entry={makeEntry({ content: "Se [din booking](https://tms.example/booking/42)" })}
+        userInitials="LM"
+      />
+    );
+
+    const anchor = container.querySelector("a");
+    expect(anchor).toHaveAttribute("href", "https://tms.example/booking/42");
+    expect(anchor).toHaveAttribute("target", "_blank");
+    expect(anchor).toHaveAttribute("rel", "noopener noreferrer");
+    expect(anchor?.querySelector(".bowman-sr-only")?.textContent).toBe("(opens in a new tab)");
+  });
+
+  it("a javascript: link renders no anchor and no empty href, the text in a <span>", () => {
+    const { container } = render(
+      <ChatMessage
+        entry={makeEntry({ content: "[4711](javascript:alert(1))" })}
+        userInitials="LM"
+      />
+    );
+
+    expect(container.querySelector("a")).toBeNull();
+    expect(document.querySelectorAll('a[href=""]')).toHaveLength(0);
+    expect(screen.getByText("4711").tagName).toBe("SPAN");
+  });
+
+  it("the markdown prop merges over defaultMarkdownPolicy, so an http opt-in renders the anchor", () => {
+    const { container } = render(
+      <ChatMessage
+        entry={makeEntry({ content: "[4711](http://tms.example/x)" })}
+        userInitials="LM"
+        markdown={{ allowedSchemes: ["https", "http"] }}
+      />
+    );
+
+    expect(container.querySelector("a")).toHaveAttribute("href", "http://tms.example/x");
+  });
+
+  it("markdown allowedSchemes [] renders even an https link as text", () => {
+    const { container } = render(
+      <ChatMessage
+        entry={makeEntry({ content: "[4711](https://tms.example/x)" })}
+        userInitials="LM"
+        markdown={{ allowedSchemes: [] }}
+      />
+    );
+
+    expect(container.querySelector("a")).toBeNull();
+    expect(screen.getByText("4711").tagName).toBe("SPAN");
+  });
+
+  it("a linkOpensInNewTab label override reaches the notice", () => {
+    const { container } = render(
+      <ChatMessage
+        entry={makeEntry({ content: "[4711](https://tms.example/x)" })}
+        userInitials="LM"
+        labels={{ linkOpensInNewTab: "⟦notice⟧" }}
+      />
+    );
+
+    expect(container.querySelector(".bowman-sr-only")?.textContent).toBe("⟦notice⟧");
+  });
+
+  it("an image in assistant content renders alt text and no img under the default policy", () => {
+    const { container } = render(
+      <ChatMessage
+        entry={makeEntry({ content: "![alt text](https://host/p.png)" })}
+        userInitials="LM"
+      />
+    );
+
+    expect(container.querySelectorAll("img")).toHaveLength(0);
+    expect(container.textContent).toContain("alt text");
   });
 });
