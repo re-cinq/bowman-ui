@@ -31,7 +31,7 @@ it("exits non-zero when the hook arrives as a React.useState namespace call", ()
   const result = runAgainst("tests/fixtures/client-directive-violation-namespace-hook");
   expect(result.status).not.toBe(0);
   expect(result.stderr).toContain("NamespaceHookNoDirective.ts");
-  expect(result.stderr).toContain("calls React.useState (hook-shaped call)");
+  expect(result.stderr).toContain("references React.useState (hook-shaped member)");
 });
 
 it("exits non-zero when a createContext import carries no directive", () => {
@@ -39,6 +39,7 @@ it("exits non-zero when a createContext import carries no directive", () => {
   expect(result.status).not.toBe(0);
   expect(result.stderr).toContain("CreateContextNoDirective.ts");
   expect(result.stderr).toContain("imports createContext");
+  expect(result.stderr).toContain("references React.createContext (createContext member)");
 });
 
 it("exits non-zero when a class extends Component with no hook and no handler", () => {
