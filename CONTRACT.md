@@ -6,11 +6,63 @@ cites this file instead of re-deriving them. Evidence paths reference
 
 ## 1. `"use client"` is per-file
 
-The directive is added only to files that use a client-only React API
-(`useState`, `useEffect`, `useRef`, `useCallback`, `useMemo`, `useReducer`,
-`useContext`, `useLayoutEffect`, `useSyncExternalStore`, `createContext`) or an
-`on[A-Z]` JSX handler. It must be the built file's first **statement**, not its
-literal first line - a leading docblock or comment may sit above it.
+The directive is added only to files that trigger a client-only rule. Since
+issue 137 the trigger list is measured off the AST, not a hand-written hook
+enumeration; the four rules, plus the JSX-handler rule, are:
+
+1. **A hook-shaped import**: a named or default import whose imported or
+   local name matches `/^use[A-Z]/`, from **any** module specifier - React's
+   own hooks, `usePathname` from `next/navigation`, a re-exported Clerk hook,
+   a relative `./useWidgetState.js` alike - or a hook-shaped **member access**,
+   `React.useState` being the motivating namespace-import form. The member
+   rule looks only at the property name, whatever the receiver, so an
+   unrelated `config.useLegacyPaths` fires too: the check's fail-safe
+   direction, and cheaper than resolving receivers.
+2. **A named import of `createContext`**, or a member access named
+   `createContext` (`React.createContext`) on the same any-receiver terms.
+3. **A class extending `Component` or `PureComponent`**, bare or through a
+   namespace import (`React.Component`).
+4. **A value-position reference to a measured browser global.** The list is
+   the eighteen names probed `undefined` on server Node (`window`,
+   `document`, `navigator`, `localStorage`, `sessionStorage`, `matchMedia`,
+   `requestAnimationFrame`, `cancelAnimationFrame`, `IntersectionObserver`,
+   `ResizeObserver`, `MutationObserver`, `getComputedStyle`, `alert`,
+   `history`, `location`, `WebSocket`, `FileReader`, `XMLHttpRequest`);
+   `navigator` and `WebSocket` are defined on the Node 22 CI runtime and are
+   kept as silent-divergence cases - a server render reaching them throws
+   nothing, which is exactly why the static check must carry them. DOM
+   **type** names (`HTMLElement`, `Element`, `Node`, `SVGSVGElement`) are
+   excluded outright: they are erased at compile time and appear all over
+   server-safe code - `Icon.tsx`'s `forwardRef<SVGSVGElement>` is the
+   evidence, and an `implements WebSocket` clause on a test double is a type
+   position that never fires. A `typeof window` guard still triggers (021 dropped the dead
+   guards; this package's policy is directives, not isomorphic guards), and
+   a value-position use of a listed name still triggers even where a local
+   binding shadows it (the shadowing declaration itself does not) - both are
+   the check's fail-safe direction, over-requiring rather than missing a real
+   boundary.
+5. **An `on[A-Z]` JSX handler**, matched as an AST attribute node - the same
+   name inside a comment or a string literal does not fire.
+
+**No escape-hatch pragma.** Following `032`/`078`'s no-opt-out precedent: a
+false positive gets the file a directive, or the rule gets narrowed with the
+motivating file named in the narrowing PR. A comment that silences the check
+would decay into ambient noise the way every lint-disable does.
+
+**Known non-triggers.** Bare `use` is not a trigger, and `use(SomeContext)` -
+client-only in practice - is unmatched by every rule here; `078`'s RSC
+fixture build is the executable backstop that covers it. A destructured
+namespace (`const { useState } = React`) is likewise unmatched: the binding
+name is a declaration, not a reference. So are the shapes that put a listed
+name in a property or string position rather than a value one -
+`React["useState"]`, `globalThis.localStorage`, a handler passed through a
+JSX spread (`{...{ onClick: fire }}`). A file whose only client-ness is
+rendering an imported client component (a Clerk widget, a pure-JSX
+presentational wrapper) is equally invisible to static per-file rules and
+belongs to `078` and to `032`'s forbidden-import question.
+
+The directive must be the built file's first **statement**, not its literal
+first line - a leading docblock or comment may sit above it.
 
 Evidence:
 
@@ -28,15 +80,25 @@ Evidence:
   this section records the exception.
 - `src/index.ts` carries no directive; `dist/index.js` stays a plain
   re-export.
+- Recorded exception (023, widened by 024): presentational components of the
+  chat surface and the private subcomponents they compose carry the directive
+  even when the file happens to reference no client-only API today -
+  `InlineThinkingIndicator` shipped that way in 023, and 024 pins
+  `ThinkingIndicator` and `ThinkingDots` to the same shape - so a consumer
+  importing them from a server component gets a working client boundary
+  regardless of which internal a later edit adds state to. The "only" rule
+  above reads subject to this exception.
 
-Enforcement: `scripts/check-client-directives.mjs` fails the build when a
-`src/` file references a client-only API or handler without the directive as
-its first statement, and asserts every marked source file's `dist/**/*.js`
-counterpart opens with `"use client";` as its first statement (leading
-comments and blank lines ignored). It runs in `ci.yml` as the named step
-"Client directive check". This check is static; only a Next.js consumer
-importing from a server component proves the boundary holds - that
-verification is its own later issue.
+Enforcement: `scripts/check-client-directives.mjs` parses every `src/` file
+with `ts.createSourceFile` and fails the build when a file fires any rule
+above without the directive as its first statement, and asserts every marked
+source file's `dist/**/*.js` counterpart opens with `"use client";` as its
+first statement (leading comments and blank lines ignored). Reading imports
+off the AST is what lets `src/index.ts` re-export client-only names with no
+directive of its own: `export ... from` is not a reference. It runs in
+`ci.yml` as the named step "Client directive check". This check is static;
+only a Next.js consumer importing from a server component proves the boundary
+holds - that verification is `078`'s RSC fixture build.
 
 ## 2. One icon system: the local 24-icon set
 
@@ -200,14 +262,36 @@ flat-union forwarding.
   rendered only behind `{toastMessage && ...}`, and `setToastMessage` is
   called only with `null` inside the toast's own `onClose` - the inline
   "Copied!" span at `ChatMessage.tsx:214` replaced it. It has never rendered
-  in production; the reuse evidence for shipping it is nil beyond E4's need
-  for a transient notification surface outside a chat bubble - the same
-  thin-call-site-evidence precedent 021's Why section set for
-  `useReducedMotion`/`useSidebarState`/`ErrorBoundary`.
+  in Discovery's production; it shipped on the thin-call-site-evidence
+  precedent 021's Why section set for
+  `useReducedMotion`/`useSidebarState`/`ErrorBoundary`, and `025` named the
+  escalation and failover paths as its future users. Both declined it
+  (`054` renders the escalation hand-off in the transcript; `064` keeps a
+  successful failover silent, reporting failure through `044`'s error
+  frame), so the component is dead in the app it came from and live in the
+  app it was extracted for: its only consumer in the org, measured by
+  `097`, is `044-support-agent-chat-wiring`'s `ChatScreen.tsx` in the
+  support agent, which mounts it twice - a reconnect notice and a
+  connection-failed notice.
+- Both of `044`'s uses are conditions that persist, not messages that fade,
+  and pass `duration={null}` once `098` lands - the persistence rule `064`
+  settled, applied at both `ChatScreen.tsx` call sites by
+  `098-support-agent-persistent-connection-notices` (`044` shipped the
+  notices on the default; `098`, open as this correction lands, sets the
+  prop). No consumer passes a number, so once `098` lands the 2000ms default
+  has no shipped caller; the default stays only because `015`'s
+  characterization suite pins it.
 - `duration={null}` disables auto-dismiss entirely: `setTimeout` is never
   invoked, the library ships no close button, and dismissal is therefore
   entirely the consumer's - unmounting the element is the only way out in
-  that mode.
+  that mode, and a toast a consumer forgets to unmount occupies the
+  `fixed bottom-8 left-1/2 z-50` overlay for the life of the page.
+- The close-button question `025` left open pending a real consumer is
+  closed by `097`, not re-opened: both of `044`'s uses are persistent
+  states, so a close button would let a customer dismiss a condition that is
+  still true, and the `dismissToast` label it would need (§ Labels
+  decision 3's key-naming example) would pull `Toast` out of the
+  `stringPropOnly` partition.
 - The toast positions itself with a fixed `z-50` overlay
   (`fixed bottom-8 left-1/2 z-50 -translate-x-1/2`), and takes no
   `className`: the positioning and the fade animation's restated `-50%`
@@ -226,6 +310,19 @@ handed - `className`, `children`, `onClick` and `aria-current` alike. Dropping
 such as Discovery's mobile-sidebar-closing `onNavigate`); dropping
 `aria-current` silences the active row for assistive tech. The default, when
 no `renderLink` is passed, is `<button type="button" {...props} />`.
+
+## renderNavLink (issue 031)
+
+`AppSidebar`'s `renderNavLink(item, props)` slot is the same routing seam for
+the navigation map: the item plus a fully formed props object. The consumer's
+element must spread **every** prop it is handed - `className`, `children`,
+`onClick` and `aria-current` alike. Dropping `onClick` silently breaks
+`onNavigate` (and any consumer behaviour hung on it, such as closing the
+mobile drawer); dropping `aria-current` silences the active item for
+assistive tech. The default, when no `renderNavLink` is passed, is
+`<button type="button" {...props} />`. A nav item carries its resolved
+`label` and no `href` - routing belongs entirely to the consumer's
+`renderNavLink`.
 
 ## AppShell (issue 030)
 
