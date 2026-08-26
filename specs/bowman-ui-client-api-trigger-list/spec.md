@@ -22,35 +22,37 @@ and is what every fixture test uses.
    local name matches `/^use[A-Z]/` ([validated by](../../tests/client-directives.test.ts#L9),
    [L16](../../tests/client-directives.test.ts#L16)), including from a relative specifier - the
    clause that carries the widening
-   ([validated by](../../tests/client-directives.test.ts#L23)). A hook-shaped namespace-member
-   **member access** (`React.useState`, called or passed as a value) also fires
+   ([validated by](../../tests/client-directives.test.ts#L23)). A hook-shaped **member access**
+   (`React.useState`, called or passed as a value) also fires
    ([validated by](../../tests/client-directives.test.ts#L30)). The member rule matches on the
    property name alone, whatever the receiver - an unrelated `config.useLegacyPaths` fires
    too, the fail-safe direction and cheaper than resolving receivers. Type-only hook imports
    are excluded in both the `import type {...}` and `import { type ... }` forms
-   ([validated by](../../tests/client-directives.test.ts#L66)).
+   ([validated by](../../tests/client-directives.test.ts#L68)).
 2. **Named import of `createContext`**, imported or local name, the same type-only exclusion,
    plus a member access named `createContext` (`React.createContext`) on the same any-receiver
    terms ([validated by](../../tests/client-directives.test.ts#L37)).
 3. **Class heritage `Component`/`PureComponent`**, bare or through a namespace import - both
-   shapes pinned in one fixture ([validated by](../../tests/client-directives.test.ts#L44)).
+   shapes pinned in one fixture ([validated by](../../tests/client-directives.test.ts#L45)).
    Only `extends` heritage is walked: an `implements WebSocket` clause on a test double is a
    pure type position and does not fire
-   ([validated by](../../tests/client-directives.test.ts#L66)). Value references inside a
-   mixin expression (`extends makeBase(localStorage.getItem("k"))`) do fire.
+   ([validated by](../../tests/client-directives.test.ts#L68)). Value references inside a
+   mixin expression (`extends makeBase(localStorage.getItem("k"))`) do fire
+   ([validated by](../../tests/client-directives.test.ts#L45)) - the pin that stops a future
+   whole-clause prune from silently trading this away for the `implements` exclusion.
 4. **Value-position browser-global reference** from the measured list below
-   ([validated by](../../tests/client-directives.test.ts#L52)), including a `typeof window`
-   guard ([validated by](../../tests/client-directives.test.ts#L59)) - 021 dropped the dead
+   ([validated by](../../tests/client-directives.test.ts#L54)), including a `typeof window`
+   guard ([validated by](../../tests/client-directives.test.ts#L61)) - 021 dropped the dead
    guards, so a guard is evidence of client intent here, and over-requiring is the check's
    fail-safe direction. Type positions never fire; DOM type names are excluded outright (below).
 
 The `on[A-Z]` JSX-handler trigger fires off `JsxAttribute` nodes; the same name inside a line
 comment, block comment, or string literal does not fire
-([validated by](../../tests/client-directives.test.ts#L66)). The root barrel `src/index.ts`
+([validated by](../../tests/client-directives.test.ts#L68)). The root barrel `src/index.ts`
 re-exports 021's six client-only names with no directive and passes, because
 `export ... from` is not an import - pinned by the barrel green fixture
-([validated by](../../tests/client-directives.test.ts#L66)) and by the full run against
-`src/` and `dist/` ([validated by](../../tests/client-directives.test.ts#L71)), which also
+([validated by](../../tests/client-directives.test.ts#L68)) and by the full run against
+`src/` and `dist/` ([validated by](../../tests/client-directives.test.ts#L73)), which also
 holds the two delivered no-directive criteria in the same CI job: no file under `src/icons/`
 is flagged (020) and `dist/index.js` stays a plain re-export (018), the latter now asserted as
 "every statement is an `ExportDeclaration`" on the built AST.
@@ -127,7 +129,7 @@ the copies; a file the check then fails to flag is a false negative.
 ## Widening impact on src/
 
 Zero files under `src/` turned red under the new rules: the full run exits 0 against `src/` and
-`dist/` ([validated by](../../tests/client-directives.test.ts#L71)), so no file gains
+`dist/` ([validated by](../../tests/client-directives.test.ts#L73)), so no file gains
 `"use client"` in this change and no shipped issue is named - the expected count held.
 
 ## Recorded decisions and limitations
@@ -149,7 +151,7 @@ Zero files under `src/` turned red under the new rules: the full run exits 0 aga
   not occur in `src/` or anywhere in the Discovery sweep corpus; every other shape the old
   regex caught is covered by a rule above, verified by re-running the sweep with both scripts
   (zero files caught by old and missed by new on that corpus).
-- **`typeof window` triggers** ([validated by](../../tests/client-directives.test.ts#L59)) -
+- **`typeof window` triggers** ([validated by](../../tests/client-directives.test.ts#L61)) -
   see rule 4.
 - **Parse failure is a violation, not a silent pass.** A wrong `ScriptKind` or a malformed
   file would otherwise yield an empty tree with zero triggers - the quietest possible false
