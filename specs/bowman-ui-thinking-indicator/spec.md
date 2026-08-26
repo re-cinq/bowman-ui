@@ -103,7 +103,7 @@ shipped layout since 022.
 
 - `ThinkingIndicator` joins the `labelsProp` partition bucket
   ([validated by](../../tests/labelled-exports.test.tsx#L43)) with a sentinel
-  harness ([validated by](../../tests/labelled-exports.test.tsx#L313)); the
+  harness ([validated by](../../tests/labelled-exports.test.tsx#L319)); the
   partition test still asserts the full barrel, which `ThinkingDots` never
   enters. The `thinkingRegion` sentinel lands in `aria-label`, one of the
   seven checked attributes.

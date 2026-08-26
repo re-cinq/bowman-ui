@@ -30,7 +30,7 @@ closed drawer keep one exposed at a time; a bare render contains exactly one
 sits in the `labelsProp` partition bucket
 ([partition](../../tests/labelled-exports.test.tsx#L46)) and passes the
 sentinel render with both labels set to sentinels
-([harness](../../tests/labelled-exports.test.tsx#L264),
+([harness](../../tests/labelled-exports.test.tsx#L265),
 [coverage](../../tests/labelled-exports.test.tsx#L340)).
 
 ## The decisions

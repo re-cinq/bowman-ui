@@ -188,6 +188,7 @@ const appShellSentinels = {
   openSidebar: "⟦openSidebar⟧",
   closeSidebar: "⟦closeSidebar⟧",
   skipToMainContent: "⟦skipToMainContent⟧",
+  sidebarDialog: "⟦sidebarDialog⟧",
 } satisfies Required<AppShellLabels>;
 
 const appSidebarSentinels = {
@@ -265,8 +266,8 @@ const sentinelHarnesses: Record<
   },
   AppShell: {
     sentinels: Object.values(appShellSentinels),
-    renderContainer: () =>
-      render(
+    renderContainer: () => {
+      const { container, getByRole } = render(
         <AppShell
           labels={appShellSentinels}
           brand={<span>4711</span>}
@@ -274,7 +275,12 @@ const sentinelHarnesses: Record<
         >
           {numericContent}
         </AppShell>
-      ).container,
+      );
+      // The dialog name renders only on the open drawer, so the harness
+      // opens it to surface the sidebarDialog sentinel.
+      fireEvent.click(getByRole("button", { name: appShellSentinels.openSidebar }));
+      return container;
+    },
   },
   AppSidebar: {
     sentinels: Object.values(appSidebarSentinels),

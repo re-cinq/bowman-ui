@@ -121,8 +121,16 @@ export function ChatMessage({
       if (entry.role !== "assistant" || entry.isStreaming) return;
 
       // Cmd/Ctrl + C stays unconditional: it steals no navigation key and
-      // already yields to an active text selection.
-      if ((e.metaKey || e.ctrlKey) && e.key === "c" && !window.getSelection()?.toString()) {
+      // already yields to an active text selection. Lowercasing covers Caps
+      // Lock ("C"); Shift and Alt stay excluded so Cmd+Shift+C (the browser's
+      // inspect chord) keeps its meaning.
+      if (
+        (e.metaKey || e.ctrlKey) &&
+        !e.shiftKey &&
+        !e.altKey &&
+        e.key.toLowerCase() === "c" &&
+        !window.getSelection()?.toString()
+      ) {
         e.preventDefault();
         copyToClipboard(entry.content, entry.id);
       }
@@ -131,12 +139,14 @@ export function ChatMessage({
       // the keyboard path too, not just hide the thumbs.
       if (!showFeedback || !arrowKeyFeedback) return;
 
-      if (e.key === "ArrowUp" && !e.metaKey && !e.ctrlKey && !e.shiftKey) {
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+
+      if (e.key === "ArrowUp") {
         e.preventDefault();
         handleFeedback(entry.id, "up");
       }
 
-      if (e.key === "ArrowDown" && !e.metaKey && !e.ctrlKey && !e.shiftKey) {
+      if (e.key === "ArrowDown") {
         e.preventDefault();
         handleFeedback(entry.id, "down");
       }
