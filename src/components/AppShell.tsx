@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { useFocusTrap } from "../hooks/useFocusTrap.js";
 import { useReducedMotion } from "../hooks/useReducedMotion.js";
 import { CloseIcon, MenuIcon } from "../icons/index.js";
@@ -18,12 +18,15 @@ export interface AppShellLabels {
   openSidebar: string;
   closeSidebar: string;
   skipToMainContent: string;
+  /** The mobile drawer dialog's accessible name. */
+  sidebarDialog: string;
 }
 
 export const defaultAppShellLabels: Readonly<Required<AppShellLabels>> = Object.freeze({
   openSidebar: "Open menu",
   closeSidebar: "Close menu",
   skipToMainContent: "Skip to main content",
+  sidebarDialog: "Menu",
 });
 
 export interface AppShellProps {
@@ -73,12 +76,25 @@ export function AppShell({
 
   const hamburgerRef = useRef<HTMLButtonElement | null>(null);
   const drawerRef = useFocusTrap<HTMLDivElement>(isOpen, close, hamburgerRef);
+  const drawerId = useId();
 
+  // The lock lifts while the viewport sits at the desktop breakpoint, where
+  // md:hidden hides the drawer but the open state persists - without the
+  // media listener a rotate-to-desktop stranded the page unscrollable. The
+  // 768px literal mirrors the component's own md:* classes: a consumer
+  // redefining --breakpoint-md diverges from those classes identically.
   useEffect(() => {
     if (!isOpen) return;
     const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
+    const desktopQuery =
+      typeof window.matchMedia === "function" ? window.matchMedia("(min-width: 768px)") : undefined;
+    const applyLock = () => {
+      document.body.style.overflow = desktopQuery?.matches ? previousOverflow : "hidden";
+    };
+    applyLock();
+    desktopQuery?.addEventListener("change", applyLock);
     return () => {
+      desktopQuery?.removeEventListener("change", applyLock);
       document.body.style.overflow = previousOverflow;
     };
   }, [isOpen]);
@@ -109,6 +125,10 @@ export function AppShell({
 
       <div
         ref={drawerRef}
+        id={drawerId}
+        role={isOpen ? "dialog" : undefined}
+        aria-modal={isOpen ? "true" : undefined}
+        aria-label={isOpen ? resolved.sidebarDialog : undefined}
         data-testid="app-shell-drawer"
         inert={!isOpen}
         className={`fixed inset-y-0 left-0 z-50 flex w-72 max-w-[85vw] flex-col border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 md:hidden${drawerMotionClass} ${drawerStateClass}`}
@@ -130,6 +150,7 @@ export function AppShell({
         <button
           ref={hamburgerRef}
           type="button"
+          aria-controls={drawerId}
           onClick={() => setOpen(true)}
           className="flex h-10 w-10 items-center justify-center rounded-lg text-slate-600 ring-offset-2 transition-colors hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-slate-400 dark:ring-offset-slate-900 dark:hover:bg-slate-800 dark:focus:ring-blue-400"
           aria-label={resolved.openSidebar}

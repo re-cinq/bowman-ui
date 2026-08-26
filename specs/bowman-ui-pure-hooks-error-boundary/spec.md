@@ -32,13 +32,15 @@ exports entry for a consumer ([validated by](../../tests/hooks-dist.test.ts#L28)
   compile ([validated by](../../tests/hooks-dist.test.ts#L28) via
   `tests/types/hooks-type-assertions.tsx`).
 - `useFocusTrap` — verbatim: first-element focus on open
-  ([validated by](../../tests/useFocusTrap.test.tsx#L71)), Tab/Shift+Tab wrap at the ends only
-  ([validated by](../../tests/useFocusTrap.test.tsx#L77),
-  [L86](../../tests/useFocusTrap.test.tsx#L86), [L95](../../tests/useFocusTrap.test.tsx#L95),
-  [L132](../../tests/useFocusTrap.test.tsx#L132)), Escape closes
-  ([validated by](../../tests/useFocusTrap.test.tsx#L104)), and focus returns to the trigger ref
-  or the previously active element ([validated by](../../tests/useFocusTrap.test.tsx#L113),
-  [L121](../../tests/useFocusTrap.test.tsx#L121)).
+  ([validated by](../../tests/useFocusTrap.test.tsx#L72)), Tab/Shift+Tab wrap at the ends while
+  focus is inside, and pull focus back to an end when it sits outside the open trap (the
+  2026-08-26 review's modal-only hardening)
+  ([validated by](../../tests/useFocusTrap.test.tsx#L78),
+  [L87](../../tests/useFocusTrap.test.tsx#L87), [L96](../../tests/useFocusTrap.test.tsx#L96),
+  [L133](../../tests/useFocusTrap.test.tsx#L133)), Escape closes
+  ([validated by](../../tests/useFocusTrap.test.tsx#L105)), and focus returns to the trigger ref
+  or the previously active element ([validated by](../../tests/useFocusTrap.test.tsx#L114),
+  [L122](../../tests/useFocusTrap.test.tsx#L122)).
 - `useFocusGroups({announce})` — the hardcoded English `Moved to ${groupName}` and the Tailwind
   `sr-only` class are both gone from the contract: `announce` maps a group name to the
   announcement (English default preserved, `null` suppresses;

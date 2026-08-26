@@ -17,7 +17,7 @@ title generation stay with the consumer. No file in `discovery` changes.
 snake_case API `Conversation`. `timestamp` arrives display-ready - the
 component reads no clock and no locale: no `Date` constructor,
 `toLocaleDateString` or `Intl` appears in the source, asserted by grep
-([validated by](../../tests/ConversationList.test.tsx#L363)) - and `badge` is
+([validated by](../../tests/ConversationList.test.tsx#L393)) - and `badge` is
 a consumer-computed string rendered verbatim or not at all
 ([validated by](../../tests/ConversationList.test.tsx#L53),
 [L62](../../tests/ConversationList.test.tsx#L62)).
@@ -30,7 +30,7 @@ a consumer-computed string rendered verbatim or not at all
 in the `labelsProp` partition bucket
 ([partition](../../tests/labelled-exports.test.tsx#L38)) and passes the
 sentinel render across its list, empty and loading states, the function label
-included ([harness](../../tests/labelled-exports.test.tsx#L230)).
+included ([harness](../../tests/labelled-exports.test.tsx#L231)).
 
 ## The four decisions
 
@@ -111,12 +111,12 @@ consumer-computed `badge` string).
 - `TrashIcon` comes from 020's set; imports are relative with `.js`
   extensions, and no `@clerk`, `swr`, `next-intl`, `next/`, `@discovery`, `@/`
   or `lucide-react` import survives
-  ([validated by](../../tests/ConversationList.test.tsx#L373)).
+  ([validated by](../../tests/ConversationList.test.tsx#L403)).
 - GDPR: conversation titles carry booking identifiers and names
   (`003-support-conversation-data-flow-record`). The source references no
   `console.`, `localStorage`, `sessionStorage`, `fetch`, `sendBeacon`,
   `analytics` or `indexedDB`
-  ([validated by](../../tests/ConversationList.test.tsx#L367)), and the
+  ([validated by](../../tests/ConversationList.test.tsx#L397)), and the
   suite-wide console trap in `tests/setup.ts` fails any test that triggered a
   console call. Titles live only in React state.
 - `dist/components/ConversationList.js` opens with `"use client";` as its

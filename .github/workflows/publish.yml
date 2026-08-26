@@ -49,6 +49,10 @@ jobs:
         run: npm run typecheck
       - name: Test (coverage gate)
         run: npm run test:coverage
+      # Kept even though test:coverage also builds: `files: ["dist"]` with no
+      # prepublishOnly means a future test-script edit that stops building
+      # would otherwise publish an empty package silently. This is the last
+      # gate before an immutable publish; the explicit build stays.
       - name: Build
         run: npm run build
       # No --provenance: this repo was decided private at scaffold time

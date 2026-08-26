@@ -113,14 +113,14 @@ result stays assignable to `react-markdown`'s `Components`
 `ChatMessage` merges its `markdown` prop over `defaultMarkdownPolicy` (via
 `resolveLabels`, so an explicit `undefined` field cannot clobber a default)
 and passes the factory's map plus `createUrlTransform`'s result to
-`ReactMarkdown` ([validated by](../../tests/ChatMessage.test.tsx#L621),
-[L649](../../tests/ChatMessage.test.tsx#L649),
-[L661](../../tests/ChatMessage.test.tsx#L661)); a rejected link renders as a
-span ([validated by](../../tests/ChatMessage.test.tsx#L636)), an image
+`ReactMarkdown` ([validated by](../../tests/ChatMessage.test.tsx#L656),
+[L649](../../tests/ChatMessage.test.tsx#L684),
+[L661](../../tests/ChatMessage.test.tsx#L696)); a rejected link renders as a
+span ([validated by](../../tests/ChatMessage.test.tsx#L671)), an image
 renders as alt text
-([validated by](../../tests/ChatMessage.test.tsx#L686)), and the
+([validated by](../../tests/ChatMessage.test.tsx#L721)), and the
 `linkOpensInNewTab` override reaches the notice
-([validated by](../../tests/ChatMessage.test.tsx#L674)).
+([validated by](../../tests/ChatMessage.test.tsx#L709)).
 
 ## Recorded decisions, interpretations and deviations
 
@@ -129,7 +129,7 @@ renders as alt text
   criterion, the "merged over `defaultMarkdownPolicy`" wording and the
   one-line `http` opt-in all require field-level merging - so the fields
   carry `?` and the prop stays the issue's literal `markdown?: MarkdownPolicy`
-  ([validated by](../../tests/ChatMessage.test.tsx#L649)).
+  ([validated by](../../tests/ChatMessage.test.tsx#L684)).
 - **The transform never decodes.** `java&#x09;script:` reaches the transform
   percent-encoded as `java%09script:`; comparing the raw scheme keeps the
   bypass closed, and a later `decodeURIComponent` "cleanup" would reopen it
@@ -164,8 +164,8 @@ renders as alt text
 - **The factory sits in the `labelsProp` partition bucket** with its own
   sentinel harness and key-coverage test (CONTRACT.md § Labels records the
   shape; Toast's closed-list precedent)
-  ([validated by](../../tests/labelled-exports.test.tsx#L274),
-  [L349](../../tests/labelled-exports.test.tsx#L349)). `ChatMessage`'s
+  ([validated by](../../tests/labelled-exports.test.tsx#L275),
+  [L349](../../tests/labelled-exports.test.tsx#L355)). `ChatMessage`'s
   sentinel harness renders a numeric-text link so the notice label reaches
   the checked DOM.
 - **Amendments to merged criteria, per the issue:** `ChatMessageProps` gains

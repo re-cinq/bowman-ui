@@ -44,10 +44,10 @@ jobs:
         run: npm run prettier:check
       - name: Typecheck
         run: npm run typecheck
+      # test:coverage runs the build itself, so dist/ is fresh for the
+      # directive check without a second build step.
       - name: Test (coverage gate)
         run: npm run test:coverage
-      - name: Build
-        run: npm run build
       - name: Client directive check
         run: node scripts/check-client-directives.mjs
       # specs' [validated by](...#Lnn) anchors drift silently when a test file
