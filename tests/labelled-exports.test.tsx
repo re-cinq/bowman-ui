@@ -293,7 +293,12 @@ const sentinelHarnesses: Record<
         <ChatMessageList
           entries={[
             { id: "u1", role: "user", content: numericContent },
-            { id: "a1", role: "assistant", content: numericContent, isStreaming: false },
+            {
+              id: "a1",
+              role: "assistant",
+              content: `${numericContent} [42](https://4711.example/42)`,
+              isStreaming: false,
+            },
           ]}
           userInitials="LM"
           busy
