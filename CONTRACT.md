@@ -248,6 +248,19 @@ such as Discovery's mobile-sidebar-closing `onNavigate`); dropping
 `aria-current` silences the active row for assistive tech. The default, when
 no `renderLink` is passed, is `<button type="button" {...props} />`.
 
+## renderNavLink (issue 031)
+
+`AppSidebar`'s `renderNavLink(item, props)` slot is the same routing seam for
+the navigation map: the item plus a fully formed props object. The consumer's
+element must spread **every** prop it is handed - `className`, `children`,
+`onClick` and `aria-current` alike. Dropping `onClick` silently breaks
+`onNavigate` (and any consumer behaviour hung on it, such as closing the
+mobile drawer); dropping `aria-current` silences the active item for
+assistive tech. The default, when no `renderNavLink` is passed, is
+`<button type="button" {...props} />`. A nav item carries its resolved
+`label` and no `href` - routing belongs entirely to the consumer's
+`renderNavLink`.
+
 ## AppShell (issue 030)
 
 - **A consumer controlling `mobileSidebarOpen` owns closing it on
