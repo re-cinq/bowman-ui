@@ -231,6 +231,19 @@ describe("repoint-spec-anchors", () => {
     expect(check.stderr).toContain("#L2 lands on a blank or closing line");
   });
 
+  it("a rotten anchor whose baseline content moved is rewritten and not reported", () => {
+    write(repo, "tests/Foo.test.tsx", asTestFile(["alpha", "", "beta", "gamma", "delta"]));
+
+    const rewrite = run(repo, "main");
+
+    expect(rewrite).toMatchObject({ status: 0 });
+    expect(rewrite.stdout).toContain("repointed: 3, up to date: 0, unresolved: 0");
+    expect(rewrite.stderr).not.toContain("rotten");
+    expect(read(repo, "specs/foo/spec.md")).toEqual(
+      asSpec("../../tests/Foo.test.tsx#L3", "../../tests/Foo.test.tsx#L5")
+    );
+  });
+
   it("the rotten check still applies to a spec skipped for a differing anchor set", () => {
     write(repo, "tests/Foo.test.tsx", asTestFile(["alpha", "beta", "gamma", ""]));
     write(

@@ -88,7 +88,7 @@ already in the repo - it moves no new component.
   `tests/fixtures/eslint-labels/**` alongside `src/**`, and the fixture directory sits in the
   global `ignores`. `npm run lint` therefore never sees the fixtures, while the red-fixture test
   lints them with `--no-ignore` against the exact committed rules rather than a copy of them
-  ([validated by](../../tests/eslint-labels.test.ts#L54)).
+  ([validated by](../../tests/eslint-labels.test.ts#L20)).
 - **Placeholder deleted.** `src/Placeholder.tsx`, `tests/Placeholder.test.tsx` and the barrel
   export are gone, sanctioned by 014's own design ("the first real extraction PR deletes them"):
   six real `"use client"` files now exist, and Placeholder's hardcoded English text can neither

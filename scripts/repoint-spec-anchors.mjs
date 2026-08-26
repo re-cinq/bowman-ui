@@ -28,7 +28,8 @@
 // content now lives on a different line), unresolved (that content no
 // longer exists), or rotten. Without --check, stale anchors are rewritten in
 // place and unresolved or rotten ones are reported for manual fix with
-// exit 1.
+// exit 1; a rotten anchor the rewrite itself repoints needs no manual fix
+// and is not reported.
 
 import { execFileSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
@@ -154,13 +155,17 @@ for (const spec of specFiles) {
   const anchors = extractAnchors(source);
   if (anchors.length === 0) continue;
   const specDir = dirname(spec);
-  for (const anchor of anchors) {
-    const reason = rottenReason(anchor, specDir);
-    if (reason) rotten.push(`${spec}: ${anchor.path}#L${anchor.line} -> ${reason}`);
-  }
+  const rottenReasons = anchors.map((anchor) => rottenReason(anchor, specDir));
+  const reportRotten = (index) => {
+    const reason = rottenReasons[index];
+    if (reason === null) return;
+    const anchor = anchors[index];
+    rotten.push(`${spec}: ${anchor.path}#L${anchor.line} -> ${reason}`);
+  };
   const baseSpec = baseFile(spec);
   if (baseSpec === null) {
     process.stderr.write(`skipped ${spec}: not present at ${baseRef}\n`);
+    anchors.forEach((_, index) => reportRotten(index));
     continue;
   }
   const baseAnchors = extractAnchors(baseSpec);
@@ -168,6 +173,7 @@ for (const spec of specFiles) {
     process.stderr.write(
       `skipped ${spec}: anchor set differs from ${baseRef} (anchors are taken as authored against the working tree)\n`
     );
+    anchors.forEach((_, index) => reportRotten(index));
     continue;
   }
   const resolutions = anchors.map((anchor, index) => {
@@ -176,6 +182,9 @@ for (const spec of specFiles) {
   });
   resolutions.forEach((resolution, index) => {
     const anchor = anchors[index];
+    const staysPut =
+      resolution.retargeted || resolution.failure || resolution.expectedLine === anchor.line;
+    if (checkMode || staysPut) reportRotten(index);
     if (resolution.retargeted) {
       retargeted += 1;
       upToDate += 1;
