@@ -1,6 +1,8 @@
 import { fireEvent, render } from "@testing-library/react";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import {
   AppShell,
   ChatComposer,
@@ -8,6 +10,8 @@ import {
   ConversationList,
   ErrorBoundary,
   InlineThinkingIndicator,
+  createMarkdownComponents,
+  createUrlTransform,
   defaultAppShellLabels,
   defaultChatComposerLabels,
   defaultChatMessageLabels,
@@ -23,6 +27,10 @@ import type {
   ErrorBoundaryLabels,
   InlineThinkingIndicatorLabels,
 } from "../src/index.js";
+import {
+  defaultMarkdownComponentsLabels,
+  type MarkdownComponentsLabels,
+} from "../src/markdown/components.js";
 
 // CONTRACT.md § Labels enforcement (static, test-time - never a runtime
 // warning): every VALUE export of the barrel is classified below. Type-only
@@ -40,6 +48,7 @@ const labelsProp = [
   "ChatComposer",
   "ConversationList",
   "AppShell",
+  "createMarkdownComponents",
 ];
 
 const stringPropOnly = [
@@ -71,7 +80,8 @@ const stringPropOnly = [
 ];
 
 const noStrings = [
-  "markdownComponents",
+  "createUrlTransform",
+  "defaultMarkdownPolicy",
   "IconWrapper",
   "getAccessibleIconProps",
   "useDebounce",
@@ -147,7 +157,12 @@ const chatMessageSentinels = {
   feedbackNegative: "⟦feedbackNegative⟧",
   feedbackNotice: "⟦feedbackNotice⟧",
   thinking: "⟦thinking⟧",
+  linkOpensInNewTab: "⟦linkOpensInNewTab⟧",
 } satisfies Required<ChatMessageLabels>;
+
+const markdownComponentsSentinels = {
+  linkOpensInNewTab: "⟦linkOpensInNewTab⟧",
+} satisfies Required<MarkdownComponentsLabels>;
 
 const inlineThinkingIndicatorSentinels = {
   thinking: "⟦thinking⟧",
@@ -208,7 +223,12 @@ const sentinelHarnesses: Record<
             labels={chatMessageSentinels}
           />
           <ChatMessage
-            entry={{ id: "a1", role: "assistant", content: numericContent, isStreaming: false }}
+            entry={{
+              id: "a1",
+              role: "assistant",
+              content: `${numericContent} [42](https://4711.example/42)`,
+              isStreaming: false,
+            }}
             userInitials="LM"
             labels={chatMessageSentinels}
           />
@@ -249,6 +269,19 @@ const sentinelHarnesses: Record<
         >
           {numericContent}
         </AppShell>
+      ).container,
+  },
+  createMarkdownComponents: {
+    sentinels: Object.values(markdownComponentsSentinels),
+    renderContainer: () =>
+      render(
+        <ReactMarkdown
+          remarkPlugins={[remarkGfm]}
+          components={createMarkdownComponents({ labels: markdownComponentsSentinels })}
+          urlTransform={createUrlTransform()}
+        >
+          {"[4711](https://4711.example/4711)"}
+        </ReactMarkdown>
       ).container,
   },
   ConversationList: {
@@ -310,6 +343,12 @@ describe("the sentinel render check", () => {
   it("AppShell's sentinel labels cover every defaultAppShellLabels key", () => {
     expect(Object.keys(appShellSentinels).sort()).toEqual(
       Object.keys(defaultAppShellLabels).sort()
+    );
+  });
+
+  it("createMarkdownComponents' sentinel labels cover every defaultMarkdownComponentsLabels key", () => {
+    expect(Object.keys(markdownComponentsSentinels).sort()).toEqual(
+      Object.keys(defaultMarkdownComponentsLabels).sort()
     );
   });
 

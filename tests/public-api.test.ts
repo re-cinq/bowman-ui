@@ -37,13 +37,13 @@ const declaredTypeExports = (): string[] =>
     .sort();
 
 describe("public API surface", () => {
-  it("the built runtime exports are exactly the 45 committed names", async () => {
+  it("the built runtime exports are exactly the 47 committed names", async () => {
     const built = await import("../dist/index.js");
 
     expect(Object.keys(built).sort()).toEqual(snapshot.values);
   });
 
-  it("the emitted type exports are exactly the 29 committed names", () => {
+  it("the emitted type exports are exactly the 30 committed names", () => {
     expect(declaredTypeExports()).toEqual(snapshot.types);
   });
 
@@ -55,7 +55,7 @@ describe("public API surface", () => {
   });
 
   it("every labelled component ships its defaults object alongside it", () => {
-    const labelled = snapshot.values.filter((name) => name.startsWith("default"));
+    const labelled = snapshot.values.filter((name) => /^default(.+)Labels$/.test(name));
     const components = labelled.map((name) => name.replace(/^default(.+)Labels$/, "$1"));
 
     expect(components.every((component) => snapshot.values.includes(component))).toBe(true);
