@@ -191,14 +191,36 @@ takes `labels`):
   rendered only behind `{toastMessage && ...}`, and `setToastMessage` is
   called only with `null` inside the toast's own `onClose` - the inline
   "Copied!" span at `ChatMessage.tsx:214` replaced it. It has never rendered
-  in production; the reuse evidence for shipping it is nil beyond E4's need
-  for a transient notification surface outside a chat bubble - the same
-  thin-call-site-evidence precedent 021's Why section set for
-  `useReducedMotion`/`useSidebarState`/`ErrorBoundary`.
+  in Discovery's production; it shipped on the thin-call-site-evidence
+  precedent 021's Why section set for
+  `useReducedMotion`/`useSidebarState`/`ErrorBoundary`, and `025` named the
+  escalation and failover paths as its future users. Both declined it
+  (`054` renders the escalation hand-off in the transcript; `064` keeps a
+  successful failover silent, reporting failure through `044`'s error
+  frame), so the component is dead in the app it came from and live in the
+  app it was extracted for: its only consumer in the org, measured by
+  `097`, is `044-support-agent-chat-wiring`'s `ChatScreen.tsx` in the
+  support agent, which mounts it twice - a reconnect notice and a
+  connection-failed notice.
+- Both of `044`'s uses are conditions that persist, not messages that fade,
+  and pass `duration={null}` once `098` lands - the persistence rule `064`
+  settled, applied at both `ChatScreen.tsx` call sites by
+  `098-support-agent-persistent-connection-notices` (`044` shipped the
+  notices on the default; `098`, open as this correction lands, sets the
+  prop). No consumer passes a number, so once `098` lands the 2000ms default
+  has no shipped caller; the default stays only because `015`'s
+  characterization suite pins it.
 - `duration={null}` disables auto-dismiss entirely: `setTimeout` is never
   invoked, the library ships no close button, and dismissal is therefore
   entirely the consumer's - unmounting the element is the only way out in
-  that mode.
+  that mode, and a toast a consumer forgets to unmount occupies the
+  `fixed bottom-8 left-1/2 z-50` overlay for the life of the page.
+- The close-button question `025` left open pending a real consumer is
+  closed by `097`, not re-opened: both of `044`'s uses are persistent
+  states, so a close button would let a customer dismiss a condition that is
+  still true, and the `dismissToast` label it would need (§ Labels
+  decision 3's key-naming example) would pull `Toast` out of the
+  `stringPropOnly` partition.
 - The toast positions itself with a fixed `z-50` overlay
   (`fixed bottom-8 left-1/2 z-50 -translate-x-1/2`), and takes no
   `className`: the positioning and the fade animation's restated `-50%`
