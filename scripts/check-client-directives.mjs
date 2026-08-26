@@ -183,6 +183,7 @@ const collectTriggers = (sourceFile) => {
       return;
     }
     if (ts.isHeritageClause(node)) {
+      if (node.token !== ts.SyntaxKind.ExtendsKeyword) return;
       for (const type of node.types) {
         visit(type.expression);
       }
@@ -200,10 +201,10 @@ const collectTriggers = (sourceFile) => {
     }
     if (ts.isPropertyAccessExpression(node) && ts.isIdentifier(node.name)) {
       if (HOOK_NAME.test(node.name.text)) {
-        triggers.push(`references ${node.getText(sourceFile)} (hook-shaped member)`);
+        triggers.push(`references .${node.name.text} (hook-shaped member)`);
       }
       if (node.name.text === "createContext") {
-        triggers.push(`references ${node.getText(sourceFile)} (createContext member)`);
+        triggers.push(`references .${node.name.text} (createContext member)`);
       }
     }
     if (ts.isIdentifier(node) && BROWSER_GLOBALS.has(node.text) && isValueReference(node)) {

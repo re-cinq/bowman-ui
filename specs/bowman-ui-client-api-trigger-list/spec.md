@@ -23,15 +23,21 @@ and is what every fixture test uses.
    [L16](../../tests/client-directives.test.ts#L16)), including from a relative specifier - the
    clause that carries the widening
    ([validated by](../../tests/client-directives.test.ts#L23)). A hook-shaped namespace-member
-   reference (`React.useState`, called or passed as a value) also fires
-   ([validated by](../../tests/client-directives.test.ts#L30)). Type-only hook imports are
-   excluded in both the `import type {...}` and `import { type ... }` forms
+   **member access** (`React.useState`, called or passed as a value) also fires
+   ([validated by](../../tests/client-directives.test.ts#L30)). The member rule matches on the
+   property name alone, whatever the receiver - an unrelated `config.useLegacyPaths` fires
+   too, the fail-safe direction and cheaper than resolving receivers. Type-only hook imports
+   are excluded in both the `import type {...}` and `import { type ... }` forms
    ([validated by](../../tests/client-directives.test.ts#L66)).
 2. **Named import of `createContext`**, imported or local name, the same type-only exclusion,
-   plus the namespace-member reference `React.createContext`
-   ([validated by](../../tests/client-directives.test.ts#L37)).
+   plus a member access named `createContext` (`React.createContext`) on the same any-receiver
+   terms ([validated by](../../tests/client-directives.test.ts#L37)).
 3. **Class heritage `Component`/`PureComponent`**, bare or through a namespace import - both
    shapes pinned in one fixture ([validated by](../../tests/client-directives.test.ts#L44)).
+   Only `extends` heritage is walked: an `implements WebSocket` clause on a test double is a
+   pure type position and does not fire
+   ([validated by](../../tests/client-directives.test.ts#L66)). Value references inside a
+   mixin expression (`extends makeBase(localStorage.getItem("k"))`) do fire.
 4. **Value-position browser-global reference** from the measured list below
    ([validated by](../../tests/client-directives.test.ts#L52)), including a `typeof window`
    guard ([validated by](../../tests/client-directives.test.ts#L59)) - 021 dropped the dead
