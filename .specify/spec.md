@@ -65,7 +65,7 @@ Components operate on simple, consumer-supplied data structures passed via props
 1. **Semantic Versioning** — MAJOR.MINOR.PATCH follows semver conventions. ([validated by](../tests/system-contract.test.ts#L18))
 2. **Breaking Changes Require Major Version Bump** — Incompatible prop changes, removed components, or signature alterations require version major increment.
 3. **Deprecation Path** — Features scheduled for removal are marked with deprecation warnings in a minor release; removal occurs in the next major.
-4. **Type Safety as Contract** — Public component prop interfaces are exported and treated as API; TypeScript changes to props are breaking changes. ([validated by](../tests/public-api.test.ts#L46))
+4. **Type Safety as Contract** — Public component prop interfaces are exported and treated as API; TypeScript changes to props are breaking changes. ([validated by](../tests/public-api.test.ts#L46), [type-assertions](../tests/types/chat-message-type-assertions.tsx#L45))
 
 ### Code Quality Mandates
 
