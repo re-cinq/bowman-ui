@@ -53,7 +53,10 @@ would decay into ambient noise the way every lint-disable does.
 client-only in practice - is unmatched by every rule here; `078`'s RSC
 fixture build is the executable backstop that covers it. A destructured
 namespace (`const { useState } = React`) is likewise unmatched: the binding
-name is a declaration, not a reference. A file whose only client-ness is
+name is a declaration, not a reference. So are the shapes that put a listed
+name in a property or string position rather than a value one -
+`React["useState"]`, `globalThis.localStorage`, a handler passed through a
+JSX spread (`{...{ onClick: fire }}`). A file whose only client-ness is
 rendering an imported client component (a Clerk widget, a pure-JSX
 presentational wrapper) is equally invisible to static per-file rules and
 belongs to `078` and to `032`'s forbidden-import question.
