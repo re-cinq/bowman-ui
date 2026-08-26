@@ -91,4 +91,10 @@ export type {
   SidebarNavItem,
   SidebarNavLinkProps,
 } from "./components/AppSidebar.js";
+export { ChatMessageList, defaultChatMessageListLabels } from "./components/ChatMessageList.js";
+export type {
+  ChatMessageListHandle,
+  ChatMessageListLabels,
+  ChatMessageListProps,
+} from "./components/ChatMessageList.js";
 export { resolveLabels } from "./labels.js";

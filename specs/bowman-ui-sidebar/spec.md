@@ -28,17 +28,18 @@ the sidebar twice, `hidden`/`md:hidden` on the positions and `inert` on the
 closed drawer keep one exposed at a time; a bare render contains exactly one
 `<nav>` ([validated by](../../tests/AppSidebar.test.tsx#L15)). `AppSidebar`
 sits in the `labelsProp` partition bucket
-([partition](../../tests/labelled-exports.test.tsx#L46)) and passes the
+([partition](../../tests/labelled-exports.test.tsx#L51)) and passes the
 sentinel render with both labels set to sentinels
-([harness](../../tests/labelled-exports.test.tsx#L265),
-[coverage](../../tests/labelled-exports.test.tsx#L346)).
+([harness](../../tests/labelled-exports.test.tsx#L282),
+[coverage](../../tests/labelled-exports.test.tsx#L383)).
 
 ## The decisions
 
 1. **The exported name is `AppSidebar`, not `Sidebar`.** A different,
    superseded component already owns `Sidebar` in the source app and is
    explicitly marked "do not port"; the name keeps the two unconfusable
-   ([validated by](../../tests/public-api.test.ts#L40)).
+   ([validated by](../../tests/public-api.test.ts#L40),
+   [types](../../tests/public-api.test.ts#L46)).
 2. **Active state is a per-item `isActive` boolean, not a path comparison.**
    The org has more than one router, so the component assumes neither. Three
    `navItems` render three items in order, each showing its `label`; the one
