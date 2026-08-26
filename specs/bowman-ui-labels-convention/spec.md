@@ -36,7 +36,8 @@ already in the repo - it moves no new component.
   ([validated by](../../tests/eslint-labels.test.ts#L72)), plus `no-restricted-imports` on
   `next-intl` ([validated by](../../tests/eslint-labels.test.ts#L81)). The four red fixtures live
   in `tests/fixtures/eslint-labels/`, globally ignored so the committed tree stays green;
-  `grep -rn "next-intl\|useTranslations" src/` returns nothing.
+  `grep -rn "next-intl\|useTranslations" src/` returns nothing
+  ([validated by](../../tests/eslint-labels.test.ts#L91)).
 - `tests/labelled-exports.test.tsx` - the export-partition test: every value export of
   `src/index.ts` is classified into `labelsProp` / `stringPropOnly` / `noStrings`, and the sorted
   union must equal the sorted parsed export names; an unclassified export fails by name with a
@@ -49,28 +50,29 @@ already in the repo - it moves no new component.
   the default-labels keys ([validated by](../../tests/labelled-exports.test.tsx#L130)).
   **The check's own proof:** reverting 021's `labels` prop to a hardcoded
   `"Something went wrong"` makes the sentinel test fail - the stray English survives sentinel
-  stripping and matches the Latin-run regex.
+  stripping and matches the Latin-run regex
+  ([validated by](../../tests/labelled-exports.test.tsx#L316)).
 - `CONTRACT.md § Labels` - Decisions 1-5, the flat-union key-naming rule, the function form for
   interpolation, the two `stringPropOnly` exceptions with reasons, and `aiDisclosure` documented
   as required-with-no-default under the EU AI Act.
 - Re-pinned prior behaviour (AC 39): `<LoadingIcon ariaLabel="Indlæser" />` renders
   `aria-label="Indlæser"` with `"Loading"` nowhere in the output
   ([validated by](../../tests/icons.test.tsx#L235)); the Danish `announce` assertion already
-  existed at [tests/useFocusGroups.test.tsx#L96](../../tests/useFocusGroups.test.tsx#L96) and is
-  referenced, not duplicated.
+  existed and is referenced, not duplicated
+  ([validated by](../../tests/useFocusGroups.test.tsx#L120)).
 
 ## Recorded decisions, interpretations and deviations
 
 - **Behaviour change: explicit-`undefined` overrides.** 021's
   `{ ...defaultLabels, ...this.props.labels }` spread let
   `labels={{ title: undefined }}` blank the title. `resolveLabels` treats that key as missing and
-  renders the English default instead
-  ([validated by](../../tests/ErrorBoundary.test.tsx#L75)). This is the convention's intent; it
-  is the one observable behaviour change in the retrofit.
+  renders the English default instead. This is the convention's intent; it
+  is the one observable behaviour change in the retrofit
+  ([validated by](../../tests/ErrorBoundary.test.tsx#L75)).
 - **Partition is over value exports.** The partition test statically parses `export { ... }`
   blocks of `src/index.ts`; `export type { ... }` names are excluded by design - a type carries
   no renderable string. Interfaces like `ErrorBoundaryLabels` are therefore not partition
-  members.
+  members ([validated by](../../tests/labelled-exports.test.tsx#L100)).
 - **Test path deviation.** The issue names `src/__tests__/labelled-exports.tsx`; this repo keeps
   every test under `tests/` with a `.test.tsx` suffix (vitest's include pattern requires the
   suffix), so the file is `tests/labelled-exports.test.tsx`. Same content, repo-conventional
@@ -78,21 +80,23 @@ already in the repo - it moves no new component.
 - **Fixture-scope deviation.** The labels lint entry's `files` glob covers
   `tests/fixtures/eslint-labels/**` alongside `src/**`, and the fixture directory sits in the
   global `ignores`. `npm run lint` therefore never sees the fixtures, while the red-fixture test
-  lints them with `--no-ignore` against the exact committed rules rather than a copy of them.
+  lints them with `--no-ignore` against the exact committed rules rather than a copy of them
+  ([validated by](../../tests/eslint-labels.test.ts#L55)).
 - **Placeholder deleted.** `src/Placeholder.tsx`, `tests/Placeholder.test.tsx` and the barrel
   export are gone, sanctioned by 014's own design ("the first real extraction PR deletes them"):
   six real `"use client"` files now exist, and Placeholder's hardcoded English text can neither
   pass the new lint rule nor fit any partition bucket. `tests/build-contract.test.ts`'s
   first-statement assertion now targets `dist/hooks/useDebounce.js`, a real directive-carrying
-  file ([validated by](../../tests/build-contract.test.ts#L34)). 014's deletion-trigger property
+  file. 014's deletion-trigger property
   still holds without Placeholder: coverage includes all of `src/**` at the 100/100/100/90
   floor, so deleting any component's test drops that file below threshold and fails
-  `npm run test:coverage`.
+  `npm run test:coverage` ([validated by](../../tests/build-contract.test.ts#L34)).
 - **`stringPropOnly` is a closed exception list.** The icons' `ariaLabel` (023 icons; a
   destructuring default, deliberately outside lint rule (b)'s JSX-attribute reach) and
   `useFocusGroups`' `announce` are grandfathered per `CONTRACT.md § Labels`; everything else with
   strings takes `labels`. Closed means an addition requires a `CONTRACT.md § Labels` amendment
-  in the PR that adds it - Toast's `message` (issue 025) did exactly this.
+  in the PR that adds it - Toast's `message` (issue 025) did exactly this
+  ([validated by](../../tests/labelled-exports.test.tsx#L100)).
 - **`aiDisclosure` is declared, not rendered.** The required label and its EU AI Act rationale
   live in `CONTRACT.md § Labels`; the component that renders it and its Danish wording belong to
   the message-list issue and the consumer's catalogue.

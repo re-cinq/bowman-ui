@@ -4,12 +4,14 @@ Issue: issue 67 (`017-bowman-ui-chat-entry-types`)
 
 `src/types/chat.ts` gives every conversation-rendering bowman-ui component one
 message type: the `ChatEntry` discriminated union (`role: "user" | "assistant"
-| "thinking" | "tool"`), plus `ChatStreamState` and `ChatErrorInfo`. It is a
+| "thinking" | "tool"`), plus `ChatStreamState` and `ChatErrorInfo`
+([validated by](../../tests/types/chat.test.ts#L118)). It is a
 view model, not the wire protocol - designed against `hal-engine`
 `docs/websocket-protocol.md` §6, read at commit
 `0fb475caae1dc3c07948911faf4c16510e263f88`, without importing the engine.
 Entries carry an opaque `id`, never a protocol `index`; the §5.5 skipped-index
-arithmetic belongs to the consuming app's adapter. The exported names are
+arithmetic belongs to the consuming app's adapter
+([validated by](../../tests/types/chat.test.ts#L95)). The exported names are
 disjoint from `hal-engine/src/types/index.ts`'s exports so `support-agent` can
 import both packages in one adapter file
 ([validated by](../../tests/types/chat.test.ts#L148)).

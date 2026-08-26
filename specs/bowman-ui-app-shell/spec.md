@@ -6,7 +6,8 @@ Issue: issue 80 (`030-bowman-ui-app-shell`)
 drawer, mobile header, `<main>` - extracted as `src/components/AppShell.tsx`
 (`AppShell`, `AppShellProps`, `SidebarSlotContext`, `AppShellLabels`,
 `defaultAppShellLabels`). The sidebar's own contents are issue 031's; this
-component imports none of them and renders whatever `renderSidebar` returns.
+component imports none of them and renders whatever `renderSidebar` returns
+([validated by](../../tests/AppShell.test.tsx#L70)).
 No file in `discovery` changes.
 
 ## The public surface
@@ -23,7 +24,8 @@ out for a consumer with its own
 ([validated by](../../tests/AppShell.test.tsx#L58)).
 
 `AppShellLabels` has three defaulted keys - `openSidebar`, `closeSidebar`,
-`skipToMainContent` - per CONTRACT.md § Labels. `AppShell` sits in the
+`skipToMainContent` - per CONTRACT.md § Labels
+([validated by](../../tests/labelled-exports.test.tsx#L310)). `AppShell` sits in the
 `labelsProp` partition bucket
 ([partition](../../tests/labelled-exports.test.tsx#L42)) and passes the
 sentinel render with all three labels set to sentinels
@@ -35,7 +37,8 @@ trees are in the document
 ([validated by](../../tests/AppShell.test.tsx#L70)); omitting it still
 renders the frame ([validated by](../../tests/AppShell.test.tsx#L83)). The
 mobile copy needs `close` so tapping a nav item closes the drawer - the same
-slot idiom as `ConversationList`'s `renderLink`.
+slot idiom as `ConversationList`'s `renderLink`
+([validated by](../../tests/AppShell.test.tsx#L125)).
 
 `brand` renders inside the mobile header row with the centring spacer;
 omitted, the header shows the hamburger and no spacer, and the component
@@ -59,7 +62,8 @@ Controlled: with `mobileSidebarOpen={false}`, clicking the hamburger calls
 ([validated by](../../tests/AppShell.test.tsx#L146),
 [L162](../../tests/AppShell.test.tsx#L162)). A controlling consumer owns
 closing on navigation - recorded in CONTRACT.md § AppShell, because the
-source's `usePathname` effect is app-router-specific and cannot ship here.
+source's `usePathname` effect is app-router-specific and cannot ship here
+([validated by](../../tests/AppShell.test.tsx#L162)).
 
 ## The two accessibility fixes
 
@@ -72,7 +76,8 @@ source's `usePathname` effect is app-router-specific and cannot ship here.
    and the string `aria-hidden` appears nowhere in the source file
    ([validated by](../../tests/AppShell.test.tsx#L182),
    [L194](../../tests/AppShell.test.tsx#L194)). The rail and drawer stay two
-   DOM nodes because `inert` cannot be conditioned on a CSS breakpoint.
+   DOM nodes because `inert` cannot be conditioned on a CSS breakpoint
+   ([validated by](../../tests/AppShell.test.tsx#L182)).
 2. **The scroll lock restores the prior overflow value.** The source reset
    `document.body.style.overflow` to `""` on close
    (`AppMobileSidebar.tsx:51-60`), clobbering any other lock on the page.
@@ -133,7 +138,8 @@ below.
   ([validated by](../../tests/AppShell.test.tsx#L340)), and the suite-wide
   console trap in `tests/setup.ts` fails any test that triggered a console
   call. Desktop collapse state is out of scope precisely because it is the
-  only thing here that would persist anything.
+  only thing here that would persist anything
+  ([validated by](../../tests/AppShell.test.tsx#L350)).
 - `dist/components/AppShell.js` opens with `"use client";` as its first
   statement per 018's positional check
   ([validated by](../../tests/app-shell-dist.test.ts#L30)), and `npm pack`
@@ -145,10 +151,12 @@ below.
 - **Header stacks at `z-40` under the drawer/backdrop's `z-50`** - a third
   deliberate fix: the source gave the mobile header and the drawer the same
   `z-50` and relied on DOM order, so the header could paint over the open
-  drawer's top strip. Pinned by a class assertion in the tests.
+  drawer's top strip. Pinned by a class assertion in the tests
+  ([validated by](../../tests/AppShell.test.tsx#L369)).
 - **`brand={null}` renders no spacer**, same as omitting the prop - `null` is
   the React idiom for intentionally-nothing, and an empty centring spacer with
-  no mark would be a layout surprise. Pinned by test.
+  no mark would be a layout surprise. Pinned by test
+  ([validated by](../../tests/AppShell.test.tsx#L379)).
   from the issue text
 
 - **Test locations.** The issue names `tests/components/AppShell.test.tsx`;
@@ -161,7 +169,8 @@ below.
   `offsetParent` getter plus a synchronous `requestAnimationFrame` stub -
   exactly as `tests/useFocusTrap.test.tsx` does, restored in `afterEach`.
   Removing the shim still makes the three focus assertions fail, which is
-  the property the issue was after.
+  the property the issue was after
+  ([validated by](../../tests/AppShell.test.tsx#L229)).
 - **Coverage floor.** The issue says "the 100 / 100 / 100 thresholds the
   repo-skeleton issue committed"; the committed floor is
   lines/functions/statements 100 with branches 90 (`vitest.config.ts`), and
