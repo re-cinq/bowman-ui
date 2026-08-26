@@ -37,13 +37,13 @@ const declaredTypeExports = (): string[] =>
     .sort();
 
 describe("public API surface", () => {
-  it("the built runtime exports are exactly the 47 committed names", async () => {
+  it("the built runtime exports are exactly the 49 committed names", async () => {
     const built = await import("../dist/index.js");
 
     expect(Object.keys(built).sort()).toEqual(snapshot.values);
   });
 
-  it("the emitted type exports are exactly the 31 committed names", () => {
+  it("the emitted type exports are exactly the 35 committed names", () => {
     expect(declaredTypeExports()).toEqual(snapshot.types);
   });
 

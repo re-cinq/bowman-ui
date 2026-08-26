@@ -1,6 +1,7 @@
 {
   "values": [
     "AppShell",
+    "AppSidebar",
     "ArtifactsIcon",
     "ChatComposer",
     "ChatIcon",
@@ -33,6 +34,7 @@
     "TrashIcon",
     "WarningIcon",
     "defaultAppShellLabels",
+    "defaultAppSidebarLabels",
     "defaultChatComposerLabels",
     "defaultChatMessageLabels",
     "defaultConversationListLabels",
@@ -51,6 +53,8 @@
   "types": [
     "AppShellLabels",
     "AppShellProps",
+    "AppSidebarLabels",
+    "AppSidebarProps",
     "AssistantChatEntry",
     "ChatComposerHandle",
     "ChatComposerLabels",
@@ -72,6 +76,8 @@
     "InlineThinkingIndicatorLabels",
     "InlineThinkingIndicatorProps",
     "MarkdownElementProps",
+    "SidebarNavItem",
+    "SidebarNavLinkProps",
     "SidebarSlotContext",
     "SidebarStateOptions",
     "ThinkingChatEntry",

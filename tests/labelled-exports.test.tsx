@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import {
   AppShell,
+  AppSidebar,
   ChatComposer,
   ChatMessage,
   ConversationList,
@@ -10,6 +11,7 @@ import {
   InlineThinkingIndicator,
   ThinkingIndicator,
   defaultAppShellLabels,
+  defaultAppSidebarLabels,
   defaultChatComposerLabels,
   defaultChatMessageLabels,
   defaultConversationListLabels,
@@ -19,6 +21,7 @@ import {
 } from "../src/index.js";
 import type {
   AppShellLabels,
+  AppSidebarLabels,
   ChatComposerLabels,
   ChatMessageLabels,
   ConversationListLabels,
@@ -44,6 +47,7 @@ const labelsProp = [
   "ChatComposer",
   "ConversationList",
   "AppShell",
+  "AppSidebar",
 ];
 
 const stringPropOnly = [
@@ -90,6 +94,7 @@ const noStrings = [
   "defaultChatComposerLabels",
   "defaultConversationListLabels",
   "defaultAppShellLabels",
+  "defaultAppSidebarLabels",
 ];
 
 // `export type { ... }` never matches: "type" sits between "export" and "{".
@@ -185,6 +190,11 @@ const appShellSentinels = {
   skipToMainContent: "⟦skipToMainContent⟧",
 } satisfies Required<AppShellLabels>;
 
+const appSidebarSentinels = {
+  sidebar: "⟦sidebar⟧",
+  mainNavigation: "⟦mainNavigation⟧",
+} satisfies Required<AppSidebarLabels>;
+
 // The fixture content carries no run of three Latin letters, so everything
 // user-shaped the harness renders (content, "LM" initials) passes the
 // LATIN_RUN check without its own strip entry.
@@ -266,6 +276,20 @@ const sentinelHarnesses: Record<
         </AppShell>
       ).container,
   },
+  AppSidebar: {
+    sentinels: Object.values(appSidebarSentinels),
+    renderContainer: () =>
+      render(
+        <AppSidebar
+          labels={appSidebarSentinels}
+          brand={<span>4711</span>}
+          navItems={[{ key: "4712", label: "4713", isActive: true }]}
+          footer={<span>4714</span>}
+        >
+          {numericContent}
+        </AppSidebar>
+      ).container,
+  },
   ConversationList: {
     sentinels: [
       conversationListSentinels.conversations,
@@ -331,6 +355,12 @@ describe("the sentinel render check", () => {
   it("AppShell's sentinel labels cover every defaultAppShellLabels key", () => {
     expect(Object.keys(appShellSentinels).sort()).toEqual(
       Object.keys(defaultAppShellLabels).sort()
+    );
+  });
+
+  it("AppSidebar's sentinel labels cover every defaultAppSidebarLabels key", () => {
+    expect(Object.keys(appSidebarSentinels).sort()).toEqual(
+      Object.keys(defaultAppSidebarLabels).sort()
     );
   });
 
