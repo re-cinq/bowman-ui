@@ -53,7 +53,7 @@ already in the repo - it moves no new component.
   **The check's own proof:** reverting 021's `labels` prop to a hardcoded
   `"Something went wrong"` makes the sentinel test fail - the stray English survives sentinel
   stripping and matches the Latin-run regex
-  ([validated by](../../tests/labelled-exports.test.tsx#L353)).
+  ([validated by](../../tests/labelled-exports.test.tsx#L358)).
 - `CONTRACT.md § Labels` - Decisions 1-5, the flat-union key-naming rule, the function form for
   interpolation, the two `stringPropOnly` exceptions with reasons, and `aiDisclosure` documented
   as required-with-no-default under the EU AI Act.

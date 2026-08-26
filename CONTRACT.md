@@ -225,11 +225,10 @@ chat surface without supplying the sentence, and no plausible English default
 may paper over the omission. The label is declared here; the component that
 renders it and its Danish wording belong to the message-list issue and to the
 consumer's catalogue. Because the label is required, `ChatMessageList` (078)
-is the one component whose `labels` prop is itself required -
-`labels: Partial<ChatMessageListLabels> & Required<Pick<ChatMessageListLabels, "aiDisclosure">>`
-
-- the single exception decision 2's optional `labels?` shape reads subject
-  to; every other key still defaults per key.
+is the one component whose `labels` prop is itself required, typed
+`Partial<ChatMessageListLabels> & Required<Pick<ChatMessageListLabels, "aiDisclosure">>`.
+Decision 2's optional `labels?` shape reads subject to that single
+exception; every other key still defaults per key.
 
 **The three `stringPropOnly` exceptions** (every other string-carrying export
 takes `labels`):
