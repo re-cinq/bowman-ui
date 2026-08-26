@@ -139,6 +139,19 @@ renders as alt text
   `allowRelativeUrls: true` - a hole in the issue's relative/absolute split,
   closed here ([validated
   by](../../tests/markdown/urlPolicy.test.tsx#L111)).
+- **An allowed scheme without an authority is still a relative URL.** A
+  WHATWG special scheme (`http`, `https`, `ws`, `wss`, `ftp`, `file`) that
+  carries no `//` authority resolves against the reader's own document:
+  `https:/api/logout` navigates to the current origin's `/api/logout`, the
+  exact destination `allowRelativeUrls: false` exists to refuse, and
+  `https:#anchor` and `https:?x=1` are the same trick. The scheme allowlist
+  alone let all of them through, so an allowed special scheme must also carry
+  a `[/\\]{2}` authority; the check is scoped to the special schemes because
+  `mailto:` and `tel:` are non-special, never inherit a base, and have no
+  legitimate authority form ([validated
+  by](../../tests/markdown/urlPolicy.test.tsx#L315),
+  [L332](../../tests/markdown/urlPolicy.test.tsx#L332),
+  [L341](../../tests/markdown/urlPolicy.test.tsx#L341)).
 - **`createUrlTransform` is exported from the package root** alongside the
   issue's three named exports: a consumer using the factory standalone without
   the transform would get the image gate but no href filtering. Declared here
