@@ -82,4 +82,11 @@ export type {
 } from "./components/ConversationList.js";
 export { AppShell, defaultAppShellLabels } from "./components/AppShell.js";
 export type { AppShellLabels, AppShellProps, SidebarSlotContext } from "./components/AppShell.js";
+export { AppSidebar, defaultAppSidebarLabels } from "./components/AppSidebar.js";
+export type {
+  AppSidebarLabels,
+  AppSidebarProps,
+  SidebarNavItem,
+  SidebarNavLinkProps,
+} from "./components/AppSidebar.js";
 export { resolveLabels } from "./labels.js";
