@@ -100,7 +100,8 @@ comparison components' non-extraction is a known fact, not an oversight.
   policy and a label - and the map gained an `img` entry for the image gate;
   the eighteen classed tags and their fixture test carry over unchanged (see
   `specs/bowman-ui-markdown-link-policy/spec.md`;
-  [validated by](../../tests/markdown-components.test.tsx#L92)).
+  [validated by](../../tests/markdown-components.test.tsx#L92),
+  [tags](../../tests/markdown-components.test.tsx#L55)).
 - **Markdown styling is color-neutral.** The `bowman-md-*` rules use
   `currentColor` and `color-mix(...)` for backgrounds and borders instead of
   palette colors, so they work under either dark-mode strategy without the

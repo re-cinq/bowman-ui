@@ -24,7 +24,8 @@ exports entry for a consumer ([validated by](../../tests/hooks-dist.test.ts#L65)
   the hook tracks `prefers-reduced-motion: reduce` including change events and listener cleanup
   ([validated by](../../tests/useReducedMotion.test.tsx#L27),
   [L47](../../tests/useReducedMotion.test.tsx#L47),
-  [L59](../../tests/useReducedMotion.test.tsx#L59)).
+  [L59](../../tests/useReducedMotion.test.tsx#L59),
+  [L79](../../tests/useReducedMotion.test.tsx#L79)).
 - `useSidebarState(key, {storagePrefix, defaultOpen})` — the `discovery-sidebar-` literal became a
   required `storagePrefix` with no default; the stored key is `${storagePrefix}${key}`, a stored
   value wins over `defaultOpen`, and storage access
@@ -42,6 +43,8 @@ exports entry for a consumer ([validated by](../../tests/hooks-dist.test.ts#L65)
   [L78](../../tests/useFocusTrap.test.tsx#L78),
   [L87](../../tests/useFocusTrap.test.tsx#L87), [L96](../../tests/useFocusTrap.test.tsx#L96),
   [L133](../../tests/useFocusTrap.test.tsx#L133),
+  [L201](../../tests/useFocusTrap.test.tsx#L201),
+  [L211](../../tests/useFocusTrap.test.tsx#L211),
   [L105](../../tests/useFocusTrap.test.tsx#L105),
   [L114](../../tests/useFocusTrap.test.tsx#L114),
   [L122](../../tests/useFocusTrap.test.tsx#L122)).
