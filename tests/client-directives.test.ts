@@ -48,6 +48,7 @@ it("exits non-zero when a class extends Component with no hook and no handler", 
   expect(result.stderr).toContain("ComponentClassNoDirective.tsx");
   expect(result.stderr).toContain("extends Component (class component)");
   expect(result.stderr).toContain("extends React.PureComponent (class component)");
+  expect(result.stderr).toContain("references browser global localStorage");
 });
 
 it("exits non-zero when the only client reference is localStorage.getItem", () => {
