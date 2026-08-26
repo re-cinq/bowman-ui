@@ -50,7 +50,9 @@ would pull `Toast` out of the `stringPropOnly` partition. The real
 consequence is documented instead: with `duration={null}` and no close
 button, dismissal is entirely the consumer unmounting the element, and a
 toast a consumer forgets to unmount occupies the
-`fixed bottom-8 left-1/2 z-50` overlay for the life of the page.
+`fixed bottom-8 left-1/2 z-50` overlay for the life of the page
+([validated by](../../tests/Toast.test.tsx#L135),
+[L87](../../tests/Toast.test.tsx#L87)).
 
 ## What deliberately did not change
 
@@ -58,9 +60,10 @@ toast a consumer forgets to unmount occupies the
   acceptance criteria assert the PR's `git diff --stat` touches no file
   there. `ToastProps` remains `message`, `onClose`, `duration`; `Toast`
   remains in the `stringPropOnly` list; the partition test passes
-  unchanged.
+  unchanged ([validated by](../../tests/labelled-exports.test.tsx#L120)).
 - The 2000ms default: 015's characterization suite pins it (uncalled at
-  1999ms, called once at 2000ms) and removing it is not this issue's call.
+  1999ms, called once at 2000ms) and removing it is not this issue's call
+  ([validated by](../../tests/Toast.test.tsx#L51)).
 - The comment at `src/components/Toast.tsx:12-13` still reads "extracted
   for E4's escalation and failover paths" - the superseded story this issue
   deletes from the docs. It stays because the source freeze forbids
@@ -89,9 +92,11 @@ toast a consumer forgets to unmount occupies the
   line.
 - **No `tasks.md`.** The issue's tech notes name one, but none of the ten
   existing spec directories carries one; this spec matches the repo.
-- **No `[validated by]` links.** Every existing spec links tests because
-  every existing spec shipped code; this one ships none and changes no
-  test, so the absence is intentional. Verification is the acceptance grep
+- **`[validated by]` links only where behaviour is restated.** Every
+  existing spec links tests because every existing spec shipped code; this
+  one ships none and changes no test, so narrative and history statements
+  carry no links - only the statements restating 025's still-pinned
+  behaviour cite the unchanged tests. Verification is the acceptance grep
   above plus the unchanged quality gates (`npm run lint`,
   `npm run typecheck`, `npm run test:coverage`, `npm run build`,
   `npm run prettier:check`).
