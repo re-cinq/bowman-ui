@@ -118,12 +118,15 @@ export const ChatMessageList = forwardRef<ChatMessageListHandle, ChatMessageList
     const prefersReducedMotion = useReducedMotion(reducedMotion);
     const regionRef = useRef<HTMLDivElement>(null);
     const pinnedRef = useRef(true);
+    const smoothScrollInFlightRef = useRef(false);
+    const lastScrollTopRef = useRef(0);
     const previousLengthRef = useRef<number | null>(null);
 
     useEffect(() => {
       const previousLength = previousLengthRef.current;
       previousLengthRef.current = entries.length;
       if (previousLength === null) {
+        smoothScrollInFlightRef.current = false;
         scrollRegionToBottom(regionRef.current, "auto");
         return;
       }
@@ -132,6 +135,7 @@ export const ChatMessageList = forwardRef<ChatMessageListHandle, ChatMessageList
       }
       const grew = entries.length > previousLength;
       const behavior: ScrollBehavior = prefersReducedMotion || !grew ? "auto" : "smooth";
+      smoothScrollInFlightRef.current = behavior === "smooth";
       scrollRegionToBottom(regionRef.current, behavior);
     }, [entries, busy, prefersReducedMotion]);
 
@@ -139,16 +143,33 @@ export const ChatMessageList = forwardRef<ChatMessageListHandle, ChatMessageList
       ref,
       () => ({
         scrollToBottom: () => {
+          const behavior: ScrollBehavior = prefersReducedMotion ? "auto" : "smooth";
           pinnedRef.current = true;
-          scrollRegionToBottom(regionRef.current, prefersReducedMotion ? "auto" : "smooth");
+          smoothScrollInFlightRef.current = behavior === "smooth";
+          scrollRegionToBottom(regionRef.current, behavior);
         },
         isPinnedToBottom: () => isNearBottom(regionRef.current),
       }),
       [prefersReducedMotion]
     );
 
+    // A smooth animation this component started fires downward scroll
+    // events of its own; those must not unpin the reader. Reaching the
+    // bottom (or any upward, reader-initiated movement) settles the flight.
     const handleScroll = (event: UIEvent<HTMLDivElement>) => {
-      pinnedRef.current = isNearBottom(event.currentTarget);
+      const node = event.currentTarget;
+      const previousTop = lastScrollTopRef.current;
+      lastScrollTopRef.current = node.scrollTop;
+      if (isNearBottom(node)) {
+        pinnedRef.current = true;
+        smoothScrollInFlightRef.current = false;
+        return;
+      }
+      if (smoothScrollInFlightRef.current && node.scrollTop > previousTop) {
+        return;
+      }
+      pinnedRef.current = false;
+      smoothScrollInFlightRef.current = false;
     };
 
     const showEmptyState = entries.length === 0 && !busy;

@@ -263,6 +263,21 @@ describe("ChatMessageList", () => {
       expect(screen.getAllByTestId("mark")).toHaveLength(2);
       expect(within(screen.getByRole("status")).getByTestId("mark")).toBeInTheDocument();
     });
+
+    it("entries are keyed by entry.id: reordering moves the same DOM nodes", () => {
+      const first = assistantEntry("a1", "Første svar");
+      const second = assistantEntry("a2", "Andet svar");
+      const { rerender } = render(
+        <ChatMessageList entries={[first, second]} userInitials="LM" labels={{ aiDisclosure }} />
+      );
+      const secondNode = screen.getAllByRole("article")[1];
+
+      rerender(
+        <ChatMessageList entries={[second, first]} userInitials="LM" labels={{ aiDisclosure }} />
+      );
+
+      expect(screen.getAllByRole("article")[0]).toBe(secondNode);
+    });
   });
 
   describe("busy", () => {
@@ -437,6 +452,69 @@ describe("ChatMessageList", () => {
       );
 
       expect(region.scrollTop).toBe(1200);
+    });
+
+    it("a scroll event at 32px from the bottom stays pinned; one at 33px unpins", () => {
+      installScrollTo();
+      const fourEntries = [...threeEntries, assistantEntry("a3", "Tredje svar")];
+      const { rerender } = render(
+        <ChatMessageList entries={twoEntries} userInitials="LM" labels={{ aiDisclosure }} />
+      );
+      stubGeometry(regionOf());
+      regionOf().scrollTop = 768;
+      fireEvent.scroll(regionOf());
+      scrollToMock.mockClear();
+
+      rerender(
+        <ChatMessageList entries={threeEntries} userInitials="LM" labels={{ aiDisclosure }} />
+      );
+      expect(scrollToMock).toHaveBeenCalledExactlyOnceWith({ top: 1200, behavior: "smooth" });
+
+      regionOf().scrollTop = 767;
+      fireEvent.scroll(regionOf());
+      scrollToMock.mockClear();
+
+      rerender(
+        <ChatMessageList entries={fourEntries} userInitials="LM" labels={{ aiDisclosure }} />
+      );
+      expect(scrollToMock).toHaveBeenCalledTimes(0);
+    });
+
+    it("downward scroll events fired by an in-flight smooth scroll do not unpin; an upward one does", () => {
+      installScrollTo();
+      const fourEntries = [...threeEntries, assistantEntry("a3", "Tredje svar")];
+      const { rerender } = render(
+        <ChatMessageList entries={twoEntries} userInitials="LM" labels={{ aiDisclosure }} />
+      );
+      stubGeometry(regionOf());
+      scrollToMock.mockClear();
+
+      rerender(
+        <ChatMessageList entries={threeEntries} userInitials="LM" labels={{ aiDisclosure }} />
+      );
+      expect(scrollToMock).toHaveBeenCalledExactlyOnceWith({ top: 1200, behavior: "smooth" });
+
+      regionOf().scrollTop = 600;
+      fireEvent.scroll(regionOf());
+      scrollToMock.mockClear();
+
+      rerender(
+        <ChatMessageList entries={fourEntries} userInitials="LM" labels={{ aiDisclosure }} />
+      );
+      expect(scrollToMock).toHaveBeenCalledExactlyOnceWith({ top: 1200, behavior: "smooth" });
+
+      regionOf().scrollTop = 300;
+      fireEvent.scroll(regionOf());
+      scrollToMock.mockClear();
+
+      rerender(
+        <ChatMessageList
+          entries={[...threeEntries, assistantEntry("a3", "Tredje svar, fuldført")]}
+          userInitials="LM"
+          labels={{ aiDisclosure }}
+        />
+      );
+      expect(scrollToMock).toHaveBeenCalledTimes(0);
     });
   });
 
