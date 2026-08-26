@@ -92,6 +92,11 @@ comparison components' non-extraction is a known fact, not an oversight.
   `react-markdown` at runtime, so 023 promoted `react-markdown` and
   `remark-gfm` from devDependencies to `dependencies` - the zero-runtime-deps
   claim above no longer holds (see `specs/bowman-ui-chat-message/spec.md`).
+  **Superseded by 076:** the frozen `markdownComponents` constant became the
+  `createMarkdownComponents(options)` factory - the `a` renderer needs a link
+  policy and a label - and the map gained an `img` entry for the image gate;
+  the eighteen classed tags and their fixture test carry over unchanged (see
+  `specs/bowman-ui-markdown-link-policy/spec.md`).
 - **Markdown styling is color-neutral.** The `bowman-md-*` rules use
   `currentColor` and `color-mix(...)` for backgrounds and borders instead of
   palette colors, so they work under either dark-mode strategy without the
