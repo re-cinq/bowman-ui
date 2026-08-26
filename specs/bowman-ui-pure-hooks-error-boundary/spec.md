@@ -8,7 +8,7 @@ test here is written fresh against the extracted copy.
 
 Five hooks under `src/hooks/` and `src/components/ErrorBoundary.tsx`, all exported from the root
 barrel with their option types (`FocusGroupsOptions`, `SidebarStateOptions`,
-`ErrorBoundaryLabels`; [validated by](../../tests/hooks-dist.test.ts#L28)). Every file carries `"use client"` as its first statement, verified on the
+`ErrorBoundaryLabels`). Every file carries `"use client"` as its first statement, verified on the
 built output ([validated by](../../tests/hooks-dist.test.ts#L65)), ships in the tarball with its
 `.d.ts` ([validated by](../../tests/hooks-dist.test.ts#L52)) and resolves through the `"."`
 exports entry for a consumer ([validated by](../../tests/hooks-dist.test.ts#L28)).
