@@ -29,9 +29,9 @@ a consumer-computed string rendered verbatim or not at all
 ([validated by](../../tests/ConversationList.test.tsx#L47),
 [L168](../../tests/ConversationList.test.tsx#L168)). `ConversationList` sits
 in the `labelsProp` partition bucket
-([partition](../../tests/labelled-exports.test.tsx#L52)) and passes the
+([partition](../../tests/labelled-exports.test.tsx#L57)) and passes the
 sentinel render across its list, empty and loading states, the function label
-included ([harness](../../tests/labelled-exports.test.tsx#L235)).
+included ([harness](../../tests/labelled-exports.test.tsx#L252)).
 
 ## The four decisions
 
