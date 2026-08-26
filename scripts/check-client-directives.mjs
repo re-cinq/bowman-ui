@@ -7,8 +7,9 @@
 //      allowed). The rules, measured off the AST (issue 137):
 //        - a hook-shaped import: a named or default import whose imported or
 //          local name matches /^use[A-Z]/, from any module specifier, or a
-//          hook-shaped namespace-member call such as React.useState(...)
-//        - a named import of createContext
+//          hook-shaped namespace-member reference such as React.useState
+//        - a named import of createContext, or a namespace-member reference
+//          such as React.createContext
 //        - a class extending Component or PureComponent, bare or through a
 //          namespace import
 //        - a value-position reference to a measured browser global
@@ -177,9 +178,14 @@ const collectTriggers = (sourceFile) => {
       ts.isTypeNode(node) ||
       ts.isInterfaceDeclaration(node) ||
       ts.isTypeAliasDeclaration(node) ||
-      ts.isExportDeclaration(node) ||
-      ts.isHeritageClause(node)
+      ts.isExportDeclaration(node)
     ) {
+      return;
+    }
+    if (ts.isHeritageClause(node)) {
+      for (const type of node.types) {
+        visit(type.expression);
+      }
       return;
     }
     if (ts.isImportDeclaration(node)) {
@@ -192,13 +198,13 @@ const collectTriggers = (sourceFile) => {
     if (ts.isJsxAttribute(node) && ts.isIdentifier(node.name) && JSX_HANDLER.test(node.name.text)) {
       triggers.push(`has JSX handler ${node.name.text}`);
     }
-    if (
-      ts.isCallExpression(node) &&
-      ts.isPropertyAccessExpression(node.expression) &&
-      ts.isIdentifier(node.expression.name) &&
-      HOOK_NAME.test(node.expression.name.text)
-    ) {
-      triggers.push(`calls ${node.expression.getText(sourceFile)} (hook-shaped call)`);
+    if (ts.isPropertyAccessExpression(node) && ts.isIdentifier(node.name)) {
+      if (HOOK_NAME.test(node.name.text)) {
+        triggers.push(`references ${node.getText(sourceFile)} (hook-shaped member)`);
+      }
+      if (node.name.text === "createContext") {
+        triggers.push(`references ${node.getText(sourceFile)} (createContext member)`);
+      }
     }
     if (ts.isIdentifier(node) && BROWSER_GLOBALS.has(node.text) && isValueReference(node)) {
       triggers.push(`references browser global ${node.text}`);

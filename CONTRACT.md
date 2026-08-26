@@ -14,8 +14,9 @@ enumeration; the four rules, plus the JSX-handler rule, are:
    local name matches `/^use[A-Z]/`, from **any** module specifier - React's
    own hooks, `usePathname` from `next/navigation`, a re-exported Clerk hook,
    a relative `./useWidgetState.js` alike - or a hook-shaped namespace-member
-   call such as `React.useState(...)`.
-2. **A named import of `createContext`.**
+   reference such as `React.useState`.
+2. **A named import of `createContext`**, or a namespace-member reference
+   such as `React.createContext`.
 3. **A class extending `Component` or `PureComponent`**, bare or through a
    namespace import (`React.Component`).
 4. **A value-position reference to a measured browser global.** The list is
@@ -32,8 +33,9 @@ enumeration; the four rules, plus the JSX-handler rule, are:
    server-safe code - `Icon.tsx`'s `forwardRef<SVGSVGElement>` is the
    evidence. A `typeof window` guard still triggers (021 dropped the dead
    guards; this package's policy is directives, not isomorphic guards), and
-   a local binding shadowing a listed global still triggers - both are the
-   check's fail-safe direction, over-requiring rather than missing a real
+   a value-position use of a listed name still triggers even where a local
+   binding shadows it (the shadowing declaration itself does not) - both are
+   the check's fail-safe direction, over-requiring rather than missing a real
    boundary.
 5. **An `on[A-Z]` JSX handler**, matched as an AST attribute node - the same
    name inside a comment or a string literal does not fire.
@@ -45,10 +47,12 @@ would decay into ambient noise the way every lint-disable does.
 
 **Known non-triggers.** Bare `use` is not a trigger, and `use(SomeContext)` -
 client-only in practice - is unmatched by every rule here; `078`'s RSC
-fixture build is the executable backstop that covers it. A file whose only
-client-ness is rendering an imported client component (a Clerk widget, a
-pure-JSX presentational wrapper) is likewise invisible to static per-file
-rules and belongs to `078` and to `032`'s forbidden-import question.
+fixture build is the executable backstop that covers it. A destructured
+namespace (`const { useState } = React`) is likewise unmatched: the binding
+name is a declaration, not a reference. A file whose only client-ness is
+rendering an imported client component (a Clerk widget, a pure-JSX
+presentational wrapper) is equally invisible to static per-file rules and
+belongs to `078` and to `032`'s forbidden-import question.
 
 The directive must be the built file's first **statement**, not its literal
 first line - a leading docblock or comment may sit above it.
