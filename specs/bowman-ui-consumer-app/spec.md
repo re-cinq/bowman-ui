@@ -5,7 +5,7 @@ Issue: issue 82 (`082-bowman-ui-consumer-app`)
 `examples/chat-demo` is the worked consumer: a standalone Vite + React app
 that installs `@re-cinq/bowman-ui` from a freshly packed tarball - never the
 source tree, never the registry
-([validated by](../../scripts/consumer-app.sh#L106)) - and renders a full
+([validated by](../../scripts/consumer-app.sh#L113)) - and renders a full
 Danish chat screen in a real Chromium. It proves what no jsdom test can: the
 eight extracted components in one document, compiled by a real Tailwind v4
 build, laid out by a real browser. The whole proof is one command,
@@ -24,7 +24,7 @@ are later edited without updating this spec.
 ([validated by](../../examples/chat-demo/package.json#L3)), `"type": "module"`
 and declares no `@re-cinq/bowman-ui` dependency at all - the version under
 test is always the tarball `npm pack` just produced
-([validated by](../../scripts/consumer-app.sh#L106)). `react` and `react-dom`
+([validated by](../../scripts/consumer-app.sh#L113)). `react` and `react-dom`
 are pinned at exactly `19.2.0`
 ([validated by](../../examples/chat-demo/package.json#L14)), the version
 CONTRACT.md decision 4 records as the one CI installs and the only one tested.
@@ -36,7 +36,7 @@ this pin to chase the lockfile.
 The Tailwind dependency is `tailwindcss@4.3.3` with the matching
 `@tailwindcss/vite@4.3.3` Vite adapter
 ([validated by](../../examples/chat-demo/package.json#L19),
-[L23](../../examples/chat-demo/package.json#L23)) - the same major (v4) the
+[L24](../../examples/chat-demo/package.json#L24)) - the same major (v4) the
 source app pins (Discovery `apps/web` pins `tailwindcss: ^4.1.17`) and the
 exact version this repo's own devDependencies resolve. Every demo dependency
 is an exact pin and no demo lockfile is committed
@@ -97,42 +97,52 @@ case-sensitive substring check
 `scripts/consumer-app.sh` is `chmod +x`, opens `#!/usr/bin/env bash` with
 `set -euo pipefail` ([validated by](../../scripts/consumer-app.sh#L1)), and:
 
-- builds the package, then asserts `npm pack --dry-run` lists `dist/`,
-  `package.json`, `LICENSE` and `README.md` and nothing from `examples/`,
-  `src/` or `tests/` ([validated by](../../scripts/consumer-app.sh#L51))
+- builds the package, then asserts `npm pack --dry-run` lists `dist/`
+  (including `dist/styles.css`), `package.json`, `LICENSE` and `README.md`
+  and nothing from `examples/`, `src/` or `tests/`
+  ([validated by](../../scripts/consumer-app.sh#L51))
 - packs with `npm pack --pack-destination "$TMPDIR"` (`TMPDIR` defaulted
   first, for runners that leave it unset)
   ([validated by](../../scripts/consumer-app.sh#L77))
+- asserts the committed demo manifest declares no `@re-cinq/bowman-ui`
+  dependency and the Playwright config no `executablePath`, so neither claim
+  rests on prose alone ([validated by](../../scripts/consumer-app.sh#L80))
 - copies `examples/chat-demo/` to a `mktemp -d` directory, excluding any
   local `node_modules`, `dist`, reports and lockfile so the temp tree is
-  exactly the committed demo ([validated by](../../scripts/consumer-app.sh#L92))
+  exactly the committed demo
+  ([validated by](../../scripts/consumer-app.sh#L100))
 - asserts the install directory is not inside the repo working tree and exits
   non-zero naming both paths if it is
-  ([validated by](../../scripts/consumer-app.sh#L82))
+  ([validated by](../../scripts/consumer-app.sh#L92))
 - installs the `.tgz` by file path
-  ([validated by](../../scripts/consumer-app.sh#L106)), which also matters for
-  styling: a tarball install unpacks a real directory for the `@source` scan,
-  where a `file:` directory dependency would only symlink
+  ([validated by](../../scripts/consumer-app.sh#L113)), which also matters
+  for styling: a tarball install unpacks a real directory for the `@source`
+  scan, where a `file:` directory dependency would only symlink
 - runs a `find` over the temp install's `node_modules` for the forbidden
   packages at any depth, naming the matched path on failure
-  ([validated by](../../scripts/consumer-app.sh#L109))
+  ([validated by](../../scripts/consumer-app.sh#L117))
 - runs `tsc --noEmit` in the temp copy under `"strict": true` and
   `"moduleResolution": "bundler"`
-  ([validated by](../../scripts/consumer-app.sh#L124),
+  ([validated by](../../scripts/consumer-app.sh#L132),
   [tsconfig](../../examples/chat-demo/tsconfig.json#L5))
-- runs `vite build`, installs the Chromium build matching the demo's pinned
-  `@playwright/test`, and runs the suite against `vite preview` (started by
-  Playwright's `webServer`), never `vite dev`
-  ([validated by](../../scripts/consumer-app.sh#L127),
-  [webServer](../../examples/chat-demo/playwright.config.ts#L11))
+- runs `vite build` ([validated by](../../scripts/consumer-app.sh#L135)),
+  installs the Chromium build matching the demo's pinned `@playwright/test`
+  with `--with-deps` so a Linux runner gets its system libraries from the
+  same pinned version ([validated by](../../scripts/consumer-app.sh#L138)),
+  and runs the suite against `vite preview` (started by Playwright's
+  `webServer`), never `vite dev`
+  ([validated by](../../scripts/consumer-app.sh#L141),
+  [webServer](../../examples/chat-demo/playwright.config.ts#L14))
 - removes its temp directory and tarball on exit including failure, and
   `--keep` retains both and prints their paths
   ([validated by](../../scripts/consumer-app.sh#L29)).
 
 `examples/chat-demo/playwright.config.ts` contains no `executablePath` and no
-per-user machine path of any kind
-([validated by](../../examples/chat-demo/playwright.config.ts#L1)) -
-deliberately not modeled on the source app's Playwright config.
+per-user machine path of any kind, executable-asserted on every run
+([validated by](../../scripts/consumer-app.sh#L85)) - deliberately not
+modeled on the source app's Playwright config. On CI the suite runs with one
+worker and two retries; the reply and toast timings race a contended runner
+otherwise ([validated by](../../examples/chat-demo/playwright.config.ts#L8)).
 
 ## The Playwright suite
 
@@ -173,7 +183,7 @@ One `getComputedStyle` assertion proves the consumer's Tailwind build scanned
 the installed `dist`: the `aside`'s `lg:w-72` - a class only the library's
 built files carry, never written by the demo - resolves to a computed width
 of `288px`
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L82)).
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L88)).
 
 ### Zero English
 
@@ -188,18 +198,23 @@ mobile drawer opened first so its contents are in the sweep
 ([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L166)). The
 sweep reads `textContent`, so the `display: none` desktop rail is swept too.
 
-Exemptions: none - no English default word ships anywhere in the rendered
-document. Two readings are recorded rather than exempted:
+Exemptions: none - every default string is banned, and none ships in the
+rendered document. Two readings are recorded rather than exempted:
 
 - `deleteConversation` is a function label, not a string; the sweep bans its
   output prefix `Delete conversation:` (the function applied to the empty
   string, trimmed)
   ([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L33)).
-- `noConversations`, `loadingConversations` and `deleteConversation` never
-  render in this app (the list is populated, never loading, and passes no
-  `onDelete`), so for those three keys the sweep proves absence, not
-  substitution; the Danish catalogue still overrides all three
-  ([validated by](../../examples/chat-demo/src/labels.ts#L28)).
+- Eight keys never render in the swept state - `noConversations`,
+  `loadingConversations` and `deleteConversation` (the list is populated,
+  never loading, and passes no `onDelete`), `thinking` and `thinkingRegion`
+  (`busy` is false during the sweep), and `copied`, `copiedNotice` and
+  `feedbackNotice` (no copy or feedback click precedes the capture) - so for
+  those the sweep proves absence, not substitution. The Danish catalogue
+  still overrides all of them, and the catalogue's type is the full
+  `ChatMessageListLabels`, so a key missing from the override is a compile
+  error rather than an English fallback
+  ([validated by](../../examples/chat-demo/src/labels.ts#L35)).
 
 ### EU AI Act
 
@@ -232,7 +247,7 @@ than the jsdom shim.
 `scripts/check-forbidden-imports.mjs` parses every file under `src/` with
 `ts.createSourceFile` and exits non-zero on any import, re-export, dynamic
 `import()` or `require()` of a forbidden specifier
-([validated by](../../scripts/check-forbidden-imports.mjs#L121)). The banned
+([validated by](../../scripts/check-forbidden-imports.mjs#L117)). The banned
 list is the issue's four (`@clerk/*`, `swr`, `next-intl`, `next`/`next/*`)
 plus the internal source-app scope (`@discovery/*`) and two deliberate
 supersets: `lucide-react` (CONTRACT.md decision 2) and the `@/` path alias
@@ -241,8 +256,9 @@ supersets: `lucide-react` (CONTRACT.md decision 2) and the `@/` path alias
 
 The red fixture `tests/fixtures/forbidden-imports/red.tsx` carries one import
 per banned pattern, and the script's built-in self-test fails unless every
-one of them trips before `src/` is scanned
-([validated by](../../scripts/check-forbidden-imports.mjs#L104)). The check
+individual pattern trips - a count alone would let one pattern's detection
+rot behind another's duplicate
+([validated by](../../scripts/check-forbidden-imports.mjs#L106)). The check
 runs as the named `ci.yml` step "Forbidden import check"
 ([validated by](../../.github/workflows/ci.yml#L56)). It is static on top of,
 not instead of, the dynamic `node_modules` scan in `consumer-app.sh`: a grep
@@ -281,7 +297,9 @@ this job does not run.
 - `npm pack --dry-run` ships `dist/`, `package.json`, `LICENSE`, `README.md`
   and nothing else, now executable-asserted on every consumer run
   ([validated by](../../scripts/consumer-app.sh#L60)).
-- No file under `src/` changed in this PR.
+- No file under `src/` changed in this PR - the one statement here with no
+  executable anchor: its proof is the PR diff itself, reviewable but not
+  re-runnable.
 
 ## Out of scope
 
