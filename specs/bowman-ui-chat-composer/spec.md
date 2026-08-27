@@ -132,7 +132,7 @@ key added without a default fails `npm run typecheck`, pinned by the
 compiled against `dist/`
 ([validated by](../../tests/chat-composer-dist.test.ts#L47)).
 `ChatComposer` joins the `labelsProp` partition and the sentinel render
-covers it ([validated by](../../tests/labelled-exports.test.tsx#L382)).
+covers it ([validated by](../../tests/labelled-exports.test.tsx#L430)).
 
 **Note - the two-of-three placeholder nuance.** Two of the three Discovery
 copies use the `chat.reply` placeholder (`"Svar..."` / `"Reply..."`); the

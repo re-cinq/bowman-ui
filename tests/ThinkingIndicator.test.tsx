@@ -139,3 +139,11 @@ describe("ThinkingIndicator", () => {
     });
   });
 });
+
+describe("the explicit live-region attribute (078)", () => {
+  it('the role="status" element carries an explicit aria-live="polite", the attribute ChatMessageList queries against its aria-live="off" transcript', () => {
+    render(<ThinkingIndicator />);
+
+    expect(screen.getByRole("status")).toHaveAttribute("aria-live", "polite");
+  });
+});
