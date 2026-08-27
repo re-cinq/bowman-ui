@@ -5,18 +5,25 @@ type ChangeHandler = (event: { matches: boolean }) => void;
 
 // jsdom implements no window.matchMedia at all, so the tests stub it wholesale.
 const stubMatchMedia = (matches: boolean) => {
+  const state = { matches };
   const handlers: ChangeHandler[] = [];
   const removeEventListener = vi.fn((_type: string, handler: ChangeHandler) => {
     const index = handlers.indexOf(handler);
     if (index !== -1) handlers.splice(index, 1);
   });
   const matchMedia = vi.fn(() => ({
-    matches,
+    get matches() {
+      return state.matches;
+    },
     addEventListener: (_type: string, handler: ChangeHandler) => handlers.push(handler),
     removeEventListener,
   }));
+  const emit = (next: boolean) => {
+    state.matches = next;
+    for (const handler of handlers) handler({ matches: next });
+  };
   vi.stubGlobal("matchMedia", matchMedia);
-  return { matchMedia, handlers, removeEventListener };
+  return { matchMedia, handlers, removeEventListener, emit };
 };
 
 describe("useReducedMotion", () => {
@@ -45,13 +52,13 @@ describe("useReducedMotion", () => {
   });
 
   it("follows a change event from the media query", () => {
-    const { handlers } = stubMatchMedia(false);
+    const { emit } = stubMatchMedia(false);
 
     const { result } = renderHook(() => useReducedMotion());
     expect(result.current).toBe(false);
 
     act(() => {
-      for (const handler of handlers) handler({ matches: true });
+      emit(true);
     });
     expect(result.current).toBe(true);
   });

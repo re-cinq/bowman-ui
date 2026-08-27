@@ -7,7 +7,7 @@
  * - role="img" whenever an accessible name is provided
  */
 
-import { forwardRef, type ReactNode } from "react";
+import { type ReactNode, type Ref } from "react";
 
 export interface IconSvgProps {
   className?: string;
@@ -20,28 +20,31 @@ export interface IconSvgProps {
 /**
  * Base wrapper for SVG icons with accessibility support.
  */
-export const IconWrapper = forwardRef<SVGSVGElement, IconSvgProps & { children: ReactNode }>(
-  function IconWrapper(
-    { className, children, "aria-hidden": ariaHidden, role, "aria-label": ariaLabel, ...props },
-    ref
-  ) {
-    return (
-      <svg
-        ref={ref}
-        className={className}
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-        aria-hidden={ariaHidden}
-        role={role}
-        aria-label={ariaLabel}
-        {...props}
-      >
-        {children}
-      </svg>
-    );
-  }
-);
+export function IconWrapper({
+  ref,
+  className,
+  children,
+  "aria-hidden": ariaHidden,
+  role,
+  "aria-label": ariaLabel,
+  ...props
+}: IconSvgProps & { children: ReactNode; ref?: Ref<SVGSVGElement> }) {
+  return (
+    <svg
+      ref={ref}
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+      aria-hidden={ariaHidden}
+      role={role}
+      aria-label={ariaLabel}
+      {...props}
+    >
+      {children}
+    </svg>
+  );
+}
 
 /**
  * Helper to create accessible icon props based on whether it has a label.

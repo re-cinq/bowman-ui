@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
+import type { Dispatch, SetStateAction } from "react";
 
 export interface SidebarStateOptions {
   /** Consumer-owned localStorage key prefix (e.g. "olt-"). Required so two apps on the same origin never collide. */
@@ -26,6 +27,8 @@ const writeStoredValue = (storageKey: string, value: string): void => {
   }
 };
 
+const subscribeHydration = (): (() => void) => () => {};
+
 /**
  * Hook to persist sidebar collapse state across sessions
  *
@@ -44,27 +47,60 @@ const writeStoredValue = (storageKey: string, value: string): void => {
 export function useSidebarState(key: string, options: SidebarStateOptions) {
   const { storagePrefix, defaultOpen = true } = options;
   const storageKey = `${storagePrefix}${key}`;
-  const [isOpen, setIsOpen] = useState(defaultOpen);
-  const [isHydrated, setIsHydrated] = useState(false);
 
-  // Load from localStorage on mount
+  // isHydrated flips false -> true across the server/client snapshot boundary, so
+  // consumers can tell when the persisted value has taken over without a flash.
+  const isHydrated = useSyncExternalStore(
+    subscribeHydration,
+    () => true,
+    () => false
+  );
+
+  // The stored value is an external store: getServerSnapshot yields the default
+  // (null) so server render and the first hydration render agree, then the client
+  // snapshot reads localStorage and cross-tab writes arrive via the storage event.
+  const subscribe = useCallback(
+    (onChange: () => void): (() => void) => {
+      const handler = (event: StorageEvent) => {
+        if (event.key === null || event.key === storageKey) onChange();
+      };
+      window.addEventListener("storage", handler);
+      return () => window.removeEventListener("storage", handler);
+    },
+    [storageKey]
+  );
+  const storedValue = useSyncExternalStore(
+    subscribe,
+    () => readStoredValue(storageKey),
+    () => null
+  );
+
+  const storedOpen = storedValue === null ? defaultOpen : storedValue === "true";
+
+  // Once the consumer changes the value it becomes the source of truth, so the
+  // persisted read only seeds the initial state and cross-tab updates.
+  const [userValue, setUserValue] = useState<boolean | null>(null);
+  const isOpen = userValue === null ? storedOpen : userValue;
+
+  const storedOpenRef = useRef(storedOpen);
+  storedOpenRef.current = storedOpen;
+
+  const setIsOpen = useCallback<Dispatch<SetStateAction<boolean>>>((value) => {
+    setUserValue((previous) => {
+      const current = previous === null ? storedOpenRef.current : previous;
+      return typeof value === "function" ? value(current) : value;
+    });
+  }, []);
+
+  // Persist only what the consumer changed, so a mount never clobbers the stored value.
   useEffect(() => {
-    const stored = readStoredValue(storageKey);
-    if (stored !== null) {
-      setIsOpen(stored === "true");
-    }
-    setIsHydrated(true);
-  }, [storageKey]);
+    if (userValue === null) return;
+    writeStoredValue(storageKey, String(userValue));
+  }, [userValue, storageKey]);
 
-  // Save to localStorage on change (after hydration)
-  useEffect(() => {
-    if (!isHydrated) return;
-    writeStoredValue(storageKey, String(isOpen));
-  }, [isOpen, isHydrated, storageKey]);
-
-  const toggle = useCallback(() => setIsOpen((prev) => !prev), []);
-  const open = useCallback(() => setIsOpen(true), []);
-  const close = useCallback(() => setIsOpen(false), []);
+  const toggle = useCallback(() => setIsOpen((prev) => !prev), [setIsOpen]);
+  const open = useCallback(() => setIsOpen(true), [setIsOpen]);
+  const close = useCallback(() => setIsOpen(false), [setIsOpen]);
 
   return {
     isOpen,
