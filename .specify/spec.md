@@ -2,7 +2,7 @@
 
 ## Overview
 
-**bowman-ui** is a presentational React component library providing UI building blocks for AI chat interfaces. It is extracted from an internal application and published as `@re-cinq/bowman-ui` on npm ([validated by](../tests/system-contract.test.ts#L14)). The library delivers props-driven, composable React components with no built-in authentication, data-fetching, routing, or internationalization (i18n) dependencies ([validated by](../tests/ChatMessage.test.tsx#L609), [system-contract](../tests/system-contract.test.ts#L39)). Consumers are responsible for supplying data and labels; the components render them according to received props ([validated by](../tests/labelled-exports.test.tsx#L322)).
+**bowman-ui** is a presentational React component library providing UI building blocks for AI chat interfaces. It is extracted from an internal application and published as `@re-cinq/bowman-ui` on npm ([validated by](../tests/system-contract.test.ts#L14)). The library delivers props-driven, composable React components with no built-in authentication, data-fetching, routing, or internationalization (i18n) dependencies ([validated by](../tests/ChatMessage.test.tsx#L609), [system-contract](../tests/system-contract.test.ts#L39)). Consumers are responsible for supplying data and labels; the components render them according to received props ([validated by](../tests/labelled-exports.test.tsx#L345)).
 
 **Naming convention**: HAL is the conversational engine; Bowman is the presentational face (the UI).
 
@@ -15,8 +15,8 @@
 3. **Conversation List** — Render conversation threads or chat history with selection/navigation ([validated by](../tests/ConversationList.test.tsx#L33))
 4. **App Shell** — Top-level application layout container (header, sidebar, main content area) ([validated by](../tests/AppShell.test.tsx#L22))
 5. **Props-Driven Architecture** — All behavior configured via React props; no internal state management or API calls ([validated by](../tests/ChatMessage.test.tsx#L628), [L353](../tests/ChatComposer.test.tsx#L353))
-6. **Type-Safe API** — Full TypeScript support with strict mode compliance; no implicit `any` types in public interfaces ([validated by](../tests/public-api.test.ts#L46), [system-contract](../tests/system-contract.test.ts#L52))
-7. **Accessibility** — ARIA attributes, semantic HTML, keyboard navigation, and color contrast compliance ([validated by](../tests/icons.test.tsx#L151), [L47](../tests/AppShell.test.tsx#L47), [L72](../tests/useFocusTrap.test.tsx#L72))
+6. **Type-Safe API** — Full TypeScript support with strict mode compliance; no implicit `any` types in public interfaces ([validated by](../tests/public-api.test.ts#L46), [system-contract](../tests/system-contract.test.ts#L52), [list-type-assertions](../tests/types/chat-message-list-type-assertions.tsx#L22))
+7. **Accessibility** — ARIA attributes, semantic HTML, keyboard navigation, and color contrast compliance ([validated by](../tests/icons.test.tsx#L152), [L47](../tests/AppShell.test.tsx#L47), [L72](../tests/useFocusTrap.test.tsx#L72))
 8. **ESM-Only Distribution** — Single ESM output (`"type": "module"`) targeting modern bundlers and runtimes; no CommonJS build ([validated by](../tests/system-contract.test.ts#L30))
 9. **Tree-Shakeable Exports** — Named exports enable dead-code elimination in consuming applications ([validated by](../tests/public-api.test.ts#L40))
 
@@ -71,7 +71,7 @@ Components operate on simple, consumer-supplied data structures passed via props
 
 1. **TypeScript Strict Mode** — `tsconfig.json` enforces `strict: true`; all files must compile without implicit `any`. ([validated by](../tests/system-contract.test.ts#L52))
 2. **No Console Logs in Production** — Development aids removed before distribution. ([validated by](../tests/system-contract.test.ts#L72))
-3. **Accessibility Baseline** — ARIA attributes, semantic HTML, keyboard support, and 4.5:1 color contrast minimum for text. ([validated by](../tests/icons.test.tsx#L151), [L72](../tests/useFocusTrap.test.tsx#L72))
+3. **Accessibility Baseline** — ARIA attributes, semantic HTML, keyboard support, and 4.5:1 color contrast minimum for text. ([validated by](../tests/icons.test.tsx#L152), [L72](../tests/useFocusTrap.test.tsx#L72))
 4. **Test Coverage ≥80%** — Props, prop combinations, and user interactions covered by React Testing Library tests. ([validated by](../tests/system-contract.test.ts#L59))
 5. **ESLint & Prettier Enforcement** — Consistent code formatting and linting; CI blocks merge on violations.
 

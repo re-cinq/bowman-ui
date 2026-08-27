@@ -34,6 +34,7 @@ export function ThinkingIndicator({ assistantAvatar, labels }: ThinkingIndicator
     <div
       className="flex w-full items-start gap-4"
       role="status"
+      aria-live="polite"
       aria-label={resolved.thinkingRegion}
     >
       <div
