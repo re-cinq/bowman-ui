@@ -62,6 +62,12 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: Consumer app check
         run: ./scripts/consumer-app.sh
+      # Issue 100: the App Router client-boundary proof against the tarball
+      # built from this tagged commit - the same release-candidate gate the
+      # consumer check installs. Green mode only: the --expect-failure branch
+      # guards the repo's own directives and already gated this commit in CI.
+      - name: RSC fixture check
+        run: ./scripts/rsc-fixture.sh
       # No --provenance: this repo was decided private at scaffold time
       # (decider: Loredana Moanga, 2026-08-24). a recorded decision covers
       # the exception (landing via issue 1486).
