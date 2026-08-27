@@ -27,11 +27,11 @@ component reads no clock and no locale: no `Date` constructor,
 `noConversations`, `loadingConversations`, and the function-form
 `deleteConversation: (title) => string` per CONTRACT.md § Labels decision 4
 ([validated by](../../tests/ConversationList.test.tsx#L174),
-[defaults](../../tests/labelled-exports.test.tsx#L388)). `ConversationList` sits
+[defaults](../../tests/labelled-exports.test.tsx#L436)). `ConversationList` sits
 in the `labelsProp` partition bucket and passes the
 sentinel render across its list, empty and loading states, the function label
-included ([partition](../../tests/labelled-exports.test.tsx#L56),
-[harness](../../tests/labelled-exports.test.tsx#L332)).
+included ([partition](../../tests/labelled-exports.test.tsx#L62),
+[harness](../../tests/labelled-exports.test.tsx#L374)).
 
 ## The four decisions
 

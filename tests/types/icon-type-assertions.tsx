@@ -10,10 +10,13 @@ import {
   type IconProps,
   type IconSvgProps,
 } from "@re-cinq/bowman-ui";
+import type { ReactElement } from "react";
 
 const Wrapped = (p: IconProps) => <SendIcon {...p} />;
 
 const explicitProps: IconProps = { className: "h-4 w-4", ariaLabel: "Send", strokeWidth: 1.5 };
+
+const directCall: ReactElement = SendIcon(explicitProps);
 
 const svgProps: IconSvgProps = { className: "h-4 w-4", ...getAccessibleIconProps("Send") };
 
@@ -28,5 +31,6 @@ const registryShape: IconProps = { name: "search" };
 
 void Wrapped;
 void explicitProps;
+void directCall;
 void wrapped;
 void registryShape;
