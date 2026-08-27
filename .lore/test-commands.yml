@@ -9,7 +9,7 @@
     request in .github/workflows/ci.yml as the "Test (coverage gate)" step.
     Selectors are "<repo-relative-file>::<full test name>" as emitted by the
     list command. Both commands build dist first (several tests assert the
-    built output, and one cannot even collect without it), and the run
+    built output, and one file cannot even collect without it), and the run
     command zeroes the global coverage thresholds for the single-test run,
     since the committed floor is only meaningful for the whole suite.
   list: node scripts/lore-list-tests.mjs
