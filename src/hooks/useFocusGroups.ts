@@ -2,6 +2,8 @@
 
 import { useEffect, useCallback, useRef } from "react";
 
+import { FOCUSABLE_SELECTOR } from "./focusableSelector.js";
+
 export interface FocusGroupsOptions {
   /**
    * Maps a group name to the screen-reader announcement for it.
@@ -58,17 +60,7 @@ export function useFocusGroups(options: FocusGroupsOptions = {}): void {
   }, []);
 
   const focusFirstElement = useCallback((group: HTMLElement) => {
-    // Find first focusable element within the group
-    const focusableSelector = [
-      'a[href]:not([disabled]):not([tabindex="-1"])',
-      'button:not([disabled]):not([tabindex="-1"])',
-      'input:not([disabled]):not([tabindex="-1"])',
-      'textarea:not([disabled]):not([tabindex="-1"])',
-      'select:not([disabled]):not([tabindex="-1"])',
-      '[tabindex]:not([tabindex="-1"]):not([disabled])',
-    ].join(",");
-
-    const focusable = group.querySelector<HTMLElement>(focusableSelector);
+    const focusable = group.querySelector<HTMLElement>(FOCUSABLE_SELECTOR);
     if (focusable) {
       focusable.focus();
     } else {
