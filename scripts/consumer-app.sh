@@ -45,8 +45,8 @@ cleanup() {
 }
 trap cleanup EXIT
 
-echo "==> Building @re-cinq/bowman-ui"
-npm run build
+. "$REPO_ROOT/scripts/pack-to-temp.sh"
+pack_library
 
 echo "==> Asserting npm pack ships only dist/, package.json, LICENSE and README.md"
 PACKED_FILES="$(npm pack --dry-run --json 2>/dev/null | node -e '
@@ -73,10 +73,6 @@ while IFS= read -r packed_file; do
   esac
 done <<<"$PACKED_FILES"
 
-echo "==> Packing the tarball"
-TARBALL_NAME="$(npm pack --pack-destination "$TMPDIR" | tail -n 1)"
-TARBALL_PATH="$TMPDIR/$TARBALL_NAME"
-
 echo "==> Asserting the committed demo declares no @re-cinq/bowman-ui dependency"
 if grep -q '"@re-cinq/bowman-ui"' "$REPO_ROOT/examples/chat-demo/package.json"; then
   echo "examples/chat-demo/package.json must not declare @re-cinq/bowman-ui; the tarball is the only source" >&2
@@ -87,23 +83,7 @@ if grep -q "executablePath" "$REPO_ROOT/examples/chat-demo/playwright.config.ts"
   exit 1
 fi
 
-WORK_DIR="$(mktemp -d)"
-WORK_DIR_REAL="$(cd "$WORK_DIR" && pwd -P)"
-if [[ "$WORK_DIR_REAL" == "$REPO_ROOT" || "$WORK_DIR_REAL" == "$REPO_ROOT"/* ]]; then
-  echo "Refusing to run: install directory $WORK_DIR_REAL is inside the repo tree $REPO_ROOT" >&2
-  exit 1
-fi
-echo "==> Installing into $WORK_DIR_REAL (outside $REPO_ROOT)"
-
-APP_DIR="$WORK_DIR/chat-demo"
-mkdir -p "$APP_DIR"
-tar -C "$REPO_ROOT/examples/chat-demo" \
-  --exclude node_modules \
-  --exclude dist \
-  --exclude test-results \
-  --exclude playwright-report \
-  --exclude package-lock.json \
-  -cf - . | tar -xf - -C "$APP_DIR"
+copy_example_to_temp chat-demo
 
 cd "$APP_DIR"
 
@@ -114,6 +94,9 @@ echo "==> Installing the packed tarball by file path"
 npm install --no-fund --no-audit "$TARBALL_PATH"
 
 echo "==> Scanning the installed node_modules for forbidden packages"
+# CONTRACT.md § RSC fixture: examples/rsc-fixture is the one path in the repo
+# where next may appear. This scan covers the Vite consumer's installed tree,
+# where next stays banned; the scan itself is unchanged by that exemption.
 FORBIDDEN_MATCHES="$(find "$APP_DIR/node_modules" \( -type d -o -type l \) \( \
   -path "*/node_modules/next" -o \
   -path "*/node_modules/next-intl" -o \
