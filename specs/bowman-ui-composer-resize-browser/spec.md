@@ -24,8 +24,9 @@ also track `(../)+examples/*/tests/*.ts(x)` anchors
 ([regex](../../scripts/repoint-spec-anchors.mjs#L39)), so this spec's links
 into `examples/chat-demo/tests/chat-demo.spec.ts` are repointed by CI like
 any `tests/` anchor. The widened check ran clean over the pre-existing
-consumer-app spec (591 anchors up to date, 0 stale, 0 rotten). Links into
-`scripts/` and workflow files remain plain GitHub links CI never repoints.
+consumer-app spec (21 newly tracked anchors there; 591 up to date repo-wide,
+0 stale, 0 rotten). Links into `scripts/`, `vitest.config.ts` and workflow
+files remain plain GitHub links CI never repoints.
 
 ## Baseline
 
