@@ -103,7 +103,7 @@ if [ "$EXPECT_FAILURE" -eq 1 ]; then
   npm install --no-fund --no-audit "$MUTATED_TARBALL"
   rm -rf .next
   echo "==> Expecting next build to fail on the directive-stripped ChatMessage"
-  if npx next build >"$WORK_DIR/expect-failure-build.log" 2>&1; then
+  if ./node_modules/.bin/next build >"$WORK_DIR/expect-failure-build.log" 2>&1; then
     echo "next build succeeded although dist/components/ChatMessage.js lost its use client directive" >&2
     cat "$WORK_DIR/expect-failure-build.log" >&2
     exit 1
@@ -126,7 +126,7 @@ echo "==> Installing the packed tarball by file path"
 npm install --no-fund --no-audit "$TARBALL_PATH"
 
 echo "==> Building the fixture with next build"
-npx next build
+./node_modules/.bin/next build
 
 PORT=4319
 echo "==> Starting next start on port $PORT"
