@@ -36,7 +36,7 @@ import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, normalize } from "node:path";
 import process from "node:process";
 
-const ANCHOR = /((?:\.\.\/)+tests\/[\w./-]+\.(?:tsx|ts))#L(\d+)/g;
+const ANCHOR = /((?:\.\.\/)+(?:examples\/[\w-]+\/)?tests\/[\w./-]+\.(?:tsx|ts))#L(\d+)/g;
 
 const args = process.argv.slice(2);
 const flags = args.filter((arg) => arg.startsWith("--"));
