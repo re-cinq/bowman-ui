@@ -55,6 +55,13 @@ jobs:
       # gate before an immutable publish; the explicit build stays.
       - name: Build
         run: npm run build
+      # Issue 82: the last executable proof before the package goes public and
+      # immutable - the packed tarball from this tagged commit must render the
+      # full chat screen in the standalone Vite consumer.
+      - name: Install chromium for the consumer check
+        run: npx playwright install --with-deps chromium
+      - name: Consumer app check
+        run: ./scripts/consumer-app.sh
       # No --provenance: this repo was decided private at scaffold time
       # (decider: Loredana Moanga, 2026-08-24). a recorded decision covers
       # the exception (landing via issue 1486).

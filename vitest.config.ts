@@ -1,5 +1,5 @@
 import react from "@vitejs/plugin-react";
-import { defineConfig } from "vitest/config";
+import { configDefaults, defineConfig } from "vitest/config";
 
 export default defineConfig({
   plugins: [react()],
@@ -7,6 +7,9 @@ export default defineConfig({
     globals: true,
     environment: "jsdom",
     setupFiles: ["tests/setup.ts"],
+    // examples/chat-demo's Playwright suite matches the default spec glob but
+    // runs under Playwright inside scripts/consumer-app.sh, never under vitest.
+    exclude: [...configDefaults.exclude, "examples/**"],
     coverage: {
       provider: "v8",
       include: ["src/**"],

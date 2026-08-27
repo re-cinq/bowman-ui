@@ -3,8 +3,8 @@
 # YAML) and used Jest flags this Vitest repo does not understand.
 #
 # One entry today: the Vitest jsdom suite. The real-browser consumer suite
-# arrives with the Vite consumer app (issue 032) and is added here by issue
-# 189's completion PR - it does not exist yet, so nothing is being excluded.
+# now exists (examples/chat-demo, issue 082, run via scripts/consumer-app.sh)
+# and is wired into this interface by issue 189's completion PR.
 - id: bowman-ui-vitest
   name: bowman-ui Vitest suite
   cwd: .
