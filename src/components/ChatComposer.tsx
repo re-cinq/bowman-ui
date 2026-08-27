@@ -1,13 +1,13 @@
 "use client";
 
 import {
-  forwardRef,
   useImperativeHandle,
   useRef,
   useState,
   type ChangeEvent,
   type KeyboardEvent,
   type ReactNode,
+  type Ref,
 } from "react";
 import { SendIcon } from "../icons/index.js";
 import { resolveLabels } from "../labels.js";
@@ -53,18 +53,16 @@ export interface ChatComposerHandle {
 // ref handle covers - and the Enter-to-send path adds the isComposing
 // guard all three inline copies lack, so committing an IME candidate no
 // longer sends a half-finished message.
-export const ChatComposer = forwardRef<ChatComposerHandle, ChatComposerProps>(function ChatComposer(
-  {
-    onSubmit,
-    busy = false,
-    disabled = false,
-    autoFocus = false,
-    maxHeightPx = 200,
-    attachSlot,
-    labels,
-  },
-  ref
-) {
+export function ChatComposer({
+  onSubmit,
+  busy = false,
+  disabled = false,
+  autoFocus = false,
+  maxHeightPx = 200,
+  attachSlot,
+  labels,
+  ref,
+}: ChatComposerProps & { ref?: Ref<ChatComposerHandle> }) {
   const resolved = resolveLabels(defaultChatComposerLabels, labels);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [hasDraft, setHasDraft] = useState(false);
@@ -146,4 +144,4 @@ export const ChatComposer = forwardRef<ChatComposerHandle, ChatComposerProps>(fu
       </div>
     </div>
   );
-});
+}
