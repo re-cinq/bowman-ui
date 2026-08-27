@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useCallback, type RefObject } from "react";
 
+import { FOCUSABLE_SELECTOR } from "./focusableSelector.js";
+
 /**
  * Hook to trap focus within a container (for modals, drawers, dialogs)
  *
@@ -37,22 +39,15 @@ export function useFocusTrap<T extends HTMLElement = HTMLDivElement>(
   const getFocusableElements = useCallback((): HTMLElement[] => {
     if (!containerRef.current) return [];
 
-    const selector = [
-      'a[href]:not([disabled]):not([tabindex="-1"])',
-      'button:not([disabled]):not([tabindex="-1"])',
-      'textarea:not([disabled]):not([tabindex="-1"])',
-      'input:not([disabled]):not([tabindex="-1"])',
-      'select:not([disabled]):not([tabindex="-1"])',
-      '[tabindex]:not([tabindex="-1"]):not([disabled])',
-    ].join(",");
-
     // checkVisibility with visibilityProperty tests display:none subtrees and
     // visibility:hidden - the states that also remove an element from the tab
     // order. Opacity stays untested on purpose: opacity-0 elements remain
     // tabbable in browsers (this package's own reveal-on-focus buttons rely
     // on that). The offsetParent fallback misreports fixed-position
     // descendants as hidden but is all older engines offer.
-    return Array.from(containerRef.current.querySelectorAll<HTMLElement>(selector)).filter((el) =>
+    return Array.from(
+      containerRef.current.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)
+    ).filter((el) =>
       typeof el.checkVisibility === "function"
         ? el.checkVisibility({ visibilityProperty: true })
         : el.offsetParent !== null
