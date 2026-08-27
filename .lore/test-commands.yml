@@ -1,10 +1,6 @@
 # Lore test-command interface (lore_list_tests / lore_run_test).
 # Replaces the onboarding-generated draft, which was fenced markdown (invalid
 # YAML) and used Jest flags this Vitest repo does not understand.
-#
-# One entry today: the Vitest jsdom suite. The real-browser consumer suite
-# now exists (examples/chat-demo, issue 082, run via scripts/consumer-app.sh)
-# and is wired into this interface by issue 189's completion PR.
 - id: bowman-ui-vitest
   name: bowman-ui Vitest suite
   cwd: .
@@ -12,10 +8,30 @@
     The jsdom unit/contract suite (Vitest 4, coverage-v8). Runs on every pull
     request in .github/workflows/ci.yml as the "Test (coverage gate)" step.
     Selectors are "<repo-relative-file>::<full test name>" as emitted by the
-    list command. The run command builds dist first (several tests assert the
-    built output) and zeroes the global coverage thresholds for the
-    single-test run, since the committed floor is only meaningful for the
-    whole suite.
+    list command. Both commands build dist first (several tests assert the
+    built output, and one cannot even collect without it), and the run
+    command zeroes the global coverage thresholds for the single-test run,
+    since the committed floor is only meaningful for the whole suite.
   list: node scripts/lore-list-tests.mjs
   run: node scripts/lore-run-test.mjs "{selector}"
   coverage_format: lcov
+- id: bowman-ui-consumer
+  name: bowman-ui browser consumer suite
+  cwd: .
+  description: >-
+    The real-browser consumer suite (examples/chat-demo, Playwright against
+    Chromium). scripts/consumer-app.sh builds and packs the library, installs
+    the tarball into a temp copy of examples/chat-demo outside the repo tree,
+    typechecks and vite-builds it, and runs the Playwright suite against vite
+    preview - it exercises the packed tarball rather than the working tree.
+    Needs Chromium: the run itself executes "npx playwright install
+    --with-deps chromium" before the tests (on Linux --with-deps also installs
+    OS packages), and CI runs that same command as a separate step first. The
+    suite runs whole: a {selector} is accepted and ignored - the run command
+    contains no placeholder, so nothing is interpolated, and the script takes
+    no argument but --keep. No list command, since the suite is not
+    addressable per-test through this interface, and no coverage_format,
+    since the Playwright run against a preview build produces no coverage.
+    Runs on every pull request as the "consumer" job in
+    .github/workflows/ci.yml.
+  run: npm run consumer
