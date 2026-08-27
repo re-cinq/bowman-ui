@@ -164,8 +164,8 @@ renders as alt text
 - **The factory sits in the `labelsProp` partition bucket** with its own
   sentinel harness and key-coverage test (CONTRACT.md § Labels records the
   shape; Toast's closed-list precedent)
-  ([validated by](../../tests/labelled-exports.test.tsx#L275),
-  [L349](../../tests/labelled-exports.test.tsx#L355)). `ChatMessage`'s
+  ([validated by](../../tests/labelled-exports.test.tsx#L317),
+  [L349](../../tests/labelled-exports.test.tsx#L397)). `ChatMessage`'s
   sentinel harness renders a numeric-text link so the notice label reaches
   the checked DOM.
 - **Amendments to merged criteria, per the issue:** `ChatMessageProps` gains

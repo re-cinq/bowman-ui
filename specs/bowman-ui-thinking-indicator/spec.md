@@ -135,3 +135,11 @@ shipped layout since 022
   ([validated by](../../tests/ThinkingIndicator.test.tsx#L127)).
 - `npm pack --dry-run` ships both built files with their `d.ts` counterparts
   ([validated by](../../tests/thinking-indicator-dist.test.ts#L38)).
+
+## Amended by 078
+
+The `role="status"` element now carries an explicit `aria-live="polite"` -
+the ARIA-canonical spelling of the role's implicit value - so
+`ChatMessageList` can query the live-region override as an attribute inside
+its `aria-live="off"` transcript
+([validated by](../../tests/ThinkingIndicator.test.tsx#L144)).
