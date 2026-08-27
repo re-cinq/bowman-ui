@@ -98,6 +98,8 @@ export default [
       "examples/chat-demo/dist/**",
       "examples/chat-demo/test-results/**",
       "examples/chat-demo/playwright-report/**",
+      "examples/rsc-fixture/.next/**",
+      "examples/rsc-fixture/next-env.d.ts",
     ],
   },
 ];
