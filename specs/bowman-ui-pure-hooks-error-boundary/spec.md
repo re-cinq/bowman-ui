@@ -22,18 +22,18 @@ exports entry for a consumer ([validated by](../../tests/hooks-dist.test.ts#L65)
 - `useReducedMotion(override?: boolean)` — the `process.env.NEXT_PUBLIC_FLAG_ANIMATIONS` read is
   gone; a boolean override returns as-is without consulting `matchMedia`, and with no override
   the hook tracks `prefers-reduced-motion: reduce` including change events and listener cleanup
-  ([validated by](../../tests/useReducedMotion.test.tsx#L27),
-  [L47](../../tests/useReducedMotion.test.tsx#L47),
-  [L59](../../tests/useReducedMotion.test.tsx#L59),
-  [L79](../../tests/useReducedMotion.test.tsx#L79)).
+  ([validated by](../../tests/useReducedMotion.test.tsx#L34),
+  [L47](../../tests/useReducedMotion.test.tsx#L54),
+  [L59](../../tests/useReducedMotion.test.tsx#L66),
+  [L79](../../tests/useReducedMotion.test.tsx#L86)).
 - `useSidebarState(key, {storagePrefix, defaultOpen})` — the `discovery-sidebar-` literal became a
   required `storagePrefix` with no default; the stored key is `${storagePrefix}${key}`, a stored
   value wins over `defaultOpen`, and storage access
   that throws degrades to in-memory state instead of crashing. Omitting `storagePrefix` does not
   compile, via `tests/types/hooks-type-assertions.tsx`
-  ([validated by](../../tests/useSidebarState.test.tsx#L27),
-  [L51](../../tests/useSidebarState.test.tsx#L51),
-  [L59](../../tests/useSidebarState.test.tsx#L59),
+  ([validated by](../../tests/useSidebarState.test.tsx#L33),
+  [L51](../../tests/useSidebarState.test.tsx#L57),
+  [L59](../../tests/useSidebarState.test.tsx#L65),
   [types](../../tests/hooks-dist.test.ts#L28)).
 - `useFocusTrap` — verbatim: first-element focus on open, Tab/Shift+Tab wrap at the ends while
   focus is inside, and pull focus back to an end when it sits outside the open trap (the
