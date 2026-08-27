@@ -100,13 +100,14 @@ case-sensitive substring check
 `scripts/pack-to-temp.sh`, sourced by this script and `rsc-fixture.sh` alike -
 see `specs/bowman-ui-rsc-fixture/spec.md`):
 
-- builds the package, then asserts `npm pack --dry-run` lists `dist/`
-  (including `dist/styles.css`), `package.json`, `LICENSE` and `README.md`
-  and nothing from `examples/`, `src/` or `tests/`
-  ([validated by](../../scripts/consumer-app.sh#L51))
-- packs with `npm pack --pack-destination "$TMPDIR"` (`TMPDIR` defaulted
-  first, for runners that leave it unset)
+- builds and packs the package through `pack_library`, which runs
+  `npm run build` then `npm pack --pack-destination "$TMPDIR"` (`TMPDIR`
+  defaulted first, for runners that leave it unset)
   ([validated by](../../scripts/pack-to-temp.sh#L7))
+- then asserts `npm pack --dry-run` lists `dist/` (including
+  `dist/styles.css`), `package.json`, `LICENSE` and `README.md` and nothing
+  from `examples/`, `src/` or `tests/`
+  ([validated by](../../scripts/consumer-app.sh#L51))
 - asserts the committed demo manifest declares no `@re-cinq/bowman-ui`
   dependency and the Playwright config no `executablePath`, so neither claim
   rests on prose alone ([validated by](../../scripts/consumer-app.sh#L76))
@@ -121,9 +122,11 @@ see `specs/bowman-ui-rsc-fixture/spec.md`):
   ([validated by](../../scripts/consumer-app.sh#L93)), which also matters
   for styling: a tarball install unpacks a real directory for the `@source`
   scan, where a `file:` directory dependency would only symlink
-- runs a `find` over the temp install's `node_modules` for the forbidden
-  packages at any depth, naming the matched path on failure
-  ([validated by](../../scripts/consumer-app.sh#L100))
+- runs `scripts/scan-forbidden-node-modules.sh` (issue 100 extracted the
+  `find` from this script so the `rsc` CI job could share one copy) over the
+  temp install's `node_modules` for the forbidden packages at any depth,
+  naming the matched path on failure
+  ([validated by](../../scripts/scan-forbidden-node-modules.sh#L14))
 - runs `tsc --noEmit` in the temp copy under `"strict": true` and
   `"moduleResolution": "bundler"`
   ([validated by](../../scripts/consumer-app.sh#L115),

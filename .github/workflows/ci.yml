@@ -137,17 +137,4 @@ jobs:
       # find against this job's repo install proves the exemption stays
       # scoped to examples/rsc-fixture.
       - name: node_modules scan (unchanged, beside the fixture)
-        run: |
-          FORBIDDEN_MATCHES="$(find "$PWD/node_modules" \( -type d -o -type l \) \( \
-            -path "*/node_modules/next" -o \
-            -path "*/node_modules/next-intl" -o \
-            -path "*/node_modules/swr" -o \
-            -path "*/node_modules/lucide-react" -o \
-            -path "*/node_modules/@clerk" -o \
-            -path "*/node_modules/@discovery" \
-            \))"
-          if [ -n "$FORBIDDEN_MATCHES" ]; then
-            echo "Forbidden package found in the installed tree:" >&2
-            echo "$FORBIDDEN_MATCHES" >&2
-            exit 1
-          fi
+        run: ./scripts/scan-forbidden-node-modules.sh "$PWD/node_modules"

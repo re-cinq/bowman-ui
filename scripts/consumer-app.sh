@@ -94,22 +94,7 @@ echo "==> Installing the packed tarball by file path"
 npm install --no-fund --no-audit "$TARBALL_PATH"
 
 echo "==> Scanning the installed node_modules for forbidden packages"
-# CONTRACT.md § RSC fixture: examples/rsc-fixture is the one path in the repo
-# where next may appear. This scan covers the Vite consumer's installed tree,
-# where next stays banned; the scan itself is unchanged by that exemption.
-FORBIDDEN_MATCHES="$(find "$APP_DIR/node_modules" \( -type d -o -type l \) \( \
-  -path "*/node_modules/next" -o \
-  -path "*/node_modules/next-intl" -o \
-  -path "*/node_modules/swr" -o \
-  -path "*/node_modules/lucide-react" -o \
-  -path "*/node_modules/@clerk" -o \
-  -path "*/node_modules/@discovery" \
-  \))"
-if [ -n "$FORBIDDEN_MATCHES" ]; then
-  echo "Forbidden package found in the installed tree:" >&2
-  echo "$FORBIDDEN_MATCHES" >&2
-  exit 1
-fi
+"$REPO_ROOT/scripts/scan-forbidden-node-modules.sh" "$APP_DIR/node_modules"
 
 echo "==> Typechecking the consumer (strict, moduleResolution bundler)"
 npm run typecheck

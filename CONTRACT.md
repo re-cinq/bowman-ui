@@ -385,8 +385,9 @@ App Router build compiling the packed tarball with Turbopack. It is the
 import. The three checks that keep `next` out everywhere else are unchanged
 by this exemption and say so where they run: `check-forbidden-imports.mjs`
 reads `src/` only, the "next must be absent" CI step reads the repo root
-only, and `consumer-app.sh`'s node_modules scan reads the Vite consumer's
-installed tree. All three run beside the fixture in the `rsc` CI job. A
+only, and `scan-forbidden-node-modules.sh` (shared by `consumer-app.sh` and
+the `rsc` job) reads the given install tree. All three run beside the fixture
+in the `rsc` CI job. A
 future edit that widens this exemption beyond `examples/rsc-fixture` must
 amend this section first.
 
