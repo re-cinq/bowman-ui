@@ -1,6 +1,9 @@
 node_modules/
 dist/
 coverage/
+test-results/
+playwright-report/
+examples/chat-demo/package-lock.json
 
 # Claude Code local artifacts. Prettier 3 reads this file, so listing them
 # here keeps `prettier --check .` green for any contributor running Claude
