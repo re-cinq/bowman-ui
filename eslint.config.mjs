@@ -89,6 +89,15 @@ export default [
     },
   },
   {
-    ignores: ["dist/**", "coverage/**", "node_modules/**", "tests/fixtures/eslint-labels/**"],
+    ignores: [
+      "dist/**",
+      "coverage/**",
+      "node_modules/**",
+      "tests/fixtures/eslint-labels/**",
+      "tests/fixtures/forbidden-imports/**",
+      "examples/chat-demo/dist/**",
+      "examples/chat-demo/test-results/**",
+      "examples/chat-demo/playwright-report/**",
+    ],
   },
 ];

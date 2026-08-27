@@ -1,0 +1,661 @@
+import { act, fireEvent, render, screen, within } from "@testing-library/react";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
+import { createRef } from "react";
+import {
+  ChatMessageList,
+  defaultChatMessageLabels,
+  defaultChatMessageListLabels,
+  defaultThinkingIndicatorLabels,
+} from "../src/index.js";
+import type { AssistantChatEntry, ChatMessageListHandle, UserChatEntry } from "../src/index.js";
+
+const aiDisclosure = "Du chatter med en AI-assistent";
+
+const userEntry = (id: string, content: string): UserChatEntry => ({
+  id,
+  role: "user",
+  content,
+});
+
+const assistantEntry = (id: string, content: string): AssistantChatEntry => ({
+  id,
+  role: "assistant",
+  content,
+  isStreaming: false,
+});
+
+const twoEntries = [
+  userEntry("u1", "Vis booking 4711"),
+  assistantEntry("a1", "Booking 4711 er fundet"),
+];
+
+const threeEntries = [...twoEntries, assistantEntry("a2", "Andet svar")];
+
+// jsdom performs no layout: Element.prototype has no scrollTo (nor
+// scrollIntoView), and scrollHeight/clientHeight read 0. The stubs below
+// exist because of that - the prototype stub makes scrollTo observable at
+// all, and the geometry stubs make the pinning arithmetic non-trivial.
+let scrollToMock: ReturnType<typeof vi.fn>;
+
+const installScrollTo = () => {
+  scrollToMock = vi.fn();
+  Object.defineProperty(HTMLElement.prototype, "scrollTo", {
+    configurable: true,
+    writable: true,
+    value: scrollToMock,
+  });
+};
+
+const installMountGeometry = () => {
+  Object.defineProperty(HTMLElement.prototype, "scrollHeight", {
+    configurable: true,
+    get: () => 1200,
+  });
+  Object.defineProperty(HTMLElement.prototype, "clientHeight", {
+    configurable: true,
+    get: () => 400,
+  });
+};
+
+afterEach(() => {
+  Reflect.deleteProperty(HTMLElement.prototype, "scrollTo");
+  Reflect.deleteProperty(HTMLElement.prototype, "scrollHeight");
+  Reflect.deleteProperty(HTMLElement.prototype, "clientHeight");
+});
+
+const stubGeometry = (
+  element: Element,
+  { scrollHeight = 1200, clientHeight = 400 }: { scrollHeight?: number; clientHeight?: number } = {}
+) => {
+  Object.defineProperty(element, "scrollHeight", { configurable: true, value: scrollHeight });
+  Object.defineProperty(element, "clientHeight", { configurable: true, value: clientHeight });
+};
+
+const regionOf = () => screen.getByRole("log");
+
+describe("ChatMessageList", () => {
+  describe("the empty state", () => {
+    it("entries [] with busy false renders greeting and prompts and no ChatMessage", () => {
+      render(
+        <ChatMessageList
+          entries={[]}
+          userInitials="LM"
+          labels={{ aiDisclosure }}
+          greeting={<div data-testid="greeting">God morgen</div>}
+          prompts={<div data-testid="prompts">Se min booking</div>}
+        />
+      );
+
+      expect(screen.getByTestId("greeting")).toBeInTheDocument();
+      expect(screen.getByTestId("prompts")).toBeInTheDocument();
+      expect(screen.queryByRole("article")).not.toBeInTheDocument();
+    });
+
+    it("one entry renders the transcript and neither slot", () => {
+      render(
+        <ChatMessageList
+          entries={[userEntry("u1", "Vis booking 4711")]}
+          userInitials="LM"
+          labels={{ aiDisclosure }}
+          greeting={<div data-testid="greeting">God morgen</div>}
+          prompts={<div data-testid="prompts">Se min booking</div>}
+        />
+      );
+
+      expect(screen.getByRole("article")).toBeInTheDocument();
+      expect(screen.queryByTestId("greeting")).not.toBeInTheDocument();
+      expect(screen.queryByTestId("prompts")).not.toBeInTheDocument();
+    });
+
+    it("entries [] with busy true renders the indicator instead of the slots", () => {
+      render(
+        <ChatMessageList
+          entries={[]}
+          userInitials="LM"
+          busy
+          labels={{ aiDisclosure }}
+          greeting={<div data-testid="greeting">God morgen</div>}
+        />
+      );
+
+      expect(screen.getByRole("status")).toBeInTheDocument();
+      expect(screen.queryByTestId("greeting")).not.toBeInTheDocument();
+    });
+  });
+
+  describe("the AI disclosure", () => {
+    it("renders the resolved aiDisclosure outside the role=log region in both states", () => {
+      const empty = render(
+        <ChatMessageList entries={[]} userInitials="LM" labels={{ aiDisclosure }} />
+      );
+      expect(within(empty.container).getByText(aiDisclosure)).toBeInTheDocument();
+      expect(empty.getByRole("log").contains(empty.getByText(aiDisclosure))).toBe(false);
+      empty.unmount();
+
+      const filled = render(
+        <ChatMessageList entries={twoEntries} userInitials="LM" labels={{ aiDisclosure }} />
+      );
+      expect(within(filled.container).getByText(aiDisclosure)).toBeInTheDocument();
+      expect(filled.getByRole("log").contains(filled.getByText(aiDisclosure))).toBe(false);
+    });
+
+    it("stays rendered with every optional prop set to false or undefined", () => {
+      render(
+        <ChatMessageList
+          entries={[]}
+          userInitials="LM"
+          labels={{ aiDisclosure }}
+          assistantAvatar={undefined}
+          busy={false}
+          greeting={undefined}
+          prompts={undefined}
+          showFeedback={false}
+          arrowKeyFeedback={false}
+          markdown={undefined}
+          reducedMotion={false}
+          onCopy={undefined}
+          onFeedback={undefined}
+        />
+      );
+
+      expect(screen.getByText(aiDisclosure)).toBeInTheDocument();
+    });
+
+    it("labels with only aiDisclosure resolves every other label to its default", () => {
+      render(<ChatMessageList entries={twoEntries} userInitials="LM" labels={{ aiDisclosure }} />);
+
+      expect(screen.getByRole("log")).toHaveAccessibleName("Conversation");
+      expect(screen.getByRole("button", { name: "Copy message" })).toBeInTheDocument();
+    });
+
+    it("defaultChatMessageListLabels is frozen, carries no aiDisclosure, and unions the inherited defaults with transcript", () => {
+      expect(Object.isFrozen(defaultChatMessageListLabels)).toBe(true);
+      expect(defaultChatMessageListLabels).toEqual({
+        ...defaultChatMessageLabels,
+        ...defaultThinkingIndicatorLabels,
+        transcript: "Conversation",
+      });
+      expect(Object.keys(defaultChatMessageListLabels)).not.toContain("aiDisclosure");
+    });
+  });
+
+  describe("forwarding to ChatMessage", () => {
+    it("two entries render two ChatMessages in entries order and copy on the second reports that entry's id", () => {
+      const onCopy = vi.fn();
+      const entries = [assistantEntry("a1", "Første svar"), assistantEntry("a2", "Andet svar")];
+      render(
+        <ChatMessageList
+          entries={entries}
+          userInitials="LM"
+          labels={{ aiDisclosure }}
+          onCopy={onCopy}
+        />
+      );
+
+      const articles = screen.getAllByRole("article");
+      expect(articles).toHaveLength(2);
+      expect(articles[0]).toHaveTextContent("Første svar");
+      expect(articles[1]).toHaveTextContent("Andet svar");
+
+      fireEvent.click(within(articles[1]).getByRole("button", { name: "Copy message" }));
+
+      expect(onCopy).toHaveBeenCalledExactlyOnceWith("Andet svar", "a2");
+    });
+
+    it("userInitials, showFeedback and arrowKeyFeedback pass through unchanged", () => {
+      const onFeedback = vi.fn();
+      const { rerender } = render(
+        <ChatMessageList
+          entries={twoEntries}
+          userInitials="LM"
+          labels={{ aiDisclosure }}
+          showFeedback={false}
+        />
+      );
+
+      expect(screen.getByText("LM")).toBeInTheDocument();
+      expect(screen.queryByRole("button", { name: "Good response" })).not.toBeInTheDocument();
+
+      rerender(
+        <ChatMessageList
+          entries={twoEntries}
+          userInitials="LM"
+          labels={{ aiDisclosure }}
+          arrowKeyFeedback
+          onFeedback={onFeedback}
+        />
+      );
+      fireEvent.keyDown(screen.getAllByRole("article")[1], { key: "ArrowUp" });
+
+      expect(onFeedback).toHaveBeenCalledExactlyOnceWith("a1", "up");
+    });
+
+    it("the markdown policy forwards to the assistant markdown", () => {
+      const entries = [assistantEntry("a1", "[42](https://4711.example/42)")];
+      const { rerender } = render(
+        <ChatMessageList entries={entries} userInitials="LM" labels={{ aiDisclosure }} />
+      );
+      expect(screen.getByRole("link", { name: /42/ })).toHaveAttribute("target", "_blank");
+
+      rerender(
+        <ChatMessageList
+          entries={entries}
+          userInitials="LM"
+          labels={{ aiDisclosure }}
+          markdown={{ linkTarget: "_self" }}
+        />
+      );
+      expect(screen.getByRole("link", { name: /42/ })).not.toHaveAttribute("target");
+    });
+
+    it("assistantAvatar reaches both the message circle and the busy indicator", () => {
+      render(
+        <ChatMessageList
+          entries={[assistantEntry("a1", "Svar")]}
+          userInitials="LM"
+          busy
+          labels={{ aiDisclosure }}
+          assistantAvatar={<span data-testid="mark">4711</span>}
+        />
+      );
+
+      expect(screen.getAllByTestId("mark")).toHaveLength(2);
+      expect(within(screen.getByRole("status")).getByTestId("mark")).toBeInTheDocument();
+    });
+
+    it("entries are keyed by entry.id: reordering moves the same DOM nodes", () => {
+      const first = assistantEntry("a1", "Første svar");
+      const second = assistantEntry("a2", "Andet svar");
+      const { rerender } = render(
+        <ChatMessageList entries={[first, second]} userInitials="LM" labels={{ aiDisclosure }} />
+      );
+      const secondNode = screen.getAllByRole("article")[1];
+
+      rerender(
+        <ChatMessageList entries={[second, first]} userInitials="LM" labels={{ aiDisclosure }} />
+      );
+
+      expect(screen.getAllByRole("article")[0]).toBe(secondNode);
+    });
+  });
+
+  describe("busy", () => {
+    it("busy renders exactly one ThinkingIndicator after the last entry", () => {
+      render(
+        <ChatMessageList entries={twoEntries} userInitials="LM" busy labels={{ aiDisclosure }} />
+      );
+
+      const indicators = screen.getAllByRole("status");
+      expect(indicators).toHaveLength(1);
+      const articles = screen.getAllByRole("article");
+      const lastArticle = articles[articles.length - 1];
+      expect(
+        lastArticle.compareDocumentPosition(indicators[0]) & Node.DOCUMENT_POSITION_FOLLOWING
+      ).toBeTruthy();
+    });
+
+    it("busy false renders no ThinkingIndicator", () => {
+      render(<ChatMessageList entries={twoEntries} userInitials="LM" labels={{ aiDisclosure }} />);
+
+      expect(screen.queryByRole("status")).not.toBeInTheDocument();
+    });
+
+    it("forwards the thinking and thinkingRegion labels to the indicator", () => {
+      render(
+        <ChatMessageList
+          entries={twoEntries}
+          userInitials="LM"
+          busy
+          labels={{ aiDisclosure, thinking: "Tænker", thinkingRegion: "Indlæser svar" }}
+        />
+      );
+
+      expect(screen.getByRole("status")).toHaveAccessibleName("Indlæser svar");
+      expect(within(screen.getByRole("status")).getByText("Tænker")).toBeInTheDocument();
+    });
+  });
+
+  describe("auto-scroll", () => {
+    it("pinned at 1200/400/800, appending an entry calls scrollTo with top 1200 and behavior smooth", () => {
+      installScrollTo();
+      const { rerender } = render(
+        <ChatMessageList entries={twoEntries} userInitials="LM" labels={{ aiDisclosure }} />
+      );
+      stubGeometry(regionOf());
+      regionOf().scrollTop = 800;
+      scrollToMock.mockClear();
+
+      rerender(
+        <ChatMessageList entries={threeEntries} userInitials="LM" labels={{ aiDisclosure }} />
+      );
+
+      expect(scrollToMock).toHaveBeenCalledExactlyOnceWith({ top: 1200, behavior: "smooth" });
+    });
+
+    it("unpinned after a scroll event at scrollTop 100, appending an entry calls scrollTo zero times", () => {
+      installScrollTo();
+      const { rerender } = render(
+        <ChatMessageList entries={twoEntries} userInitials="LM" labels={{ aiDisclosure }} />
+      );
+      stubGeometry(regionOf());
+      regionOf().scrollTop = 100;
+      fireEvent.scroll(regionOf());
+      scrollToMock.mockClear();
+
+      rerender(
+        <ChatMessageList entries={threeEntries} userInitials="LM" labels={{ aiDisclosure }} />
+      );
+
+      expect(scrollToMock).toHaveBeenCalledTimes(0);
+    });
+
+    it("a scroll event back to the bottom re-pins and the next append scrolls smooth again", () => {
+      installScrollTo();
+      const { rerender } = render(
+        <ChatMessageList entries={twoEntries} userInitials="LM" labels={{ aiDisclosure }} />
+      );
+      stubGeometry(regionOf());
+      regionOf().scrollTop = 100;
+      fireEvent.scroll(regionOf());
+      regionOf().scrollTop = 800;
+      fireEvent.scroll(regionOf());
+      scrollToMock.mockClear();
+
+      rerender(
+        <ChatMessageList entries={threeEntries} userInitials="LM" labels={{ aiDisclosure }} />
+      );
+
+      expect(scrollToMock).toHaveBeenCalledExactlyOnceWith({ top: 1200, behavior: "smooth" });
+    });
+
+    it("growing the last entry's content without changing entries.length scrolls with behavior auto", () => {
+      installScrollTo();
+      const { rerender } = render(
+        <ChatMessageList entries={twoEntries} userInitials="LM" labels={{ aiDisclosure }} />
+      );
+      stubGeometry(regionOf());
+      scrollToMock.mockClear();
+
+      rerender(
+        <ChatMessageList
+          entries={[twoEntries[0], assistantEntry("a1", "Booking 4711 er fundet og bekræftet")]}
+          userInitials="LM"
+          labels={{ aiDisclosure }}
+        />
+      );
+
+      expect(scrollToMock).toHaveBeenCalledExactlyOnceWith({ top: 1200, behavior: "auto" });
+    });
+
+    it("reducedMotion true makes every call behavior auto, including the append case", () => {
+      installScrollTo();
+      const { rerender } = render(
+        <ChatMessageList
+          entries={twoEntries}
+          userInitials="LM"
+          labels={{ aiDisclosure }}
+          reducedMotion
+        />
+      );
+      stubGeometry(regionOf());
+      scrollToMock.mockClear();
+
+      rerender(
+        <ChatMessageList
+          entries={threeEntries}
+          userInitials="LM"
+          labels={{ aiDisclosure }}
+          reducedMotion
+        />
+      );
+
+      expect(scrollToMock).toHaveBeenCalledExactlyOnceWith({ top: 1200, behavior: "auto" });
+    });
+
+    it("mount with three entries scrolls the region to the bottom without a prior scroll event", () => {
+      installScrollTo();
+      installMountGeometry();
+
+      render(
+        <ChatMessageList entries={threeEntries} userInitials="LM" labels={{ aiDisclosure }} />
+      );
+
+      expect(scrollToMock).toHaveBeenCalledExactlyOnceWith({ top: 1200, behavior: "auto" });
+    });
+
+    it("busy turning on while pinned scrolls with behavior auto so the indicator stays visible", () => {
+      installScrollTo();
+      const { rerender } = render(
+        <ChatMessageList entries={twoEntries} userInitials="LM" labels={{ aiDisclosure }} />
+      );
+      stubGeometry(regionOf());
+      scrollToMock.mockClear();
+
+      rerender(
+        <ChatMessageList entries={twoEntries} userInitials="LM" busy labels={{ aiDisclosure }} />
+      );
+
+      expect(scrollToMock).toHaveBeenCalledExactlyOnceWith({ top: 1200, behavior: "auto" });
+    });
+
+    it("with no scrollTo function on the region, the same append sets scrollTop to scrollHeight", () => {
+      const { rerender } = render(
+        <ChatMessageList entries={twoEntries} userInitials="LM" labels={{ aiDisclosure }} />
+      );
+      const region = regionOf();
+      expect(typeof region.scrollTo).toBe("undefined");
+      stubGeometry(region);
+
+      rerender(
+        <ChatMessageList entries={threeEntries} userInitials="LM" labels={{ aiDisclosure }} />
+      );
+
+      expect(region.scrollTop).toBe(1200);
+    });
+
+    it("a scroll event at 32px from the bottom stays pinned; one at 33px unpins", () => {
+      installScrollTo();
+      const fourEntries = [...threeEntries, assistantEntry("a3", "Tredje svar")];
+      const { rerender } = render(
+        <ChatMessageList entries={twoEntries} userInitials="LM" labels={{ aiDisclosure }} />
+      );
+      stubGeometry(regionOf());
+      regionOf().scrollTop = 768;
+      fireEvent.scroll(regionOf());
+      scrollToMock.mockClear();
+
+      rerender(
+        <ChatMessageList entries={threeEntries} userInitials="LM" labels={{ aiDisclosure }} />
+      );
+      expect(scrollToMock).toHaveBeenCalledExactlyOnceWith({ top: 1200, behavior: "smooth" });
+
+      regionOf().scrollTop = 767;
+      fireEvent.scroll(regionOf());
+      scrollToMock.mockClear();
+
+      rerender(
+        <ChatMessageList entries={fourEntries} userInitials="LM" labels={{ aiDisclosure }} />
+      );
+      expect(scrollToMock).toHaveBeenCalledTimes(0);
+    });
+
+    it("downward scroll events fired by an in-flight smooth scroll do not unpin; an upward one does", () => {
+      installScrollTo();
+      const fourEntries = [...threeEntries, assistantEntry("a3", "Tredje svar")];
+      const { rerender } = render(
+        <ChatMessageList entries={twoEntries} userInitials="LM" labels={{ aiDisclosure }} />
+      );
+      stubGeometry(regionOf());
+      scrollToMock.mockClear();
+
+      rerender(
+        <ChatMessageList entries={threeEntries} userInitials="LM" labels={{ aiDisclosure }} />
+      );
+      expect(scrollToMock).toHaveBeenCalledExactlyOnceWith({ top: 1200, behavior: "smooth" });
+
+      regionOf().scrollTop = 600;
+      fireEvent.scroll(regionOf());
+      scrollToMock.mockClear();
+
+      rerender(
+        <ChatMessageList entries={fourEntries} userInitials="LM" labels={{ aiDisclosure }} />
+      );
+      expect(scrollToMock).toHaveBeenCalledExactlyOnceWith({ top: 1200, behavior: "smooth" });
+
+      regionOf().scrollTop = 300;
+      fireEvent.scroll(regionOf());
+      scrollToMock.mockClear();
+
+      rerender(
+        <ChatMessageList
+          entries={[...threeEntries, assistantEntry("a3", "Tredje svar, fuldført")]}
+          userInitials="LM"
+          labels={{ aiDisclosure }}
+        />
+      );
+      expect(scrollToMock).toHaveBeenCalledTimes(0);
+    });
+  });
+
+  describe("the ref handle", () => {
+    it("isPinnedToBottom is true at the bottom and false after a scroll event leaving 800px below", () => {
+      const ref = createRef<ChatMessageListHandle>();
+      render(
+        <ChatMessageList
+          ref={ref}
+          entries={twoEntries}
+          userInitials="LM"
+          labels={{ aiDisclosure }}
+        />
+      );
+      stubGeometry(regionOf());
+      regionOf().scrollTop = 800;
+
+      expect(ref.current?.isPinnedToBottom()).toBe(true);
+
+      regionOf().scrollTop = 0;
+      fireEvent.scroll(regionOf());
+
+      expect(ref.current?.isPinnedToBottom()).toBe(false);
+    });
+
+    it("scrollToBottom scrolls while unpinned and re-pins, so the next append follows again", () => {
+      installScrollTo();
+      const ref = createRef<ChatMessageListHandle>();
+      const { rerender } = render(
+        <ChatMessageList
+          ref={ref}
+          entries={twoEntries}
+          userInitials="LM"
+          labels={{ aiDisclosure }}
+        />
+      );
+      stubGeometry(regionOf());
+      regionOf().scrollTop = 100;
+      fireEvent.scroll(regionOf());
+      scrollToMock.mockClear();
+
+      act(() => ref.current?.scrollToBottom());
+      expect(scrollToMock).toHaveBeenCalledExactlyOnceWith({ top: 1200, behavior: "smooth" });
+
+      scrollToMock.mockClear();
+      rerender(
+        <ChatMessageList
+          ref={ref}
+          entries={threeEntries}
+          userInitials="LM"
+          labels={{ aiDisclosure }}
+        />
+      );
+      expect(scrollToMock).toHaveBeenCalledExactlyOnceWith({ top: 1200, behavior: "smooth" });
+    });
+
+    it("scrollToBottom under reducedMotion scrolls with behavior auto", () => {
+      installScrollTo();
+      const ref = createRef<ChatMessageListHandle>();
+      render(
+        <ChatMessageList
+          ref={ref}
+          entries={twoEntries}
+          userInitials="LM"
+          labels={{ aiDisclosure }}
+          reducedMotion
+        />
+      );
+      stubGeometry(regionOf());
+      scrollToMock.mockClear();
+
+      act(() => ref.current?.scrollToBottom());
+
+      expect(scrollToMock).toHaveBeenCalledExactlyOnceWith({ top: 1200, behavior: "auto" });
+    });
+
+    it("a handle retained past unmount is a no-op, not a crash", () => {
+      const ref = createRef<ChatMessageListHandle>();
+      const { unmount } = render(
+        <ChatMessageList
+          ref={ref}
+          entries={twoEntries}
+          userInitials="LM"
+          labels={{ aiDisclosure }}
+        />
+      );
+      const handle = ref.current;
+      unmount();
+
+      expect(() => handle?.scrollToBottom()).not.toThrow();
+      expect(handle?.isPinnedToBottom()).toBe(false);
+    });
+  });
+
+  describe("the scroll region semantics", () => {
+    it('carries role="log", aria-live="off" and the resolved transcript label as its accessible name', () => {
+      render(
+        <ChatMessageList
+          entries={twoEntries}
+          userInitials="LM"
+          labels={{ aiDisclosure, transcript: "Samtale" }}
+        />
+      );
+
+      const region = screen.getByRole("log");
+      expect(region).toHaveAttribute("aria-live", "off");
+      expect(region).toHaveAccessibleName("Samtale");
+    });
+
+    it('a query for [aria-live="polite"] inside the region matches only when busy is true', () => {
+      const { rerender } = render(
+        <ChatMessageList entries={twoEntries} userInitials="LM" labels={{ aiDisclosure }} />
+      );
+      expect(regionOf().querySelectorAll('[aria-live="polite"]')).toHaveLength(0);
+
+      rerender(
+        <ChatMessageList entries={twoEntries} userInitials="LM" busy labels={{ aiDisclosure }} />
+      );
+      expect(regionOf().querySelectorAll('[aria-live="polite"]')).toHaveLength(1);
+    });
+  });
+
+  describe("the extracted source (grep acceptance criteria)", () => {
+    const source = readFileSync(
+      resolve(process.cwd(), "src/components/ChatMessageList.tsx"),
+      "utf8"
+    );
+
+    it("imports no @clerk, swr, next-intl, next/, @discovery, @/ or lucide-react and every relative import ends in .js", () => {
+      expect(source).not.toMatch(/@clerk|swr|next-intl|next\/|@discovery|@\/|lucide-react/);
+      const relativeImports = [...source.matchAll(/from\s+"(\.[^"]+)"/g)].map(([, spec]) => spec);
+      expect(relativeImports.length).toBeGreaterThan(0);
+      for (const spec of relativeImports) {
+        expect(spec).toMatch(/\.js$/);
+      }
+    });
+
+    it("calls no console, localStorage, sessionStorage, fetch, sendBeacon or scrollIntoView", () => {
+      expect(source).not.toMatch(
+        /console\.|localStorage|sessionStorage|fetch|sendBeacon|scrollIntoView/
+      );
+    });
+  });
+});

@@ -186,6 +186,85 @@ describe("repoint-spec-anchors", () => {
     rmSync(clone, { recursive: true, force: true });
   });
 
+  it("a manually retargeted anchor is accepted, reported, and never rewritten", () => {
+    write(
+      repo,
+      "specs/foo/spec.md",
+      asSpec("../../tests/Foo.test.tsx#L3", "../../tests/Foo.test.tsx#L1")
+    );
+    const specBefore = read(repo, "specs/foo/spec.md");
+
+    const check = run(repo, "--check", "main");
+    const rewrite = run(repo, "main");
+
+    expect(check).toMatchObject({ status: 0 });
+    expect(check.stdout).toContain("retargeted (not checked): 2");
+    expect(rewrite).toMatchObject({ status: 0 });
+    expect(read(repo, "specs/foo/spec.md")).toEqual(specBefore);
+  });
+
+  it("an anchor landing on a blank line is rotten and exits 1 in both modes", () => {
+    write(repo, "tests/Foo.test.tsx", asTestFile(["alpha", "", "gamma", "delta"]));
+    git(repo, "add", "-A");
+    git(repo, "commit", "-q", "-m", "blank line at L2");
+    const specBefore = read(repo, "specs/foo/spec.md");
+
+    const check = run(repo, "--check", "main");
+    const rewrite = run(repo, "main");
+
+    expect(check).toMatchObject({ status: 1 });
+    expect(check.stderr).toContain(
+      "rotten specs/foo/spec.md: ../../tests/Foo.test.tsx#L2 -> #L2 lands on a blank or closing line"
+    );
+    expect(rewrite).toMatchObject({ status: 1 });
+    expect(read(repo, "specs/foo/spec.md")).toEqual(specBefore);
+  });
+
+  it("an anchor landing on closing punctuation is rotten", () => {
+    write(repo, "tests/Foo.test.tsx", asTestFile(["alpha", "  });", "gamma", "delta"]));
+    git(repo, "add", "-A");
+    git(repo, "commit", "-q", "-m", "closing brace at L2");
+
+    const check = run(repo, "--check", "main");
+
+    expect(check).toMatchObject({ status: 1 });
+    expect(check.stderr).toContain("#L2 lands on a blank or closing line");
+  });
+
+  it("a rotten anchor whose baseline content moved is rewritten and not reported", () => {
+    write(repo, "tests/Foo.test.tsx", asTestFile(["alpha", "", "beta", "gamma", "delta"]));
+
+    const rewrite = run(repo, "main");
+
+    expect(rewrite).toMatchObject({ status: 0 });
+    expect(rewrite.stdout).toContain("repointed: 3, up to date: 0, unresolved: 0");
+    expect(rewrite.stderr).not.toContain("rotten");
+    expect(read(repo, "specs/foo/spec.md")).toEqual(
+      asSpec("../../tests/Foo.test.tsx#L3", "../../tests/Foo.test.tsx#L5")
+    );
+  });
+
+  it("the rotten check still applies to a spec skipped for a differing anchor set", () => {
+    write(repo, "tests/Foo.test.tsx", asTestFile(["alpha", "beta", "gamma", ""]));
+    write(
+      repo,
+      "specs/foo/spec.md",
+      asSpec(
+        "../../tests/Foo.test.tsx#L2",
+        "../../tests/Foo.test.tsx#L4",
+        "../../tests/Foo.test.tsx#L1"
+      )
+    );
+
+    const check = run(repo, "--check", "main");
+
+    expect(check).toMatchObject({ status: 1 });
+    expect(check.stderr).toContain("skipped specs/foo/spec.md: anchor set differs from main");
+    expect(check.stderr).toContain(
+      "rotten specs/foo/spec.md: ../../tests/Foo.test.tsx#L4 -> #L4 lands on a blank or closing line"
+    );
+  });
+
   it("an unknown base ref exits 2 naming the ref", () => {
     const result = run(repo, "no-such-ref");
 

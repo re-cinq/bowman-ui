@@ -38,6 +38,16 @@ Tailwind CSS v4 is required: the stylesheet ships only what Tailwind cannot gene
 
 `styles.css` itself is plain CSS - no Tailwind at-rules - so a non-Tailwind consumer can import it too, but must then supply the utility styles the components reference by other means.
 
+## Worked consumer
+
+`examples/chat-demo` is the worked consumer: a standalone Vite app that installs this package from a freshly packed tarball (never the source tree, never the registry) and composes `AppShell`, `AppSidebar`, `ConversationList`, `ChatMessageList`, `ChatComposer` and `Toast` into a full Danish chat screen, verified by a real-Chromium Playwright suite. One command builds the package, packs it, installs the tarball into a temp copy outside the repo tree and runs the whole proof:
+
+```sh
+npm run consumer
+```
+
+Pass `-- --keep` to retain the temp directory and tarball for debugging.
+
 ## Rendering entries
 
 `ChatMessage` accepts only user and assistant entries - passing a `ThinkingChatEntry` or `ToolChatEntry` is a compile error, never a silent null render. A `ChatEntry[]` therefore needs a type guard before mapping:

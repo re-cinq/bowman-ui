@@ -35,7 +35,7 @@ and the runtime export set of `dist/index.js` is pinned separately by
 31 types after this issue; [validated by](../../tests/public-api.test.ts#L40)). `dist/components/ThinkingDots.{js,d.ts}` packs
 with the rest of `dist/`, but `package.json`'s `exports` map exposes only `"."`
 and `"./styles.css"`, so no consumer can deep-import the private component
-([validated by](../../tests/system-contract.test.ts#L28)).
+([validated by](../../tests/system-contract.test.ts#L30)).
 
 ## The decisions
 
@@ -108,7 +108,7 @@ shipped layout since 022
 ## Carried across mechanically
 
 - `ThinkingIndicator` joins the `labelsProp` partition bucket
-  ([validated by](../../tests/labelled-exports.test.tsx#L43)) with a sentinel
+  ([validated by](../../tests/labelled-exports.test.tsx#L60)) with a sentinel
   harness ([validated by](../../tests/labelled-exports.test.tsx#L319)); the
   partition test still asserts the full barrel, which `ThinkingDots` never
   enters. The `thinkingRegion` sentinel lands in `aria-label`, one of the
@@ -135,3 +135,11 @@ shipped layout since 022
   ([validated by](../../tests/ThinkingIndicator.test.tsx#L127)).
 - `npm pack --dry-run` ships both built files with their `d.ts` counterparts
   ([validated by](../../tests/thinking-indicator-dist.test.ts#L38)).
+
+## Amended by 078
+
+The `role="status"` element now carries an explicit `aria-live="polite"` -
+the ARIA-canonical spelling of the role's implicit value - so
+`ChatMessageList` can query the live-region override as an attribute inside
+its `aria-live="off"` transcript
+([validated by](../../tests/ThinkingIndicator.test.tsx#L144)).
