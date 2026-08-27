@@ -103,10 +103,13 @@ const scanDirectory = (directory) => {
 
 const fixtureDirectory = "tests/fixtures/forbidden-imports";
 const fixtureViolations = scanDirectory(fixtureDirectory);
-if (fixtureViolations.length < FORBIDDEN.length) {
+const untrippedPatterns = FORBIDDEN.filter(
+  (entry) => !fixtureViolations.some((violation) => matchForbidden(violation.specifier) === entry)
+);
+if (untrippedPatterns.length > 0) {
+  const names = untrippedPatterns.map((entry) => entry.prefix ?? entry.specifier).join(", ");
   process.stderr.write(
-    `self-test failed: the red fixture in ${fixtureDirectory} tripped ` +
-      `${fixtureViolations.length} of ${FORBIDDEN.length} banned patterns\n`
+    `self-test failed: the red fixture in ${fixtureDirectory} never tripped: ${names}\n`
   );
   process.exit(1);
 }

@@ -57,7 +57,7 @@ PACKED_FILES="$(npm pack --dry-run --json 2>/dev/null | node -e '
     process.stdout.write(report.files.map((file) => file.path).join("\n"));
   });
 ')"
-for required_file in package.json LICENSE README.md dist/index.js; do
+for required_file in package.json LICENSE README.md dist/index.js dist/styles.css; do
   if ! printf "%s\n" "$PACKED_FILES" | grep -qx "$required_file"; then
     echo "npm pack --dry-run is missing required file: $required_file" >&2
     exit 1
@@ -77,14 +77,22 @@ echo "==> Packing the tarball"
 TARBALL_NAME="$(npm pack --pack-destination "$TMPDIR" | tail -n 1)"
 TARBALL_PATH="$TMPDIR/$TARBALL_NAME"
 
+echo "==> Asserting the committed demo declares no @re-cinq/bowman-ui dependency"
+if grep -q '"@re-cinq/bowman-ui"' "$REPO_ROOT/examples/chat-demo/package.json"; then
+  echo "examples/chat-demo/package.json must not declare @re-cinq/bowman-ui; the tarball is the only source" >&2
+  exit 1
+fi
+if grep -q "executablePath" "$REPO_ROOT/examples/chat-demo/playwright.config.ts"; then
+  echo "examples/chat-demo/playwright.config.ts must not hardcode an executablePath" >&2
+  exit 1
+fi
+
 WORK_DIR="$(mktemp -d)"
 WORK_DIR_REAL="$(cd "$WORK_DIR" && pwd -P)"
-case "$WORK_DIR_REAL" in
-  "$REPO_ROOT" | "$REPO_ROOT"/*)
-    echo "Refusing to run: install directory $WORK_DIR_REAL is inside the repo tree $REPO_ROOT" >&2
-    exit 1
-    ;;
-esac
+if [[ "$WORK_DIR_REAL" == "$REPO_ROOT" || "$WORK_DIR_REAL" == "$REPO_ROOT"/* ]]; then
+  echo "Refusing to run: install directory $WORK_DIR_REAL is inside the repo tree $REPO_ROOT" >&2
+  exit 1
+fi
 echo "==> Installing into $WORK_DIR_REAL (outside $REPO_ROOT)"
 
 APP_DIR="$WORK_DIR/chat-demo"
@@ -126,8 +134,8 @@ npm run typecheck
 echo "==> Building the consumer with vite"
 npm run build
 
-echo "==> Installing Chromium for the pinned @playwright/test"
-npx playwright install chromium
+echo "==> Installing Chromium (and OS deps on Linux) for the pinned @playwright/test"
+npx playwright install --with-deps chromium
 
 echo "==> Running the Playwright suite against vite preview"
 npx playwright test
