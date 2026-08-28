@@ -4,7 +4,10 @@
 // library (next-intl), the meta-framework (next, next/*), an internal
 // source-app package (@discovery/*), the banned icon library (lucide-react,
 // CONTRACT.md decision 2), or a path alias (@/*, CONTRACT.md decision 5).
-// lucide-react and @/* are deliberate supersets of the issue's list.
+// lucide-react and @/* are deliberate supersets of the issue's list. This
+// scan reads src/ only, so examples/rsc-fixture - the one path in the repo
+// where next may appear, CONTRACT.md § RSC fixture - is outside its scope
+// by construction; the exemption changes nothing about this script.
 //
 // Static on top of, not instead of, the dynamic node_modules scan in
 // scripts/consumer-app.sh: a grep misses a transitively pulled-in package,

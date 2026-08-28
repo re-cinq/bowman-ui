@@ -153,10 +153,13 @@ runs green against it, not a manifest edit.
 
 - The icon extraction may **not** rewrite `forwardRef` away as a cleanup: that
   would turn this testing claim into a hard React 19 floor.
-- `next` is not a dependency, peer, or dev dependency anywhere -
+- `next` is not a dependency, peer, or dev dependency of the published
+  package, and the repo's own installed tree stays free of it -
   `"use client"` is the package's entire Next-facing surface. CI proves the
   installed tree contains no `node_modules/next` (named step "next must be
-  absent").
+  absent"). The sole exception is the private, unpublished
+  `examples/rsc-fixture` (§ RSC fixture below); both probes read the repo
+  root only, which is what keeps the exception scoped.
 - `@types/react` and `@types/react-dom` are `devDependencies` only. No
   `peerDependenciesMeta`.
 
@@ -372,6 +375,56 @@ flex child down to the list. Without `min-h-0` a flex child never shrinks
 below its content, the region never overflows, and the page scrolls instead
 of the transcript. The library does not set the outer height; that is the
 consumer's layout decision.
+
+## RSC fixture (issue 078, Otto#100)
+
+`examples/rsc-fixture` is the executable proof that the `"use client"`
+boundary holds for the one consumer shape the package is built for: a Next.js
+App Router build compiling the packed tarball with Turbopack. It is the
+**only path in the repo where `next` may appear** - in any dependency field or
+import. The three checks that keep `next` out everywhere else are unchanged
+by this exemption and say so where they run: `check-forbidden-imports.mjs`
+reads `src/` only, the "next must be absent" CI step reads the repo root
+only, and `scan-forbidden-node-modules.sh` (shared by `consumer-app.sh` and
+the `rsc` job) reads the given install tree. All three run beside the fixture
+in the `rsc` CI job. A
+future edit that widens this exemption beyond `examples/rsc-fixture` must
+amend this section first.
+
+**No `"react-server"` export condition.** The package manifest's `exports`
+gains no `"react-server"` entry, refused on purpose: the package has no
+server-specific build to point it at, and mapping the condition anywhere
+would replace Next's own build-time diagnostics - which name the offending
+file and hook - with a less informative runtime throw, defeating the
+fixture's purpose. The boundary ships as per-file directives (decision 1)
+and nothing else.
+
+**Function-valued props do not cross the server boundary.** Measured on
+Next 16.3.3 (Turbopack): a server component passing `renderSidebar` to
+`AppShell` fails `next build` while prerendering the page, verbatim:
+
+```
+Error: Functions cannot be passed directly to Client Components unless you
+explicitly expose it by marking it with "use server". Or maybe you meant to
+call this function rather than return it.
+  {renderSidebar: function renderSidebar, children: ...}
+                  ^^^^^^^^^^^^^^^^^^^^^^
+```
+
+The rule, recorded in README.md in the same words: a React server component
+cannot pass a function across the client boundary - `AppShell`
+(`renderSidebar`, `onMobileSidebarOpenChange`), `AppSidebar`
+(`renderNavLink`, `onNavigate`, a `SidebarNavItem`'s `icon`), `ChatComposer`
+(`onSubmit`), `ChatMessage` and `ChatMessageList` (`onCopy`, `onFeedback`),
+`ConversationList` (`renderLink`, `onSelect`, `onDelete`, the
+`deleteConversation` label), `ErrorBoundary` (`onError`) and `Toast`
+(`onClose`) accept function-valued props, so an App Router consumer supplies
+those props from a `"use client"` file. Functions are the case the fixture
+exercises; the constraint is React's serialization boundary, which rejects
+any non-serializable prop the same way. The fixture's
+`app/compose/page.tsx` ships under `"use client"` for exactly this reason,
+and `app/client/page.tsx` is the control proving the composition itself is
+sound.
 
 ## Seams left open on purpose
 
