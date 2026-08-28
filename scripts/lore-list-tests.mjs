@@ -14,6 +14,13 @@ import process from "node:process";
 
 const reportFile = join(tmpdir(), `bowman-ui-vitest-report-${process.pid}.json`);
 
+// Build first: tests/public-api.test.ts reads dist/ at collection time, so in
+// a clean checkout its tests would silently vanish from the list without this.
+execFileSync("npm", ["run", "build"], {
+  cwd: process.cwd(),
+  stdio: ["ignore", "ignore", "inherit"],
+});
+
 try {
   execFileSync("npx", ["vitest", "run", "--reporter=json", `--outputFile=${reportFile}`], {
     cwd: process.cwd(),
