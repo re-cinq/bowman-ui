@@ -48,6 +48,18 @@ npm run consumer
 
 Pass `-- --keep` to retain the temp directory and tarball for debugging.
 
+## App Router consumer
+
+`examples/rsc-fixture` is the App Router consumer: a standalone Next.js 16 app (Turbopack, default config) that installs this package from a freshly packed tarball and compiles it with `next build`, importing icons from a server component and rendering `ChatMessage` - a `"use client"` component - as its child. The check asserts that a plain HTTP response from `next start` already carries the rendered `<svg>`, before any hydration. One command runs the whole proof:
+
+```sh
+npm run rsc
+```
+
+Pass `-- --keep` to retain the temp directory and tarball, and `-- --expect-failure` to prove the guard goes red when a `dist/` file loses its directive.
+
+A React server component cannot pass a function across the client boundary - `AppShell` (`renderSidebar`, `onMobileSidebarOpenChange`), `AppSidebar` (`renderNavLink`, `onNavigate`, a `SidebarNavItem`'s `icon`), `ChatComposer` (`onSubmit`), `ChatMessage` and `ChatMessageList` (`onCopy`, `onFeedback`), `ConversationList` (`renderLink`, `onSelect`, `onDelete`, the `deleteConversation` label), `ErrorBoundary` (`onError`) and `Toast` (`onClose`) accept function-valued props, so an App Router consumer supplies those props from a `"use client"` file (measured on Next 16.3.3; the verbatim build error is recorded in CONTRACT.md § RSC fixture).
+
 ## Rendering entries
 
 `ChatMessage` accepts only user and assistant entries - passing a `ThinkingChatEntry` or `ToolChatEntry` is a compile error, never a silent null render. A `ChatEntry[]` therefore needs a type guard before mapping:

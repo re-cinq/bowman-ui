@@ -5,7 +5,7 @@ Issue: issue 82 (`082-bowman-ui-consumer-app`)
 `examples/chat-demo` is the worked consumer: a standalone Vite + React app
 that installs `@re-cinq/bowman-ui` from a freshly packed tarball - never the
 source tree, never the registry
-([validated by](../../scripts/consumer-app.sh#L113)) - and renders a full
+([validated by](../../scripts/consumer-app.sh#L93)) - and renders a full
 Danish chat screen in a real Chromium. It proves what no jsdom test can: the
 eight extracted components in one document, compiled by a real Tailwind v4
 build, laid out by a real browser. The whole proof is one command,
@@ -26,7 +26,7 @@ drift silently if those files are later edited without updating this spec.
 ([validated by](../../examples/chat-demo/package.json#L3)), `"type": "module"`
 and declares no `@re-cinq/bowman-ui` dependency at all - the version under
 test is always the tarball `npm pack` just produced
-([validated by](../../scripts/consumer-app.sh#L113)). `react` and `react-dom`
+([validated by](../../scripts/consumer-app.sh#L93)). `react` and `react-dom`
 are pinned at exactly `19.2.0`
 ([validated by](../../examples/chat-demo/package.json#L14)), the version
 CONTRACT.md decision 4 records as the one CI installs and the only one tested.
@@ -97,43 +97,49 @@ case-sensitive substring check
 ## The consumer script
 
 `scripts/consumer-app.sh` is `chmod +x`, opens `#!/usr/bin/env bash` with
-`set -euo pipefail` ([validated by](../../scripts/consumer-app.sh#L1)), and:
+`set -euo pipefail` ([validated by](../../scripts/consumer-app.sh#L1)), and
+(since issue 100 factored the shared pack-and-copy preamble into
+`scripts/pack-to-temp.sh`, sourced by this script and `rsc-fixture.sh` alike -
+see `specs/bowman-ui-rsc-fixture/spec.md`):
 
-- builds the package, then asserts `npm pack --dry-run` lists `dist/`
-  (including `dist/styles.css`), `package.json`, `LICENSE` and `README.md`
-  and nothing from `examples/`, `src/` or `tests/`
+- builds and packs the package through `pack_library`, which runs
+  `npm run build` then `npm pack --pack-destination "$TMPDIR"` (`TMPDIR`
+  defaulted first, for runners that leave it unset)
+  ([validated by](../../scripts/pack-to-temp.sh#L7))
+- then asserts `npm pack --dry-run` lists `dist/` (including
+  `dist/styles.css`), `package.json`, `LICENSE` and `README.md` and nothing
+  from `examples/`, `src/` or `tests/`
   ([validated by](../../scripts/consumer-app.sh#L51))
-- packs with `npm pack --pack-destination "$TMPDIR"` (`TMPDIR` defaulted
-  first, for runners that leave it unset)
-  ([validated by](../../scripts/consumer-app.sh#L77))
 - asserts the committed demo manifest declares no `@re-cinq/bowman-ui`
   dependency and the Playwright config no `executablePath`, so neither claim
-  rests on prose alone ([validated by](../../scripts/consumer-app.sh#L80))
+  rests on prose alone ([validated by](../../scripts/consumer-app.sh#L76))
 - copies `examples/chat-demo/` to a `mktemp -d` directory, excluding any
   local `node_modules`, `dist`, reports and lockfile so the temp tree is
   exactly the committed demo
-  ([validated by](../../scripts/consumer-app.sh#L100))
+  ([validated by](../../scripts/pack-to-temp.sh#L22))
 - asserts the install directory is not inside the repo working tree and exits
   non-zero naming both paths if it is
-  ([validated by](../../scripts/consumer-app.sh#L92))
+  ([validated by](../../scripts/pack-to-temp.sh#L15))
 - installs the `.tgz` by file path
-  ([validated by](../../scripts/consumer-app.sh#L113)), which also matters
+  ([validated by](../../scripts/consumer-app.sh#L93)), which also matters
   for styling: a tarball install unpacks a real directory for the `@source`
   scan, where a `file:` directory dependency would only symlink
-- runs a `find` over the temp install's `node_modules` for the forbidden
-  packages at any depth, naming the matched path on failure
-  ([validated by](../../scripts/consumer-app.sh#L117))
+- runs `scripts/scan-forbidden-node-modules.sh` (issue 100 extracted the
+  `find` from this script so the `rsc` CI job could share one copy) over the
+  temp install's `node_modules` for the forbidden packages at any depth,
+  naming the matched path on failure
+  ([validated by](../../scripts/scan-forbidden-node-modules.sh#L14))
 - runs `tsc --noEmit` in the temp copy under `"strict": true` and
   `"moduleResolution": "bundler"`
-  ([validated by](../../scripts/consumer-app.sh#L132),
+  ([validated by](../../scripts/consumer-app.sh#L115),
   [tsconfig](../../examples/chat-demo/tsconfig.json#L5))
-- runs `vite build` ([validated by](../../scripts/consumer-app.sh#L135)),
+- runs `vite build` ([validated by](../../scripts/consumer-app.sh#L118)),
   installs the Chromium build matching the demo's pinned `@playwright/test`
   with `--with-deps` so a Linux runner gets its system libraries from the
-  same pinned version ([validated by](../../scripts/consumer-app.sh#L138)),
+  same pinned version ([validated by](../../scripts/consumer-app.sh#L121)),
   and runs the suite against `vite preview` (started by Playwright's
   `webServer`), never `vite dev`
-  ([validated by](../../scripts/consumer-app.sh#L141),
+  ([validated by](../../scripts/consumer-app.sh#L124),
   [webServer](../../examples/chat-demo/playwright.config.ts#L14))
 - removes its temp directory and tarball on exit including failure, and
   `--keep` retains both and prints their paths
@@ -141,7 +147,7 @@ case-sensitive substring check
 
 `examples/chat-demo/playwright.config.ts` contains no `executablePath` and no
 per-user machine path of any kind, executable-asserted on every run
-([validated by](../../scripts/consumer-app.sh#L85)) - deliberately not
+([validated by](../../scripts/consumer-app.sh#L81)) - deliberately not
 modeled on the source app's Playwright config. On CI the suite runs with one
 worker and two retries; the reply and toast timings race a contended runner
 otherwise ([validated by](../../examples/chat-demo/playwright.config.ts#L8)).
@@ -249,18 +255,18 @@ than the jsdom shim.
 `scripts/check-forbidden-imports.mjs` parses every file under `src/` with
 `ts.createSourceFile` and exits non-zero on any import, re-export, dynamic
 `import()` or `require()` of a forbidden specifier
-([validated by](../../scripts/check-forbidden-imports.mjs#L117)). The banned
+([validated by](../../scripts/check-forbidden-imports.mjs#L120)). The banned
 list is the issue's four (`@clerk/*`, `swr`, `next-intl`, `next`/`next/*`)
 plus the internal source-app scope (`@discovery/*`) and two deliberate
 supersets: `lucide-react` (CONTRACT.md decision 2) and the `@/` path alias
 (CONTRACT.md decision 5)
-([validated by](../../scripts/check-forbidden-imports.mjs#L22)).
+([validated by](../../scripts/check-forbidden-imports.mjs#L25)).
 
 The red fixture `tests/fixtures/forbidden-imports/red.tsx` carries one import
 per banned pattern, and the script's built-in self-test fails unless every
 individual pattern trips - a count alone would let one pattern's detection
 rot behind another's duplicate
-([validated by](../../scripts/check-forbidden-imports.mjs#L106)). The check
+([validated by](../../scripts/check-forbidden-imports.mjs#L109)). The check
 runs as the named `ci.yml` step "Forbidden import check"
 ([validated by](../../.github/workflows/ci.yml#L56)). It is static on top of,
 not instead of, the dynamic `node_modules` scan in `consumer-app.sh`: a grep
@@ -272,14 +278,14 @@ source import a bundler tree-shakes away.
 The `consumer` job in `ci.yml` runs on every pull request (the workflow's
 unfiltered `pull_request` trigger), pins its actions to the same commit SHAs
 as the existing job with `persist-credentials: false`
-([validated by](../../.github/workflows/ci.yml#L83)), sets
-`node-version: "22"` ([validated by](../../.github/workflows/ci.yml#L88)),
+([validated by](../../.github/workflows/ci.yml#L86)), sets
+`node-version: "22"` ([validated by](../../.github/workflows/ci.yml#L91)),
 runs `npm ci --ignore-scripts`
-([validated by](../../.github/workflows/ci.yml#L91)) and an explicit
+([validated by](../../.github/workflows/ci.yml#L94)) and an explicit
 `npm run build` before packing
-([validated by](../../.github/workflows/ci.yml#L93)), and installs Chromium
+([validated by](../../.github/workflows/ci.yml#L96)), and installs Chromium
 with `npx playwright install --with-deps chromium`
-([validated by](../../.github/workflows/ci.yml#L97)). It omits
+([validated by](../../.github/workflows/ci.yml#L100)). It omits
 `fetch-depth: 0` on purpose: that exists for the spec anchor check, which
 this job does not run.
 
