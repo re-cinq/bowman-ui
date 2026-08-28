@@ -12,11 +12,13 @@ build, laid out by a real browser. The whole proof is one command,
 `npm run consumer` ([validated by](../../package.json#L32)), documented in the
 README's Worked consumer section ([validated by](../../README.md#L41)).
 
-Anchor caveat: `scripts/repoint-spec-anchors.mjs` tracks only
-`(../)+tests/*.ts(x)` anchors, so this spec's links into `examples/`,
-`scripts/` and workflow files are plain GitHub links that CI never repoints -
-they were authored against this PR's tree and drift silently if those files
-are later edited without updating this spec.
+Anchor caveat: `scripts/repoint-spec-anchors.mjs` tracks
+`(../)+tests/*.ts(x)` anchors and - since the composer-resize-browser change
+widened its regex - `(../)+examples/*/tests/*.ts(x)` anchors, so this spec's
+links into `examples/chat-demo/tests/` are repointed by CI. Its links into
+other `examples/` files, `scripts/` and workflow files remain plain GitHub
+links that CI never repoints - they were authored against this PR's tree and
+drift silently if those files are later edited without updating this spec.
 
 ## The demo app
 

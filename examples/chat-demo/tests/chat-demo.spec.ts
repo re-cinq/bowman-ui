@@ -1,4 +1,4 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Locator, type Page } from "@playwright/test";
 import {
   defaultAppShellLabels,
   defaultAppSidebarLabels,
@@ -197,5 +197,84 @@ test.describe("mobile drawer", () => {
     await page.keyboard.press("Escape");
     await expect(page.getByRole("dialog")).toHaveCount(0);
     await expect(hamburger).toBeFocused();
+  });
+});
+
+test.describe("composer auto-resize", () => {
+  const composerOf = (page: Page): Locator =>
+    page.getByRole("textbox", { name: chatComposerLabels.composerInput });
+
+  const measuredHeight = (composer: Locator): Promise<number> =>
+    composer.evaluate((textarea) => textarea.getBoundingClientRect().height);
+
+  const inventedLines = (count: number): string =>
+    Array.from({ length: count }, (_, index) => `Opdigtet linje ${index + 1} af ${count}`).join(
+      "\n"
+    );
+
+  test("the empty composer measures above 0 and below the 200px cap", async ({ page }) => {
+    await page.goto("/");
+
+    const baseline = await measuredHeight(composerOf(page));
+    expect(
+      baseline,
+      "the empty composer on the Havkat Rejser demo screen rendered with no measurable height"
+    ).toBeGreaterThan(0);
+    expect(baseline).toBeLessThan(200);
+  });
+
+  test("three Shift+Enter presses keep the draft, append no entry and grow the box", async ({
+    page,
+  }) => {
+    await page.goto("/");
+    const composer = composerOf(page);
+    const baseline = await measuredHeight(composer);
+
+    const draft = "En opdigtet kladde om en ombooking";
+    await composer.fill(draft);
+    await expect(page.getByRole("button", { name: chatComposerLabels.send })).toBeEnabled();
+    await composer.press("Shift+Enter");
+    await composer.press("Shift+Enter");
+    await composer.press("Shift+Enter");
+
+    await expect(composer).toHaveValue(`${draft}\n\n\n`);
+    await expect(
+      page.getByRole("article", { name: chatMessageListLabels.userMessage })
+    ).toHaveCount(4);
+    expect(await measuredHeight(composer)).toBeGreaterThan(baseline);
+  });
+
+  test("a twelve-line fill caps the box at exactly 200px, the draft scrolls, and Enter sends and restores the baseline", async ({
+    page,
+  }) => {
+    await page.goto("/");
+    const composer = composerOf(page);
+    const sendButton = page.getByRole("button", { name: chatComposerLabels.send });
+    const baseline = await measuredHeight(composer);
+
+    await composer.fill(inventedLines(12));
+    await expect(sendButton).toBeEnabled();
+    expect(await measuredHeight(composer)).toBe(200);
+
+    await composer.fill(inventedLines(24));
+    await expect(sendButton).toBeEnabled();
+    expect(await measuredHeight(composer)).toBe(200);
+
+    await composer.press("Shift+Enter");
+    expect(await measuredHeight(composer)).toBe(200);
+    const scrollState = await composer.evaluate((textarea) => ({
+      scrollHeight: textarea.scrollHeight,
+      clientHeight: textarea.clientHeight,
+      scrollTop: textarea.scrollTop,
+    }));
+    expect(scrollState.scrollHeight).toBeGreaterThan(scrollState.clientHeight);
+    expect(scrollState.scrollTop).toBeGreaterThan(0);
+
+    await composer.press("Enter");
+    const userArticles = page.getByRole("article", { name: chatMessageListLabels.userMessage });
+    await expect(userArticles).toHaveCount(5);
+    await expect(userArticles.last()).toContainText("Opdigtet linje 24 af 24");
+    await expect(composer).toHaveValue("");
+    await expect.poll(() => measuredHeight(composer)).toBe(baseline);
   });
 });
