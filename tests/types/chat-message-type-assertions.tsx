@@ -42,6 +42,12 @@ const Renderable = () => (
   <>
     <ChatMessage entry={userEntry} userInitials="LM" />
     <ChatMessage entry={assistantEntry} userInitials="LM" markdown={defaultMarkdownPolicy} />
+    <ChatMessage
+      entry={assistantEntry}
+      userInitials="LM"
+      assistantName="Økonomi"
+      labels={{ assistantMessageFrom: (name: string) => `Svar fra ${name}` }}
+    />
     {/* @ts-expect-error -- Decision 1: a ThinkingChatEntry must fail the entry prop */}
     <ChatMessage entry={thinkingEntry} userInitials="LM" />
     {/* @ts-expect-error -- Decision 1: a ToolChatEntry must fail the entry prop */}

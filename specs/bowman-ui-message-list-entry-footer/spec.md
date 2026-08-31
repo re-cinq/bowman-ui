@@ -33,9 +33,9 @@ unchanged.
    callback body reading `entry.toolName` is a compile error, pinned from
    outside the package by an `@ts-expect-error` fixture that resolves the
    type through `ChatMessageListProps["renderEntryFooter"]`
-   ([validated by](../../tests/types/chat-message-list-type-assertions.tsx#L47),
+   ([validated by](../../tests/types/chat-message-list-type-assertions.tsx#L63),
    compiled against dist by
-   [chat-message-list-dist](../../tests/chat-message-list-dist.test.ts#L47)).
+   [chat-message-list-dist](../../tests/chat-message-list-dist.test.ts#L109)).
    The fixture is what enforces this: `npm run typecheck` compiles `src`
    only.
 2. **The callback runs for every rendered entry, user rows included.**
@@ -82,7 +82,7 @@ unchanged.
   nor forwards it: the source names `renderEntryFooter` three times -
   declaration, destructure, `ChatMessage` call position - and writes it to
   no ref, no state and no serialised value
-  ([validated by](../../tests/ChatMessageList.test.tsx#L791)), and a
+  ([validated by](../../tests/ChatMessageList.test.tsx#L923)), and a
   rerender without the prop leaves no footer behind
   ([validated by](../../tests/ChatMessageList.test.tsx#L394)). The
   suite-wide `console` and network traps in `tests/setup.ts` hold every one

@@ -5,10 +5,10 @@
  * and the five documented adaptations plus three dropped judge/dev-info
  * tests are tabled in specs/bowman-ui-chat-message/spec.md.
  */
-import { act, fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join, resolve } from "node:path";
-import { ChatMessage } from "../src/index.js";
+import { ChatMessage, defaultChatMessageLabels } from "../src/index.js";
 import type { AssistantChatEntry, UserChatEntry } from "../src/index.js";
 
 const writeTextMock = vi.fn();
@@ -488,6 +488,71 @@ describe("ChatMessage", () => {
 
       rerender(<ChatMessage entry={makeEntry()} userInitials="LM" />);
       expect(circleOf(container).classList.contains("bowman-pulse-subtle")).toBe(false);
+    });
+  });
+
+  describe("assistantName (121)", () => {
+    it('assistantName "Økonomi" renders that name and labels the article "Response from Økonomi"', () => {
+      render(<ChatMessage entry={makeEntry()} userInitials="LM" assistantName="Økonomi" />);
+
+      expect(screen.getByText("Økonomi")).toBeInTheDocument();
+      expect(screen.getByRole("article")).toHaveAttribute("aria-label", "Response from Økonomi");
+    });
+
+    it('with no assistantName the article aria-label stays "Assistant response" and exactly one element fewer renders', () => {
+      const named = render(
+        <ChatMessage entry={makeEntry()} userInitials="LM" assistantName="Økonomi" />
+      ).container;
+      const unnamed = render(<ChatMessage entry={makeEntry()} userInitials="LM" />).container;
+
+      expect(unnamed.querySelectorAll("*")).toHaveLength(named.querySelectorAll("*").length - 1);
+      expect(unnamed.textContent).not.toContain("Økonomi");
+      expect(within(unnamed).getByRole("article")).toHaveAttribute(
+        "aria-label",
+        "Assistant response"
+      );
+    });
+
+    it('a supplied assistantMessageFrom returning "Svar fra " + name produces "Svar fra Økonomi"', () => {
+      render(
+        <ChatMessage
+          entry={makeEntry()}
+          userInitials="LM"
+          assistantName="Økonomi"
+          labels={{ assistantMessageFrom: (name: string) => "Svar fra " + name }}
+        />
+      );
+
+      expect(screen.getByRole("article")).toHaveAttribute("aria-label", "Svar fra Økonomi");
+    });
+
+    it("defaultChatMessageLabels.assistantMessageFrom is a function of one string", () => {
+      expect(defaultChatMessageLabels.assistantMessageFrom).toHaveLength(1);
+      expect(defaultChatMessageLabels.assistantMessageFrom("Økonomi")).toBe(
+        "Response from Økonomi"
+      );
+    });
+
+    it("assistantName with a user entry renders no name and leaves the user aria-label unchanged", () => {
+      const { container } = render(
+        <ChatMessage entry={makeUserEntry()} userInitials="LM" assistantName="Økonomi" />
+      );
+
+      expect(screen.getByRole("article")).toHaveAttribute("aria-label", "Your message");
+      expect(container.textContent).not.toContain("Økonomi");
+    });
+
+    it("with an assistantAvatar supplied, the article's accessible name is the resolved name line, not the avatar", () => {
+      render(
+        <ChatMessage
+          entry={makeEntry()}
+          userInitials="LM"
+          assistantName="Økonomi"
+          assistantAvatar={<span data-testid="avatar-mark">4711</span>}
+        />
+      );
+
+      expect(screen.getByRole("article")).toHaveAccessibleName("Response from Økonomi");
     });
   });
 

@@ -37,6 +37,7 @@ export const chatMessageListLabels: ChatMessageListLabels = {
   transcript: "Samtaleudskrift",
   userMessage: "Din besked",
   assistantMessage: "Assistentens svar",
+  assistantMessageFrom: (name: string) => `Svar fra ${name}`,
   copy: "Kopiér svaret",
   copied: "Kopieret",
   copiedNotice: "Kopieret!",

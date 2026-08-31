@@ -9,6 +9,7 @@ import {
   ChatMessageList,
   defaultChatMessageListLabels,
   type AssistantChatEntry,
+  type ChatAttribution,
   type ChatMessageListHandle,
   type ChatMessageListLabels,
   type ChatMessageListProps,
@@ -20,8 +21,23 @@ import {
 const entries: ReadonlyArray<UserChatEntry | AssistantChatEntry | ToolChatEntry> = [
   { id: "u1", role: "user", content: "Vis booking 4711" },
   { id: "t1", role: "tool", toolName: "get_weather", toolInput: { location: "Berlin" } },
-  { id: "a1", role: "assistant", content: "Booking 4711 er fundet", isStreaming: false },
+  {
+    id: "a1",
+    role: "assistant",
+    content: "Booking 4711 er fundet",
+    isStreaming: false,
+    persona: "olt-support",
+  },
 ];
+
+// A lookup table, never a render function: a server component can pass this
+// object literal across the RSC boundary (CONTRACT.md § RSC fixture).
+const attribution: Readonly<Record<string, ChatAttribution>> = {
+  "olt-support": { name: "Økonomi", avatar: <span data-testid="persona-a" /> },
+};
+
+// @ts-expect-error -- ChatAttribution carries name and avatar and nothing else
+const attributionWithThirdMember: ChatAttribution = { name: "Økonomi", persona: "olt-support" };
 
 // A ThinkingChatEntry stays excluded from `entries` until
 // 087-bowman-ui-thinking-trace widens the union and deletes this assertion.
@@ -72,6 +88,7 @@ const Consumer = () => {
         entries={entries}
         userInitials="LM"
         labels={{ aiDisclosure: withDisclosureDefault.transcript }}
+        attribution={attribution}
         assistantAvatar={<span data-title={jumpToLatest.name} />}
         busy
         greeting={<p>God morgen</p>}
@@ -99,4 +116,5 @@ const Consumer = () => {
 };
 
 void Consumer;
+void attributionWithThirdMember;
 void toolNameFooter;

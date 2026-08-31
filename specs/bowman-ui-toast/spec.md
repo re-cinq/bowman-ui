@@ -118,15 +118,15 @@ positioned when animation is off
 caller-supplied content with nothing to default, so a one-key labels
 wrapper would add ceremony without adding safety - the same shape as the
 icons' `ariaLabel` and `useFocusGroups`' `announce`
-([validated by](../../tests/labelled-exports.test.tsx#L98)). Per the closed-list
+([validated by](../../tests/labelled-exports.test.tsx#L96)). Per the closed-list
 rule, this PR carries the amendment itself: `CONTRACT.md § Labels` now
 documents three exceptions with the reason above, and
 `specs/bowman-ui-labels-convention/spec.md`'s closed-list bullet now states
 that an addition requires exactly this kind of same-PR contract amendment.
 `tests/labelled-exports.test.tsx` classifies `Toast` under `stringPropOnly`
 and the partition still asserts the full barrel
-([validated by](../../tests/labelled-exports.test.tsx#L98),
-[L127](../../tests/labelled-exports.test.tsx#L133)).
+([validated by](../../tests/labelled-exports.test.tsx#L96),
+[L127](../../tests/labelled-exports.test.tsx#L130)).
 
 ## Carried across mechanically
 
@@ -157,7 +157,7 @@ and the partition still asserts the full barrel
   `src/` contains `translateX`; the toast keyframe now legitimately carries
   it in `src/styles.css`, so that assertion exempts `styles.css` alone -
   component sources remain banned from restating centring transforms
-  ([validated by](../../tests/ChatMessage.test.tsx#L634)).
+  ([validated by](../../tests/ChatMessage.test.tsx#L699)).
 - **Precedent citation.** The issue cites "021 Decision 0" for shipping on
   thin call-site evidence; 021's spec has no such numbered decision - the
   precedent lives in its Why section, and is cited as such here and in

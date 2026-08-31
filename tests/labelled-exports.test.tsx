@@ -56,6 +56,9 @@ import {
 //                    grandfathered shapes: icons' ariaLabel, useFocusGroups'
 //                    announce, Toast's message)
 //   noStrings      - renders/returns no user-visible or assistive string
+// Type-only exports carry no strings and appear in no bucket: `ChatAttribution`
+// (121) is one, and adding it below would fail the partition - `classified`
+// must equal the barrel's VALUE exports exactly.
 const labelsProp = [
   "ErrorBoundary",
   "ChatMessage",
@@ -170,9 +173,15 @@ const errorBoundarySentinels = {
   retry: "⟦retry⟧",
 } satisfies Required<ErrorBoundaryLabels>;
 
+// The persona name the harnesses render: caller-supplied content, numeric so
+// it carries no Latin run of its own, and the argument the function-form
+// assistantMessageFrom sentinel is computed for.
+const personaName = "4712";
+
 const chatMessageSentinels = {
   userMessage: "⟦userMessage⟧",
   assistantMessage: "⟦assistantMessage⟧",
+  assistantMessageFrom: (name: string) => `⟦assistantMessageFrom:${name}⟧`,
   copy: "⟦copy⟧",
   copied: "⟦copied⟧",
   copiedNotice: "⟦copiedNotice⟧",
@@ -246,6 +255,11 @@ const appSidebarSentinels = {
 // LATIN_RUN check without its own strip entry.
 const numericContent = "4711 – ok";
 
+// A function-form label's sentinel is computed per argument, so a harness that
+// renders one lists the computed string beside the plain ones.
+const plainSentinels = (sentinels: Record<string, unknown>): string[] =>
+  Object.values(sentinels).filter((value): value is string => typeof value === "string");
+
 // Every labelsProp member needs an entry here: the harness renders it with
 // every label set to a unique sentinel. Adding a labelsProp component without
 // a harness fails the sentinel test by name.
@@ -264,7 +278,10 @@ const sentinelHarnesses: Record<
       ).container,
   },
   ChatMessage: {
-    sentinels: Object.values(chatMessageSentinels),
+    sentinels: [
+      ...plainSentinels(chatMessageSentinels),
+      chatMessageSentinels.assistantMessageFrom(personaName),
+    ],
     renderContainer: () => {
       const { container, getAllByRole } = render(
         <>
@@ -281,6 +298,7 @@ const sentinelHarnesses: Record<
               isStreaming: false,
             }}
             userInitials="LM"
+            assistantName={personaName}
             labels={chatMessageSentinels}
           />
           <ChatMessage
@@ -300,7 +318,10 @@ const sentinelHarnesses: Record<
     },
   },
   ChatMessageList: {
-    sentinels: Object.values(chatMessageListSentinels),
+    sentinels: [
+      ...plainSentinels(chatMessageListSentinels),
+      chatMessageListSentinels.assistantMessageFrom(personaName),
+    ],
     renderContainer: () => {
       const { container, getAllByRole } = render(
         <ChatMessageList
@@ -312,9 +333,17 @@ const sentinelHarnesses: Record<
               content: `${numericContent} [42](https://4711.example/42)`,
               isStreaming: false,
             },
+            {
+              id: "a2",
+              role: "assistant",
+              content: numericContent,
+              isStreaming: false,
+              persona: "p-one",
+            },
           ]}
           userInitials="LM"
           busy
+          attribution={{ "p-one": { name: personaName } }}
           labels={chatMessageListSentinels}
         />
       );

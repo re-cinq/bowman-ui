@@ -73,20 +73,20 @@ the convention's `resolveLabels`
 `ReadonlyArray<UserChatEntry | AssistantChatEntry | ToolChatEntry>` -
 `ThinkingChatEntry` stays excluded until `087-bowman-ui-thinking-trace`, pinned
 by an `@ts-expect-error`
-([validated by](../../tests/types/chat-message-list-type-assertions.tsx#L33),
+([validated by](../../tests/types/chat-message-list-type-assertions.tsx#L49),
 compiled by
-[chat-message-list-dist](../../tests/chat-message-list-dist.test.ts#L47)). The
+[chat-message-list-dist](../../tests/chat-message-list-dist.test.ts#L109)). The
 map dispatches on `role`: a tool entry renders `ToolActivity`, everything else
 `ChatMessage`, array order preserved
-([validated by](../../tests/ChatMessageList.test.tsx#L799)). `busy` makes only
+([validated by](../../tests/ChatMessageList.test.tsx#L931)). `busy` makes only
 a trailing tool entry pending
-([validated by](../../tests/ChatMessageList.test.tsx#L820)); a non-trailing
+([validated by](../../tests/ChatMessageList.test.tsx#L952)); a non-trailing
 one stays done
-([validated by](../../tests/ChatMessageList.test.tsx#L832)). `describeTool`,
+([validated by](../../tests/ChatMessageList.test.tsx#L964)). `describeTool`,
 `showToolName`, `showToolInput` and `toolIcon` forward unchanged
-([validated by](../../tests/ChatMessageList.test.tsx#L854)), and a list of a
+([validated by](../../tests/ChatMessageList.test.tsx#L986)), and a list of a
 single tool entry still shows the `aiDisclosure` band
-([validated by](../../tests/ChatMessageList.test.tsx#L846)).
+([validated by](../../tests/ChatMessageList.test.tsx#L978)).
 `ChatMessageListLabels` gains `activity`, `activityDone` and `details` as
 defaulted keys, so `aiDisclosure` stays its only required key.
 
@@ -102,4 +102,4 @@ defaulted keys, so `aiDisclosure` stays its only required key.
 
 `ToolActivity` sits in the `labelsProp` bucket with its own sentinel harness,
 and its sentinel labels cover every `defaultToolActivityLabels` key
-([validated by](../../tests/labelled-exports.test.tsx#L463)).
+([validated by](../../tests/labelled-exports.test.tsx#L492)).
