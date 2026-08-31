@@ -55,6 +55,12 @@ jobs:
       # The dynamic node_modules scan lives in scripts/consumer-app.sh.
       - name: Forbidden import check
         run: node scripts/check-forbidden-imports.mjs
+      # Issue 213: the source-invariant markdown-safety gate. Fails the PR when
+      # the one refactor that would void the whole XSS corpus lands - rehype-raw
+      # added, skipHtml re-enabled, allowImages default flipped, or a dangerous
+      # scheme (javascript/data/vbscript/file) admitted to the default allowlist.
+      - name: Markdown safety check
+        run: npm run check:markdown-safety
       # specs' [validated by](...#Lnn) anchors drift silently when a test file
       # gains or loses lines (issue 36). Fails when an anchor no longer points
       # at the line content it cited on main; a red check is fixed with
