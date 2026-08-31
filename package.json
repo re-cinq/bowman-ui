@@ -7,6 +7,9 @@
     "type": "git",
     "url": "git+https://github.com/re-cinq/bowman-ui.git"
   },
+  "bugs": {
+    "url": "https://github.com/re-cinq/bowman-ui/issues"
+  },
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
