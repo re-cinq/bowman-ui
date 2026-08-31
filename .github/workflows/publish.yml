@@ -47,6 +47,11 @@ jobs:
         run: npm run lint
       - name: Typecheck
         run: npm run typecheck
+      # Issue 213: the last markdown-safety gate before an immutable publish -
+      # rehype-raw, a re-enabled skipHtml, a flipped allowImages default, or a
+      # dangerous scheme in the default allowlist blocks the release.
+      - name: Markdown safety check
+        run: npm run check:markdown-safety
       - name: Test (coverage gate)
         run: npm run test:coverage
       # Kept even though test:coverage also builds: `files: ["dist"]` with no
