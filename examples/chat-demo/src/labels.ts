@@ -50,6 +50,7 @@ export const chatMessageListLabels: ChatMessageListLabels = {
   activity: "Slår noget op",
   activityDone: "Slog noget op",
   details: "Detaljer",
+  thinkingTrace: "Ræsonnement",
 };
 
 export const chatComposerLabels: ChatComposerLabels = {

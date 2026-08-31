@@ -7,11 +7,13 @@ import {
   defaultChatMessageLabels,
   defaultChatMessageListLabels,
   defaultThinkingIndicatorLabels,
+  defaultThinkingTraceLabels,
   defaultToolActivityLabels,
 } from "../src/index.js";
 import type {
   AssistantChatEntry,
   ChatMessageListHandle,
+  ThinkingChatEntry,
   ToolChatEntry,
   UserChatEntry,
 } from "../src/index.js";
@@ -36,6 +38,13 @@ const toolEntry = (id: string): ToolChatEntry => ({
   role: "tool",
   toolName: "get_weather",
   toolInput: { location: "Berlin", units: "celsius" },
+});
+
+const thinkingEntry = (id: string, isStreaming = false): ThinkingChatEntry => ({
+  id,
+  role: "thinking",
+  content: "Jeg slår booking 4711 op med get_weather",
+  isStreaming,
 });
 
 const twoEntries = [
@@ -188,6 +197,7 @@ describe("ChatMessageList", () => {
       expect(defaultChatMessageListLabels).toEqual({
         ...defaultChatMessageLabels,
         ...defaultThinkingIndicatorLabels,
+        ...defaultThinkingTraceLabels,
         ...defaultToolActivityLabels,
         transcript: "Conversation",
       });
@@ -1044,6 +1054,93 @@ describe("ChatMessageList", () => {
       );
 
       expect(screen.getByText("Slår op")).toBeInTheDocument();
+    });
+  });
+
+  describe("thinking entries", () => {
+    const conversation = [
+      userEntry("u1", "Vis booking 4711"),
+      thinkingEntry("th1"),
+      assistantEntry("a1", "Booking 4711 er fundet"),
+    ];
+
+    it("showThinking absent renders no details and none of the thinking content", () => {
+      const { container } = render(
+        <ChatMessageList entries={conversation} userInitials="LM" labels={{ aiDisclosure }} />
+      );
+
+      expect(container.querySelector("details")).toBeNull();
+      expect(container.textContent).not.toContain(thinkingEntry("th1").content);
+      expect(container.textContent).not.toContain("Reasoning");
+    });
+
+    it("showThinking absent leaves the user and assistant entries untouched", () => {
+      const { container } = render(
+        <ChatMessageList entries={conversation} userInitials="LM" labels={{ aiDisclosure }} />
+      );
+
+      const children = Array.from(container.querySelector(".max-w-3xl")?.children ?? []);
+      expect(children.map((child) => child.tagName)).toEqual(["ARTICLE", "ARTICLE"]);
+      expect(children[0]).toHaveTextContent("Vis booking 4711");
+      expect(children[1]).toHaveTextContent("Booking 4711 er fundet");
+    });
+
+    it("showThinking true renders one collapsed trace between the two messages", () => {
+      const { container } = render(
+        <ChatMessageList
+          entries={conversation}
+          userInitials="LM"
+          showThinking
+          labels={{ aiDisclosure }}
+        />
+      );
+
+      const children = Array.from(container.querySelector(".max-w-3xl")?.children ?? []);
+      expect(children.map((child) => child.tagName)).toEqual(["ARTICLE", "DETAILS", "ARTICLE"]);
+      expect(container.querySelectorAll("details")).toHaveLength(1);
+      expect(children[1].querySelector("summary")?.textContent).toBe("Reasoning");
+      expect((children[1] as HTMLDetailsElement).open).toBe(false);
+    });
+
+    it("a list holding a single thinking entry with showThinking still renders the aiDisclosure band", () => {
+      render(
+        <ChatMessageList
+          entries={[thinkingEntry("th1")]}
+          userInitials="LM"
+          showThinking
+          labels={{ aiDisclosure }}
+        />
+      );
+
+      expect(screen.getByText(aiDisclosure)).toBeInTheDocument();
+    });
+
+    it("forwards reducedMotion, stripping the streaming dots' animation class", () => {
+      const { container } = render(
+        <ChatMessageList
+          entries={[thinkingEntry("th1", true)]}
+          userInitials="LM"
+          showThinking
+          reducedMotion
+          labels={{ aiDisclosure }}
+        />
+      );
+
+      expect(container.querySelectorAll("summary .bg-blue-500")).toHaveLength(3);
+      expect(container.querySelectorAll(".bowman-fade-dot")).toHaveLength(0);
+    });
+
+    it("forwards the resolved thinkingTrace label so a Danish catalogue reaches the trace", () => {
+      const { container } = render(
+        <ChatMessageList
+          entries={[thinkingEntry("th1")]}
+          userInitials="LM"
+          showThinking
+          labels={{ aiDisclosure, thinkingTrace: "Ræsonnement" }}
+        />
+      );
+
+      expect(container.querySelector("summary")?.textContent).toBe("Ræsonnement");
     });
   });
 });

@@ -39,15 +39,15 @@ const attribution: Readonly<Record<string, ChatAttribution>> = {
 // @ts-expect-error -- ChatAttribution carries name and avatar and nothing else
 const attributionWithThirdMember: ChatAttribution = { name: "Økonomi", persona: "olt-support" };
 
-// A ThinkingChatEntry stays excluded from `entries` until
-// 087-bowman-ui-thinking-trace widens the union and deletes this assertion.
+// 087-bowman-ui-thinking-trace widened `entries` to the full ChatEntry union,
+// so a ThinkingChatEntry is now accepted - the positive case that replaced
+// 086's @ts-expect-error.
 const withThinking: ReadonlyArray<UserChatEntry | ThinkingChatEntry> = [
   { id: "u1", role: "user", content: "Vis booking 4711" },
   { id: "th1", role: "thinking", content: "Slår booking op", isStreaming: false },
 ];
-// @ts-expect-error -- ThinkingChatEntry is not in entries until 087-bowman-ui-thinking-trace
-const rejectedEntries: ComponentProps<typeof ChatMessageList>["entries"] = withThinking;
-void rejectedEntries;
+const acceptedEntries: ComponentProps<typeof ChatMessageList>["entries"] = withThinking;
+void acceptedEntries;
 
 // @ts-expect-error -- aiDisclosure is declared without a default (EU AI Act:
 // no English placeholder may reach a Danish customer), so the defaults
@@ -102,6 +102,7 @@ const Consumer = () => {
         showToolName
         showToolInput
         toolIcon={<span />}
+        showThinking
         onCopy={(text: string, entryId: string) => {
           void text;
           void entryId;

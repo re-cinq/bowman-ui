@@ -26,12 +26,12 @@ out for a consumer with its own
 `AppShellLabels` has four defaulted keys - `openSidebar`, `closeSidebar`,
 `skipToMainContent`, and `sidebarDialog` (the open drawer dialog's accessible
 name, added by the 2026-08-26 review) - per CONTRACT.md § Labels
-([validated by](../../tests/labelled-exports.test.tsx#L510)). `AppShell`
+([validated by](../../tests/labelled-exports.test.tsx#L541)). `AppShell`
 sits in the `labelsProp` partition bucket and passes the
 sentinel render with all four labels set to sentinels; the harness opens the
 drawer so the dialog-name sentinel renders
-([partition](../../tests/labelled-exports.test.tsx#L66),
-[harness](../../tests/labelled-exports.test.tsx#L358)).
+([partition](../../tests/labelled-exports.test.tsx#L70),
+[harness](../../tests/labelled-exports.test.tsx#L371)).
 
 `renderSidebar({ variant, close })` is called exactly twice per render - once
 per position, `"desktop"` rail and `"mobile"` drawer - and both returned

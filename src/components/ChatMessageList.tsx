@@ -11,7 +11,7 @@ import {
 import { useReducedMotion } from "../hooks/useReducedMotion.js";
 import { resolveLabels } from "../labels.js";
 import type { MarkdownPolicy } from "../markdown/urlPolicy.js";
-import type { AssistantChatEntry, ToolChatEntry, UserChatEntry } from "../types/chat.js";
+import type { AssistantChatEntry, ChatEntry, ToolChatEntry, UserChatEntry } from "../types/chat.js";
 import { ChatMessage, defaultChatMessageLabels, type ChatMessageLabels } from "./ChatMessage.js";
 import {
   ThinkingIndicator,
@@ -19,13 +19,18 @@ import {
   type ThinkingIndicatorLabels,
 } from "./ThinkingIndicator.js";
 import {
+  ThinkingTrace,
+  defaultThinkingTraceLabels,
+  type ThinkingTraceLabels,
+} from "./ThinkingTrace.js";
+import {
   ToolActivity,
   defaultToolActivityLabels,
   type ToolActivityLabels,
 } from "./ToolActivity.js";
 
 export interface ChatMessageListLabels
-  extends ChatMessageLabels, ThinkingIndicatorLabels, ToolActivityLabels {
+  extends ChatMessageLabels, ThinkingIndicatorLabels, ThinkingTraceLabels, ToolActivityLabels {
   /**
    * The EU AI Act disclosure line, rendered outside the scroll region in
    * every state. Required with no default: no English placeholder may
@@ -41,6 +46,7 @@ export const defaultChatMessageListLabels: Readonly<
 > = Object.freeze({
   ...defaultChatMessageLabels,
   ...defaultThinkingIndicatorLabels,
+  ...defaultThinkingTraceLabels,
   ...defaultToolActivityLabels,
   transcript: "Conversation",
 });
@@ -58,10 +64,10 @@ export interface ChatAttribution {
 
 export interface ChatMessageListProps {
   /**
-   * The conversation to render, in order. A delta must arrive as a new array.
-   * `ThinkingChatEntry` stays excluded until `087-bowman-ui-thinking-trace`.
+   * The conversation to render, in order - all four entry roles. A delta must
+   * arrive as a new array.
    */
-  entries: ReadonlyArray<UserChatEntry | AssistantChatEntry | ToolChatEntry>;
+  entries: ReadonlyArray<ChatEntry>;
   userInitials: string;
   /**
    * Required, unlike every sibling component's optional `labels`:
@@ -108,6 +114,12 @@ export interface ChatMessageListProps {
   showToolInput?: boolean;
   /** Fills the icon slot of every `ToolActivity`. */
   toolIcon?: ReactNode;
+  /**
+   * Mounts a `ThinkingTrace` for every thinking entry. Default false: nothing
+   * asks a customer to read the model's internal deliberation, and the content
+   * is unreviewed model output (CONTRACT.md § Thinking trace).
+   */
+  showThinking?: boolean;
   onCopy?: (text: string, entryId: string) => void;
   onFeedback?: (entryId: string, type: "up" | "down") => void;
 }
@@ -173,6 +185,7 @@ export const ChatMessageList = forwardRef<ChatMessageListHandle, ChatMessageList
       showToolName,
       showToolInput,
       toolIcon,
+      showThinking = false,
       onCopy,
       onFeedback,
     },
@@ -241,6 +254,61 @@ export const ChatMessageList = forwardRef<ChatMessageListHandle, ChatMessageList
 
     const showEmptyState = entries.length === 0 && !busy;
 
+    // One row per entry, dispatched on `role`. A thinking entry renders
+    // nothing at all unless `showThinking` is on: the flag gates the mount,
+    // not just the visibility, so unreviewed reasoning never reaches the DOM
+    // of a customer-facing surface.
+    const renderRow = (entry: ChatEntry, index: number) => {
+      if (entry.role === "tool") {
+        return (
+          <ToolActivity
+            key={entry.id}
+            entry={entry}
+            describeTool={describeTool}
+            pending={busy && index === entries.length - 1}
+            showToolName={showToolName}
+            showToolInput={showToolInput}
+            icon={toolIcon}
+            labels={{
+              activity: resolved.activity,
+              activityDone: resolved.activityDone,
+              details: resolved.details,
+            }}
+          />
+        );
+      }
+      if (entry.role === "thinking" && !showThinking) {
+        return null;
+      }
+      if (entry.role === "thinking") {
+        return (
+          <ThinkingTrace
+            key={entry.id}
+            entry={entry}
+            reducedMotion={reducedMotion}
+            labels={{ thinkingTrace: resolved.thinkingTrace }}
+          />
+        );
+      }
+      const attributed = attributionFor(entry, attribution);
+      return (
+        <ChatMessage
+          key={entry.id}
+          entry={entry}
+          userInitials={userInitials}
+          assistantAvatar={attributed?.avatar ?? assistantAvatar}
+          assistantName={attributed?.name}
+          showFeedback={showFeedback}
+          arrowKeyFeedback={arrowKeyFeedback}
+          footer={renderEntryFooter?.(entry)}
+          markdown={markdown}
+          labels={resolved}
+          onCopy={onCopy}
+          onFeedback={onFeedback}
+        />
+      );
+    };
+
     return (
       <div className="flex min-h-0 flex-1 flex-col">
         <p className="border-b border-slate-200 px-4 py-2 text-center text-xs text-slate-500 dark:border-slate-800 dark:text-slate-400">
@@ -261,43 +329,7 @@ export const ChatMessageList = forwardRef<ChatMessageListHandle, ChatMessageList
             </div>
           ) : (
             <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-4 py-6">
-              {entries.map((entry, index) => {
-                if (entry.role === "tool") {
-                  return (
-                    <ToolActivity
-                      key={entry.id}
-                      entry={entry}
-                      describeTool={describeTool}
-                      pending={busy && index === entries.length - 1}
-                      showToolName={showToolName}
-                      showToolInput={showToolInput}
-                      icon={toolIcon}
-                      labels={{
-                        activity: resolved.activity,
-                        activityDone: resolved.activityDone,
-                        details: resolved.details,
-                      }}
-                    />
-                  );
-                }
-                const attributed = attributionFor(entry, attribution);
-                return (
-                  <ChatMessage
-                    key={entry.id}
-                    entry={entry}
-                    userInitials={userInitials}
-                    assistantAvatar={attributed?.avatar ?? assistantAvatar}
-                    assistantName={attributed?.name}
-                    showFeedback={showFeedback}
-                    arrowKeyFeedback={arrowKeyFeedback}
-                    footer={renderEntryFooter?.(entry)}
-                    markdown={markdown}
-                    labels={resolved}
-                    onCopy={onCopy}
-                    onFeedback={onFeedback}
-                  />
-                );
-              })}
+              {entries.map(renderRow)}
               {busy && (
                 <ThinkingIndicator
                   assistantAvatar={assistantAvatar}
