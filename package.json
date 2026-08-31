@@ -29,6 +29,7 @@
     "test": "npm run test:coverage",
     "test:coverage": "npm run build && vitest run --coverage",
     "lint": "eslint . --max-warnings 0",
+    "check:markdown-safety": "node scripts/check-markdown-safety.mjs",
     "consumer": "scripts/consumer-app.sh",
     "rsc": "scripts/rsc-fixture.sh",
     "prettier": "prettier --write .",
