@@ -458,7 +458,8 @@ The rule, recorded in README.md in the same words: a React server component
 cannot pass a function across the client boundary - `AppShell`
 (`renderSidebar`, `onMobileSidebarOpenChange`), `AppSidebar`
 (`renderNavLink`, `onNavigate`, a `SidebarNavItem`'s `icon`), `ChatComposer`
-(`onSubmit`), `ChatMessage` and `ChatMessageList` (`onCopy`, `onFeedback`),
+(`onSubmit`), `ChatMessage` and `ChatMessageList` (`onCopy`, `onFeedback`, the
+`assistantMessageFrom` label),
 `ConversationList` (`renderLink`, `onSelect`, `onDelete`, the
 `deleteConversation` label), `ErrorBoundary` (`onError`) and `Toast`
 (`onClose`) accept function-valued props, so an App Router consumer supplies
@@ -468,6 +469,32 @@ any non-serializable prop the same way. The fixture's
 `app/compose/page.tsx` ships under `"use client"` for exactly this reason,
 and `app/client/page.tsx` is the control proving the composition itself is
 sound.
+
+## Attribution (issue 121)
+
+`AssistantChatEntry.persona` is an **opaque identifier**, never free text and
+never a sentence the customer reads. The package never resolves it, never
+renders it, and attaches no meaning to it: it is a key into the consumer's
+`ChatMessageList` `attribution` table and nothing else. An id absent from the
+table renders the default `assistantAvatar` with no name - a persisted or
+replayed session can name a persona the consumer has since retired, and the
+raw id must never reach the DOM.
+
+**GDPR.** `persona` is persisted, replayed and logged wherever the session
+itself is (`003-support-conversation-data-flow-record` records those stores),
+so it must not carry a customer name, a booking number, or any other personal
+data - `"olt-support"`, not `"karla-vn-7305-kp"`. The producer owns that
+rule; the package cannot enforce it, exactly as § Labels decision 5 declines a
+runtime guard. `ChatAttribution`'s `name` and `avatar` are consumer chrome -
+the persona's own display name and mark - and carry no customer data either:
+they describe who answered, never who asked.
+
+**EU AI Act.** A named, avatared persona is still an AI system. Giving an
+answer a human first name and a face does not discharge the Article 50(1)
+transparency obligation and does not soften it - it makes the disclosure more
+necessary, not less. `ChatMessageList`'s required `aiDisclosure` band renders
+in every state and no prop removes it, `attribution` included; the Danish
+wording belongs to `062-support-agent-ai-disclosure`.
 
 ## Seams left open on purpose
 

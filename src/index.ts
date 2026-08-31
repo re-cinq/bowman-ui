@@ -95,6 +95,7 @@ export type {
 } from "./components/AppSidebar.js";
 export { ChatMessageList, defaultChatMessageListLabels } from "./components/ChatMessageList.js";
 export type {
+  ChatAttribution,
   ChatMessageListHandle,
   ChatMessageListLabels,
   ChatMessageListProps,

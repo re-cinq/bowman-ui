@@ -36,6 +36,15 @@ export interface AssistantChatEntry {
    * counterpart anywhere in the HAL protocol.
    */
   toolStatus?: string;
+  /**
+   * Which persona answered, as an opaque identifier the caller supplies -
+   * the counterpart to `hal-engine`'s `AssistantEntry.persona`. The package
+   * never resolves it: it is a key into the consumer's own `attribution`
+   * lookup (see `ChatAttribution`), never rendered and never interpreted
+   * here. It must not carry personal data - it is persisted, replayed and
+   * logged wherever the session is (CONTRACT.md § Attribution).
+   */
+  persona?: string;
 }
 
 /**

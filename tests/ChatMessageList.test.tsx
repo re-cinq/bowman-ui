@@ -446,6 +446,138 @@ describe("ChatMessageList", () => {
     });
   });
 
+  describe("attribution (121)", () => {
+    const personaEntry = (id: string, content: string, persona: string): AssistantChatEntry => ({
+      ...assistantEntry(id, content),
+      persona,
+    });
+
+    const twoPersonas = {
+      "olt-support": { name: "Økonomi", avatar: <span data-testid="icon-a" /> },
+      "p-two": { name: "Salg", avatar: <span data-testid="icon-b" /> },
+    };
+
+    it("two assistant entries with two personas render two names and two faces in one conversation", () => {
+      render(
+        <ChatMessageList
+          entries={[
+            personaEntry("a1", "Første svar", "olt-support"),
+            personaEntry("a2", "Andet svar", "p-two"),
+          ]}
+          userInitials="LM"
+          labels={{ aiDisclosure }}
+          attribution={twoPersonas}
+        />
+      );
+
+      const [first, second] = screen.getAllByRole("article");
+      expect(within(first).getByText("Økonomi")).toBeInTheDocument();
+      expect(within(first).getByTestId("icon-a")).toBeInTheDocument();
+      expect(first).toHaveAttribute("aria-label", "Response from Økonomi");
+      expect(within(second).getByText("Salg")).toBeInTheDocument();
+      expect(within(second).getByTestId("icon-b")).toBeInTheDocument();
+      expect(second).toHaveAttribute("aria-label", "Response from Salg");
+    });
+
+    it('an entry whose persona "p-gone" is absent from attribution falls back to assistantAvatar, renders no name, and never prints the id', () => {
+      const { container } = render(
+        <ChatMessageList
+          entries={[personaEntry("a1", "Svar", "p-gone")]}
+          userInitials="LM"
+          labels={{ aiDisclosure }}
+          assistantAvatar={<span data-testid="default-mark" />}
+          attribution={twoPersonas}
+        />
+      );
+
+      expect(screen.getByTestId("default-mark")).toBeInTheDocument();
+      expect(screen.queryByTestId("icon-a")).not.toBeInTheDocument();
+      expect(screen.getByRole("article")).toHaveAttribute("aria-label", "Assistant response");
+      expect(container.innerHTML).not.toContain("p-gone");
+    });
+
+    it("attribution supplied with no entry carrying a persona renders identically to attribution omitted", () => {
+      const withAttribution = render(
+        <ChatMessageList
+          entries={twoEntries}
+          userInitials="LM"
+          labels={{ aiDisclosure }}
+          attribution={twoPersonas}
+        />
+      ).container;
+      const without = render(
+        <ChatMessageList entries={twoEntries} userInitials="LM" labels={{ aiDisclosure }} />
+      ).container;
+
+      expect(withAttribution.innerHTML).toBe(without.innerHTML);
+    });
+
+    it("entries carrying a persona render identically to the same entries without one when attribution is omitted", () => {
+      const withPersona = render(
+        <ChatMessageList
+          entries={[personaEntry("a1", "Svar", "olt-support")]}
+          userInitials="LM"
+          labels={{ aiDisclosure }}
+        />
+      ).container;
+      const without = render(
+        <ChatMessageList
+          entries={[assistantEntry("a1", "Svar")]}
+          userInitials="LM"
+          labels={{ aiDisclosure }}
+        />
+      ).container;
+
+      expect(withPersona.innerHTML).toBe(without.innerHTML);
+    });
+
+    it("with busy true, the thinking tail keeps the default assistantAvatar behind a trailing persona entry", () => {
+      render(
+        <ChatMessageList
+          entries={[personaEntry("a1", "Svar", "olt-support")]}
+          userInitials="LM"
+          busy
+          labels={{ aiDisclosure }}
+          assistantAvatar={<span data-testid="default-mark" />}
+          attribution={twoPersonas}
+        />
+      );
+
+      const indicator = screen.getByRole("status");
+      expect(within(indicator).getByTestId("default-mark")).toBeInTheDocument();
+      expect(within(indicator).queryByTestId("icon-a")).not.toBeInTheDocument();
+    });
+
+    it("a human first name in attribution leaves the aiDisclosure line in place", () => {
+      render(
+        <ChatMessageList
+          entries={[personaEntry("a1", "Svar", "olt-support")]}
+          userInitials="LM"
+          labels={{ aiDisclosure }}
+          attribution={{ "olt-support": { name: "Mette", avatar: <span data-testid="icon-a" /> } }}
+        />
+      );
+
+      expect(screen.getByText(aiDisclosure)).toBeInTheDocument();
+      expect(screen.getByText("Mette")).toBeInTheDocument();
+    });
+
+    it("a persona resolving to a name but no avatar keeps the default assistantAvatar", () => {
+      render(
+        <ChatMessageList
+          entries={[personaEntry("a1", "Svar", "olt-support")]}
+          userInitials="LM"
+          labels={{ aiDisclosure }}
+          assistantAvatar={<span data-testid="default-mark" />}
+          attribution={{ "olt-support": { name: "Økonomi" } }}
+        />
+      );
+
+      expect(screen.getByTestId("default-mark")).toBeInTheDocument();
+      expect(screen.getByRole("article")).toHaveAttribute("aria-label", "Response from Økonomi");
+    });
+  });
+
   describe("auto-scroll", () => {
     it("pinned at 1200/400/800, appending an entry calls scrollTo with top 1200 and behavior smooth", () => {
       installScrollTo();
