@@ -53,10 +53,11 @@ existing controls, which are the security baseline a bypass has to beat:
   is a frozen policy allowing only the `https`, `mailto`, and `tel` schemes, with
   no relative URLs (protocol-relative `//host` and authority-less
   `https:/api/logout` included) and no images. `createUrlTransform` replaces
-  react-markdown's default URL filter and compares the raw, still
-  percent-encoded scheme, so an encoded-tab trick such as `java&#x09;script:`
-  never decodes past the allowlist. A rejected URL renders its link text in a
-  `<span>`, never an anchor.
+  react-markdown's default URL filter. The value arrives from micromark
+  already percent-encoded — an entity-encoded tab such as `java&#x09;script:`
+  becomes `java%09script:` before this function sees it — and the comparison
+  never decodes it, so the encoded-tab trick never matches the allowlist. A
+  rejected URL renders its link text in a `<span>`, never an anchor.
 - **The `rel`/`target` policy.** Every rendered anchor carries
   `rel="noopener noreferrer"`, and `_blank` links open in a new tab with a
   visually-hidden "opens in a new tab" notice (`src/markdown/components.tsx`).
