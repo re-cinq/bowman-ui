@@ -69,24 +69,25 @@ the convention's `resolveLabels`
 
 ## In the message list
 
-`ChatMessageList`'s `entries` widens to
-`ReadonlyArray<UserChatEntry | AssistantChatEntry | ToolChatEntry>` -
-`ThinkingChatEntry` stays excluded until `087-bowman-ui-thinking-trace`, pinned
-by an `@ts-expect-error`
-([validated by](../../tests/types/chat-message-list-type-assertions.tsx#L49),
+`ChatMessageList`'s `entries` widened to
+`ReadonlyArray<UserChatEntry | AssistantChatEntry | ToolChatEntry>` here;
+`087-bowman-ui-thinking-trace` has since widened it to the full `ChatEntry`
+union and replaced this issue's `@ts-expect-error` with a positive assertion
+over the same thinking-entry array
+([validated by](../../tests/types/chat-message-list-type-assertions.tsx#L28),
 compiled by
-[chat-message-list-dist](../../tests/chat-message-list-dist.test.ts#L109)). The
+[chat-message-list-dist](../../tests/chat-message-list-dist.test.ts#L110)). The
 map dispatches on `role`: a tool entry renders `ToolActivity`, everything else
 `ChatMessage`, array order preserved
-([validated by](../../tests/ChatMessageList.test.tsx#L931)). `busy` makes only
+([validated by](../../tests/ChatMessageList.test.tsx#L941)). `busy` makes only
 a trailing tool entry pending
-([validated by](../../tests/ChatMessageList.test.tsx#L952)); a non-trailing
+([validated by](../../tests/ChatMessageList.test.tsx#L962)); a non-trailing
 one stays done
-([validated by](../../tests/ChatMessageList.test.tsx#L964)). `describeTool`,
+([validated by](../../tests/ChatMessageList.test.tsx#L974)). `describeTool`,
 `showToolName`, `showToolInput` and `toolIcon` forward unchanged
-([validated by](../../tests/ChatMessageList.test.tsx#L986)), and a list of a
+([validated by](../../tests/ChatMessageList.test.tsx#L996)), and a list of a
 single tool entry still shows the `aiDisclosure` band
-([validated by](../../tests/ChatMessageList.test.tsx#L978)).
+([validated by](../../tests/ChatMessageList.test.tsx#L988)).
 `ChatMessageListLabels` gains `activity`, `activityDone` and `details` as
 defaulted keys, so `aiDisclosure` stays its only required key.
 
@@ -102,4 +103,4 @@ defaulted keys, so `aiDisclosure` stays its only required key.
 
 `ToolActivity` sits in the `labelsProp` bucket with its own sentinel harness,
 and its sentinel labels cover every `defaultToolActivityLabels` key
-([validated by](../../tests/labelled-exports.test.tsx#L492)).
+([validated by](../../tests/labelled-exports.test.tsx#L523)).
