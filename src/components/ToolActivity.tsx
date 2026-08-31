@@ -18,8 +18,12 @@ export const defaultToolActivityLabels: Readonly<Required<ToolActivityLabels>> =
 
 export interface ToolActivityProps {
   entry: ToolChatEntry;
-  /** Replaces the default sentence with a caller-authored one; still no tool name or input unless opted in. */
-  describeTool?: (entry: ToolChatEntry) => ReactNode;
+  /**
+   * Replaces the default sentence with a caller-authored one; still no tool
+   * name or input unless opted in. Receives this component's resolved
+   * `pending`, so a tensed sentence can match the built-in labels.
+   */
+  describeTool?: (entry: ToolChatEntry, pending: boolean) => ReactNode;
   /** The call is still in flight. Default false: `ChatMessageList` derives it from `busy`. */
   pending?: boolean;
   /** Reveals `entry.toolName`, an English machine identifier. Default false. */
@@ -35,10 +39,10 @@ const headlineFor = (
   resolved: Required<ToolActivityLabels>,
   entry: ToolChatEntry,
   pending: boolean,
-  describeTool?: (entry: ToolChatEntry) => ReactNode
+  describeTool?: (entry: ToolChatEntry, pending: boolean) => ReactNode
 ): ReactNode => {
   if (describeTool) {
-    return describeTool(entry);
+    return describeTool(entry, pending);
   }
   return pending ? resolved.activity : resolved.activityDone;
 };

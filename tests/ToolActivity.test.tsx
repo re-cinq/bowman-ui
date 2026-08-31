@@ -1,4 +1,5 @@
 import { render, screen } from "@testing-library/react";
+import { spawnSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { ToolActivity, defaultToolActivityLabels } from "../src/index.js";
@@ -90,6 +91,27 @@ describe("ToolActivity", () => {
 
     it("receives the entry", () => {
       render(<ToolActivity entry={weatherEntry} describeTool={(entry) => entry.toolName} />);
+
+      expect(screen.getByText("get_weather")).toBeInTheDocument();
+    });
+
+    it("receives pending, so the caller's sentence reads present tense while the call runs", () => {
+      const describeTool = (entry: ToolChatEntry, pending: boolean) =>
+        pending ? "Looking up the weather" : "Looked up the weather";
+      const { rerender } = render(
+        <ToolActivity entry={weatherEntry} describeTool={describeTool} pending />
+      );
+      expect(screen.getByText("Looking up the weather")).toBeInTheDocument();
+      expect(screen.queryByText("Looked up the weather")).not.toBeInTheDocument();
+
+      rerender(<ToolActivity entry={weatherEntry} describeTool={describeTool} />);
+      expect(screen.getByText("Looked up the weather")).toBeInTheDocument();
+      expect(screen.queryByText("Looking up the weather")).not.toBeInTheDocument();
+    });
+
+    it("takes a one-parameter callback unchanged, ignoring the pending argument", () => {
+      const describe = (entry: ToolChatEntry) => entry.toolName;
+      render(<ToolActivity entry={weatherEntry} describeTool={describe} pending />);
 
       expect(screen.getByText("get_weather")).toBeInTheDocument();
     });
@@ -193,6 +215,52 @@ describe("ToolActivity", () => {
       const declarations = readFileSync(resolve(process.cwd(), "dist/index.d.ts"), "utf8");
 
       expect(declarations).not.toContain("renderEntry");
+    });
+
+    // dist/index.d.ts is a barrel of re-export statements, so the widened
+    // signature is emitted in the module it re-exports rather than inline.
+    it("the declarations reached from dist/index.d.ts carry the two-parameter describeTool", () => {
+      const barrel = readFileSync(resolve(process.cwd(), "dist/index.d.ts"), "utf8");
+      const declarations = readFileSync(
+        resolve(process.cwd(), "dist/components/ToolActivity.d.ts"),
+        "utf8"
+      );
+
+      expect(barrel).toContain('ToolActivityProps } from "./components/ToolActivity.js"');
+      expect(declarations).toContain(
+        "describeTool?: (entry: ToolChatEntry, pending: boolean) => ReactNode;"
+      );
+    });
+
+    it("tsc accepts tool-activity-type-assertions.tsx against dist, with no @ts-expect-error in it", () => {
+      const assertions = readFileSync(
+        resolve(process.cwd(), "tests/types/tool-activity-type-assertions.tsx"),
+        "utf8"
+      );
+      expect(assertions).not.toContain("@ts-expect-error");
+
+      const result = spawnSync(
+        "node",
+        [
+          "node_modules/typescript7/bin/tsc",
+          "--ignoreConfig",
+          "--noEmit",
+          "--strict",
+          "--target",
+          "es2022",
+          "--module",
+          "nodenext",
+          "--moduleResolution",
+          "nodenext",
+          "--skipLibCheck",
+          "--jsx",
+          "react-jsx",
+          "tests/types/tool-activity-type-assertions.tsx",
+        ],
+        { cwd: process.cwd(), encoding: "utf8" }
+      );
+
+      expect(result).toMatchObject({ status: 0, stderr: "" });
     });
   });
 });

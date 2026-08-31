@@ -18,53 +18,53 @@ done; `ChatMessageList` filtered it out until this issue.
 (`"Looking something up"`), `activityDone` (`"Looked something up"`) and
 `details` (the disclosure's `<summary>`, `"Details"`) - with
 `defaultToolActivityLabels` frozen over the three English strings
-([validated by](../../tests/ToolActivity.test.tsx#L140)), resolved per key by
+([validated by](../../tests/ToolActivity.test.tsx#L162)), resolved per key by
 the convention's `resolveLabels`
-([validated by](../../tests/ToolActivity.test.tsx#L126)).
+([validated by](../../tests/ToolActivity.test.tsx#L148)).
 
 ## The decisions
 
 1. **The default is the safe answer, not a faithful dump.** With no prop but
    `entry`, the render is one sentence (`activityDone`) and nothing else -
    neither the tool name nor the arguments reach the DOM
-   ([validated by](../../tests/ToolActivity.test.tsx#L17)), because
+   ([validated by](../../tests/ToolActivity.test.tsx#L18)), because
    `entry.toolName` is an English machine identifier in a Danish-first product
    and `entry.toolInput` is model-authored data that may hold a booking
    reference or a customer identifier. `showToolName` opts the name in
-   ([validated by](../../tests/ToolActivity.test.tsx#L34)) and `showToolInput`
+   ([validated by](../../tests/ToolActivity.test.tsx#L35)) and `showToolInput`
    opts the arguments in
-   ([validated by](../../tests/ToolActivity.test.tsx#L48)); both default off.
+   ([validated by](../../tests/ToolActivity.test.tsx#L49)); both default off.
    Whether a consumer may flip either is
    `003-support-conversation-data-flow-record`'s call, recorded in
    CONTRACT.md § Tool activity.
 2. **`describeTool` is the caller's sentence.** When present it replaces the
    `activity`/`activityDone` line with caller-authored copy and does not
    suppress `showToolName`
-   ([validated by](../../tests/ToolActivity.test.tsx#L77)); the Danish
+   ([validated by](../../tests/ToolActivity.test.tsx#L78)); the Danish
    `describeTool` map itself belongs to the support agent, not the library.
 3. **`pending` is caller-derived.** `pending` true renders `activity`, absent
    renders `activityDone`
-   ([validated by](../../tests/ToolActivity.test.tsx#L99),
-   [done](../../tests/ToolActivity.test.tsx#L106)) - there is no protocol
+   ([validated by](../../tests/ToolActivity.test.tsx#L121),
+   [done](../../tests/ToolActivity.test.tsx#L128)) - there is no protocol
    "done" signal, so `ChatMessageList` derives it as
    `busy === true && index === entries.length - 1`.
 4. **Arguments are inert JSON behind a native disclosure.** When shown they
    render as `JSON.stringify(entry.toolInput, null, 2)` inside a `<pre>`,
    behind a `<details>`/`<summary>` closed by default
-   ([validated by](../../tests/ToolActivity.test.tsx#L115)) - never markdown
+   ([validated by](../../tests/ToolActivity.test.tsx#L137)) - never markdown
    or HTML, so a `<img onerror>` payload renders as literal text with no
    element created
-   ([validated by](../../tests/ToolActivity.test.tsx#L62)). The source
+   ([validated by](../../tests/ToolActivity.test.tsx#L63)). The source
    references no `dangerouslySetInnerHTML`, `react-markdown` or `remark-`
-   ([validated by](../../tests/ToolActivity.test.tsx#L165)) and holds no
+   ([validated by](../../tests/ToolActivity.test.tsx#L187)) and holds no
    `useState`, `useEffect` or `useId`
-   ([validated by](../../tests/ToolActivity.test.tsx#L169)).
+   ([validated by](../../tests/ToolActivity.test.tsx#L191)).
 5. **It is not a message.** No avatar, copy or feedback affordance, and
    `ToolActivityProps` declares none of `assistantAvatar`, `onCopy`,
    `onFeedback` or `showFeedback`
-   ([validated by](../../tests/ToolActivity.test.tsx#L177)). No `renderEntry`
+   ([validated by](../../tests/ToolActivity.test.tsx#L199)). No `renderEntry`
    escape hatch exists - `dist/index.d.ts` carries none
-   ([validated by](../../tests/ToolActivity.test.tsx#L192)) - so the
+   ([validated by](../../tests/ToolActivity.test.tsx#L214)) - so the
    data-boundary default cannot be moved out of the library.
 
 ## In the message list
@@ -94,9 +94,9 @@ defaulted keys, so `aiDisclosure` stays its only required key.
 
 `ToolActivity.tsx` makes no `console` call and touches no `localStorage`,
 `sessionStorage` or `IndexedDB`
-([validated by](../../tests/ToolActivity.test.tsx#L173)); rendering with
+([validated by](../../tests/ToolActivity.test.tsx#L195)); rendering with
 `showToolInput` leaves `localStorage.length` at `0`
-([validated by](../../tests/ToolActivity.test.tsx#L183)).
+([validated by](../../tests/ToolActivity.test.tsx#L205)).
 
 ## The labels partition
 
