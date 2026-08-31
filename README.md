@@ -200,6 +200,10 @@ npm run build
 
 Two TypeScript installs exist on purpose: `typescript` (~6.x) feeds the lint stack, because `typescript-eslint` caps its peer range below TypeScript 7, while the `typescript7` alias (`npm:typescript@~7.0.2`) is the actual compiler that `build` and `typecheck` invoke. Do not "clean up" the alias, and do not enable type-aware linting (`recommendedTypeChecked`) without revisiting this split — the linter would type-check with a different compiler major than the build.
 
+## Security
+
+The library renders model-authored markdown into a customer-facing chat, so the reports that matter are XSS, sanitizer bypass, and markdown-pipeline dependency advisories - measured against the scheme allowlist and `rel="noopener noreferrer"` policy described in [Links in model output](#links-in-model-output). Do not open a public issue for a vulnerability. Report it privately to **security@re-cinq.com**; we acknowledge within 48 hours. Full intake, scope, and supported-versions detail is in [SECURITY.md](./SECURITY.md).
+
 ## License
 
 Apache-2.0
