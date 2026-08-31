@@ -45,6 +45,17 @@ export const defaultChatMessageListLabels: Readonly<
   transcript: "Conversation",
 });
 
+/**
+ * The chrome one persona renders with: a display name and an avatar node,
+ * both consumer-owned and carrying no customer data
+ * (CONTRACT.md § Attribution). Nothing else - a third member would be a
+ * second place authorship is decided.
+ */
+export interface ChatAttribution {
+  name?: string;
+  avatar?: ReactNode;
+}
+
 export interface ChatMessageListProps {
   /**
    * The conversation to render, in order. A delta must arrive as a new array.
@@ -57,6 +68,14 @@ export interface ChatMessageListProps {
    * `aiDisclosure` has no default, so the prop cannot be omitted.
    */
   labels: Partial<ChatMessageListLabels> & Required<Pick<ChatMessageListLabels, "aiDisclosure">>;
+  /**
+   * Persona id to chrome, looked up per entry. A lookup table and not a
+   * render function on purpose: a server component can pass this object
+   * literal across the RSC boundary but not a closure
+   * (CONTRACT.md § RSC fixture). An id absent from the table falls back to
+   * `assistantAvatar` with no name, and is never rendered.
+   */
+  attribution?: Readonly<Record<string, ChatAttribution>>;
   /** Fills the avatar circle of every ChatMessage and the busy indicator. */
   assistantAvatar?: ReactNode;
   /** Renders one ThinkingIndicator after the last entry. Default false. */
@@ -95,6 +114,19 @@ export interface ChatMessageListHandle {
   isPinnedToBottom(): boolean;
 }
 
+// The per-entry lookup. A user entry carries no persona at all, and an id the
+// table does not hold resolves to nothing - a persisted or replayed session can
+// name a persona the consumer has since retired, and the raw id is never chrome.
+const attributionFor = (
+  entry: UserChatEntry | AssistantChatEntry,
+  attribution: Readonly<Record<string, ChatAttribution>> | undefined
+): ChatAttribution | undefined => {
+  if (entry.role !== "assistant" || !entry.persona) {
+    return undefined;
+  }
+  return attribution?.[entry.persona];
+};
+
 const PINNED_THRESHOLD_PX = 32;
 
 const isNearBottom = (node: HTMLElement | null): boolean => {
@@ -124,6 +156,7 @@ export const ChatMessageList = forwardRef<ChatMessageListHandle, ChatMessageList
       entries,
       userInitials,
       labels,
+      attribution,
       assistantAvatar,
       busy = false,
       greeting,
@@ -225,28 +258,33 @@ export const ChatMessageList = forwardRef<ChatMessageListHandle, ChatMessageList
             </div>
           ) : (
             <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-4 py-6">
-              {entries.map((entry, index) =>
-                entry.role === "tool" ? (
-                  <ToolActivity
-                    key={entry.id}
-                    entry={entry}
-                    describeTool={describeTool}
-                    pending={busy && index === entries.length - 1}
-                    showToolName={showToolName}
-                    showToolInput={showToolInput}
-                    icon={toolIcon}
-                    labels={{
-                      activity: resolved.activity,
-                      activityDone: resolved.activityDone,
-                      details: resolved.details,
-                    }}
-                  />
-                ) : (
+              {entries.map((entry, index) => {
+                if (entry.role === "tool") {
+                  return (
+                    <ToolActivity
+                      key={entry.id}
+                      entry={entry}
+                      describeTool={describeTool}
+                      pending={busy && index === entries.length - 1}
+                      showToolName={showToolName}
+                      showToolInput={showToolInput}
+                      icon={toolIcon}
+                      labels={{
+                        activity: resolved.activity,
+                        activityDone: resolved.activityDone,
+                        details: resolved.details,
+                      }}
+                    />
+                  );
+                }
+                const attributed = attributionFor(entry, attribution);
+                return (
                   <ChatMessage
                     key={entry.id}
                     entry={entry}
                     userInitials={userInitials}
-                    assistantAvatar={assistantAvatar}
+                    assistantAvatar={attributed?.avatar ?? assistantAvatar}
+                    assistantName={attributed?.name}
                     showFeedback={showFeedback}
                     arrowKeyFeedback={arrowKeyFeedback}
                     footer={renderEntryFooter?.(entry)}
@@ -255,8 +293,8 @@ export const ChatMessageList = forwardRef<ChatMessageListHandle, ChatMessageList
                     onCopy={onCopy}
                     onFeedback={onFeedback}
                   />
-                )
-              )}
+                );
+              })}
               {busy && (
                 <ThinkingIndicator
                   assistantAvatar={assistantAvatar}

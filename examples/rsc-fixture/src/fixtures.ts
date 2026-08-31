@@ -15,3 +15,24 @@ export const fixtureAssistantEntry: AssistantChatEntry = {
     "Hej Karla! Reservation **VN-7305-KP** kan flyttes til fredag uden gebyr. Pladserne er de samme som før.",
   isStreaming: false,
 };
+
+export const fixturePersonaId = "fixture-persona";
+
+export const fixturePersonaName = "Økonomi";
+
+export const fixtureAiDisclosure =
+  "Du taler med en kunstig intelligens. Svarene kan indeholde fejl.";
+
+export const fixturePersonaEntry: AssistantChatEntry = {
+  id: "fixture-assistant-2",
+  role: "assistant",
+  content: "Den nye afgang er fredag kl. 09:15.",
+  isStreaming: false,
+  persona: fixturePersonaId,
+};
+
+export const fixtureEntries: ReadonlyArray<UserChatEntry | AssistantChatEntry> = [
+  fixtureUserEntry,
+  fixtureAssistantEntry,
+  fixturePersonaEntry,
+];

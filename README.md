@@ -58,7 +58,7 @@ npm run rsc
 
 Pass `-- --keep` to retain the temp directory and tarball, and `-- --expect-failure` to prove the guard goes red when a `dist/` file loses its directive.
 
-A React server component cannot pass a function across the client boundary - `AppShell` (`renderSidebar`, `onMobileSidebarOpenChange`), `AppSidebar` (`renderNavLink`, `onNavigate`, a `SidebarNavItem`'s `icon`), `ChatComposer` (`onSubmit`), `ChatMessage` and `ChatMessageList` (`onCopy`, `onFeedback`), `ConversationList` (`renderLink`, `onSelect`, `onDelete`, the `deleteConversation` label), `ErrorBoundary` (`onError`) and `Toast` (`onClose`) accept function-valued props, so an App Router consumer supplies those props from a `"use client"` file (measured on Next 16.3.3; the verbatim build error is recorded in CONTRACT.md § RSC fixture).
+A React server component cannot pass a function across the client boundary - `AppShell` (`renderSidebar`, `onMobileSidebarOpenChange`), `AppSidebar` (`renderNavLink`, `onNavigate`, a `SidebarNavItem`'s `icon`), `ChatComposer` (`onSubmit`), `ChatMessage` and `ChatMessageList` (`onCopy`, `onFeedback`, the `assistantMessageFrom` label), `ConversationList` (`renderLink`, `onSelect`, `onDelete`, the `deleteConversation` label), `ErrorBoundary` (`onError`) and `Toast` (`onClose`) accept function-valued props, so an App Router consumer supplies those props from a `"use client"` file (measured on Next 16.3.3; the verbatim build error is recorded in CONTRACT.md § RSC fixture). An object literal crosses fine - `ChatMessageList`'s `attribution` map, element-valued avatars included - which is why per-entry attribution is a lookup table and not a render prop.
 
 ## Rendering entries
 

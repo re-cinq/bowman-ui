@@ -28,6 +28,12 @@ import { InlineThinkingIndicator } from "./InlineThinkingIndicator.js";
 export interface ChatMessageLabels {
   userMessage: string;
   assistantMessage: string;
+  /**
+   * The article's accessible name when `assistantName` is set - the
+   * function form CONTRACT.md § Labels decision 4 requires of an
+   * interpolated label.
+   */
+  assistantMessageFrom: (name: string) => string;
   copy: string;
   copied: string;
   copiedNotice: string;
@@ -44,6 +50,7 @@ export interface ChatMessageLabels {
 export const defaultChatMessageLabels: Readonly<Required<ChatMessageLabels>> = Object.freeze({
   userMessage: "Your message",
   assistantMessage: "Assistant response",
+  assistantMessageFrom: (name: string) => `Response from ${name}`,
   copy: "Copy message",
   copied: "Copied",
   copiedNotice: "Copied!",
@@ -65,6 +72,13 @@ export interface ChatMessageProps {
   userInitials: string;
   /** Fills the assistant avatar circle; the circle renders empty without it. */
   assistantAvatar?: ReactNode;
+  /**
+   * Who answered, rendered as a name line above the response and as the
+   * article's accessible name through `assistantMessageFrom`. Ignored for a
+   * user entry. The avatar is decorative, so this line is the only place
+   * authorship reaches assistive technology.
+   */
+  assistantName?: string;
   /** Shows the thumb buttons and gates the feedback keyboard path. Default true. */
   showFeedback?: boolean;
   /**
@@ -86,10 +100,25 @@ export interface ChatMessageProps {
   onFeedback?: (entryId: string, type: "up" | "down") => void;
 }
 
+const resolveArticleLabel = (
+  entry: UserChatEntry | AssistantChatEntry,
+  assistantName: string | undefined,
+  resolved: Required<ChatMessageLabels>
+): string => {
+  if (entry.role === "user") {
+    return resolved.userMessage;
+  }
+  if (!assistantName) {
+    return resolved.assistantMessage;
+  }
+  return resolved.assistantMessageFrom(assistantName);
+};
+
 export function ChatMessage({
   entry,
   userInitials,
   assistantAvatar,
+  assistantName,
   showFeedback = true,
   arrowKeyFeedback = false,
   footer,
@@ -172,7 +201,7 @@ export function ChatMessage({
     [entry, showFeedback, arrowKeyFeedback, copyToClipboard, handleFeedback]
   );
 
-  const ariaLabel = entry.role === "user" ? resolved.userMessage : resolved.assistantMessage;
+  const ariaLabel = resolveArticleLabel(entry, assistantName, resolved);
 
   return (
     <article
@@ -187,6 +216,7 @@ export function ChatMessage({
         <AssistantMessage
           entry={entry}
           resolved={resolved}
+          assistantName={assistantName}
           markdown={markdown}
           copiedId={copiedId}
           feedbackId={feedbackId}
@@ -222,6 +252,7 @@ function UserMessage({ content, userInitials }: UserMessageProps) {
 interface AssistantMessageProps {
   entry: AssistantChatEntry;
   resolved: Required<ChatMessageLabels>;
+  assistantName?: string;
   markdown?: MarkdownPolicy;
   copiedId: string | null;
   feedbackId: { id: string; type: "up" | "down" } | null;
@@ -235,6 +266,7 @@ interface AssistantMessageProps {
 function AssistantMessage({
   entry,
   resolved,
+  assistantName,
   markdown,
   copiedId,
   feedbackId,
@@ -287,6 +319,11 @@ function AssistantMessage({
         {assistantAvatar}
       </div>
       <div className="flex min-w-0 max-w-full flex-col gap-2">
+        {assistantName && (
+          <span className="pt-1 text-sm font-medium text-slate-600 dark:text-slate-300">
+            {assistantName}
+          </span>
+        )}
         <div className="max-w-none overflow-x-auto pt-1 text-sm leading-6">
           {entry.toolStatus && (
             <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">

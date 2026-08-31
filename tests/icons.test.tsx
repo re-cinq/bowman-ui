@@ -76,11 +76,27 @@ describe("the icon set inventory", () => {
   });
 
   it("the registry-lookup {name: string} IconProps shape is absent from src/", () => {
-    const hits = sourceFiles(resolve(process.cwd(), "src")).filter((file) => {
-      const source = readFileSync(file, "utf8");
-      return source.includes("name: string") || source.includes("name?: string");
-    });
+    const declaresIconNameLookup = /Icon\w*Props\b[^}]*\bname\??:\s*string/;
+    const hits = sourceFiles(resolve(process.cwd(), "src")).filter((file) =>
+      declaresIconNameLookup.test(readFileSync(file, "utf8"))
+    );
     expect(hits).toEqual([]);
+  });
+
+  // The sweep stays src-wide, not scoped to src/icons: a file matching under
+  // any other path must be named here deliberately, not silently exempted.
+  it("no file outside an explicit allowlist declares a name string member", () => {
+    const allowedNameFieldFiles = [
+      resolve(process.cwd(), "src/components/ChatMessage.tsx"),
+      resolve(process.cwd(), "src/components/ChatMessageList.tsx"),
+    ].sort();
+    const hits = sourceFiles(resolve(process.cwd(), "src"))
+      .filter((file) => {
+        const source = readFileSync(file, "utf8");
+        return source.includes("name: string") || source.includes("name?: string");
+      })
+      .sort();
+    expect(hits).toEqual(allowedNameFieldFiles);
   });
 
   it("README points a consumer wanting a brand mark at the assistantAvatar slot", () => {
