@@ -65,6 +65,14 @@ export interface ChatMessageListProps {
   greeting?: ReactNode;
   /** Empty state only, rendered under the greeting. */
   prompts?: ReactNode;
+  /**
+   * Rendered last in each message's column, under the action row, through
+   * ChatMessage's `footer` slot. Runs for every rendered entry, user rows
+   * included: the caller decides what deserves a footer. The parameter type
+   * is written out rather than derived from `entries`, so widening the list
+   * never widens this callback.
+   */
+  renderEntryFooter?: (entry: UserChatEntry | AssistantChatEntry) => ReactNode;
   showFeedback?: boolean;
   arrowKeyFeedback?: boolean;
   markdown?: MarkdownPolicy;
@@ -120,6 +128,7 @@ export const ChatMessageList = forwardRef<ChatMessageListHandle, ChatMessageList
       busy = false,
       greeting,
       prompts,
+      renderEntryFooter,
       showFeedback,
       arrowKeyFeedback,
       markdown,
@@ -240,6 +249,7 @@ export const ChatMessageList = forwardRef<ChatMessageListHandle, ChatMessageList
                     assistantAvatar={assistantAvatar}
                     showFeedback={showFeedback}
                     arrowKeyFeedback={arrowKeyFeedback}
+                    footer={renderEntryFooter?.(entry)}
                     markdown={markdown}
                     labels={resolved}
                     onCopy={onCopy}
