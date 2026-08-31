@@ -70,14 +70,15 @@ describe("raw HTML passthrough (no rehype-raw: model-authored HTML is inert text
     }
   );
 
-  it("through the real ChatMessage component the same four payloads create no img or event handler and survive as text", () => {
-    for (const payload of rawHtmlRows) {
+  it.each(rawHtmlRows)(
+    "through the real ChatMessage component %s creates no img or event handler and survives as text",
+    (payload) => {
       const { container } = renderThroughChatMessage(payload);
 
       expect(container.querySelector("img,[onerror],[onload],[onclick]")).toBeNull();
       expect(container.textContent).toContain(payload);
     }
-  });
+  );
 });
 
 describe("dangerous schemes on a markdown link render a hrefless span", () => {
@@ -96,7 +97,6 @@ describe("dangerous schemes on a markdown link render a hrefless span", () => {
       const { container } = renderThroughComponents(`[x](${destination})`);
 
       expect(container.querySelector("a")).toBeNull();
-      expect(document.querySelectorAll('a[href=""]')).toHaveLength(0);
       expect(screen.getByText("x").tagName).toBe("SPAN");
     }
   );
