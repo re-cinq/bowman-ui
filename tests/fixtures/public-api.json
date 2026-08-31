@@ -32,6 +32,7 @@
     "ThumbsDownIcon",
     "ThumbsUpIcon",
     "Toast",
+    "ToolActivity",
     "TrashIcon",
     "WarningIcon",
     "createMarkdownComponents",
@@ -46,6 +47,7 @@
     "defaultInlineThinkingIndicatorLabels",
     "defaultMarkdownPolicy",
     "defaultThinkingIndicatorLabels",
+    "defaultToolActivityLabels",
     "getAccessibleIconProps",
     "resolveLabels",
     "useDebounce",
@@ -93,6 +95,8 @@
     "ThinkingIndicatorLabels",
     "ThinkingIndicatorProps",
     "ToastProps",
+    "ToolActivityLabels",
+    "ToolActivityProps",
     "ToolChatEntry",
     "UserChatEntry"
   ]

@@ -4,20 +4,33 @@
 // the required-label contract: aiDisclosure has no default, so omitting it
 // from labels is a compile error and defaultChatMessageListLabels cannot
 // satisfy the fully-required labels shape.
-import { useRef } from "react";
+import { useRef, type ComponentProps } from "react";
 import {
   ChatMessageList,
   defaultChatMessageListLabels,
   type AssistantChatEntry,
   type ChatMessageListHandle,
   type ChatMessageListLabels,
+  type ThinkingChatEntry,
+  type ToolChatEntry,
   type UserChatEntry,
 } from "@re-cinq/bowman-ui";
 
-const entries: ReadonlyArray<UserChatEntry | AssistantChatEntry> = [
+const entries: ReadonlyArray<UserChatEntry | AssistantChatEntry | ToolChatEntry> = [
   { id: "u1", role: "user", content: "Vis booking 4711" },
+  { id: "t1", role: "tool", toolName: "get_weather", toolInput: { location: "Berlin" } },
   { id: "a1", role: "assistant", content: "Booking 4711 er fundet", isStreaming: false },
 ];
+
+// A ThinkingChatEntry stays excluded from `entries` until
+// 087-bowman-ui-thinking-trace widens the union and deletes this assertion.
+const withThinking: ReadonlyArray<UserChatEntry | ThinkingChatEntry> = [
+  { id: "u1", role: "user", content: "Vis booking 4711" },
+  { id: "th1", role: "thinking", content: "Slår booking op", isStreaming: false },
+];
+// @ts-expect-error -- ThinkingChatEntry is not in entries until 087-bowman-ui-thinking-trace
+const rejectedEntries: ComponentProps<typeof ChatMessageList>["entries"] = withThinking;
+void rejectedEntries;
 
 // @ts-expect-error -- aiDisclosure is declared without a default (EU AI Act:
 // no English placeholder may reach a Danish customer), so the defaults
@@ -56,6 +69,10 @@ const Consumer = () => {
         arrowKeyFeedback
         markdown={{ linkTarget: "_self" }}
         reducedMotion
+        describeTool={(entry: ToolChatEntry) => entry.toolName}
+        showToolName
+        showToolInput
+        toolIcon={<span />}
         onCopy={(text: string, entryId: string) => {
           void text;
           void entryId;

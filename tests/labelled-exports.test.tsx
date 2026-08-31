@@ -13,6 +13,7 @@ import {
   ErrorBoundary,
   InlineThinkingIndicator,
   ThinkingIndicator,
+  ToolActivity,
   createMarkdownComponents,
   createUrlTransform,
   defaultAppShellLabels,
@@ -24,6 +25,7 @@ import {
   defaultErrorBoundaryLabels,
   defaultInlineThinkingIndicatorLabels,
   defaultThinkingIndicatorLabels,
+  defaultToolActivityLabels,
 } from "../src/index.js";
 import type {
   AppShellLabels,
@@ -35,6 +37,8 @@ import type {
   ErrorBoundaryLabels,
   InlineThinkingIndicatorLabels,
   ThinkingIndicatorLabels,
+  ToolActivityLabels,
+  ToolChatEntry,
 } from "../src/index.js";
 import {
   defaultMarkdownComponentsLabels,
@@ -58,6 +62,7 @@ const labelsProp = [
   "ChatMessageList",
   "InlineThinkingIndicator",
   "ThinkingIndicator",
+  "ToolActivity",
   "ChatComposer",
   "ConversationList",
   "AppShell",
@@ -112,6 +117,7 @@ const noStrings = [
   "defaultConversationListLabels",
   "defaultAppShellLabels",
   "defaultAppSidebarLabels",
+  "defaultToolActivityLabels",
 ];
 
 // `export type { ... }` never matches: "type" sits between "export" and "{".
@@ -180,8 +186,15 @@ const chatMessageSentinels = {
 // aiDisclosure is the package's first required label: it sits in the
 // sentinel object (it must render) but not in defaultChatMessageListLabels,
 // so this one coverage check compares against defaults plus the key.
+const toolActivitySentinels = {
+  activity: "⟦activity⟧",
+  activityDone: "⟦activityDone⟧",
+  details: "⟦details⟧",
+} satisfies Required<ToolActivityLabels>;
+
 const chatMessageListSentinels = {
   ...chatMessageSentinels,
+  ...toolActivitySentinels,
   thinkingRegion: "⟦thinkingRegion⟧",
   aiDisclosure: "⟦aiDisclosure⟧",
   transcript: "⟦transcript⟧",
@@ -321,6 +334,26 @@ const sentinelHarnesses: Record<
     renderContainer: () =>
       render(<ThinkingIndicator labels={thinkingIndicatorSentinels} />).container,
   },
+  ToolActivity: {
+    sentinels: Object.values(toolActivitySentinels),
+    renderContainer: () => {
+      const entry = {
+        id: "t1",
+        role: "tool",
+        toolName: "4711",
+        toolInput: { "4712": 4713 },
+      } satisfies ToolChatEntry;
+      // The pending instance surfaces activity and the disclosure summary; the
+      // resting one surfaces activityDone. showToolName stays false and the
+      // input is numeric, so the only Latin runs are the sentinels themselves.
+      return render(
+        <>
+          <ToolActivity entry={entry} pending showToolInput labels={toolActivitySentinels} />
+          <ToolActivity entry={entry} labels={toolActivitySentinels} />
+        </>
+      ).container;
+    },
+  },
   ChatComposer: {
     sentinels: Object.values(chatComposerSentinels),
     renderContainer: () =>
@@ -424,6 +457,12 @@ describe("the sentinel render check", () => {
   it("ThinkingIndicator's sentinel labels cover every defaultThinkingIndicatorLabels key", () => {
     expect(Object.keys(thinkingIndicatorSentinels).sort()).toEqual(
       Object.keys(defaultThinkingIndicatorLabels).sort()
+    );
+  });
+
+  it("ToolActivity's sentinel labels cover every defaultToolActivityLabels key", () => {
+    expect(Object.keys(toolActivitySentinels).sort()).toEqual(
+      Object.keys(defaultToolActivityLabels).sort()
     );
   });
 

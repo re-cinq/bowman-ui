@@ -46,6 +46,9 @@ export const chatMessageListLabels: ChatMessageListLabels = {
   thinking: "Tænker",
   thinkingRegion: "Henter svar",
   linkOpensInNewTab: "(åbner i en ny fane)",
+  activity: "Slår noget op",
+  activityDone: "Slog noget op",
+  details: "Detaljer",
 };
 
 export const chatComposerLabels: ChatComposerLabels = {

@@ -11,15 +11,21 @@ import {
 import { useReducedMotion } from "../hooks/useReducedMotion.js";
 import { resolveLabels } from "../labels.js";
 import type { MarkdownPolicy } from "../markdown/urlPolicy.js";
-import type { AssistantChatEntry, UserChatEntry } from "../types/chat.js";
+import type { AssistantChatEntry, ToolChatEntry, UserChatEntry } from "../types/chat.js";
 import { ChatMessage, defaultChatMessageLabels, type ChatMessageLabels } from "./ChatMessage.js";
 import {
   ThinkingIndicator,
   defaultThinkingIndicatorLabels,
   type ThinkingIndicatorLabels,
 } from "./ThinkingIndicator.js";
+import {
+  ToolActivity,
+  defaultToolActivityLabels,
+  type ToolActivityLabels,
+} from "./ToolActivity.js";
 
-export interface ChatMessageListLabels extends ChatMessageLabels, ThinkingIndicatorLabels {
+export interface ChatMessageListLabels
+  extends ChatMessageLabels, ThinkingIndicatorLabels, ToolActivityLabels {
   /**
    * The EU AI Act disclosure line, rendered outside the scroll region in
    * every state. Required with no default: no English placeholder may
@@ -35,12 +41,16 @@ export const defaultChatMessageListLabels: Readonly<
 > = Object.freeze({
   ...defaultChatMessageLabels,
   ...defaultThinkingIndicatorLabels,
+  ...defaultToolActivityLabels,
   transcript: "Conversation",
 });
 
 export interface ChatMessageListProps {
-  /** The conversation to render, in order. A delta must arrive as a new array. */
-  entries: ReadonlyArray<UserChatEntry | AssistantChatEntry>;
+  /**
+   * The conversation to render, in order. A delta must arrive as a new array.
+   * `ThinkingChatEntry` stays excluded until `087-bowman-ui-thinking-trace`.
+   */
+  entries: ReadonlyArray<UserChatEntry | AssistantChatEntry | ToolChatEntry>;
   userInitials: string;
   /**
    * Required, unlike every sibling component's optional `labels`:
@@ -60,6 +70,14 @@ export interface ChatMessageListProps {
   markdown?: MarkdownPolicy;
   /** Forces instant scrolling; undefined tracks the OS preference. */
   reducedMotion?: boolean;
+  /** Replaces a tool entry's default sentence; forwarded to `ToolActivity`. */
+  describeTool?: (entry: ToolChatEntry) => ReactNode;
+  /** Reveals each tool entry's `toolName`. Default false. */
+  showToolName?: boolean;
+  /** Reveals each tool entry's `toolInput` as JSON. Default false. */
+  showToolInput?: boolean;
+  /** Fills the icon slot of every `ToolActivity`. */
+  toolIcon?: ReactNode;
   onCopy?: (text: string, entryId: string) => void;
   onFeedback?: (entryId: string, type: "up" | "down") => void;
 }
@@ -106,6 +124,10 @@ export const ChatMessageList = forwardRef<ChatMessageListHandle, ChatMessageList
       arrowKeyFeedback,
       markdown,
       reducedMotion,
+      describeTool,
+      showToolName,
+      showToolInput,
+      toolIcon,
       onCopy,
       onFeedback,
     },
@@ -194,20 +216,37 @@ export const ChatMessageList = forwardRef<ChatMessageListHandle, ChatMessageList
             </div>
           ) : (
             <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-4 py-6">
-              {entries.map((entry) => (
-                <ChatMessage
-                  key={entry.id}
-                  entry={entry}
-                  userInitials={userInitials}
-                  assistantAvatar={assistantAvatar}
-                  showFeedback={showFeedback}
-                  arrowKeyFeedback={arrowKeyFeedback}
-                  markdown={markdown}
-                  labels={resolved}
-                  onCopy={onCopy}
-                  onFeedback={onFeedback}
-                />
-              ))}
+              {entries.map((entry, index) =>
+                entry.role === "tool" ? (
+                  <ToolActivity
+                    key={entry.id}
+                    entry={entry}
+                    describeTool={describeTool}
+                    pending={busy && index === entries.length - 1}
+                    showToolName={showToolName}
+                    showToolInput={showToolInput}
+                    icon={toolIcon}
+                    labels={{
+                      activity: resolved.activity,
+                      activityDone: resolved.activityDone,
+                      details: resolved.details,
+                    }}
+                  />
+                ) : (
+                  <ChatMessage
+                    key={entry.id}
+                    entry={entry}
+                    userInitials={userInitials}
+                    assistantAvatar={assistantAvatar}
+                    showFeedback={showFeedback}
+                    arrowKeyFeedback={arrowKeyFeedback}
+                    markdown={markdown}
+                    labels={resolved}
+                    onCopy={onCopy}
+                    onFeedback={onFeedback}
+                  />
+                )
+              )}
               {busy && (
                 <ThinkingIndicator
                   assistantAvatar={assistantAvatar}
