@@ -167,6 +167,7 @@ describe("ChatMessageList", () => {
           arrowKeyFeedback={false}
           markdown={undefined}
           reducedMotion={false}
+          renderEntryFooter={undefined}
           onCopy={undefined}
           onFeedback={undefined}
         />
@@ -291,6 +292,121 @@ describe("ChatMessageList", () => {
       );
 
       expect(screen.getAllByRole("article")[0]).toBe(secondNode);
+    });
+  });
+
+  describe("renderEntryFooter", () => {
+    const footerFor = (entry: UserChatEntry | AssistantChatEntry) => (
+      <div data-testid="entry-footer" data-entry-id={entry.id}>
+        Score 0.82
+      </div>
+    );
+
+    it("a node returned for the assistant entry only renders once, carries that entry's id, and is the column's last child after the action row", () => {
+      render(
+        <ChatMessageList
+          entries={twoEntries}
+          userInitials="LM"
+          labels={{ aiDisclosure }}
+          renderEntryFooter={(entry) => (entry.role === "assistant" ? footerFor(entry) : undefined)}
+        />
+      );
+
+      const footers = screen.getAllByTestId("entry-footer");
+      expect(footers).toHaveLength(1);
+      expect(footers[0]).toHaveAttribute("data-entry-id", "a1");
+      const column = footers[0].parentElement;
+      const copyButton = screen.getByRole("button", { name: "Copy message" });
+      expect(column?.contains(copyButton)).toBe(true);
+      expect(column?.lastElementChild).toBe(footers[0]);
+      expect(
+        copyButton.compareDocumentPosition(footers[0]) & Node.DOCUMENT_POSITION_FOLLOWING
+      ).toBeTruthy();
+    });
+
+    it("runs once per rendered ChatMessage per render, in entries order, with the user entry included", () => {
+      const renderEntryFooter = vi.fn((entry: UserChatEntry | AssistantChatEntry) => (
+        <span data-testid="entry-footer">{entry.id}</span>
+      ));
+
+      render(
+        <ChatMessageList
+          entries={twoEntries}
+          userInitials="LM"
+          busy
+          labels={{ aiDisclosure }}
+          renderEntryFooter={renderEntryFooter}
+        />
+      );
+
+      expect(renderEntryFooter.mock.calls).toEqual([[twoEntries[0]], [twoEntries[1]]]);
+    });
+
+    it("a node returned for the user entry is dropped: ChatMessage's footer slot is assistant-only", () => {
+      render(
+        <ChatMessageList
+          entries={twoEntries}
+          userInitials="LM"
+          labels={{ aiDisclosure }}
+          renderEntryFooter={footerFor}
+        />
+      );
+
+      const footers = screen.getAllByTestId("entry-footer");
+      expect(footers).toHaveLength(1);
+      expect(footers[0]).toHaveAttribute("data-entry-id", "a1");
+    });
+
+    it("returning undefined for every entry renders the same container.innerHTML as omitting the prop", () => {
+      const omitted = render(
+        <ChatMessageList entries={twoEntries} userInitials="LM" labels={{ aiDisclosure }} />
+      );
+      const withoutProp = omitted.container.innerHTML;
+      omitted.unmount();
+
+      const { container } = render(
+        <ChatMessageList
+          entries={twoEntries}
+          userInitials="LM"
+          labels={{ aiDisclosure }}
+          renderEntryFooter={() => undefined}
+        />
+      );
+
+      expect(container.innerHTML).toBe(withoutProp);
+    });
+
+    it("a footer under every entry leaves the AI disclosure first in the root and outside the role=log region", () => {
+      const { container } = render(
+        <ChatMessageList
+          entries={twoEntries}
+          userInitials="LM"
+          labels={{ aiDisclosure }}
+          renderEntryFooter={footerFor}
+        />
+      );
+
+      const band = screen.getByText(aiDisclosure);
+      expect(container.firstElementChild?.firstElementChild).toBe(band);
+      expect(screen.getByRole("log").contains(band)).toBe(false);
+    });
+
+    it("the returned node is not retained: a rerender without the prop leaves no footer", () => {
+      const { rerender } = render(
+        <ChatMessageList
+          entries={twoEntries}
+          userInitials="LM"
+          labels={{ aiDisclosure }}
+          renderEntryFooter={footerFor}
+        />
+      );
+      expect(screen.getByTestId("entry-footer")).toBeInTheDocument();
+
+      rerender(
+        <ChatMessageList entries={twoEntries} userInitials="LM" labels={{ aiDisclosure }} />
+      );
+
+      expect(screen.queryByTestId("entry-footer")).not.toBeInTheDocument();
     });
   });
 
@@ -670,6 +786,12 @@ describe("ChatMessageList", () => {
       expect(source).not.toMatch(
         /console\.|localStorage|sessionStorage|fetch|sendBeacon|scrollIntoView/
       );
+    });
+
+    it("names renderEntryFooter three times - declaration, destructure, ChatMessage footer - and stores it nowhere", () => {
+      expect(source.match(/renderEntryFooter/g)).toHaveLength(3);
+      expect(source).toContain("footer={renderEntryFooter?.(entry)}");
+      expect(source).not.toMatch(/JSON\.stringify|useState|renderEntryFooterRef/);
     });
   });
 

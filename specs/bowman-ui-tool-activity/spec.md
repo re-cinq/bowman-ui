@@ -73,20 +73,20 @@ the convention's `resolveLabels`
 `ReadonlyArray<UserChatEntry | AssistantChatEntry | ToolChatEntry>` -
 `ThinkingChatEntry` stays excluded until `087-bowman-ui-thinking-trace`, pinned
 by an `@ts-expect-error`
-([validated by](../../tests/types/chat-message-list-type-assertions.tsx#L32),
+([validated by](../../tests/types/chat-message-list-type-assertions.tsx#L33),
 compiled by
 [chat-message-list-dist](../../tests/chat-message-list-dist.test.ts#L47)). The
 map dispatches on `role`: a tool entry renders `ToolActivity`, everything else
 `ChatMessage`, array order preserved
-([validated by](../../tests/ChatMessageList.test.tsx#L677)). `busy` makes only
+([validated by](../../tests/ChatMessageList.test.tsx#L799)). `busy` makes only
 a trailing tool entry pending
-([validated by](../../tests/ChatMessageList.test.tsx#L698)); a non-trailing
+([validated by](../../tests/ChatMessageList.test.tsx#L820)); a non-trailing
 one stays done
-([validated by](../../tests/ChatMessageList.test.tsx#L710)). `describeTool`,
+([validated by](../../tests/ChatMessageList.test.tsx#L832)). `describeTool`,
 `showToolName`, `showToolInput` and `toolIcon` forward unchanged
-([validated by](../../tests/ChatMessageList.test.tsx#L732)), and a list of a
+([validated by](../../tests/ChatMessageList.test.tsx#L854)), and a list of a
 single tool entry still shows the `aiDisclosure` band
-([validated by](../../tests/ChatMessageList.test.tsx#L724)).
+([validated by](../../tests/ChatMessageList.test.tsx#L846)).
 `ChatMessageListLabels` gains `activity`, `activityDone` and `details` as
 defaulted keys, so `aiDisclosure` stays its only required key.
 
