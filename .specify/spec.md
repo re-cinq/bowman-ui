@@ -15,7 +15,7 @@
 3. **Conversation List** — Render conversation threads or chat history with selection/navigation ([validated by](../tests/ConversationList.test.tsx#L33))
 4. **App Shell** — Top-level application layout container (header, sidebar, main content area) ([validated by](../tests/AppShell.test.tsx#L22))
 5. **Props-Driven Architecture** — All behavior configured via React props; no internal state management or API calls ([validated by](../tests/ChatMessage.test.tsx#L628), [L353](../tests/ChatComposer.test.tsx#L353))
-6. **Type-Safe API** — Full TypeScript support with strict mode compliance; no implicit `any` types in public interfaces ([validated by](../tests/public-api.test.ts#L46), [system-contract](../tests/system-contract.test.ts#L52), [list-type-assertions](../tests/types/chat-message-list-type-assertions.tsx#L35))
+6. **Type-Safe API** — Full TypeScript support with strict mode compliance; no implicit `any` types in public interfaces ([validated by](../tests/public-api.test.ts#L46), [system-contract](../tests/system-contract.test.ts#L52), [list-type-assertions](../tests/types/chat-message-list-type-assertions.tsx#L36))
 7. **Accessibility** — ARIA attributes, semantic HTML, keyboard navigation, and color contrast compliance ([validated by](../tests/icons.test.tsx#L152), [L47](../tests/AppShell.test.tsx#L47), [L72](../tests/useFocusTrap.test.tsx#L72))
 8. **ESM-Only Distribution** — Single ESM output (`"type": "module"`) targeting modern bundlers and runtimes; no CommonJS build ([validated by](../tests/system-contract.test.ts#L30))
 9. **Tree-Shakeable Exports** — Named exports enable dead-code elimination in consuming applications ([validated by](../tests/public-api.test.ts#L40))

@@ -11,6 +11,7 @@ import {
   type AssistantChatEntry,
   type ChatMessageListHandle,
   type ChatMessageListLabels,
+  type ChatMessageListProps,
   type ThinkingChatEntry,
   type ToolChatEntry,
   type UserChatEntry,
@@ -38,6 +39,16 @@ void rejectedEntries;
 const withDisclosureDefault = defaultChatMessageListLabels satisfies Readonly<
   Required<ChatMessageListLabels>
 >;
+
+const scoreFooter: NonNullable<ChatMessageListProps["renderEntryFooter"]> = (entry) => (
+  <span data-entry-id={entry.id} />
+);
+
+const toolNameFooter: NonNullable<ChatMessageListProps["renderEntryFooter"]> = (entry) =>
+  // @ts-expect-error -- the parameter stays UserChatEntry | AssistantChatEntry:
+  // a widened `entries` must not widen this callback, so a tool row's
+  // toolName is unreadable here.
+  entry.toolName;
 
 const Consumer = () => {
   const listRef = useRef<ChatMessageListHandle>(null);
@@ -69,6 +80,7 @@ const Consumer = () => {
         arrowKeyFeedback
         markdown={{ linkTarget: "_self" }}
         reducedMotion
+        renderEntryFooter={scoreFooter}
         describeTool={(entry: ToolChatEntry) => entry.toolName}
         showToolName
         showToolInput
@@ -87,3 +99,4 @@ const Consumer = () => {
 };
 
 void Consumer;
+void toolNameFooter;

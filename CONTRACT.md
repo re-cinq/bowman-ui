@@ -331,6 +331,29 @@ assistive tech. The default, when no `renderNavLink` is passed, is
 `label` and no `href` - routing belongs entirely to the consumer's
 `renderNavLink`.
 
+## renderEntryFooter (issue 133)
+
+`ChatMessageList`'s `renderEntryFooter(entry)` slot is the per-entry
+extension point: whatever it returns is handed to that message's
+`ChatMessage` as its existing `footer`, last in the message column under the
+action row. Three consequences the consumer owns:
+
+- **Nothing in a footer is announced.** It lands inside the transcript's
+  `role="log"`/`aria-live="off"` region, so a screen reader reads it only
+  when the reader walks there. A footer whose appearance matters - an error,
+  a required disclosure - needs the consumer's own live region outside the
+  list.
+- **A growing footer does not re-scroll the transcript.** Auto-scroll keys on
+  `entries`, not on layout, so a footer that expands after render (an async
+  score, a disclosure the reader opens) can push the message above the fold.
+  A consumer that wants the view to follow calls
+  `ChatMessageListHandle.scrollToBottom()` itself.
+- **The callback runs for every rendered entry, user rows included**, and the
+  list stores nothing it returns - the node is read in the `ChatMessage` call
+  position and nowhere else. `ChatMessage` renders `footer` under assistant
+  messages only, so a node returned for a user entry is dropped; filtering by
+  role in the callback is the consumer's choice, not the library's.
+
 ## AppShell (issue 030)
 
 - **A consumer controlling `mobileSidebarOpen` owns closing it on
