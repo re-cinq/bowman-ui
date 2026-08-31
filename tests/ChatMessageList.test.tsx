@@ -7,8 +7,14 @@ import {
   defaultChatMessageLabels,
   defaultChatMessageListLabels,
   defaultThinkingIndicatorLabels,
+  defaultToolActivityLabels,
 } from "../src/index.js";
-import type { AssistantChatEntry, ChatMessageListHandle, UserChatEntry } from "../src/index.js";
+import type {
+  AssistantChatEntry,
+  ChatMessageListHandle,
+  ToolChatEntry,
+  UserChatEntry,
+} from "../src/index.js";
 
 const aiDisclosure = "Du chatter med en AI-assistent";
 
@@ -23,6 +29,13 @@ const assistantEntry = (id: string, content: string): AssistantChatEntry => ({
   role: "assistant",
   content,
   isStreaming: false,
+});
+
+const toolEntry = (id: string): ToolChatEntry => ({
+  id,
+  role: "tool",
+  toolName: "get_weather",
+  toolInput: { location: "Berlin", units: "celsius" },
 });
 
 const twoEntries = [
@@ -174,6 +187,7 @@ describe("ChatMessageList", () => {
       expect(defaultChatMessageListLabels).toEqual({
         ...defaultChatMessageLabels,
         ...defaultThinkingIndicatorLabels,
+        ...defaultToolActivityLabels,
         transcript: "Conversation",
       });
       expect(Object.keys(defaultChatMessageListLabels)).not.toContain("aiDisclosure");
@@ -656,6 +670,95 @@ describe("ChatMessageList", () => {
       expect(source).not.toMatch(
         /console\.|localStorage|sessionStorage|fetch|sendBeacon|scrollIntoView/
       );
+    });
+  });
+
+  describe("tool entries", () => {
+    it("renders [user, tool, assistant] as one message, one activity, one message in order", () => {
+      const { container } = render(
+        <ChatMessageList
+          entries={[
+            userEntry("u1", "Vis booking 4711"),
+            toolEntry("t1"),
+            assistantEntry("a1", "Booking 4711 er fundet"),
+          ]}
+          userInitials="LM"
+          labels={{ aiDisclosure }}
+        />
+      );
+
+      const column = container.querySelector(".max-w-3xl");
+      const children = Array.from(column?.children ?? []);
+      expect(children.map((child) => child.tagName)).toEqual(["ARTICLE", "DIV", "ARTICLE"]);
+      expect(children[0]).toHaveTextContent("Vis booking 4711");
+      expect(children[1]).toHaveTextContent("Looked something up");
+      expect(children[2]).toHaveTextContent("Booking 4711 er fundet");
+    });
+
+    it("busy true makes a trailing tool entry pending and busy false makes it done", () => {
+      const entries = [userEntry("u1", "Vis booking 4711"), toolEntry("t1")];
+      const { rerender } = render(
+        <ChatMessageList entries={entries} userInitials="LM" busy labels={{ aiDisclosure }} />
+      );
+      expect(screen.getByText("Looking something up")).toBeInTheDocument();
+
+      rerender(<ChatMessageList entries={entries} userInitials="LM" labels={{ aiDisclosure }} />);
+      expect(screen.getByText("Looked something up")).toBeInTheDocument();
+      expect(screen.queryByText("Looking something up")).not.toBeInTheDocument();
+    });
+
+    it("a non-trailing tool entry stays done even while busy", () => {
+      render(
+        <ChatMessageList
+          entries={[toolEntry("t1"), assistantEntry("a1", "Booking 4711 er fundet")]}
+          userInitials="LM"
+          busy
+          labels={{ aiDisclosure }}
+        />
+      );
+
+      expect(screen.getByText("Looked something up")).toBeInTheDocument();
+      expect(screen.queryByText("Looking something up")).not.toBeInTheDocument();
+    });
+
+    it("a list holding a single tool entry still renders the aiDisclosure band", () => {
+      render(
+        <ChatMessageList entries={[toolEntry("t1")]} userInitials="LM" labels={{ aiDisclosure }} />
+      );
+
+      expect(screen.getByText(aiDisclosure)).toBeInTheDocument();
+    });
+
+    it("forwards describeTool, showToolName, showToolInput and toolIcon to the activity", () => {
+      const { container } = render(
+        <ChatMessageList
+          entries={[toolEntry("t1")]}
+          userInitials="LM"
+          labels={{ aiDisclosure }}
+          describeTool={() => "Slår din booking op"}
+          showToolName
+          showToolInput
+          toolIcon={<span data-testid="tool-icon">4711</span>}
+        />
+      );
+
+      expect(screen.getByText("Slår din booking op")).toBeInTheDocument();
+      expect(screen.getByText("get_weather")).toBeInTheDocument();
+      expect(container.querySelector("pre")?.textContent).toContain('"location": "Berlin"');
+      expect(screen.getByTestId("tool-icon")).toBeInTheDocument();
+    });
+
+    it("forwards the resolved activity labels so a Danish catalogue reaches the activity", () => {
+      render(
+        <ChatMessageList
+          entries={[toolEntry("t1")]}
+          userInitials="LM"
+          busy
+          labels={{ aiDisclosure, activity: "Slår op" }}
+        />
+      );
+
+      expect(screen.getByText("Slår op")).toBeInTheDocument();
     });
   });
 });

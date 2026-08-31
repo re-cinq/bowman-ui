@@ -136,7 +136,7 @@ compiled against `dist/`
 ([validated by](../../tests/chat-composer-dist.test.ts#L47), fixture at
 [chat-composer-type-assertions](../../tests/types/chat-composer-type-assertions.tsx)).
 `ChatComposer` joins the `labelsProp` partition and the sentinel render
-covers it ([validated by](../../tests/labelled-exports.test.tsx#L430)).
+covers it ([validated by](../../tests/labelled-exports.test.tsx#L469)).
 
 **Note - the two-of-three placeholder nuance.** Two of the three Discovery
 copies use the `chat.reply` placeholder (`"Svar..."` / `"Reply..."`); the
