@@ -97,8 +97,11 @@ export interface ChatMessageListProps {
   markdown?: MarkdownPolicy;
   /** Forces instant scrolling; undefined tracks the OS preference. */
   reducedMotion?: boolean;
-  /** Replaces a tool entry's default sentence; forwarded to `ToolActivity`. */
-  describeTool?: (entry: ToolChatEntry) => ReactNode;
+  /**
+   * Replaces a tool entry's default sentence; forwarded to `ToolActivity`,
+   * which calls it with the same `pending` this list derives for its labels.
+   */
+  describeTool?: (entry: ToolChatEntry, pending: boolean) => ReactNode;
   /** Reveals each tool entry's `toolName`. Default false. */
   showToolName?: boolean;
   /** Reveals each tool entry's `toolInput` as JSON. Default false. */

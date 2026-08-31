@@ -407,6 +407,18 @@ feedback affordance, and no `renderEntry` escape hatch exists - the
 data-boundary default stays in the library rather than one deadline from a raw
 entry dump.
 
+`describeTool` is `(entry: ToolChatEntry, pending: boolean) => ReactNode` (190).
+The second parameter is the component's own resolved `pending` prop - the same
+value that picks between the `activity` and `activityDone` labels, defaulting
+to **`false`** when the prop is omitted - so a caller-authored sentence can be
+tensed the way the built-in ones are without re-deriving the flag. Through
+`ChatMessageList` it is that list's own derivation,
+`busy === true && index === entries.length - 1`: the callback sees exactly what
+the list would have used for its own labels. The parameter is additive, so a
+one-parameter callback stays assignable and no consumer breaks. It changes what
+the callback knows, not what it controls: a supplied `describeTool` still
+replaces the tensed labels entirely and suppresses nothing else.
+
 ## Layout
 
 `ChatMessageList` (078) owns its scroll region: its root is

@@ -1002,6 +1002,37 @@ describe("ChatMessageList", () => {
       expect(screen.getByTestId("tool-icon")).toBeInTheDocument();
     });
 
+    it("hands describeTool the same pending flag it derives for its own labels", () => {
+      const entries = [userEntry("u1", "Vis booking 4711"), toolEntry("t1"), toolEntry("t2")];
+      const describeTool = (entry: ToolChatEntry, pending: boolean) =>
+        pending ? "Looking up the weather" : "Looked up the weather";
+      const { container, rerender } = render(
+        <ChatMessageList
+          entries={entries}
+          userInitials="LM"
+          busy
+          labels={{ aiDisclosure }}
+          describeTool={describeTool}
+        />
+      );
+
+      const column = container.querySelector(".max-w-3xl");
+      const children = Array.from(column?.children ?? []);
+      expect(children[1]).toHaveTextContent("Looked up the weather");
+      expect(children[2]).toHaveTextContent("Looking up the weather");
+
+      rerender(
+        <ChatMessageList
+          entries={entries}
+          userInitials="LM"
+          labels={{ aiDisclosure }}
+          describeTool={describeTool}
+        />
+      );
+      expect(screen.getAllByText("Looked up the weather")).toHaveLength(2);
+      expect(screen.queryByText("Looking up the weather")).not.toBeInTheDocument();
+    });
+
     it("forwards the resolved activity labels so a Danish catalogue reaches the activity", () => {
       render(
         <ChatMessageList
