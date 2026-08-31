@@ -364,6 +364,26 @@ supply the only rotor entries. The same review scoped the body scroll lock to
 the mobile breakpoint: at `min-width: 768px`, where `md:hidden` hides the
 drawer, the lock lifts and re-applies if the viewport narrows again.
 
+## Tool activity (issue 108)
+
+`ToolActivity` (108) renders a `ToolChatEntry` - a call the model requested on
+the customer's behalf - and it is deliberately the safe default rather than a
+faithful dump. `entry.toolInput` is **model-authored data**: it may carry a
+booking reference, a customer name, or any other identifier the model chose to
+pass, and `entry.toolName` is an English machine identifier in a Danish-first
+product. So `showToolName` and `showToolInput` both default **`false`**: the
+default render is one caller-supplied sentence (`describeTool`, or the
+`activity`/`activityDone` label) and an optional icon, with neither the tool
+name nor the arguments in the DOM. When `showToolInput` is on, the arguments
+render as `JSON.stringify(entry.toolInput, null, 2)` inside a `<pre>` behind a
+native `<details>` - never markdown or HTML, so nothing model-authored is
+interpreted. Whether a given consumer may turn either flag on is a data-flow
+decision recorded by `003-support-conversation-data-flow-record`, not one the
+library makes. `ToolActivity` is not a message: it carries no avatar, copy or
+feedback affordance, and no `renderEntry` escape hatch exists - the
+data-boundary default stays in the library rather than one deadline from a raw
+entry dump.
+
 ## Layout
 
 `ChatMessageList` (078) owns its scroll region: its root is

@@ -28,10 +28,10 @@ the sidebar twice, `hidden`/`md:hidden` on the positions and `inert` on the
 closed drawer keep one exposed at a time; a bare render contains exactly one
 `<nav>` ([validated by](../../tests/AppSidebar.test.tsx#L15)). `AppSidebar`
 sits in the `labelsProp` partition bucket
-([partition](../../tests/labelled-exports.test.tsx#L51)) and passes the
+([partition](../../tests/labelled-exports.test.tsx#L55)) and passes the
 sentinel render with both labels set to sentinels
-([harness](../../tests/labelled-exports.test.tsx#L282),
-[coverage](../../tests/labelled-exports.test.tsx#L383)).
+([harness](../../tests/labelled-exports.test.tsx#L295),
+[coverage](../../tests/labelled-exports.test.tsx#L350)).
 
 ## The decisions
 

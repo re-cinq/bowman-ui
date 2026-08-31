@@ -67,6 +67,8 @@ export type {
   ThinkingIndicatorLabels,
   ThinkingIndicatorProps,
 } from "./components/ThinkingIndicator.js";
+export { ToolActivity, defaultToolActivityLabels } from "./components/ToolActivity.js";
+export type { ToolActivityLabels, ToolActivityProps } from "./components/ToolActivity.js";
 export { ChatComposer, defaultChatComposerLabels } from "./components/ChatComposer.js";
 export type {
   ChatComposerHandle,
