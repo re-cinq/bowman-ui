@@ -48,7 +48,7 @@ re-exports.
    `describeTool` unchanged, so with `busy` true and `[user, tool, tool]` the
    first tool entry renders the callback's past-tense string and the trailing
    one its present-tense string, and with `busy` false both read past tense
-   ([validated by](../../tests/ChatMessageList.test.tsx#L751)). Its prop type
+   ([validated by](../../tests/ChatMessageList.test.tsx#L761)). Its prop type
    restates the signature inline and is kept identical to `ToolActivity`'s.
 3. **Replacement semantics are untouched.** A supplied `describeTool` still
    replaces the tensed labels entirely and suppresses nothing else - with

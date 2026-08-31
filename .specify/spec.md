@@ -2,7 +2,7 @@
 
 ## Overview
 
-**bowman-ui** is a presentational React component library providing UI building blocks for AI chat interfaces. It is extracted from an internal application and published as `@re-cinq/bowman-ui` on npm ([validated by](../tests/system-contract.test.ts#L14)). The library delivers props-driven, composable React components with no built-in authentication, data-fetching, routing, or internationalization (i18n) dependencies ([validated by](../tests/ChatMessage.test.tsx#L674), [system-contract](../tests/system-contract.test.ts#L39)). Consumers are responsible for supplying data and labels; the components render them according to received props ([validated by](../tests/labelled-exports.test.tsx#L528)).
+**bowman-ui** is a presentational React component library providing UI building blocks for AI chat interfaces. It is extracted from an internal application and published as `@re-cinq/bowman-ui` on npm ([validated by](../tests/system-contract.test.ts#L14)). The library delivers props-driven, composable React components with no built-in authentication, data-fetching, routing, or internationalization (i18n) dependencies ([validated by](../tests/ChatMessage.test.tsx#L674), [system-contract](../tests/system-contract.test.ts#L39)). Consumers are responsible for supplying data and labels; the components render them according to received props ([validated by](../tests/labelled-exports.test.tsx#L559)).
 
 **Naming convention**: HAL is the conversational engine; Bowman is the presentational face (the UI).
 

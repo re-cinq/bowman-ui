@@ -419,6 +419,28 @@ one-parameter callback stays assignable and no consumer breaks. It changes what
 the callback knows, not what it controls: a supplied `describeTool` still
 replaces the tensed labels entirely and suppresses nothing else.
 
+## Thinking trace (issue 109)
+
+`ThinkingTrace` (109) renders a `ThinkingChatEntry` - the model's own internal
+reasoning, which HAL produces by parsing literal `<thinking>` tags out of the
+model's output. That content is **unreviewed model output**: nobody reviews its
+shape the way an assistant answer is reviewed, and it routinely restates the
+customer's question along with any identifier the question carried - a booking
+reference, an order number, a name. So `ChatMessageList`'s `showThinking`
+defaults **`false`**: with the flag absent no `ThinkingTrace` is mounted at
+all, and none of the thinking content reaches the DOM. Whether a given
+consumer may turn it on is a data-flow decision recorded by
+`003-support-conversation-data-flow-record`, not one the library makes; that
+record is what a consumer checks before enabling it. When it is on, the
+content renders as `whitespace-pre-wrap` plain text inside a native
+`<details>`/`<summary>` that is closed by default and never auto-opens - never
+markdown or HTML, so nothing model-authored is interpreted. The `<summary>`
+carries the `thinkingTrace` label alone, never a preview of the content.
+`ThinkingTrace` is not a message: it declares no `assistantAvatar`, `onCopy`,
+`onFeedback` or `showFeedback` - internal deliberation is not an answer to copy
+or rate. It is also not a disclosure: a list holding only thinking entries
+still renders the `aiDisclosure` band.
+
 ## Layout
 
 `ChatMessageList` (078) owns its scroll region: its root is

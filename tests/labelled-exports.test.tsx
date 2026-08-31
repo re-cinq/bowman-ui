@@ -13,6 +13,7 @@ import {
   ErrorBoundary,
   InlineThinkingIndicator,
   ThinkingIndicator,
+  ThinkingTrace,
   ToolActivity,
   createMarkdownComponents,
   createUrlTransform,
@@ -25,6 +26,7 @@ import {
   defaultErrorBoundaryLabels,
   defaultInlineThinkingIndicatorLabels,
   defaultThinkingIndicatorLabels,
+  defaultThinkingTraceLabels,
   defaultToolActivityLabels,
 } from "../src/index.js";
 import type {
@@ -36,7 +38,9 @@ import type {
   ConversationListLabels,
   ErrorBoundaryLabels,
   InlineThinkingIndicatorLabels,
+  ThinkingChatEntry,
   ThinkingIndicatorLabels,
+  ThinkingTraceLabels,
   ToolActivityLabels,
   ToolChatEntry,
 } from "../src/index.js";
@@ -65,6 +69,7 @@ const labelsProp = [
   "ChatMessageList",
   "InlineThinkingIndicator",
   "ThinkingIndicator",
+  "ThinkingTrace",
   "ToolActivity",
   "ChatComposer",
   "ConversationList",
@@ -116,6 +121,7 @@ const noStrings = [
   "defaultChatMessageListLabels",
   "defaultInlineThinkingIndicatorLabels",
   "defaultThinkingIndicatorLabels",
+  "defaultThinkingTraceLabels",
   "defaultChatComposerLabels",
   "defaultConversationListLabels",
   "defaultAppShellLabels",
@@ -201,9 +207,14 @@ const toolActivitySentinels = {
   details: "⟦details⟧",
 } satisfies Required<ToolActivityLabels>;
 
+const thinkingTraceSentinels = {
+  thinkingTrace: "⟦thinkingTrace⟧",
+} satisfies Required<ThinkingTraceLabels>;
+
 const chatMessageListSentinels = {
   ...chatMessageSentinels,
   ...toolActivitySentinels,
+  ...thinkingTraceSentinels,
   thinkingRegion: "⟦thinkingRegion⟧",
   aiDisclosure: "⟦aiDisclosure⟧",
   transcript: "⟦transcript⟧",
@@ -327,6 +338,7 @@ const sentinelHarnesses: Record<
         <ChatMessageList
           entries={[
             { id: "u1", role: "user", content: numericContent },
+            { id: "th1", role: "thinking", content: numericContent, isStreaming: false },
             {
               id: "a1",
               role: "assistant",
@@ -343,6 +355,7 @@ const sentinelHarnesses: Record<
           ]}
           userInitials="LM"
           busy
+          showThinking
           attribution={{ "p-one": { name: personaName } }}
           labels={chatMessageListSentinels}
         />
@@ -362,6 +375,18 @@ const sentinelHarnesses: Record<
     sentinels: Object.values(thinkingIndicatorSentinels),
     renderContainer: () =>
       render(<ThinkingIndicator labels={thinkingIndicatorSentinels} />).container,
+  },
+  ThinkingTrace: {
+    sentinels: Object.values(thinkingTraceSentinels),
+    renderContainer: () => {
+      const entry = {
+        id: "th1",
+        role: "thinking",
+        content: numericContent,
+        isStreaming: true,
+      } satisfies ThinkingChatEntry;
+      return render(<ThinkingTrace entry={entry} labels={thinkingTraceSentinels} />).container;
+    },
   },
   ToolActivity: {
     sentinels: Object.values(toolActivitySentinels),
@@ -486,6 +511,12 @@ describe("the sentinel render check", () => {
   it("ThinkingIndicator's sentinel labels cover every defaultThinkingIndicatorLabels key", () => {
     expect(Object.keys(thinkingIndicatorSentinels).sort()).toEqual(
       Object.keys(defaultThinkingIndicatorLabels).sort()
+    );
+  });
+
+  it("ThinkingTrace's sentinel labels cover every defaultThinkingTraceLabels key", () => {
+    expect(Object.keys(thinkingTraceSentinels).sort()).toEqual(
+      Object.keys(defaultThinkingTraceLabels).sort()
     );
   });
 

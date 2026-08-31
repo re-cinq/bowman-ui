@@ -75,6 +75,7 @@ describe("ChatAttribution's built shape", () => {
       "showToolName",
       "showToolInput",
       "toolIcon",
+      "showThinking",
       "onCopy",
       "onFeedback",
     ]);
