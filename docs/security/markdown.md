@@ -69,3 +69,14 @@ build when any standing invariant regresses:
 It runs on `pull_request` in `ci.yml` and before `npm publish` in `publish.yml`,
 and is self-tested by `tests/security/check-markdown-safety.test.ts`, which
 proves it trips on each crafted bad input and stays green on the clean tree.
+
+## Known limits
+
+The gate is source-invariant against react-markdown v10's plugin surface: it
+keys on `rehypePlugins` as the only practical way to re-admit raw HTML in the
+pipeline `bowman-ui` actually ships. A wholesale replacement of `ReactMarkdown`
+with a hand-built hast pipeline (`mdast-util-to-hast` + `hast-util-raw` +
+`hast-util-to-jsx-runtime`) would not trip these greps. That kind of change is
+a large, conspicuous diff, not a silent one-line regression, and the corpus in
+`tests/security/markdown-xss.test.tsx` still exercises it at the `ChatMessage`
+level - it would have to pass the same fixtures to land.
