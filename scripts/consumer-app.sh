@@ -48,7 +48,7 @@ trap cleanup EXIT
 . "$REPO_ROOT/scripts/pack-to-temp.sh"
 pack_library
 
-echo "==> Asserting npm pack ships only dist/, package.json, LICENSE and README.md"
+echo "==> Asserting npm pack ships only dist/, package.json, LICENSE, README.md and THIRD-PARTY-NOTICES.md"
 PACKED_FILES="$(npm pack --dry-run --json 2>/dev/null | node -e '
   const chunks = [];
   process.stdin.on("data", (chunk) => chunks.push(chunk));
@@ -57,7 +57,7 @@ PACKED_FILES="$(npm pack --dry-run --json 2>/dev/null | node -e '
     process.stdout.write(report.files.map((file) => file.path).join("\n"));
   });
 ')"
-for required_file in package.json LICENSE README.md dist/index.js dist/styles.css; do
+for required_file in package.json LICENSE README.md THIRD-PARTY-NOTICES.md dist/index.js dist/styles.css; do
   if ! printf "%s\n" "$PACKED_FILES" | grep -qx "$required_file"; then
     echo "npm pack --dry-run is missing required file: $required_file" >&2
     exit 1
@@ -65,7 +65,7 @@ for required_file in package.json LICENSE README.md dist/index.js dist/styles.cs
 done
 while IFS= read -r packed_file; do
   case "$packed_file" in
-    dist/* | package.json | LICENSE | README.md) ;;
+    dist/* | package.json | LICENSE | README.md | THIRD-PARTY-NOTICES.md) ;;
     *)
       echo "npm pack --dry-run would ship an unexpected file: $packed_file" >&2
       exit 1
