@@ -81,6 +81,13 @@ export default [
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {
+    languageOptions: {
+      parserOptions: {
+        tsconfigRootDir: import.meta.dirname,
+      },
+    },
+  },
+  {
     plugins: {
       "react-hooks": reactHooks,
     },
@@ -158,6 +165,7 @@ export default [
   },
   {
     ignores: [
+      ".claude/**",
       "dist/**",
       "coverage/**",
       "node_modules/**",

@@ -80,3 +80,20 @@ describe("the code quality gates", () => {
     }
   });
 });
+
+describe("the local-tooling isolation from .claude worktrees", () => {
+  it("vitest.config.ts excludes **/.claude/** so stale worktree tests are never discovered", () => {
+    const config = readFileSync(resolve(process.cwd(), "vitest.config.ts"), "utf8");
+    expect(config).toMatch(/"\*\*\/\.claude\/\*\*"/);
+  });
+
+  it("eslint.config.mjs ignores .claude/** so nested worktree configs are never loaded", () => {
+    const config = readFileSync(resolve(process.cwd(), "eslint.config.mjs"), "utf8");
+    expect(config).toMatch(/"\.claude\/\*\*"/);
+  });
+
+  it("eslint.config.mjs pins tsconfigRootDir so root detection stays unambiguous", () => {
+    const config = readFileSync(resolve(process.cwd(), "eslint.config.mjs"), "utf8");
+    expect(config).toMatch(/tsconfigRootDir:\s*import\.meta\.dirname/);
+  });
+});
