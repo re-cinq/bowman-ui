@@ -60,3 +60,10 @@ export const chatComposerLabels: ChatComposerLabels = {
 };
 
 export const toastCopiedMessage = "Svaret er kopieret til udklipsholderen.";
+
+export const toastDemoOnlyMessage = "Kun til demonstration - ikke en rigtig side.";
+
+export const navConversationsLabel = "Samtaler";
+export const navSettingsLabel = "Indstillinger";
+export const signOutLabel = "Log ud af demoen";
+export const greetingText = "Hvordan kan vi hjælpe dig i dag?";
