@@ -69,9 +69,11 @@ cd <the printed temp directory>
 npm run dev                        # or: npm run build && npm run preview
 ```
 
-Open the printed URL in the stack's browser. The demo brand is
-`Havkat Rejser`; the three conversations are `Ombooking af HK-4821-XQ`,
-`Bagage til Skagerakøen` and `Ny samtale`. All of it is invented fixture data.
+Open the printed URL with `?view=chat` appended in the stack's browser: the
+chat is the fixture under test, and the bare URL now serves the component
+documentation, not the chat. The demo brand is `Havkat Rejser`; the three
+conversations are `Ombooking af HK-4821-XQ`, `Bagage til Skagerakøen` and
+`Ny samtale`. All of it is invented fixture data.
 
 Sending a message streams a canned Danish reply through the same lifecycle HAL
 produces - the entry appears empty, grows over 24 timed steps across roughly

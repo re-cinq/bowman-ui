@@ -160,31 +160,31 @@ All statements below executed green on 2026-08-27 against the packed tarball
 (8 passed, exit 0).
 
 The rendered screen exposes, by role query rather than CSS selector: one
-`aside` ([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L74)),
+`aside` ([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L75)),
 one `nav` with two items
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L75)), three
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L76)), three
 conversation list items
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L79)), one
-`main` ([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L82)),
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L80)), one
+`main` ([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L83)),
 user and assistant entries
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L83)), and
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L84)), and
 the composer textarea
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L89)).
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L90)).
 `AppShell` renders `renderSidebar` twice (desktop rail and mobile drawer);
 the counts are exact because role queries exclude the `display: none` copy at
 each viewport
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L74)).
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L75)).
 
 Typing into the composer and pressing Enter appends a user entry, and the
 fixture reply appends an assistant entry, with no data layer between the
 composer's submit handler and the list's entries
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L105)).
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L106)).
 
 Clicking copy on an assistant entry shows the toast
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L211)), and
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L212)), and
 it disappears on its own - a real timer in a real event loop, no fake timers
 anywhere in the suite
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L213)). The
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L214)). The
 toast is located via its visible pill and its unmount, because `Toast`
 deliberately renders the message twice (an `aria-hidden` pill and a
 visually-hidden live region).
@@ -193,7 +193,7 @@ One `getComputedStyle` assertion proves the consumer's Tailwind build scanned
 the installed `dist`: the `aside`'s `lg:w-72` - a class only the library's
 built files carry, never written by the demo - resolves to a computed width
 of `288px`
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L100)).
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L101)).
 
 ### Zero English
 
@@ -205,7 +205,7 @@ union over `ChatMessage` and `ThinkingIndicator` - and
 cannot drift) is asserted absent from the document's text and from every
 `aria-label`, `title`, `alt` and (superset) `placeholder` attribute, with the
 mobile drawer opened first so its contents are in the sweep
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L252)). The
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L261)). The
 sweep reads `textContent`, so the `display: none` desktop rail is swept too.
 
 Exemptions: none - every default string is banned, and none ships in the
@@ -214,7 +214,7 @@ rendered document. Two readings are recorded rather than exempted:
 - `deleteConversation` is a function label, not a string; the sweep bans its
   output prefix `Delete conversation:` (the function applied to the empty
   string, trimmed)
-  ([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L45)).
+  ([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L46)).
 - Eight keys never render in the swept state - `noConversations`,
   `loadingConversations` and `deleteConversation` (the list is populated,
   never loading, and passes no `onDelete`), `thinking` and `thinkingRegion`
@@ -229,26 +229,26 @@ rendered document. Two readings are recorded rather than exempted:
 ### EU AI Act
 
 The resolved Danish `aiDisclosure` is visible by exact text with entries
-present ([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L224))
+present ([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L225))
 and in the empty state
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L240)). The
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L241)). The
 obligation applies regardless of server location because the agent serves EU
 users. The disclosure sits outside the scrollable region - it is not a
 descendant of the `role="log"` region
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L227)) and
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L228)) and
 stays in the viewport with the transcript scrolled to either end
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L232)).
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L233)).
 
 ### Mobile drawer focus trap
 
 At a 375x667 viewport the drawer starts closed
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L271)), the
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L280)), the
 hamburger opens it
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L274)),
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L283)),
 `Tab` from the last focusable element inside it returns to the first
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L280)), and
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L289)), and
 `Escape` closes it and returns focus to the hamburger
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L283)) - the
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L292)) - the
 first execution of the focus trap where `offsetParent` is a real value rather
 than the jsdom shim.
 

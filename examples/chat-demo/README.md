@@ -3,7 +3,13 @@
 A standalone Vite + React app that consumes `@re-cinq/bowman-ui` exactly as an
 outside consumer would: the bare specifier, the packed tarball, no path alias
 into `src/`. It is the worked example behind `scripts/consumer-app.sh` and the
-screen the Playwright suite in `tests/` drives.
+surface the Playwright suite in `tests/` drives.
+
+The landing at `/` is the component documentation - the page GitHub Pages
+publishes. The chat is a local-test-only fixture at `/?view=chat` with no
+on-page link to it: it is the surface `scripts/consumer-app.sh` proves the
+packed tarball renders, and the target of the assistive-technology pass, but it
+is no longer a published page.
 
 ## Running it
 
@@ -17,12 +23,13 @@ what the Playwright suite (`npm test`) runs against.
 
 ## Component documentation
 
-The same app serves a second view at `/?view=docs`: a reference page per
-public component, plus an index that lists them all and an overview of the
-non-component surface at `/?view=docs&component=overview`. Each component page
-carries, in order, a purpose paragraph, the import line, a live example with
-its source, a props table, the component's exported default labels and the
-states worth looking at.
+The landing view - bare `/`, with `/?view=docs` kept as an alias so existing
+component links still resolve - is a reference page per public component, plus
+an index that lists them all and an overview of the non-component surface at
+`/?view=docs&component=overview`. The index opens with a hero screenshot of a
+chat built with the library. Each component page carries, in order, a purpose
+paragraph, the import line, a live example with its source, a props table, the
+component's exported default labels and the states worth looking at.
 
 Two of those sections cannot drift from the library:
 
@@ -40,19 +47,48 @@ The labels table is `Object.entries` over the library's own exported defaults,
 so it needs no maintenance either.
 
 The documentation content itself - purposes, prop descriptions, snippets and
-state captions - is English in both locales: it describes an English API, and
-translating it twice would only give it somewhere to drift. The page chrome
-around it (navigation, headings, table column names) follows
-`VITE_DEMO_LOCALE` like everything else.
+state captions - is English: it describes an English API, and translating it
+twice would only give it somewhere to drift. The page chrome around it
+(navigation, headings, table column names) is English too, unconditionally -
+`src/docs-labels.ts` is the docs view's only label source, and it does not
+read `VITE_DEMO_LOCALE`. Only the chat demo (the default view, no `?view`
+parameter) honors that switch.
 
-`?view=docs` is the only branch in `src/App.tsx`; with no query parameter the
-chat screen renders exactly as it did before.
+`src/App.tsx` renders the chat only for `?view=chat`; every other URL - bare
+`/` and the `?view=docs` alias included - renders the documentation.
+
+## The hero screenshot
+
+The index's hero image is `src/docs/assets/chat-hero.png`, imported into
+`src/docs/IndexPage.tsx` so Vite rewrites its URL for the Pages base path.
+It is generated reproducibly, never edited by hand: `src/docs/hero-fixture.ts`
+is an English houseplant-care conversation, `src/docs/HeroPreview.tsx` renders
+it through the real `ChatMessageList`, and `scripts/capture-hero.mjs`
+screenshots it. To regenerate it (the library must be installed the way
+`scripts/consumer-app.sh` installs it - the committed manifest declares no
+`@re-cinq/bowman-ui` dependency):
+
+```sh
+npm install --no-save <path-to-bowman-ui-tarball>
+node scripts/capture-hero.mjs
+```
+
+The capture script lives under `scripts/`, not `tests/`, so Playwright's
+`testDir` never runs it in the gating suite.
 
 ## Publishing
 
 `.github/workflows/pages.yml` builds this demo and deploys it to GitHub Pages
-on every push to `main`, so the chat screen and the documentation at
-`?view=docs` are reachable without checking the repository out.
+on every push to `main`, so the documentation at `/` (the published landing)
+and the chat fixture at `?view=chat` are reachable without checking the
+repository out. The published chat renders in English: the workflow's build
+step sets `VITE_DEMO_LOCALE=en`. Local runs and `ci.yml` leave it unset and get
+the Danish default the Playwright suite asserts against.
+
+This is a static build with no backend: the chat's replies are canned fixtures
+grown by `setTimeout` (`src/streaming.ts`), never a model call. A note on the
+index and in the chat view says so plainly, so a visitor does not mistake the
+demonstrated AI-disclosure band for a live model.
 
 Pages is a repository setting, not something a workflow can switch on: until
 this repository is public - or on a plan that allows Pages for private

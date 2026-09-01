@@ -7,7 +7,7 @@
 // library's own exported defaults object, so a key added or renamed upstream
 // shows up here on the next build with nothing to edit.
 
-import { docsLabels } from "../activeLabels";
+import { docsLabels } from "../docs-labels";
 import type { ComponentDoc, LabelValue } from "./componentDocs";
 import { CodeBlock, DocSection, Stage } from "./DocsUi";
 import { docsHref } from "./DocsApp";

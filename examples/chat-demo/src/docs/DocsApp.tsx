@@ -11,9 +11,14 @@
 // serves a project site from.
 
 import type { ReactNode } from "react";
-import { AppShell, AppSidebar } from "@re-cinq/bowman-ui";
+import {
+  AppShell,
+  AppSidebar,
+  defaultAppShellLabels,
+  defaultAppSidebarLabels,
+} from "@re-cinq/bowman-ui";
 import type { SidebarNavItem, SidebarSlotContext } from "@re-cinq/bowman-ui";
-import { appShellLabels, appSidebarLabels, docsLabels } from "../activeLabels";
+import { docsLabels } from "../docs-labels";
 import { componentDocById, componentDocs } from "./componentDocs";
 import { ComponentDocPage } from "./ComponentDocPage";
 import { IndexPage } from "./IndexPage";
@@ -56,20 +61,12 @@ export function DocsApp({ componentId }: { componentId: string | null }) {
       brand={<DocsBrand />}
       navItems={navItems.map((item) => ({ ...item, isActive: item.key === activeKey }))}
       renderNavLink={(item, props) => <a {...props} href={docsHref(item.key)} />}
-      labels={appSidebarLabels}
-      footer={
-        <a
-          href="./"
-          className="block px-4 py-3 text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white"
-        >
-          {docsLabels.backToChat}
-        </a>
-      }
+      labels={defaultAppSidebarLabels}
     />
   );
 
   return (
-    <AppShell brand={<DocsBrand />} renderSidebar={renderSidebar} labels={appShellLabels}>
+    <AppShell brand={<DocsBrand />} renderSidebar={renderSidebar} labels={defaultAppShellLabels}>
       <div className="mx-auto flex w-full max-w-3xl flex-col gap-8 px-4 py-8">
         {body(componentId)}
       </div>
