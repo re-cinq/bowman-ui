@@ -122,7 +122,7 @@ describe("repoint-spec-anchors", () => {
     );
   });
 
-  it("picks the nearest matching line when the content appears more than once", () => {
+  it("picks the duplicated line whose surrounding context matches the baseline", () => {
     write(
       repo,
       "tests/Foo.test.tsx",
@@ -132,8 +132,118 @@ describe("repoint-spec-anchors", () => {
     run(repo, "main");
 
     expect(read(repo, "specs/foo/spec.md")).toEqual(
-      asSpec("../../tests/Foo.test.tsx#L3", "../../tests/Foo.test.tsx#L7")
+      asSpec("../../tests/Foo.test.tsx#L5", "../../tests/Foo.test.tsx#L7")
     );
+  });
+
+  it("repoints each of two duplicated assertions to its own occurrence", () => {
+    write(
+      repo,
+      "tests/Foo.test.tsx",
+      asTestFile(["setup", "expect(height).toBe(200);", "teardown", "expect(height).toBe(200);"])
+    );
+    write(
+      repo,
+      "specs/foo/spec.md",
+      asSpec("../../tests/Foo.test.tsx#L2", "../../tests/Foo.test.tsx#L4")
+    );
+    write(repo, ".specify/spec.md", asSpec("../tests/Foo.test.tsx#L2"));
+    git(repo, "add", "-A");
+    git(repo, "commit", "-q", "-m", "duplicated assertion baseline");
+    write(
+      repo,
+      "tests/Foo.test.tsx",
+      asTestFile([
+        "intro1",
+        "intro2",
+        "intro3",
+        "setup",
+        "expect(height).toBe(200);",
+        "teardown",
+        "expect(height).toBe(200);",
+      ])
+    );
+
+    const result = run(repo, "main");
+
+    expect(result).toMatchObject({ status: 0 });
+    expect(read(repo, "specs/foo/spec.md")).toEqual(
+      asSpec("../../tests/Foo.test.tsx#L5", "../../tests/Foo.test.tsx#L7")
+    );
+  });
+
+  const periodicBlock = ["header", "alpha", "dupe", "beta", "tail"];
+  const periodicFile = asTestFile([
+    ...periodicBlock,
+    ...periodicBlock,
+    ...periodicBlock,
+    ...periodicBlock,
+  ]);
+
+  const commitAmbiguousBaseline = (repo: string) => {
+    write(repo, "tests/Foo.test.tsx", periodicFile);
+    write(repo, "specs/foo/spec.md", asSpec("../../tests/Foo.test.tsx#L8"));
+    write(repo, ".specify/spec.md", asSpec("../tests/Foo.test.tsx#L1"));
+    git(repo, "add", "-A");
+    git(repo, "commit", "-q", "-m", "identical duplicated blocks");
+  };
+
+  it("--check exits 1 when duplicated content has indistinguishable context", () => {
+    commitAmbiguousBaseline(repo);
+
+    const check = run(repo, "--check", "main");
+
+    expect(check).toMatchObject({ status: 1 });
+    expect(check.stderr).toContain("ambiguously at lines 8, 13");
+  });
+
+  it("an ambiguous duplicate is reported and never rewritten", () => {
+    commitAmbiguousBaseline(repo);
+    const specBefore = read(repo, "specs/foo/spec.md");
+
+    const rewrite = run(repo, "main");
+
+    expect(rewrite).toMatchObject({ status: 1 });
+    expect(rewrite.stdout).toContain("unresolved: 1");
+    expect(rewrite.stderr).toContain("ambiguously at lines 8, 13");
+    expect(read(repo, "specs/foo/spec.md")).toEqual(specBefore);
+  });
+
+  it("duplicates identical up to three lines out are told apart at the fourth", () => {
+    write(
+      repo,
+      "tests/Foo.test.tsx",
+      asTestFile([
+        "uniqA",
+        "s1",
+        "s2",
+        "s3",
+        "dupe",
+        "s4",
+        "s5",
+        "s6",
+        "uniqB",
+        "s1",
+        "s2",
+        "s3",
+        "dupe",
+        "s4",
+        "s5",
+        "s6",
+        "end",
+      ])
+    );
+    write(repo, "specs/foo/spec.md", asSpec("../../tests/Foo.test.tsx#L13"));
+    write(repo, ".specify/spec.md", asSpec("../tests/Foo.test.tsx#L1"));
+    git(repo, "add", "-A");
+    git(repo, "commit", "-q", "-m", "duplicates differing four lines out");
+    const baseline = read(repo, "tests/Foo.test.tsx");
+    write(repo, "tests/Foo.test.tsx", `intro1\nintro2\n${baseline}`);
+
+    const result = run(repo, "main");
+
+    expect(result).toMatchObject({ status: 0 });
+    expect(read(repo, "specs/foo/spec.md")).toEqual(asSpec("../../tests/Foo.test.tsx#L15"));
   });
 
   it("skips a spec whose anchor set differs from the base ref", () => {
