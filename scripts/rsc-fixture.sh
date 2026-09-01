@@ -77,7 +77,7 @@ copy_example_to_temp rsc-fixture
 cd "$APP_DIR"
 
 echo "==> Installing fixture dependencies"
-npm install --no-fund --no-audit
+npm install --no-fund --no-audit --ignore-scripts
 
 if [ "$EXPECT_FAILURE" -eq 1 ]; then
   MUTATION_DIR="$(mktemp -d)"
@@ -100,7 +100,7 @@ if [ "$EXPECT_FAILURE" -eq 1 ]; then
   MUTATED_TARBALL="$MUTATION_DIR/mutated.tgz"
   tar -czf "$MUTATED_TARBALL" -C "$MUTATION_DIR" package
   echo "==> Installing the mutated tarball by file path"
-  npm install --no-fund --no-audit "$MUTATED_TARBALL"
+  npm install --no-fund --no-audit --ignore-scripts "$MUTATED_TARBALL"
   rm -rf .next
   echo "==> Expecting next build to fail on the directive-stripped ChatMessage"
   if ./node_modules/.bin/next build >"$WORK_DIR/expect-failure-build.log" 2>&1; then
@@ -123,7 +123,7 @@ if [ "$EXPECT_FAILURE" -eq 1 ]; then
 fi
 
 echo "==> Installing the packed tarball by file path"
-npm install --no-fund --no-audit "$TARBALL_PATH"
+npm install --no-fund --no-audit --ignore-scripts "$TARBALL_PATH"
 
 echo "==> Building the fixture with next build"
 ./node_modules/.bin/next build
