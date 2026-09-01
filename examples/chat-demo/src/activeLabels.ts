@@ -13,6 +13,7 @@ export const {
   chatComposerLabels,
   chatMessageListLabels,
   conversationListLabels,
+  docsLabels,
   greetingText,
   navConversationsLabel,
   navSettingsLabel,

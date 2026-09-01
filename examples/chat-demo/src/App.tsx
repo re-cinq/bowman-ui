@@ -15,6 +15,7 @@ import {
   initialEntriesByConversation,
   type DemoEntry,
 } from "./fixtures";
+import { DocsApp } from "./docs/DocsApp";
 import { streamAssistantReply } from "./streaming";
 import {
   appShellLabels,
@@ -35,7 +36,20 @@ const toastDurationMs = 4000;
 const conversationsNavKey = "samtaler";
 const settingsNavKey = "indstillinger";
 
+// The one branch in the demo: "?view=docs" swaps the chat screen for the
+// component documentation, and "&component=<slug>" picks a page inside it.
+// Read once, at module scope, from the URL the document was loaded with - the
+// demo has no router and needs none, and the default screen keeps the
+// behaviour the Playwright suite asserts.
+const query = new URLSearchParams(window.location.search);
+const docsRequested = query.get("view") === "docs";
+const requestedComponent = query.get("component");
+
 export function App() {
+  return docsRequested ? <DocsApp componentId={requestedComponent} /> : <ChatScreen />;
+}
+
+function ChatScreen() {
   const [entriesByConversation, setEntriesByConversation] = useState(initialEntriesByConversation);
   const [activeConversationId, setActiveConversationId] = useState(conversations[0].id);
   const [activeNavKey, setActiveNavKey] = useState(conversationsNavKey);
