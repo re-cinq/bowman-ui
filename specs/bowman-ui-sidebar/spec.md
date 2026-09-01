@@ -28,7 +28,7 @@ the sidebar twice, `hidden`/`md:hidden` on the positions and `inert` on the
 closed drawer keep one exposed at a time; a bare render contains exactly one
 `<nav>` ([validated by](../../tests/AppSidebar.test.tsx#L15)). `AppSidebar`
 sits in the `labelsProp` partition bucket
-([partition](../../tests/labelled-exports.test.tsx#L55)) and passes the
+([partition](../../tests/labelled-exports.test.tsx#L55)). It passes the
 sentinel render with both labels set to sentinels
 ([harness](../../tests/labelled-exports.test.tsx#L301),
 [coverage](../../tests/labelled-exports.test.tsx#L437)).
@@ -41,36 +41,40 @@ sentinel render with both labels set to sentinels
    ([validated by](../../tests/public-api.test.ts#L40),
    [types](../../tests/public-api.test.ts#L47)).
 2. **Active state is a per-item `isActive` boolean, not a path comparison.**
-   The org has more than one router, so the component assumes neither. Three
-   `navItems` render three items in order, each showing its `label`; the one
-   with `isActive: true` alone carries `aria-current="page"` - announced, not
-   just background-coloured as in the source - and with no item marked, none
-   does ([validated by](../../tests/AppSidebar.test.tsx#L57),
-   [L68](../../tests/AppSidebar.test.tsx#L68)). Rows are keyed by `item.key`:
-   reordering moves the same DOM nodes
-   ([validated by](../../tests/AppSidebar.test.tsx#L83)). `navItems` omitted
-   or `[]` renders no `<nav>` element at all
-   ([validated by](../../tests/AppSidebar.test.tsx#L95),
-   [L101](../../tests/AppSidebar.test.tsx#L101)).
+   The org has more than one router, so the component assumes neither.
+   - Three `navItems` render three items in order, each showing its `label`;
+     the one with `isActive: true` alone carries `aria-current="page"` -
+     announced, not just background-coloured as in the source - and with no
+     item marked, none does
+     ([validated by](../../tests/AppSidebar.test.tsx#L57),
+     [L68](../../tests/AppSidebar.test.tsx#L68)).
+   - Rows are keyed by `item.key`: reordering moves the same DOM nodes
+     ([validated by](../../tests/AppSidebar.test.tsx#L83)).
+   - `navItems` omitted or `[]` renders no `<nav>` element at all
+     ([validated by](../../tests/AppSidebar.test.tsx#L95),
+     [L101](../../tests/AppSidebar.test.tsx#L101)).
 3. **`renderNavLink(item, props)` is the routing seam; the default is
-   `<button type="button" {...props} />`.** A nav item carries its resolved
-   `label`, not a translation key, and no `href` - `SidebarNavItem` has no
-   `href` field, pinned by a `@ts-expect-error` fixture compiled against the
-   built package ([validated by](../../tests/types/app-sidebar-type-assertions.tsx#L26),
-   [compiled by](../../tests/app-sidebar-dist.test.ts#L47)). The consumer's
-   element must spread every prop it is handed - CONTRACT.md § renderNavLink
-   states it, pinned together with the anchor round-trip and the
-   dropped-`onClick` failure mode
-   ([validated by](../../tests/AppSidebar.test.tsx#L125),
-   [L146](../../tests/AppSidebar.test.tsx#L146),
-   [L163](../../tests/AppSidebar.test.tsx#L163)). Clicking an item calls
-   `onNavigate` once with that item's `key`; `onNavigate` omitted, clicking
-   throws nothing ([validated by](../../tests/AppSidebar.test.tsx#L107),
-   [L117](../../tests/AppSidebar.test.tsx#L117)). `icon` is an optional
-   `ComponentType<{ className?: string }>` rendered at `h-5 w-5`; an item
-   without one renders its label and no `<svg>` - the component imports no
-   icon itself ([validated by](../../tests/AppSidebar.test.tsx#L172),
-   [L181](../../tests/AppSidebar.test.tsx#L181)).
+   `<button type="button" {...props} />`.**
+   - A nav item carries its resolved `label`, not a translation key, and no
+     `href` - `SidebarNavItem` has no `href` field, pinned by a
+     `@ts-expect-error` fixture compiled against the built package
+     ([validated by](../../tests/types/app-sidebar-type-assertions.tsx#L26),
+     [compiled by](../../tests/app-sidebar-dist.test.ts#L47)).
+   - The consumer's element must spread every prop it is handed -
+     CONTRACT.md § renderNavLink states it, pinned together with the anchor
+     round-trip and the dropped-`onClick` failure mode
+     ([validated by](../../tests/AppSidebar.test.tsx#L125),
+     [L146](../../tests/AppSidebar.test.tsx#L146),
+     [L163](../../tests/AppSidebar.test.tsx#L163)).
+   - Clicking an item calls `onNavigate` once with that item's `key`;
+     `onNavigate` omitted, clicking throws nothing
+     ([validated by](../../tests/AppSidebar.test.tsx#L107),
+     [L117](../../tests/AppSidebar.test.tsx#L117)).
+   - `icon` is an optional `ComponentType<{ className?: string }>` rendered at
+     `h-5 w-5`; an item without one renders its label and no `<svg>` - the
+     component imports no icon itself
+     ([validated by](../../tests/AppSidebar.test.tsx#L172),
+     [L181](../../tests/AppSidebar.test.tsx#L181)).
 4. **The middle region is `children`, wrapped in
    `flex min-h-0 flex-1 flex-col overflow-y-auto`.** The sidebar supplies
    growth and scrolling regardless of what's passed in - an unsized child is
@@ -85,12 +89,15 @@ sentinel render with both labels set to sentinels
 6. **The brand is a slot inside the bordered top row; omitted, no row
    renders at all** - no `h-14` row and no `border-b` above the navigation
    ([validated by](../../tests/AppSidebar.test.tsx#L218),
-   [L227](../../tests/AppSidebar.test.tsx#L227)). One consequence carried
-   over from 030 as shipped: in the mobile drawer the shell renders its own
-   bordered 56px close-button row as a sibling above this component, so a
-   `brand` row stacks a second bordered 56px row directly beneath it - two
-   horizontal rules of chrome. Documented, not solved: the sidebar doesn't
-   know which position it's in, and the drawer's row belongs to 030.
+   [L227](../../tests/AppSidebar.test.tsx#L227)).
+
+   One consequence carried over from 030 as shipped: in the mobile drawer the
+   shell renders its own bordered 56px close-button row as a sibling above
+   this component, so a `brand` row stacks a second bordered 56px row directly
+   beneath it - two horizontal rules of chrome. Documented, not solved: the
+   sidebar doesn't know which position it's in, and the drawer's row belongs
+   to 030.
+
 7. **One class list serves both 030 positions.** Below `md` the only
    position is the drawer - a column flex beside a 56px close row - where
    `flex-1 min-h-0` fills the remaining height and the drawer supplies width
@@ -105,8 +112,8 @@ and customer names (`003-support-conversation-data-flow-record`). The
 component calls no `console.*`, no `fetch`, no `navigator.sendBeacon` and no
 `localStorage` or `sessionStorage`, and stores nothing outside React state -
 asserted by a source grep
-([validated by](../../tests/AppSidebar.test.tsx#L240)) and the suite-wide
-console spy at zero calls ([spy](../../tests/setup.ts#L29)).
+([validated by](../../tests/AppSidebar.test.tsx#L240)). The suite-wide
+console spy stays at zero calls ([spy](../../tests/setup.ts#L29)).
 
 ## Build contract
 
