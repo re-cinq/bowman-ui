@@ -1,6 +1,81 @@
 import js from "@eslint/js";
 import tseslint from "typescript-eslint";
 import reactHooks from "eslint-plugin-react-hooks";
+import sonarjs from "eslint-plugin-sonarjs";
+
+// CONTRACT.md § Labels: the shared no-restricted-syntax selector set. Hoisted
+// into a const so the src/** overlays below (raw-<svg> ban, inline
+// focusable-selector ban) can spread it back in. In flat config a later config
+// object whose `rules` sets `no-restricted-syntax` REPLACES the earlier value
+// for that rule id - arrays never merge - so every overlay that also matches
+// the Labels files must re-list these selectors or it would silently disable
+// them.
+const labelsRestrictedSyntax = [
+  {
+    selector: "JSXText[value=/[A-Za-z]{3}/]",
+    message:
+      "Hardcoded JSX text. User-visible strings come from a labels prop resolved over English defaults - see CONTRACT.md § Labels.",
+  },
+  {
+    selector:
+      ":matches(JSXElement, JSXFragment) > JSXExpressionContainer > :matches(Literal[value=/[A-Za-z]{3}/], TemplateLiteral:has(TemplateElement[value.raw=/[A-Za-z]{3}/]))",
+    message:
+      "Hardcoded JSX text. User-visible strings come from a labels prop resolved over English defaults - see CONTRACT.md § Labels.",
+  },
+  {
+    // The conditional-render forms: {ok && "text"}, {ok ? "a" : "b"},
+    // {"a" + "b"}. A direct-child chain on purpose, twice over: a
+    // descendant combinator would cross into className templates and
+    // object literals inside {items.map(...)} callbacks, and the
+    // literal must sit directly under the rendering operator so a
+    // comparison operand ({variant === "desktop" && x}) never fires.
+    selector:
+      ':matches(JSXElement, JSXFragment) > JSXExpressionContainer > :matches(LogicalExpression, ConditionalExpression, BinaryExpression[operator="+"]) > :matches(Literal[value=/[A-Za-z]{3}/], TemplateLiteral:has(TemplateElement[value.raw=/[A-Za-z]{3}/]))',
+    message:
+      "Hardcoded JSX text. User-visible strings come from a labels prop resolved over English defaults - see CONTRACT.md § Labels.",
+  },
+  {
+    selector:
+      "JSXAttribute[name.name=/^(aria-label|aria-placeholder|aria-roledescription|aria-valuetext|title|placeholder|alt)$/] > Literal[value=/[A-Za-z]{3}/]",
+    message:
+      "Hardcoded assistive string. aria-*/title/placeholder/alt text comes from a labels prop resolved over English defaults - see CONTRACT.md § Labels.",
+  },
+  {
+    selector:
+      "JSXAttribute[name.name=/^(aria-label|aria-placeholder|aria-roledescription|aria-valuetext|title|placeholder|alt)$/] > JSXExpressionContainer > :matches(Literal[value=/[A-Za-z]{3}/], TemplateLiteral:has(TemplateElement[value.raw=/[A-Za-z]{3}/]))",
+    message:
+      "Hardcoded assistive string. aria-*/title/placeholder/alt text comes from a labels prop resolved over English defaults - see CONTRACT.md § Labels.",
+  },
+  {
+    selector:
+      'JSXAttribute[name.name=/^(aria-label|aria-placeholder|aria-roledescription|aria-valuetext|title|placeholder|alt)$/] > JSXExpressionContainer > :matches(LogicalExpression, ConditionalExpression, BinaryExpression[operator="+"]) > :matches(Literal[value=/[A-Za-z]{3}/], TemplateLiteral:has(TemplateElement[value.raw=/[A-Za-z]{3}/]))',
+    message:
+      "Hardcoded assistive string. aria-*/title/placeholder/alt text comes from a labels prop resolved over English defaults - see CONTRACT.md § Labels.",
+  },
+  {
+    selector:
+      "TSPropertySignature > Identifier.key[name=/^(strings|texts|t|i18n|translations|messages)$/]",
+    message:
+      "The one string-override prop is `labels?: Partial<XLabels>` - not strings, texts, t, i18n, translations or messages. See CONTRACT.md § Labels.",
+  },
+];
+
+// Issue #60: hand-written <svg> belongs in src/icons, never inline in a
+// component - the icon factory in src/icons is the one source.
+const svgBan = {
+  selector: 'JSXOpeningElement > JSXIdentifier[name="svg"]',
+  message:
+    "Raw <svg> element. Compose an icon from src/icons instead of hand-writing SVG in a component - see issue #60.",
+};
+
+// Issue #60: the keyboard focusable-selector string lives once in
+// src/hooks/focusableSelector.ts (FOCUSABLE_SELECTOR). Any inline copy carries
+// the `:not([tabindex="-1"])` marker and is banned everywhere else.
+const focusableLiteralBan = {
+  selector: 'Literal[value=/:not\\(\\[tabindex="-1"\\]\\)/]',
+  message:
+    "Inline focusable-selector literal. Import FOCUSABLE_SELECTOR from src/hooks/focusableSelector.ts instead of copying the selector - see issue #60.",
+};
 
 export default [
   js.configs.recommended,
@@ -24,56 +99,7 @@ export default [
   {
     files: ["src/**/*.{ts,tsx}", "tests/fixtures/eslint-labels/**/*.{ts,tsx}"],
     rules: {
-      "no-restricted-syntax": [
-        "error",
-        {
-          selector: "JSXText[value=/[A-Za-z]{3}/]",
-          message:
-            "Hardcoded JSX text. User-visible strings come from a labels prop resolved over English defaults - see CONTRACT.md § Labels.",
-        },
-        {
-          selector:
-            ":matches(JSXElement, JSXFragment) > JSXExpressionContainer > :matches(Literal[value=/[A-Za-z]{3}/], TemplateLiteral:has(TemplateElement[value.raw=/[A-Za-z]{3}/]))",
-          message:
-            "Hardcoded JSX text. User-visible strings come from a labels prop resolved over English defaults - see CONTRACT.md § Labels.",
-        },
-        {
-          // The conditional-render forms: {ok && "text"}, {ok ? "a" : "b"},
-          // {"a" + "b"}. A direct-child chain on purpose, twice over: a
-          // descendant combinator would cross into className templates and
-          // object literals inside {items.map(...)} callbacks, and the
-          // literal must sit directly under the rendering operator so a
-          // comparison operand ({variant === "desktop" && x}) never fires.
-          selector:
-            ':matches(JSXElement, JSXFragment) > JSXExpressionContainer > :matches(LogicalExpression, ConditionalExpression, BinaryExpression[operator="+"]) > :matches(Literal[value=/[A-Za-z]{3}/], TemplateLiteral:has(TemplateElement[value.raw=/[A-Za-z]{3}/]))',
-          message:
-            "Hardcoded JSX text. User-visible strings come from a labels prop resolved over English defaults - see CONTRACT.md § Labels.",
-        },
-        {
-          selector:
-            "JSXAttribute[name.name=/^(aria-label|aria-placeholder|aria-roledescription|aria-valuetext|title|placeholder|alt)$/] > Literal[value=/[A-Za-z]{3}/]",
-          message:
-            "Hardcoded assistive string. aria-*/title/placeholder/alt text comes from a labels prop resolved over English defaults - see CONTRACT.md § Labels.",
-        },
-        {
-          selector:
-            "JSXAttribute[name.name=/^(aria-label|aria-placeholder|aria-roledescription|aria-valuetext|title|placeholder|alt)$/] > JSXExpressionContainer > :matches(Literal[value=/[A-Za-z]{3}/], TemplateLiteral:has(TemplateElement[value.raw=/[A-Za-z]{3}/]))",
-          message:
-            "Hardcoded assistive string. aria-*/title/placeholder/alt text comes from a labels prop resolved over English defaults - see CONTRACT.md § Labels.",
-        },
-        {
-          selector:
-            'JSXAttribute[name.name=/^(aria-label|aria-placeholder|aria-roledescription|aria-valuetext|title|placeholder|alt)$/] > JSXExpressionContainer > :matches(LogicalExpression, ConditionalExpression, BinaryExpression[operator="+"]) > :matches(Literal[value=/[A-Za-z]{3}/], TemplateLiteral:has(TemplateElement[value.raw=/[A-Za-z]{3}/]))',
-          message:
-            "Hardcoded assistive string. aria-*/title/placeholder/alt text comes from a labels prop resolved over English defaults - see CONTRACT.md § Labels.",
-        },
-        {
-          selector:
-            "TSPropertySignature > Identifier.key[name=/^(strings|texts|t|i18n|translations|messages)$/]",
-          message:
-            "The one string-override prop is `labels?: Partial<XLabels>` - not strings, texts, t, i18n, translations or messages. See CONTRACT.md § Labels.",
-        },
-      ],
+      "no-restricted-syntax": ["error", ...labelsRestrictedSyntax],
       "no-restricted-imports": [
         "error",
         {
@@ -88,12 +114,55 @@ export default [
       ],
     },
   },
+  // Issue #60 guardrail: inline focusable-selector literals are banned across
+  // src/** except the one home in src/hooks/focusableSelector.ts. This overlay
+  // also matches every Labels src/** file, so it re-lists the Labels selectors;
+  // the eslint-duplication fixture glob is linted with --no-ignore by the test.
+  {
+    files: [
+      "src/**/*.{ts,tsx}",
+      "tests/fixtures/eslint-duplication/focusable-literal/**/*.{ts,tsx}",
+    ],
+    ignores: ["src/hooks/focusableSelector.ts"],
+    rules: {
+      "no-restricted-syntax": ["error", ...labelsRestrictedSyntax, focusableLiteralBan],
+    },
+  },
+  // Issue #60 guardrail: raw <svg> is banned in src/components/** (never in
+  // src/icons/**, where the icon factory legitimately renders one). This is the
+  // last no-restricted-syntax overlay for component files, so it must carry the
+  // full set: Labels + focusable ban + the svg ban.
+  {
+    files: [
+      "src/components/**/*.{ts,tsx}",
+      "tests/fixtures/eslint-duplication/raw-svg/**/*.{ts,tsx}",
+    ],
+    rules: {
+      "no-restricted-syntax": ["error", ...labelsRestrictedSyntax, focusableLiteralBan, svgBan],
+    },
+  },
+  // Issue #60 guardrail: duplication limits, scoped to src/** only. tests/ is
+  // NOT ignored by `npm run lint`, and the eslint fixtures hold intentional
+  // duplicate strings, so the plugin must never see tests/ source. The
+  // eslint-duplication fixture glob is linted with --no-ignore by the test.
+  // sonarjs/no-duplicate-string counts occurrences per file: the `"use client"`
+  // directive and the `rect(0, 0, 0, 0)` visually-hidden clip each appear once
+  // per file, so neither reaches the threshold - see report for the analysis.
+  {
+    files: ["src/**/*.{ts,tsx}", "tests/fixtures/eslint-duplication/**/*.{ts,tsx}"],
+    plugins: { sonarjs },
+    rules: {
+      "sonarjs/no-duplicate-string": ["error", { threshold: 3, ignoreStrings: "use client" }],
+      "sonarjs/no-identical-functions": "error",
+    },
+  },
   {
     ignores: [
       "dist/**",
       "coverage/**",
       "node_modules/**",
       "tests/fixtures/eslint-labels/**",
+      "tests/fixtures/eslint-duplication/**",
       "tests/fixtures/forbidden-imports/**",
       "examples/chat-demo/dist/**",
       "examples/chat-demo/test-results/**",
