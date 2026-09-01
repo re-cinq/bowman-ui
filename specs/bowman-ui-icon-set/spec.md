@@ -6,7 +6,7 @@ The local SVG icon set moves from Discovery (`apps/web/components/icons/Icon.tsx
 and `index.tsx` on `main` at `1aa3647fa5f75997ceea6bdc11f3fa66cea79b29`) into
 `src/icons/Icon.tsx` and `src/icons/index.tsx`, re-exported from the root
 barrel `src/index.ts` - no `./icons` subpath, since `014` pinned `exports` to a
-single `"."` entry ([validated by](../../tests/icons-dist.test.ts#L4)). `src/icons/index.tsx` exports exactly 23 icon components,
+single `"."` entry ([validated by](../../tests/icons-dist.test.ts#L46)). `src/icons/index.tsx` exports exactly 23 icon components,
 enumerated by name so a dropped icon fails the build rather than the consumer
 ([validated by](../../tests/icons.test.tsx#L58)), with path data byte-identical
 to the source, asserted attribute-by-attribute against a verbatim pre-move
@@ -23,9 +23,11 @@ re-exported at `index.tsx:23`, rendered by nothing - all 24 icons open a raw
 `node_modules` hits only `Icon.tsx:46-47` and the `index.tsx:23` re-export).
 Here the 22 uniform icons render `<IconWrapper {...svgProps}>` through a
 single `createUniformIcon(displayName, pathData, defaultStrokeWidth?)`
-path-table factory - issue #50 collapsed the 22 repeated shells into one
-render site and re-pinned the source-structure characterization accordingly
-([validated by](../../tests/icons.test.tsx#L64)). The factory stamps each
+path-table factory, each call `/*#__PURE__*/`-annotated so a bundler can
+tree-shake unused icons - issue #50 collapsed the 22 repeated shells into one
+render site and #55 re-pinned the source-structure characterization on the
+PURE-annotated calls accordingly
+([validated by](../../tests/icons.test.tsx#L66)). The factory stamps each
 icon's own `displayName` and `Function.name`, the two properties React
 DevTools and ErrorBoundary componentStack frames read component names from
 ([validated by](../../tests/icons.test.tsx#L313)). Each root
@@ -35,7 +37,7 @@ DevTools and ErrorBoundary componentStack frames read component names from
 [L125](../../tests/icons.test.tsx#L142)). `forwardRef` stays exactly as-is per
 `018` Decision 4 - rewriting it away would turn the `^19.0.0` peer range from a
 testing claim into a hard React 19 floor; the icons still take no `ref` prop
-([validated by](../../tests/icons-dist.test.ts#L4)).
+([validated by](../../tests/icons-dist.test.ts#L46)).
 
 `LoadingIcon` is the explicit exception and keeps its own `<svg>`:
 `IconWrapper` hardcodes `stroke="currentColor"` on the root, which would put a
@@ -59,11 +61,11 @@ not touch it ([validated by](../../tests/icons.test.tsx#L242),
 The module-private `BaseIconProps` (source `index.tsx:25`) is promoted to the
 public, exported `IconProps = {className?: string; ariaLabel?: string;
 strokeWidth?: number}`, and every one of the 23 icons is typed with it
-([validated by](../../tests/icons-dist.test.ts#L4)). A
+([validated by](../../tests/icons-dist.test.ts#L46)). A
 type-level test compiles `const Wrapped = (p: IconProps) => <SendIcon {...p} />`
 against the built `dist` types through the self-referencing package import -
 the case `018` recorded as impossible before this issue
-([validated by](../../tests/icons-dist.test.ts#L4), assertions at
+([validated by](../../tests/icons-dist.test.ts#L46), assertions at
 [tests/types/icon-type-assertions.tsx](../../tests/types/icon-type-assertions.tsx#L15)).
 
 The previously-exported `IconProps` at `Icon.tsx:21` - a `{name: string}`
@@ -81,9 +83,9 @@ suite imports only `getAccessibleIconProps`.
 and `IconSvgProps` as a type - `getAccessibleIconProps` returns a `Pick` of it
 ([validated by](../../tests/icons.test.tsx#L58)).
 All four resolve through the `"."` exports entry
-([validated by](../../tests/icons-dist.test.ts#L4)) and `npm pack --dry-run`
+([validated by](../../tests/icons-dist.test.ts#L46)) and `npm pack --dry-run`
 ships `dist/icons/Icon.{js,d.ts}` and `dist/icons/index.{js,d.ts}`
-([validated by](../../tests/icons-dist.test.ts#L28)).
+([validated by](../../tests/icons-dist.test.ts#L70)).
 
 ## Accessibility contract
 
