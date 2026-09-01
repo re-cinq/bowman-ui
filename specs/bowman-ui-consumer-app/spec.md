@@ -254,19 +254,25 @@ than the jsdom shim.
 
 `scripts/check-forbidden-imports.mjs` parses every file under `src/` with
 `ts.createSourceFile` and exits non-zero on any import, re-export, dynamic
-`import()` or `require()` of a forbidden specifier
-([validated by](../../scripts/check-forbidden-imports.mjs#L120)). The banned
-list is the issue's four (`@clerk/*`, `swr`, `next-intl`, `next`/`next/*`)
-plus the internal source-app scope (`@discovery/*`) and two deliberate
-supersets: `lucide-react` (CONTRACT.md decision 2) and the `@/` path alias
-(CONTRACT.md decision 5)
-([validated by](../../scripts/check-forbidden-imports.mjs#L25)).
+`import()` or `require()` whose non-relative specifier does not resolve to
+a package declared in `package.json`
+([validated by](../../scripts/check-forbidden-imports.mjs#L118)). The
+allowlist is read at runtime from `dependencies` plus `peerDependencies`
+([validated by](../../scripts/check-forbidden-imports.mjs#L30)), and a
+subpath of a declared package counts as the package
+([validated by](../../scripts/check-forbidden-imports.mjs#L42)). This
+inverts the issue's name blocklist (`@clerk/*`, `swr`, `next-intl`,
+`next`/`next/*`, plus `lucide-react` per CONTRACT.md decision 2, the `@/`
+path alias per CONTRACT.md decision 5, and any internal source-app
+package): every one of those names stays banned because none is declared,
+and a copy-paste arriving under a name no blocklist ever listed now fails
+too.
 
-The red fixture `tests/fixtures/forbidden-imports/red.tsx` carries one import
-per banned pattern, and the script's built-in self-test fails unless every
-individual pattern trips - a count alone would let one pattern's detection
-rot behind another's duplicate
-([validated by](../../scripts/check-forbidden-imports.mjs#L109)). The check
+The red fixture `tests/fixtures/forbidden-imports/red.tsx` carries only
+specifiers outside the allowlist, and the script's built-in self-test fails
+unless every specifier the fixture carries trips - one allowed specifier
+sneaking in would rot the fixture's proof
+([validated by](../../scripts/check-forbidden-imports.mjs#L106)). The check
 runs as the named `ci.yml` step "Forbidden import check"
 ([validated by](../../.github/workflows/ci.yml#L56)). It is static on top of,
 not instead of, the dynamic `node_modules` scan in `consumer-app.sh`: a grep
