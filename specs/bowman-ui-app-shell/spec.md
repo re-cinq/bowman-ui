@@ -30,8 +30,8 @@ name, added by the 2026-08-26 review) - per CONTRACT.md § Labels
 sits in the `labelsProp` partition bucket and passes the
 sentinel render with all four labels set to sentinels; the harness opens the
 drawer so the dialog-name sentinel renders
-([partition](../../tests/labelled-exports.test.tsx#L70),
-[harness](../../tests/labelled-exports.test.tsx#L371)).
+([partition](../../tests/labelled-exports.test.tsx#L76),
+[harness](../../tests/labelled-exports.test.tsx#L416)).
 
 `renderSidebar({ variant, close })` is called exactly twice per render - once
 per position, `"desktop"` rail and `"mobile"` drawer - and both returned
@@ -40,7 +40,10 @@ renders the frame ([validated by](../../tests/AppShell.test.tsx#L70),
 [L83](../../tests/AppShell.test.tsx#L83)). The
 mobile copy needs `close` so tapping a nav item closes the drawer - the same
 slot idiom as `ConversationList`'s `renderLink`
-([validated by](../../tests/AppShell.test.tsx#L125)).
+([validated by](../../tests/AppShell.test.tsx#L125)). `close` is handed to
+both variants, not just the drawer: from the desktop rail it re-reports the
+already-closed state, which keeps one shared `renderSidebar` safe to wire to
+either position.
 
 `brand` renders inside the mobile header row with the centring spacer;
 omitted, the header shows the hamburger and no spacer, and the component
@@ -67,6 +70,18 @@ closing on navigation - recorded in CONTRACT.md § AppShell, because the
 source's `usePathname` effect is app-router-specific and cannot ship here
 ([validated by](../../tests/AppShell.test.tsx#L162)).
 
+## Dialog semantics
+
+The open drawer is a modal dialog: it carries `role="dialog"`,
+`aria-modal="true"`, and an `aria-label` resolved from the `sidebarDialog`
+label - `"Menu"` by default, overridable per instance
+([validated by](../../tests/AppShell.test.tsx#L182),
+[L201](../../tests/AppShell.test.tsx#L201)). The closed drawer carries none of
+the three ([validated by](../../tests/AppShell.test.tsx#L192)). The hamburger
+names the drawer through `aria-controls` but deliberately carries no
+`aria-expanded` - it only opens, so an expanded state would promise a collapse
+the button cannot perform ([validated by](../../tests/AppShell.test.tsx#L211)).
+
 ## The two accessibility fixes
 
 1. **`inert` replaces `aria-hidden` on the closed drawer.** The source kept
@@ -85,7 +100,12 @@ source's `usePathname` effect is app-router-specific and cannot ship here
    With overflow pre-set to `"scroll"`, opening sets `"hidden"`, closing
    restores `"scroll"`, and unmounting while open restores it too
    ([validated by](../../tests/AppShell.test.tsx#L320),
-   [L365](../../tests/AppShell.test.tsx#L365)).
+   [L365](../../tests/AppShell.test.tsx#L365)). A
+   `matchMedia("(min-width: 768px)")` listener lifts the lock while the
+   viewport sits at the desktop breakpoint - where `md:hidden` hides the
+   drawer but the open state persists - and re-locks on the way back; the
+   `768px` literal mirrors the component's own `md:*` classes
+   ([validated by](../../tests/AppShell.test.tsx#L331)).
 
 **Landmark ruling (recorded decision).** The drawer and rail wrappers are
 non-landmark `div`s: issue 031's `AppSidebar` supplies the only `aside`/`nav`
@@ -155,8 +175,11 @@ below.
   ([validated by](../../tests/AppShell.test.tsx#L444)).
 - **`brand={null}` renders no spacer**, same as omitting the prop - `null` is
   the React idiom for intentionally-nothing, and an empty centring spacer with
-  no mark would be a layout surprise. Pinned by test
-  ([validated by](../../tests/AppShell.test.tsx#L454)).
+  no mark would be a layout surprise. A characterization test pairs the two
+  renders, but its `header > div` selector matches nothing - the mobile header
+  is a `<div>`, not a `<header>` - so it counts zero spacers under either prop
+  and the equivalence is asserted only vacuously
+  ([characterization test](../../tests/AppShell.test.tsx#L454)).
 
 - **Test locations.** The issue names `tests/components/AppShell.test.tsx`;
   this repository keeps every test flat under `tests/`, and the partition
