@@ -22,7 +22,7 @@ dropped (a cleartext link to a customer's own booking is an accident),
 `irc`/`ircs`/`xmpp` are dropped (nothing in this product emits them), `tel` is
 added (a depot phone number is a plausible support answer). The three allowed
 schemes render anchors with their exact `href`
-([validated by](../../tests/markdown/urlPolicy.test.tsx#L43)); `http`, `irc`,
+([validated by](../../tests/markdown/urlPolicy.test.tsx#L43)). `http`, `irc`,
 `xmpp`, `javascript:`, `data:`, `vbscript:` and every relative form render no
 anchor at all - the link text renders in a `<span>`, and
 `a[href=""]` never appears, since an empty-href anchor reloads the page when
@@ -32,7 +32,7 @@ and entity encoding do not get past the allowlist, asserted on the DOM
 
 The allowlist is data, not a hardcoded branch:
 `allowedSchemes: ["https", "http"]` renders the `http` anchor
-([validated by](../../tests/markdown/urlPolicy.test.tsx#L82)) and `[]`
+([validated by](../../tests/markdown/urlPolicy.test.tsx#L82)). `[]`
 rejects everything
 ([validated by](../../tests/markdown/urlPolicy.test.tsx#L90)).
 `allowRelativeUrls: true` renders `<a href="/booking/42">`; the default does
@@ -43,7 +43,7 @@ not ([validated by](../../tests/markdown/urlPolicy.test.tsx#L99),
 
 Every rendered anchor carries `rel="noopener noreferrer"` and
 `target="_blank"`
-([validated by](../../tests/markdown/urlPolicy.test.tsx#L121)); with
+([validated by](../../tests/markdown/urlPolicy.test.tsx#L121)). With
 `linkTarget: "_self"` the `target` attribute is absent and the `rel` pair
 stays, so the chat URL `/chat/<conversation-id>` - a personal-data identifier
 per `003-support-conversation-data-flow-record` - never leaves in a `Referer`
@@ -68,7 +68,7 @@ and a bare email render policy-checked anchors
 case cannot render an anchor under the default policy - remark-gfm autolinks
 `www.` literals to an `http://` href, which the default allowlist rejects, so
 it renders as text ([validated
-by](../../tests/markdown/urlPolicy.test.tsx#L207)) and renders the anchor with
+by](../../tests/markdown/urlPolicy.test.tsx#L207)). It renders the anchor with
 the `rel` pair and the notice under the `["https", "http"]` opt-in
 ([validated by](../../tests/markdown/urlPolicy.test.tsx#L214)). Silently
 upgrading `http://www.` to `https://` was rejected: it would break the
@@ -79,7 +79,7 @@ exact-`href` guarantee and send the reader somewhere the model did not write.
 An `https` image URL passing the scheme allowlist still means the browser
 requests it at render time - a tracking pixel with no click and no consent.
 The map's `img` renderer renders the `alt` text and no `HTMLImageElement` by
-default ([validated by](../../tests/markdown/urlPolicy.test.tsx#L227));
+default ([validated by](../../tests/markdown/urlPolicy.test.tsx#L227)).
 `allowImages: true` renders one `<img>` with that `src`, still behind the
 scheme allowlist - a `javascript:` source renders none either way
 ([validated by](../../tests/markdown/urlPolicy.test.tsx#L234),
@@ -94,7 +94,7 @@ which is the request a `fetch` spy would never see
 test that triggered it, alongside 023's console trap
 ([validated by](../../tests/setup.ts#L18)). Neither markdown source file
 references `console.`, storage APIs, `fetch` or `sendBeacon`
-([validated by](../../tests/markdown/urlPolicy.test.tsx#L285)), and raw HTML
+([validated by](../../tests/markdown/urlPolicy.test.tsx#L285)). Raw HTML
 still renders as escaped text - no `rehype` anywhere
 ([validated by](../../tests/markdown/urlPolicy.test.tsx#L279)).
 
@@ -103,10 +103,10 @@ still renders as escaped text - no `rehype` anywhere
 `createMarkdownComponents(options)` is the package root's only markdown-map
 export; 019's constant is gone. It returns the eighteen classed elements plus
 the `img` gate ([validated
-by](../../tests/markdown-components.test.tsx#L55)), every element still
+by](../../tests/markdown-components.test.tsx#L55)). Every element still
 carries its `bowman-md-<tag>` class through a full fixture render - the `a`
 case on an `https` URL per the issue's amendment
-([validated by](../../tests/markdown-components.test.tsx#L74)), and the
+([validated by](../../tests/markdown-components.test.tsx#L74)). The
 result stays assignable to `react-markdown`'s `Components`
 ([validated by](../../tests/markdown-components.test.tsx#L92)).
 
@@ -115,10 +115,10 @@ result stays assignable to `react-markdown`'s `Components`
 and passes the factory's map plus `createUrlTransform`'s result to
 `ReactMarkdown` ([validated by](../../tests/ChatMessage.test.tsx#L721),
 [L649](../../tests/ChatMessage.test.tsx#L749),
-[L661](../../tests/ChatMessage.test.tsx#L761)); a rejected link renders as a
-span ([validated by](../../tests/ChatMessage.test.tsx#L736)), an image
+[L661](../../tests/ChatMessage.test.tsx#L761)). A rejected link renders as a
+span ([validated by](../../tests/ChatMessage.test.tsx#L736)). An image
 renders as alt text
-([validated by](../../tests/ChatMessage.test.tsx#L786)), and the
+([validated by](../../tests/ChatMessage.test.tsx#L786)). The
 `linkOpensInNewTab` override reaches the notice
 ([validated by](../../tests/ChatMessage.test.tsx#L774)).
 
@@ -165,18 +165,22 @@ renders as alt text
   sentinel harness and key-coverage test (CONTRACT.md § Labels records the
   shape; Toast's closed-list precedent)
   ([validated by](../../tests/labelled-exports.test.tsx#L359),
-  [L349](../../tests/labelled-exports.test.tsx#L437)). `ChatMessage`'s
-  sentinel harness renders a numeric-text link so the notice label reaches
-  the checked DOM.
+  [L349](../../tests/labelled-exports.test.tsx#L437)).
+
+  `ChatMessage`'s sentinel harness renders a numeric-text link so the notice
+  label reaches the checked DOM.
+
 - **Amendments to merged criteria, per the issue:** `ChatMessageProps` gains
   `markdown?: MarkdownPolicy` (ten fields), `ChatMessageLabels` and
-  `defaultChatMessageLabels` gain `linkOpensInNewTab` (ten keys) - the
-  `@ts-expect-error` completeness fixture now omits the tenth key
-  ([validated by](../../tests/types/chat-message-type-assertions.tsx#L61)) -
-  and 019's map-keys test counts nineteen entries, a necessary consequence of
-  the `img` gate ([validated
-  by](../../tests/markdown-components.test.tsx#L55)). Supersession notes sit
-  in 019's and 023's specs.
+  `defaultChatMessageLabels` gain `linkOpensInNewTab` (ten keys).
+  - The `@ts-expect-error` completeness fixture now omits the tenth key
+    ([validated by](../../tests/types/chat-message-type-assertions.tsx#L61)).
+  - 019's map-keys test counts nineteen entries, a necessary consequence of
+    the `img` gate
+    ([validated by](../../tests/markdown-components.test.tsx#L55)).
+
+  Supersession notes sit in 019's and 023's specs.
+
 - **`markdownComponents`' removal is a breaking API change**, sanctioned by
   the issue; no version has been published, so no consumer exists to break.
   `tests/fixtures/public-api.json` was regenerated deliberately
@@ -192,6 +196,6 @@ renders as alt text
   `#user-content-fn-*` fragments, which the default policy rejects like any
   relative URL - they render as spans, and the span keeps `id`, `aria-*` and
   the backref's accessible name so same-page assistive semantics survive
-  ([validated by](../../tests/markdown/urlPolicy.test.tsx#L293)). The
-  default-policy objects are frozen, arrays included
+  ([validated by](../../tests/markdown/urlPolicy.test.tsx#L293)).
+- The default-policy objects are frozen, arrays included
   ([validated by](../../tests/markdown/urlPolicy.test.tsx#L304)).

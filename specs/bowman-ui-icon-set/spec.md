@@ -8,7 +8,7 @@ and `index.tsx` on `main` at `1aa3647fa5f75997ceea6bdc11f3fa66cea79b29`) into
 barrel `src/index.ts` - no `./icons` subpath, since `014` pinned `exports` to a
 single `"."` entry ([validated by](../../tests/icons-dist.test.ts#L46)). `src/icons/index.tsx` exports exactly 23 icon components,
 enumerated by name so a dropped icon fails the build rather than the consumer
-([validated by](../../tests/icons.test.tsx#L58)), with path data byte-identical
+([validated by](../../tests/icons.test.tsx#L58)). Path data is byte-identical
 to the source, asserted attribute-by-attribute against a verbatim pre-move
 fixture copy rather than by `outerHTML` string - attribute order in `outerHTML`
 follows JSX order and changes when the element moves into `IconWrapper`
@@ -83,7 +83,7 @@ suite imports only `getAccessibleIconProps`.
 and `IconSvgProps` as a type - `getAccessibleIconProps` returns a `Pick` of it
 ([validated by](../../tests/icons.test.tsx#L58)).
 All four resolve through the `"."` exports entry
-([validated by](../../tests/icons-dist.test.ts#L46)) and `npm pack --dry-run`
+([validated by](../../tests/icons-dist.test.ts#L46)). `npm pack --dry-run`
 ships `dist/icons/Icon.{js,d.ts}` and `dist/icons/index.{js,d.ts}`
 ([validated by](../../tests/icons-dist.test.ts#L70)).
 
@@ -97,15 +97,15 @@ lines) passes unchanged in meaning: no label → `aria-hidden="true"` and no
 [L180](../../tests/icons.test.tsx#L197),
 [L191](../../tests/icons.test.tsx#L208),
 [L202](../../tests/icons.test.tsx#L219),
-[L213](../../tests/icons.test.tsx#L230)), including the
-`getAttribute`-based class assertions working around `SVGAnimatedString`
+[L213](../../tests/icons.test.tsx#L230)). The
+`getAttribute`-based class assertions work around `SVGAnimatedString`
 ([validated by](../../tests/icons.test.tsx#L252),
 [L282](../../tests/icons.test.tsx#L299)).
 
 `strokeWidth` defaults to `2` and reaches both the `<svg>` and the `<path>`
-([validated by](../../tests/icons.test.tsx#L281));
+([validated by](../../tests/icons.test.tsx#L281)).
 `<SearchIcon strokeWidth={1.5} />` renders `stroke-width="1.5"` on the path
-([validated by](../../tests/icons.test.tsx#L287)); `DatabaseIcon` defaults to
+([validated by](../../tests/icons.test.tsx#L287)). `DatabaseIcon` defaults to
 `1.5` ([validated by](../../tests/icons.test.tsx#L292)).
 
 ## What does not move
@@ -114,17 +114,17 @@ lines) passes unchanged in meaning: no label → `aria-hidden="true"` and no
 mark, structurally unlike its 23 neighbours (no stroke, `fill="currentColor"`
 path, `strokeWidth` ignored), and `018` Decision 3 forbids a bundled default
 mark ([validated by](../../tests/icons.test.tsx#L71)). `grep -rn "LogoIcon" src/` returns nothing
-([validated by](../../tests/icons.test.tsx#L71)) and the README points a
+([validated by](../../tests/icons.test.tsx#L71)). The README points a
 consumer wanting a brand mark at the `assistantAvatar` slot from `CONTRACT.md`
 ([validated by](../../tests/icons.test.tsx#L102)).
 
 ## Client boundary
 
-No file under `src/icons/` carries `"use client"`
-([validated by](../../tests/icons.test.tsx#L119)) - the icons use no
-client-only React API - and `scripts/check-client-directives.mjs` passes
-against the new files, the first exercise of `018`'s contract requirement
-against real extracted code
+No file under `src/icons/` carries `"use client"` - the icons use no
+client-only React API
+([validated by](../../tests/icons.test.tsx#L119)). `scripts/check-client-directives.mjs`
+passes against the new files, the first exercise of `018`'s contract
+requirement against real extracted code
 ([validated by](../../tests/client-directives.test.ts#L80)).
 Every relative import under `src/icons/` ends in `.js` and no file contains
 `"@/` ([validated by](../../tests/icons.test.tsx#L108)).
