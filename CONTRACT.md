@@ -100,14 +100,28 @@ directive of its own: `export ... from` is not a reference. It runs in
 only a Next.js consumer importing from a server component proves the boundary
 holds - that verification is `078`'s RSC fixture build.
 
-## 2. One icon system: the local 23-icon set
+## 2. One icon system: an in-repo 23-icon set, no icon dependency
 
-`lucide-react` does not come along, in any dependency field. In Discovery it is
+Two facts hold at once and must not be collapsed into one.
+
+First, the code dependency: `lucide-react` does not come along, in any
+dependency field, and no `src/` file imports it. That ban is enforced -
+`scripts/check-forbidden-imports.mjs` fails the build on a `lucide-react`
+import and names this decision as the reason. In Discovery the library is
 used in only three files - `app/chat/page.tsx`, `app/chat/[id]/page.tsx`, and
 `components/chat/DevInfoCollapsible.tsx` (which never moves) - three of its
-four glyphs already exist locally, and the local set has a tested
+four glyphs already exist in this set, and the set carries a tested
 accessibility contract (`getAccessibleIconProps`, WCAG 2.1 AA) lucide has no
 equivalent for.
+
+Second, the artwork: the 23 glyphs are not original. Their SVG path data is
+adapted from - and includes modified versions of - Lucide (ISC, with a
+Feather-derived subset under MIT) and Heroicons v1/v2 (MIT, Tailwind Labs).
+No runtime dependency contradicts this: only the path data was copied and
+reshaped, then wrapped in the local accessibility layer. The upstream
+copyright and license notices are reproduced in `THIRD-PARTY-NOTICES.md`,
+which ships in the published package. Attribution is at the set level;
+exact per-icon provenance is not tracked.
 
 Consequences, recorded so no extraction PR "fixes" them:
 

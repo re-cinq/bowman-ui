@@ -204,6 +204,19 @@ Two TypeScript installs exist on purpose: `typescript` (~6.x) feeds the lint sta
 
 The library renders model-authored markdown into a customer-facing chat, so the reports that matter are XSS, sanitizer bypass, and markdown-pipeline dependency advisories - measured against the scheme allowlist and `rel="noopener noreferrer"` policy described in [Links in model output](#links-in-model-output). Do not open a public issue for a vulnerability. Report it privately to **security@re-cinq.com**; we acknowledge within 48 hours. Full intake, scope, and supported-versions detail is in [SECURITY.md](./SECURITY.md).
 
+## Credits
+
+The SVG icon artwork in this package is adapted from two open-source icon sets,
+not drawn from scratch:
+
+- [Lucide](https://lucide.dev) - ISC (with a Feather-derived subset under MIT)
+- [Heroicons](https://heroicons.com) - MIT, (c) Tailwind Labs, Inc.
+
+The glyphs are modified derivatives, and there is no runtime or import dependency
+on either project - only the path data was adapted. The upstream copyright and
+license notices are reproduced in [THIRD-PARTY-NOTICES.md](./THIRD-PARTY-NOTICES.md),
+which ships in the published package.
+
 ## License
 
 Apache-2.0
