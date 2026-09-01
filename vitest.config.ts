@@ -9,7 +9,7 @@ export default defineConfig({
     setupFiles: ["tests/setup.ts"],
     // examples/chat-demo's Playwright suite matches the default spec glob but
     // runs under Playwright inside scripts/consumer-app.sh, never under vitest.
-    exclude: [...configDefaults.exclude, "examples/**"],
+    exclude: [...configDefaults.exclude, "examples/**", "**/.claude/**"],
     coverage: {
       provider: "v8",
       include: ["src/**"],
