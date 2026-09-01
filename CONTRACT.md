@@ -535,6 +535,13 @@ wording belongs to `062-support-agent-ai-disclosure`.
 - `package.json` declares `"sideEffects": ["*.css"]` now, so the stylesheet
   issue (entry point, `@theme` tokens, keyframes, the `prose` decision) can
   land its CSS without a manifest change and without bundlers tree-shaking it
-  away.
+  away. This flag governs only module-level elimination - whether a whole
+  module survives - and never reached the icon table: `createUniformIcon` does
+  observable work (`Object.defineProperty`, `Object.assign`), so without a
+  `/*#__PURE__*/` annotation on each call a bundler retains all 22 icons even
+  when a consumer imports one. Icon tree-shaking rests on those annotations, not
+  on `sideEffects`; both seams are pinned by tests - the source annotation by
+  `tests/icons.test.tsx` and the bundle outcome by `tests/icons-dist.test.ts`
+  (#55).
 - The public icon props type is required to exist by this contract; issue 020
   names it (decision 2 above).
