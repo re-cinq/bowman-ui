@@ -16,6 +16,7 @@ import {
   type DemoEntry,
 } from "./fixtures";
 import { DocsApp } from "./docs/DocsApp";
+import { staticDemoNote } from "./staticDemoNote";
 import { streamAssistantReply } from "./streaming";
 import {
   appShellLabels,
@@ -36,17 +37,18 @@ const toastDurationMs = 4000;
 const conversationsNavKey = "samtaler";
 const settingsNavKey = "indstillinger";
 
-// The one branch in the demo: "?view=docs" swaps the chat screen for the
-// component documentation, and "&component=<slug>" picks a page inside it.
-// Read once, at module scope, from the URL the document was loaded with - the
-// demo has no router and needs none, and the default screen keeps the
-// behaviour the Playwright suite asserts.
+// The documentation is the landing: bare "/" (and the "?view=docs" alias that
+// keeps existing component links resolving) renders the docs, and only
+// "?view=chat" reaches the chat fixture - a local-test-only surface with no
+// on-page link to it. "&component=<slug>" picks a docs page inside the docs
+// view. Read once, at module scope, from the URL the document was loaded with:
+// the demo has no router and needs none.
 const query = new URLSearchParams(window.location.search);
-const docsRequested = query.get("view") === "docs";
+const chatRequested = query.get("view") === "chat";
 const requestedComponent = query.get("component");
 
 export function App() {
-  return docsRequested ? <DocsApp componentId={requestedComponent} /> : <ChatScreen />;
+  return chatRequested ? <ChatScreen /> : <DocsApp componentId={requestedComponent} />;
 }
 
 function ChatScreen() {
@@ -180,6 +182,12 @@ function ChatScreen() {
           />
           <div className="mx-auto w-full max-w-3xl px-4 pb-4">
             <ChatComposer onSubmit={handleSubmit} labels={chatComposerLabels} />
+            <p
+              data-static-demo-note
+              className="mt-2 text-center text-xs text-slate-400 dark:text-slate-500"
+            >
+              {staticDemoNote}
+            </p>
           </div>
         </div>
       </AppShell>

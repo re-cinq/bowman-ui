@@ -1,7 +1,7 @@
 // The non-component surface, four groups deep: hooks, the markdown policy
 // trio, the labels merge and the entry types.
 
-import { docsLabels } from "../activeLabels";
+import { docsLabels } from "../docs-labels";
 import { docsHref } from "./DocsApp";
 import { CodeBlock, DocSection } from "./DocsUi";
 import { hookNotes, labelNotes, markdownNotes, typeNotes, type ApiNote } from "./overview";

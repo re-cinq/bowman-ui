@@ -12,7 +12,6 @@ import type {
   ChatMessageListLabels,
   ConversationListLabels,
 } from "@re-cinq/bowman-ui";
-import type { DocsLabels } from "./docs-labels";
 
 export const appShellLabels: AppShellLabels = {
   openSidebar: "Åbn sidepanelet",
@@ -68,29 +67,3 @@ export const navConversationsLabel = "Samtaler";
 export const navSettingsLabel = "Indstillinger";
 export const signOutLabel = "Log ud af demoen";
 export const greetingText = "Hvordan kan vi hjælpe dig i dag?";
-
-export const docsLabels: DocsLabels = {
-  title: "Komponentdokumentation",
-  intro:
-    "Hver offentlig komponent i @re-cinq/bowman-ui med sit formål, sin import, et kørende eksempel, sine egenskaber og sine etiketter. Selve dokumentationen er på engelsk; siden omkring den følger VITE_DEMO_LOCALE.",
-  components: "Komponenter",
-  overview: "Kroge, markdown og typer",
-  backToChat: "Tilbage til chatten",
-  backToIndex: "Tilbage til oversigten",
-  purpose: "Formål",
-  importHeading: "Import",
-  usage: "Brug",
-  props: "Egenskaber",
-  labelsHeading: "Etiketter",
-  variants: "Tilstande",
-  propName: "Navn",
-  propType: "Type",
-  propRequired: "Påkrævet",
-  propDefault: "Standard",
-  propDescription: "Beskrivelse",
-  required: "ja",
-  optional: "nej",
-  noDefault: "ingen standard",
-  labelsNote:
-    "Etiketterne er bibliotekets eneste sprogmekanisme: en delvis etiketpakke lægges hen over de engelske standarder, nøgle for nøgle.",
-};
