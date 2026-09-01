@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   AppShell,
   AppSidebar,
@@ -10,11 +10,12 @@ import {
 import type { SidebarNavItem, SidebarSlotContext } from "@re-cinq/bowman-ui";
 import {
   conversations,
-  createAssistantReply,
+  createStreamingAssistantEntry,
   demoUserInitials,
   initialEntriesByConversation,
   type DemoEntry,
 } from "./fixtures";
+import { streamAssistantReply } from "./streaming";
 import {
   appShellLabels,
   appSidebarLabels,
@@ -25,7 +26,6 @@ import {
 } from "./labels";
 
 const brandName = "Havkat Rejser";
-const assistantReplyDelayMs = 600;
 const toastDurationMs = 4000;
 
 export function App() {
@@ -34,6 +34,9 @@ export function App() {
   const [activeNavKey, setActiveNavKey] = useState("samtaler");
   const [busy, setBusy] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const cancelStream = useRef<(() => void) | null>(null);
+
+  useEffect(() => () => cancelStream.current?.(), []);
 
   const activeEntries = entriesByConversation[activeConversationId] ?? [];
 
@@ -49,14 +52,47 @@ export function App() {
     }));
   };
 
+  const mapEntry = (
+    conversationId: string,
+    entryId: string,
+    change: (entry: DemoEntry) => DemoEntry
+  ) => {
+    setEntriesByConversation((current) => ({
+      ...current,
+      [conversationId]: (current[conversationId] ?? []).map((entry) =>
+        entry.id === entryId ? change(entry) : entry
+      ),
+    }));
+  };
+
+  const growEntry = (conversationId: string, entryId: string, chunk: string) => {
+    mapEntry(conversationId, entryId, (entry) => ({ ...entry, content: entry.content + chunk }));
+  };
+
+  const commitEntry = (conversationId: string, entryId: string) => {
+    mapEntry(conversationId, entryId, (entry) =>
+      entry.role === "assistant" ? { ...entry, isStreaming: false } : entry
+    );
+  };
+
   const handleSubmit = (text: string) => {
     const conversationId = activeConversationId;
+    const replyId = crypto.randomUUID();
     appendEntry(conversationId, { id: crypto.randomUUID(), role: "user", content: text });
     setBusy(true);
-    setTimeout(() => {
-      appendEntry(conversationId, createAssistantReply(crypto.randomUUID()));
-      setBusy(false);
-    }, assistantReplyDelayMs);
+    cancelStream.current?.();
+    cancelStream.current = streamAssistantReply((event) => {
+      if (event.kind === "upsert") {
+        appendEntry(conversationId, createStreamingAssistantEntry(replyId));
+        setBusy(false);
+        return;
+      }
+      if (event.kind === "delta") {
+        growEntry(conversationId, replyId, event.text);
+        return;
+      }
+      commitEntry(conversationId, replyId);
+    });
   };
 
   const renderSidebar = (context: SidebarSlotContext) => (

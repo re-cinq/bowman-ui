@@ -59,8 +59,18 @@ export const initialEntriesByConversation: Record<string, ReadonlyArray<DemoEntr
   "samtale-3": [],
 };
 
-export const createAssistantReply = (id: string): AssistantChatEntry =>
-  assistantEntry(
-    id,
-    "Tak for din besked! Jeg har noteret den på din sag, og en kollega vender tilbage hurtigst muligt. Dette er et fast demosvar fra en fixture."
-  );
+export const streamedReplyText =
+  "Tak for din besked! Jeg har noteret den på din sag og gennemgår mulighederne for dig nu. " +
+  "Havkat Rejser sejler til Skagerakøen tre gange dagligt, og der er ledige pladser på både " +
+  "morgenafgangen og eftermiddagsafgangen resten af ugen. Billettypen Fleksibel giver dig ret " +
+  "til at flytte afrejsen uden gebyr, så længe ændringen sker senest to timer før afgang. Vil " +
+  "du hellere have en kahyt på overfarten, kan jeg lægge en standardkahyt til to personer til " +
+  "reservationen. Sig endelig til, hvis du vil have en opdateret rejseplan sendt til dig med " +
+  "det samme. Dette er et fast demosvar fra en fixture.";
+
+export const createStreamingAssistantEntry = (id: string): AssistantChatEntry => ({
+  id,
+  role: "assistant",
+  content: "",
+  isStreaming: true,
+});
