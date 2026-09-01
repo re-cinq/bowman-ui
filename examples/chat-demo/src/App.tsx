@@ -22,16 +22,23 @@ import {
   chatComposerLabels,
   chatMessageListLabels,
   conversationListLabels,
+  greetingText,
+  navConversationsLabel,
+  navSettingsLabel,
+  signOutLabel,
   toastCopiedMessage,
-} from "./labels";
+  toastDemoOnlyMessage,
+} from "./activeLabels";
 
 const brandName = "Havkat Rejser";
 const toastDurationMs = 4000;
+const conversationsNavKey = "samtaler";
+const settingsNavKey = "indstillinger";
 
 export function App() {
   const [entriesByConversation, setEntriesByConversation] = useState(initialEntriesByConversation);
   const [activeConversationId, setActiveConversationId] = useState(conversations[0].id);
-  const [activeNavKey, setActiveNavKey] = useState("samtaler");
+  const [activeNavKey, setActiveNavKey] = useState(conversationsNavKey);
   const [busy, setBusy] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const cancelStream = useRef<(() => void) | null>(null);
@@ -41,8 +48,16 @@ export function App() {
   const activeEntries = entriesByConversation[activeConversationId] ?? [];
 
   const navItems: ReadonlyArray<SidebarNavItem> = [
-    { key: "samtaler", label: "Samtaler", isActive: activeNavKey === "samtaler" },
-    { key: "indstillinger", label: "Indstillinger", isActive: activeNavKey === "indstillinger" },
+    {
+      key: conversationsNavKey,
+      label: navConversationsLabel,
+      isActive: activeNavKey === conversationsNavKey,
+    },
+    {
+      key: settingsNavKey,
+      label: navSettingsLabel,
+      isActive: activeNavKey === settingsNavKey,
+    },
   ];
 
   const appendEntry = (conversationId: string, entry: DemoEntry) => {
@@ -95,22 +110,31 @@ export function App() {
     });
   };
 
+  const navigate = (key: string, close: () => void) => {
+    close();
+    if (key === settingsNavKey) {
+      setToastMessage(toastDemoOnlyMessage);
+      return;
+    }
+    setActiveNavKey(key);
+  };
+
   const renderSidebar = (context: SidebarSlotContext) => (
     <AppSidebar
       brand={brandName}
       navItems={navItems}
-      onNavigate={(key) => {
-        setActiveNavKey(key);
-        context.close();
-      }}
+      onNavigate={(key) => navigate(key, context.close)}
       labels={appSidebarLabels}
       footer={
         <button
           type="button"
-          onClick={context.close}
+          onClick={() => {
+            context.close();
+            setToastMessage(toastDemoOnlyMessage);
+          }}
           className="w-full px-4 py-3 text-left text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white"
         >
-          Log ud af demoen
+          {signOutLabel}
         </button>
       }
     >
@@ -137,11 +161,7 @@ export function App() {
             userInitials={demoUserInitials}
             labels={chatMessageListLabels}
             busy={busy}
-            greeting={
-              <p className="text-lg text-slate-600 dark:text-slate-300">
-                Hvordan kan vi hjælpe dig i dag?
-              </p>
-            }
+            greeting={<p className="text-lg text-slate-600 dark:text-slate-300">{greetingText}</p>}
             onCopy={() => setToastMessage(toastCopiedMessage)}
           />
           <div className="mx-auto w-full max-w-3xl px-4 pb-4">
