@@ -1,44 +1,46 @@
 #!/usr/bin/env node
-// Issue 82: the tree-wide static import ban. Fails when any file under src/
-// imports the auth SDK (@clerk/*), the data-fetching library (swr), the i18n
-// library (next-intl), the meta-framework (next, next/*), an internal
-// source-app package (@discovery/*), the banned icon library (lucide-react,
-// CONTRACT.md decision 2), or a path alias (@/*, CONTRACT.md decision 5).
-// lucide-react and @/* are deliberate supersets of the issue's list. This
-// scan reads src/ only, so examples/rsc-fixture - the one path in the repo
-// where next may appear, CONTRACT.md § RSC fixture - is outside its scope
-// by construction; the exemption changes nothing about this script.
+// Issue 82: the tree-wide static import ban, enforced as a dependency
+// allowlist. Every non-relative specifier in any import, re-export, dynamic
+// import() or require() under src/ must resolve to a package declared in
+// package.json (dependencies + peerDependencies, read at runtime); subpaths
+// of a declared package count as the package. Anything else fails - which
+// covers the original name blocklist (next, next-intl, swr, @clerk/*, the
+// lucide-react icon library of CONTRACT.md decision 2, the @/ path alias of
+// CONTRACT.md decision 5, and any internal source-app package) without
+// needing to enumerate names that a copy-paste could vary. This scan reads
+// src/ only, so examples/rsc-fixture - the one path in the repo where next
+// may appear, CONTRACT.md § RSC fixture - is outside its scope by
+// construction; the exemption changes nothing about this script.
 //
 // Static on top of, not instead of, the dynamic node_modules scan in
 // scripts/consumer-app.sh: a grep misses a transitively pulled-in package,
 // and a node_modules scan misses a source import a bundler tree-shakes away.
 //
-// Before scanning src/, the detector proves itself against the red fixture in
-// tests/fixtures/forbidden-imports/: if the fixture stops tripping every
-// banned specifier it carries, this script fails.
+// Before scanning, the detector proves itself against the red fixture in
+// tests/fixtures/forbidden-imports/: if any specifier the fixture carries
+// stops tripping the allowlist, this script fails. An optional directory
+// argument replaces src/ as the scan target (used by the tests).
 
 import { readFileSync, readdirSync } from "node:fs";
 import { join, relative } from "node:path";
 import process from "node:process";
 import ts from "typescript";
 
-const FORBIDDEN = [
-  { specifier: "next", reason: "meta-framework" },
-  { specifier: "next-intl", reason: "i18n runtime" },
-  { specifier: "swr", reason: "data-fetching library" },
-  { specifier: "lucide-react", reason: "banned icon library (CONTRACT.md decision 2)" },
-  { prefix: "@clerk/", reason: "auth SDK" },
-  { prefix: "@discovery/", reason: "internal source-app package" },
-  { prefix: "@/", reason: "path alias (CONTRACT.md decision 5)" },
-];
+const packageJson = JSON.parse(readFileSync("package.json", "utf8"));
+const allowedPackages = new Set([
+  ...Object.keys(packageJson.dependencies ?? {}),
+  ...Object.keys(packageJson.peerDependencies ?? {}),
+]);
 
-const matchForbidden = (specifier) =>
-  FORBIDDEN.find((entry) => {
-    if (entry.prefix !== undefined) {
-      return specifier.startsWith(entry.prefix);
-    }
-    return specifier === entry.specifier || specifier.startsWith(`${entry.specifier}/`);
-  });
+const isRelative = (specifier) => specifier.startsWith("./") || specifier.startsWith("../");
+
+const packageNameOf = (specifier) => {
+  const segments = specifier.split("/");
+  return specifier.startsWith("@") ? segments.slice(0, 2).join("/") : segments[0];
+};
+
+const isAllowed = (specifier) =>
+  isRelative(specifier) || allowedPackages.has(packageNameOf(specifier));
 
 const collectSpecifiers = (sourceFile) => {
   const specifiers = [];
@@ -80,8 +82,8 @@ const listSourceFiles = (directory) => {
   return files;
 };
 
-const scanDirectory = (directory) => {
-  const violations = [];
+const listImports = (directory) => {
+  const imports = [];
   for (const filePath of listSourceFiles(directory)) {
     const sourceFile = ts.createSourceFile(
       filePath,
@@ -91,40 +93,37 @@ const scanDirectory = (directory) => {
       filePath.endsWith(".tsx") ? ts.ScriptKind.TSX : ts.ScriptKind.TS
     );
     for (const specifier of collectSpecifiers(sourceFile)) {
-      const match = matchForbidden(specifier);
-      if (match !== undefined) {
-        violations.push({
-          file: relative(process.cwd(), filePath),
-          specifier,
-          reason: match.reason,
-        });
-      }
+      imports.push({ file: relative(process.cwd(), filePath), specifier });
     }
   }
-  return violations;
+  return imports;
 };
 
+const findViolations = (directory) =>
+  listImports(directory).filter((entry) => !isAllowed(entry.specifier));
+
 const fixtureDirectory = "tests/fixtures/forbidden-imports";
-const fixtureViolations = scanDirectory(fixtureDirectory);
-const untrippedPatterns = FORBIDDEN.filter(
-  (entry) => !fixtureViolations.some((violation) => matchForbidden(violation.specifier) === entry)
-);
-if (untrippedPatterns.length > 0) {
-  const names = untrippedPatterns.map((entry) => entry.prefix ?? entry.specifier).join(", ");
+const fixtureImports = listImports(fixtureDirectory);
+const untrippedSpecifiers = fixtureImports.filter((entry) => isAllowed(entry.specifier));
+if (fixtureImports.length === 0 || untrippedSpecifiers.length > 0) {
+  const names = untrippedSpecifiers.map((entry) => entry.specifier).join(", ");
   process.stderr.write(
-    `self-test failed: the red fixture in ${fixtureDirectory} never tripped: ${names}\n`
+    `self-test failed: the red fixture in ${fixtureDirectory} carries specifiers ` +
+      `the allowlist no longer trips: ${names || "(fixture is empty)"}\n`
   );
   process.exit(1);
 }
 
-const violations = scanDirectory("src");
+const targetDirectory = process.argv[2] ?? "src";
+const violations = findViolations(targetDirectory);
 if (violations.length > 0) {
   for (const violation of violations) {
     process.stderr.write(
-      `${violation.file}: forbidden import "${violation.specifier}" (${violation.reason})\n`
+      `${violation.file}: forbidden import "${violation.specifier}" ` +
+        `(not declared in package.json dependencies or peerDependencies)\n`
     );
   }
   process.exit(1);
 }
 
-process.stdout.write("check-forbidden-imports: src/ is clean (self-test passed)\n");
+process.stdout.write(`check-forbidden-imports: ${targetDirectory} is clean (self-test passed)\n`);

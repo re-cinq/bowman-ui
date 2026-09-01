@@ -269,7 +269,7 @@ scoped to `examples/rsc-fixture` (running `consumer-app.sh` inside this job
 was rejected: a second Chromium install for no additional signal). Each of
 the three checks carries a pointer comment at its home naming the
 exemption: `check-forbidden-imports.mjs`
-([validated by](../../scripts/check-forbidden-imports.mjs#L7)), the
+([validated by](../../scripts/check-forbidden-imports.mjs#L11)), the
 `next must be absent` step
 ([validated by](../../.github/workflows/ci.yml#L71)), and the extracted
 node_modules scan
