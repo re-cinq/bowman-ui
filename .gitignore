@@ -3,8 +3,6 @@ dist/
 coverage/
 test-results/
 playwright-report/
-examples/chat-demo/package-lock.json
-examples/rsc-fixture/package-lock.json
 examples/rsc-fixture/.next/
 examples/rsc-fixture/next-env.d.ts
 examples/rsc-fixture/tsconfig.tsbuildinfo

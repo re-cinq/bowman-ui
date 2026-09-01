@@ -299,10 +299,10 @@ instead reachable the same way `consumer` is, as a `package.json` script
 - `npm pack --dry-run` ships `dist/`, `package.json`, `LICENSE`, `README.md`
   and nothing from `examples/`, executable-asserted on every consumer run
   ([validated by](../../scripts/consumer-app.sh#L60)).
-- Next's build artifacts cannot leak into the gates: the fixture lockfile,
-  `.next/`, `next-env.d.ts` and `tsconfig.tsbuildinfo` are git-ignored
-  ([validated by](../../.gitignore#L7), through
-  [L10](../../.gitignore#L10)), the generated paths are
+- Next's build artifacts cannot leak into the gates: `.next/`,
+  `next-env.d.ts` and `tsconfig.tsbuildinfo` are git-ignored
+  ([validated by](../../.gitignore#L6), through
+  [L8](../../.gitignore#L8)), the generated paths are
   eslint-ignored ([validated by](../../eslint.config.mjs#L101)), and the tar
   copy excludes them ([validated by](../../scripts/pack-to-temp.sh#L25)).
 - CONTRACT.md decision 4's "not a dependency anywhere" bullet was amended in

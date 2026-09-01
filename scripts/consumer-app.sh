@@ -88,10 +88,10 @@ copy_example_to_temp chat-demo
 cd "$APP_DIR"
 
 echo "==> Installing demo dependencies"
-npm install --no-fund --no-audit --ignore-scripts
+npm ci --no-fund --no-audit --ignore-scripts
 
 echo "==> Installing the packed tarball by file path"
-npm install --no-fund --no-audit --ignore-scripts "$TARBALL_PATH"
+npm install --no-fund --no-audit --ignore-scripts --no-save "$TARBALL_PATH"
 
 echo "==> Scanning the installed node_modules for forbidden packages"
 "$REPO_ROOT/scripts/scan-forbidden-node-modules.sh" "$APP_DIR/node_modules"

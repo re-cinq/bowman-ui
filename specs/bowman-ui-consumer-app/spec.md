@@ -41,9 +41,11 @@ The Tailwind dependency is `tailwindcss@4.3.3` with the matching
 [L24](../../examples/chat-demo/package.json#L24)) - the same major (v4) the
 source app pins (Discovery `apps/web` pins `tailwindcss: ^4.1.17`) and the
 exact version this repo's own devDependencies resolve. Every demo dependency
-is an exact pin and no demo lockfile is committed
-([validated by](../../.gitignore#L6)): the tarball's path changes every
-version, so a lockfile would go stale immediately.
+is an exact pin and the demo lockfile is committed, so `npm ci` installs the
+exact recorded tree ([validated by](../../scripts/consumer-app.sh#L91)). The
+tarball install runs with `--no-save`, so the per-version tarball path never
+enters the committed manifest or lockfile
+([validated by](../../scripts/consumer-app.sh#L94)).
 
 `src/styles.css` contains exactly the three documented lines -
 `@import "tailwindcss";`, `@import "@re-cinq/bowman-ui/styles.css";` and
@@ -114,8 +116,8 @@ see `specs/bowman-ui-rsc-fixture/spec.md`):
   dependency and the Playwright config no `executablePath`, so neither claim
   rests on prose alone ([validated by](../../scripts/consumer-app.sh#L76))
 - copies `examples/chat-demo/` to a `mktemp -d` directory, excluding any
-  local `node_modules`, `dist`, reports and lockfile so the temp tree is
-  exactly the committed demo
+  local `node_modules`, `dist` and reports so the temp tree is exactly the
+  committed demo, lockfile included
   ([validated by](../../scripts/pack-to-temp.sh#L22))
 - asserts the install directory is not inside the repo working tree and exits
   non-zero naming both paths if it is
