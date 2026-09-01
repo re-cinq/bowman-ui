@@ -26,6 +26,11 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+          # Issue 97: the AT-pass freshness gate reads git history - the last
+          # commit touching each covered path, and whether it is an ancestor of
+          # the record's commit. A shallow checkout would make every record
+          # look stale.
+          fetch-depth: 0
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: "22"
@@ -60,6 +65,14 @@ jobs:
       # gate before an immutable publish; the explicit build stays.
       - name: Build
         run: npm run build
+      # Issue 97: publishing is hostage to the assistive-technology pass, and
+      # deliberately so. This fails when no docs/accessibility/at-pass-*.md
+      # record exists at all, when the last commit touching any path in the
+      # record's covers list is not an ancestor of the record's commit, or when
+      # a waiver has expired. CI's --structure half never blocks a pull request
+      # this way; this one blocks the release.
+      - name: AT-pass freshness check
+        run: npm run check:at-pass -- --freshness
       # Issue 82: the last executable proof before the package goes public and
       # immutable - the packed tarball from this tagged commit must render the
       # full chat screen in the standalone Vite consumer.

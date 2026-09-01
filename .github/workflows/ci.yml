@@ -61,6 +61,15 @@ jobs:
       # scheme (javascript/data/vbscript/file) admitted to the default allowlist.
       - name: Markdown safety check
         run: npm run check:markdown-safety
+      # Issue 97: the assistive-technology pass's structure gate. Validates the
+      # newest docs/accessibility/at-pass-*.md when one exists - required
+      # fields, a verdict per row per stack, no unexplained not-run, no fail
+      # without an owner, no expired waiver. With no record yet it passes with
+      # a warning: the first record is written by the first human screen-reader
+      # pass, and pull requests must not be hostage to it. The release-blocking
+      # half of the gate is --freshness in publish.yml.
+      - name: AT-pass structure check
+        run: npm run check:at-pass -- --structure
       # specs' [validated by](...#Lnn) anchors drift silently when a test file
       # gains or loses lines (issue 36). Fails when an anchor no longer points
       # at the line content it cited on main; a red check is fixed with

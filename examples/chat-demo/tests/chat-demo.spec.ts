@@ -12,9 +12,21 @@ import {
   chatMessageListLabels,
   toastCopiedMessage,
 } from "../src/labels";
+import { streamedReplyText } from "../src/fixtures";
+import { streamStepCount } from "../src/streaming";
 
 const aiDisclosure = chatMessageListLabels.aiDisclosure;
 const fixtureReplyText = "Dette er et fast demosvar fra en fixture.";
+const streamCommitTimeoutMs = 20_000;
+
+const lastAssistantArticle = (page: Page): Locator =>
+  page.getByRole("article", { name: chatMessageListLabels.assistantMessage }).last();
+
+const send = async (page: Page, question: string): Promise<void> => {
+  const composer = page.getByRole("textbox", { name: chatComposerLabels.composerInput });
+  await composer.fill(question);
+  await composer.press("Enter");
+};
 
 const englishDefaultStrings = (): string[] => {
   const labelObjects: ReadonlyArray<Record<string, unknown>> = [
@@ -96,9 +108,7 @@ test.describe("composing and replying", () => {
     await page.goto("/");
 
     const question = "Kan jeg få en kvittering på ombookingen?";
-    const composer = page.getByRole("textbox", { name: chatComposerLabels.composerInput });
-    await composer.fill(question);
-    await composer.press("Enter");
+    await send(page, question);
 
     const userArticles = page.getByRole("article", { name: chatMessageListLabels.userMessage });
     await expect(userArticles).toHaveCount(5);
@@ -107,7 +117,83 @@ test.describe("composing and replying", () => {
     await expect(
       page.getByRole("article", { name: chatMessageListLabels.assistantMessage })
     ).toHaveCount(5);
-    await expect(page.getByText(fixtureReplyText)).toBeVisible();
+    await expect(page.getByText(fixtureReplyText)).toBeVisible({ timeout: streamCommitTimeoutMs });
+  });
+});
+
+// re-cinq/Otto#97: the reply the assistive-technology pass listens to. The
+// demo grows the last entry over 24 timed steps, so a screen reader has a
+// real streaming answer to announce (or not) rather than one array push.
+test.describe("streamed assistant reply", () => {
+  test("the reply text is longer at 2.6s than at 0.9s and the full canned reply arrives", async ({
+    page,
+  }) => {
+    await page.goto("/");
+    await send(page, "Kan jeg flytte min afrejse til næste uge?");
+
+    const reply = lastAssistantArticle(page);
+    await expect(reply).toBeVisible();
+
+    await page.waitForTimeout(900);
+    const firstSample = (await reply.innerText()).length;
+    await page.waitForTimeout(1700);
+    const secondSample = (await reply.innerText()).length;
+
+    expect(firstSample).toBeGreaterThan(0);
+    expect(firstSample).toBeLessThan(streamedReplyText.length);
+    expect(secondSample).toBeGreaterThan(firstSample);
+
+    await expect(page.getByText(fixtureReplyText)).toBeVisible({ timeout: streamCommitTimeoutMs });
+    await expect(reply).toContainText(streamedReplyText);
+  });
+
+  // Sampled inside the page, not across the wire: a slow round trip would
+  // merge two steps into one observation and under-count a stream that really
+  // did emit 24.
+  test("the reply grows in at least 20 distinct steps spanning at least 3 seconds", async ({
+    page,
+  }) => {
+    await page.goto("/");
+    await send(page, "Hvad koster en kahyt på overfarten?");
+
+    await expect(
+      page.getByRole("article", { name: chatMessageListLabels.assistantMessage })
+    ).toHaveCount(5);
+
+    const observed = await page.evaluate(
+      ({ selector, fullLength, timeoutMs }) =>
+        new Promise<{ steps: number; spanMs: number }>((resolve) => {
+          const lengths: number[] = [];
+          const times: number[] = [];
+          const finish = () => {
+            clearInterval(interval);
+            resolve({ steps: lengths.length, spanMs: (times.at(-1) ?? 0) - (times[0] ?? 0) });
+          };
+          const started = performance.now();
+          const interval = setInterval(() => {
+            const articles = document.querySelectorAll(selector);
+            const article = articles[articles.length - 1];
+            const length = (article?.textContent ?? "").length;
+            const previous = lengths.at(-1);
+            if (previous === undefined || length > previous) {
+              lengths.push(length);
+              times.push(performance.now());
+            }
+            if (length >= fullLength || performance.now() - started > timeoutMs) {
+              finish();
+            }
+          }, 25);
+        }),
+      {
+        selector: `article[aria-label="${chatMessageListLabels.assistantMessage}"]`,
+        fullLength: streamedReplyText.length,
+        timeoutMs: streamCommitTimeoutMs,
+      }
+    );
+
+    expect(observed.steps).toBeGreaterThanOrEqual(20);
+    expect(observed.steps).toBeLessThanOrEqual(streamStepCount + 2);
+    expect(observed.spanMs).toBeGreaterThanOrEqual(3000);
   });
 });
 
