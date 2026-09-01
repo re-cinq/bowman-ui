@@ -14,6 +14,7 @@ import {
 } from "../src/labels";
 import { streamedReplyText } from "../src/fixtures";
 import { streamStepCount } from "../src/streaming";
+import { staticDemoNote } from "../src/staticDemoNote";
 
 const aiDisclosure = chatMessageListLabels.aiDisclosure;
 const fixtureReplyText = "Dette er et fast demosvar fra en fixture.";
@@ -69,7 +70,7 @@ test.describe("full screen structure", () => {
   test("renders sidebar, navigation, conversations, transcript and composer by role", async ({
     page,
   }) => {
-    await page.goto("/");
+    await page.goto("/?view=chat");
 
     await expect(page.getByRole("complementary")).toHaveCount(1);
     const navigation = page.getByRole("navigation", { name: "Hovednavigation" });
@@ -92,7 +93,7 @@ test.describe("full screen structure", () => {
   });
 
   test("the consumer Tailwind build scanned the installed dist", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/?view=chat");
 
     const asideWidth = await page
       .getByRole("complementary")
@@ -105,7 +106,7 @@ test.describe("composing and replying", () => {
   test("Enter appends the typed user entry and the fixture assistant reply follows", async ({
     page,
   }) => {
-    await page.goto("/");
+    await page.goto("/?view=chat");
 
     const question = "Kan jeg få en kvittering på ombookingen?";
     await send(page, question);
@@ -128,7 +129,7 @@ test.describe("streamed assistant reply", () => {
   test("the reply text is longer at 2.6s than at 0.9s and the full canned reply arrives", async ({
     page,
   }) => {
-    await page.goto("/");
+    await page.goto("/?view=chat");
     await send(page, "Kan jeg flytte min afrejse til næste uge?");
 
     const reply = lastAssistantArticle(page);
@@ -153,7 +154,7 @@ test.describe("streamed assistant reply", () => {
   test("the reply grows in at least 20 distinct steps spanning at least 3 seconds", async ({
     page,
   }) => {
-    await page.goto("/");
+    await page.goto("/?view=chat");
     await send(page, "Hvad koster en kahyt på overfarten?");
 
     await expect(
@@ -201,7 +202,7 @@ test.describe("copy toast", () => {
   test("copying an assistant entry shows the toast and it disappears on its own", async ({
     page,
   }) => {
-    await page.goto("/");
+    await page.goto("/?view=chat");
 
     await page.getByRole("button", { name: chatMessageListLabels.copy }).first().click();
 
@@ -218,7 +219,7 @@ test.describe("EU AI Act disclosure", () => {
   test("the Danish disclosure is visible with entries present and cannot be scrolled away", async ({
     page,
   }) => {
-    await page.goto("/");
+    await page.goto("/?view=chat");
 
     const disclosure = page.getByText(aiDisclosure, { exact: true });
     await expect(disclosure).toBeVisible();
@@ -238,11 +239,19 @@ test.describe("EU AI Act disclosure", () => {
   });
 
   test("the Danish disclosure is visible in the empty state", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/?view=chat");
 
     await page.getByRole("button", { name: "Ny samtale" }).click();
     await expect(page.getByText("Hvordan kan vi hjælpe dig i dag?")).toBeVisible();
     await expect(page.getByText(aiDisclosure, { exact: true })).toBeVisible();
+  });
+});
+
+test.describe("static demo note", () => {
+  test("the static demo note is visible under the composer", async ({ page }) => {
+    await page.goto("/?view=chat");
+
+    await expect(page.locator("[data-static-demo-note]")).toContainText(staticDemoNote);
   });
 });
 
@@ -252,7 +261,7 @@ test.describe("mobile drawer", () => {
   test("zero English: no default label string survives into the rendered document", async ({
     page,
   }) => {
-    await page.goto("/");
+    await page.goto("/?view=chat");
 
     await page.getByRole("button", { name: appShellLabels.openSidebar }).click();
     await expect(page.getByRole("dialog", { name: appShellLabels.sidebarDialog })).toBeVisible();
@@ -266,7 +275,7 @@ test.describe("mobile drawer", () => {
   });
 
   test("the drawer starts closed, traps focus and closes on Escape", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/?view=chat");
 
     await expect(page.getByRole("dialog")).toHaveCount(0);
 
@@ -299,7 +308,7 @@ test.describe("composer auto-resize", () => {
     );
 
   test("the empty composer measures above 0 and below the 200px cap", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/?view=chat");
 
     const baseline = await measuredHeight(composerOf(page));
     expect(
@@ -312,7 +321,7 @@ test.describe("composer auto-resize", () => {
   test("three Shift+Enter presses keep the draft, append no entry and grow the box", async ({
     page,
   }) => {
-    await page.goto("/");
+    await page.goto("/?view=chat");
     const composer = composerOf(page);
     const baseline = await measuredHeight(composer);
 
@@ -333,7 +342,7 @@ test.describe("composer auto-resize", () => {
   test("a twelve-line fill caps the box at exactly 200px, the draft scrolls, and Enter sends and restores the baseline", async ({
     page,
   }) => {
-    await page.goto("/");
+    await page.goto("/?view=chat");
     const composer = composerOf(page);
     const sendButton = page.getByRole("button", { name: chatComposerLabels.send });
     const baseline = await measuredHeight(composer);

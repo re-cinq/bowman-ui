@@ -7,9 +7,9 @@ stubs `scrollHeight` because jsdom performs no layout, and the browser suite
 typed into the composer without asserting that it grows, caps, scrolls or
 shrinks back. This change adds a `composer auto-resize` describe block to the
 existing consumer suite
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L289)),
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L298)),
 measuring the really rendered box via `getBoundingClientRect().height`
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L294)) -
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L303)) -
 never the inline `style.height` string. No file under `src/` and no file
 under `examples/chat-demo/src/` changes in this PR - the proof is the PR
 diff itself, reviewable but not re-runnable.
@@ -32,15 +32,15 @@ files remain plain GitHub links CI never repoints.
 
 With the composer empty, the suite records `getBoundingClientRect().height`
 as the baseline and asserts it is greater than `0` and less than `200`
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L308),
-[L223](../../examples/chat-demo/tests/chat-demo.spec.ts#L309)). A baseline of
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L317),
+[L223](../../examples/chat-demo/tests/chat-demo.spec.ts#L318)). A baseline of
 `0` fails with a message naming the Havkat Rejser demo screen
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L307)).
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L316)).
 
 Each of the three tests opens a fresh page and measures its own baseline in
 the same run
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L317),
-[L339](../../examples/chat-demo/tests/chat-demo.spec.ts#L339)) rather than
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L326),
+[L348](../../examples/chat-demo/tests/chat-demo.spec.ts#L348)) rather than
 sharing one through `beforeAll`: the suite runs `fullyParallel` with two CI
 retries, so cross-test state would either serialize the suite or leak between
 a retry and a fresh worker. A font or line-height change moves the baseline
@@ -50,14 +50,14 @@ for the wrong reason.
 ## Growth by Shift+Enter
 
 Three `Shift+Enter` presses on a one-line invented draft
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L322)) leave
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L331)) leave
 the draft in the box - the surviving value `draft + "\n\n\n"` is the
 load-bearing no-send assertion, because `submit()` clears the value on any
-send ([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L326)).
+send ([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L335)).
 The user-entry count staying at four corroborates it
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L329)), and
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L338)), and
 the measured height ends strictly greater than the baseline
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L330)) - the
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L339)) - the
 first exercise of the newline branch that produces real layout rather than a
 jsdom string.
 
@@ -65,10 +65,10 @@ jsdom string.
 
 After `fill()` with a twelve-line invented string, the measured height is
 exactly `200`
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L343)) -
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L352)) -
 `027`'s `maxHeightPx` default - and filling twenty-four lines instead leaves
 it at exactly `200`
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L347)). The
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L356)). The
 exactness doubles as a `border-box` regression test: the component writes the
 literal inline string `200px`, the textarea carries no border of its own
 (the border sits on the wrapper), and Tailwind's preflight `border-box`
@@ -77,21 +77,21 @@ the equality. `getBoundingClientRect()` returns CSS pixels, so the device
 scale factor cannot introduce fractions.
 
 After every `fill()` the send button is asserted enabled
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L342),
-[L260](../../examples/chat-demo/tests/chat-demo.spec.ts#L346),
-[L235](../../examples/chat-demo/tests/chat-demo.spec.ts#L321)): the button
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L351),
+[L260](../../examples/chat-demo/tests/chat-demo.spec.ts#L355),
+[L235](../../examples/chat-demo/tests/chat-demo.spec.ts#L330)): the button
 only enables through the same `onChange` that runs the resize, so this proves
 the programmatic fill actually drove React's change path rather than only
 writing the DOM value.
 
 At the cap, one further real `Shift+Enter` keystroke is pressed by design
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L349)) - a
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L358)) - a
 keyboard insertion is guaranteed to scroll the caret into view, where a
 programmatic value set is not - and the suite then asserts behaviourally that
 `scrollHeight > clientHeight`
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L356)) and
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L365)) and
 `scrollTop > 0`
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L357)).
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L366)).
 `scrollTop` is never written from the test. No assertion is made on computed
 `overflow-y` or any other user-agent-stylesheet value: the scrollbar comes
 from the browser's own stylesheet, not from anything the library sets.
@@ -99,15 +99,15 @@ from the browser's own stylesheet, not from anything the library sets.
 ## Send and shrink
 
 Pressing `Enter` on the capped draft sends it - the user-entry count rises to
-five ([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L361)),
+five ([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L370)),
 the sent entry contains the unique final line `Opdigtet linje 24 af 24`
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L362)) (a
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L371)) (a
 line-number sentinel is avoided as a prefix trap: `Linje 1` would also match
 `Linje 10`), the composer's value is `""`
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L363)) so
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L372)) so
 the shrink cannot be a layout coincidence - and the measured height returns
 to the recorded baseline, polled to absorb the clearing re-render
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L364)).
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L373)).
 
 ### Reconciling 027's "inline height back to auto" criterion
 
@@ -128,7 +128,7 @@ exactly as its unit test asserts
 What this suite adds is the half no jsdom test could reach: the browser
 resolves that `auto` back to a real rendered height equal to the recorded
 baseline
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L364)). The
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L373)). The
 string stays unit-covered as an implementation detail; the measured height is
 the customer-visible fact, and asserting the string here would only duplicate
 `027` without proving layout.
@@ -148,9 +148,9 @@ into a fixture for its own test suite.
 
 Every string these assertions type or fill is invented text: the one-line
 draft `En opdigtet kladde om en ombooking`
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L319)) and
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L328)) and
 generated numbered lines `Opdigtet linje N af M`
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L297)) - no
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L306)) - no
 real support question, booking identifier, or personal data, because the repo
 is public and a Playwright failure dump in a CI log is a publication. The
 generated pattern is deterministic and obviously synthetic, which is a

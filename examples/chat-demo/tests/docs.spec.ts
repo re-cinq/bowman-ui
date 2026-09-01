@@ -5,7 +5,9 @@
 // source, and that none of it leaks into the default screen.
 
 import { expect, test, type Page } from "@playwright/test";
-import { chatComposerLabels, docsLabels } from "../src/labels";
+import { chatComposerLabels } from "../src/labels";
+import { docsLabels } from "../src/docs-labels";
+import { staticDemoNote } from "../src/staticDemoNote";
 
 // Kept as a literal rather than imported: importing the docs registry would
 // pull Vite's "?raw" specifiers into Playwright's transform, which resolves
@@ -34,7 +36,31 @@ const sectionTitles = async (page: Page): Promise<string[]> => {
 };
 
 test.describe("documentation index", () => {
-  test("lists every component and links each one to its own page", async ({ page }) => {
+  test("bare / renders the index with the hero image and every component link", async ({
+    page,
+  }) => {
+    await page.goto("/");
+
+    const hero = page.locator("[data-hero-image]");
+    await expect(hero).toBeVisible();
+    await expect(hero).toHaveAttribute("alt", /caching/i);
+    const heroSrc = await hero.getAttribute("src");
+    expect(
+      heroSrc,
+      "the hero src must be the Vite-hashed asset, proving it was imported not hardcoded"
+    ).toMatch(/\/assets\/chat-hero[.-][\w-]+\.png$/);
+
+    await expect(page.getByRole("heading", { name: docsLabels.title, level: 1 })).toBeVisible();
+    for (const componentId of componentIds) {
+      await expect(page.locator(`[data-doc-index-entry="${componentId}"]`)).toHaveCount(1);
+    }
+
+    await expect(page.locator("[data-static-demo-note]")).toContainText(staticDemoNote);
+  });
+
+  test("?view=docs is an alias for the index and links each component to its own page", async ({
+    page,
+  }) => {
     await page.goto("/?view=docs");
 
     await expect(page.getByRole("heading", { name: docsLabels.title, level: 1 })).toBeVisible();
@@ -110,10 +136,17 @@ test.describe("component pages", () => {
 });
 
 test.describe("the default screen", () => {
-  test("no query parameter keeps the chat screen and renders no documentation", async ({
-    page,
-  }) => {
+  test("bare / renders the documentation and no chat composer", async ({ page }) => {
     await page.goto("/");
+
+    await expect(page.locator("[data-doc-index-entry]").first()).toBeVisible();
+    await expect(page.getByRole("textbox", { name: chatComposerLabels.composerInput })).toHaveCount(
+      0
+    );
+  });
+
+  test("?view=chat reaches the chat fixture and renders no documentation", async ({ page }) => {
+    await page.goto("/?view=chat");
 
     await expect(page.locator("[data-doc-index-entry]")).toHaveCount(0);
     await expect(page.locator("[data-doc-variant]")).toHaveCount(0);

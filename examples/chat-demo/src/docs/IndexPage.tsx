@@ -1,10 +1,18 @@
 // The index: the list of components the documentation covers, each linking to
 // its own page, plus the one link to the non-component surface.
 
-import { docsLabels } from "../activeLabels";
+import { docsLabels } from "../docs-labels";
+import { staticDemoNote } from "../staticDemoNote";
 import { componentDocs } from "./componentDocs";
 import { docsHref } from "./DocsApp";
 import { DocSection } from "./DocsUi";
+import heroSrc from "./assets/chat-hero.png";
+
+const heroAlt =
+  "A full chat application built with bowman-ui, in a single light theme: a sidebar with a " +
+  "new chat button and a conversation list beside a transcript where an assistant answers a " +
+  "question about caching strategy with a bulleted list, a code block and a table, a " +
+  "thinking indicator while a follow-up question is answered, and the message composer.";
 
 // The first sentence of the page's own purpose paragraph, so the index cannot
 // describe a component differently from its page.
@@ -16,6 +24,21 @@ const rowClassName =
 export function IndexPage() {
   return (
     <>
+      <figure className="flex flex-col gap-2">
+        <img
+          data-hero-image
+          src={heroSrc}
+          alt={heroAlt}
+          className="w-full rounded-2xl border border-slate-200 dark:border-slate-800"
+        />
+        <figcaption
+          data-static-demo-note
+          className="text-center text-xs text-slate-500 dark:text-slate-400"
+        >
+          Built with bowman-ui. {staticDemoNote}
+        </figcaption>
+      </figure>
+
       <header className="flex flex-col gap-2">
         <h1 className="text-2xl font-semibold text-slate-900 dark:text-slate-100">
           {docsLabels.title}
