@@ -3,7 +3,11 @@
 // test-file edits (the drift class of issue 36): each anchor's line number is
 // resolved to the content it cited in the base ref's copy of the test file,
 // that content is found in the working copy, and the anchor is rewritten to
-// the nearest exact match.
+// the match whose surrounding lines agree with the baseline's. When the cited
+// content occurs on several working lines, each candidate is scored by how
+// many of the baseline's neighbouring lines it reproduces at the same offsets;
+// a candidate whose context uniquely wins is chosen, and a tie is reported as
+// ambiguous for manual fix (exit 1 in both modes) instead of guessing.
 //
 // Usage:
 //   node scripts/repoint-spec-anchors.mjs [--check] [base-ref]
@@ -111,28 +115,52 @@ const rottenReason = (anchor, specDir) => {
 const sameAnchorPaths = (a, b) =>
   a.length === b.length && a.every((anchor, index) => anchor.path === b[index].path);
 
+const CONTEXT_RADIUS = 4;
+
+const contextScore = (baseLines, workingLines, baselineLine, candidateLine) => {
+  let score = 0;
+  for (let offset = -CONTEXT_RADIUS; offset <= CONTEXT_RADIUS; offset += 1) {
+    if (offset === 0) continue;
+    if (baseLines[baselineLine - 1 + offset] === workingLines[candidateLine - 1 + offset]) {
+      score += 1;
+    }
+  }
+  return score;
+};
+
 // Resolves one anchor: the content its baseline line held at the base ref,
-// located in the working copy of the same test file, nearest match first
-// (ties go to the smaller line number). Returns { expectedLine } or
-// { failure } with the reason a manual fix is needed.
+// located in the working copy of the same test file. Duplicate matches are
+// disambiguated by surrounding context; a context tie is a failure, never a
+// guess. Returns { expectedLine } or { failure } with the reason a manual
+// fix is needed.
 const resolveAnchor = (anchor, baselineLine, specDir) => {
   const testPath = normalize(join(specDir, anchor.path));
   const base = baseFile(testPath);
   if (base === null) return { failure: `${testPath} does not exist at ${baseRef}` };
   const working = workingFile(testPath);
   if (working === null) return { failure: `${testPath} does not exist in the working tree` };
-  const target = base.split("\n")[baselineLine - 1];
+  const baseLines = base.split("\n");
+  const workingLines = working.split("\n");
+  const target = baseLines[baselineLine - 1];
   if (target === undefined) {
     return { failure: `#L${baselineLine} is beyond the end of ${testPath} at ${baseRef}` };
   }
-  const candidates = working
-    .split("\n")
-    .flatMap((line, index) => (line === target ? [index + 1] : []));
+  const candidates = workingLines.flatMap((line, index) => (line === target ? [index + 1] : []));
   if (candidates.length === 0) {
     return { failure: `"${target.trim().slice(0, 70)}" no longer exists in ${testPath}` };
   }
-  candidates.sort((a, b) => Math.abs(a - baselineLine) - Math.abs(b - baselineLine) || a - b);
-  return { expectedLine: candidates[0] };
+  if (candidates.length === 1) return { expectedLine: candidates[0] };
+  const scores = candidates.map((candidate) =>
+    contextScore(baseLines, workingLines, baselineLine, candidate)
+  );
+  const bestScore = Math.max(...scores);
+  const best = candidates.filter((_, index) => scores[index] === bestScore);
+  if (best.length > 1) {
+    return {
+      failure: `"${target.trim().slice(0, 70)}" matches ambiguously at lines ${best.join(", ")} of ${testPath}`,
+    };
+  }
+  return { expectedLine: best[0] };
 };
 
 const specFiles = [
