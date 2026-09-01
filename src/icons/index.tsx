@@ -1,5 +1,11 @@
 /**
- * Centralized Accessible Icons
+ * Accessible icon set.
+ *
+ * The glyphs are not original artwork: their path data is adapted from, and
+ * includes modified versions of, Lucide (ISC) and Heroicons v1/v2 (MIT). See
+ * THIRD-PARTY-NOTICES.md at the repository root for the upstream copyright and
+ * license notices. Attribution is at the set level; per-icon provenance is not
+ * tracked.
  *
  * All icons use proper ARIA attributes for accessibility compliance (WCAG 2.1 AA).
  *
