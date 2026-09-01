@@ -40,14 +40,15 @@ it("defaultMarkdownPolicy is the https/mailto/tel, no-relative, new-tab, no-imag
 });
 
 describe("the scheme allowlist", () => {
-  it.each(["https://tms.example/booking/42", "mailto:support@havkat-rejser.invalid", "tel:+4570123456"])(
-    "renders an anchor with the exact href %s",
-    (destination) => {
-      const { container } = renderMarkdown(`[4711](${destination})`);
+  it.each([
+    "https://tms.example/booking/42",
+    "mailto:support@havkat-rejser.invalid",
+    "tel:+4570123456",
+  ])("renders an anchor with the exact href %s", (destination) => {
+    const { container } = renderMarkdown(`[4711](${destination})`);
 
-      expect(container.querySelector("a")).toHaveAttribute("href", destination);
-    }
-  );
+    expect(container.querySelector("a")).toHaveAttribute("href", destination);
+  });
 
   it.each([
     "http://tms.example/x",
@@ -197,7 +198,10 @@ describe("remark-gfm autolink literals", () => {
   it("a bare email autolinks to a mailto anchor", () => {
     const { container } = renderMarkdown("Skriv til support@havkat-rejser.invalid");
 
-    expect(container.querySelector("a")).toHaveAttribute("href", "mailto:support@havkat-rejser.invalid");
+    expect(container.querySelector("a")).toHaveAttribute(
+      "href",
+      "mailto:support@havkat-rejser.invalid"
+    );
   });
 
   it("a bare www autolink is an http URL, so the default policy renders it as text", () => {
@@ -341,9 +345,9 @@ describe("an authority-less special scheme is not a way around allowRelativeUrls
   it("mailto and tel keep their authority-less form", () => {
     const transform = createUrlTransform();
 
-    expect([transform("mailto:support@havkat-rejser.invalid"), transform("tel:+4570123456")]).toEqual([
-      "mailto:support@havkat-rejser.invalid",
-      "tel:+4570123456",
-    ]);
+    expect([
+      transform("mailto:support@havkat-rejser.invalid"),
+      transform("tel:+4570123456"),
+    ]).toEqual(["mailto:support@havkat-rejser.invalid", "tel:+4570123456"]);
   });
 });
