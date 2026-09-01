@@ -3,25 +3,83 @@ name: Publish
 # On a v* tag, build + test @re-cinq/bowman-ui and publish it to npm.
 #
 # Auth is tokenless via npm Trusted Publishing (OIDC): no NPM_TOKEN secret. It
-# needs `id-token: write` (below), npm >= 11.5.1 (upgraded below), and a trusted
-# publisher configured for @re-cinq/bowman-ui on npmjs.com pointing at this repo
-# and this workflow. The package's first-ever publish must be done once with a
-# token before the trusted publisher can be registered on npmjs.com.
+# needs `id-token: write` (on the publish job below), npm >= 11.5.1 (upgraded
+# below), and a trusted publisher configured for @re-cinq/bowman-ui on
+# npmjs.com pointing at this repo and this workflow. The package's first-ever
+# publish must be done once with a token before the trusted publisher can be
+# registered on npmjs.com.
 #
 # No workflow_dispatch: the version guard below runs unconditionally on every
 # execution, and tag pushes are the only way in.
+#
+# The publish job holds the OIDC credential, so it must never run untrusted
+# third-party code. The example-app checks (consumer, rsc) install dependencies
+# resolved live from the public registry, so they run in the read-only `verify`
+# job below; the publish job only `needs:` its green result. Keeping the
+# id-token job down to version-guard, install and build denies a compromised
+# transitive dependency any path to the trusted-publish token.
 
 on:
   push:
     tags: ["v*"]
 
+# Least privilege by default: only the publish job opts into id-token: write.
 permissions:
   contents: read
-  id-token: write # npm OIDC trusted publishing
 
 jobs:
-  publish:
+  # Every gate that runs third-party or example-app code lives here, in a job
+  # that never sees the publish credential. The publish job below gates on it.
+  verify:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "22"
+          cache: npm
+      - name: Install
+        run: npm ci --ignore-scripts
+      # A tag is cut from main, which CI already gated - but a tag can be cut
+      # from anything, and this is the last gate before the package is public
+      # and immutable. Cheap insurance against an unversioned republish.
+      - name: Lint (--max-warnings 0)
+        run: npm run lint
+      - name: Typecheck
+        run: npm run typecheck
+      # Issue 213: the last markdown-safety gate before an immutable publish -
+      # rehype-raw, a re-enabled skipHtml, a flipped allowImages default, or a
+      # dangerous scheme in the default allowlist blocks the release.
+      - name: Markdown safety check
+        run: npm run check:markdown-safety
+      - name: Test (coverage gate)
+        run: npm run test:coverage
+      # Issue 82: the last executable proof before the package goes public and
+      # immutable - the packed tarball from this tagged commit must render the
+      # full chat screen in the standalone Vite consumer.
+      - name: Install chromium for the consumer check
+        run: npx playwright install --with-deps chromium
+      - name: Consumer app check
+        run: ./scripts/consumer-app.sh
+      # Issue 100: the App Router client-boundary proof against the tarball
+      # built from this tagged commit - the same release-candidate gate the
+      # consumer check installs. Green mode only: the --expect-failure branch
+      # guards the repo's own directives and already gated this commit in CI.
+      - name: RSC fixture check
+        run: ./scripts/rsc-fixture.sh
+
+  publish:
+    # Gate the credentialled job on every verify gate. If any is red, the
+    # id-token job never starts, so the token is never minted.
+    needs: verify
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write # npm OIDC trusted publishing
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -45,24 +103,11 @@ jobs:
         run: ./scripts/check-version.sh "$GITHUB_REF_NAME"
       - name: Install
         run: npm ci --ignore-scripts
-      # A tag is cut from main, which CI already gated - but a tag can be cut
-      # from anything, and this is the last gate before the package is public
-      # and immutable. Cheap insurance against an unversioned republish.
-      - name: Lint (--max-warnings 0)
-        run: npm run lint
-      - name: Typecheck
-        run: npm run typecheck
-      # Issue 213: the last markdown-safety gate before an immutable publish -
-      # rehype-raw, a re-enabled skipHtml, a flipped allowImages default, or a
-      # dangerous scheme in the default allowlist blocks the release.
-      - name: Markdown safety check
-        run: npm run check:markdown-safety
-      - name: Test (coverage gate)
-        run: npm run test:coverage
-      # Kept even though test:coverage also builds: `files: ["dist"]` with no
-      # prepublishOnly means a future test-script edit that stops building
-      # would otherwise publish an empty package silently. This is the last
-      # gate before an immutable publish; the explicit build stays.
+      # Kept even though verify also builds: jobs share no filesystem, so this
+      # job builds its own dist/. `files: ["dist"]` with no prepublishOnly means
+      # a future test-script edit that stops building would otherwise publish an
+      # empty package silently. This is the last gate before an immutable
+      # publish; the explicit build stays.
       - name: Build
         run: npm run build
       # Issue 97: publishing is hostage to the assistive-technology pass, and
