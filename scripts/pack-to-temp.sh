@@ -27,6 +27,5 @@ copy_example_to_temp() {
     --exclude tsconfig.tsbuildinfo \
     --exclude test-results \
     --exclude playwright-report \
-    --exclude package-lock.json \
     -cf - . | tar -xf - -C "$APP_DIR"
 }
