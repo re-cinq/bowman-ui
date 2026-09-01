@@ -1,0 +1,92 @@
+name: Pages
+
+# Publishes examples/chat-demo - the chat screen at "/" and the component
+# gallery at "/?view=docs" - to GitHub Pages on every push to main.
+#
+# The demo is built the way scripts/consumer-app.sh builds it: the library is
+# packed and the tarball installed by file path, never the registry, because
+# examples/chat-demo/package.json deliberately declares no @re-cinq/bowman-ui
+# dependency (the consumer check asserts that). --no-save keeps the checkout's
+# manifest as committed.
+#
+# Pages is a repo setting, not something a workflow can turn on: until this
+# repository is public (or on a plan that allows Pages for private
+# repositories) and Pages is switched to the "GitHub Actions" source, the
+# configure and deploy steps fail. That is the intended state - the workflow
+# is here so the site publishes itself the day the repo opens up.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# One deploy at a time, and never cancel one mid-flight: a half-finished Pages
+# deployment is a broken site, not a superseded check.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+# Least privilege at the top: unlisted scopes are none for every job.
+# pages/id-token write live on the deploy job alone.
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    # configure-pages calls GET /repos/{owner}/{repo}/pages, which needs the
+    # Pages scope on the token - read suffices because enablement is not used.
+    permissions:
+      contents: read
+      pages: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "22"
+          cache: npm
+      # Reads the repository's Pages settings and reports the path the site is
+      # served from - "/bowman-ui" for a project site. Deriving it beats
+      # hardcoding the repository name in the vite config.
+      - uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
+        id: pages
+      - name: Install
+        run: npm ci --ignore-scripts
+      - name: Build the library
+        run: npm run build
+      - name: Pack the library
+        run: echo "tarball=$(npm pack --pack-destination "$RUNNER_TEMP" | tail -n 1)" >> "$GITHUB_OUTPUT"
+        id: pack
+      - name: Install the demo's dependencies
+        run: npm install --no-fund --no-audit
+        working-directory: examples/chat-demo
+      - name: Install the packed tarball by file path
+        run: npm install --no-fund --no-audit --no-save "$RUNNER_TEMP/${{ steps.pack.outputs.tarball }}"
+        working-directory: examples/chat-demo
+      # VITE_BASE_PATH is read by examples/chat-demo/vite.config.ts, which adds
+      # the trailing slash Vite wants. Unset - every local run and every check
+      # in ci.yml - the demo is built for the root instead.
+      - name: Build the demo for Pages
+        run: npm run build
+        working-directory: examples/chat-demo
+        env:
+          VITE_BASE_PATH: ${{ steps.pages.outputs.base_path }}
+      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: examples/chat-demo/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/deploy-pages@cd2ce8fcbc39b97be8ca5fce6e763baed58fa128 # v5.0.0
+        id: deployment
