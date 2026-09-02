@@ -388,4 +388,22 @@ describe("repoint-spec-anchors", () => {
     expect(result).toMatchObject({ status: 2 });
     expect(result.stderr).toContain("usage:");
   });
+
+  it("repoints an anchor to a non-test .ts config file when the referenced line moves", () => {
+    write(repo, "vitest.config.ts", asTestFile(["thresholds: {}", "other_line"]));
+    write(repo, "specs/bar/spec.md", asSpec("../../vitest.config.ts#L1"));
+    git(repo, "add", "-A");
+    git(repo, "commit", "-q", "-m", "config file baseline");
+    write(
+      repo,
+      "vitest.config.ts",
+      asTestFile(["// never again.", "thresholds: {}", "other_line"])
+    );
+
+    const result = run(repo, "main");
+
+    expect(result).toMatchObject({ status: 0 });
+    expect(result.stdout).toContain("repointed: 1");
+    expect(read(repo, "specs/bar/spec.md")).toEqual(asSpec("../../vitest.config.ts#L2"));
+  });
 });
