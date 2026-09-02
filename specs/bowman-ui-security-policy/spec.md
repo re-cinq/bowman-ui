@@ -61,7 +61,7 @@ through the controls above. A component's `labels` prop is the exception: it is 
 consumer-supplied string that the library renders directly, so a `labels` value that escaped text
 rendering would be a real vulnerability. The `linkOpensInNewTab` override is the worked example -
 an overridden label reaches the rendered notice element verbatim, as text
-([validated by](../../tests/ChatMessage.test.tsx#L774)).
+([validated by](../../tests/ChatMessage.test.tsx#L777)).
 
 ## Out of scope
 

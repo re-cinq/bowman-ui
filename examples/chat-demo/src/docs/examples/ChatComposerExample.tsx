@@ -11,7 +11,7 @@ export function ChatComposerExample() {
       <ChatComposer
         ref={composerRef}
         onSubmit={(text) => setLastSent(text)}
-        labels={{ composerPlaceholder: "Ask about a booking..." }}
+        labels={{ composerPlaceholder: "Ask about an order..." }}
       />
       <p className="text-sm text-slate-600 dark:text-slate-400">
         Last sent: {lastSent ?? "nothing"}
@@ -19,7 +19,7 @@ export function ChatComposerExample() {
       <button
         type="button"
         className="self-start rounded-lg border border-slate-300 px-3 py-1.5 text-sm dark:border-slate-700"
-        onClick={() => composerRef.current?.setValue("Move my departure to Friday")}
+        onClick={() => composerRef.current?.setValue("Move my delivery to Friday")}
       >
         Fill the draft from outside
       </button>

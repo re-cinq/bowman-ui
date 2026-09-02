@@ -4,10 +4,10 @@ export function AppShellExample() {
   return (
     <div className="h-96 overflow-hidden rounded-lg border border-slate-200 dark:border-slate-800">
       <AppShell
-        brand={<span className="text-sm font-semibold">Havkat Rejser</span>}
+        brand={<span className="text-sm font-semibold">Marginalia Books</span>}
         renderSidebar={({ variant, close }) => (
           <AppSidebar
-            brand={<span className="text-sm font-semibold">Havkat Rejser</span>}
+            brand={<span className="text-sm font-semibold">Marginalia Books</span>}
             navItems={[{ key: "chat", label: "Chat", isActive: true }]}
             onNavigate={close}
           >

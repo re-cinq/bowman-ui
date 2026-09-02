@@ -2,12 +2,16 @@ import type { AssistantChatEntry, ConversationListItem, UserChatEntry } from "@r
 
 export type DemoEntry = UserChatEntry | AssistantChatEntry;
 
-export const demoUserInitials = "MV";
+export const demoUserInitials = "MW";
 
 export const conversations: ReadonlyArray<ConversationListItem> = [
-  { id: "samtale-1", title: "Ombooking af HK-4821-XQ", timestamp: "i dag kl. 09.14" },
-  { id: "samtale-2", title: "Bagage til Skagerakøen", timestamp: "i går kl. 16.02" },
-  { id: "samtale-3", title: "Ny samtale", timestamp: "i dag kl. 10.31" },
+  { id: "conversation-1", title: "Delivery change for MB-4821-XQ", timestamp: "today at 09:14" },
+  {
+    id: "conversation-2",
+    title: "Damaged copy of The Cartographer's Atlas",
+    timestamp: "yesterday at 16:02",
+  },
+  { id: "conversation-3", title: "New conversation", timestamp: "today at 10:31" },
 ];
 
 const assistantEntry = (id: string, content: string): AssistantChatEntry => ({
@@ -24,49 +28,52 @@ const userEntry = (id: string, content: string): UserChatEntry => ({
 });
 
 export const initialEntriesByConversation: Record<string, ReadonlyArray<DemoEntry>> = {
-  "samtale-1": [
+  "conversation-1": [
     userEntry(
-      "s1-b1",
-      "Hej, jeg vil gerne flytte min afrejse for reservation HK-4821-XQ til en uge senere."
+      "c1-m1",
+      "Hi, I would like to move the delivery of order MB-4821-XQ to a week later."
     ),
     assistantEntry(
-      "s1-b2",
-      "Hej Mille! Det kan vi sagtens se på. Din reservation **HK-4821-XQ** gælder to personer fra Nordhavnsbro til Skagerakøen. Vil du beholde samme afgangstidspunkt?"
+      "c1-m2",
+      "Hi Margot! We can certainly look at that. Your order **MB-4821-XQ** covers two books shipping to your home address. Would you like to keep the same delivery slot?"
     ),
-    userEntry("s1-b3", "Ja tak, samme tidspunkt hvis muligt. Koster det noget at flytte den?"),
+    userEntry("c1-m3", "Yes please, the same slot if possible. Does it cost anything to move it?"),
     assistantEntry(
-      "s1-b4",
-      "Med billettypen Fleksibel kan datoen flyttes uden gebyr. Det korte overblik:\n\n- Ny afrejse: en uge senere, samme afgangstidspunkt\n- Prisforskel: 0 kr.\n- Pladserne: de samme som før\n\nDu kan læse mere i vores [rejsebetingelser](https://havkat-rejser.invalid/betingelser)."
+      "c1-m4",
+      "With the Flexible delivery option the date can be moved at no charge. The short version:\n\n- New delivery: a week later, same slot\n- Price difference: nothing\n- The books: the same two as before\n\nYou can read more in our [delivery terms](https://marginalia-books.invalid/delivery-terms)."
     ),
-    userEntry("s1-b5", "Perfekt, så vil jeg gerne bekræfte flytningen."),
+    userEntry("c1-m5", "Perfect, then I would like to confirm the change."),
     assistantEntry(
-      "s1-b6",
-      "Så er datoen flyttet! Du modtager en opdateret rejseplan for **HK-4821-XQ** inden for et par minutter. Er der andet, jeg kan hjælpe med?"
+      "c1-m6",
+      "The date is moved! You will receive an updated order confirmation for **MB-4821-XQ** within a few minutes. Is there anything else I can help with?"
     ),
-    userEntry("s1-b7", "Kan jeg også tilføje en kahyt til overfarten?"),
+    userEntry("c1-m7", "Could you also add gift wrapping to the order?"),
     assistantEntry(
-      "s1-b8",
-      "Der er stadig ledige kahytter på afgangen. En standardkahyt til to personer koster 349 kr. for hele overfarten. Sig til, hvis jeg skal lægge den til reservationen."
+      "c1-m8",
+      "Gift wrapping is still available for that order. Wrapping both books costs €3.50 and includes a handwritten card. Say the word and I will add it to the order."
     ),
   ],
-  "samtale-2": [
-    userEntry("s2-b1", "Hvor meget bagage må jeg tage med til Skagerakøen?"),
+  "conversation-2": [
+    userEntry(
+      "c2-m1",
+      "My copy of The Cartographer's Atlas arrived with a torn dust jacket. Can I get a replacement?"
+    ),
     assistantEntry(
-      "s2-b2",
-      "Du må tage én kuffert på op til 23 kg og én håndbagage på op til 8 kg med per person. Cykler og barnevogne skal meldes til på forhånd."
+      "c2-m2",
+      "Sorry to hear that! We will send a replacement copy of *The Cartographer's Atlas* free of charge. There is no need to return the damaged one - keep it or pass it on."
     ),
   ],
-  "samtale-3": [],
+  "conversation-3": [],
 };
 
 export const streamedReplyText =
-  "Tak for din besked! Jeg har noteret den på din sag og gennemgår mulighederne for dig nu. " +
-  "Havkat Rejser sejler til Skagerakøen tre gange dagligt, og der er ledige pladser på både " +
-  "morgenafgangen og eftermiddagsafgangen resten af ugen. Billettypen Fleksibel giver dig ret " +
-  "til at flytte afrejsen uden gebyr, så længe ændringen sker senest to timer før afgang. Vil " +
-  "du hellere have en kahyt på overfarten, kan jeg lægge en standardkahyt til to personer til " +
-  "reservationen. Sig endelig til, hvis du vil have en opdateret rejseplan sendt til dig med " +
-  "det samme. Dette er et fast demosvar fra en fixture.";
+  "Thanks for your message! I have noted it on your file and I am going through the options for " +
+  "you now. Marginalia Books restocks The Cartographer's Atlas three times a week, and there are " +
+  "copies left in both the morning and the afternoon deliveries for the rest of the week. The " +
+  "Flexible delivery option lets you move a delivery date at no charge, as long as the change is " +
+  "made at least a day before dispatch. If you would rather add gift wrapping, I can add it to " +
+  "the order for both books. Do say if you would like an updated order confirmation sent to you " +
+  "right away. This is a canned demo reply from a fixture.";
 
 export const createStreamingAssistantEntry = (id: string): AssistantChatEntry => ({
   id,

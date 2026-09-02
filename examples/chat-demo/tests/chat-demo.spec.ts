@@ -1,12 +1,5 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
 import {
-  defaultAppShellLabels,
-  defaultAppSidebarLabels,
-  defaultChatComposerLabels,
-  defaultChatMessageListLabels,
-  defaultConversationListLabels,
-} from "@re-cinq/bowman-ui";
-import {
   appShellLabels,
   chatComposerLabels,
   chatMessageListLabels,
@@ -17,7 +10,7 @@ import { streamStepCount } from "../src/streaming";
 import { staticDemoNote } from "../src/staticDemoNote";
 
 const aiDisclosure = chatMessageListLabels.aiDisclosure;
-const fixtureReplyText = "Dette er et fast demosvar fra en fixture.";
+const fixtureReplyText = "This is a canned demo reply from a fixture.";
 const streamCommitTimeoutMs = 20_000;
 
 const lastAssistantArticle = (page: Page): Locator =>
@@ -29,43 +22,6 @@ const send = async (page: Page, question: string): Promise<void> => {
   await composer.press("Enter");
 };
 
-const englishDefaultStrings = (): string[] => {
-  const labelObjects: ReadonlyArray<Record<string, unknown>> = [
-    defaultAppShellLabels,
-    defaultAppSidebarLabels,
-    defaultChatComposerLabels,
-    defaultChatMessageListLabels,
-    defaultConversationListLabels,
-  ];
-  const values: string[] = [];
-  for (const labelObject of labelObjects) {
-    for (const value of Object.values(labelObject)) {
-      if (typeof value === "string") {
-        values.push(value);
-      }
-      if (typeof value === "function") {
-        values.push(String(value("")).trim());
-      }
-    }
-  }
-  return values;
-};
-
-const renderedStringCorpus = (page: Page): Promise<string> =>
-  page.evaluate(() => {
-    const parts: string[] = [document.body.textContent ?? ""];
-    const sweptAttributes = ["aria-label", "title", "alt", "placeholder"];
-    for (const element of Array.from(document.querySelectorAll("*"))) {
-      for (const attributeName of sweptAttributes) {
-        const value = element.getAttribute(attributeName);
-        if (value !== null) {
-          parts.push(value);
-        }
-      }
-    }
-    return parts.join("\n");
-  });
-
 test.describe("full screen structure", () => {
   test("renders sidebar, navigation, conversations, transcript and composer by role", async ({
     page,
@@ -73,11 +29,11 @@ test.describe("full screen structure", () => {
     await page.goto("/?view=chat");
 
     await expect(page.getByRole("complementary")).toHaveCount(1);
-    const navigation = page.getByRole("navigation", { name: "Hovednavigation" });
+    const navigation = page.getByRole("navigation", { name: "Main navigation" });
     await expect(navigation).toHaveCount(1);
     await expect(navigation.getByRole("button")).toHaveCount(2);
 
-    const conversationList = page.getByRole("list", { name: "Samtaler" });
+    const conversationList = page.getByRole("list", { name: "Conversations" });
     await expect(conversationList.getByRole("listitem")).toHaveCount(3);
 
     await expect(page.getByRole("main")).toHaveCount(1);
@@ -108,7 +64,7 @@ test.describe("composing and replying", () => {
   }) => {
     await page.goto("/?view=chat");
 
-    const question = "Kan jeg få en kvittering på ombookingen?";
+    const question = "Can I get a receipt for the delivery change?";
     await send(page, question);
 
     const userArticles = page.getByRole("article", { name: chatMessageListLabels.userMessage });
@@ -130,7 +86,7 @@ test.describe("streamed assistant reply", () => {
     page,
   }) => {
     await page.goto("/?view=chat");
-    await send(page, "Kan jeg flytte min afrejse til næste uge?");
+    await send(page, "Can I move my delivery to next week?");
 
     const reply = lastAssistantArticle(page);
     await expect(reply).toBeVisible();
@@ -155,7 +111,7 @@ test.describe("streamed assistant reply", () => {
     page,
   }) => {
     await page.goto("/?view=chat");
-    await send(page, "Hvad koster en kahyt på overfarten?");
+    await send(page, "How much does gift wrapping cost?");
 
     await expect(
       page.getByRole("article", { name: chatMessageListLabels.assistantMessage })
@@ -216,7 +172,7 @@ test.describe("copy toast", () => {
 });
 
 test.describe("EU AI Act disclosure", () => {
-  test("the Danish disclosure is visible with entries present and cannot be scrolled away", async ({
+  test("the disclosure is visible with entries present and cannot be scrolled away", async ({
     page,
   }) => {
     await page.goto("/?view=chat");
@@ -238,11 +194,11 @@ test.describe("EU AI Act disclosure", () => {
     await expect(disclosure).toBeInViewport();
   });
 
-  test("the Danish disclosure is visible in the empty state", async ({ page }) => {
+  test("the disclosure is visible in the empty state", async ({ page }) => {
     await page.goto("/?view=chat");
 
-    await page.getByRole("button", { name: "Ny samtale" }).click();
-    await expect(page.getByText("Hvordan kan vi hjælpe dig i dag?")).toBeVisible();
+    await page.getByRole("button", { name: "New conversation" }).click();
+    await expect(page.getByText("How can we help you today?")).toBeVisible();
     await expect(page.getByText(aiDisclosure, { exact: true })).toBeVisible();
   });
 });
@@ -258,22 +214,6 @@ test.describe("static demo note", () => {
 test.describe("mobile drawer", () => {
   test.use({ viewport: { width: 375, height: 667 } });
 
-  test("zero English: no default label string survives into the rendered document", async ({
-    page,
-  }) => {
-    await page.goto("/?view=chat");
-
-    await page.getByRole("button", { name: appShellLabels.openSidebar }).click();
-    await expect(page.getByRole("dialog", { name: appShellLabels.sidebarDialog })).toBeVisible();
-
-    const corpus = await renderedStringCorpus(page);
-    for (const englishDefault of englishDefaultStrings()) {
-      expect(corpus, `English default "${englishDefault}" must not render`).not.toContain(
-        englishDefault
-      );
-    }
-  });
-
   test("the drawer starts closed, traps focus and closes on Escape", async ({ page }) => {
     await page.goto("/?view=chat");
 
@@ -284,7 +224,7 @@ test.describe("mobile drawer", () => {
     const drawer = page.getByRole("dialog", { name: appShellLabels.sidebarDialog });
     await expect(drawer).toBeVisible();
 
-    const lastFocusable = drawer.getByRole("button", { name: "Log ud af demoen" });
+    const lastFocusable = drawer.getByRole("button", { name: "Sign out of the demo" });
     await lastFocusable.focus();
     await page.keyboard.press("Tab");
     await expect(drawer.getByRole("button", { name: appShellLabels.closeSidebar })).toBeFocused();
@@ -303,7 +243,7 @@ test.describe("composer auto-resize", () => {
     composer.evaluate((textarea) => textarea.getBoundingClientRect().height);
 
   const inventedLines = (count: number): string =>
-    Array.from({ length: count }, (_, index) => `Opdigtet linje ${index + 1} af ${count}`).join(
+    Array.from({ length: count }, (_, index) => `Invented line ${index + 1} of ${count}`).join(
       "\n"
     );
 
@@ -313,7 +253,7 @@ test.describe("composer auto-resize", () => {
     const baseline = await measuredHeight(composerOf(page));
     expect(
       baseline,
-      "the empty composer on the Havkat Rejser demo screen rendered with no measurable height"
+      "the empty composer on the Marginalia Books demo screen rendered with no measurable height"
     ).toBeGreaterThan(0);
     expect(baseline).toBeLessThan(200);
   });
@@ -325,7 +265,7 @@ test.describe("composer auto-resize", () => {
     const composer = composerOf(page);
     const baseline = await measuredHeight(composer);
 
-    const draft = "En opdigtet kladde om en ombooking";
+    const draft = "An invented draft about a delivery change";
     await composer.fill(draft);
     await expect(page.getByRole("button", { name: chatComposerLabels.send })).toBeEnabled();
     await composer.press("Shift+Enter");
@@ -368,7 +308,7 @@ test.describe("composer auto-resize", () => {
     await composer.press("Enter");
     const userArticles = page.getByRole("article", { name: chatMessageListLabels.userMessage });
     await expect(userArticles).toHaveCount(5);
-    await expect(userArticles.last()).toContainText("Opdigtet linje 24 af 24");
+    await expect(userArticles.last()).toContainText("Invented line 24 of 24");
     await expect(composer).toHaveValue("");
     await expect.poll(() => measuredHeight(composer)).toBe(baseline);
   });

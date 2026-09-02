@@ -29,26 +29,17 @@ behaviour is implementation-specific - one stack proves one stack, never both -
 so a row answered only on NVDA is an answer about NVDA.
 
 `verdict: not-run` is a legal verdict **only** on a VoiceOver row and **only**
-with a `reason` field stating why (no macOS device available, no Danish voice
-installed, and so on). The gate rejects `not-run` anywhere else.
+with a `reason` field stating why (no macOS device available, and so on). The
+gate rejects `not-run` anywhere else.
 
 ## Language and voice
 
-The pass runs against the demo's Danish catalogue
-(`examples/chat-demo/src/labels.ts`), because a screen reader reading Danish
-strings with an English voice is a different acoustic event from one reading
-them with a Danish voice, and the customer-facing surface is Danish. Use a
-Danish voice where the stack has one:
-
-- NVDA ships eSpeak NG, which has a Danish (`da`) variant. Windows OneCore also
-  offers a Danish voice on a Danish language pack.
-- VoiceOver on macOS offers Danish voices (for example Sara) once the Danish
-  language is added in System Settings.
-
-Where no Danish voice is available, run with the default voice and **record
-which voice was actually used** in the record's `stacks` block. Nobody on the
-team assesses Danish pronunciation quality: the record transcribes what was
-spoken, verbatim, and never judges it.
+The pass runs against the demo's English catalogue
+(`examples/chat-demo/src/labels.ts`), which reuses the library's own English
+defaults plus the demo's `aiDisclosure` and screen copy. Run with an English
+voice and **record which voice was actually used** in the record's `stacks`
+block. The record transcribes what was spoken, verbatim, and never judges
+pronunciation.
 
 ## Expected runtime
 
@@ -71,11 +62,12 @@ npm run dev                        # or: npm run build && npm run preview
 
 Open the printed URL with `?view=chat` appended in the stack's browser: the
 chat is the fixture under test, and the bare URL now serves the component
-documentation, not the chat. The demo brand is `Havkat Rejser`; the three
-conversations are `Ombooking af HK-4821-XQ`, `Bagage til Skagerakøen` and
-`Ny samtale`. All of it is invented fixture data.
+documentation, not the chat. The demo brand is `Marginalia Books`; the three
+conversations are `Delivery change for MB-4821-XQ`,
+`Damaged copy of The Cartographer's Atlas` and `New conversation`. All of it
+is invented fixture data.
 
-Sending a message streams a canned Danish reply through the same lifecycle HAL
+Sending a message streams a canned reply through the same lifecycle HAL
 produces - the entry appears empty, grows over 24 timed steps across roughly
 3.5 seconds, then commits - so there is a real streaming answer to listen to.
 
@@ -87,8 +79,8 @@ produces - the entry appears empty, grows over 24 timed steps across roughly
 says so plainly. Whether that combination announces anything on completion is
 the question.
 
-1. Open the demo on `Ombooking af HK-4821-XQ`.
-2. Focus the composer, type any Danish question, press Enter.
+1. Open the demo on `Delivery change for MB-4821-XQ`.
+2. Focus the composer, type any question, press Enter.
 3. Listen through the whole stream, from the empty entry to the commit.
 
 Record, **verbatim**, what each stack announced at the moment the answer
@@ -101,7 +93,7 @@ a legitimate finding and the most likely one; do not paraphrase it into
 `ThinkingIndicator` carries `role="status"` and `aria-live="polite"`, but it
 mounts inside the transcript, whose ancestor sets `aria-live="off"`.
 
-1. Open a conversation that already has entries (`Ombooking af HK-4821-XQ`).
+1. Open a conversation that already has entries (`Delivery change for MB-4821-XQ`).
 2. Send a message. Between the send and the entry appearing, the demo sets
    `busy` true and the indicator mounts.
 3. Listen for an announcement in that window.
@@ -111,21 +103,19 @@ Record per stack whether the `role="status"` region was announced despite the
 
 ### A3. Which string is spoken for the thinking indicator?
 
-Two strings compete: the visible label (`thinking`, `"Tænker"` in the demo
-catalogue) and the region's `aria-label` (`thinkingRegion`, `"Henter svar"`).
+Two strings compete: the visible label (`thinking`, `"Thinking"` in the demo
+catalogue) and the region's `aria-label` (`thinkingRegion`,
+`"Loading response"`).
 
 1. Trigger the indicator as in A2.
 2. Note which of the two strings was spoken.
-3. Separately, sweep the whole session for any audible English default
-   (`"Thinking"`, `"Loading response"`).
 
-Record which string each stack spoke, and whether any English default was
-audible anywhere in the session.
+Record which string each stack spoke.
 
 ### A4. Does the composer announce its label, not its placeholder?
 
-The demo's `composerInput` label is `"Skriv en besked"` and its
-`composerPlaceholder` is `"Skriv til os her..."`. Read both from
+The demo's `composerInput` label is `"Your message"` and its
+`composerPlaceholder` is `"Reply..."`. Read both from
 `examples/chat-demo/src/labels.ts` at the time of the pass rather than from
 this document, and record the values you actually saw.
 
@@ -146,12 +136,12 @@ to conform to the applicable accessibility requirements. A disclosure a screen
 reader never reaches does not meet that second clause, which is why this row
 exists.
 
-1. Select `Ny samtale`, the conversation whose entries are `[]`.
+1. Select `New conversation`, the conversation whose entries are `[]`.
 2. Without typing anything, navigate the page from the top with the virtual
    cursor (NVDA: down arrow in browse mode; VoiceOver: VO + right arrow).
-3. Note whether the disclosure band
-   (`"Du taler med en kunstig intelligens. Svarene kan indeholde fejl."`) is
-   reached, and at what point in the reading order.
+3. Note whether the disclosure band is reached, and at what point in the
+   reading order. Its text is
+   `"You are talking to an artificial intelligence. Answers can contain mistakes."`
 
 Record whether the band was reachable and announced before the first message
 was sent, with the transcript empty, on each stack. Cite Article 50 of
@@ -164,8 +154,8 @@ obligation and the accessibility-requirements clause.
 region. The demo sets a 4000 ms duration; the package default is 2000 ms.
 
 1. Move to any assistant entry, activate its copy button
-   (`"Kopiér svaret"`).
-2. Listen for the toast text (`"Svaret er kopieret til udklipsholderen."`).
+   (`"Copy message"`).
+2. Listen for the toast text (`"The reply was copied to the clipboard."`).
 3. Repeat with the package default duration of 2000 ms - set `duration={2000}`
    on the demo's `Toast` locally - and listen again.
 
@@ -175,20 +165,20 @@ two-second auto-dismiss cut the announcement short on either stack.
 ### A7. Is each entry's author distinguishable without sight?
 
 Avatars are `aria-hidden`, so the only authorship a screen reader gets is the
-article's accessible name - `"Din besked"` / `"Assistentens svar"` - and, when
+article's accessible name - `"Your message"` / `"Assistant response"` - and, when
 the consumer supplies attribution, the rendered name line and
 `assistantMessageFrom(name)` label that `ChatMessage` ships (re-cinq/Otto#121).
 
-**A7a, as shipped.** Read the whole of `Ombooking af HK-4821-XQ` top to bottom
+**A7a, as shipped.** Read the whole of `Delivery change for MB-4821-XQ` top to bottom
 with the virtual cursor, alternating user and assistant entries. Record whether
 you could tell who wrote each entry without looking.
 
 **A7b, two personas.** The committed demo passes no `attribution` map, so it
 renders one voice. Before running A7b, make a **local, uncommitted** edit to
 `examples/chat-demo/src/App.tsx`: pass
-`attribution={{ booking: { name: "Booking" }, bagage: { name: "Bagage" } }}` to
-`ChatMessageList`, and add `persona: "booking"` to one assistant entry and
-`persona: "bagage"` to another in `examples/chat-demo/src/fixtures.ts`. Read the
+`attribution={{ orders: { name: "Orders" }, billing: { name: "Billing" } }}` to
+`ChatMessageList`, and add `persona: "orders"` to one assistant entry and
+`persona: "billing"` to another in `examples/chat-demo/src/fixtures.ts`. Read the
 conversation again and record whether the two authors were distinguishable.
 Revert the edit afterwards - committing it changes the articles' accessible
 names and breaks the demo's Playwright counts.
@@ -226,11 +216,11 @@ stacks:
   - screenReader: NVDA 2025.2
     browser: Firefox 142.0
     platform: Windows 11 24H2
-    voice: eSpeak NG da
+    voice: eSpeak NG en-GB
   - screenReader: VoiceOver macOS 26.1
     browser: Safari 26.1
     platform: macOS 26.1
-    voice: Sara da-DK
+    voice: Daniel en-GB
 rows:
   - id: A1
     stack: nvda
@@ -238,7 +228,7 @@ rows:
   - id: A1
     stack: voiceover
     verdict: not-run
-    reason: no macOS device with a Danish voice was available in this window
+    reason: no macOS device was available in this window
   ...
 ---
 ```

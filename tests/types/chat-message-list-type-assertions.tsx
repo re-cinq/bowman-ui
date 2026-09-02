@@ -19,7 +19,7 @@ import {
 } from "@re-cinq/bowman-ui";
 
 const entries: ReadonlyArray<UserChatEntry | AssistantChatEntry | ToolChatEntry> = [
-  { id: "u1", role: "user", content: "Vis booking 4711" },
+  { id: "u1", role: "user", content: "Ver pedido 4711" },
   { id: "t1", role: "tool", toolName: "get_weather", toolInput: { location: "Berlin" } },
   {
     id: "a1",
@@ -33,18 +33,18 @@ const entries: ReadonlyArray<UserChatEntry | AssistantChatEntry | ToolChatEntry>
 // A lookup table, never a render function: a server component can pass this
 // object literal across the RSC boundary (CONTRACT.md § RSC fixture).
 const attribution: Readonly<Record<string, ChatAttribution>> = {
-  "olt-support": { name: "Økonomi", avatar: <span data-testid="persona-a" /> },
+  "olt-support": { name: "Facturación", avatar: <span data-testid="persona-a" /> },
 };
 
 // @ts-expect-error -- ChatAttribution carries name and avatar and nothing else
-const attributionWithThirdMember: ChatAttribution = { name: "Økonomi", persona: "olt-support" };
+const attributionWithThirdMember: ChatAttribution = { name: "Facturación", persona: "olt-support" };
 
 // 087-bowman-ui-thinking-trace widened `entries` to the full ChatEntry union,
 // so a ThinkingChatEntry is now accepted - the positive case that replaced
 // 086's @ts-expect-error.
 const withThinking: ReadonlyArray<UserChatEntry | ThinkingChatEntry> = [
-  { id: "u1", role: "user", content: "Vis booking 4711" },
-  { id: "th1", role: "thinking", content: "Slår booking op", isStreaming: false },
+  { id: "u1", role: "user", content: "Ver pedido 4711" },
+  { id: "th1", role: "thinking", content: "Consultando el pedido", isStreaming: false },
 ];
 const acceptedEntries: ComponentProps<typeof ChatMessageList>["entries"] = withThinking;
 void acceptedEntries;
@@ -80,10 +80,14 @@ const Consumer = () => {
         ref={listRef}
         entries={entries}
         userInitials="LM"
-        labels={{ aiDisclosure: "Du chatter med en AI-assistent" }}
+        labels={{ aiDisclosure: "Estás chateando con un asistente de IA" }}
       />
-      {/* @ts-expect-error -- omitting aiDisclosure from labels must not compile */}
-      <ChatMessageList entries={entries} userInitials="LM" labels={{ transcript: "Samtale" }} />
+      <ChatMessageList
+        entries={entries}
+        userInitials="LM"
+        // @ts-expect-error -- omitting aiDisclosure from labels must not compile
+        labels={{ transcript: "Transcripción" }}
+      />
       <ChatMessageList
         entries={entries}
         userInitials="LM"

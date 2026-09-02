@@ -47,12 +47,9 @@ The labels table is `Object.entries` over the library's own exported defaults,
 so it needs no maintenance either.
 
 The documentation content itself - purposes, prop descriptions, snippets and
-state captions - is English: it describes an English API, and translating it
-twice would only give it somewhere to drift. The page chrome around it
-(navigation, headings, table column names) is English too, unconditionally -
-`src/docs-labels.ts` is the docs view's only label source, and it does not
-read `VITE_DEMO_LOCALE`. Only the chat demo (the default view, no `?view`
-parameter) honors that switch.
+state captions - is English, like the whole demo. The page chrome around it
+(navigation, headings, table column names) has its own label source,
+`src/docs-labels.ts`, separate from the chat screen's `src/labels.ts`.
 
 `src/App.tsx` renders the chat only for `?view=chat`; every other URL - bare
 `/` and the `?view=docs` alias included - renders the documentation.
@@ -81,9 +78,10 @@ The capture script lives under `scripts/`, not `tests/`, so Playwright's
 `.github/workflows/pages.yml` builds this demo and deploys it to GitHub Pages
 on every push to `main`, so the documentation at `/` (the published landing)
 and the chat fixture at `?view=chat` are reachable without checking the
-repository out. The published chat renders in English: the workflow's build
-step sets `VITE_DEMO_LOCALE=en`. Local runs and `ci.yml` leave it unset and get
-the Danish default the Playwright suite asserts against.
+repository out. The demo is English-only, so the published chat and every
+local run render the same catalogue. (`pages.yml` still exports
+`VITE_DEMO_LOCALE=en` from the era of the build-time locale switch; nothing
+reads the variable any more.)
 
 This is a static build with no backend: the chat's replies are canned fixtures
 grown by `setTimeout` (`src/streaming.ts`), never a model call. A note on the
@@ -103,37 +101,22 @@ check in `ci.yml` is untouched by it.
 
 ## Language
 
-The demo ships two label catalogues and defaults to Danish.
+The demo ships English only. `src/labels.ts` is the single label catalogue,
+and it is deliberately thin: every component exports a complete English
+default label set, so the catalogue reuses those defaults and writes out only
+the strings no default can supply - the required `aiDisclosure` and the demo's
+own screen copy. The canned conversation content in `src/fixtures.ts` and the
+streamed reply it feeds are English fixture prose about the fictional
+Marginalia Books shop; everything in them is invented.
 
-```sh
-VITE_DEMO_LOCALE=en npm run dev
-```
-
-`VITE_DEMO_LOCALE` accepts `da` (the default, and the value used whenever the
-variable is unset or unrecognised) and `en`. `src/activeLabels.ts` is the only
-place the choice is made; `src/labels.ts` holds the Danish catalogue and
-`src/labels.en.ts` the English one.
-
-The English catalogue is deliberately thin: every component exports a complete
-English default label set, so `labels.en.ts` reuses those defaults and writes
-out only the strings no default can supply - the required `aiDisclosure` and
-the demo's own screen copy.
-
-Two things stay Danish under `VITE_DEMO_LOCALE=en`: the canned conversation
-content in `src/fixtures.ts` and the streamed reply in `src/streaming.ts`.
-They are fixture prose, not labels, and the locale switch is about proving the
-label-substitution mechanism.
-
-Danish is not just the default, it is the tested configuration. The Playwright
-suite asserts Danish strings and sweeps the rendered document for the
-library's English defaults, and the assistive-technology pass described in
-`docs/accessibility/README.md` runs against the Danish catalogue. Neither runs
-under `en`; verify that build by hand.
+Translating the library itself is a consumer concern: each component takes a
+`labels` prop for a reviewed catalogue, as the root README's Labels and
+translations section describes. The demo no longer carries a second catalogue
+or a build-time locale switch.
 
 ## Demonstration-only controls
 
 The sidebar's settings nav item and the sign-out button in the sidebar footer
 exist to show that `AppSidebar` accepts nav items and a footer slot. The demo
 has no settings screen and no authentication, so both raise a toast reading
-"Kun til demonstration - ikke en rigtig side." rather than pretending to
-navigate.
+"Demo only - not a real page" rather than pretending to navigate.

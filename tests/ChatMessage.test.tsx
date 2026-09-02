@@ -16,7 +16,7 @@ const writeTextMock = vi.fn();
 const makeEntry = (overrides?: Partial<AssistantChatEntry>): AssistantChatEntry => ({
   id: "entry-1",
   role: "assistant",
-  content: "Booking 4711 er bekræftet",
+  content: "Pedido 4711 confirmado",
   isStreaming: false,
   ...overrides,
 });
@@ -24,7 +24,7 @@ const makeEntry = (overrides?: Partial<AssistantChatEntry>): AssistantChatEntry 
 const makeUserEntry = (overrides?: Partial<UserChatEntry>): UserChatEntry => ({
   id: "entry-1",
   role: "user",
-  content: "Vis booking 4711",
+  content: "Ver pedido 4711",
   ...overrides,
 });
 
@@ -51,7 +51,7 @@ describe("ChatMessage", () => {
 
       const article = screen.getByRole("article");
       expect(article).toHaveAttribute("aria-label", "Your message");
-      expect(screen.getByText("Vis booking 4711")).toBeInTheDocument();
+      expect(screen.getByText("Ver pedido 4711")).toBeInTheDocument();
       expect(screen.getByText("LM")).toBeInTheDocument();
     });
 
@@ -80,15 +80,15 @@ describe("ChatMessage", () => {
   });
 
   describe("markdown rendering", () => {
-    it("**bekræftet** renders a <strong> element carrying the bowman-md-strong class", () => {
+    it("**confirmado** renders a <strong> element carrying the bowman-md-strong class", () => {
       render(
         <ChatMessage
-          entry={makeEntry({ content: "Booking 4711 er **bekræftet**" })}
+          entry={makeEntry({ content: "Pedido 4711 **confirmado**" })}
           userInitials="LM"
         />
       );
 
-      const strong = screen.getByText("bekræftet");
+      const strong = screen.getByText("confirmado");
       expect(strong.tagName).toBe("STRONG");
       expect(strong.classList.contains("bowman-md-strong")).toBe(true);
     });
@@ -96,7 +96,7 @@ describe("ChatMessage", () => {
     it("a GFM pipe table renders a <table> element carrying the bowman-md-table class", () => {
       const { container } = render(
         <ChatMessage
-          entry={makeEntry({ content: "| Konto | Beløb |\n| --- | --- |\n| 4711 | 100 |" })}
+          entry={makeEntry({ content: "| Cuenta | Importe |\n| --- | --- |\n| 4711 | 100 |" })}
           userInitials="LM"
         />
       );
@@ -104,13 +104,13 @@ describe("ChatMessage", () => {
       const table = container.querySelector("table");
       expect(table).toBeInTheDocument();
       expect(table?.classList.contains("bowman-md-table")).toBe(true);
-      expect(screen.getByText("Konto")).toBeInTheDocument();
+      expect(screen.getByText("Cuenta")).toBeInTheDocument();
     });
 
     it("raw HTML in content renders as escaped text, not as an element (C-18)", () => {
       const { container } = render(
         <ChatMessage
-          entry={makeEntry({ content: 'Se <img src="x" onerror="alert(1)"> her' })}
+          entry={makeEntry({ content: 'Mira <img src="x" onerror="alert(1)"> aquí' })}
           userInitials="LM"
         />
       );
@@ -127,7 +127,7 @@ describe("ChatMessage", () => {
 
       fireEvent.keyDown(screen.getByRole("article"), { key: "c", metaKey: true });
 
-      expect(writeTextMock).toHaveBeenCalledWith("Booking 4711 er bekræftet");
+      expect(writeTextMock).toHaveBeenCalledWith("Pedido 4711 confirmado");
       expect(screen.getByText("Copied!")).toBeInTheDocument();
 
       act(() => {
@@ -142,7 +142,7 @@ describe("ChatMessage", () => {
 
       fireEvent.keyDown(screen.getByRole("article"), { key: "c", ctrlKey: true });
 
-      expect(writeTextMock).toHaveBeenCalledWith("Booking 4711 er bekræftet");
+      expect(writeTextMock).toHaveBeenCalledWith("Pedido 4711 confirmado");
     });
 
     it('Cmd+C under Caps Lock - the key reports "C" - still copies', () => {
@@ -151,7 +151,7 @@ describe("ChatMessage", () => {
 
       fireEvent.keyDown(screen.getByRole("article"), { key: "C", metaKey: true });
 
-      expect(writeTextMock).toHaveBeenCalledWith("Booking 4711 er bekræftet");
+      expect(writeTextMock).toHaveBeenCalledWith("Pedido 4711 confirmado");
     });
 
     it("Cmd+Shift+C - the browser's inspect-element chord - copies nothing", () => {
@@ -183,7 +183,7 @@ describe("ChatMessage", () => {
       expect(() => {
         fireEvent.keyDown(screen.getByRole("article"), { key: "c", metaKey: true });
       }).not.toThrow();
-      expect(onCopy).toHaveBeenCalledWith("Booking 4711 er bekræftet", "entry-1");
+      expect(onCopy).toHaveBeenCalledWith("Pedido 4711 confirmado", "entry-1");
     });
   });
 
@@ -492,54 +492,57 @@ describe("ChatMessage", () => {
   });
 
   describe("assistantName (121)", () => {
-    it('assistantName "Økonomi" renders that name and labels the article "Response from Økonomi"', () => {
-      render(<ChatMessage entry={makeEntry()} userInitials="LM" assistantName="Økonomi" />);
+    it('assistantName "Facturación" renders that name and labels the article "Response from Facturación"', () => {
+      render(<ChatMessage entry={makeEntry()} userInitials="LM" assistantName="Facturación" />);
 
-      expect(screen.getByText("Økonomi")).toBeInTheDocument();
-      expect(screen.getByRole("article")).toHaveAttribute("aria-label", "Response from Økonomi");
+      expect(screen.getByText("Facturación")).toBeInTheDocument();
+      expect(screen.getByRole("article")).toHaveAttribute(
+        "aria-label",
+        "Response from Facturación"
+      );
     });
 
     it('with no assistantName the article aria-label stays "Assistant response" and exactly one element fewer renders', () => {
       const named = render(
-        <ChatMessage entry={makeEntry()} userInitials="LM" assistantName="Økonomi" />
+        <ChatMessage entry={makeEntry()} userInitials="LM" assistantName="Facturación" />
       ).container;
       const unnamed = render(<ChatMessage entry={makeEntry()} userInitials="LM" />).container;
 
       expect(unnamed.querySelectorAll("*")).toHaveLength(named.querySelectorAll("*").length - 1);
-      expect(unnamed.textContent).not.toContain("Økonomi");
+      expect(unnamed.textContent).not.toContain("Facturación");
       expect(within(unnamed).getByRole("article")).toHaveAttribute(
         "aria-label",
         "Assistant response"
       );
     });
 
-    it('a supplied assistantMessageFrom returning "Svar fra " + name produces "Svar fra Økonomi"', () => {
+    it('a supplied assistantMessageFrom returning "Respuesta de " + name produces "Respuesta de Facturación"', () => {
       render(
         <ChatMessage
           entry={makeEntry()}
           userInitials="LM"
-          assistantName="Økonomi"
-          labels={{ assistantMessageFrom: (name: string) => "Svar fra " + name }}
+          assistantName="Facturación"
+          labels={{ assistantMessageFrom: (name: string) => "Respuesta de " + name }}
         />
       );
 
-      expect(screen.getByRole("article")).toHaveAttribute("aria-label", "Svar fra Økonomi");
+      expect(screen.getByRole("article")).toHaveAttribute("aria-label", "Respuesta de Facturación");
     });
 
     it("defaultChatMessageLabels.assistantMessageFrom is a function of one string", () => {
       expect(defaultChatMessageLabels.assistantMessageFrom).toHaveLength(1);
-      expect(defaultChatMessageLabels.assistantMessageFrom("Økonomi")).toBe(
-        "Response from Økonomi"
+      expect(defaultChatMessageLabels.assistantMessageFrom("Facturación")).toBe(
+        "Response from Facturación"
       );
     });
 
     it("assistantName with a user entry renders no name and leaves the user aria-label unchanged", () => {
       const { container } = render(
-        <ChatMessage entry={makeUserEntry()} userInitials="LM" assistantName="Økonomi" />
+        <ChatMessage entry={makeUserEntry()} userInitials="LM" assistantName="Facturación" />
       );
 
       expect(screen.getByRole("article")).toHaveAttribute("aria-label", "Your message");
-      expect(container.textContent).not.toContain("Økonomi");
+      expect(container.textContent).not.toContain("Facturación");
     });
 
     it("with an assistantAvatar supplied, the article's accessible name is the resolved name line, not the avatar", () => {
@@ -547,12 +550,12 @@ describe("ChatMessage", () => {
         <ChatMessage
           entry={makeEntry()}
           userInitials="LM"
-          assistantName="Økonomi"
+          assistantName="Facturación"
           assistantAvatar={<span data-testid="avatar-mark">4711</span>}
         />
       );
 
-      expect(screen.getByRole("article")).toHaveAccessibleName("Response from Økonomi");
+      expect(screen.getByRole("article")).toHaveAccessibleName("Response from Facturación");
     });
   });
 
@@ -721,7 +724,7 @@ describe("markdown link policy (076)", () => {
   it("an https link renders an anchor with target, the rel pair and the hidden notice", () => {
     const { container } = render(
       <ChatMessage
-        entry={makeEntry({ content: "Se [din booking](https://tms.example/booking/42)" })}
+        entry={makeEntry({ content: "Mira [tu pedido](https://tms.example/booking/42)" })}
         userInitials="LM"
       />
     );

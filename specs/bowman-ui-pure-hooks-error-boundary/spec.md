@@ -65,11 +65,11 @@ exports entry for a consumer ([validated by](../../tests/hooks-dist.test.ts#L65)
   GDPR zero-retention rider on the error text. The three English strings became
   `labels?: Partial<ErrorBoundaryLabels>` merged over English defaults; a `fallback` node wins
   over labels; retry re-renders children
-  ([validated by](../../tests/ErrorBoundary.test.tsx#L144),
+  ([validated by](../../tests/ErrorBoundary.test.tsx#L148),
   [L44](../../tests/ErrorBoundary.test.tsx#L44),
   [L58](../../tests/ErrorBoundary.test.tsx#L58),
-  [L88](../../tests/ErrorBoundary.test.tsx#L88),
-  [L100](../../tests/ErrorBoundary.test.tsx#L100)).
+  [L88](../../tests/ErrorBoundary.test.tsx#L92),
+  [L100](../../tests/ErrorBoundary.test.tsx#L104)).
 
 No built file reads `process.env`, and neither `NEXT_PUBLIC_FLAG_ANIMATIONS` nor any
 `discovery`-prefixed string survives in `src/`

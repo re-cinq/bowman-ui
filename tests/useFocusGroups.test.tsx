@@ -118,11 +118,11 @@ describe("useFocusGroups", () => {
   });
 
   it("a custom announce function replaces the English sentence", () => {
-    render(<Harness announce={(group) => `Skiftet til ${group}`} />);
+    render(<Harness announce={(group) => `Ahora en ${group}`} />);
 
     pressF6();
 
-    expect(screen.getByRole("status")).toHaveTextContent("Skiftet til main");
+    expect(screen.getByRole("status")).toHaveTextContent("Ahora en main");
   });
 
   it("announce returning null suppresses the live region entirely", () => {

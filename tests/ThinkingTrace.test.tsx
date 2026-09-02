@@ -107,9 +107,9 @@ describe("ThinkingTrace", () => {
 
   describe("labels and defaults", () => {
     it("resolves an override over the English default", () => {
-      render(<ThinkingTrace entry={reasoningEntry} labels={{ thinkingTrace: "Ræsonnement" }} />);
+      render(<ThinkingTrace entry={reasoningEntry} labels={{ thinkingTrace: "Razonamiento" }} />);
 
-      expect(screen.getByText("Ræsonnement")).toBeInTheDocument();
+      expect(screen.getByText("Razonamiento")).toBeInTheDocument();
       expect(screen.queryByText("Reasoning")).not.toBeInTheDocument();
     });
 

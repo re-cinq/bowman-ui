@@ -1,6 +1,6 @@
-// The English conversation behind the documentation index's hero screenshot,
+// The conversation behind the documentation index's hero screenshot,
 // which is also copied to docs/assets/hero-split.png for the root README.
-// Unrelated to the Danish chat fixture in src/fixtures.ts: it exists only to
+// Unrelated to the chat fixture in src/fixtures.ts: it exists only to
 // be rendered through the real library components and captured to a PNG by
 // scripts/capture-hero.mjs. An engineer asking about caching strategy for a
 // backend service - wholesome, free of personal data, and close to what the

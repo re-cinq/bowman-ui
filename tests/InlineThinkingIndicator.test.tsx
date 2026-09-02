@@ -10,9 +10,9 @@ describe("InlineThinkingIndicator", () => {
   });
 
   it("labels.thinking overrides the default", () => {
-    render(<InlineThinkingIndicator labels={{ thinking: "Tænker" }} />);
+    render(<InlineThinkingIndicator labels={{ thinking: "Pensando" }} />);
 
-    expect(screen.getByText("Tænker")).toBeInTheDocument();
+    expect(screen.getByText("Pensando")).toBeInTheDocument();
     expect(screen.queryByText("Thinking")).not.toBeInTheDocument();
   });
 

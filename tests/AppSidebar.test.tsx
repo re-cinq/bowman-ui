@@ -21,16 +21,16 @@ describe("AppSidebar", () => {
       expect(container.querySelectorAll("nav")).toHaveLength(1);
     });
 
-    it('labels={{sidebar: "Sidepanel", mainNavigation: "Hovednavigation"}} names both landmarks', () => {
+    it('labels={{sidebar: "Panel lateral", mainNavigation: "Navegación principal"}} names both landmarks', () => {
       render(
         <AppSidebar
           navItems={threeItems}
-          labels={{ sidebar: "Sidepanel", mainNavigation: "Hovednavigation" }}
+          labels={{ sidebar: "Panel lateral", mainNavigation: "Navegación principal" }}
         />
       );
 
-      expect(screen.getByRole("complementary", { name: "Sidepanel" })).toBeInTheDocument();
-      expect(screen.getByRole("navigation", { name: "Hovednavigation" })).toBeInTheDocument();
+      expect(screen.getByRole("complementary", { name: "Panel lateral" })).toBeInTheDocument();
+      expect(screen.getByRole("navigation", { name: "Navegación principal" })).toBeInTheDocument();
     });
 
     it("the aside grows in the 030 drawer and sizes itself in the rail: flex-1 min-h-0 below md, md:h-full md:w-64 md:flex-none md:border-r lg:w-72", () => {

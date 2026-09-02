@@ -32,8 +32,10 @@ return <div ref={drawerRef}>...</div>;`,
     name: "useFocusGroups",
     summary:
       "F6 and Shift+F6 navigation between the major regions of a screen, the pattern browser dev tools use. Mark each region with data-focus-group and call the hook once; announce lets you translate the move announcement or suppress it.",
-    snippet: `useFocusGroups({ announce: (group) => \`Gik til \${group}\` });
-// <main data-focus-group="samtale" data-focus-group-order="1">`,
+    // The Spanish announce string is deliberate: it shows the callback takes
+    // any localized string. The demo itself is English.
+    snippet: `useFocusGroups({ announce: (group) => \`Ahora en \${group}\` });
+// <main data-focus-group="conversation" data-focus-group-order="1">`,
   },
   {
     id: "use-reduced-motion",
@@ -48,7 +50,7 @@ return <div ref={drawerRef}>...</div>;`,
     summary:
       "Remembers a sidebar's collapsed state in localStorage across visits, degrading to in-memory state when storage throws. storagePrefix is required so two apps on one origin never collide, and isHydrated tells you whether the stored value has been read yet.",
     snippet: `const { isOpen, toggle, open, close, isHydrated } = useSidebarState("chat", {
-  storagePrefix: "havkat-",
+  storagePrefix: "marginalia-",
 });`,
   },
 ];
@@ -74,9 +76,11 @@ export const markdownNotes: ReadonlyArray<ApiNote> = [
     name: "createMarkdownComponents",
     summary:
       'Builds the element map ReactMarkdown renders with: the typography, and the link element that adds rel, target and the visually hidden "opens in a new tab" note. Use it with createUrlTransform when you render assistant markdown outside ChatMessage.',
+    // The Spanish label is deliberate: it shows linkOpensInNewTab takes any
+    // localized string. The demo itself is English.
     snippet: `const components = createMarkdownComponents({
   policy,
-  labels: { linkOpensInNewTab: "(åbner i en ny fane)" },
+  labels: { linkOpensInNewTab: "(se abre en una pestaña nueva)" },
 });`,
   },
 ];

@@ -106,7 +106,9 @@ test.describe("component pages", () => {
     const listing = page.locator("main pre").nth(1);
     await expect(listing).toContainText('import { ChatMessage } from "@re-cinq/bowman-ui";');
     await expect(listing).toContainText("export function ChatMessageExample()");
-    await expect(page.getByRole("article", { name: "Response from Havkat Support" })).toBeVisible();
+    await expect(
+      page.getByRole("article", { name: "Response from Marginalia Support" })
+    ).toBeVisible();
   });
 
   test("the labels table renders the exported defaults, and the missing key is marked", async ({

@@ -6,7 +6,7 @@ Issue: re-cinq/Otto#82 (`082-bowman-ui-consumer-app`)
 that installs `@re-cinq/bowman-ui` from a freshly packed tarball - never the
 source tree, never the registry
 ([validated by](../../scripts/consumer-app.sh#L93)) - and renders a full
-Danish chat screen in a real Chromium. It proves what no jsdom test can: the
+chat screen in a real Chromium. It proves what no jsdom test can: the
 eight extracted components in one document, compiled by a real Tailwind v4
 build, laid out by a real browser. The whole proof is one command,
 `npm run consumer` ([validated by](../../package.json#L32)), documented in the
@@ -76,25 +76,24 @@ CONTRACT.md § Layout requires of consumers
 
 ### Fixtures (GDPR)
 
-`src/fixtures.ts` contains invented names and invented booking references
-only (`HK-4821-XQ`, `Havkat Rejser`, `Skagerakøen`, "Mille") - no real
-customer data, no real booking identifiers, no content copied from a support
-email (`003-support-conversation-data-flow-record`). The repo is public, so a
-fixture file is a publication. The link target is the whole file
+`src/fixtures.ts` contains invented names and invented order references
+only (`MB-4821-XQ`, `Marginalia Books`, `The Cartographer's Atlas`,
+"Margot") - no real customer data, no real order identifiers, no content
+copied from a support email (`003-support-conversation-data-flow-record`).
+The repo is public, so a fixture file is a publication. The link target is
+the whole file
 ([validated by](../../examples/chat-demo/src/fixtures.ts#L1)).
 
 ### Labels
 
-`src/labels.ts` opens with the mandated comment: the catalogue is
-illustrative only, unreviewed by a Danish speaker, and the real disclosure
-wording is owned by re-cinq/Otto#32
-([validated by](../../examples/chat-demo/src/labels.ts#L1)). The required
-`aiDisclosure` is supplied in Danish
-([validated by](../../examples/chat-demo/src/labels.ts#L36)).
-`sidebarDialog` is `"Sidepanel"` rather than a natural `"Menu"`/`"Menuen"`
-because the English default is the literal string `"Menu"` and the sweep is a
-case-sensitive substring check
-([validated by](../../examples/chat-demo/src/labels.ts#L20)).
+The demo ships English only (the Marginalia Books re-theme collapsed the
+original Danish catalogue and the `VITE_DEMO_LOCALE` build-time switch into
+one module). `src/labels.ts` is the single catalogue, and it is deliberately
+thin: every component exports a complete English default label set, so the
+module reuses those defaults and writes out only the strings no default can
+supply - the required `aiDisclosure` (CONTRACT.md § Labels decision 5) and
+the demo's own screen copy
+([validated by](../../examples/chat-demo/src/labels.ts#L1)).
 
 ## The consumer script
 
@@ -156,35 +155,36 @@ otherwise ([validated by](../../examples/chat-demo/playwright.config.ts#L8)).
 
 ## The Playwright suite
 
-All statements below executed green on 2026-08-27 against the packed tarball
-(8 passed, exit 0).
+All statements below executed green on 2026-09-01 against the packed tarball
+(22 passed across the chat and docs suites, exit 0), re-run for the
+Marginalia Books English-only re-theme.
 
 The rendered screen exposes, by role query rather than CSS selector: one
-`aside` ([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L75)),
+`aside` ([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L31)),
 one `nav` with two items
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L76)), three
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L32)), three
 conversation list items
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L80)), one
-`main` ([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L83)),
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L37)), one
+`main` ([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L39)),
 user and assistant entries
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L84)), and
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L40)), and
 the composer textarea
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L90)).
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L47)).
 `AppShell` renders `renderSidebar` twice (desktop rail and mobile drawer);
 the counts are exact because role queries exclude the `display: none` copy at
 each viewport
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L75)).
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L31)).
 
 Typing into the composer and pressing Enter appends a user entry, and the
 fixture reply appends an assistant entry, with no data layer between the
 composer's submit handler and the list's entries
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L106)).
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L62)).
 
 Clicking copy on an assistant entry shows the toast
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L212)), and
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L168)), and
 it disappears on its own - a real timer in a real event loop, no fake timers
 anywhere in the suite
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L214)). The
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L170)). The
 toast is located via its visible pill and its unmount, because `Toast`
 deliberately renders the message twice (an `aria-hidden` pill and a
 visually-hidden live region).
@@ -193,62 +193,43 @@ One `getComputedStyle` assertion proves the consumer's Tailwind build scanned
 the installed `dist`: the `aside`'s `lg:w-72` - a class only the library's
 built files carry, never written by the demo - resolves to a computed width
 of `288px`
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L101)).
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L57)).
 
-### Zero English
+### Zero English (superseded)
 
-Every string value in the five composed components' default label objects
-(`defaultAppShellLabels`, `defaultAppSidebarLabels`,
-`defaultConversationListLabels`, `defaultChatMessageListLabels` - itself the
-union over `ChatMessage` and `ThinkingIndicator` - and
-`defaultChatComposerLabels`, imported from the installed package so the list
-cannot drift) is asserted absent from the document's text and from every
-`aria-label`, `title`, `alt` and (superset) `placeholder` attribute, with the
-mobile drawer opened first so its contents are in the sweep
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L261)). The
-sweep reads `textContent`, so the `display: none` desktop rail is swept too.
-
-Exemptions: none - every default string is banned, and none ships in the
-rendered document. Two readings are recorded rather than exempted:
-
-- `deleteConversation` is a function label, not a string; the sweep bans its
-  output prefix `Delete conversation:` (the function applied to the empty
-  string, trimmed)
-  ([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L46)).
-- Eight keys never render in the swept state - `noConversations`,
-  `loadingConversations` and `deleteConversation` (the list is populated,
-  never loading, and passes no `onDelete`), `thinking` and `thinkingRegion`
-  (`busy` is false during the sweep), and `copied`, `copiedNotice` and
-  `feedbackNotice` (no copy or feedback click precedes the capture) - so for
-  those the sweep proves absence, not substitution. The Danish catalogue
-  still overrides all of them, and the catalogue's type is the full
-  `ChatMessageListLabels`, so a key missing from the override is a compile
-  error rather than an English fallback
-  ([validated by](../../examples/chat-demo/src/labels.ts#L35)).
+The original suite swept the rendered document to prove no English default
+label string survived under the Danish catalogue - the end-to-end proof of
+the label-substitution mechanism. The English-only re-theme removed that
+sweep along with the Danish catalogue: the demo now renders the library's
+own English defaults on purpose, so absence-of-defaults is no longer a
+meaningful assertion. Label substitution itself remains covered by the
+library's jsdom suites (`tests/labelled-exports.test.tsx` and the
+per-component label tests), which render non-default catalogues against
+every labelled export.
 
 ### EU AI Act
 
-The resolved Danish `aiDisclosure` is visible by exact text with entries
-present ([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L225))
+The resolved `aiDisclosure` is visible by exact text with entries
+present ([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L181))
 and in the empty state
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L241)). The
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L197)). The
 obligation applies regardless of server location because the agent serves EU
 users. The disclosure sits outside the scrollable region - it is not a
 descendant of the `role="log"` region
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L228)) and
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L184)) and
 stays in the viewport with the transcript scrolled to either end
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L233)).
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L189)).
 
 ### Mobile drawer focus trap
 
 At a 375x667 viewport the drawer starts closed
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L280)), the
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L220)), the
 hamburger opens it
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L283)),
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L223)),
 `Tab` from the last focusable element inside it returns to the first
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L289)), and
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L229)), and
 `Escape` closes it and returns focus to the hamburger
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L292)) - the
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L232)) - the
 first execution of the focus trap where `offsetParent` is a real value rather
 than the jsdom shim.
 

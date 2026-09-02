@@ -99,7 +99,7 @@ lines) passes unchanged in meaning: no label → `aria-hidden="true"` and no
 [L202](../../tests/icons.test.tsx#L219),
 [L213](../../tests/icons.test.tsx#L230)). The
 `getAttribute`-based class assertions work around `SVGAnimatedString`
-([validated by](../../tests/icons.test.tsx#L252),
+([validated by](../../tests/icons.test.tsx#L253),
 [L282](../../tests/icons.test.tsx#L299)).
 
 `strokeWidth` defaults to `2` and reaches both the `<svg>` and the `<path>`

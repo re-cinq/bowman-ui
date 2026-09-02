@@ -42,7 +42,7 @@ it("defaultMarkdownPolicy is the https/mailto/tel, no-relative, new-tab, no-imag
 describe("the scheme allowlist", () => {
   it.each([
     "https://tms.example/booking/42",
-    "mailto:support@havkat-rejser.invalid",
+    "mailto:support@marginalia-books.invalid",
     "tel:+4570123456",
   ])("renders an anchor with the exact href %s", (destination) => {
     const { container } = renderMarkdown(`[4711](${destination})`);
@@ -120,7 +120,7 @@ describe("relative URLs", () => {
 describe("anchor attributes", () => {
   it('every rendered anchor carries rel="noopener noreferrer" and target="_blank"', () => {
     const { container } = renderMarkdown(
-      "[a](https://tms.example/x) [b](mailto:support@havkat-rejser.invalid) [c](tel:+4570123456)"
+      "[a](https://tms.example/x) [b](mailto:support@marginalia-books.invalid) [c](tel:+4570123456)"
     );
 
     const anchors = container.querySelectorAll("a");
@@ -187,7 +187,7 @@ describe("anchor attributes", () => {
 
 describe("remark-gfm autolink literals", () => {
   it("a bare https URL autolinks with the rel pair and the notice", () => {
-    const { container } = renderMarkdown("Se https://tms.example/x i dag");
+    const { container } = renderMarkdown("Mira https://tms.example/x hoy");
 
     const anchor = container.querySelector("a");
     expect(anchor).toHaveAttribute("href", "https://tms.example/x");
@@ -196,28 +196,28 @@ describe("remark-gfm autolink literals", () => {
   });
 
   it("a bare email autolinks to a mailto anchor", () => {
-    const { container } = renderMarkdown("Skriv til support@havkat-rejser.invalid");
+    const { container } = renderMarkdown("Write to support@marginalia-books.invalid");
 
     expect(container.querySelector("a")).toHaveAttribute(
       "href",
-      "mailto:support@havkat-rejser.invalid"
+      "mailto:support@marginalia-books.invalid"
     );
   });
 
   it("a bare www autolink is an http URL, so the default policy renders it as text", () => {
-    const { container } = renderMarkdown("Se www.havkat-rejser.invalid");
+    const { container } = renderMarkdown("See www.marginalia-books.invalid");
 
     expect(container.querySelector("a")).toBeNull();
-    expect(screen.getByText("www.havkat-rejser.invalid").tagName).toBe("SPAN");
+    expect(screen.getByText("www.marginalia-books.invalid").tagName).toBe("SPAN");
   });
 
   it('a bare www autolink renders an anchor with the rel pair and the notice under allowedSchemes ["https", "http"]', () => {
-    const { container } = renderMarkdown("Se www.havkat-rejser.invalid", {
+    const { container } = renderMarkdown("See www.marginalia-books.invalid", {
       allowedSchemes: ["https", "http"],
     });
 
     const anchor = container.querySelector("a");
-    expect(anchor).toHaveAttribute("href", "http://www.havkat-rejser.invalid");
+    expect(anchor).toHaveAttribute("href", "http://www.marginalia-books.invalid");
     expect(anchor).toHaveAttribute("rel", "noopener noreferrer");
     expect(anchor?.querySelector(".bowman-sr-only")?.textContent).toBe("(opens in a new tab)");
   });
@@ -255,7 +255,7 @@ describe("the image gate", () => {
 describe("GDPR: no network request from model-authored content", () => {
   it("the default policy renders zero img, zero preload links and zero src attributes for a fixture with an image, an autolink and a markdown link", () => {
     const fixture =
-      "![alt](https://host/p.png)\n\nSe https://tms.example/x og [4711](https://tms.example/y)";
+      "![alt](https://host/p.png)\n\nMira https://tms.example/x y [4711](https://tms.example/y)";
     const { container } = renderMarkdown(fixture);
 
     expect(container.querySelectorAll("img")).toHaveLength(0);
@@ -291,7 +291,7 @@ describe("the markdown sources (grep acceptance criteria)", () => {
 
 describe("review hardening (076 diff review)", () => {
   it("a gfm footnote reference keeps its id and aria attributes on the policy's span", () => {
-    const { container } = renderMarkdown("Se noten[^1]\n\n[^1]: en note");
+    const { container } = renderMarkdown("Mira la nota[^1]\n\n[^1]: una nota");
 
     expect(container.querySelector("a")).toBeNull();
     const reference = container.querySelector("sup > span");
@@ -346,8 +346,8 @@ describe("an authority-less special scheme is not a way around allowRelativeUrls
     const transform = createUrlTransform();
 
     expect([
-      transform("mailto:support@havkat-rejser.invalid"),
+      transform("mailto:support@marginalia-books.invalid"),
       transform("tel:+4570123456"),
-    ]).toEqual(["mailto:support@havkat-rejser.invalid", "tel:+4570123456"]);
+    ]).toEqual(["mailto:support@marginalia-books.invalid", "tel:+4570123456"]);
   });
 });

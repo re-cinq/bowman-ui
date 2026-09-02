@@ -20,13 +20,13 @@ changes.
 `arrowKeyFeedback`, `markdown`, `onCopy`, `onFeedback` and `assistantAvatar`
 forwarded to every `ChatMessage` unchanged, so their defaults stay
 `ChatMessage`'s own
-([validated by](../../tests/ChatMessageList.test.tsx#L231),
-[markdown](../../tests/ChatMessageList.test.tsx#L259),
-[avatar](../../tests/ChatMessageList.test.tsx#L277)). Entries render in
+([validated by](../../tests/ChatMessageList.test.tsx#L234),
+[markdown](../../tests/ChatMessageList.test.tsx#L262),
+[avatar](../../tests/ChatMessageList.test.tsx#L280)). Entries render in
 order, keyed by `entry.id` - a reorder moves the same DOM nodes - and a
 copy on the second message reports that entry's id through `onCopy`
 ([validated by](../../tests/ChatMessageList.test.tsx#L209),
-[keys](../../tests/ChatMessageList.test.tsx#L292)). Twenty fields in
+[keys](../../tests/ChatMessageList.test.tsx#L295)). Twenty fields in
 total: `specs/bowman-ui-tool-activity/spec.md` adds the four tool-entry
 props `describeTool`, `showToolName`, `showToolInput` and `toolIcon`,
 forwarded to every `ToolActivity` the same way,
@@ -61,7 +61,7 @@ first component whose `labels` prop is itself **required**:
 CONTRACT.md § Labels records the exception. Omitting `aiDisclosure` is a
 compile error, pinned from outside by an `@ts-expect-error` fixture, and the
 defaults object cannot satisfy `Readonly<Required<ChatMessageListLabels>>`
-([validated by](../../tests/types/chat-message-list-type-assertions.tsx#L85),
+([validated by](../../tests/types/chat-message-list-type-assertions.tsx#L88),
 [no-default](../../tests/types/chat-message-list-type-assertions.tsx#L52),
 compiled by
 [chat-message-list-dist](../../tests/chat-message-list-dist.test.ts#L110)).
@@ -88,32 +88,32 @@ default ([validated by](../../tests/ChatMessageList.test.tsx#L188)).
    Pinning is tracked on the region's `scroll` event as
    `scrollHeight - scrollTop - clientHeight <= 32`; scrolling away opts out
    until a scroll event returns the reader to the bottom
-   ([validated by](../../tests/ChatMessageList.test.tsx#L608),
-   [L353](../../tests/ChatMessageList.test.tsx#L625),
-   [append while pinned](../../tests/ChatMessageList.test.tsx#L592)), and
+   ([validated by](../../tests/ChatMessageList.test.tsx#L614),
+   [L353](../../tests/ChatMessageList.test.tsx#L631),
+   [append while pinned](../../tests/ChatMessageList.test.tsx#L598)), and
    the 32px threshold is pinned at both sides of the boundary
-   ([validated by](../../tests/ChatMessageList.test.tsx#L729)). One
+   ([validated by](../../tests/ChatMessageList.test.tsx#L735)). One
    exception keeps the feature alive in real browsers: a smooth animation
    this component started fires downward scroll events of its own, and
    those do not unpin - reaching the bottom, or any upward reader-initiated
    movement, settles the flight
-   ([validated by](../../tests/ChatMessageList.test.tsx#L755)). Mount
+   ([validated by](../../tests/ChatMessageList.test.tsx#L761)). Mount
    always scrolls to the latest message unconditionally, instant, before
    any scroll event
-   ([validated by](../../tests/ChatMessageList.test.tsx#L688)).
+   ([validated by](../../tests/ChatMessageList.test.tsx#L694)).
 3. **Smooth on append, instant on delta, always instant under reduced
    motion.** `behavior: "smooth"` when `entries.length` grew, `"auto"` when
    only content changed, and `useReducedMotion(reducedMotion)` (021's hook)
    forces `"auto"` always
-   ([validated by](../../tests/ChatMessageList.test.tsx#L644),
-   [L391](../../tests/ChatMessageList.test.tsx#L663)). A delta must arrive
+   ([validated by](../../tests/ChatMessageList.test.tsx#L650),
+   [L391](../../tests/ChatMessageList.test.tsx#L669)). A delta must arrive
    as a **new `entries` array**: the scroll effect keys on the prop's
    identity, so a reducer that mutates in place never scrolls - the shape
    every React state update produces anyway - and the inverse holds too: a
    parent that rebuilds the array on every render issues a visually-silent
    instant scroll per render while pinned. `busy` turning on while pinned
    also scrolls (instant), so the ThinkingIndicator cannot appear below the
-   fold ([validated by](../../tests/ChatMessageList.test.tsx#L699)).
+   fold ([validated by](../../tests/ChatMessageList.test.tsx#L705)).
 4. **`scrollTo` with a `scrollTop` fallback, never `scrollIntoView`.**
    `scrollIntoView` walks to the nearest scrollable ancestor outside this
    package's control. The fallback (`node.scrollTop = node.scrollHeight`
@@ -121,34 +121,34 @@ default ([validated by](../../tests/ChatMessageList.test.tsx#L188)).
    layout and implements neither method - which is also why the test
    geometry (`scrollHeight`, `clientHeight`) and the `scrollTo` spy are
    stubs installed by the tests
-   ([validated by](../../tests/ChatMessageList.test.tsx#L714)).
+   ([validated by](../../tests/ChatMessageList.test.tsx#L720)).
 5. **The handle is the consumer's escape hatch.**
    `scrollToBottom()` scrolls even while unpinned and re-pins, so the next
    change follows again - the primitive for a consumer's own "jump to
    latest" control - and respects reduced motion
-   ([validated by](../../tests/ChatMessageList.test.tsx#L815),
-   [L574](../../tests/ChatMessageList.test.tsx#L846)).
+   ([validated by](../../tests/ChatMessageList.test.tsx#L821),
+   [L574](../../tests/ChatMessageList.test.tsx#L852)).
    `isPinnedToBottom()` measures the live geometry rather than replaying
    the last scroll event
-   ([validated by](../../tests/ChatMessageList.test.tsx#L794)) - which
+   ([validated by](../../tests/ChatMessageList.test.tsx#L800)) - which
    means it reports the truth at call time and can disagree with the
    event-tracked gate until the next scroll event (a resize or zoom moves
    geometry without firing one); the predicate describes the region, not
    the component's next scheduling decision. A handle retained past
    unmount is a no-op, not a crash
-   ([validated by](../../tests/ChatMessageList.test.tsx#L866)).
+   ([validated by](../../tests/ChatMessageList.test.tsx#L872)).
 6. **The transcript is `role="log"` with `aria-live="off"`.** The role's
    implicit `aria-live="polite"` would have a screen reader announce every
    streamed token; the resolved `transcript` label is the region's
    accessible name
-   ([validated by](../../tests/ChatMessageList.test.tsx#L885)).
+   ([validated by](../../tests/ChatMessageList.test.tsx#L891)).
    `ThinkingIndicator`'s own `role="status"` subtree is the one
    announcement worth making, and it now carries an **explicit**
    `aria-live="polite"` (a one-attribute amendment to
    `src/components/ThinkingIndicator.tsx`, the ARIA-canonical spelling of
    the role's implicit value) so the override is queryable as an attribute:
    `[aria-live="polite"]` inside the region matches exactly when `busy` is
-   true ([validated by](../../tests/ChatMessageList.test.tsx#L899),
+   true ([validated by](../../tests/ChatMessageList.test.tsx#L905),
    [pinned in its own suite](../../tests/ThinkingIndicator.test.tsx#L144)).
    Nothing announces that a streamed answer has finished; that needs a real
    assistive-technology check and is tracked as a Phase 3 task, not here.
@@ -166,9 +166,9 @@ default ([validated by](../../tests/ChatMessageList.test.tsx#L188)).
 8. **`busy` renders exactly one `ThinkingIndicator`, after the last
    entry**, forwarding `assistantAvatar` and the `thinking`/`thinkingRegion`
    slices; `busy` false renders none
-   ([validated by](../../tests/ChatMessageList.test.tsx#L424),
-   [L298](../../tests/ChatMessageList.test.tsx#L438),
-   [L304](../../tests/ChatMessageList.test.tsx#L444)). When to set `busy`
+   ([validated by](../../tests/ChatMessageList.test.tsx#L427),
+   [L298](../../tests/ChatMessageList.test.tsx#L441),
+   [L304](../../tests/ChatMessageList.test.tsx#L447)). When to set `busy`
    is data-layer state the consumer computes.
 9. **The container does not own the composer.** A `composer` slot was
    considered and rejected: it would make this a two-deliverable
@@ -188,12 +188,12 @@ list.
 
 - No `@clerk`, `swr`, `next-intl`, `next/`, `@discovery`, `@/` or
   `lucide-react` import, and every relative import ends in `.js`
-  ([validated by](../../tests/ChatMessageList.test.tsx#L918)).
+  ([validated by](../../tests/ChatMessageList.test.tsx#L924)).
 - **GDPR.** The rendered entries are customer questions carrying booking
   identifiers and names (`003-support-conversation-data-flow-record`). The
   source references no `console.`, `localStorage`, `sessionStorage`,
   `fetch`, `sendBeacon` - nor `scrollIntoView`
-  ([validated by](../../tests/ChatMessageList.test.tsx#L927)); the
+  ([validated by](../../tests/ChatMessageList.test.tsx#L933)); the
   suite-wide console and network traps in `tests/setup.ts` hold every test
   of this component to zero calls.
 - `dist/components/ChatMessageList.js` opens with `"use client";` as its

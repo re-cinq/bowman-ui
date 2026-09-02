@@ -1,11 +1,9 @@
 // The documentation view's page chrome - navigation, headings, table column
-// names. Unlike every other label in this demo, it does not follow
-// VITE_DEMO_LOCALE: the docs describe an English API and are developer-facing,
-// not a demonstration of the locale switch, so they stay English regardless
-// of which catalogue the chat screen is using.
+// names. The docs describe an English API and are developer-facing, so they
+// are English like the rest of the demo.
 //
 // This is the docs view's only label source. Docs components import
-// `docsLabels` from here directly, never through `activeLabels.ts`.
+// `docsLabels` from here directly, never through `labels.ts`.
 
 export interface DocsLabels {
   title: string;
@@ -37,7 +35,7 @@ export interface DocsLabels {
 export const docsLabels: DocsLabels = {
   title: "Component documentation",
   intro:
-    "Every public component of @re-cinq/bowman-ui with its purpose, its import, a running example, its props and its labels. This documentation view is always in English, regardless of VITE_DEMO_LOCALE.",
+    "Every public component of @re-cinq/bowman-ui with its purpose, its import, a running example, its props and its labels.",
   components: "Components",
   overview: "Hooks, markdown and types",
   backToIndex: "Back to the index",

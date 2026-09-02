@@ -199,7 +199,7 @@ describe("ChatComposer", () => {
       const handle = ref.current;
       unmount();
 
-      expect(() => handle?.setValue("Vis booking 4711")).not.toThrow();
+      expect(() => handle?.setValue("Ver pedido 4711")).not.toThrow();
     });
 
     it("focus() makes the textarea document.activeElement", () => {
@@ -226,7 +226,7 @@ describe("ChatComposer", () => {
       render(<ChatComposer onSubmit={vi.fn()} />);
       stubScrollHeight(textareaOf(), 320);
 
-      typeDraft("en meget lang besked");
+      typeDraft("un mensaje muy largo");
 
       expect(textareaOf().style.height).toBe("200px");
     });
@@ -235,7 +235,7 @@ describe("ChatComposer", () => {
       render(<ChatComposer onSubmit={vi.fn()} maxHeightPx={400} />);
       stubScrollHeight(textareaOf(), 320);
 
-      typeDraft("en meget lang besked");
+      typeDraft("un mensaje muy largo");
 
       expect(textareaOf().style.height).toBe("320px");
     });
@@ -285,17 +285,17 @@ describe("ChatComposer", () => {
   });
 
   describe("accessible names", () => {
-    it('the textarea\'s accessible name is the resolved composerInput label, distinct from the "Svar..." placeholder', () => {
+    it('the textarea\'s accessible name is the resolved composerInput label, distinct from the "Responder..." placeholder', () => {
       render(
         <ChatComposer
           onSubmit={vi.fn()}
-          labels={{ composerInput: "Din besked", composerPlaceholder: "Svar..." }}
+          labels={{ composerInput: "Tu mensaje", composerPlaceholder: "Responder..." }}
         />
       );
 
-      expect(screen.getByRole("textbox", { name: "Din besked" })).toHaveAttribute(
+      expect(screen.getByRole("textbox", { name: "Tu mensaje" })).toHaveAttribute(
         "placeholder",
-        "Svar..."
+        "Responder..."
       );
     });
 

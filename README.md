@@ -40,7 +40,7 @@ Tailwind CSS v4 is required: the stylesheet ships only what Tailwind cannot gene
 
 ## Worked consumer
 
-`examples/chat-demo` is the worked consumer: a standalone Vite app that installs this package from a freshly packed tarball (never the source tree, never the registry) and composes `AppShell`, `AppSidebar`, `ConversationList`, `ChatMessageList`, `ChatComposer` and `Toast` into a full Danish chat screen, verified by a real-Chromium Playwright suite. One command builds the package, packs it, installs the tarball into a temp copy outside the repo tree and runs the whole proof:
+`examples/chat-demo` is the worked consumer: a standalone Vite app that installs this package from a freshly packed tarball (never the source tree, never the registry) and composes `AppShell`, `AppSidebar`, `ConversationList`, `ChatMessageList`, `ChatComposer` and `Toast` into a full chat screen, verified by a real-Chromium Playwright suite. One command builds the package, packs it, installs the tarball into a temp copy outside the repo tree and runs the whole proof:
 
 ```sh
 npm run consumer
@@ -141,7 +141,7 @@ On a phone the sidebar becomes a focus-trapped drawer behind the hamburger. It o
 
 Each labelled component takes `labels?: Partial<XLabels>`, shallow-merged per key over complete English defaults (`defaultChatComposerLabels`, `defaultConversationListLabels`, ...); three deliberate exceptions carry their strings as plain props instead (`Toast`'s `message`, the icons' `ariaLabel`, `useFocusGroups`' `announce` - [CONTRACT.md](./CONTRACT.md) § Labels). A label that interpolates a value is a function - `deleteConversation: (title: string) => string` - never a template string with placeholders, so word order and plural rules stay with whoever writes the string.
 
-Translating the package to another language therefore means supplying your reviewed catalogue through those props. bowman-ui ships no locale files and no i18n runtime on purpose (see [CONTRACT.md](./CONTRACT.md) § Labels): the consumer app is the only place the copy can be reviewed. A full catalogue is a typed object handed over as slices - the label types are exported, so a missing key is a compile error, and the wording below is illustrative, not reviewed Danish:
+Translating the package to another language therefore means supplying your reviewed catalogue through those props. bowman-ui ships no locale files and no i18n runtime on purpose (see [CONTRACT.md](./CONTRACT.md) § Labels): the consumer app is the only place the copy can be reviewed. A full catalogue is a typed object handed over as slices - the label types are exported, so a missing key is a compile error. The Spanish wording below is illustrative, not a reviewed translation (the demo app itself ships English-only; a real catalogue belongs to the consumer app that can review it):
 
 ```tsx
 import {
@@ -153,15 +153,15 @@ import {
 
 const catalogue: { composer: ChatComposerLabels; conversationList: ConversationListLabels } = {
   composer: {
-    composerInput: "Din besked",
-    composerPlaceholder: "Svar...",
-    send: "Send besked",
+    composerInput: "Tu mensaje",
+    composerPlaceholder: "Responder...",
+    send: "Enviar mensaje",
   },
   conversationList: {
-    conversations: "Samtaler",
-    noConversations: "Ingen samtaler endnu",
-    loadingConversations: "Indlæser samtaler",
-    deleteConversation: (title) => `Slet samtale: ${title}`,
+    conversations: "Conversaciones",
+    noConversations: "Aún no hay conversaciones",
+    loadingConversations: "Cargando conversaciones",
+    deleteConversation: (title) => `Eliminar la conversación: ${title}`,
   },
 };
 

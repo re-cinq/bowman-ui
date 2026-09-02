@@ -36,7 +36,7 @@ public-API snapshot records it. The built shape is asserted member by member
 type export by name
 ([validated by](../../tests/chat-message-list-dist.test.ts#L46)), and a fourth
 member is a compile error from outside the package
-([validated by](../../tests/types/chat-message-list-type-assertions.tsx#L40)).
+([validated by](../../tests/types/chat-message-list-type-assertions.tsx#L39)).
 
 Deviation from the issue's wording, recorded rather than papered over: the
 criterion asks for a test that "greps `dist/index.d.ts` and fails on any third
@@ -67,7 +67,7 @@ gains exactly one prop, `assistantName?: string`.
    `tests/types/chat-message-list-type-assertions.tsx` compiles the same shape
    against `dist/`
    ([validated by](../../tests/types/chat-message-list-type-assertions.tsx#L35),
-   [the prop](../../tests/types/chat-message-list-type-assertions.tsx#L91),
+   [the prop](../../tests/types/chat-message-list-type-assertions.tsx#L95),
    compiled by
    [chat-message-list-dist](../../tests/chat-message-list-dist.test.ts#L110)).
 2. **The list resolves, the message renders.** `ChatMessageList` performs the
@@ -78,26 +78,26 @@ gains exactly one prop, `assistantName?: string`.
    `assistantName={resolved?.name}` down. `ChatMessage` knows nothing about
    personas: it takes a name and renders it. Two personas render two names and
    two faces in one conversation
-   ([validated by](../../tests/ChatMessageList.test.tsx#L470)); a persona that
+   ([validated by](../../tests/ChatMessageList.test.tsx#L473)); a persona that
    resolves to a name but no avatar keeps the default face
-   ([validated by](../../tests/ChatMessageList.test.tsx#L575)).
+   ([validated by](../../tests/ChatMessageList.test.tsx#L578)).
 3. **An unknown id falls back and is never rendered.** A persisted or replayed
    session can name a persona the consumer has since retired, so an id absent
    from the table resolves to the default `assistantAvatar` with no name, and
    the raw id appears nowhere in `container.innerHTML`
-   ([validated by](../../tests/ChatMessageList.test.tsx#L492)).
+   ([validated by](../../tests/ChatMessageList.test.tsx#L495)).
 4. **The prop is inert for every existing consumer.** With `attribution`
    supplied and no entry carrying a `persona`, the render is byte-identical to
    the same render with the prop omitted; entries carrying a `persona` with
    `attribution` omitted are byte-identical to the same entries without one.
    Both are asserted as `innerHTML` equality, not as a spot check
-   ([validated by](../../tests/ChatMessageList.test.tsx#L509),
-   [persona without a table](../../tests/ChatMessageList.test.tsx#L525)).
+   ([validated by](../../tests/ChatMessageList.test.tsx#L512),
+   [persona without a table](../../tests/ChatMessageList.test.tsx#L528)).
 5. **The `busy` tail keeps the default avatar.** No entry - and therefore no
    persona - exists at the point the thinking indicator renders, so the tail
    takes `assistantAvatar` unchanged even when the last entry carries a
    persona with a matching table row
-   ([validated by](../../tests/ChatMessageList.test.tsx#L544)).
+   ([validated by](../../tests/ChatMessageList.test.tsx#L547)).
 6. **No "hide names until there are two personas" logic.** A consumer that
    wants no names omits the map. The package counts nothing and infers
    nothing.
@@ -105,13 +105,13 @@ gains exactly one prop, `assistantName?: string`.
    avatar is decorative chrome, so with `assistantName` set the article's
    accessible name becomes `assistantMessageFrom(name)` instead of the default
    `"Assistant response"`
-   ([validated by](../../tests/ChatMessage.test.tsx#L495),
-   [with an avatar supplied](../../tests/ChatMessage.test.tsx#L545)). Without
+   ([validated by](../../tests/ChatMessage.test.tsx#L496),
+   [with an avatar supplied](../../tests/ChatMessage.test.tsx#L548)). Without
    the prop, `023`'s assertion is unchanged - `"Assistant response"` exactly -
    and exactly one element fewer renders
-   ([validated by](../../tests/ChatMessage.test.tsx#L502)). `assistantName`
+   ([validated by](../../tests/ChatMessage.test.tsx#L505)). `assistantName`
    passed with a `UserChatEntry` renders no name and leaves the user article's
-   label alone ([validated by](../../tests/ChatMessage.test.tsx#L536)).
+   label alone ([validated by](../../tests/ChatMessage.test.tsx#L539)).
 
 ## The label
 
@@ -120,13 +120,13 @@ default `` (name) => `Response from ${name}` `` - the function form
 CONTRACT.md § Labels decision 4 requires of any interpolated label, never a
 template string with placeholders. `defaultChatMessageLabels` still typechecks
 as `Readonly<Required<ChatMessageLabels>>`
-([validated by](../../tests/types/chat-message-type-assertions.tsx#L48),
-[the override](../../tests/types/chat-message-type-assertions.tsx#L49)), the
+([validated by](../../tests/types/chat-message-type-assertions.tsx#L45),
+[the override](../../tests/types/chat-message-type-assertions.tsx#L48)), the
 default is a function of one string
-([validated by](../../tests/ChatMessage.test.tsx#L529)), and a supplied
-`assistantMessageFrom` returning `"Svar fra " + name` produces
-`"Svar fra Økonomi"`
-([validated by](../../tests/ChatMessage.test.tsx#L516)).
+([validated by](../../tests/ChatMessage.test.tsx#L532)), and a supplied
+`assistantMessageFrom` returning `"Respuesta de " + name` produces
+`"Respuesta de Facturación"`
+([validated by](../../tests/ChatMessage.test.tsx#L519)).
 
 `resolveLabels` needed no change: it is generic over `object` and copies a
 function value by reference like any other. The `no-restricted-syntax` labels
@@ -174,11 +174,11 @@ module-scope `attribution` literal whose one row carries an element-valued
 That is the counterpart to the compose page's measured rejection: an object
 literal crosses the boundary where a closure does not, and `next build` passes
 with the map in place. The fixture data stays invented (`078`'s GDPR rule):
-the persona id is `"fixture-persona"` and the name `"Økonomi"` - no OLT
+the persona id is `"fixture-persona"` and the name `"Billing"` - no OLT
 customer data, no real persona registry.
 
 Observed while verifying, recorded rather than dressed up: the prerendered
-`/` response carries `aria-label="Response from Økonomi"` and the visible name
+`/` response carries `aria-label="Response from Billing"` and the visible name
 line, and it also carries the string `fixture-persona` inside the RSC flight
 payload - the serialized props of the client component, which include the
 entries themselves. That is prop serialization, not rendered chrome; decision
@@ -197,13 +197,13 @@ system under Article 50(1) of the EU AI Act - a human first name and a face
 make the disclosure more necessary, not less - and points at
 `062-support-agent-ai-disclosure`. A render whose attribution supplies a human
 first name still shows `028`'s resolved `aiDisclosure`, and no prop removes it
-([validated by](../../tests/ChatMessageList.test.tsx#L561)).
+([validated by](../../tests/ChatMessageList.test.tsx#L564)).
 
 Zero retention holds by source grep and by the suite-wide spy: neither changed
 component calls `console.*`, `localStorage`, `sessionStorage`, `fetch` or
 `navigator.sendBeacon`
-([validated by](../../tests/ChatMessage.test.tsx#L693),
-[the list](../../tests/ChatMessageList.test.tsx#L927)), and `tests/setup.ts`
+([validated by](../../tests/ChatMessage.test.tsx#L696),
+[the list](../../tests/ChatMessageList.test.tsx#L933)), and `tests/setup.ts`
 fails any test whose render touched the console or the network.
 
 ## Gates
@@ -213,9 +213,9 @@ fails any test whose render touched the console or the network.
   (100/100/100/90 over `src/**`) holds unchanged.
 - `examples/chat-demo/src/labels.ts` supplies a complete
   `ChatMessageListLabels` object, so the new key had to be added there in the
-  same change or the `consumer` CI job's typecheck would fail (TS2739). It
-  reads `(name) => \`Svar fra ${name}\``, matching the demo's illustrative
-  Danish register.
+  same change or the `consumer` CI job's typecheck would fail (TS2739). (The
+  English-only re-theme has since collapsed that catalogue onto the library
+  defaults, which satisfy the same completeness requirement.)
 - The icon set's `020` guard - "the registry-lookup `{name: string}`
   `IconProps` shape is absent from `src/`" - was a substring sweep for
   `name: string` anywhere under `src/`, which `ChatAttribution.name` and the
