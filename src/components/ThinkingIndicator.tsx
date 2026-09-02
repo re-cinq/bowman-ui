@@ -22,8 +22,8 @@ export interface ThinkingIndicatorProps {
   labels?: Partial<ThinkingIndicatorLabels>;
 }
 
-// The block loading indicator shown while waiting for a response, lifted from
-// the source app's ThinkingIndicator.tsx:13-38. The circle is always
+// The block loading indicator shown while waiting for a response. The
+// circle is always
 // aria-hidden - an announced avatar inside a role="status" region would just
 // be noise - and always pulses, since this component is itself the loading
 // state.

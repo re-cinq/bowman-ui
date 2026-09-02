@@ -79,9 +79,7 @@ The capture script lives under `scripts/`, not `tests/`, so Playwright's
 on every push to `main`, so the documentation at `/` (the published landing)
 and the chat fixture at `?view=chat` are reachable without checking the
 repository out. The demo is English-only, so the published chat and every
-local run render the same catalogue. (`pages.yml` still exports
-`VITE_DEMO_LOCALE=en` from the era of the build-time locale switch; nothing
-reads the variable any more.)
+local run render the same catalogue.
 
 This is a static build with no backend: the chat's replies are canned fixtures
 grown by `setTimeout` (`src/streaming.ts`), never a model call. A note on the

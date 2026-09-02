@@ -3,13 +3,12 @@
 Issue: issue 74 (`024-bowman-ui-thinking-indicator`)
 
 `ThinkingIndicator` is the block loading indicator shown while waiting for a
-response - a pulsing avatar circle, the word "Thinking", three fading dots -
-lifted from the source app's `ThinkingIndicator.tsx:13-38`, the only
-extraction target with a live production path (both Discovery chat pages
-render it behind `!isStreaming`). `src/components/ThinkingDots.tsx` is the
+response - a pulsing avatar circle, the word "Thinking", three fading
+dots - rendered by a consumer behind its `!isStreaming`
+gate. `src/components/ThinkingDots.tsx` is the
 three delayed dots, shared with `InlineThinkingIndicator` so the animation
 timing cannot drift between the two forms; `InlineThinkingIndicator` is
-refactored onto it with no behavior change. No file in `discovery` changes.
+refactored onto it with no behavior change.
 
 ## The public surface
 
@@ -89,9 +88,9 @@ and `"./styles.css"`, so no consumer can deep-import the private component
 
 ## The 015 characterization suite, substituted
 
-The issue asks to port 015's characterization block; that suite was never
-built (issue 9), so - as with every prior extraction - equivalent tests are
-written here from the behaviors the acceptance criteria pin: the default and
+No prior characterization suite existed for this surface (issue 9), so the
+tests are
+written from the behaviors the acceptance criteria pin: the default and
 overridden labels, the `role="status"` semantics, the dot count, order,
 delays and class, the empty avatar circle, and the unconditional
 `aria-hidden`/pulse (`tests/ThinkingIndicator.test.tsx`;
@@ -121,15 +120,15 @@ shipped layout since 022
   - The `thinkingRegion` sentinel lands in `aria-label`, one of the seven
     checked attributes
     ([validated by](../../tests/labelled-exports.test.tsx#L430)).
-- No `@clerk`, `swr`, `next-intl`, `next/`, `@discovery` or `@/` import in
+- No `@clerk`, `swr`, `next-intl`, `next/` or `@/` import in
   either new file, and every relative import ends in `.js`
-  ([validated by](../../tests/ThinkingIndicator.test.tsx#L107)).
+  ([validated by](../../tests/ThinkingIndicator.test.tsx#L109)).
 - Both new files carry `"use client"` as the first statement of their `dist/`
   output, per 018 decision 1's positional check and
   `scripts/check-client-directives.mjs`
   ([validated by](../../tests/thinking-indicator-dist.test.ts#L30)).
-- Neither file references a client-only API today; CONTRACT.md decision 1's
-  recorded exception ([CONTRACT.md](../../CONTRACT.md#L31), amended in this
+- Neither file references a client-only API today; docs/design-notes.md decision 1's
+  recorded exception ([docs/design-notes.md](../../docs/design-notes.md#L31), amended in this
   issue) covers the chat surface's presentational components and the private
   subcomponents they compose, extending 023's shipped `InlineThinkingIndicator`
   precedent ([validated by](../../tests/thinking-indicator-dist.test.ts#L30)).

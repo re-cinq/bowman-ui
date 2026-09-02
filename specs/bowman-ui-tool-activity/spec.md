@@ -36,7 +36,7 @@ the convention's `resolveLabels`
    ([validated by](../../tests/ToolActivity.test.tsx#L49)); both default off.
    Whether a consumer may flip either is
    `003-support-conversation-data-flow-record`'s call, recorded in
-   CONTRACT.md § Tool activity.
+   docs/design-notes.md § Tool activity.
 2. **`describeTool` is the caller's sentence.** When present it replaces the
    `activity`/`activityDone` line with caller-authored copy and does not
    suppress `showToolName`

@@ -17,7 +17,7 @@ const headerCellClassName =
   "border-b border-slate-200 px-3 py-2 text-left font-medium dark:border-slate-800";
 const cellClassName = "border-b border-slate-100 px-3 py-2 align-top dark:border-slate-900";
 
-// An interpolated label is a function by convention (CONTRACT.md § Labels), so
+// An interpolated label is a function by convention (docs/design-notes.md § Labels), so
 // the table shows what it produces rather than "function".
 const labelSample = (value: LabelValue): string => {
   if (typeof value === "function") {

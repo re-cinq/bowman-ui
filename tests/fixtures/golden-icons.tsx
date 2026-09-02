@@ -1,12 +1,12 @@
 /**
- * Pre-move icon implementations, the equivalence oracle for tests/icons.test.tsx.
+ * Golden-master snapshot of the 23 icon implementations, the equivalence
+ * oracle for tests/icons.test.tsx.
  *
- * Verbatim copies of the 23 shipped icon functions (LogoIcon excluded on
- * purpose) from Discovery main at 1aa3647fa5f75997ceea6bdc11f3fa66cea79b29,
- * apps/web/components/icons/index.tsx, together with private copies of
- * getAccessibleIconProps and createSvgProps from the same commit. Only the
- * props type name differs (the module-private BaseIconProps, inlined here);
- * every <svg>, attribute and path d string is byte-identical to the source.
+ * Frozen straight-line copies of the 23 shipped icon functions, together
+ * with private copies of getAccessibleIconProps and createSvgProps, written
+ * without the createUniformIcon factory so the factory's output can be
+ * proven against an implementation that never shares its code path. Every
+ * <svg>, attribute and path d string is pinned byte-for-byte.
  * Do not "modernise" this file - its value is that it does NOT change when
  * src/icons does.
  */

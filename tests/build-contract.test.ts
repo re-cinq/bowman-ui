@@ -1,15 +1,14 @@
 import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
-// 014 pinned this assertion on dist/Placeholder.js, the throwaway component
-// that existed only to prove the pipeline. 022 deleted Placeholder under 014's
-// own design ("the first real extraction PR deletes them"), so the assertion
-// now targets dist/hooks/useDebounce.js - the directive-inheritance failure
-// 021 extracted, and a file that must carry "use client" forever.
+// This assertion originally targeted dist/Placeholder.js, the throwaway
+// component that existed only to prove the pipeline; Placeholder is long
+// gone, so it targets dist/hooks/useDebounce.js - the hook
+// docs/design-notes.md decision 1 records as a file that must carry
+// "use client" forever.
 const builtDirectiveFile = resolve(process.cwd(), "dist/hooks/useDebounce.js");
 
-// 014 asserted the directive on literal line 1. 018 supersedes that:
-// CONTRACT.md decision 1 requires "use client" as the first *statement*, so
+// docs/design-notes.md decision 1 requires "use client" as the first *statement*, so
 // leading comments and blank lines are allowed above it.
 const stripLeadingTrivia = (source: string): string => {
   let rest = source;

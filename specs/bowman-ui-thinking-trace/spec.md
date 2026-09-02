@@ -111,7 +111,7 @@ holding a single thinking entry with `showThinking` true still renders the
 The content is unreviewed model output that routinely restates the customer's
 question and any identifier it carried, which is why `showThinking` defaults
 `false` and why `003-support-conversation-data-flow-record` is what a consumer
-checks before turning it on. The reasoning is recorded in CONTRACT.md
+checks before turning it on. The reasoning is recorded in docs/design-notes.md
 § Thinking trace.
 
 Zero retention holds as elsewhere: `ThinkingTrace.tsx` makes no `console` call

@@ -1,8 +1,7 @@
 # bowman-ui pure hooks and ErrorBoundary
 
-Issue: issue 71 (`021-bowman-ui-pure-hooks-error-boundary`). Source: Discovery `main` at
-`1aa3647`, read-only — nothing in Discovery changed. None of the six files had a test there; every
-test here is written fresh against the extracted copy.
+Issue: issue 71 (`021-bowman-ui-pure-hooks-error-boundary`). Every test here is written
+fresh against the shipped code.
 
 ## What ships
 
@@ -14,20 +13,21 @@ exports entry for a consumer ([validated by](../../tests/hooks-dist.test.ts#L65)
 [L52](../../tests/hooks-dist.test.ts#L52),
 [L28](../../tests/hooks-dist.test.ts#L28)).
 
-- `useDebounce` — verbatim copy plus the directive it previously inherited from its importers
-  (Discovery's one genuine directive-inheritance failure). Timing pinned at the 299/301ms edges
+- `useDebounce` — carries its own `"use client"` directive rather than inheriting it from its
+  importers (the directive-inheritance failure docs/design-notes.md decision 1 records). Timing
+  pinned at the 299/301ms edges
   with restart-on-change
   ([validated by](../../tests/useDebounce.test.tsx#L19),
   [L36](../../tests/useDebounce.test.tsx#L36)).
-- `useReducedMotion(override?: boolean)` — the `process.env.NEXT_PUBLIC_FLAG_ANIMATIONS` read is
-  gone; a boolean override returns as-is without consulting `matchMedia`, and with no override
+- `useReducedMotion(override?: boolean)` — reads no `process.env`
+  flag; a boolean override returns as-is without consulting `matchMedia`, and with no override
   the hook tracks `prefers-reduced-motion: reduce` including change events and listener cleanup
   ([validated by](../../tests/useReducedMotion.test.tsx#L34),
   [L47](../../tests/useReducedMotion.test.tsx#L54),
   [L59](../../tests/useReducedMotion.test.tsx#L66),
   [L79](../../tests/useReducedMotion.test.tsx#L86)).
-- `useSidebarState(key, {storagePrefix, defaultOpen})` — the `discovery-sidebar-` literal became a
-  required `storagePrefix` with no default; the stored key is `${storagePrefix}${key}`, a stored
+- `useSidebarState(key, {storagePrefix, defaultOpen})` — `storagePrefix` is
+  required with no default; the stored key is `${storagePrefix}${key}`, a stored
   value wins over `defaultOpen`, and storage access
   that throws degrades to in-memory state instead of crashing. Omitting `storagePrefix` does not
   compile, via `tests/types/hooks-type-assertions.tsx`
@@ -71,14 +71,15 @@ exports entry for a consumer ([validated by](../../tests/hooks-dist.test.ts#L65)
   [L88](../../tests/ErrorBoundary.test.tsx#L92),
   [L100](../../tests/ErrorBoundary.test.tsx#L104)).
 
-No built file reads `process.env`, and neither `NEXT_PUBLIC_FLAG_ANIMATIONS` nor any
-`discovery`-prefixed string survives in `src/`
-([validated by](../../tests/hooks-dist.test.ts#L73)).
+No built file reads `process.env`, and no `NEXT_PUBLIC_FLAG_ANIMATIONS`
+string survives in `src/`
+([validated by](../../tests/hooks-dist.test.ts#L74)).
 
 ## Recorded decisions and limitations
 
-- **Env flag → argument.** Discovery's `useReducedMotion` read
-  `process.env.NEXT_PUBLIC_FLAG_ANIMATIONS`, which throws under any non-Next bundler. The flag
+- **Env flag → argument.** `useReducedMotion` reads no
+  `process.env.NEXT_PUBLIC_FLAG_ANIMATIONS` flag - a `process.env` read throws under
+  non-Next bundlers. The flag
   plumbing stays in the consumer; the hook takes the already-resolved boolean.
 - **Storage prefix is consumer-owned.** No default: two apps on one origin must not collide, and
   a baked-in default would silently brand the package's storage keys.

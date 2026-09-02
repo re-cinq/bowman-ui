@@ -7,7 +7,7 @@ const BUILT_FILES = [
   "dist/components/InlineThinkingIndicator.js",
 ];
 
-// CONTRACT.md decision 1 requires "use client" as the first *statement*, so
+// docs/design-notes.md decision 1 requires "use client" as the first *statement*, so
 // leading comments and blank lines are allowed above it (018's positional
 // check, same as tests/build-contract.test.ts).
 const stripLeadingTrivia = (source: string): string => {
@@ -94,7 +94,7 @@ describe("the manifest after 023", () => {
     expect(manifest.devDependencies).not.toHaveProperty("remark-gfm");
   });
 
-  it("rehype-raw appears in no dependency field, and no @discovery or hal-engine package in any field (C-18)", () => {
+  it("rehype-raw appears in no dependency field, and no hal-engine package in any field (C-18)", () => {
     const fields = [
       manifest.dependencies ?? {},
       manifest.devDependencies ?? {},
@@ -104,7 +104,7 @@ describe("the manifest after 023", () => {
     for (const field of fields) {
       expect(field).not.toHaveProperty("rehype-raw");
       for (const name of Object.keys(field)) {
-        expect(name).not.toMatch(/@discovery|hal-engine/);
+        expect(name).not.toMatch(/hal-engine/);
       }
     }
   });

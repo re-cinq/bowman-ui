@@ -26,34 +26,32 @@ keyframe names carry the `bowman-` prefix so they cannot collide with a
 consumer's own `animate-*` utilities; the issue prescribed `.bowman-fade-in`
 for the split fade and the other two follow the same convention
 ([validated by](../../tests/styles.test.ts#L28)). All rules are
-unlayered, matching how `fade-dot` and `pulse-subtle` already win in Discovery's
-`globals.css` (only `.animate-fade-in` sat inside `@layer utilities` there).
+unlayered, so they win on plain specificity without depending on a
+consumer's `@layer` order.
 
-Absent on purpose, per the issue's reference table measured against Discovery
-`main`: `pulse-icon` and `.no-scrollbar` (zero consumers -
-`grep -rn "animate-pulse-icon\|no-scrollbar" apps/web/{app,components,hooks}`
-outside `globals.css` itself returns nothing) and the ten `@theme` tokens
-(referenced nowhere outside `globals.css`). The file contains no `@theme`, no
+Absent on purpose: no `pulse-icon` keyframe, no `.no-scrollbar` utility and
+no `@theme` tokens - none has a consumer in this package. The file contains no `@theme`, no
 `@import` of any kind and no `@plugin`, so a non-Tailwind consumer can import
 it as plain CSS ([validated by](../../tests/styles.test.ts#L50)).
 
 ## The fadeIn split
 
-Discovery's `fadeIn` keyframe animates
-`translateX(-50%) translateY(10px)` - the `translateX` restates
-`Toast.tsx:21`'s own static `-translate-x-1/2` centring hack, and for the
-uncentred spans at `ChatMessage.tsx:214,248` it makes them slide half their
+A single `fadeIn` keyframe animating
+`translateX(-50%) translateY(10px)` would restate the toast's static
+`-translate-x-1/2` centring, and for the
+uncentred confirmation spans in `ChatMessage` it would make them slide half
+their
 width left and snap back. `bowman-fade-in` animates opacity and `translateY`
-only; Toast keeps its centring in its own rule when it is extracted
+only; `Toast` keeps its centring in its own dedicated rule
 ([validated by](../../tests/styles.test.ts#L57)).
 
 ## Reduced motion
 
 `@media (prefers-reduced-motion: reduce)` sets `animation: none` on all three
 utility classes, with no `data-animations` attribute in any selector
-([validated by](../../tests/styles.test.ts#L72)). The
-`NEXT_PUBLIC_FLAG_ANIMATIONS` escape hatch is Discovery plumbing and stays
-there ([validated by](../../tests/hooks-dist.test.ts#L73)).
+([validated by](../../tests/styles.test.ts#L72)). No
+`NEXT_PUBLIC_FLAG_ANIMATIONS` escape hatch exists: flag plumbing belongs to
+a consumer ([validated by](../../tests/hooks-dist.test.ts#L74)).
 
 ## The typography-plugin replacement
 
@@ -74,13 +72,6 @@ classes like `language-js` are merged rather than clobbered, and the
 [L79](../../tests/markdown-components.test.tsx#L79),
 [L87](../../tests/markdown-components.test.tsx#L87)).
 
-**Correction to the issue text**: "the one `prose` wrapper site
-(`ChatMessage.tsx:182`)" undercounts - `components/comparison/MessageList.tsx:381`
-and `components/comparison/ChatWindow.tsx:211` also carry `prose` classes on
-Discovery `main`. Only `ChatMessage` is slated for extraction, so the
-replacement decision stands unchanged; the count is recorded here so the
-comparison components' non-extraction is a known fact, not an oversight.
-
 ## Recorded decisions
 
 - **The map is typed structurally; `react-markdown` is a devDependency only.**
@@ -91,7 +82,7 @@ comparison components' non-extraction is a known fact, not an oversight.
   `react-markdown` + `remark-gfm` were added as devDependencies for the
   rendering test above and for the compile-time proof that the map is
   assignable to `react-markdown`'s `Components`.
-  **Superseded by 023:** the chat message extraction renders through
+  **Superseded by 023:** the chat message component renders through
   `react-markdown` at runtime, so 023 promoted `react-markdown` and
   `remark-gfm` from devDependencies to `dependencies` - the zero-runtime-deps
   claim above no longer holds (see `specs/bowman-ui-chat-message/spec.md`).

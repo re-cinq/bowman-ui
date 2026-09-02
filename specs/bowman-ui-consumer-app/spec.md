@@ -7,7 +7,7 @@ that installs `@re-cinq/bowman-ui` from a freshly packed tarball - never the
 source tree, never the registry
 ([validated by](../../scripts/consumer-app.sh#L93)) - and renders a full
 chat screen in a real Chromium. It proves what no jsdom test can: the
-eight extracted components in one document, compiled by a real Tailwind v4
+package's eight major components in one document, compiled by a real Tailwind v4
 build, laid out by a real browser. The whole proof is one command,
 `npm run consumer` ([validated by](../../package.json#L32)), documented in the
 README's Worked consumer section ([validated by](../../README.md#L41)).
@@ -29,17 +29,17 @@ test is always the tarball `npm pack` just produced
 ([validated by](../../scripts/consumer-app.sh#L93)). `react` and `react-dom`
 are pinned at exactly `19.2.0`
 ([validated by](../../examples/chat-demo/package.json#L14)), the version
-CONTRACT.md decision 4 records as the one CI installs and the only one tested.
+docs/design-notes.md decision 4 records as the one CI installs and the only one tested.
 Note recorded, not resolved here: the repo's own `package-lock.json` currently
-resolves `^19.2.0` to `19.2.8`, so the contract's record and the lockfile have
-drifted - a CONTRACT.md staleness, tracked in its own issue, not a reason for
+resolves `^19.2.0` to `19.2.8`, so the recorded version and the lockfile have
+drifted - a docs/design-notes.md staleness, tracked in its own issue, not a reason for
 this pin to chase the lockfile.
 
 The Tailwind dependency is `tailwindcss@4.3.3` with the matching
 `@tailwindcss/vite@4.3.3` Vite adapter
 ([validated by](../../examples/chat-demo/package.json#L19),
-[L24](../../examples/chat-demo/package.json#L24)) - the same major (v4) the
-source app pins (Discovery `apps/web` pins `tailwindcss: ^4.1.17`) and the
+[L24](../../examples/chat-demo/package.json#L24)) - the major (v4) the
+package requires of consumers, at the
 exact version this repo's own devDependencies resolve. Every demo dependency
 is an exact pin and the demo lockfile is committed, so `npm ci` installs the
 exact recorded tree ([validated by](../../scripts/consumer-app.sh#L91)). The
@@ -70,7 +70,7 @@ node, two nav items, `ConversationList` as `children` and a button in `footer`
 ([validated by](../../examples/chat-demo/src/App.tsx#L63)).
 `ChatMessageList` sits above `ChatComposer` inside the shell's `children`,
 wrapped in the bounded flex column (`flex h-full min-h-0 flex-col`) that
-CONTRACT.md § Layout requires of consumers
+docs/design-notes.md § Layout requires of consumers
 ([validated by](../../examples/chat-demo/src/App.tsx#L97)), and copy shows a
 `Toast` ([validated by](../../examples/chat-demo/src/App.tsx#L109)).
 
@@ -91,7 +91,7 @@ original Danish catalogue and the `VITE_DEMO_LOCALE` build-time switch into
 one module). `src/labels.ts` is the single catalogue, and it is deliberately
 thin: every component exports a complete English default label set, so the
 module reuses those defaults and writes out only the strings no default can
-supply - the required `aiDisclosure` (CONTRACT.md § Labels decision 5) and
+supply - the required `aiDisclosure` (docs/design-notes.md § Labels decision 5) and
 the demo's own screen copy
 ([validated by](../../examples/chat-demo/src/labels.ts#L1)).
 
@@ -125,8 +125,8 @@ see `specs/bowman-ui-rsc-fixture/spec.md`):
   ([validated by](../../scripts/consumer-app.sh#L93)), which also matters
   for styling: a tarball install unpacks a real directory for the `@source`
   scan, where a `file:` directory dependency would only symlink
-- runs `scripts/scan-forbidden-node-modules.sh` (issue 100 extracted the
-  `find` from this script so the `rsc` CI job could share one copy) over the
+- runs `scripts/scan-forbidden-node-modules.sh` (issue 100 moved the
+  `find` into this script so the `rsc` CI job could share one copy) over the
   temp install's `node_modules` for the forbidden packages at any depth,
   naming the matched path on failure
   ([validated by](../../scripts/scan-forbidden-node-modules.sh#L14))
@@ -148,8 +148,8 @@ see `specs/bowman-ui-rsc-fixture/spec.md`):
 
 `examples/chat-demo/playwright.config.ts` contains no `executablePath` and no
 per-user machine path of any kind, executable-asserted on every run
-([validated by](../../scripts/consumer-app.sh#L81)) - deliberately not
-modeled on the source app's Playwright config. On CI the suite runs with one
+([validated by](../../scripts/consumer-app.sh#L81)) - a deliberately
+minimal Playwright config. On CI the suite runs with one
 worker and two retries; the reply and toast timings race a contended runner
 otherwise ([validated by](../../examples/chat-demo/playwright.config.ts#L8)).
 
@@ -245,8 +245,8 @@ allowlist is read at runtime from `dependencies` plus `peerDependencies`
 subpath of a declared package counts as the package
 ([validated by](../../scripts/check-forbidden-imports.mjs#L42)). This
 inverts the issue's name blocklist (`@clerk/*`, `swr`, `next-intl`,
-`next`/`next/*`, plus `lucide-react` per CONTRACT.md decision 2, the `@/`
-path alias per CONTRACT.md decision 5, and any internal source-app
+`next`/`next/*`, plus `lucide-react` per docs/design-notes.md decision 2, the `@/`
+path alias per docs/design-notes.md decision 5, and any internal source-app
 package): every one of those names stays banned because none is declared,
 and a copy-paste arriving under a name no blocklist ever listed now fails
 too.

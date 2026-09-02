@@ -68,8 +68,8 @@ export const initialEntriesByConversation: Record<string, ReadonlyArray<DemoEntr
 
 export const streamedReplyText =
   "Thanks for your message! I have noted it on your file and I am going through the options for " +
-  "you now. Marginalia Books restocks The Cartographer's Atlas three times a week, and there are " +
-  "copies left in both the morning and the afternoon deliveries for the rest of the week. The " +
+  "you now. Marginalia Books restocks The Cartographer's Atlas every week, and there are copies " +
+  "in stock now, with the next delivery arriving on Friday for the rest of the order. The " +
   "Flexible delivery option lets you move a delivery date at no charge, as long as the change is " +
   "made at least a day before dispatch. If you would rather add gift wrapping, I can add it to " +
   "the order for both books. Do say if you would like an updated order confirmation sent to you " +

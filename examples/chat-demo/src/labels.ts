@@ -1,6 +1,6 @@
 // The demo's single English label catalogue. Every component ships a complete
 // English default label set, so the only strings worth writing here are the
-// ones no default can supply - the required `aiDisclosure` (CONTRACT.md
+// ones no default can supply - the required `aiDisclosure` (docs/design-notes.md
 // § Labels decision 5) and the demo's own screen copy. The demo therefore
 // hands the library's own exported defaults straight back.
 

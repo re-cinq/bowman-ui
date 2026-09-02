@@ -9,10 +9,9 @@ export interface ToastProps {
   duration?: number | null;
 }
 
-// The transient notification surface extracted for E4's escalation and
-// failover paths. The source component keyed its timeout effect on
-// [onClose, duration], so any parent re-render with a fresh onClose identity
-// restarted the countdown; here the latest onClose lives in a ref and the
+// The transient notification surface. A naive timeout effect keyed on
+// [onClose, duration] restarts the countdown whenever a parent re-render
+// supplies a fresh onClose identity; here the latest onClose lives in a ref and the
 // timeout is keyed on [message, duration] - a new message restarts the
 // countdown, a new callback identity does not.
 

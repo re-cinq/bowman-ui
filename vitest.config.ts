@@ -18,9 +18,10 @@ export default defineConfig({
       // so v8 has nothing to count there.
       exclude: ["src/index.ts", "src/types/**"],
       // The floor starts high rather than low-and-ratcheting: C-17 puts
-      // characterization tests before each extraction, so every file arrives
-      // covered. If a real extraction cannot hold 90 on branches, lower it once,
-      // in that PR, with the number and reason recorded - and never again.
+      // characterization tests before each component lands, so every file
+      // arrives covered. If a real component cannot hold 90 on branches,
+      // lower it once, in that PR, with the number and reason recorded - and
+      // never again.
       thresholds: { lines: 100, functions: 100, statements: 100, branches: 90 },
     },
   },

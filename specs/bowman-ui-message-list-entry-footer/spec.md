@@ -61,7 +61,7 @@ unchanged.
    wants either behaviour owns it - a live region of its own outside the
    list, and the already-exported
    `ChatMessageListHandle.scrollToBottom()`. Both are recorded in
-   CONTRACT.md § renderEntryFooter. No `ResizeObserver` and no auto
+   docs/design-notes.md § renderEntryFooter. No `ResizeObserver` and no auto
    re-scroll ship here.
 5. **The labels contract is untouched.** `ChatMessageListLabels` gains no
    key and `defaultChatMessageListLabels` no entry: a footer is consumer
@@ -90,8 +90,8 @@ unchanged.
 
 ## Not in scope
 
-The consumption itself (075 renders its own component through this prop and
-owns the Discovery side); footers under tool or thinking rows; a list-level
+The consumption itself (075 renders its own component through this prop
+in its own repo); footers under tool or thinking rows; a list-level
 header or footer around the whole transcript (the consumer already owns that
 position); an index or props argument, and any exported type alias for the
 callback; a `ResizeObserver` or auto re-scroll on footer growth; any change

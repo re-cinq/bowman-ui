@@ -13,7 +13,7 @@ domains:
 
 ## Context
 
-`bowman-ui` is a new component library project extracted from an internal application, intended to provide reusable presentational React components for AI chat interfaces. The project needed to select a primary language and framework to establish the technical foundation for development, build, and distribution.
+`bowman-ui` is a component library project providing reusable presentational React components for AI chat interfaces. The project needed to select a primary language and framework to establish the technical foundation for development, build, and distribution.
 
 ## Decision
 
@@ -25,7 +25,6 @@ We have chosen **TypeScript** as the primary language and **React** as the UI fr
 
 - **Proven fit**: The project explicitly targets "props-driven chat UI building blocks," which is React's core strength. React's component model aligns perfectly with a presentational component library.
 - **Ecosystem maturity**: React has extensive tooling, testing frameworks (React Testing Library, Jest), and component documentation ecosystems (Storybook).
-- **Extraction origin**: Components are extracted from an existing internal application, likely already React-based, minimizing rewrite risk and leveraging existing patterns.
 - **Library distribution**: React components are trivial to package and publish to npm for public consumption.
 - **Consumer flexibility**: React's prevalence means this library will be useful to the broadest audience.
 

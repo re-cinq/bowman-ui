@@ -1,9 +1,8 @@
 # bowman-ui labels convention
 
-Issue: issue 72 (`022-bowman-ui-labels-convention`). Discovery stays read-only: it is cited
-only as evidence for why the convention exists; nothing there changed. This issue ships the
-contract, the helper, the enforcement, and the retrofit of the one string-carrying component
-already in the repo - it moves no new component.
+Issue: issue 72 (`022-bowman-ui-labels-convention`). This issue ships the
+convention, the helper, the enforcement, and the retrofit of the one string-carrying component
+already in the repo - it adds no new component.
 
 ## What ships
 
@@ -48,7 +47,7 @@ already in the repo - it moves no new component.
 - `tests/labelled-exports.test.tsx` - the export-partition test: every value export of
   `src/index.ts` is classified into `labelsProp` / `stringPropOnly` / `noStrings`, and the sorted
   union must equal the sorted parsed export names; an unclassified export fails by name with a
-  pointer at `CONTRACT.md § Labels` ([validated by](../../tests/labelled-exports.test.tsx#L136)).
+  pointer at `docs/design-notes.md § Labels` ([validated by](../../tests/labelled-exports.test.tsx#L136)).
 - The sentinel test renders every `labelsProp` member (today: `ErrorBoundary`, error state) with
   every label a unique `⟦sentinel⟧` and asserts no run of three or more Latin letters survives in
   `textContent` or in `aria-label`/`aria-placeholder`/`aria-roledescription`/`aria-valuetext`/
@@ -59,13 +58,13 @@ already in the repo - it moves no new component.
   `"Something went wrong"` makes the sentinel test fail - the stray English survives sentinel
   stripping and matches the Latin-run regex
   ([validated by](../../tests/labelled-exports.test.tsx#L559)).
-- `CONTRACT.md § Labels` - Decisions 1-5, the flat-union key-naming rule, the function form for
+- `docs/design-notes.md § Labels` - Decisions 1-5, the flat-union key-naming rule, the function form for
   interpolation, the two `stringPropOnly` exceptions with reasons, and `aiDisclosure` documented
   as required-with-no-default under the EU AI Act.
 - Re-pinned prior behaviour (AC 39): `<LoadingIcon ariaLabel="Cargando" />` renders
   `aria-label="Cargando"` with `"Loading"` nowhere in the output; the translated `announce`
   assertion already existed and is referenced, not duplicated
-  ([validated by](../../tests/icons.test.tsx#L249),
+  ([validated by](../../tests/icons.test.tsx#L252),
   [announce](../../tests/useFocusGroups.test.tsx#L120)).
 
 ## Recorded decisions, interpretations and deviations
@@ -90,21 +89,21 @@ already in the repo - it moves no new component.
   lints them with `--no-ignore` against the exact committed rules rather than a copy of them
   ([validated by](../../tests/eslint-labels.test.ts#L20)).
 - **Placeholder deleted.** `src/Placeholder.tsx`, `tests/Placeholder.test.tsx` and the barrel
-  export are gone, sanctioned by 014's own design ("the first real extraction PR deletes them"):
+  export are gone, sanctioned by 014's own design (the placeholder existed only until real components did):
   six real `"use client"` files now exist, and Placeholder's hardcoded English text can neither
   pass the new lint rule nor fit any partition bucket. `tests/build-contract.test.ts`'s
   first-statement assertion now targets `dist/hooks/useDebounce.js`, a real directive-carrying
-  file ([validated by](../../tests/build-contract.test.ts#L34)).
+  file ([validated by](../../tests/build-contract.test.ts#L33)).
 - 014's deletion-trigger property
   still holds without Placeholder: coverage includes all of `src/**` at the 100/100/100/90
   floor, so deleting any component's test drops that file below threshold and fails
   `npm run test:coverage`.
 - **`stringPropOnly` is a closed exception list.** The icons' `ariaLabel` (023 icons; a
   destructuring default, deliberately outside lint rule (b)'s JSX-attribute reach) and
-  `useFocusGroups`' `announce` are grandfathered per `CONTRACT.md § Labels`; everything else with
-  strings takes `labels`. Closed means an addition requires a `CONTRACT.md § Labels` amendment
+  `useFocusGroups`' `announce` are grandfathered per `docs/design-notes.md § Labels`; everything else with
+  strings takes `labels`. Closed means an addition requires a `docs/design-notes.md § Labels` amendment
   in the PR that adds it - Toast's `message` (issue 025) did exactly this
   ([validated by](../../tests/labelled-exports.test.tsx#L101)).
 - **`aiDisclosure` is declared, not rendered.** The required label and its EU AI Act rationale
-  live in `CONTRACT.md § Labels`; the component that renders it and its Danish wording belong to
+  live in `docs/design-notes.md § Labels`; the component that renders it and its reviewed wording belong to
   the message-list issue and the consumer's catalogue.

@@ -3,7 +3,7 @@ import { afterEach, beforeEach, expect } from "vitest";
 
 // 023's GDPR rider, enforced suite-wide: entry content may carry booking
 // identifiers and names, and the package writes nothing to the console
-// (CONTRACT.md § Labels, decision 5). Every test therefore fails if anything
+// (docs/design-notes.md § Labels, decision 5). Every test therefore fails if anything
 // it rendered called console.error or console.warn. The wrappers record and
 // swallow instead of vi.spyOn so a test's own vi.restoreAllMocks() cannot
 // erase the evidence before this afterEach runs (setup-file hooks run last).

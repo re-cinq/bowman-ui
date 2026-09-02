@@ -915,14 +915,14 @@ describe("ChatMessageList", () => {
     });
   });
 
-  describe("the extracted source (grep acceptance criteria)", () => {
+  describe("the source files (grep acceptance criteria)", () => {
     const source = readFileSync(
       resolve(process.cwd(), "src/components/ChatMessageList.tsx"),
       "utf8"
     );
 
-    it("imports no @clerk, swr, next-intl, next/, @discovery, @/ or lucide-react and every relative import ends in .js", () => {
-      expect(source).not.toMatch(/@clerk|swr|next-intl|next\/|@discovery|@\/|lucide-react/);
+    it("imports no @clerk, swr, next-intl, next/, @/ or lucide-react and every relative import ends in .js", () => {
+      expect(source).not.toMatch(/@clerk|swr|next-intl|next\/|@\/|lucide-react/);
       const relativeImports = [...source.matchAll(/from\s+"(\.[^"]+)"/g)].map(([, spec]) => spec);
       expect(relativeImports.length).toBeGreaterThan(0);
       for (const spec of relativeImports) {

@@ -117,7 +117,7 @@ gains exactly one prop, `assistantName?: string`.
 
 `ChatMessageLabels` gains `assistantMessageFrom: (name: string) => string`,
 default `` (name) => `Response from ${name}` `` - the function form
-CONTRACT.md § Labels decision 4 requires of any interpolated label, never a
+docs/design-notes.md § Labels decision 4 requires of any interpolated label, never a
 template string with placeholders. `defaultChatMessageLabels` still typechecks
 as `Readonly<Required<ChatMessageLabels>>`
 ([validated by](../../tests/types/chat-message-type-assertions.tsx#L45),
@@ -187,7 +187,7 @@ entries themselves. That is prop serialization, not rendered chrome; decision
 
 ## GDPR and the EU AI Act
 
-CONTRACT.md gains an `## Attribution` section: `persona` is an opaque
+docs/design-notes.md carries an `## Attribution` section: `persona` is an opaque
 identifier, never free text, persisted/replayed/logged wherever the session
 is, and must not carry a customer name or a booking number - linked to
 `003-support-conversation-data-flow-record`, which records those stores.

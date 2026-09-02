@@ -7,11 +7,10 @@ markdown, a tool-status row, a copy button, thumbs, an avatar - as
 `src/components/ChatMessage.tsx` (`ChatMessage`, private
 `UserMessage`/`AssistantMessage`, `ChatMessageLabels`,
 `defaultChatMessageLabels`). `src/components/InlineThinkingIndicator.tsx` is
-the streaming placeholder lifted from the source app's
-`ThinkingIndicator.tsx:44-64`; it moves here because its only call site is
+the streaming placeholder; it lives here, private, because its only call
+site is
 inside `ChatMessage`
 ([validated by](../../tests/InlineThinkingIndicator.test.tsx#L5)).
-No file in `discovery` changes.
 
 ## The public surface
 
@@ -67,27 +66,26 @@ rather than 019's constant (see
    ([validated by](../../tests/ChatMessage.test.tsx#L374),
    [L394](../../tests/ChatMessage.test.tsx#L394)).
 
-## The 015 characterization suite, ported
+## The characterization suite
 
-Every assertion in 015's `ChatMessage` block passes against the extracted
-component after label substitution (`tests/ChatMessage.test.tsx`), except the
-adaptations below.
+The `ChatMessage` block in `tests/ChatMessage.test.tsx` pins the
+component's behaviour; every string arrives through the labels convention,
+and the deliberate decisions below each carry their own test.
 
-| #   | Adaptation                                                                                                                                                                                               | Reason                                                                                          |
+| #   | Decision                                                                                                                                                                                                 | Reason                                                                                          |
 | --- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
 | a   | The two arrow-key feedback tests pass `arrowKeyFeedback` and assert the parenthetical-free thumb labels ([L229](../../tests/ChatMessage.test.tsx#L229), [L271](../../tests/ChatMessage.test.tsx#L271))   | Decision 2: the shortcuts are opt-in and the default labels no longer mention them              |
 | b   | New default-off test: `ArrowUp` with default props calls `onFeedback` zero times and does not `preventDefault` (asserted via `fireEvent`'s return value) ([L219](../../tests/ChatMessage.test.tsx#L219)) | Decision 2: the library default must not steal a keyboard user's scroll keys                    |
-| c   | New test: `arrowKeyFeedback` + `showFeedback={false}` fires nothing and renders no thumbs ([L296](../../tests/ChatMessage.test.tsx#L296))                                                                | Decision 3: in the source, the handler never read `showFeedback`                                |
-| d   | The latch test gains a second direction: a new `entry.id`, streaming and empty, shows the indicator again ([L394](../../tests/ChatMessage.test.tsx#L394))                                                | Decision 4: the source's module-lifetime ref masked the bug because the app keys its list by id |
+| c   | `arrowKeyFeedback` + `showFeedback={false}` fires nothing and renders no thumbs ([L296](../../tests/ChatMessage.test.tsx#L296))                                                                          | Decision 3: the keyboard handler must respect `showFeedback` like the visible thumbs do         |
+| d   | The latch test runs both directions: a new `entry.id`, streaming and empty, shows the indicator again ([L394](../../tests/ChatMessage.test.tsx#L394))                                                    | Decision 4: a module-lifetime latch would mask the bug in any consumer that keys its list by id |
 | e   | The streaming no-key-handling test passes `arrowKeyFeedback` ([L335](../../tests/ChatMessage.test.tsx#L335))                                                                                             | It must still exercise the `isStreaming` gate now that arrows are off by default                |
 
-Dropped, with no counterpart here: the three judge/dev-info tests (judge
-scores network I/O off and on, `DevInfoCollapsible`/`MessageScores` mount) -
-`showDevInfo`, `conversationId`, `useJudgeScoring` and both harness components
-stayed in the source app; their slot collapses into `footer`.
+Out of scope by design: no judge-score or dev-info surface ships -
+`showDevInfo`, `conversationId`, judge-scoring hooks and their harness
+components belong to a consumer; their slot collapses into `footer`.
 
-One rename inherited from 019 rather than adapted here: the streaming avatar
-circle carries `bowman-pulse-subtle`, not the issue text's
+One naming rule from 019: the streaming avatar
+circle carries `bowman-pulse-subtle`, never a bare
 `animate-pulse-subtle`, because 019 shipped
 every package animation class under the `bowman-` prefix (its spec: names
 "cannot collide with a consumer's own `animate-*` utilities")
@@ -101,7 +99,7 @@ The tool-status row keeps `animate-spin` unchanged: that is a Tailwind
 core utility generated by the consumer's build, not a package keyframe
 ([validated by](../../tests/ChatMessage.test.tsx#L362)).
 
-## Carried across mechanically
+## Mechanical invariants
 
 - Markdown renders through 019's `markdownComponents` map with `remarkGfm`;
   no `prose` class anywhere in `src/`
@@ -110,7 +108,7 @@ core utility generated by the consumer's build, not a package keyframe
   [L634](../../tests/ChatMessage.test.tsx#L702)).
 - Raw HTML in `entry.content` stays escaped text; `rehype-raw` appears in no
   `package.json` field and no `rehypePlugins` prop is passed - the one
-  security property the extraction must not lose (C-18)
+  security property this component must never lose (C-18)
   ([validated by](../../tests/ChatMessage.test.tsx#L110),
   [L622](../../tests/ChatMessage.test.tsx#L690),
   [manifest](../../tests/chat-message-dist.test.ts#L97)).
@@ -124,10 +122,8 @@ core utility generated by the consumer's build, not a package keyframe
   [L513](../../tests/ChatMessage.test.tsx#L581),
   [L525](../../tests/ChatMessage.test.tsx#L593)).
 - The four icons come from 020's set via relative `.js` imports; no `@clerk`,
-  `swr`, `next-intl`, `next/`, `@discovery` or `@/` import survives;
-  `"Discovery"` appears nowhere in `src/` or `dist/`
-  ([validated by](../../tests/ChatMessage.test.tsx#L677),
-  [L634](../../tests/ChatMessage.test.tsx#L702)).
+  `swr`, `next-intl`, `next/` or `@/` import survives
+  ([validated by](../../tests/ChatMessage.test.tsx#L677)).
 - Both files carry `"use client"` as the first statement of their `dist/`
   output, per 018 decision 1's positional check and
   `scripts/check-client-directives.mjs`
@@ -146,7 +142,7 @@ core utility generated by the consumer's build, not a package keyframe
   `labels?: Partial<InlineThinkingIndicatorLabels>` with
   `defaultInlineThinkingIndicatorLabels` (`{ thinking: "Thinking" }`), so it
   lands in the `labelsProp` partition bucket like every string-carrying
-  export (CONTRACT.md § Labels decision 2 - the two `stringPropOnly` shapes
+  export (docs/design-notes.md § Labels decision 2 - the two `stringPropOnly` shapes
   are grandfathered, not precedent). `ChatMessage`
   forwards its resolved `thinking` slice, the flat-union forwarding of
   decision 3 ([validated by](../../tests/InlineThinkingIndicator.test.tsx#L25),
@@ -173,7 +169,7 @@ core utility generated by the consumer's build, not a package keyframe
   The only egress of `content` is the user-initiated
   `navigator.clipboard.writeText` - the single documented exception
   ([validated by](../../tests/ChatMessage.test.tsx#L696)).
-- **`react-markdown` and `remark-gfm` become runtime dependencies** at the
-  majors the source app runs (`^10.1.0`, `^4.0.1`), moved out of
-  devDependencies; 019's zero-runtime-deps claim carries a supersession note
+- **`react-markdown` and `remark-gfm` are runtime dependencies** at
+  `^10.1.0` and `^4.0.1`,
+  not devDependencies; 019's zero-runtime-deps claim carries a supersession note
   in its spec ([validated by](../../tests/chat-message-dist.test.ts#L88)).
