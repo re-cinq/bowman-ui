@@ -60,8 +60,15 @@ specs/bowman-ui-rsc-fixture/spec.md: ../../eslint.config.mjs#L101 -> "// docs/de
 
 ## Facets covered
 
-- ANCHOR regex in `repoint-spec-anchors.mjs` ignores non-`tests/`-dir `.ts` config files
-- Existing spec anchors to `vitest.config.ts`, `.github/workflows/*.yml`, and `eslint.config.mjs` have drifted to comment or blank lines
+- ANCHOR regex in `repoint-spec-anchors.mjs` ignores non-`tests/`-dir `.ts` config files **[CLOSED — commit 4ca2076]**
+- Existing spec anchors to `vitest.config.ts`, `.github/workflows/*.yml`, and `eslint.config.mjs` have drifted to comment or blank lines (15 broken links — Test 2 still red)
+
+## Notes from round 1
+
+- The ANCHOR regex alternative `[\w.-]+` matches only root-level filenames (no `/`), so `examples/*/src/*.tsx` paths are correctly excluded from the script's tracking scope.
+- The `([regex](../../scripts/repoint-spec-anchors.mjs#L39))` link in `specs/bowman-ui-composer-resize-browser/spec.md` points to an import statement (L39), not the ANCHOR regex (L43) — pre-existing drift; do not fix in the next round.
+- `specs/bowman-ui-rsc-fixture/spec.md` and `specs/bowman-ui-consumer-app/spec.md` each have "anchor caveat" notes that still say the script tracks only `tests/*.ts(x)` — these are stale and should be updated in the next round alongside fixing the broken anchors.
+- `vitest.config.ts#L24` (= `"// never again."`) is processed but not flagged as rotten by the script (the script's `CONTENTLESS` only catches blank/closing-punctuation). Fixing it to point to `#L25` (`thresholds: {}`) is part of the next round.
 
 ## Out of scope
 
