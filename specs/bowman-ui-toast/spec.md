@@ -157,7 +157,7 @@ and the partition still asserts the full barrel
   `src/` contains `translateX`; the toast keyframe now legitimately carries
   it in `src/styles.css`, so that assertion exempts `styles.css` alone -
   component sources remain banned from restating centring transforms
-  ([validated by](../../tests/ChatMessage.test.tsx#L699)).
+  ([validated by](../../tests/ChatMessage.test.tsx#L702)).
 - **Precedent citation.** The issue cites "021 Decision 0" for shipping on
   thin call-site evidence; 021's spec has no such numbered decision - the
   precedent lives in its Why section, and is cited as such here and in

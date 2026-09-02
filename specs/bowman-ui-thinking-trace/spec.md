@@ -84,15 +84,15 @@ compiled by
 `showThinking` gates the mount, not the visibility, and defaults `false`: with
 the flag absent, `[user, thinking, assistant]` renders no `<details>` and none
 of the thinking content
-([validated by](../../tests/ChatMessageList.test.tsx#L1067)) while the user and
+([validated by](../../tests/ChatMessageList.test.tsx#L1073)) while the user and
 assistant entries render unchanged
-([validated by](../../tests/ChatMessageList.test.tsx#L1077)). With it true the
+([validated by](../../tests/ChatMessageList.test.tsx#L1083)). With it true the
 same array renders exactly one collapsed `ThinkingTrace` between them
-([validated by](../../tests/ChatMessageList.test.tsx#L1088)). `reducedMotion`
+([validated by](../../tests/ChatMessageList.test.tsx#L1094)). `reducedMotion`
 forwards to the trace
-([validated by](../../tests/ChatMessageList.test.tsx#L1118)), as does the
+([validated by](../../tests/ChatMessageList.test.tsx#L1124)), as does the
 resolved `thinkingTrace` label
-([validated by](../../tests/ChatMessageList.test.tsx#L1133)).
+([validated by](../../tests/ChatMessageList.test.tsx#L1139)).
 
 `ChatMessageListLabels` gains `thinkingTrace` as a defaulted key, colliding
 with no key of `ChatMessageLabels`, `ThinkingIndicatorLabels` (`thinking`,
@@ -104,7 +104,7 @@ with no key of `ChatMessageLabels`, `ThinkingIndicatorLabels` (`thinking`,
 A reasoning trace is not a disclosure and does not substitute for one: a list
 holding a single thinking entry with `showThinking` true still renders the
 `aiDisclosure` band
-([validated by](../../tests/ChatMessageList.test.tsx#L1105)).
+([validated by](../../tests/ChatMessageList.test.tsx#L1111)).
 
 ## GDPR
 

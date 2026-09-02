@@ -18,7 +18,7 @@ import type {
   UserChatEntry,
 } from "../src/index.js";
 
-const aiDisclosure = "Du chatter med en AI-assistent";
+const aiDisclosure = "Estás chateando con un asistente de IA";
 
 const userEntry = (id: string, content: string): UserChatEntry => ({
   id,
@@ -43,16 +43,16 @@ const toolEntry = (id: string): ToolChatEntry => ({
 const thinkingEntry = (id: string, isStreaming = false): ThinkingChatEntry => ({
   id,
   role: "thinking",
-  content: "Jeg slår booking 4711 op med get_weather",
+  content: "Estoy consultando el pedido 4711 con get_weather",
   isStreaming,
 });
 
 const twoEntries = [
-  userEntry("u1", "Vis booking 4711"),
+  userEntry("u1", "Ver pedido 4711"),
   assistantEntry("a1", "Booking 4711 er fundet"),
 ];
 
-const threeEntries = [...twoEntries, assistantEntry("a2", "Andet svar")];
+const threeEntries = [...twoEntries, assistantEntry("a2", "Segunda respuesta")];
 
 // jsdom performs no layout: Element.prototype has no scrollTo (nor
 // scrollIntoView), and scrollHeight/clientHeight read 0. The stubs below
@@ -117,7 +117,7 @@ describe("ChatMessageList", () => {
     it("one entry renders the transcript and neither slot", () => {
       render(
         <ChatMessageList
-          entries={[userEntry("u1", "Vis booking 4711")]}
+          entries={[userEntry("u1", "Ver pedido 4711")]}
           userInitials="LM"
           labels={{ aiDisclosure }}
           greeting={<div data-testid="greeting">God morgen</div>}
@@ -208,7 +208,10 @@ describe("ChatMessageList", () => {
   describe("forwarding to ChatMessage", () => {
     it("two entries render two ChatMessages in entries order and copy on the second reports that entry's id", () => {
       const onCopy = vi.fn();
-      const entries = [assistantEntry("a1", "Første svar"), assistantEntry("a2", "Andet svar")];
+      const entries = [
+        assistantEntry("a1", "Primera respuesta"),
+        assistantEntry("a2", "Segunda respuesta"),
+      ];
       render(
         <ChatMessageList
           entries={entries}
@@ -220,12 +223,12 @@ describe("ChatMessageList", () => {
 
       const articles = screen.getAllByRole("article");
       expect(articles).toHaveLength(2);
-      expect(articles[0]).toHaveTextContent("Første svar");
-      expect(articles[1]).toHaveTextContent("Andet svar");
+      expect(articles[0]).toHaveTextContent("Primera respuesta");
+      expect(articles[1]).toHaveTextContent("Segunda respuesta");
 
       fireEvent.click(within(articles[1]).getByRole("button", { name: "Copy message" }));
 
-      expect(onCopy).toHaveBeenCalledExactlyOnceWith("Andet svar", "a2");
+      expect(onCopy).toHaveBeenCalledExactlyOnceWith("Segunda respuesta", "a2");
     });
 
     it("userInitials, showFeedback and arrowKeyFeedback pass through unchanged", () => {
@@ -277,7 +280,7 @@ describe("ChatMessageList", () => {
     it("assistantAvatar reaches both the message circle and the busy indicator", () => {
       render(
         <ChatMessageList
-          entries={[assistantEntry("a1", "Svar")]}
+          entries={[assistantEntry("a1", "Respuesta")]}
           userInitials="LM"
           busy
           labels={{ aiDisclosure }}
@@ -290,8 +293,8 @@ describe("ChatMessageList", () => {
     });
 
     it("entries are keyed by entry.id: reordering moves the same DOM nodes", () => {
-      const first = assistantEntry("a1", "Første svar");
-      const second = assistantEntry("a2", "Andet svar");
+      const first = assistantEntry("a1", "Primera respuesta");
+      const second = assistantEntry("a2", "Segunda respuesta");
       const { rerender } = render(
         <ChatMessageList entries={[first, second]} userInitials="LM" labels={{ aiDisclosure }} />
       );
@@ -447,12 +450,12 @@ describe("ChatMessageList", () => {
           entries={twoEntries}
           userInitials="LM"
           busy
-          labels={{ aiDisclosure, thinking: "Tænker", thinkingRegion: "Indlæser svar" }}
+          labels={{ aiDisclosure, thinking: "Pensando", thinkingRegion: "Cargando respuesta" }}
         />
       );
 
-      expect(screen.getByRole("status")).toHaveAccessibleName("Indlæser svar");
-      expect(within(screen.getByRole("status")).getByText("Tænker")).toBeInTheDocument();
+      expect(screen.getByRole("status")).toHaveAccessibleName("Cargando respuesta");
+      expect(within(screen.getByRole("status")).getByText("Pensando")).toBeInTheDocument();
     });
   });
 
@@ -463,7 +466,7 @@ describe("ChatMessageList", () => {
     });
 
     const twoPersonas = {
-      "olt-support": { name: "Økonomi", avatar: <span data-testid="icon-a" /> },
+      "olt-support": { name: "Facturación", avatar: <span data-testid="icon-a" /> },
       "p-two": { name: "Salg", avatar: <span data-testid="icon-b" /> },
     };
 
@@ -471,8 +474,8 @@ describe("ChatMessageList", () => {
       render(
         <ChatMessageList
           entries={[
-            personaEntry("a1", "Første svar", "olt-support"),
-            personaEntry("a2", "Andet svar", "p-two"),
+            personaEntry("a1", "Primera respuesta", "olt-support"),
+            personaEntry("a2", "Segunda respuesta", "p-two"),
           ]}
           userInitials="LM"
           labels={{ aiDisclosure }}
@@ -481,9 +484,9 @@ describe("ChatMessageList", () => {
       );
 
       const [first, second] = screen.getAllByRole("article");
-      expect(within(first).getByText("Økonomi")).toBeInTheDocument();
+      expect(within(first).getByText("Facturación")).toBeInTheDocument();
       expect(within(first).getByTestId("icon-a")).toBeInTheDocument();
-      expect(first).toHaveAttribute("aria-label", "Response from Økonomi");
+      expect(first).toHaveAttribute("aria-label", "Response from Facturación");
       expect(within(second).getByText("Salg")).toBeInTheDocument();
       expect(within(second).getByTestId("icon-b")).toBeInTheDocument();
       expect(second).toHaveAttribute("aria-label", "Response from Salg");
@@ -492,7 +495,7 @@ describe("ChatMessageList", () => {
     it('an entry whose persona "p-gone" is absent from attribution falls back to assistantAvatar, renders no name, and never prints the id', () => {
       const { container } = render(
         <ChatMessageList
-          entries={[personaEntry("a1", "Svar", "p-gone")]}
+          entries={[personaEntry("a1", "Respuesta", "p-gone")]}
           userInitials="LM"
           labels={{ aiDisclosure }}
           assistantAvatar={<span data-testid="default-mark" />}
@@ -525,14 +528,14 @@ describe("ChatMessageList", () => {
     it("entries carrying a persona render identically to the same entries without one when attribution is omitted", () => {
       const withPersona = render(
         <ChatMessageList
-          entries={[personaEntry("a1", "Svar", "olt-support")]}
+          entries={[personaEntry("a1", "Respuesta", "olt-support")]}
           userInitials="LM"
           labels={{ aiDisclosure }}
         />
       ).container;
       const without = render(
         <ChatMessageList
-          entries={[assistantEntry("a1", "Svar")]}
+          entries={[assistantEntry("a1", "Respuesta")]}
           userInitials="LM"
           labels={{ aiDisclosure }}
         />
@@ -544,7 +547,7 @@ describe("ChatMessageList", () => {
     it("with busy true, the thinking tail keeps the default assistantAvatar behind a trailing persona entry", () => {
       render(
         <ChatMessageList
-          entries={[personaEntry("a1", "Svar", "olt-support")]}
+          entries={[personaEntry("a1", "Respuesta", "olt-support")]}
           userInitials="LM"
           busy
           labels={{ aiDisclosure }}
@@ -561,7 +564,7 @@ describe("ChatMessageList", () => {
     it("a human first name in attribution leaves the aiDisclosure line in place", () => {
       render(
         <ChatMessageList
-          entries={[personaEntry("a1", "Svar", "olt-support")]}
+          entries={[personaEntry("a1", "Respuesta", "olt-support")]}
           userInitials="LM"
           labels={{ aiDisclosure }}
           attribution={{ "olt-support": { name: "Mette", avatar: <span data-testid="icon-a" /> } }}
@@ -575,16 +578,19 @@ describe("ChatMessageList", () => {
     it("a persona resolving to a name but no avatar keeps the default assistantAvatar", () => {
       render(
         <ChatMessageList
-          entries={[personaEntry("a1", "Svar", "olt-support")]}
+          entries={[personaEntry("a1", "Respuesta", "olt-support")]}
           userInitials="LM"
           labels={{ aiDisclosure }}
           assistantAvatar={<span data-testid="default-mark" />}
-          attribution={{ "olt-support": { name: "Økonomi" } }}
+          attribution={{ "olt-support": { name: "Facturación" } }}
         />
       );
 
       expect(screen.getByTestId("default-mark")).toBeInTheDocument();
-      expect(screen.getByRole("article")).toHaveAttribute("aria-label", "Response from Økonomi");
+      expect(screen.getByRole("article")).toHaveAttribute(
+        "aria-label",
+        "Response from Facturación"
+      );
     });
   });
 
@@ -651,7 +657,7 @@ describe("ChatMessageList", () => {
 
       rerender(
         <ChatMessageList
-          entries={[twoEntries[0], assistantEntry("a1", "Booking 4711 er fundet og bekræftet")]}
+          entries={[twoEntries[0], assistantEntry("a1", "Pedido 4711 encontrado y confirmado")]}
           userInitials="LM"
           labels={{ aiDisclosure }}
         />
@@ -728,7 +734,7 @@ describe("ChatMessageList", () => {
 
     it("a scroll event at 32px from the bottom stays pinned; one at 33px unpins", () => {
       installScrollTo();
-      const fourEntries = [...threeEntries, assistantEntry("a3", "Tredje svar")];
+      const fourEntries = [...threeEntries, assistantEntry("a3", "Tercera respuesta")];
       const { rerender } = render(
         <ChatMessageList entries={twoEntries} userInitials="LM" labels={{ aiDisclosure }} />
       );
@@ -754,7 +760,7 @@ describe("ChatMessageList", () => {
 
     it("downward scroll events fired by an in-flight smooth scroll do not unpin; an upward one does", () => {
       installScrollTo();
-      const fourEntries = [...threeEntries, assistantEntry("a3", "Tredje svar")];
+      const fourEntries = [...threeEntries, assistantEntry("a3", "Tercera respuesta")];
       const { rerender } = render(
         <ChatMessageList entries={twoEntries} userInitials="LM" labels={{ aiDisclosure }} />
       );
@@ -781,7 +787,7 @@ describe("ChatMessageList", () => {
 
       rerender(
         <ChatMessageList
-          entries={[...threeEntries, assistantEntry("a3", "Tredje svar, fuldført")]}
+          entries={[...threeEntries, assistantEntry("a3", "Tercera respuesta, completada")]}
           userInitials="LM"
           labels={{ aiDisclosure }}
         />
@@ -887,13 +893,13 @@ describe("ChatMessageList", () => {
         <ChatMessageList
           entries={twoEntries}
           userInitials="LM"
-          labels={{ aiDisclosure, transcript: "Samtale" }}
+          labels={{ aiDisclosure, transcript: "Transcripción" }}
         />
       );
 
       const region = screen.getByRole("log");
       expect(region).toHaveAttribute("aria-live", "off");
-      expect(region).toHaveAccessibleName("Samtale");
+      expect(region).toHaveAccessibleName("Transcripción");
     });
 
     it('a query for [aria-live="polite"] inside the region matches only when busy is true', () => {
@@ -942,7 +948,7 @@ describe("ChatMessageList", () => {
       const { container } = render(
         <ChatMessageList
           entries={[
-            userEntry("u1", "Vis booking 4711"),
+            userEntry("u1", "Ver pedido 4711"),
             toolEntry("t1"),
             assistantEntry("a1", "Booking 4711 er fundet"),
           ]}
@@ -954,13 +960,13 @@ describe("ChatMessageList", () => {
       const column = container.querySelector(".max-w-3xl");
       const children = Array.from(column?.children ?? []);
       expect(children.map((child) => child.tagName)).toEqual(["ARTICLE", "DIV", "ARTICLE"]);
-      expect(children[0]).toHaveTextContent("Vis booking 4711");
+      expect(children[0]).toHaveTextContent("Ver pedido 4711");
       expect(children[1]).toHaveTextContent("Looked something up");
       expect(children[2]).toHaveTextContent("Booking 4711 er fundet");
     });
 
     it("busy true makes a trailing tool entry pending and busy false makes it done", () => {
-      const entries = [userEntry("u1", "Vis booking 4711"), toolEntry("t1")];
+      const entries = [userEntry("u1", "Ver pedido 4711"), toolEntry("t1")];
       const { rerender } = render(
         <ChatMessageList entries={entries} userInitials="LM" busy labels={{ aiDisclosure }} />
       );
@@ -999,21 +1005,21 @@ describe("ChatMessageList", () => {
           entries={[toolEntry("t1")]}
           userInitials="LM"
           labels={{ aiDisclosure }}
-          describeTool={() => "Slår din booking op"}
+          describeTool={() => "Consultando tu pedido"}
           showToolName
           showToolInput
           toolIcon={<span data-testid="tool-icon">4711</span>}
         />
       );
 
-      expect(screen.getByText("Slår din booking op")).toBeInTheDocument();
+      expect(screen.getByText("Consultando tu pedido")).toBeInTheDocument();
       expect(screen.getByText("get_weather")).toBeInTheDocument();
       expect(container.querySelector("pre")?.textContent).toContain('"location": "Berlin"');
       expect(screen.getByTestId("tool-icon")).toBeInTheDocument();
     });
 
     it("hands describeTool the same pending flag it derives for its own labels", () => {
-      const entries = [userEntry("u1", "Vis booking 4711"), toolEntry("t1"), toolEntry("t2")];
+      const entries = [userEntry("u1", "Ver pedido 4711"), toolEntry("t1"), toolEntry("t2")];
       const describeTool = (entry: ToolChatEntry, pending: boolean) =>
         pending ? "Looking up the weather" : "Looked up the weather";
       const { container, rerender } = render(
@@ -1049,17 +1055,17 @@ describe("ChatMessageList", () => {
           entries={[toolEntry("t1")]}
           userInitials="LM"
           busy
-          labels={{ aiDisclosure, activity: "Slår op" }}
+          labels={{ aiDisclosure, activity: "Consultando" }}
         />
       );
 
-      expect(screen.getByText("Slår op")).toBeInTheDocument();
+      expect(screen.getByText("Consultando")).toBeInTheDocument();
     });
   });
 
   describe("thinking entries", () => {
     const conversation = [
-      userEntry("u1", "Vis booking 4711"),
+      userEntry("u1", "Ver pedido 4711"),
       thinkingEntry("th1"),
       assistantEntry("a1", "Booking 4711 er fundet"),
     ];
@@ -1081,7 +1087,7 @@ describe("ChatMessageList", () => {
 
       const children = Array.from(container.querySelector(".max-w-3xl")?.children ?? []);
       expect(children.map((child) => child.tagName)).toEqual(["ARTICLE", "ARTICLE"]);
-      expect(children[0]).toHaveTextContent("Vis booking 4711");
+      expect(children[0]).toHaveTextContent("Ver pedido 4711");
       expect(children[1]).toHaveTextContent("Booking 4711 er fundet");
     });
 
@@ -1136,11 +1142,11 @@ describe("ChatMessageList", () => {
           entries={[thinkingEntry("th1")]}
           userInitials="LM"
           showThinking
-          labels={{ aiDisclosure, thinkingTrace: "Ræsonnement" }}
+          labels={{ aiDisclosure, thinkingTrace: "Razonamiento" }}
         />
       );
 
-      expect(container.querySelector("summary")?.textContent).toBe("Ræsonnement");
+      expect(container.querySelector("summary")?.textContent).toBe("Razonamiento");
     });
   });
 });

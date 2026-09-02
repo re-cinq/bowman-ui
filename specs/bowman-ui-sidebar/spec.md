@@ -19,7 +19,7 @@ The component renders one `<aside>` whose accessible name is the resolved
 `sidebar` label, containing at most one `<nav>` whose accessible name is the
 resolved `mainNavigation` label
 ([validated by](../../tests/AppSidebar.test.tsx#L15),
-[L24](../../tests/AppSidebar.test.tsx#L24)). `AppSidebarLabels` has exactly
+[L24](../../tests/AppSidebar.test.tsx#L25)). `AppSidebarLabels` has exactly
 those two defaulted keys ("Sidebar", "Main navigation"); the source's two
 hardcoded aria-labels plus the mobile copy's third, duplicate landmark name
 ("Mobile navigation") collapse into them - 030's shell wrappers are

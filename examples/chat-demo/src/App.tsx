@@ -30,12 +30,12 @@ import {
   signOutLabel,
   toastCopiedMessage,
   toastDemoOnlyMessage,
-} from "./activeLabels";
+} from "./labels";
 
-const brandName = "Havkat Rejser";
+const brandName = "Marginalia Books";
 const toastDurationMs = 4000;
-const conversationsNavKey = "samtaler";
-const settingsNavKey = "indstillinger";
+const conversationsNavKey = "conversations";
+const settingsNavKey = "settings";
 
 // The documentation is the landing: bare "/" (and the "?view=docs" alias that
 // keeps existing component links resolving) renders the docs, and only

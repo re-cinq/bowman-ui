@@ -13,9 +13,9 @@ const defaults: Required<MessageLabels> = {
 };
 
 describe("resolveLabels", () => {
-  it('{ copy: "Kopiér" } replaces copy and keeps every other default', () => {
-    expect(resolveLabels(defaults, { copy: "Kopiér" })).toEqual({
-      copy: "Kopiér",
+  it('{ copy: "Copiar" } replaces copy and keeps every other default', () => {
+    expect(resolveLabels(defaults, { copy: "Copiar" })).toEqual({
+      copy: "Copiar",
       retry: "Try again",
       deletedCount: defaults.deletedCount,
     });
@@ -31,28 +31,28 @@ describe("resolveLabels", () => {
 
   it("a function-valued label overrides like any other key, pinning the interpolation form", () => {
     const resolved = resolveLabels(defaults, {
-      deletedCount: (count) => `${count} beskeder slettet`,
+      deletedCount: (count) => `${count} mensajes eliminados`,
     });
-    expect(resolved.deletedCount(3)).toBe("3 beskeder slettet");
+    expect(resolved.deletedCount(3)).toBe("3 mensajes eliminados");
     expect(defaults.deletedCount(3)).toBe("3 messages deleted");
   });
 
   it("mutates neither argument", () => {
     const frozenCopy = JSON.parse(JSON.stringify({ copy: defaults.copy, retry: defaults.retry }));
-    const overrides = { copy: "Kopiér", retry: undefined };
+    const overrides = { copy: "Copiar", retry: undefined };
 
     resolveLabels(defaults, overrides);
 
     expect({ copy: defaults.copy, retry: defaults.retry }).toEqual(frozenCopy);
-    expect(overrides).toEqual({ copy: "Kopiér", retry: undefined });
+    expect(overrides).toEqual({ copy: "Copiar", retry: undefined });
   });
 
   it("accepts Object.freeze(defaults) without throwing and returns a fresh object", () => {
     const frozen = Object.freeze({ copy: "Copy message", retry: "Try again" });
 
-    const resolved = resolveLabels(frozen, { copy: "Kopiér" });
+    const resolved = resolveLabels(frozen, { copy: "Copiar" });
 
-    expect(resolved).toEqual({ copy: "Kopiér", retry: "Try again" });
+    expect(resolved).toEqual({ copy: "Copiar", retry: "Try again" });
     expect(resolved).not.toBe(frozen);
     expect(frozen).toEqual({ copy: "Copy message", retry: "Try again" });
   });

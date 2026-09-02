@@ -13,7 +13,7 @@ export function AppSidebarExample() {
   return (
     <div className="flex h-80 w-72 flex-col overflow-hidden rounded-lg border border-slate-200 dark:border-slate-800">
       <AppSidebar
-        brand={<span className="text-sm font-semibold">Havkat Rejser</span>}
+        brand={<span className="text-sm font-semibold">Marginalia Books</span>}
         navItems={navItems.map((item) => ({ ...item, isActive: item.key === activeKey }))}
         onNavigate={setActiveKey}
         footer={

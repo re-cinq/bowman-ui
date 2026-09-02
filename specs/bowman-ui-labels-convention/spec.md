@@ -13,7 +13,7 @@ already in the repo - it moves no new component.
   `undefined` as the whole overrides argument returns the defaults; an
   explicit `undefined` override value counts as missing - `resolveLabels(defaults, { copy: undefined })`
   returns `"Copy message"`, not `undefined`, because that is what a consumer's optional-chained
-  catalogue lookup produces ([validated by](../../tests/resolveLabels.test.ts#L16),
+  catalogue lookup produces ([validated by](../../tests/resolveLabels.test.ts#L17),
   [L24](../../tests/resolveLabels.test.ts#L24),
   [L28](../../tests/resolveLabels.test.ts#L28)).
 - A function-valued label - the convention's interpolation form - overrides like any other key
@@ -27,7 +27,7 @@ already in the repo - it moves no new component.
   `npm run typecheck` - pinned by the `// @ts-expect-error` fixture in
   `tests/types/labels-type-assertions.tsx`, compiled against the BUILT package through the single
   `"."` exports entry ([validated by](../../tests/labels-dist.test.ts#L3)).
-- The three Danish labels render with no English remaining; no `labels` prop renders the three
+- The three translated labels render with no English remaining; no `labels` prop renders the three
   021 English defaults unchanged ([validated by](../../tests/ErrorBoundary.test.tsx#L58),
   [L44](../../tests/ErrorBoundary.test.tsx#L44)).
 - `eslint.config.mjs` gains a labels entry (core ESLint only): `no-restricted-syntax` selectors
@@ -62,8 +62,8 @@ already in the repo - it moves no new component.
 - `CONTRACT.md § Labels` - Decisions 1-5, the flat-union key-naming rule, the function form for
   interpolation, the two `stringPropOnly` exceptions with reasons, and `aiDisclosure` documented
   as required-with-no-default under the EU AI Act.
-- Re-pinned prior behaviour (AC 39): `<LoadingIcon ariaLabel="Indlæser" />` renders
-  `aria-label="Indlæser"` with `"Loading"` nowhere in the output; the Danish `announce`
+- Re-pinned prior behaviour (AC 39): `<LoadingIcon ariaLabel="Cargando" />` renders
+  `aria-label="Cargando"` with `"Loading"` nowhere in the output; the translated `announce`
   assertion already existed and is referenced, not duplicated
   ([validated by](../../tests/icons.test.tsx#L249),
   [announce](../../tests/useFocusGroups.test.tsx#L120)).
@@ -75,7 +75,7 @@ already in the repo - it moves no new component.
   `labels={{ title: undefined }}` blank the title. `resolveLabels` treats that key as missing and
   renders the English default instead. This is the convention's intent; it
   is the one observable behaviour change in the retrofit
-  ([validated by](../../tests/ErrorBoundary.test.tsx#L75)).
+  ([validated by](../../tests/ErrorBoundary.test.tsx#L79)).
 - **Partition is over value exports.** The partition test statically parses `export { ... }`
   blocks of `src/index.ts`; `export type { ... }` names are excluded by design - a type carries
   no renderable string. Interfaces like `ErrorBoundaryLabels` are therefore not partition

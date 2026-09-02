@@ -18,11 +18,11 @@ import {
   type UserChatEntry,
 } from "@re-cinq/bowman-ui";
 
-const userEntry: UserChatEntry = { id: "u1", role: "user", content: "Vis booking 4711" };
+const userEntry: UserChatEntry = { id: "u1", role: "user", content: "Ver pedido 4711" };
 const assistantEntry: AssistantChatEntry = {
   id: "a1",
   role: "assistant",
-  content: "Booking 4711 er bekræftet",
+  content: "Pedido 4711 confirmado",
   isStreaming: false,
 };
 const thinkingEntry: ThinkingChatEntry = {
@@ -45,8 +45,8 @@ const Renderable = () => (
     <ChatMessage
       entry={assistantEntry}
       userInitials="LM"
-      assistantName="Økonomi"
-      labels={{ assistantMessageFrom: (name: string) => `Svar fra ${name}` }}
+      assistantName="Facturación"
+      labels={{ assistantMessageFrom: (name: string) => `Respuesta de ${name}` }}
     />
     {/* @ts-expect-error -- Decision 1: a ThinkingChatEntry must fail the entry prop */}
     <ChatMessage entry={thinkingEntry} userInitials="LM" />

@@ -79,15 +79,15 @@ compiled by
 [chat-message-list-dist](../../tests/chat-message-list-dist.test.ts#L110)). The
 map dispatches on `role`: a tool entry renders `ToolActivity`, everything else
 `ChatMessage`, array order preserved
-([validated by](../../tests/ChatMessageList.test.tsx#L941)). `busy` makes only
+([validated by](../../tests/ChatMessageList.test.tsx#L947)). `busy` makes only
 a trailing tool entry pending
-([validated by](../../tests/ChatMessageList.test.tsx#L962)); a non-trailing
+([validated by](../../tests/ChatMessageList.test.tsx#L968)); a non-trailing
 one stays done
-([validated by](../../tests/ChatMessageList.test.tsx#L974)). `describeTool`,
+([validated by](../../tests/ChatMessageList.test.tsx#L980)). `describeTool`,
 `showToolName`, `showToolInput` and `toolIcon` forward unchanged
-([validated by](../../tests/ChatMessageList.test.tsx#L996)), and a list of a
+([validated by](../../tests/ChatMessageList.test.tsx#L1002)), and a list of a
 single tool entry still shows the `aiDisclosure` band
-([validated by](../../tests/ChatMessageList.test.tsx#L988)).
+([validated by](../../tests/ChatMessageList.test.tsx#L994)).
 `ChatMessageListLabels` gains `activity`, `activityDone` and `details` as
 defaulted keys, so `aiDisclosure` stays its only required key.
 

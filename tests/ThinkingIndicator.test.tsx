@@ -16,13 +16,13 @@ describe("ThinkingIndicator", () => {
     expect(screen.getByRole("status")).toHaveAttribute("aria-label", "Loading response");
   });
 
-  it('labels {thinking: "Tænker", thinkingRegion: "Indlæser svar"} leaves no English string in the output', () => {
+  it('labels {thinking: "Pensando", thinkingRegion: "Cargando respuesta"} leaves no English string in the output', () => {
     const { container } = render(
-      <ThinkingIndicator labels={{ thinking: "Tænker", thinkingRegion: "Indlæser svar" }} />
+      <ThinkingIndicator labels={{ thinking: "Pensando", thinkingRegion: "Cargando respuesta" }} />
     );
 
-    expect(screen.getByText("Tænker")).toBeInTheDocument();
-    expect(screen.getByRole("status")).toHaveAttribute("aria-label", "Indlæser svar");
+    expect(screen.getByText("Pensando")).toBeInTheDocument();
+    expect(screen.getByRole("status")).toHaveAttribute("aria-label", "Cargando respuesta");
     expect(container.innerHTML).not.toMatch(/Thinking|Loading response/);
   });
 
@@ -60,7 +60,7 @@ describe("ThinkingIndicator", () => {
     const { container } = render(
       <ThinkingIndicator
         assistantAvatar={<span>4711</span>}
-        labels={{ thinking: "Tænker", thinkingRegion: "Indlæser svar" }}
+        labels={{ thinking: "Pensando", thinkingRegion: "Cargando respuesta" }}
       />
     );
 

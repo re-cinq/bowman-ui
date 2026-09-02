@@ -32,7 +32,7 @@ describe("ConversationList", () => {
   describe("the list", () => {
     it('two items render two <li>s inside one <ul> named "Conversations" by default, in items order', () => {
       render(
-        <ConversationList items={[makeItem(), makeItem({ id: "conv-2", title: "Faktura 9" })]} />
+        <ConversationList items={[makeItem(), makeItem({ id: "conv-2", title: "Factura 9" })]} />
       );
 
       const list = screen.getByRole("list", { name: "Conversations" });
@@ -41,7 +41,7 @@ describe("ConversationList", () => {
       expect(list).toContainElement(rows[0]);
       expect(list).toContainElement(rows[1]);
       expect(rows[0].textContent).toContain("Booking 4711");
-      expect(rows[1].textContent).toContain("Faktura 9");
+      expect(rows[1].textContent).toContain("Factura 9");
     });
 
     it('the <ul> carries an explicit role="list", which list-style: none cannot strip', () => {
@@ -50,23 +50,27 @@ describe("ConversationList", () => {
       expect(container.querySelector("ul")).toHaveAttribute("role", "list");
     });
 
-    it('labels={{conversations: "Samtaler"}} names the <ul> "Samtaler"', () => {
-      render(<ConversationList items={[makeItem()]} labels={{ conversations: "Samtaler" }} />);
-
-      expect(screen.getByRole("list", { name: "Samtaler" })).toBeInTheDocument();
-    });
-
-    it('timestamp "I går" and badge "Havkat Rejser A/S" render verbatim in the row', () => {
+    it('labels={{conversations: "Conversaciones"}} names the <ul> "Conversaciones"', () => {
       render(
-        <ConversationList items={[makeItem({ timestamp: "I går", badge: "Havkat Rejser A/S" })]} />
+        <ConversationList items={[makeItem()]} labels={{ conversations: "Conversaciones" }} />
       );
 
-      expect(screen.getByText("I går")).toBeInTheDocument();
-      expect(screen.getByText("Havkat Rejser A/S")).toBeInTheDocument();
+      expect(screen.getByRole("list", { name: "Conversaciones" })).toBeInTheDocument();
+    });
+
+    it('timestamp "Ayer" and badge "Marginalia Books Ltd" render verbatim in the row', () => {
+      render(
+        <ConversationList
+          items={[makeItem({ timestamp: "Ayer", badge: "Marginalia Books Ltd" })]}
+        />
+      );
+
+      expect(screen.getByText("Ayer")).toBeInTheDocument();
+      expect(screen.getByText("Marginalia Books Ltd")).toBeInTheDocument();
     });
 
     it("an item without badge renders no badge element, and one without timestamp renders no meta row", () => {
-      const { container } = render(<ConversationList items={[makeItem({ timestamp: "I går" })]} />);
+      const { container } = render(<ConversationList items={[makeItem({ timestamp: "Ayer" })]} />);
       expect(container.querySelectorAll("span.truncate")).toHaveLength(0);
 
       const bare = render(<ConversationList items={[makeItem({ id: "conv-2" })]} />);
@@ -78,7 +82,7 @@ describe("ConversationList", () => {
     it('only the row whose id equals activeId carries aria-current="page" on its interactive element', () => {
       render(
         <ConversationList
-          items={[makeItem(), makeItem({ id: "conv-2", title: "Faktura 9" })]}
+          items={[makeItem(), makeItem({ id: "conv-2", title: "Factura 9" })]}
           activeId="conv-1"
         />
       );
@@ -90,7 +94,7 @@ describe("ConversationList", () => {
 
     it("with activeId undefined no row carries aria-current", () => {
       render(
-        <ConversationList items={[makeItem(), makeItem({ id: "conv-2", title: "Faktura 9" })]} />
+        <ConversationList items={[makeItem(), makeItem({ id: "conv-2", title: "Factura 9" })]} />
       );
 
       for (const row of screen.getAllByRole("button")) {
@@ -104,7 +108,7 @@ describe("ConversationList", () => {
       const onSelect = vi.fn();
       render(
         <ConversationList
-          items={[makeItem(), makeItem({ id: "conv-2", title: "Faktura 9" })]}
+          items={[makeItem(), makeItem({ id: "conv-2", title: "Factura 9" })]}
           onSelect={onSelect}
         />
       );
@@ -127,7 +131,7 @@ describe("ConversationList", () => {
       const onSelect = vi.fn();
       render(
         <ConversationList
-          items={[makeItem(), makeItem({ id: "conv-2", title: "Faktura 9" })]}
+          items={[makeItem(), makeItem({ id: "conv-2", title: "Factura 9" })]}
           activeId="conv-2"
           onSelect={onSelect}
           renderLink={(item, props) => <a href={"/chat/" + item.id} {...props} />}
@@ -176,7 +180,7 @@ describe("ConversationList", () => {
       const onSelect = vi.fn();
       render(
         <ConversationList
-          items={[makeItem(), makeItem({ id: "conv-2", title: "Faktura 9" })]}
+          items={[makeItem(), makeItem({ id: "conv-2", title: "Factura 9" })]}
           onSelect={onSelect}
           onDelete={onDelete}
         />
@@ -184,7 +188,7 @@ describe("ConversationList", () => {
 
       const button = screen.getByRole("button", { name: "Delete conversation: Booking 4711" });
       expect(
-        screen.getByRole("button", { name: "Delete conversation: Faktura 9" })
+        screen.getByRole("button", { name: "Delete conversation: Factura 9" })
       ).toBeInTheDocument();
 
       fireEvent.click(button);
@@ -206,7 +210,7 @@ describe("ConversationList", () => {
     it('isLoading renders a role="status" element named "Loading conversations" and zero rows, even with two items', () => {
       render(
         <ConversationList
-          items={[makeItem(), makeItem({ id: "conv-2", title: "Faktura 9" })]}
+          items={[makeItem(), makeItem({ id: "conv-2", title: "Factura 9" })]}
           isLoading
         />
       );
@@ -225,12 +229,12 @@ describe("ConversationList", () => {
   });
 
   describe("the typewriter", () => {
-    it('a rerender from a placeholder "Ny samtale" to "Booking 4711" steps character by character at 25ms intervals', () => {
+    it('a rerender from a placeholder "New thread" to "Booking 4711" steps character by character at 25ms intervals', () => {
       vi.useFakeTimers();
       const { rerender } = render(
-        <ConversationList items={[makeItem({ title: "Ny samtale", isPlaceholderTitle: true })]} />
+        <ConversationList items={[makeItem({ title: "New thread", isPlaceholderTitle: true })]} />
       );
-      expect(titleContainer().textContent).toBe("Ny samtale");
+      expect(titleContainer().textContent).toBe("New thread");
 
       rerender(
         <ConversationList
@@ -238,7 +242,7 @@ describe("ConversationList", () => {
         />
       );
 
-      expect(titleContainer().textContent).toBe("Ny samtale");
+      expect(titleContainer().textContent).toBe("New thread");
       expect(charOpacities().every((o) => o === "1")).toBe(true);
 
       act(() => {
@@ -301,7 +305,7 @@ describe("ConversationList", () => {
       vi.useFakeTimers();
       const { rerender } = render(
         <ConversationList
-          items={[makeItem({ title: "Ny samtale", isPlaceholderTitle: true })]}
+          items={[makeItem({ title: "New thread", isPlaceholderTitle: true })]}
           reducedMotion
         />
       );
@@ -321,7 +325,7 @@ describe("ConversationList", () => {
     it("unmounting mid-animation clears the interval - advancing past the full run afterwards produces no state update and no act warning", () => {
       vi.useFakeTimers();
       const { rerender, unmount } = render(
-        <ConversationList items={[makeItem({ title: "Ny samtale", isPlaceholderTitle: true })]} />
+        <ConversationList items={[makeItem({ title: "New thread", isPlaceholderTitle: true })]} />
       );
       rerender(
         <ConversationList
@@ -352,7 +356,7 @@ describe("ConversationList", () => {
     it("mid-animation, assistive tech already reads the new title while the characters still show the old one", () => {
       vi.useFakeTimers();
       const { rerender } = render(
-        <ConversationList items={[makeItem({ title: "Ny samtale", isPlaceholderTitle: true })]} />
+        <ConversationList items={[makeItem({ title: "New thread", isPlaceholderTitle: true })]} />
       );
 
       rerender(
@@ -362,7 +366,7 @@ describe("ConversationList", () => {
       );
 
       expect(screen.getByText("Booking 4711")).toBeInTheDocument();
-      expect(titleContainer().textContent).toBe("Ny samtale");
+      expect(titleContainer().textContent).toBe("New thread");
 
       act(() => {
         vi.advanceTimersByTime(25 * 25);
@@ -373,7 +377,7 @@ describe("ConversationList", () => {
     it("a second list does not animate from the first list's titles - the previous-title record is component-scoped, not module-scoped", () => {
       vi.useFakeTimers();
       render(
-        <ConversationList items={[makeItem({ title: "Ny samtale", isPlaceholderTitle: true })]} />
+        <ConversationList items={[makeItem({ title: "New thread", isPlaceholderTitle: true })]} />
       );
 
       const second = render(

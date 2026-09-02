@@ -5,10 +5,10 @@ const reply: AssistantChatEntry = {
   id: "reply-1",
   role: "assistant",
   content:
-    "The last sailing on Friday is **21:40** from Nordhavnsbro. The full terms are in the [travel conditions](https://example.invalid/terms).",
+    "The Friday restock arrives at **11:00** from the warehouse. The full terms are in the [delivery terms](https://example.invalid/terms).",
   isStreaming: false,
 };
 
 export function ChatMessageExample() {
-  return <ChatMessage entry={reply} userInitials="MV" assistantName="Havkat Support" />;
+  return <ChatMessage entry={reply} userInitials="MW" assistantName="Marginalia Support" />;
 }

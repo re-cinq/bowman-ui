@@ -49,7 +49,7 @@ and `"./styles.css"`, so no consumer can deep-import the private component
      ([validated by](../../tests/ThinkingIndicator.test.tsx#L12)).
    - With Danish overrides neither English string appears anywhere in the
      rendered output
-     ([validated by](../../tests/ThinkingIndicator.test.tsx#L19)).
+     ([validated by](../../tests/ThinkingIndicator.test.tsx#L20)).
    - The attribute is kept rather than removed; whether a real screen reader
      announces it over the live-region content is unverified follow-up work
      ([validated by](../../tests/ThinkingIndicator.test.tsx#L12)).
@@ -82,7 +82,7 @@ and `"./styles.css"`, so no consumer can deep-import the private component
      ([expect-thinking-dots](../../tests/helpers/expect-thinking-dots.ts))
      asserts count, order and delays against both
      ([validated by](../../tests/ThinkingIndicator.test.tsx#L37),
-     [inline](../../tests/InlineThinkingIndicator.test.tsx#L19)).
+     [inline](../../tests/InlineThinkingIndicator.test.tsx#L20)).
    - `InlineThinkingIndicator` still renders its label and dots with no
      `role="status"` and no avatar circle
      ([validated by](../../tests/ThinkingIndicator.test.tsx#L71)).

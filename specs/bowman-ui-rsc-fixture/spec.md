@@ -89,9 +89,9 @@ and elision behaviour is the bundler's to change.
 
 ### GDPR
 
-`src/fixtures.ts` contains invented data only: an invented passenger
-("Karla", initials "KT") and the invented booking reference `VN-7305-KP` -
-no OLT customer data, no real booking identifiers, no content copied from a
+`src/fixtures.ts` contains invented data only: an invented customer
+("Karla", initials "KT") and the invented order reference `VN-7305-KP` -
+no OLT customer data, no real order identifiers, no content copied from a
 support conversation. The repo is public-facing per `014`, so a fixture
 file is a publication
 ([validated by](../../examples/rsc-fixture/src/fixtures.ts#L1)).

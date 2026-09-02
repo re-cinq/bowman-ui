@@ -28,7 +28,7 @@ const incompleteDefaults: Readonly<Required<ChatComposerLabels>> = {
 const Consumer = () => {
   const composerRef = useRef<ChatComposerHandle>(null);
   const inject = () => {
-    composerRef.current?.setValue("Vis booking 4711");
+    composerRef.current?.setValue("Ver pedido 4711");
     composerRef.current?.focus();
   };
   return (

@@ -64,7 +64,7 @@ and a bare email render policy-checked anchors
 ([validated by](../../tests/markdown/urlPolicy.test.tsx#L189),
 [L197](../../tests/markdown/urlPolicy.test.tsx#L198)).
 
-**Correction to the issue text**: the criterion's bare `www.havkat-rejser.invalid`
+**Correction to the issue text**: the criterion's bare `www.marginalia-books.invalid`
 case cannot render an anchor under the default policy - remark-gfm autolinks
 `www.` literals to an `http://` href, which the default allowlist rejects, so
 it renders as text ([validated
@@ -113,14 +113,14 @@ result stays assignable to `react-markdown`'s `Components`
 `ChatMessage` merges its `markdown` prop over `defaultMarkdownPolicy` (via
 `resolveLabels`, so an explicit `undefined` field cannot clobber a default)
 and passes the factory's map plus `createUrlTransform`'s result to
-`ReactMarkdown` ([validated by](../../tests/ChatMessage.test.tsx#L721),
-[L649](../../tests/ChatMessage.test.tsx#L749),
-[L661](../../tests/ChatMessage.test.tsx#L761)). A rejected link renders as a
-span ([validated by](../../tests/ChatMessage.test.tsx#L736)). An image
+`ReactMarkdown` ([validated by](../../tests/ChatMessage.test.tsx#L724),
+[L649](../../tests/ChatMessage.test.tsx#L752),
+[L661](../../tests/ChatMessage.test.tsx#L764)). A rejected link renders as a
+span ([validated by](../../tests/ChatMessage.test.tsx#L739)). An image
 renders as alt text
-([validated by](../../tests/ChatMessage.test.tsx#L786)). The
+([validated by](../../tests/ChatMessage.test.tsx#L789)). The
 `linkOpensInNewTab` override reaches the notice
-([validated by](../../tests/ChatMessage.test.tsx#L774)).
+([validated by](../../tests/ChatMessage.test.tsx#L777)).
 
 ## Recorded decisions, interpretations and deviations
 
@@ -129,7 +129,7 @@ renders as alt text
   criterion, the "merged over `defaultMarkdownPolicy`" wording and the
   one-line `http` opt-in all require field-level merging - so the fields
   carry `?` and the prop stays the issue's literal `markdown?: MarkdownPolicy`
-  ([validated by](../../tests/ChatMessage.test.tsx#L749)).
+  ([validated by](../../tests/ChatMessage.test.tsx#L752)).
 - **The transform never decodes.** `java&#x09;script:` reaches the transform
   percent-encoded as `java%09script:`; comparing the raw scheme keeps the
   bypass closed, and a later `decodeURIComponent` "cleanup" would reopen it
