@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useReducedMotion } from "../hooks/useReducedMotion.js";
+import { visuallyHidden } from "../hooks/visuallyHidden.js";
 import { TrashIcon } from "../icons/index.js";
 import { resolveLabels } from "../labels.js";
 
@@ -124,21 +125,7 @@ function TypewriterTitle({
   // no stylesheet or Tailwind config from the consumer.
   return (
     <>
-      <span
-        style={{
-          position: "absolute",
-          width: "1px",
-          height: "1px",
-          padding: 0,
-          margin: "-1px",
-          overflow: "hidden",
-          clip: "rect(0, 0, 0, 0)",
-          whiteSpace: "nowrap",
-          border: 0,
-        }}
-      >
-        {text}
-      </span>
+      <span style={visuallyHidden}>{text}</span>
       <span
         aria-hidden="true"
         className="block overflow-hidden whitespace-nowrap"

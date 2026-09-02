@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { visuallyHidden } from "../hooks/visuallyHidden.js";
 
 export interface ToastProps {
   message: string;
@@ -14,20 +15,6 @@ export interface ToastProps {
 // supplies a fresh onClose identity; here the latest onClose lives in a ref and the
 // timeout is keyed on [message, duration] - a new message restarts the
 // countdown, a new callback identity does not.
-
-// Hides the status region with inline styles so the package needs no
-// stylesheet or Tailwind config from the consumer.
-const visuallyHidden = {
-  position: "absolute",
-  width: "1px",
-  height: "1px",
-  padding: 0,
-  margin: "-1px",
-  overflow: "hidden",
-  clip: "rect(0, 0, 0, 0)",
-  whiteSpace: "nowrap",
-  border: 0,
-} as const;
 
 export function Toast({ message, onClose, duration = 2000 }: ToastProps) {
   const onCloseRef = useRef(onClose);

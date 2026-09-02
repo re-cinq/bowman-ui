@@ -3,6 +3,7 @@
 import { useEffect, useCallback, useRef } from "react";
 
 import { FOCUSABLE_SELECTOR } from "./focusableSelector.js";
+import { visuallyHidden } from "./visuallyHidden.js";
 
 export interface FocusGroupsOptions {
   /**
@@ -134,15 +135,7 @@ function announceToScreenReader(message: string): void {
   announcement.setAttribute("role", "status");
   announcement.setAttribute("aria-live", "polite");
   announcement.setAttribute("aria-atomic", "true");
-  announcement.style.position = "absolute";
-  announcement.style.width = "1px";
-  announcement.style.height = "1px";
-  announcement.style.padding = "0";
-  announcement.style.margin = "-1px";
-  announcement.style.overflow = "hidden";
-  announcement.style.clip = "rect(0, 0, 0, 0)";
-  announcement.style.whiteSpace = "nowrap";
-  announcement.style.border = "0";
+  Object.assign(announcement.style, visuallyHidden);
 
   // A live region inserted already holding its text is unreliably announced;
   // insert it empty and write the text once the region exists in the tree.
