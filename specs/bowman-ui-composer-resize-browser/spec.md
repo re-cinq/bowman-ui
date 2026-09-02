@@ -26,8 +26,11 @@ also track `(../)+examples/*/tests/*.ts(x)` anchors
 into `examples/chat-demo/tests/chat-demo.spec.ts` are repointed by CI like
 any `tests/` anchor. The widened check ran clean over the pre-existing
 consumer-app spec (21 newly tracked anchors there; 591 up to date repo-wide,
-0 stale, 0 rotten). Links into `scripts/`, `vitest.config.ts` and workflow
-files remain plain GitHub links CI never repoints.
+0 stale, 0 rotten). The regex was later widened again to also track
+root-level `.ts`/`.tsx` config files (e.g. `vitest.config.ts`)
+([validated by](../../tests/repoint-spec-anchors.test.ts#L392)); links into
+`scripts/`, `.yml`/`.mjs` config files, and other non-`.ts`/`.tsx` paths
+remain plain GitHub links CI never repoints.
 
 ## Baseline
 
