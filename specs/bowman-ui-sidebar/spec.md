@@ -38,7 +38,7 @@ sentinel render with both labels set to sentinels
 1. **The exported name is `AppSidebar`, not `Sidebar`.** The prefixed name
    states that this is the app frame's sidebar and stays clear of the
    generic `Sidebar` name a consumer app is likely to own already
-   ([validated by](../../tests/public-api.test.ts#L40),
+   ([validated by](../../tests/public-api.test.ts#L43),
    [types](../../tests/public-api.test.ts#L47)).
 2. **Active state is a per-item `isActive` boolean, not a path comparison.**
    The org has more than one router, so the component assumes neither.

@@ -74,4 +74,4 @@ cannot carry what the protocol does not send.
 
 No export is added or removed - only the signature of an existing one changes -
 so `tests/fixtures/public-api.json`, which records names, is unchanged
-([validated by](../../tests/public-api.test.ts#L40)).
+([validated by](../../tests/public-api.test.ts#L43)).
