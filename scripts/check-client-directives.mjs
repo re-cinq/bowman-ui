@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Enforces CONTRACT.md decision 1: "use client" is per-file.
+// Enforces docs/design-notes.md decision 1: "use client" is per-file.
 //
 // Default mode (no argument):
 //   1. Every .ts/.tsx under src/ that triggers a client-only rule must carry

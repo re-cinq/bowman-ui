@@ -1,9 +1,9 @@
 /**
- * The 015 characterization suite for ChatMessage, ported against the
- * extracted component (issue 023). Labels are substituted for the source
- * app's hardcoded English, `message: Message` becomes `entry` typed by 017,
- * and the five documented adaptations plus three dropped judge/dev-info
- * tests are tabled in specs/bowman-ui-chat-message/spec.md.
+ * The ChatMessage characterization suite. Every string comes in through
+ * the labels convention rather than hardcoded English, the entry prop is
+ * typed by src/types/chat.ts, and the documented adaptations plus the
+ * dropped judge/dev-info tests are tabled in
+ * specs/bowman-ui-chat-message/spec.md.
  */
 import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import { readFileSync, readdirSync, statSync } from "node:fs";
@@ -647,7 +647,7 @@ describe("ChatMessage", () => {
     });
   });
 
-  describe("the extracted sources (grep acceptance criteria)", () => {
+  describe("the source files (grep acceptance criteria)", () => {
     const componentPaths = [
       "src/components/ChatMessage.tsx",
       "src/components/InlineThinkingIndicator.tsx",
@@ -674,9 +674,9 @@ describe("ChatMessage", () => {
       expect(sources[0].content).not.toMatch(/showDevInfo|conversationId|onRetryJudge|scores/);
     });
 
-    it("neither file imports @clerk, swr, next-intl, next/, @discovery or @/ and every relative import ends in .js", () => {
+    it("neither file imports @clerk, swr, next-intl, next/ or @/ and every relative import ends in .js", () => {
       for (const { content } of sources) {
-        expect(content).not.toMatch(/@clerk|swr|next-intl|next\/|@discovery|@\//);
+        expect(content).not.toMatch(/@clerk|swr|next-intl|next\/|@\//);
         const relativeImports = [...content.matchAll(/from\s+"(\.[^"]+)"/g)].map(
           ([, spec]) => spec
         );
@@ -699,7 +699,7 @@ describe("ChatMessage", () => {
       }
     });
 
-    it('no file under src/ contains "prose", "translateX" lives only in styles.css (025\'s toast keyframe), and "Discovery" appears nowhere in src/ or dist/', () => {
+    it('no file under src/ contains "prose", and "translateX" lives only in styles.css (the toast keyframe)', () => {
       const stylesheet = resolve(process.cwd(), "src/styles.css");
       for (const file of walk(resolve(process.cwd(), "src"))) {
         const content = readFileSync(file, "utf8");
@@ -707,12 +707,6 @@ describe("ChatMessage", () => {
         if (file !== stylesheet) {
           expect(content).not.toMatch(/translateX/);
         }
-        expect(content).not.toMatch(/Discovery/);
-      }
-      for (const file of walk(resolve(process.cwd(), "dist")).filter(
-        (file) => file.endsWith(".js") || file.endsWith(".d.ts") || file.endsWith(".css")
-      )) {
-        expect(readFileSync(file, "utf8")).not.toMatch(/Discovery/);
       }
     });
   });

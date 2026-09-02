@@ -75,8 +75,8 @@ above is meant to refuse.
   A `bowman-ui` component renders exactly the `ChatEntry[]` it is handed and
   reports exactly what the user did; it holds no credential, makes no access
   decision, and fetches nothing. Data reaching the wrong customer is an
-  authorization defect in the application that assembled the data — `support-agent`
-  or `discovery` — not a `bowman-ui` vulnerability.
+  authorization defect in the consuming application that assembled the
+  data — not a `bowman-ui` vulnerability.
 - **Hardening the markdown renderer itself** beyond the documented policy. The
   policy above is the control; proposals to change it are feature requests, not
   vulnerabilities, unless they demonstrate a bypass of the current behavior.

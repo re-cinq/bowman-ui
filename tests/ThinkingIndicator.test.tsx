@@ -77,7 +77,7 @@ describe("ThinkingIndicator", () => {
     expect(container.querySelector("[aria-hidden]")).toBeNull();
   });
 
-  describe("the extracted sources (grep acceptance criteria)", () => {
+  describe("the source files (grep acceptance criteria)", () => {
     const componentPaths = [
       "src/components/ThinkingIndicator.tsx",
       "src/components/ThinkingDots.tsx",
@@ -104,9 +104,9 @@ describe("ThinkingIndicator", () => {
       expect(sources[0].content).not.toMatch(/label\?:/);
     });
 
-    it("neither file imports @clerk, swr, next-intl, next/, @discovery or @/ and every relative import ends in .js", () => {
+    it("neither file imports @clerk, swr, next-intl, next/ or @/ and every relative import ends in .js", () => {
       for (const { content } of sources) {
-        expect(content).not.toMatch(/@clerk|swr|next-intl|next\/|@discovery|@\//);
+        expect(content).not.toMatch(/@clerk|swr|next-intl|next\/|@\//);
         for (const [, spec] of content.matchAll(/from\s+"(\.[^"]+)"/g)) {
           expect(spec).toMatch(/\.js$/);
         }

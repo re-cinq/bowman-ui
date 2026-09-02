@@ -8,6 +8,5 @@ import "next-intl";
 import "swr";
 import "lucide-react";
 import "@clerk/nextjs";
-import "@discovery/web";
 import "@/components/anything";
 import "typescript";

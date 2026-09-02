@@ -1,11 +1,8 @@
 /**
- * The 015 characterization suite for Toast, ported against the extracted
- * component (issue 025). Four of the five source assertions survive
- * verbatim; the class assertion flips from animate-fade-in to
- * bowman-toast-fade-in (019's rename, tabled in
- * specs/bowman-ui-toast/spec.md). The divergence, message-restart and
- * duration-null tests are new: they pin the re-render-proof timer the
- * source component did not have.
+ * The Toast characterization suite. The class assertion pins the
+ * bowman-toast-fade-in animation class (the naming decision is tabled in
+ * specs/bowman-ui-toast/spec.md), and the divergence, message-restart and
+ * duration-null tests pin the re-render-proof timer.
  */
 import { render, screen } from "@testing-library/react";
 import { renderToStaticMarkup } from "react-dom/server";
@@ -23,25 +20,25 @@ describe("Toast", () => {
     vi.restoreAllMocks();
   });
 
-  it('renders "Booking 4711 gemt" inside an element with role="status" and aria-live="polite"', () => {
-    render(<Toast message="Booking 4711 gemt" onClose={() => {}} />);
+  it('renders "Booking 4711 guardado" inside an element with role="status" and aria-live="polite"', () => {
+    render(<Toast message="Booking 4711 guardado" onClose={() => {}} />);
 
     const status = screen.getByRole("status");
-    expect(status).toHaveTextContent("Booking 4711 gemt");
+    expect(status).toHaveTextContent("Booking 4711 guardado");
     expect(status).toHaveAttribute("aria-live", "polite");
   });
 
   it("the visible pill carries the message from the first render while the status region starts empty - the announcement text enters a live region that already exists", () => {
     const serverHtml = renderToStaticMarkup(
-      <Toast message="Booking 4711 gemt" onClose={() => {}} />
+      <Toast message="Booking 4711 guardado" onClose={() => {}} />
     );
 
-    expect(serverHtml).toContain("Booking 4711 gemt");
+    expect(serverHtml).toContain("Booking 4711 guardado");
     expect(serverHtml).toMatch(/role="status"[^>]*><\/div>/);
   });
 
   it("the status region is a separate visually-hidden element, hidden with inline styles so no consumer stylesheet is required", () => {
-    render(<Toast message="Booking 4711 gemt" onClose={() => {}} />);
+    render(<Toast message="Booking 4711 guardado" onClose={() => {}} />);
 
     const status = screen.getByRole("status");
     expect(status).not.toHaveClass("bowman-toast-fade-in");
@@ -50,7 +47,7 @@ describe("Toast", () => {
 
   it("with no duration prop, onClose is uncalled at 1999ms and called once at 2000ms", () => {
     const onClose = vi.fn();
-    render(<Toast message="Booking 4711 gemt" onClose={onClose} />);
+    render(<Toast message="Booking 4711 guardado" onClose={onClose} />);
 
     vi.advanceTimersByTime(1999);
     expect(onClose).not.toHaveBeenCalled();
@@ -61,7 +58,7 @@ describe("Toast", () => {
 
   it("duration={500} fires onClose at 500ms", () => {
     const onClose = vi.fn();
-    render(<Toast message="Booking 4711 gemt" onClose={onClose} duration={500} />);
+    render(<Toast message="Booking 4711 guardado" onClose={onClose} duration={500} />);
 
     vi.advanceTimersByTime(499);
     expect(onClose).not.toHaveBeenCalled();
@@ -72,7 +69,7 @@ describe("Toast", () => {
 
   it("unmounting before the deadline never calls onClose", () => {
     const onClose = vi.fn();
-    const { unmount } = render(<Toast message="Booking 4711 gemt" onClose={onClose} />);
+    const { unmount } = render(<Toast message="Booking 4711 guardado" onClose={onClose} />);
 
     vi.advanceTimersByTime(1000);
     unmount();
@@ -85,9 +82,9 @@ describe("Toast", () => {
   // the status element to a dedicated visible pill, so an empty live region
   // never paints as an empty pill on the first frame.
   it("the visible pill carries bowman-toast-fade-in and the fixed bottom-8 left-1/2 z-50 -translate-x-1/2 positioning, and is not the live region", () => {
-    render(<Toast message="Booking 4711 gemt" onClose={() => {}} />);
+    render(<Toast message="Booking 4711 guardado" onClose={() => {}} />);
 
-    const visible = screen.getByText("Booking 4711 gemt", {
+    const visible = screen.getByText("Booking 4711 guardado", {
       selector: "div.bowman-toast-fade-in",
     });
     expect(visible).toHaveClass(
@@ -105,10 +102,10 @@ describe("Toast", () => {
   it("a new onClose identity at 1000ms does not restart the countdown: the latest onClose fires once at 2000ms total", () => {
     const staleOnClose = vi.fn();
     const latestOnClose = vi.fn();
-    const { rerender } = render(<Toast message="Booking 4711 gemt" onClose={staleOnClose} />);
+    const { rerender } = render(<Toast message="Booking 4711 guardado" onClose={staleOnClose} />);
 
     vi.advanceTimersByTime(1000);
-    rerender(<Toast message="Booking 4711 gemt" onClose={latestOnClose} />);
+    rerender(<Toast message="Booking 4711 guardado" onClose={latestOnClose} />);
 
     vi.advanceTimersByTime(999);
     expect(latestOnClose).not.toHaveBeenCalled();
@@ -120,10 +117,10 @@ describe("Toast", () => {
 
   it("re-rendering with a different message restarts the countdown: onClose fires 2000ms after the new message", () => {
     const onClose = vi.fn();
-    const { rerender } = render(<Toast message="Booking 4711 gemt" onClose={onClose} />);
+    const { rerender } = render(<Toast message="Booking 4711 guardado" onClose={onClose} />);
 
     vi.advanceTimersByTime(1000);
-    rerender(<Toast message="Booking 4712 gemt" onClose={onClose} />);
+    rerender(<Toast message="Booking 4712 guardado" onClose={onClose} />);
 
     vi.advanceTimersByTime(1999);
     expect(onClose).not.toHaveBeenCalled();
@@ -135,7 +132,7 @@ describe("Toast", () => {
   it("duration={null} calls onClose zero times after 60000ms and never invokes setTimeout", () => {
     const setTimeoutSpy = vi.spyOn(globalThis, "setTimeout");
     const onClose = vi.fn();
-    render(<Toast message="Booking 4711 gemt" onClose={onClose} duration={null} />);
+    render(<Toast message="Booking 4711 guardado" onClose={onClose} duration={null} />);
 
     vi.advanceTimersByTime(60000);
 
@@ -152,8 +149,8 @@ const sourceFiles = (dir: string): string[] =>
 describe("the Toast source", () => {
   const source = readFileSync(resolve(process.cwd(), "src/components/Toast.tsx"), "utf8");
 
-  it("imports no @clerk, swr, next-intl, next/, @discovery or @/ and every relative import ends in .js", () => {
-    expect(source).not.toMatch(/@clerk|swr|next-intl|next\/|@discovery|@\//);
+  it("imports no @clerk, swr, next-intl, next/ or @/ and every relative import ends in .js", () => {
+    expect(source).not.toMatch(/@clerk|swr|next-intl|next\/|@\//);
     for (const [, spec] of source.matchAll(/from\s+"(\.[^"]+)"/g)) {
       expect(spec).toMatch(/\.js$/);
     }

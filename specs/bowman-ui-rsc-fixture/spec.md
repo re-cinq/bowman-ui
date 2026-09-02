@@ -1,6 +1,6 @@
 # bowman-ui RSC fixture
 
-Issue: re-cinq/Otto#100 (the RSC fixture build CONTRACT.md decision 1 calls
+Issue: re-cinq/Otto#100 (the RSC fixture build docs/design-notes.md decision 1 calls
 "078's RSC fixture build")
 
 `examples/rsc-fixture` is the executable proof of the `"use client"`
@@ -16,7 +16,7 @@ README's App Router consumer section ([validated by](../../README.md#L51)).
 
 Anchor caveat (the consumer-app spec's precedent): `scripts/
 repoint-spec-anchors.mjs` tracks only `(../)+tests/*.ts(x)` anchors, so this
-spec's links into `examples/`, `scripts/`, workflow files, `CONTRACT.md` and
+spec's links into `examples/`, `scripts/`, workflow files, `docs/design-notes.md` and
 `README.md` are plain GitHub links that CI never repoints - they were
 authored against this PR's tree and drift silently if those files are later
 edited without updating this spec.
@@ -38,8 +38,7 @@ installs, not proof that stock `react@19.2.0` executed every server frame.
 
 `next` is pinned at exactly `16.3.3`
 ([validated by](../../examples/rsc-fixture/package.json#L18)) - the latest
-`16.x` on the registry at implementation time, on the same major line as the
-`next ^16.0.7` that `discovery/apps/web/package.json` pins, with no `^`.
+`16.x` on the registry at implementation time, with no `^`.
 Turbopack is Next 16's default bundler and the fixture does not opt out: the
 measured build banner reads `Next.js 16.3.3 (Turbopack)`, and the config
 carries no `--webpack`-equivalent nor any bundler key
@@ -102,7 +101,7 @@ file is a publication
 `renderSidebar` to `AppShell` and built. The outcome is the rejected case,
 read from the error text rather than the exit code alone: `next build`
 (16.3.3, Turbopack) fails while prerendering `/compose`, verbatim in
-CONTRACT.md § RSC fixture:
+docs/design-notes.md § RSC fixture:
 
 ```
 Error: Functions cannot be passed directly to Client Components unless you
@@ -114,13 +113,13 @@ call this function rather than return it.
 Per the issue's rejected branch, the page now ships under `"use client"`
 ([validated by](../../examples/rsc-fixture/app/compose/page.tsx#L1)); the
 server-component version is this PR's build history, not its tree. The
-CONTRACT rule lists every export with a function-valued prop, derived
+design-notes rule lists every export with a function-valued prop, derived
 mechanically with
 `grep -rlE '^ +[A-Za-z"-]+\??: [^;]*=>' dist/components/*.d.ts`
 (re-run it against a fresh build to audit the list): `AppShell`,
 `AppSidebar`, `ChatComposer`, `ChatMessage`, `ChatMessageList`,
 `ConversationList`, `ErrorBoundary`, `Toast`
-([validated by](../../CONTRACT.md#L415)), and the same sentence appears in
+([validated by](../../docs/design-notes.md#L465)), and the same sentence appears in
 the README ([validated by](../../README.md#L61)). `app/client/page.tsx` is
 the control: the same composition under `"use client"`, building green, so
 the rejection is attributable to the boundary and not to the components
@@ -138,12 +137,12 @@ prop from a _server_ component any more - the only build that did so was the
 one this PR observed failing and then moved under `"use client"`. That is
 inherent to the issue-authorised rejected branch, not an oversight: the
 server-boundary rejection is a build-time constant of React's serialization,
-recorded in CONTRACT.md rather than re-proven on every CI run. A future
+recorded in docs/design-notes.md rather than re-proven on every CI run. A future
 regression here would surface the day a consumer tries the server idiom, not
 in this fixture.
 
-No `"react-server"` condition is added to `exports`; CONTRACT.md records the
-refusal and its reason ([validated by](../../CONTRACT.md#L394)).
+No `"react-server"` condition is added to `exports`; docs/design-notes.md records the
+refusal and its reason ([validated by](../../docs/design-notes.md#L445)).
 
 ## The script
 
@@ -257,7 +256,7 @@ The same job re-runs the three next-absence checks, unmodified:
 ([validated by](../../.github/workflows/ci.yml#L129)), `018`'s manifest grep
 with the `node_modules/next` probe
 ([validated by](../../.github/workflows/ci.yml#L131)), and `032`'s
-node_modules `find` - which issue 100 extracted into
+node_modules `find` - which issue 100 moved into
 `scripts/scan-forbidden-node-modules.sh` so this job and `consumer-app.sh`
 share one copy of the pattern rather than drifting
 ([validated by](../../.github/workflows/ci.yml#L140)). One honest caveat,
@@ -271,7 +270,7 @@ the three checks carries a pointer comment at its home naming the
 exemption: `check-forbidden-imports.mjs`
 ([validated by](../../scripts/check-forbidden-imports.mjs#L11)), the
 `next must be absent` step
-([validated by](../../.github/workflows/ci.yml#L71)), and the extracted
+([validated by](../../.github/workflows/ci.yml#L71)), and the shared
 node_modules scan
 ([validated by](../../scripts/scan-forbidden-node-modules.sh#L6)).
 
@@ -305,11 +304,11 @@ instead reachable the same way `consumer` is, as a `package.json` script
   [L8](../../.gitignore#L8)), the generated paths are
   eslint-ignored ([validated by](../../eslint.config.mjs#L101)), and the tar
   copy excludes them ([validated by](../../scripts/pack-to-temp.sh#L25)).
-- CONTRACT.md decision 4's "not a dependency anywhere" bullet was amended in
-  place to name the one exception, so the contract does not contradict its
-  own new section ([validated by](../../CONTRACT.md#L160)); the new § RSC
-  fixture section names `examples/rsc-fixture` as the only path in the repo
-  where `next` may appear ([validated by](../../CONTRACT.md#L384)).
+- docs/design-notes.md decision 4's "not a dependency anywhere" bullet names
+  the one exception in place, so the decision does not contradict the
+  § RSC fixture section ([validated by](../../docs/design-notes.md#L156)); that
+  section names `examples/rsc-fixture` as the only path in the repo
+  where `next` may appear ([validated by](../../docs/design-notes.md#L435)).
 - Observation, not a test-linked statement (no test can assert a property of
   the PR's own diff): no file under the library's `src/` changed in this PR -
   the fixture's own `examples/rsc-fixture/src/` is the issue's named path for

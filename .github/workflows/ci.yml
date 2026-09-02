@@ -81,10 +81,10 @@ jobs:
       # JSON array (issue 189).
       - name: Lore list command emits parseable JSON
         run: node scripts/lore-list-tests.mjs | jq -e 'type == "array" and length > 0' > /dev/null
-      # CONTRACT.md decision 4: next is not a dependency of the published
+      # docs/design-notes.md decision 4: next is no dependency of the published
       # package. Prove it against the installed tree, not just the manifest.
       # Both probes read the repo root only, so examples/rsc-fixture - the one
-      # path where next may appear, CONTRACT.md § RSC fixture - is outside
+      # path where next may appear (§ RSC fixture) - is outside
       # their scope by construction; the exemption changes nothing here.
       - name: next must be absent
         run: |

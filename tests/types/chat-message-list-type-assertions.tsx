@@ -31,7 +31,7 @@ const entries: ReadonlyArray<UserChatEntry | AssistantChatEntry | ToolChatEntry>
 ];
 
 // A lookup table, never a render function: a server component can pass this
-// object literal across the RSC boundary (CONTRACT.md § RSC fixture).
+// object literal across the RSC boundary (docs/design-notes.md § RSC fixture).
 const attribution: Readonly<Record<string, ChatAttribution>> = {
   "olt-support": { name: "Facturación", avatar: <span data-testid="persona-a" /> },
 };
@@ -50,7 +50,7 @@ const acceptedEntries: ComponentProps<typeof ChatMessageList>["entries"] = withT
 void acceptedEntries;
 
 // @ts-expect-error -- aiDisclosure is declared without a default (EU AI Act:
-// no English placeholder may reach a Danish customer), so the defaults
+// no unreviewed English placeholder may stand in for it), so the defaults
 // object is not a Readonly<Required<ChatMessageListLabels>>.
 const withDisclosureDefault = defaultChatMessageListLabels satisfies Readonly<
   Required<ChatMessageListLabels>

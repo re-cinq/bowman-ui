@@ -11,8 +11,8 @@ const FADING_DOT = "bowman-fade-dot h-1 w-1 rounded-full bg-blue-500";
 const STILL_DOT = "h-1 w-1 rounded-full bg-blue-500";
 
 // The three fading dots shared by ThinkingIndicator, InlineThinkingIndicator
-// and ThinkingTrace, extracted so the animation timing cannot drift between
-// them (024). Deliberately not exported from the barrel: the dots are an
+// and ThinkingTrace, factored out so the animation timing cannot drift
+// between them (024). Deliberately not exported from the barrel: the dots are an
 // internal detail of the indicators, not public API.
 export function ThinkingDots({ reducedMotion = false }: ThinkingDotsProps) {
   return (

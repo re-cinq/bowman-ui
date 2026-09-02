@@ -1,10 +1,9 @@
 /**
- * Ported from 015's ChatHistory characterization suite where the extracted
- * surface has a counterpart, with the flips the extraction makes on purpose
- * (aria-current instead of the bg-class-only active row, isPlaceholderTitle
- * instead of the three-literal sniffing) - the table in
- * specs/bowman-ui-conversation-list/spec.md records every flip and every
- * 015 assertion dropped to the consumer.
+ * The ConversationList characterization suite. Its deliberate design
+ * choices (aria-current instead of a bg-class-only active row,
+ * isPlaceholderTitle instead of title-literal sniffing) are tabled in
+ * specs/bowman-ui-conversation-list/spec.md along with every behaviour
+ * delegated to the consumer.
  */
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import { readFileSync } from "node:fs";
@@ -166,11 +165,11 @@ describe("ConversationList", () => {
       expect(onSelect).not.toHaveBeenCalled();
     });
 
-    it("CONTRACT.md's renderLink section requires the consumer to spread every prop", () => {
-      const contract = readFileSync(resolve(process.cwd(), "CONTRACT.md"), "utf8");
+    it("the design notes' renderLink section requires the consumer to spread every prop", () => {
+      const designNotes = readFileSync(resolve(process.cwd(), "docs/design-notes.md"), "utf8");
 
-      expect(contract).toMatch(/## renderLink/);
-      expect(contract).toMatch(/spread \*\*every\*\* prop/);
+      expect(designNotes).toMatch(/## renderLink/);
+      expect(designNotes).toMatch(/spread \*\*every\*\* prop/);
     });
   });
 
@@ -290,7 +289,7 @@ describe("ConversationList", () => {
       expect(vi.getTimerCount()).toBe(0);
     });
 
-    it('a rerender from "Untitled" to "Booking 4711" with isPlaceholderTitle absent on both animates zero times - the case the source\'s literal sniffing animates', () => {
+    it('a rerender from "Untitled" to "Booking 4711" with isPlaceholderTitle absent on both animates zero times - the case literal-title sniffing would animate', () => {
       vi.useFakeTimers();
       const { rerender } = render(<ConversationList items={[makeItem({ title: "Untitled" })]} />);
 
@@ -396,7 +395,7 @@ describe("ConversationList", () => {
   });
 });
 
-describe("the extracted source (grep acceptance criteria)", () => {
+describe("the source files (grep acceptance criteria)", () => {
   const componentPath = "src/components/ConversationList.tsx";
   const content = readFileSync(resolve(process.cwd(), componentPath), "utf8");
 
@@ -410,8 +409,8 @@ describe("the extracted source (grep acceptance criteria)", () => {
     );
   });
 
-  it("no @clerk, swr, next-intl, next/, @discovery, @/ or lucide-react import, and every relative import ends in .js", () => {
-    expect(content).not.toMatch(/@clerk|swr|next-intl|next\/|@discovery|@\/|lucide-react/);
+  it("no @clerk, swr, next-intl, next/, @/ or lucide-react import, and every relative import ends in .js", () => {
+    expect(content).not.toMatch(/@clerk|swr|next-intl|next\/|@\/|lucide-react/);
     const relativeImports = [...content.matchAll(/from\s+"(\.[^"]+)"/g)].map(([, spec]) => spec);
     expect(relativeImports.length).toBeGreaterThan(0);
     for (const spec of relativeImports) {

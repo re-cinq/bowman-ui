@@ -33,8 +33,9 @@ export interface ChatMessageListLabels
   extends ChatMessageLabels, ThinkingIndicatorLabels, ThinkingTraceLabels, ToolActivityLabels {
   /**
    * The EU AI Act disclosure line, rendered outside the scroll region in
-   * every state. Required with no default: no English placeholder may
-   * reach a Danish customer (CONTRACT.md § Labels decision 5).
+   * every state. Required with no default: no unreviewed English
+   * placeholder may stand in for it (docs/design-notes.md § Labels
+   * decision 5).
    */
   aiDisclosure: string;
   /** The scroll region's accessible name. */
@@ -54,7 +55,7 @@ export const defaultChatMessageListLabels: Readonly<
 /**
  * The chrome one persona renders with: a display name and an avatar node,
  * both consumer-owned and carrying no customer data
- * (CONTRACT.md § Attribution). Nothing else - a third member would be a
+ * (docs/design-notes.md § Attribution). Nothing else - a third member would be a
  * second place authorship is decided.
  */
 export interface ChatAttribution {
@@ -78,7 +79,7 @@ export interface ChatMessageListProps {
    * Persona id to chrome, looked up per entry. A lookup table and not a
    * render function on purpose: a server component can pass this object
    * literal across the RSC boundary but not a closure
-   * (CONTRACT.md § RSC fixture). An id absent from the table falls back to
+   * (docs/design-notes.md § RSC fixture). An id absent from the table falls back to
    * `assistantAvatar` with no name, and is never rendered.
    */
   attribution?: Readonly<Record<string, ChatAttribution>>;
@@ -117,7 +118,7 @@ export interface ChatMessageListProps {
   /**
    * Mounts a `ThinkingTrace` for every thinking entry. Default false: nothing
    * asks a customer to read the model's internal deliberation, and the content
-   * is unreviewed model output (CONTRACT.md § Thinking trace).
+   * is unreviewed model output (docs/design-notes.md § Thinking trace).
    */
   showThinking?: boolean;
   onCopy?: (text: string, entryId: string) => void;

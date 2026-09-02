@@ -2,9 +2,8 @@ name: Pages
 
 # Publishes examples/chat-demo - the documentation at "/" (the landing) and the
 # local-test chat fixture at "/?view=chat" - to GitHub Pages on every push to
-# main. The published chat renders in English (VITE_DEMO_LOCALE=en, set on the
-# build step below); local runs and ci.yml leave it unset and get the Danish
-# default the zero-English-leak Playwright proof asserts against.
+# main. The demo is English-only, so the published chat and every local run
+# render the same catalogue.
 #
 # The demo is built the way scripts/consumer-app.sh builds it: the library is
 # packed and the tarball installed by file path, never the registry, because
@@ -70,16 +69,12 @@ jobs:
         working-directory: examples/chat-demo
       # VITE_BASE_PATH is read by examples/chat-demo/vite.config.ts, which adds
       # the trailing slash Vite wants. Unset - every local run and every check
-      # in ci.yml - the demo is built for the root instead. VITE_DEMO_LOCALE=en
-      # renders the published chat fixture in English; unset (local, ci.yml) it
-      # stays Danish, the configuration the Playwright suite and the
-      # assistive-technology pass are written against.
+      # in ci.yml - the demo is built for the root instead.
       - name: Build the demo for Pages
         run: npm run build
         working-directory: examples/chat-demo
         env:
           VITE_BASE_PATH: ${{ steps.pages.outputs.base_path }}
-          VITE_DEMO_LOCALE: en
       - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:
           path: examples/chat-demo/dist

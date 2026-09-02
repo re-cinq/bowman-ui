@@ -35,7 +35,7 @@ export interface AppShellProps {
   renderSidebar?: (context: SidebarSlotContext) => ReactNode;
   /** Rendered in the mobile header row; omitted, the header shows only the hamburger. */
   brand?: ReactNode;
-  /** Controlled open state; a controlling consumer owns closing on navigation (CONTRACT.md § AppShell). */
+  /** Controlled open state; a controlling consumer owns closing on navigation (docs/design-notes.md § AppShell). */
   mobileSidebarOpen?: boolean;
   onMobileSidebarOpenChange?: (open: boolean) => void;
   mainContentId?: string;
