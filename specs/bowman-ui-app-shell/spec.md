@@ -177,7 +177,9 @@ DOM, and the deliberate decisions below are each pinned by a test.
   renders, but its `header > div` selector matches nothing - the mobile header
   is a `<div>`, not a `<header>` - so it counts zero spacers under either prop
   and the equivalence is asserted only vacuously
-  ([characterization test](../../tests/AppShell.test.tsx#L454)).
+  ([characterization test](../../tests/AppShell.test.tsx#L454));
+  the correct characterization uses `getHamburger().parentElement` and `div.h-10.w-10`
+  ([validated by](../../tests/AppShell.test.tsx#L468)).
 
 - **Test locations.** The issue names `tests/components/AppShell.test.tsx`;
   this repository keeps every test flat under `tests/`, and the partition

@@ -464,6 +464,28 @@ describe("AppShell", () => {
         const spacers = (root: HTMLElement) => root.querySelectorAll("header > div").length;
         expect(spacers(withNull)).toBe(spacers(omitted));
       });
+
+      it("brand={null} renders no centring spacer — correctly characterized with header-row selector", () => {
+        // specs/bowman-ui-app-shell/spec.md — "brand={null} renders no spacer, same as omitting the prop"
+        //
+        // Behavioral: brand={null} produces no centring spacer div in the mobile header row.
+        // Uses getHamburger().parentElement (the actual <div> header row), not "header > div"
+        // which finds nothing because the mobile header is a <div>, not <header>.
+        render(
+          <AppShell brand={null} renderSidebar={() => null}>
+            content
+          </AppShell>
+        );
+        const headerRow = getHamburger().parentElement as HTMLElement;
+        expect(headerRow.querySelector("div.h-10.w-10")).toBeNull();
+
+        // Guard: the vacuous querySelectorAll("header > div") call must not survive in this
+        // file. It finds nothing in AppShell's rendered output (the mobile header is a <div>),
+        // so any test relying on it is vacuously true. This assertion fails until the old
+        // characterization at the test above is removed.
+        const self = readFileSync(resolve(process.cwd(), "tests/AppShell.test.tsx"), "utf8");
+        expect(self).not.toMatch(/querySelectorAll\("header > div"\)/);
+      });
     });
   });
 });
