@@ -22,12 +22,12 @@ describe("AppShell", () => {
     it('renders children inside <main id="main-content"> by default', () => {
       render(
         <AppShell>
-          <p>Booking 4711 detaljer</p>
+          <p>Detalles del pedido 4711</p>
         </AppShell>
       );
 
       const main = document.querySelector("main#main-content");
-      expect(main).toContainElement(screen.getByText("Booking 4711 detaljer"));
+      expect(main).toContainElement(screen.getByText("Detalles del pedido 4711"));
     });
 
     it('mainContentId="olt-main" renders <main id="olt-main"> and a skip link with href "#olt-main"', () => {

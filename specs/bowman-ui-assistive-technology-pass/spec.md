@@ -39,7 +39,7 @@ held hostage to a listening session that has not happened yet.
 to ask "is the finished answer announced" - there was no finish. The demo now
 reproduces HAL's `entry_upsert → entry_delta → entry_commit` lifecycle
 (`hal-engine/docs/websocket-protocol.md` §7.1) with plain timers over a canned
-Danish reply in the demo's existing catalogue register. No `@re-cinq/hal-engine`
+reply in the demo's existing catalogue register. No `@re-cinq/hal-engine`
 dependency, no network, no engine: `examples/chat-demo/src/streaming.ts` splits
 the reply into 24 word-boundary chunks and schedules `setTimeout`s at 150 ms
 intervals after a 400 ms head start.
@@ -52,10 +52,10 @@ at commit - the demo's only remaining state change.
 
 Sampling the entry's text length at two times shows it longer at 2.6 s than at
 0.9 s, and shorter at 0.9 s than the committed reply
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L129)). A
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L85)). A
 second test counts the distinct growth steps and the span they cover: at least
 20 steps over at least 3 seconds
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L154)). That
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L110)). That
 second test samples inside the page rather than across the Playwright wire,
 because a slow round trip would merge two real steps into one observation and
 under-count a stream that did emit 24.
@@ -63,7 +63,7 @@ under-count a stream that did emit 24.
 ## The procedure
 
 `docs/accessibility/README.md` is the pass itself: two stacks, seven rows with
-reproduction steps against the demo's Danish catalogue, the record format, and
+reproduction steps against the demo's English catalogue, the record format, and
 the GDPR rule.
 
 NVDA plus Firefox on Windows is the mandatory primary stack - free, no licence,
@@ -74,10 +74,8 @@ is a legal verdict only on a VoiceOver row and only with a stated reason
 [without a reason](../../tests/check-at-pass.test.ts#L232),
 [with one](../../tests/check-at-pass.test.ts#L244)).
 
-The pass runs against the Danish catalogue with a Danish voice where the stack
-has one, and the record names the voice actually used. Nobody on the team
-assesses Danish pronunciation quality, so the record transcribes verbatim and
-judges nothing. Expected runtime is 60 to 90 minutes per stack for a first run.
+The pass runs against the demo's English catalogue, and the record names the
+voice actually used. The record transcribes verbatim and judges nothing. Expected runtime is 60 to 90 minutes per stack for a first run.
 
 ## What the pass will answer
 
@@ -95,9 +93,8 @@ plainly that the file is owed rather than pretending otherwise.
    its `aria-live="off"` ancestor, with entries already present
    ([validated by](../../docs/accessibility/at-pass-<date>.md#A2)).
 3. **A3.** Which of the two competing strings each stack speaks for the
-   indicator - the visible `thinking` label (`"Tænker"`) or the region's
-   `thinkingRegion` `aria-label` (`"Henter svar"`) - and whether any English
-   default was audible
+   indicator - the visible `thinking` label (`"Thinking"`) or the region's
+   `thinkingRegion` `aria-label` (`"Loading response"`)
    ([validated by](../../docs/accessibility/at-pass-<date>.md#A3)).
 4. **A4.** Whether focusing the composer announces the resolved `composerInput`
    label rather than the `composerPlaceholder` string

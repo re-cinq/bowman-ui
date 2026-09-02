@@ -249,9 +249,9 @@ describe("LoadingIcon", () => {
     expect(screen.getByRole("img", { name: "Processing request" })).toBeInTheDocument();
   });
 
-  it('ariaLabel="Indlæser" renders aria-label="Indlæser" and "Loading" appears nowhere', () => {
-    const { container } = render(<icons.LoadingIcon ariaLabel="Indlæser" />);
-    expect(container.querySelector("svg")).toHaveAttribute("aria-label", "Indlæser");
+  it('ariaLabel="Cargando" renders aria-label="Cargando" and "Loading" appears nowhere', () => {
+    const { container } = render(<icons.LoadingIcon ariaLabel="Cargando" />);
+    expect(container.querySelector("svg")).toHaveAttribute("aria-label", "Cargando");
     expect(container.innerHTML).not.toContain("Loading");
   });
 

@@ -12,7 +12,7 @@ import {
 } from "@re-cinq/bowman-ui";
 
 const resolved: Required<ErrorBoundaryLabels> = resolveLabels(defaultErrorBoundaryLabels, {
-  title: "Noget gik galt",
+  title: "Algo salió mal",
   retry: undefined,
 });
 

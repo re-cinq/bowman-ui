@@ -125,7 +125,7 @@ Three flat keys per 022 Decision 2: `composerInput` (the textarea's
 `composerInput` while showing the `composerPlaceholder`; the send button's
 accessible name is the resolved `send` label with its `SendIcon`
 `aria-hidden` per 020's `getAccessibleIconProps` contract
-([validated by](../../tests/ChatComposer.test.tsx#L288), defaults
+([validated by](../../tests/ChatComposer.test.tsx#L289), defaults
 [L302](../../tests/ChatComposer.test.tsx#L302),
 [L311](../../tests/ChatComposer.test.tsx#L311)).
 
@@ -139,7 +139,7 @@ compiled against `dist/`
 covers it ([validated by](../../tests/labelled-exports.test.tsx#L484)).
 
 **Note - the two-of-three placeholder nuance.** Two of the three Discovery
-copies use the `chat.reply` placeholder (`"Svar..."` / `"Reply..."`); the
+copies use the `chat.reply` placeholder (the localized reply prompt / `"Reply..."`); the
 empty-state copy uses `chat.welcomeSubtitle`, a different welcome sentence.
 The single `composerPlaceholder` default (`"Reply..."`) follows the
 two-of-three majority; a consumer rendering the empty state passes its

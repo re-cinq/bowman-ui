@@ -16,9 +16,9 @@ import {
   type SidebarStateOptions,
 } from "@re-cinq/bowman-ui";
 
-const focusOptions: FocusGroupsOptions = { announce: (group) => `Skiftet til ${group}` };
+const focusOptions: FocusGroupsOptions = { announce: (group) => `Ahora en ${group}` };
 const sidebarOptions: SidebarStateOptions = { storagePrefix: "olt-", defaultOpen: false };
-const labels: Partial<ErrorBoundaryLabels> = { title: "Noget gik galt" };
+const labels: Partial<ErrorBoundaryLabels> = { title: "Algo salió mal" };
 
 const Consumer = () => {
   const debounced: string = useDebounce("query", 300);

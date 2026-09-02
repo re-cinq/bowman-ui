@@ -58,7 +58,11 @@ describe("ErrorBoundary", () => {
   it("labels override the defaults per key and no English remains", () => {
     render(
       <ErrorBoundary
-        labels={{ title: "Noget gik galt", description: "Prøv igen senere.", retry: "Prøv igen" }}
+        labels={{
+          title: "Algo salió mal",
+          description: "Inténtalo de nuevo más tarde.",
+          retry: "Reintentar",
+        }}
       >
         <Bomb error={new Error("boom")} />
       </ErrorBoundary>,
@@ -66,15 +70,15 @@ describe("ErrorBoundary", () => {
     );
 
     const alert = screen.getByRole("alert");
-    expect(alert).toHaveTextContent("Noget gik galt");
-    expect(alert).toHaveTextContent("Prøv igen senere.");
-    expect(screen.getByRole("button", { name: "Prøv igen" })).toBeInTheDocument();
+    expect(alert).toHaveTextContent("Algo salió mal");
+    expect(alert).toHaveTextContent("Inténtalo de nuevo más tarde.");
+    expect(screen.getByRole("button", { name: "Reintentar" })).toBeInTheDocument();
     expect(alert.textContent).not.toMatch(/Something went wrong|Try again/);
   });
 
   it("an explicit undefined label - a consumer's missed catalogue lookup - falls back to the English default", () => {
     render(
-      <ErrorBoundary labels={{ title: undefined, retry: "Prøv igen" }}>
+      <ErrorBoundary labels={{ title: undefined, retry: "Reintentar" }}>
         <Bomb error={new Error("boom")} />
       </ErrorBoundary>,
       silenced
@@ -82,7 +86,7 @@ describe("ErrorBoundary", () => {
 
     const alert = screen.getByRole("alert");
     expect(alert).toHaveTextContent("Something went wrong");
-    expect(screen.getByRole("button", { name: "Prøv igen" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Reintentar" })).toBeInTheDocument();
   });
 
   it("a fallback node wins over labels", () => {

@@ -18,7 +18,7 @@ const oneParameter: ComponentProps<typeof ToolActivity>["describeTool"] = descri
 void oneParameter;
 
 const describeWithPending = (entry: ToolChatEntry, pending: boolean): ReactNode =>
-  pending ? `Slår ${entry.toolName} op` : `Slog ${entry.toolName} op`;
+  pending ? `Consultando ${entry.toolName}` : `Consultado ${entry.toolName}`;
 const bothParameters: ComponentProps<typeof ToolActivity>["describeTool"] = describeWithPending;
 void bothParameters;
 

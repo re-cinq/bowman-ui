@@ -79,12 +79,12 @@ describe("ToolActivity", () => {
       render(
         <ToolActivity
           entry={weatherEntry}
-          describeTool={() => "Slår din booking op"}
+          describeTool={() => "Consultando tu pedido"}
           showToolName
         />
       );
 
-      expect(screen.getByText("Slår din booking op")).toBeInTheDocument();
+      expect(screen.getByText("Consultando tu pedido")).toBeInTheDocument();
       expect(screen.queryByText("Looked something up")).not.toBeInTheDocument();
       expect(screen.getByText("get_weather")).toBeInTheDocument();
     });
@@ -151,12 +151,12 @@ describe("ToolActivity", () => {
           entry={weatherEntry}
           pending
           showToolInput
-          labels={{ activity: "Slår op", details: "Detaljer" }}
+          labels={{ activity: "Consultando", details: "Detalles" }}
         />
       );
 
-      expect(screen.getByText("Slår op")).toBeInTheDocument();
-      expect(screen.getByText("Detaljer")).toBeInTheDocument();
+      expect(screen.getByText("Consultando")).toBeInTheDocument();
+      expect(screen.getByText("Detalles")).toBeInTheDocument();
     });
 
     it("defaultToolActivityLabels is frozen with the three English strings", () => {

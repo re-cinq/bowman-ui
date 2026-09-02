@@ -144,7 +144,7 @@ function GrownComposer() {
 
   useEffect(() => {
     composerRef.current?.setValue(
-      "Hello again,\nI would like to move the departure to Friday.\nSame departure time if that is possible."
+      "Hello again,\nI would like to move the delivery to Friday.\nSame delivery slot if that is possible."
     );
   }, []);
 
@@ -184,7 +184,7 @@ function FallbackTrigger({ broken, onBreak }: { broken: boolean; onBreak: () => 
 }
 
 const describeTool = (_entry: ToolChatEntry, pending: boolean): ReactNode =>
-  pending ? "Looking up departures" : "Looked up departures";
+  pending ? "Looking up stock" : "Looked up stock";
 
 export const componentDocs: ReadonlyArray<ComponentDoc> = [
   {
@@ -220,7 +220,7 @@ export const componentDocs: ReadonlyArray<ComponentDoc> = [
           <ChatMessage
             entry={docsNamedEntry}
             userInitials={docsUserInitials}
-            assistantName="Havkat Booking"
+            assistantName="Marginalia Orders"
           />
         ),
       },
@@ -233,7 +233,7 @@ export const componentDocs: ReadonlyArray<ComponentDoc> = [
             userInitials={docsUserInitials}
             footer={
               <p className="text-xs text-slate-500 dark:text-slate-400">
-                Source: an invented travel condition
+                Source: an invented delivery term
               </p>
             }
           />
@@ -305,7 +305,7 @@ export const componentDocs: ReadonlyArray<ComponentDoc> = [
     id: "tool-activity",
     name: "ToolActivity",
     purpose:
-      "A tool invocation the model requested, rendered as a status line rather than a message: no avatar, no copy, no feedback. The default withholds both the tool name (an English machine identifier in a Danish-first product) and the arguments (model-authored data that may carry a booking reference), and a consumer opts each in per prop. Arguments, when shown, are JSON in a pre behind a native details element, so nothing model-authored is ever interpreted as markup.",
+      "A tool invocation the model requested, rendered as a status line rather than a message: no avatar, no copy, no feedback. The default withholds both the tool name (a machine identifier, not customer-facing copy) and the arguments (model-authored data that may carry an order reference), and a consumer opts each in per prop. Arguments, when shown, are JSON in a pre behind a native details element, so nothing model-authored is ever interpreted as markup.",
     importLine: 'import { ToolActivity } from "@re-cinq/bowman-ui";',
     Example: ToolActivityExample,
     exampleSource: toolActivitySource,

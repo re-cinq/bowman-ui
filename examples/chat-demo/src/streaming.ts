@@ -1,7 +1,7 @@
 // The demo's stand-in for HAL's streaming lifecycle
 // (hal-engine/docs/websocket-protocol.md 7.1): entry_upsert creates an empty
 // assistant entry, entry_delta grows its content, entry_commit clears the
-// streaming flag. Plain timers over the canned Danish reply in fixtures.ts -
+// streaming flag. Plain timers over the canned reply in fixtures.ts -
 // no @re-cinq/hal-engine dependency, no network, nothing to configure. The
 // step count and interval exist so a screen-reader pass has a reply long
 // enough to listen to (re-cinq/Otto#97).
