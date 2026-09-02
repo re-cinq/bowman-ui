@@ -47,12 +47,10 @@ export interface ChatComposerHandle {
   setValue(value: string): void;
 }
 
-// The chat input surface authored new for E3: the source app writes this
-// block inline three times and never as a component. The draft is
-// uncontrolled - the source only writes into it from outside, which the
-// ref handle covers - and the Enter-to-send path adds the isComposing
-// guard all three inline copies lack, so committing an IME candidate no
-// longer sends a half-finished message.
+// The chat input surface. The draft is uncontrolled - outside writes go
+// through the ref handle - and the Enter-to-send path carries an
+// isComposing guard, so committing an IME candidate never sends a
+// half-finished message.
 export function ChatComposer({
   onSubmit,
   busy = false,

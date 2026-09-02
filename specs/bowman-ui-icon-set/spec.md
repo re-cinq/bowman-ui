@@ -2,40 +2,35 @@
 
 Issue: re-cinq/Otto#70 (`020-bowman-ui-icon-set`)
 
-The local SVG icon set moves from Discovery (`apps/web/components/icons/Icon.tsx`
-and `index.tsx` on `main` at `1aa3647fa5f75997ceea6bdc11f3fa66cea79b29`) into
-`src/icons/Icon.tsx` and `src/icons/index.tsx`, re-exported from the root
+The local SVG icon set lives in `src/icons/Icon.tsx` and `src/icons/index.tsx`,
+re-exported from the root
 barrel `src/index.ts` - no `./icons` subpath, since `014` pinned `exports` to a
 single `"."` entry ([validated by](../../tests/icons-dist.test.ts#L46)). `src/icons/index.tsx` exports exactly 23 icon components,
 enumerated by name so a dropped icon fails the build rather than the consumer
-([validated by](../../tests/icons.test.tsx#L58)). Path data is byte-identical
-to the source, asserted attribute-by-attribute against a verbatim pre-move
+([validated by](../../tests/icons.test.tsx#L58)). Path data is pinned
+byte-for-byte, asserted attribute-by-attribute against a golden-master
 fixture copy rather than by `outerHTML` string - attribute order in `outerHTML`
 follows JSX order and changes when the element moves into `IconWrapper`
-([validated by](../../tests/icons.test.tsx#L155), oracle at
-[tests/fixtures/premove-icons.tsx](../../tests/fixtures/premove-icons.tsx)).
+([validated by](../../tests/icons.test.tsx#L156), oracle at
+[tests/fixtures/golden-icons.tsx](../../tests/fixtures/golden-icons.tsx)).
 
-## IconWrapper becomes the render path
+## IconWrapper is the render path
 
-In Discovery, `IconWrapper` is dead code: declared at `Icon.tsx:46` and
-re-exported at `index.tsx:23`, rendered by nothing - all 24 icons open a raw
-`<svg>` themselves (evidence: `grep -rn "IconWrapper" apps/web` outside
-`node_modules` hits only `Icon.tsx:46-47` and the `index.tsx:23` re-export).
-Here the 22 uniform icons render `<IconWrapper {...svgProps}>` through a
+The 22 uniform icons render `<IconWrapper {...svgProps}>` through a
 single `createUniformIcon(displayName, pathData, defaultStrokeWidth?)`
 path-table factory, each call `/*#__PURE__*/`-annotated so a bundler can
 tree-shake unused icons - issue #50 collapsed the 22 repeated shells into one
-render site and #55 re-pinned the source-structure characterization on the
+render site and #55 re-pinned the structure characterization on the
 PURE-annotated calls accordingly
 ([validated by](../../tests/icons.test.tsx#L66)). The factory stamps each
 icon's own `displayName` and `Function.name`, the two properties React
 DevTools and ErrorBoundary componentStack frames read component names from
-([validated by](../../tests/icons.test.tsx#L313)). Each root
+([validated by](../../tests/icons.test.tsx#L316)). Each root
 `<svg>` carries
 `fill="none"`, `viewBox="0 0 24 24"` and, for the 22, `stroke="currentColor"`
 ([validated by](../../tests/icons.test.tsx#L133),
 [L125](../../tests/icons.test.tsx#L142)). `forwardRef` stays exactly as-is per
-`018` Decision 4 - rewriting it away would turn the `^19.0.0` peer range from a
+docs/design-notes.md decision 4 - rewriting it away would turn the `^19.0.0` peer range from a
 testing claim into a hard React 19 floor; the icons still take no `ref` prop
 ([validated by](../../tests/icons-dist.test.ts#L46)).
 
@@ -43,41 +38,34 @@ testing claim into a hard React 19 floor; the icons still take no `ref` prop
 `IconWrapper` hardcodes `stroke="currentColor"` on the root, which would put a
 stroke on the deliberately strokeless spinner path, and `LoadingIcon` composes
 its `className` (`` `animate-spin ${className || ""}` ``) rather than passing
-it through ([validated by](../../tests/icons.test.tsx#L264),
-[L257](../../tests/icons.test.tsx#L274)). The would-be regression is pinned: no root `stroke` attribute,
+it through ([validated by](../../tests/icons.test.tsx#L267),
+[L257](../../tests/icons.test.tsx#L277)). The would-be regression is pinned: no root `stroke` attribute,
 `class` containing `animate-spin`, `<path fill="currentColor">` with no stroke
-([validated by](../../tests/icons.test.tsx#L258)). `animate-spin` is a Tailwind
+([validated by](../../tests/icons.test.tsx#L261)). `animate-spin` is a Tailwind
 core utility, not one of the three keyframes `019` ships - `src/styles.css`
 gains no rule for it; a consumer's Tailwind build generates it by scanning
 the installed `dist` ([validated by](../../tests/icons.test.tsx#L125)).
-`LoadingIcon`'s English `ariaLabel` default `"Loading"` (source `index.tsx:354`)
-is preserved as the icon set's only user-visible string, prop-overridable per
+`LoadingIcon`'s English `ariaLabel` default `"Loading"`
+is the icon set's only user-visible string, prop-overridable per
 call site; the icon set needs no `labels` prop and the `labels` issue does
-not touch it ([validated by](../../tests/icons.test.tsx#L242),
-[L230](../../tests/icons.test.tsx#L247)).
+not touch it ([validated by](../../tests/icons.test.tsx#L245),
+[L230](../../tests/icons.test.tsx#L250)).
 
 ## The public props type: `IconProps`
 
-The module-private `BaseIconProps` (source `index.tsx:25`) is promoted to the
-public, exported `IconProps = {className?: string; ariaLabel?: string;
+The icons share one public, exported `IconProps = {className?: string;
+ariaLabel?: string;
 strokeWidth?: number}`, and every one of the 23 icons is typed with it
 ([validated by](../../tests/icons-dist.test.ts#L46)). A
 type-level test compiles `const Wrapped = (p: IconProps) => <SendIcon {...p} />`
-against the built `dist` types through the self-referencing package import -
-the case `018` recorded as impossible before this issue
+against the built `dist` types through the self-referencing package import
 ([validated by](../../tests/icons-dist.test.ts#L46), assertions at
 [tests/types/icon-type-assertions.tsx](../../tests/types/icon-type-assertions.tsx#L15)).
 
-The previously-exported `IconProps` at `Icon.tsx:21` - a `{name: string}`
-registry-lookup shape for an `<Icon name="...">` component the file never
-exported - is absent from `src/`
-([validated by](../../tests/icons.test.tsx#L78)). Grep evidence that it has no
-consumers in Discovery (`main` at `1aa3647`): `grep -rn "IconProps" apps/web`
-outside `node_modules` hits only its declaration (`Icon.tsx:21`), the
-`index.tsx:22` re-export, and `BaseIconProps`/`IconSvgProps` matches; the
-`<Icon ` occurrences in `AppSidebar.tsx:60` and `AppMobileSidebar.tsx:117` are
-locally-renamed component variables, not the registry component, and the test
-suite imports only `getAccessibleIconProps`.
+No `{name: string}` registry-lookup `IconProps` shape exists in `src/` -
+icons are imported directly by name, never resolved through a registry
+component
+([validated by](../../tests/icons.test.tsx#L78)).
 
 `IconWrapper` and `getAccessibleIconProps` are exported from the root barrel
 and `IconSvgProps` as a type - `getAccessibleIconProps` returns a `Pick` of it
@@ -89,33 +77,33 @@ ships `dist/icons/Icon.{js,d.ts}` and `dist/icons/index.{js,d.ts}`
 
 ## Accessibility contract
 
-The ported Discovery suite (`apps/web/tests/components/icons.test.tsx`, 155
-lines) passes unchanged in meaning: no label → `aria-hidden="true"` and no
+The tested accessibility behaviour holds for every icon: no label →
+`aria-hidden="true"` and no
 `role`; a label → `aria-hidden="false"`, `role="img"`, `aria-label` set
-([validated by](../../tests/icons.test.tsx#L167),
-[L166](../../tests/icons.test.tsx#L183),
-[L180](../../tests/icons.test.tsx#L197),
-[L191](../../tests/icons.test.tsx#L208),
-[L202](../../tests/icons.test.tsx#L219),
-[L213](../../tests/icons.test.tsx#L230)). The
+([validated by](../../tests/icons.test.tsx#L170),
+[L166](../../tests/icons.test.tsx#L186),
+[L180](../../tests/icons.test.tsx#L200),
+[L191](../../tests/icons.test.tsx#L211),
+[L202](../../tests/icons.test.tsx#L222),
+[L213](../../tests/icons.test.tsx#L233)). The
 `getAttribute`-based class assertions work around `SVGAnimatedString`
-([validated by](../../tests/icons.test.tsx#L253),
-[L282](../../tests/icons.test.tsx#L299)).
+([validated by](../../tests/icons.test.tsx#L256),
+[L282](../../tests/icons.test.tsx#L302)).
 
 `strokeWidth` defaults to `2` and reaches both the `<svg>` and the `<path>`
-([validated by](../../tests/icons.test.tsx#L281)).
+([validated by](../../tests/icons.test.tsx#L284)).
 `<SearchIcon strokeWidth={1.5} />` renders `stroke-width="1.5"` on the path
-([validated by](../../tests/icons.test.tsx#L287)). `DatabaseIcon` defaults to
-`1.5` ([validated by](../../tests/icons.test.tsx#L292)).
+([validated by](../../tests/icons.test.tsx#L290)). `DatabaseIcon` defaults to
+`1.5` ([validated by](../../tests/icons.test.tsx#L295)).
 
-## What does not move
+## No brand mark ships
 
-`LogoIcon` (source `index.tsx:158-169`) does not move: it is Discovery's sparkle
-mark, structurally unlike its 23 neighbours (no stroke, `fill="currentColor"`
-path, `strokeWidth` ignored), and `018` Decision 3 forbids a bundled default
+No `LogoIcon` exists in the set: a brand mark is structurally unlike the 23
+icons (no stroke, a `fill="currentColor"`
+path, `strokeWidth` ignored), and docs/design-notes.md decision 3 forbids a bundled default
 mark ([validated by](../../tests/icons.test.tsx#L71)). `grep -rn "LogoIcon" src/` returns nothing
 ([validated by](../../tests/icons.test.tsx#L71)). The README points a
-consumer wanting a brand mark at the `assistantAvatar` slot from `CONTRACT.md`
+consumer wanting a brand mark at the `assistantAvatar` slot from `docs/design-notes.md`
 ([validated by](../../tests/icons.test.tsx#L102)).
 
 ## Client boundary
@@ -123,23 +111,8 @@ consumer wanting a brand mark at the `assistantAvatar` slot from `CONTRACT.md`
 No file under `src/icons/` carries `"use client"` - the icons use no
 client-only React API
 ([validated by](../../tests/icons.test.tsx#L119)). `scripts/check-client-directives.mjs`
-passes against the new files, the first exercise of `018`'s contract
-requirement against real extracted code
+passes against every file under `src/icons/`, per docs/design-notes.md
+decision 1
 ([validated by](../../tests/client-directives.test.ts#L80)).
 Every relative import under `src/icons/` ends in `.js` and no file contains
 `"@/` ([validated by](../../tests/icons.test.tsx#L108)).
-
-## Spec-vs-source notes
-
-- Every line number the issue cites checks out against Discovery `main` at
-  `1aa3647`: `BaseIconProps` at `index.tsx:25`, `LogoIcon` at `:158-169`,
-  `LoadingIcon`'s default at `:354`, `DatabaseIcon`'s `?? 1.5` at `:374`, the
-  dead `IconProps` at `Icon.tsx:21`, `IconSvgProps` at `:35`, `IconWrapper` at
-  `:46`, `getAccessibleIconProps` at `:72`, and the 155-line test suite. No
-  discrepancy found.
-- `src/Placeholder.tsx` carries a comment claiming "the first real extraction
-  PR deletes Placeholder.tsx". This issue's acceptance criteria do not include
-  that deletion, and Placeholder is currently the only directive-carrying file
-  proving the `"use client"` dist-emission pipeline
-  (`tests/build-contract.test.ts`), so it stays until a component extraction
-  lands a real `"use client"` file to take over that role.

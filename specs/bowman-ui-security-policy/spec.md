@@ -61,14 +61,14 @@ through the controls above. A component's `labels` prop is the exception: it is 
 consumer-supplied string that the library renders directly, so a `labels` value that escaped text
 rendering would be a real vulnerability. The `linkOpensInNewTab` override is the worked example -
 an overridden label reaches the rendered notice element verbatim, as text
-([validated by](../../tests/ChatMessage.test.tsx#L777)).
+([validated by](../../tests/ChatMessage.test.tsx#L771)).
 
 ## Out of scope
 
 - **Authorization and data-boundary defects belong to the consuming application.** A `bowman-ui`
   component renders exactly the `ChatEntry[]` it is handed; it holds no credential, makes no
   access decision, and fetches nothing. Data reaching the wrong customer is an authorization
-  defect in `support-agent` or `discovery`, not this library - there is no `src/` code path that
+  defect in the consuming application, not this library - there is no `src/` code path that
   could prove or disprove someone else's authorization logic, so this carries no validated-by
   link.
 - **Hardening the renderer beyond the documented controls** is a feature request, not a

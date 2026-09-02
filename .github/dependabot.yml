@@ -41,7 +41,7 @@ updates:
           - "minor"
           - "patch"
     ignore:
-      # Peer range is a tested claim, not a floor (CONTRACT.md decision 4).
+      # Peer range is a tested claim, not a floor (docs/design-notes.md decision 4).
       # Widening it is a deliberate act with a test matrix behind it.
       - dependency-name: "react"
         update-types: ["version-update:semver-major"]

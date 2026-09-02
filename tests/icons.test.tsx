@@ -6,7 +6,7 @@ import type { ComponentType } from "react";
 import * as icons from "../src/icons/index.js";
 import type { IconProps } from "../src/icons/index.js";
 import { getAccessibleIconProps } from "../src/icons/index.js";
-import * as premove from "./fixtures/premove-icons.js";
+import * as golden from "./fixtures/golden-icons.js";
 
 const uniformIconNames = [
   "ArtifactsIcon",
@@ -152,17 +152,20 @@ const propScenarios: [string, IconProps][] = [
   ],
 ];
 
-describe.each(propScenarios)("equivalence with the pre-move output, given %s", (_label, props) => {
-  it.each([...iconNames])(
-    "%s matches attribute-by-attribute and in child markup",
-    (name: IconName) => {
-      const current = renderRootSvg(icons[name], props);
-      const previous = renderRootSvg(premove[name], props);
-      expect(attributeMap(current)).toEqual(attributeMap(previous));
-      expect(current.innerHTML).toBe(previous.innerHTML);
-    }
-  );
-});
+describe.each(propScenarios)(
+  "equivalence with the golden-master snapshot, given %s",
+  (_label, props) => {
+    it.each([...iconNames])(
+      "%s matches attribute-by-attribute and in child markup",
+      (name: IconName) => {
+        const current = renderRootSvg(icons[name], props);
+        const previous = renderRootSvg(golden[name], props);
+        expect(attributeMap(current)).toEqual(attributeMap(previous));
+        expect(current.innerHTML).toBe(previous.innerHTML);
+      }
+    );
+  }
+);
 
 describe("getAccessibleIconProps", () => {
   it("returns aria-hidden for decorative icons (no label)", () => {

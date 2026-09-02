@@ -7,9 +7,8 @@ column, the pinned auto-scroll, the empty state, and the EU AI Act
 disclosure band, shipped as `src/components/ChatMessageList.tsx`
 (`ChatMessageList`, `ChatMessageListProps`, `ChatMessageListHandle`,
 `ChatMessageListLabels`, `defaultChatMessageListLabels`) and exported from
-`src/index.ts`. It replaces the two diverging inline copies in Discovery's
-`app/chat/page.tsx` and `app/chat/[id]/page.tsx`; no file in `discovery`
-changes.
+`src/index.ts`. It ships the transcript once, as a component, instead of
+every consumer screen re-writing it inline and diverging.
 
 ## The public surface
 
@@ -40,7 +39,7 @@ adds `showThinking`, the flag that gates whether a thinking entry mounts a
 
 `ChatMessageListLabels` extends `ChatMessageLabels`, `ThinkingIndicatorLabels`
 and, since `specs/bowman-ui-tool-activity/spec.md`, `ToolActivityLabels` -
-the flat composite of CONTRACT.md § Labels decision 3 - plus `aiDisclosure`
+the flat composite of docs/design-notes.md § Labels decision 3 - plus `aiDisclosure`
 (required, no default) and `transcript` (the scroll region's accessible
 name, default `"Conversation"`). `ChatMessageLabels` and
 `ThinkingIndicatorLabels` both declare `thinking: string`; the keys collide
@@ -58,7 +57,7 @@ seventeen in `defaultChatMessageListLabels`
 Because `aiDisclosure` has no default, `ChatMessageList` is the package's
 first component whose `labels` prop is itself **required**:
 `labels: Partial<ChatMessageListLabels> & Required<Pick<ChatMessageListLabels, "aiDisclosure">>`.
-CONTRACT.md § Labels records the exception. Omitting `aiDisclosure` is a
+docs/design-notes.md § Labels records the exception. Omitting `aiDisclosure` is a
 compile error, pinned from outside by an `@ts-expect-error` fixture, and the
 defaults object cannot satisfy `Readonly<Required<ChatMessageListLabels>>`
 ([validated by](../../tests/types/chat-message-list-type-assertions.tsx#L88),
@@ -73,8 +72,8 @@ default ([validated by](../../tests/ChatMessageList.test.tsx#L188)).
 1. **The AI disclosure is a band above the scroll region, unremovable.**
    The EU AI Act obliges telling users they are talking to an AI, and the
    obligation applies regardless of server location because the agent
-   serves EU users. The component ships no default sentence, so no English
-   placeholder can reach a Danish customer - the required label is the
+   serves EU users. The component ships no default sentence, so no
+   unreviewed English placeholder can stand in - the required label is the
    enforcement. The band renders outside the scroll region (it cannot
    scroll away) and above it (visible before the customer types), in both
    states, and no prop in `ChatMessageListProps` removes it - pinned by a
@@ -82,7 +81,7 @@ default ([validated by](../../tests/ChatMessageList.test.tsx#L188)).
    ([validated by](../../tests/ChatMessageList.test.tsx#L150),
    [L143](../../tests/ChatMessageList.test.tsx#L165)). The type enforces
    presence, not substance: an empty string renders an empty band, and per
-   CONTRACT.md § Labels decision 5 the package adds no runtime guard - a
+   docs/design-notes.md § Labels decision 5 the package adds no runtime guard - a
    consumer that supplies `""` owns that compliance failure.
 2. **Auto-scroll follows the bottom only while the reader is pinned.**
    Pinning is tracked on the region's `scroll` event as
@@ -160,8 +159,9 @@ default ([validated by](../../tests/ChatMessageList.test.tsx#L188)).
    [L95](../../tests/ChatMessageList.test.tsx#L117)). An empty transcript
    with `busy` shows the indicator, not the slots
    ([validated by](../../tests/ChatMessageList.test.tsx#L133)). The library
-   computes neither slot: Discovery's greeting reads the clock and Clerk
-   identity during render, and its prompt catalogue is CFO-domain - both
+   computes neither slot: a greeting typically reads the clock and the
+   signed-in identity during render, and a prompt catalogue is
+   product-specific - both
    belong to the consumer.
 8. **`busy` renders exactly one `ThinkingIndicator`, after the last
    entry**, forwarding `assistantAvatar` and the `thinking`/`thinkingRegion`
@@ -180,18 +180,18 @@ default ([validated by](../../tests/ChatMessageList.test.tsx#L188)).
 The root is `flex min-h-0 flex-1 flex-col` and the region
 `overflow-y-auto` with a `max-w-3xl` column at `gap-6` rhythm. Without
 `min-h-0` a flex child never shrinks and the region never scrolls, so the
-parent must be a bounded flex column - recorded as CONTRACT.md's
+parent must be a bounded flex column - recorded as docs/design-notes.md's
 `## Layout` section, the note every consumer reads before mounting the
 list.
 
-## Carried across mechanically
+## Mechanical invariants
 
-- No `@clerk`, `swr`, `next-intl`, `next/`, `@discovery`, `@/` or
+- No `@clerk`, `swr`, `next-intl`, `next/`, `@/` or
   `lucide-react` import, and every relative import ends in `.js`
-  ([validated by](../../tests/ChatMessageList.test.tsx#L924)).
+  ([validated by](../../tests/ChatMessageList.test.tsx#L925)).
 - **GDPR.** The rendered entries are customer questions carrying booking
-  identifiers and names (`003-support-conversation-data-flow-record`). The
-  source references no `console.`, `localStorage`, `sessionStorage`,
+  identifiers and names. The
+  component references no `console.`, `localStorage`, `sessionStorage`,
   `fetch`, `sendBeacon` - nor `scrollIntoView`
   ([validated by](../../tests/ChatMessageList.test.tsx#L933)); the
   suite-wide console and network traps in `tests/setup.ts` hold every test
@@ -213,9 +213,9 @@ list.
 
 ## Recorded decisions
 
-- **Name.** `ChatMessageList`, not `MessageList`: the latter is a 429-line
-  Discovery dev-harness component that stays put while this package is
-  imported alongside it.
+- **Name.** `ChatMessageList`, not `MessageList`: the longer name states
+  what the list holds and stays clear of the generic `MessageList` name a
+  consumer app is likely to declare itself.
 - **Labels forwarding.** The resolved eighteen-key object is handed to
   `ChatMessage` whole - structurally a valid `Partial<ChatMessageLabels>`
   whose seven extra keys ride along harmlessly through `ChatMessage`'s own

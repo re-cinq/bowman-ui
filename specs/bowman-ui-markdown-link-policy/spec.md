@@ -113,14 +113,14 @@ result stays assignable to `react-markdown`'s `Components`
 `ChatMessage` merges its `markdown` prop over `defaultMarkdownPolicy` (via
 `resolveLabels`, so an explicit `undefined` field cannot clobber a default)
 and passes the factory's map plus `createUrlTransform`'s result to
-`ReactMarkdown` ([validated by](../../tests/ChatMessage.test.tsx#L724),
-[L649](../../tests/ChatMessage.test.tsx#L752),
-[L661](../../tests/ChatMessage.test.tsx#L764)). A rejected link renders as a
-span ([validated by](../../tests/ChatMessage.test.tsx#L739)). An image
+`ReactMarkdown` ([validated by](../../tests/ChatMessage.test.tsx#L718),
+[L649](../../tests/ChatMessage.test.tsx#L746),
+[L661](../../tests/ChatMessage.test.tsx#L758)). A rejected link renders as a
+span ([validated by](../../tests/ChatMessage.test.tsx#L733)). An image
 renders as alt text
-([validated by](../../tests/ChatMessage.test.tsx#L789)). The
+([validated by](../../tests/ChatMessage.test.tsx#L783)). The
 `linkOpensInNewTab` override reaches the notice
-([validated by](../../tests/ChatMessage.test.tsx#L777)).
+([validated by](../../tests/ChatMessage.test.tsx#L771)).
 
 ## Recorded decisions, interpretations and deviations
 
@@ -129,7 +129,7 @@ renders as alt text
   criterion, the "merged over `defaultMarkdownPolicy`" wording and the
   one-line `http` opt-in all require field-level merging - so the fields
   carry `?` and the prop stays the issue's literal `markdown?: MarkdownPolicy`
-  ([validated by](../../tests/ChatMessage.test.tsx#L752)).
+  ([validated by](../../tests/ChatMessage.test.tsx#L746)).
 - **The transform never decodes.** `java&#x09;script:` reaches the transform
   percent-encoded as `java%09script:`; comparing the raw scheme keeps the
   bypass closed, and a later `decodeURIComponent` "cleanup" would reopen it
@@ -162,7 +162,7 @@ renders as alt text
   labelled-defaults pairing to a `default*Labels` match, and two more
   unrequested public names would buy nothing a consumer needs.
 - **The factory sits in the `labelsProp` partition bucket** with its own
-  sentinel harness and key-coverage test (CONTRACT.md § Labels records the
+  sentinel harness and key-coverage test (docs/design-notes.md § Labels records the
   shape; Toast's closed-list precedent)
   ([validated by](../../tests/labelled-exports.test.tsx#L359),
   [L349](../../tests/labelled-exports.test.tsx#L437)).

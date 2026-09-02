@@ -30,7 +30,7 @@ export interface ChatMessageLabels {
   assistantMessage: string;
   /**
    * The article's accessible name when `assistantName` is set - the
-   * function form CONTRACT.md § Labels decision 4 requires of an
+   * function form docs/design-notes.md § Labels decision 4 requires of an
    * interpolated label.
    */
   assistantMessageFrom: (name: string) => string;
@@ -301,8 +301,8 @@ function AssistantMessage({
 
   // Once content or tool status has appeared for THIS entry id, never show
   // the thinking indicator again. The latch is keyed by entry.id and reset
-  // on an id change: the source app happens to key its message list by id,
-  // but a library cannot assume its consumer does.
+  // on an id change: a consumer typically keys its message list by id, but
+  // a library cannot assume every consumer does.
   const latch = useRef({ id: entry.id, hasReceivedContent: false });
   if (latch.current.id !== entry.id) {
     latch.current = { id: entry.id, hasReceivedContent: false };

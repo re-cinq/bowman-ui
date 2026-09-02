@@ -42,7 +42,7 @@ export interface AssistantChatEntry {
    * never resolves it: it is a key into the consumer's own `attribution`
    * lookup (see `ChatAttribution`), never rendered and never interpreted
    * here. It must not carry personal data - it is persisted, replayed and
-   * logged wherever the session is (CONTRACT.md § Attribution).
+   * logged wherever the session is (docs/design-notes.md § Attribution).
    */
   persona?: string;
 }

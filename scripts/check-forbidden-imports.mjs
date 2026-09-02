@@ -5,11 +5,11 @@
 // package.json (dependencies + peerDependencies, read at runtime); subpaths
 // of a declared package count as the package. Anything else fails - which
 // covers the original name blocklist (next, next-intl, swr, @clerk/*, the
-// lucide-react icon library of CONTRACT.md decision 2, the @/ path alias of
-// CONTRACT.md decision 5, and any internal source-app package) without
-// needing to enumerate names that a copy-paste could vary. This scan reads
+// lucide-react icon library of docs/design-notes.md decision 2, the @/ path alias of
+// docs/design-notes.md decision 5, and any other undeclared scoped package)
+// without needing to enumerate names that a copy-paste could vary. This scan reads
 // src/ only, so examples/rsc-fixture - the one path in the repo where next
-// may appear, CONTRACT.md § RSC fixture - is outside its scope by
+// may appear, docs/design-notes.md § RSC fixture - is outside its scope by
 // construction; the exemption changes nothing about this script.
 //
 // Static on top of, not instead of, the dynamic node_modules scan in

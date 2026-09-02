@@ -429,7 +429,7 @@ describe("AppShell", () => {
     });
 
     it("no framework, auth, i18n or aliased import survives, and every relative import ends in .js", () => {
-      expect(source).not.toMatch(/@clerk|swr|next-intl|next\/|@discovery|@\/|lucide-react/);
+      expect(source).not.toMatch(/@clerk|swr|next-intl|next\/|@\/|lucide-react/);
 
       const relativeImports = [...source.matchAll(/from\s+"(\.[^"]*)"/g)].map(
         ([, specifier]) => specifier

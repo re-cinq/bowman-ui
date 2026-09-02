@@ -7,7 +7,7 @@ import type { SidebarNavItem } from "../src/index.js";
 const threeItems: SidebarNavItem[] = [
   { key: "dashboard", label: "Dashboard" },
   { key: "chat", label: "Chat", isActive: true },
-  { key: "settings", label: "Indstillinger" },
+  { key: "settings", label: "Ajustes" },
 ];
 
 describe("AppSidebar", () => {
@@ -59,7 +59,7 @@ describe("AppSidebar", () => {
 
       const rows = screen.getAllByRole("button");
       expect(rows).toHaveLength(3);
-      expect(rows.map((row) => row.textContent)).toEqual(["Dashboard", "Chat", "Indstillinger"]);
+      expect(rows.map((row) => row.textContent)).toEqual(["Dashboard", "Chat", "Ajustes"]);
       expect(rows[0]).not.toHaveAttribute("aria-current");
       expect(rows[1]).toHaveAttribute("aria-current", "page");
       expect(rows[2]).not.toHaveAttribute("aria-current");
@@ -87,7 +87,7 @@ describe("AppSidebar", () => {
       rerender(<AppSidebar navItems={[...threeItems].reverse()} />);
 
       const after = screen.getAllByRole("button");
-      expect(after.map((row) => row.textContent)).toEqual(["Indstillinger", "Chat", "Dashboard"]);
+      expect(after.map((row) => row.textContent)).toEqual(["Ajustes", "Chat", "Dashboard"]);
       expect(after[2]).toBe(dashboardBefore);
       expect(after[0]).toBe(settingsBefore);
     });
@@ -108,7 +108,7 @@ describe("AppSidebar", () => {
       const onNavigate = vi.fn();
       render(<AppSidebar navItems={threeItems} onNavigate={onNavigate} />);
 
-      fireEvent.click(screen.getByRole("button", { name: "Indstillinger" }));
+      fireEvent.click(screen.getByRole("button", { name: "Ajustes" }));
 
       expect(onNavigate).toHaveBeenCalledTimes(1);
       expect(onNavigate).toHaveBeenCalledWith("settings");
@@ -160,11 +160,11 @@ describe("AppSidebar", () => {
       expect(onNavigate).not.toHaveBeenCalled();
     });
 
-    it("CONTRACT.md's renderNavLink section requires the consumer to spread every prop", () => {
-      const contract = readFileSync(resolve(process.cwd(), "CONTRACT.md"), "utf8");
+    it("the design notes' renderNavLink section requires the consumer to spread every prop", () => {
+      const designNotes = readFileSync(resolve(process.cwd(), "docs/design-notes.md"), "utf8");
 
-      expect(contract).toMatch(/## renderNavLink/);
-      expect(contract.split("## renderNavLink")[1]).toMatch(/spread \*\*every\*\* prop/);
+      expect(designNotes).toMatch(/## renderNavLink/);
+      expect(designNotes.split("## renderNavLink")[1]).toMatch(/spread \*\*every\*\* prop/);
     });
   });
 
@@ -233,7 +233,7 @@ describe("AppSidebar", () => {
   });
 });
 
-describe("the extracted source (grep acceptance criteria)", () => {
+describe("the source files (grep acceptance criteria)", () => {
   const componentPath = "src/components/AppSidebar.tsx";
   const content = readFileSync(resolve(process.cwd(), componentPath), "utf8");
 
@@ -243,8 +243,8 @@ describe("the extracted source (grep acceptance criteria)", () => {
     );
   });
 
-  it("no @clerk, swr, next-intl, next/, @discovery, @/ or lucide-react import, and every relative import ends in .js", () => {
-    expect(content).not.toMatch(/@clerk|swr|next-intl|next\/|@discovery|@\/|lucide-react/);
+  it("no @clerk, swr, next-intl, next/, @/ or lucide-react import, and every relative import ends in .js", () => {
+    expect(content).not.toMatch(/@clerk|swr|next-intl|next\/|@\/|lucide-react/);
     const relativeImports = [...content.matchAll(/from\s+"(\.[^"]+)"/g)].map(([, spec]) => spec);
     expect(relativeImports.length).toBeGreaterThan(0);
     for (const spec of relativeImports) {

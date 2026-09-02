@@ -19,9 +19,8 @@ export interface InlineThinkingIndicatorProps {
 }
 
 // The streaming placeholder shown inside a message before any content has
-// arrived, lifted from the source app's ThinkingIndicator.tsx:44-64. The
-// block form (ThinkingIndicator itself) stays behind for its own extraction
-// issue; this one moves here because its only call site is ChatMessage.
+// arrived. The block form (ThinkingIndicator) is its own public component;
+// this inline form stays private because its only call site is ChatMessage.
 export function InlineThinkingIndicator({ labels }: InlineThinkingIndicatorProps) {
   const resolved = resolveLabels(defaultInlineThinkingIndicatorLabels, labels);
 

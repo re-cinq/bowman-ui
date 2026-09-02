@@ -10,7 +10,7 @@ export interface ErrorBoundaryLabels {
   retry: string;
 }
 
-// The labels convention's worked example (CONTRACT.md § Labels): the type and
+// The labels convention's worked example (docs/design-notes.md § Labels): the type and
 // its complete English defaults are co-located, so a key added to
 // ErrorBoundaryLabels without a default is a compile error here, not an
 // `undefined` in the DOM.

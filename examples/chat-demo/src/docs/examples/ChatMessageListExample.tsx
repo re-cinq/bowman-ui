@@ -3,7 +3,12 @@ import type { ChatEntry } from "@re-cinq/bowman-ui";
 
 const entries: ReadonlyArray<ChatEntry> = [
   { id: "1", role: "user", content: "When is The Cartographer's Atlas back in stock?" },
-  { id: "2", role: "tool", toolName: "lookup_stock", toolInput: { day: "friday" } },
+  {
+    id: "2",
+    role: "tool",
+    toolName: "lookup_stock",
+    toolInput: { title: "the-cartographers-atlas" },
+  },
   {
     id: "3",
     role: "assistant",

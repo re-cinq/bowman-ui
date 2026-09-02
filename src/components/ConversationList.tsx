@@ -44,7 +44,7 @@ export interface ConversationListProps {
   onSelect?: (id: string) => void;
   /** Fires immediately - confirmation is the consumer's product decision. Omitted: no button. */
   onDelete?: (id: string) => void;
-  /** The routing seam: the consumer's element must spread every prop it is handed (CONTRACT.md § renderLink). */
+  /** The routing seam: the consumer's element must spread every prop it is handed (docs/design-notes.md § renderLink). */
   renderLink?: (item: ConversationListItem, props: ConversationLinkProps) => ReactNode;
   isLoading?: boolean;
   /** Switches the typewriter off entirely; undefined tracks prefers-reduced-motion. */
@@ -52,9 +52,9 @@ export interface ConversationListProps {
   labels?: Partial<ConversationListLabels>;
 }
 
-// The extracted animation keeps its previous render per component instance
-// (rows are keyed by item.id), replacing the source's three-literal
-// isDefaultTitle sniffing: it animates only when the title changed and the
+// The typewriter animation keeps its previous render per component instance
+// (rows are keyed by item.id), instead of sniffing placeholder-title
+// literals: it animates only when the title changed and the
 // previous render carried isPlaceholderTitle, so a conversation genuinely
 // titled with a placeholder-looking string never animates, and a third
 // locale's placeholder animates without this file knowing its wording.

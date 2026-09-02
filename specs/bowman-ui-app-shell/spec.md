@@ -2,13 +2,12 @@
 
 Issue: re-cinq/Otto#80 (`030-bowman-ui-app-shell`)
 
-`AppShell` is the source app's 48-line frame - desktop rail, mobile slide-in
-drawer, mobile header, `<main>` - extracted as `src/components/AppShell.tsx`
+`AppShell` is the application frame - desktop rail, mobile slide-in
+drawer, mobile header, `<main>` - shipped as `src/components/AppShell.tsx`
 (`AppShell`, `AppShellProps`, `SidebarSlotContext`, `AppShellLabels`,
 `defaultAppShellLabels`). The sidebar's own contents are issue 031's; this
 component imports none of them and renders whatever `renderSidebar` returns
 ([validated by](../../tests/AppShell.test.tsx#L70)).
-No file in `discovery` changes.
 
 ## The public surface
 
@@ -25,7 +24,7 @@ out for a consumer with its own
 
 `AppShellLabels` has four defaulted keys - `openSidebar`, `closeSidebar`,
 `skipToMainContent`, and `sidebarDialog` (the open drawer dialog's accessible
-name, added by the 2026-08-26 review) - per CONTRACT.md § Labels
+name, added by the 2026-08-26 review) - per docs/design-notes.md § Labels
 ([validated by](../../tests/labelled-exports.test.tsx#L541)). `AppShell`
 sits in the `labelsProp` partition bucket and passes the
 sentinel render with all four labels set to sentinels; the harness opens the
@@ -66,8 +65,8 @@ Controlled: with `mobileSidebarOpen={false}`, clicking the hamburger calls
 `mobileSidebarOpen={true}` renders it open with no interaction
 ([validated by](../../tests/AppShell.test.tsx#L146),
 [L162](../../tests/AppShell.test.tsx#L162)). A controlling consumer owns
-closing on navigation - recorded in CONTRACT.md § AppShell, because the
-source's `usePathname` effect is app-router-specific and cannot ship here
+closing on navigation - recorded in docs/design-notes.md § AppShell, because
+closing on a route change is router-specific behaviour that cannot ship here
 ([validated by](../../tests/AppShell.test.tsx#L162)).
 
 ## Dialog semantics
@@ -84,19 +83,19 @@ the button cannot perform ([validated by](../../tests/AppShell.test.tsx#L211)).
 
 ## The two accessibility fixes
 
-1. **`inert` replaces `aria-hidden` on the closed drawer.** The source kept
-   the closed panel's focusables tabbable under `aria-hidden={!isOpen}`
-   (`AppMobileSidebar.tsx:79`) - a screen-reader user could land on controls
-   the tree said did not exist. The closed wrapper carries `inert` (React 19
+1. **`inert` replaces `aria-hidden` on the closed drawer.** `aria-hidden`
+   over a panel whose focusables stay tabbable lets a screen-reader user
+   land on controls
+   the tree says do not exist. The closed wrapper carries `inert` (React 19
    boolean prop; the pinned peer is `^19.0.0`), so the subtree leaves both
    the tab order and the accessibility tree; the open wrapper carries none,
    and the string `aria-hidden` appears nowhere in the source file. The rail
    and drawer stay two DOM nodes because `inert` cannot be conditioned on a
    CSS breakpoint ([validated by](../../tests/AppShell.test.tsx#L222),
    [L234](../../tests/AppShell.test.tsx#L234)).
-2. **The scroll lock restores the prior overflow value.** The source reset
+2. **The scroll lock restores the prior overflow value.** Resetting
    `document.body.style.overflow` to `""` on close
-   (`AppMobileSidebar.tsx:51-60`), clobbering any other lock on the page.
+   would clobber any other lock on the page.
    With overflow pre-set to `"scroll"`, opening sets `"hidden"`, closing
    restores `"scroll"`, and unmounting while open restores it too
    ([validated by](../../tests/AppShell.test.tsx#L320),
@@ -109,9 +108,10 @@ the button cannot perform ([validated by](../../tests/AppShell.test.tsx#L211)).
 
 **Landmark ruling (recorded decision).** The drawer and rail wrappers are
 non-landmark `div`s: issue 031's `AppSidebar` supplies the only `aside`/`nav`
-landmarks, so Discovery's third `"Mobile navigation"` `aria-label` string is
-deliberately dropped - a labelled landmark wrapper around the sidebar's own
-would double up in the rotor. CONTRACT.md § AppShell records the same ruling.
+landmarks, so the drawer wrapper deliberately carries no `"Mobile
+navigation"` `aria-label` of its own - a labelled landmark wrapper around
+the sidebar's own
+would double up in the rotor. docs/design-notes.md § AppShell records the same ruling.
 
 ## Focus and motion
 
@@ -131,25 +131,23 @@ from the drawer and backdrop; omitted, 021's `useReducedMotion` tracks
 ([validated by](../../tests/AppShell.test.tsx#L377),
 [L384](../../tests/AppShell.test.tsx#L384)).
 
-## The 015 characterization suite, ported
+## The characterization suite
 
-015's three `AppShell` tests stubbed the three children (`AppSidebar`,
-`AppMobileSidebar`, `AppMobileHeader`) as the C-1/C-2/C-4 boundary. Every
-assertion with a counterpart on the extracted surface passes after the flips
-below.
+The suite stubs nothing: the rail, drawer and header are asserted as real
+DOM, and the deliberate decisions below are each pinned by a test.
 
-| #   | Flip                                                                                                                                                                                                                                          | Reason                                                                                        |
-| --- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
-| a   | Children rendered in `<main id="main-content">` → unchanged, plus `mainContentId` makes the id a prop ([L22](../../tests/AppShell.test.tsx#L22))                                                                                              | Direct port of 015's first test                                                               |
-| b   | The three-children-as-props structure (stubbed `AppSidebar`/`AppMobileSidebar`/`AppMobileHeader`) → the `renderSidebar` slot called twice plus shell-owned header and drawer chrome ([L70](../../tests/AppShell.test.tsx#L70))                | The children were the dependency boundary; slots ship without Clerk, next-intl or `next/link` |
-| c   | 015's open/close cycle (`data-is-open` false → true after `onMenuClick` → false after `onClose`) → the drawer wrapper's observable state (`translate-x-0`/`inert`) through the same click sequence ([L91](../../tests/AppShell.test.tsx#L91)) | The observable cycle survives; the stub attribute becomes real DOM state                      |
-| d   | `inert` on the closed drawer - NET-NEW fix with no 015 baseline ([L222](../../tests/AppShell.test.tsx#L222))                                                                                                                                  | 015 stubbed `AppMobileSidebar`, so the `aria-hidden` defect was never pinned                  |
-| e   | Scroll-lock restore - NET-NEW fix with no 015 baseline ([L320](../../tests/AppShell.test.tsx#L320))                                                                                                                                           | Same: the lock lived in the stubbed child                                                     |
+| #   | Decision                                                                                                                                                                             | Reason                                                                                    |
+| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------- |
+| a   | Children render in `<main id="main-content">`, and `mainContentId` makes the id a prop ([L22](../../tests/AppShell.test.tsx#L22))                                                    | The landing region stays addressable for skip links without hardcoding the id             |
+| b   | The `renderSidebar` slot is called twice (rail and drawer) while the shell owns the header and drawer chrome ([L70](../../tests/AppShell.test.tsx#L70))                              | The slot is the dependency boundary; the shell ships without auth, i18n or router imports |
+| c   | The drawer's open/close cycle is asserted on observable DOM state (`translate-x-0`/`inert`) through the menu-click / close-click sequence ([L91](../../tests/AppShell.test.tsx#L91)) | Real DOM state, not a stub attribute, is what a consumer's user experiences               |
+| d   | The closed drawer carries `inert` ([L222](../../tests/AppShell.test.tsx#L222))                                                                                                       | `aria-hidden` over still-tabbable content is the defect `inert` exists to prevent         |
+| e   | The scroll lock restores the prior `document.body.style.overflow` value ([L320](../../tests/AppShell.test.tsx#L320))                                                                 | Clobbering the value to `""` breaks a consumer that manages body overflow itself          |
 
-## Carried across mechanically
+## Mechanical invariants
 
 - `MenuIcon`/`CloseIcon` come from 020's set; imports are relative with `.js`
-  extensions, and no `@clerk`, `swr`, `next-intl`, `next/`, `@discovery`,
+  extensions, and no `@clerk`, `swr`, `next-intl`, `next/`,
   `@/` or `lucide-react` import survives
   ([validated by](../../tests/AppShell.test.tsx#L431)).
 - GDPR: the shell wraps a surface carrying customer questions and booking
@@ -169,8 +167,8 @@ below.
 ## Recorded deviations
 
 - **Header stacks at `z-40` under the drawer/backdrop's `z-50`** - a third
-  deliberate fix: the source gave the mobile header and the drawer the same
-  `z-50` and relied on DOM order, so the header could paint over the open
+  deliberate fix: giving the mobile header and the drawer the same
+  `z-50` and relying on DOM order would let the header paint over the open
   drawer's top strip. Pinned by a class assertion in the tests
   ([validated by](../../tests/AppShell.test.tsx#L444)).
 - **`brand={null}` renders no spacer**, same as omitting the prop - `null` is

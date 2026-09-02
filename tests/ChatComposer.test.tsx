@@ -1,9 +1,8 @@
 /**
- * ChatComposer is authored new (issue 027) - there is no 015
- * characterization suite to port. The three inline copies in the source
- * app's chat pages are the specification these tests pin, plus the two
- * fixes made while the component is new: the IME isComposing guard and a
- * real accessible name instead of a placeholder.
+ * ChatComposer is authored new (issue 027) - there is no prior
+ * characterization suite. These tests pin the component's specified
+ * behaviour, including two hardening fixes: the IME isComposing guard and
+ * a real accessible name instead of a placeholder.
  */
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import { readFileSync, readdirSync, statSync } from "node:fs";
@@ -356,8 +355,8 @@ describe("the authored source (grep acceptance criteria)", () => {
     );
   });
 
-  it("no @clerk, swr, next-intl, next/, @discovery, @/ or lucide-react import, and every relative import ends in .js", () => {
-    expect(content).not.toMatch(/@clerk|swr|next-intl|next\/|@discovery|@\/|lucide-react/);
+  it("no @clerk, swr, next-intl, next/, @/ or lucide-react import, and every relative import ends in .js", () => {
+    expect(content).not.toMatch(/@clerk|swr|next-intl|next\/|@\/|lucide-react/);
     const relativeImports = [...content.matchAll(/from\s+"(\.[^"]+)"/g)].map(([, spec]) => spec);
     expect(relativeImports.length).toBeGreaterThan(0);
     for (const spec of relativeImports) {

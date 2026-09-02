@@ -3,7 +3,7 @@ import { existsSync, readFileSync } from "node:fs";
 
 const BUILT_FILE = "dist/components/AppShell.js";
 
-// CONTRACT.md decision 1 requires "use client" as the first *statement*, so
+// docs/design-notes.md decision 1 requires "use client" as the first *statement*, so
 // leading comments and blank lines are allowed above it (018's positional
 // check, same as tests/conversation-list-dist.test.ts).
 const stripLeadingTrivia = (source: string): string => {

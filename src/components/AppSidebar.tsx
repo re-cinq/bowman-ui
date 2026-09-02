@@ -36,7 +36,7 @@ export interface AppSidebarProps {
   brand?: ReactNode;
   navItems?: ReadonlyArray<SidebarNavItem>;
   onNavigate?: (key: string) => void;
-  /** The routing seam: the consumer's element must spread every prop it is handed (CONTRACT.md § renderNavLink). */
+  /** The routing seam: the consumer's element must spread every prop it is handed (docs/design-notes.md § renderNavLink). */
   renderNavLink?: (item: SidebarNavItem, props: SidebarNavLinkProps) => ReactNode;
   children?: ReactNode;
   /** One slot for whatever the consumer keeps at the bottom; omitted, no bordered region renders. */

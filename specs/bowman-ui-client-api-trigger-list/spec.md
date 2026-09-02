@@ -3,7 +3,7 @@
 Issue: re-cinq/Otto#137 (widen `scripts/check-client-directives.mjs` to every client-only API).
 The check's old shape was a ten-hook regex plus a textual `on[A-Z]=` pattern; this spec records
 the AST rewrite, the measured browser-global table, and the re-run false-negative sweep. The
-enforcement prose lives in CONTRACT.md decision 1; this file carries the measurements and the
+enforcement prose lives in docs/design-notes.md decision 1; this file carries the measurements and the
 per-rule pins.
 
 ## What ships
@@ -116,13 +116,12 @@ in-repo evidence ([validated by](../../tests/client-directive-trigger-list.test.
 
 ## False-negative sweep, re-run under the new rules
 
-Method: against `re-cinq/Discovery` `main` at `1aa3647fa5f75997ceea6bdc11f3fa66cea79b29` (the
-same commit 021's spec cites), every `apps/web/components/` and `apps/web/hooks/` file carrying
-`"use client"` - 52 files - was copied with the directive stripped and the check run against
+Method: a reference corpus of 52 real-world component and hook files carrying
+`"use client"` was copied with the directive stripped and the check run against
 the copies; a file the check then fails to flag is a false negative.
 
 - **Old rules (re-measured): 9 of 52.** The issue's Why section says six; the same sweep on the
-  same tree measures nine (`Header.tsx`, `SkipLink.tsx`, `app-shell/AppSidebar.tsx`,
+  same corpus measures nine (`Header.tsx`, `SkipLink.tsx`, `app-shell/AppSidebar.tsx`,
   `auth/OrgSwitcher.tsx`, `auth/UserMenu.tsx`, `chat/ThinkingIndicator.tsx`,
   `clerk/AppOrganizationSwitcher.tsx`, `clerk/AppUserButton.tsx`, `hooks/useOrganization.ts` -
   each verified to match neither the ten-hook regex nor the textual `on[A-Z]=` pattern). The
@@ -149,7 +148,7 @@ expected count held ([validated by](../../tests/client-directives.test.ts#L80)).
 
 ## Recorded decisions and limitations
 
-- **No escape-hatch pragma** (CONTRACT.md decision 1): a false positive gets the file a
+- **No escape-hatch pragma** (docs/design-notes.md decision 1): a false positive gets the file a
   directive, or the rule gets narrowed with the motivating file named - 032/078's no-opt-out
   precedent.
 - **Bare `use` is not a trigger**, and `use(SomeContext)` - client-only in practice - is
@@ -160,11 +159,11 @@ expected count held ([validated by](../../tests/client-directives.test.ts#L80)).
   a declaration name is not a reference. Deliberate: skipping file-wide declared names would
   let a shadow in one function silence a genuine global reference in another - a false
   negative in a check whose contract is fail-safe over-requiring. No file in `src/` or in the
-  Discovery sweep set hits this; if one ever does, the no-pragma protocol applies.
+  reference sweep corpus hits this; if one ever does, the no-pragma protocol applies.
 - **Coverage narrowed versus the old text matcher in two known shapes**: a destructured
   namespace, `const { useState } = React`, is a declaration name and no longer fires, and a
   string-keyed element access, `React["useState"]`, is a string literal the old `\buseState\b`
-  regex matched and no rule here reads. Neither occurs in `src/` or anywhere in the Discovery
+  regex matched and no rule here reads. Neither occurs in `src/` or anywhere in the reference
   sweep corpus; every other shape the old regex caught is covered by a rule above, verified by
   re-running the sweep with both scripts (zero files caught by old and missed by new on that
   corpus).

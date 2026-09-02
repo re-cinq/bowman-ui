@@ -3,7 +3,7 @@ import tseslint from "typescript-eslint";
 import reactHooks from "eslint-plugin-react-hooks";
 import sonarjs from "eslint-plugin-sonarjs";
 
-// CONTRACT.md § Labels: the shared no-restricted-syntax selector set. Hoisted
+// docs/design-notes.md § Labels: the shared no-restricted-syntax selector set. Hoisted
 // into a const so the src/** overlays below (raw-<svg> ban, inline
 // focusable-selector ban) can spread it back in. In flat config a later config
 // object whose `rules` sets `no-restricted-syntax` REPLACES the earlier value
@@ -14,13 +14,13 @@ const labelsRestrictedSyntax = [
   {
     selector: "JSXText[value=/[A-Za-z]{3}/]",
     message:
-      "Hardcoded JSX text. User-visible strings come from a labels prop resolved over English defaults - see CONTRACT.md § Labels.",
+      "Hardcoded JSX text. User-visible strings come from a labels prop resolved over English defaults - see docs/design-notes.md § Labels.",
   },
   {
     selector:
       ":matches(JSXElement, JSXFragment) > JSXExpressionContainer > :matches(Literal[value=/[A-Za-z]{3}/], TemplateLiteral:has(TemplateElement[value.raw=/[A-Za-z]{3}/]))",
     message:
-      "Hardcoded JSX text. User-visible strings come from a labels prop resolved over English defaults - see CONTRACT.md § Labels.",
+      "Hardcoded JSX text. User-visible strings come from a labels prop resolved over English defaults - see docs/design-notes.md § Labels.",
   },
   {
     // The conditional-render forms: {ok && "text"}, {ok ? "a" : "b"},
@@ -32,31 +32,31 @@ const labelsRestrictedSyntax = [
     selector:
       ':matches(JSXElement, JSXFragment) > JSXExpressionContainer > :matches(LogicalExpression, ConditionalExpression, BinaryExpression[operator="+"]) > :matches(Literal[value=/[A-Za-z]{3}/], TemplateLiteral:has(TemplateElement[value.raw=/[A-Za-z]{3}/]))',
     message:
-      "Hardcoded JSX text. User-visible strings come from a labels prop resolved over English defaults - see CONTRACT.md § Labels.",
+      "Hardcoded JSX text. User-visible strings come from a labels prop resolved over English defaults - see docs/design-notes.md § Labels.",
   },
   {
     selector:
       "JSXAttribute[name.name=/^(aria-label|aria-placeholder|aria-roledescription|aria-valuetext|title|placeholder|alt)$/] > Literal[value=/[A-Za-z]{3}/]",
     message:
-      "Hardcoded assistive string. aria-*/title/placeholder/alt text comes from a labels prop resolved over English defaults - see CONTRACT.md § Labels.",
+      "Hardcoded assistive string. aria-*/title/placeholder/alt text comes from a labels prop resolved over English defaults - see docs/design-notes.md § Labels.",
   },
   {
     selector:
       "JSXAttribute[name.name=/^(aria-label|aria-placeholder|aria-roledescription|aria-valuetext|title|placeholder|alt)$/] > JSXExpressionContainer > :matches(Literal[value=/[A-Za-z]{3}/], TemplateLiteral:has(TemplateElement[value.raw=/[A-Za-z]{3}/]))",
     message:
-      "Hardcoded assistive string. aria-*/title/placeholder/alt text comes from a labels prop resolved over English defaults - see CONTRACT.md § Labels.",
+      "Hardcoded assistive string. aria-*/title/placeholder/alt text comes from a labels prop resolved over English defaults - see docs/design-notes.md § Labels.",
   },
   {
     selector:
       'JSXAttribute[name.name=/^(aria-label|aria-placeholder|aria-roledescription|aria-valuetext|title|placeholder|alt)$/] > JSXExpressionContainer > :matches(LogicalExpression, ConditionalExpression, BinaryExpression[operator="+"]) > :matches(Literal[value=/[A-Za-z]{3}/], TemplateLiteral:has(TemplateElement[value.raw=/[A-Za-z]{3}/]))',
     message:
-      "Hardcoded assistive string. aria-*/title/placeholder/alt text comes from a labels prop resolved over English defaults - see CONTRACT.md § Labels.",
+      "Hardcoded assistive string. aria-*/title/placeholder/alt text comes from a labels prop resolved over English defaults - see docs/design-notes.md § Labels.",
   },
   {
     selector:
       "TSPropertySignature > Identifier.key[name=/^(strings|texts|t|i18n|translations|messages)$/]",
     message:
-      "The one string-override prop is `labels?: Partial<XLabels>` - not strings, texts, t, i18n, translations or messages. See CONTRACT.md § Labels.",
+      "The one string-override prop is `labels?: Partial<XLabels>` - not strings, texts, t, i18n, translations or messages. See docs/design-notes.md § Labels.",
   },
 ];
 
@@ -98,7 +98,7 @@ export default [
       "@typescript-eslint/no-explicit-any": "warn",
     },
   },
-  // CONTRACT.md § Labels: hardcoded user-visible/assistive strings and i18n
+  // docs/design-notes.md § Labels: hardcoded user-visible/assistive strings and i18n
   // runtimes are banned from src/. Core ESLint only - no new plugin. The
   // tests/fixtures/eslint-labels/ glob exists so the red fixtures (globally
   // ignored below, linted with --no-ignore by tests/eslint-labels.test.ts)
@@ -114,7 +114,7 @@ export default [
             {
               name: "next-intl",
               message:
-                "bowman-ui ships no i18n runtime; strings come in through the labels prop. See CONTRACT.md § Labels.",
+                "bowman-ui ships no i18n runtime; strings come in through the labels prop. See docs/design-notes.md § Labels.",
             },
           ],
         },

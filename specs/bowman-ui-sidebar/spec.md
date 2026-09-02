@@ -2,16 +2,16 @@
 
 Issue: re-cinq/Otto#81 (`031-bowman-ui-sidebar`)
 
-`AppSidebar` is the one presentational sidebar the source app wrote twice -
-brand row, navigation map, chat history, language row, user-controls row,
-duplicated across a desktop and a mobile component that hard-import an auth
-SDK, an i18n library and a router - extracted as
+`AppSidebar` is the package's one presentational sidebar - brand row,
+navigation map, chat history, language row, user-controls row - written
+once, serving both the desktop rail and the mobile drawer, with no
+auth-SDK, i18n-runtime or router import. It ships as
 `src/components/AppSidebar.tsx` (`AppSidebar`, `AppSidebarProps`,
 `SidebarNavItem`, `SidebarNavLinkProps`, `AppSidebarLabels`,
 `defaultAppSidebarLabels`). Brand, middle region and footer are slots,
 navigation is data, and the frame that places it - desktop rail vs. mobile
 drawer, drawer mechanics - is `030-bowman-ui-app-shell`; this component owns
-only what's inside. No file in the source repo changes.
+only what's inside.
 
 ## The public surface
 
@@ -20,10 +20,10 @@ The component renders one `<aside>` whose accessible name is the resolved
 resolved `mainNavigation` label
 ([validated by](../../tests/AppSidebar.test.tsx#L15),
 [L24](../../tests/AppSidebar.test.tsx#L25)). `AppSidebarLabels` has exactly
-those two defaulted keys ("Sidebar", "Main navigation"); the source's two
-hardcoded aria-labels plus the mobile copy's third, duplicate landmark name
-("Mobile navigation") collapse into them - 030's shell wrappers are
-non-landmark `div`s (CONTRACT.md § AppShell), and although the shell mounts
+those two defaulted keys ("Sidebar", "Main navigation"); no third,
+duplicate landmark name
+("Mobile navigation") exists - 030's shell wrappers are
+non-landmark `div`s (docs/design-notes.md § AppShell), and although the shell mounts
 the sidebar twice, `hidden`/`md:hidden` on the positions and `inert` on the
 closed drawer keep one exposed at a time; a bare render contains exactly one
 `<nav>` ([validated by](../../tests/AppSidebar.test.tsx#L15)). `AppSidebar`
@@ -35,16 +35,16 @@ sentinel render with both labels set to sentinels
 
 ## The decisions
 
-1. **The exported name is `AppSidebar`, not `Sidebar`.** A different,
-   superseded component already owns `Sidebar` in the source app and is
-   explicitly marked "do not port"; the name keeps the two unconfusable
+1. **The exported name is `AppSidebar`, not `Sidebar`.** The prefixed name
+   states that this is the app frame's sidebar and stays clear of the
+   generic `Sidebar` name a consumer app is likely to own already
    ([validated by](../../tests/public-api.test.ts#L40),
    [types](../../tests/public-api.test.ts#L47)).
 2. **Active state is a per-item `isActive` boolean, not a path comparison.**
    The org has more than one router, so the component assumes neither.
    - Three `navItems` render three items in order, each showing its `label`;
      the one with `isActive: true` alone carries `aria-current="page"` -
-     announced, not just background-coloured as in the source - and with no
+     announced, not merely background-coloured - and with no
      item marked, none does
      ([validated by](../../tests/AppSidebar.test.tsx#L57),
      [L68](../../tests/AppSidebar.test.tsx#L68)).
@@ -61,11 +61,11 @@ sentinel render with both labels set to sentinels
      ([validated by](../../tests/types/app-sidebar-type-assertions.tsx#L26),
      [compiled by](../../tests/app-sidebar-dist.test.ts#L47)).
    - The consumer's element must spread every prop it is handed -
-     CONTRACT.md § renderNavLink states it, pinned together with the anchor
+     docs/design-notes.md § renderNavLink states it, pinned together with the anchor
      round-trip and the dropped-`onClick` failure mode
      ([validated by](../../tests/AppSidebar.test.tsx#L125),
      [L146](../../tests/AppSidebar.test.tsx#L146),
-     [L163](../../tests/AppSidebar.test.tsx#L163)).
+     [L163](../../tests/AppSidebar.test.tsx#L164)).
    - Clicking an item calls `onNavigate` once with that item's `key`;
      `onNavigate` omitted, clicking throws nothing
      ([validated by](../../tests/AppSidebar.test.tsx#L107),
@@ -118,8 +118,8 @@ console spy stays at zero calls ([spy](../../tests/setup.ts#L29)).
 ## Build contract
 
 The file imports nothing from `@clerk`, `swr`, `next-intl`, `next/`,
-`@discovery`, `@/` or `lucide-react`, and every relative import ends in `.js`
-([validated by](../../tests/AppSidebar.test.tsx#L246)).
+`@/` or `lucide-react`, and every relative import ends in `.js`
+([validated by](../../tests/AppSidebar.test.tsx#L247)).
 `dist/components/AppSidebar.js` carries `"use client"` as its first statement
 and ships with its `.d.ts`
 ([validated by](../../tests/app-sidebar-dist.test.ts#L30),
@@ -136,6 +136,5 @@ conversation list itself (029 ships it, this sidebar takes a node); the
 search box, org-filter dropdown and new-conversation link (left to the
 consumer as part of `children`); the language selector, user button, org
 switcher and sign-in button (left for `footer`); collapse and the collapse
-toggle (no shipped sidebar is collapsible - see 030's Out of scope); Danish
-label values (the support-agent app supplies them); deleting the two old
-sidebar components from the source app (the adoption issue).
+toggle (no shipped sidebar is collapsible - see 030's Out of scope); and
+translated label values (the consumer app supplies them).

@@ -70,7 +70,7 @@ describe("the built hook surface", () => {
     }
   });
 
-  it("no built file reads process.env and no flag or discovery string survives the extraction", () => {
+  it("no built file reads process.env and no NEXT_PUBLIC flag string survives in src/", () => {
     const distSources = walk("dist").filter((file) => file.endsWith(".js"));
     for (const file of distSources) {
       expect(readFileSync(file, "utf8")).not.toMatch(/process\.env/);
@@ -80,7 +80,6 @@ describe("the built hook surface", () => {
     for (const file of srcSources) {
       const content = readFileSync(file, "utf8");
       expect(content).not.toMatch(/NEXT_PUBLIC_FLAG_ANIMATIONS/);
-      expect(content).not.toMatch(/discovery/i);
     }
   });
 });

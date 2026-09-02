@@ -49,7 +49,7 @@ import {
   type MarkdownComponentsLabels,
 } from "../src/markdown/components.js";
 
-// CONTRACT.md § Labels enforcement (static, test-time - never a runtime
+// docs/design-notes.md § Labels enforcement (static, test-time - never a runtime
 // warning): every VALUE export of the barrel is classified below. Type-only
 // exports carry no strings and are excluded by design. A new export lands in
 // exactly one bucket:
@@ -149,7 +149,7 @@ describe("the labels export partition", () => {
       unclassified,
       `Unclassified export(s): ${unclassified.join(", ")}. Every value export must be placed in ` +
         `labelsProp, stringPropOnly or noStrings in tests/labelled-exports.test.tsx - ` +
-        `see CONTRACT.md § Labels for which bucket applies.`
+        `see docs/design-notes.md § Labels for which bucket applies.`
     ).toEqual([]);
     expect(classified).toEqual(exported);
   });
@@ -562,7 +562,7 @@ describe("the sentinel render check", () => {
       if (!harness) {
         throw new Error(
           `${name} is in labelsProp but has no sentinel harness - add one to sentinelHarnesses ` +
-            `in tests/labelled-exports.test.tsx (CONTRACT.md § Labels).`
+            `in tests/labelled-exports.test.tsx (docs/design-notes.md § Labels).`
         );
       }
 

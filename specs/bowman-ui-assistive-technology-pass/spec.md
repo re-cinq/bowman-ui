@@ -257,4 +257,4 @@ conformance as a whole; colour contrast, keyboard-only navigation and reduced
 motion, which a browser measures without an assistive technology; the app shell
 and mobile drawer, since a focus trap does not trap a virtual cursor; and the
 `support-agent` chat surface, which inherits this procedure and whose re-run is
-an E4 decision.
+that consumer's own decision.
