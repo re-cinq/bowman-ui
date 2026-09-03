@@ -116,6 +116,15 @@ const resolveArticleLabel = (
   return resolved.assistantMessageFrom(assistantName);
 };
 
+// The copy chord is Cmd/Ctrl + C alone: Shift and Alt stay excluded so
+// Cmd+Shift+C (the browser's inspect chord) keeps its meaning, and
+// lowercasing covers Caps Lock ("C").
+const isCopyChord = (e: KeyboardEvent<HTMLElement>): boolean =>
+  (e.metaKey || e.ctrlKey) && !e.shiftKey && !e.altKey && e.key.toLowerCase() === "c";
+
+const hasModifier = (e: KeyboardEvent<HTMLElement>): boolean =>
+  e.metaKey || e.ctrlKey || e.shiftKey || e.altKey;
+
 export function ChatMessage({
   entry,
   userInitials,
@@ -177,16 +186,8 @@ export function ChatMessage({
       }
 
       // Cmd/Ctrl + C stays unconditional: it steals no navigation key and
-      // already yields to an active text selection. Lowercasing covers Caps
-      // Lock ("C"); Shift and Alt stay excluded so Cmd+Shift+C (the browser's
-      // inspect chord) keeps its meaning.
-      if (
-        (e.metaKey || e.ctrlKey) &&
-        !e.shiftKey &&
-        !e.altKey &&
-        e.key.toLowerCase() === "c" &&
-        !window.getSelection()?.toString()
-      ) {
+      // already yields to an active text selection.
+      if (isCopyChord(e) && !window.getSelection()?.toString()) {
         e.preventDefault();
         copyToClipboard(entry.content, entry.id);
       }
@@ -197,7 +198,7 @@ export function ChatMessage({
         return;
       }
 
-      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) {
+      if (hasModifier(e)) {
         return;
       }
 

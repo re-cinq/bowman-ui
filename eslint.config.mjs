@@ -3,6 +3,7 @@ import tseslint from "typescript-eslint";
 import reactHooks from "eslint-plugin-react-hooks";
 import sonarjs from "eslint-plugin-sonarjs";
 import stylistic from "@stylistic/eslint-plugin";
+import bowman from "./tools/eslint-plugin-bowman/index.mjs";
 
 // docs/design-notes.md § Labels: the shared no-restricted-syntax selector set. Hoisted
 // into a const so the src/** overlays below (raw-<svg> ban, inline
@@ -78,6 +79,18 @@ const focusableLiteralBan = {
     "Inline focusable-selector literal. Import FOCUSABLE_SELECTOR from src/hooks/focusableSelector.ts instead of copying the selector - see issue #60.",
 };
 
+// docs/design-notes.md § Lint guardrails: the public surface is named exports
+// only (`export const`), so a rename is a compile error in every consumer
+// instead of a silent aliasing. Like the selectors above, this must ride in
+// EVERY no-restricted-syntax overlay below - a later overlay replaces the
+// whole array, so an overlay that dropped it would silently disable the ban
+// for its files.
+const defaultExportBan = {
+  selector: "ExportDefaultDeclaration",
+  message:
+    "Default export. The public surface is named exports only (`export const`) - see docs/design-notes.md § Lint guardrails.",
+};
+
 export default [
   js.configs.recommended,
   ...tseslint.configs.recommended,
@@ -140,7 +153,7 @@ export default [
   {
     files: ["src/**/*.{ts,tsx}", "tests/fixtures/eslint-labels/**/*.{ts,tsx}"],
     rules: {
-      "no-restricted-syntax": ["error", ...labelsRestrictedSyntax],
+      "no-restricted-syntax": ["error", ...labelsRestrictedSyntax, defaultExportBan],
       "no-restricted-imports": [
         "error",
         {
@@ -166,7 +179,12 @@ export default [
     ],
     ignores: ["src/hooks/focusableSelector.ts"],
     rules: {
-      "no-restricted-syntax": ["error", ...labelsRestrictedSyntax, focusableLiteralBan],
+      "no-restricted-syntax": [
+        "error",
+        ...labelsRestrictedSyntax,
+        focusableLiteralBan,
+        defaultExportBan,
+      ],
     },
   },
   // Issue #60 guardrail: raw <svg> is banned in src/components/** (never in
@@ -177,9 +195,51 @@ export default [
     files: [
       "src/components/**/*.{ts,tsx}",
       "tests/fixtures/eslint-duplication/raw-svg/**/*.{ts,tsx}",
+      "tests/fixtures/eslint-house-rules/default-export/**/*.{ts,tsx}",
     ],
     rules: {
-      "no-restricted-syntax": ["error", ...labelsRestrictedSyntax, focusableLiteralBan, svgBan],
+      "no-restricted-syntax": [
+        "error",
+        ...labelsRestrictedSyntax,
+        focusableLiteralBan,
+        svgBan,
+        defaultExportBan,
+      ],
+    },
+  },
+  // docs/design-notes.md § Lint guardrails: the house rules, scoped to src/**.
+  // The eslint-house-rules fixture glob exists so the red fixtures (globally
+  // ignored below, linted with --no-ignore by tests/eslint-house-rules.test.ts)
+  // are checked against these exact rules, not a copy of them.
+  {
+    files: ["src/**/*.{ts,tsx}", "tests/fixtures/eslint-house-rules/**/*.{ts,tsx}"],
+    plugins: { bowman },
+    rules: {
+      "bowman/max-boolean-operators": ["error", { max: 2 }],
+      "bowman/no-catch-as-control-flow": "error",
+      "bowman/no-inline-styles": "error",
+      "bowman/no-network-egress": "error",
+      "bowman/no-prop-mutation": "error",
+    },
+  },
+  // Recorded no-inline-styles exemptions - deliberate decisions, not
+  // tolerated drift, each asserted by its component's tests. The exemptions
+  // live here, by path, where they are visible and reviewable:
+  // - ConversationList: the plain full title is hidden for assistive tech and
+  //   the per-character animation is styled inline precisely so the package
+  //   needs no stylesheet or Tailwind config from the consumer.
+  // - Toast: the hidden live region uses the same no-consumer-stylesheet
+  //   visually-hidden pattern (its cross-file duplication is issue #5).
+  // - ThinkingDots: the per-dot animation stagger is data (one delay per
+  //   dot), asserted as an inline style by tests/helpers/expect-thinking-dots.ts.
+  {
+    files: [
+      "src/components/ConversationList.tsx",
+      "src/components/ThinkingDots.tsx",
+      "src/components/Toast.tsx",
+    ],
+    rules: {
+      "bowman/no-inline-styles": "off",
     },
   },
   // Issue #60 guardrail: duplication limits, scoped to src/** only. tests/ is
@@ -205,6 +265,7 @@ export default [
       "node_modules/**",
       "tests/fixtures/eslint-labels/**",
       "tests/fixtures/eslint-duplication/**",
+      "tests/fixtures/eslint-house-rules/**",
       "tests/fixtures/forbidden-imports/**",
       "examples/chat-demo/dist/**",
       "examples/chat-demo/test-results/**",
