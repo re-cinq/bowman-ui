@@ -35,6 +35,7 @@ function getAccessibleIconProps(
       "aria-label": ariaLabel,
     };
   }
+
   return {
     "aria-hidden": true,
   };
@@ -42,6 +43,7 @@ function getAccessibleIconProps(
 
 function createSvgProps(props: BaseIconProps): IconSvgProps {
   const { className, ariaLabel, strokeWidth = 2 } = props;
+
   return {
     className,
     strokeWidth,
@@ -51,6 +53,7 @@ function createSvgProps(props: BaseIconProps): IconSvgProps {
 
 export function ChatIcon(props: BaseIconProps) {
   const svgProps = createSvgProps(props);
+
   return (
     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" {...svgProps}>
       <path
@@ -65,6 +68,7 @@ export function ChatIcon(props: BaseIconProps) {
 
 export function DashboardIcon(props: BaseIconProps) {
   const svgProps = createSvgProps(props);
+
   return (
     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" {...svgProps}>
       <path
@@ -79,6 +83,7 @@ export function DashboardIcon(props: BaseIconProps) {
 
 export function SettingsIcon(props: BaseIconProps) {
   const svgProps = createSvgProps(props);
+
   return (
     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" {...svgProps}>
       <path
@@ -99,6 +104,7 @@ export function SettingsIcon(props: BaseIconProps) {
 
 export function SearchIcon(props: BaseIconProps) {
   const svgProps = createSvgProps(props);
+
   return (
     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" {...svgProps}>
       <path
@@ -113,6 +119,7 @@ export function SearchIcon(props: BaseIconProps) {
 
 export function TrashIcon(props: BaseIconProps) {
   const svgProps = createSvgProps(props);
+
   return (
     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" {...svgProps}>
       <path
@@ -127,6 +134,7 @@ export function TrashIcon(props: BaseIconProps) {
 
 export function PlusIcon(props: BaseIconProps) {
   const svgProps = createSvgProps(props);
+
   return (
     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" {...svgProps}>
       <path
@@ -141,6 +149,7 @@ export function PlusIcon(props: BaseIconProps) {
 
 export function MenuIcon(props: BaseIconProps) {
   const svgProps = createSvgProps(props);
+
   return (
     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" {...svgProps}>
       <path
@@ -155,6 +164,7 @@ export function MenuIcon(props: BaseIconProps) {
 
 export function CloseIcon(props: BaseIconProps) {
   const svgProps = createSvgProps(props);
+
   return (
     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" {...svgProps}>
       <path
@@ -169,6 +179,7 @@ export function CloseIcon(props: BaseIconProps) {
 
 export function ArtifactsIcon(props: BaseIconProps) {
   const svgProps = createSvgProps(props);
+
   return (
     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" {...svgProps}>
       <path
@@ -183,6 +194,7 @@ export function ArtifactsIcon(props: BaseIconProps) {
 
 export function CompareIcon(props: BaseIconProps) {
   const svgProps = createSvgProps(props);
+
   return (
     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" {...svgProps}>
       <path
@@ -197,6 +209,7 @@ export function CompareIcon(props: BaseIconProps) {
 
 export function SendIcon(props: BaseIconProps) {
   const svgProps = createSvgProps(props);
+
   return (
     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" {...svgProps}>
       <path
@@ -211,6 +224,7 @@ export function SendIcon(props: BaseIconProps) {
 
 export function CopyIcon(props: BaseIconProps) {
   const svgProps = createSvgProps(props);
+
   return (
     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" {...svgProps}>
       <path
@@ -225,6 +239,7 @@ export function CopyIcon(props: BaseIconProps) {
 
 export function ThumbsUpIcon(props: BaseIconProps) {
   const svgProps = createSvgProps(props);
+
   return (
     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" {...svgProps}>
       <path
@@ -239,6 +254,7 @@ export function ThumbsUpIcon(props: BaseIconProps) {
 
 export function ThumbsDownIcon(props: BaseIconProps) {
   const svgProps = createSvgProps(props);
+
   return (
     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" {...svgProps}>
       <path
@@ -253,6 +269,7 @@ export function ThumbsDownIcon(props: BaseIconProps) {
 
 export function RefreshIcon(props: BaseIconProps) {
   const svgProps = createSvgProps(props);
+
   return (
     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" {...svgProps}>
       <path
@@ -267,6 +284,7 @@ export function RefreshIcon(props: BaseIconProps) {
 
 export function ChevronDownIcon(props: BaseIconProps) {
   const svgProps = createSvgProps(props);
+
   return (
     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" {...svgProps}>
       <path
@@ -281,6 +299,7 @@ export function ChevronDownIcon(props: BaseIconProps) {
 
 export function ChevronUpIcon(props: BaseIconProps) {
   const svgProps = createSvgProps(props);
+
   return (
     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" {...svgProps}>
       <path
@@ -295,6 +314,7 @@ export function ChevronUpIcon(props: BaseIconProps) {
 
 export function CheckIcon(props: BaseIconProps) {
   const svgProps = createSvgProps(props);
+
   return (
     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" {...svgProps}>
       <path
@@ -309,6 +329,7 @@ export function CheckIcon(props: BaseIconProps) {
 
 export function WarningIcon(props: BaseIconProps) {
   const svgProps = createSvgProps(props);
+
   return (
     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" {...svgProps}>
       <path
@@ -323,6 +344,7 @@ export function WarningIcon(props: BaseIconProps) {
 
 export function ErrorIcon(props: BaseIconProps) {
   const svgProps = createSvgProps(props);
+
   return (
     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" {...svgProps}>
       <path
@@ -337,6 +359,7 @@ export function ErrorIcon(props: BaseIconProps) {
 
 export function InfoIcon(props: BaseIconProps) {
   const svgProps = createSvgProps(props);
+
   return (
     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" {...svgProps}>
       <path
@@ -352,6 +375,7 @@ export function InfoIcon(props: BaseIconProps) {
 export function LoadingIcon(props: BaseIconProps) {
   const { className, ariaLabel = "Loading" } = props;
   const accessibleProps = getAccessibleIconProps(ariaLabel);
+
   return (
     <svg
       className={`animate-spin ${className || ""}`}
@@ -371,6 +395,7 @@ export function LoadingIcon(props: BaseIconProps) {
 
 export function DatabaseIcon(props: BaseIconProps) {
   const svgProps = createSvgProps({ ...props, strokeWidth: props.strokeWidth ?? 1.5 });
+
   return (
     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" {...svgProps}>
       <path

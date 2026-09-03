@@ -8,20 +8,30 @@ const BUILT_FILE = "dist/components/ChatMessageList.js";
 // check, same as tests/build-contract.test.ts).
 const stripLeadingTrivia = (source: string): string => {
   let rest = source;
+
   for (;;) {
     const trimmed = rest.replace(/^\s+/, "");
+
     if (trimmed.startsWith("//")) {
       const lineEnd = trimmed.indexOf("\n");
-      if (lineEnd === -1) return "";
+
+      if (lineEnd === -1) {
+        return "";
+      }
       rest = trimmed.slice(lineEnd + 1);
       continue;
     }
+
     if (trimmed.startsWith("/*")) {
       const blockEnd = trimmed.indexOf("*/");
-      if (blockEnd === -1) return "";
+
+      if (blockEnd === -1) {
+        return "";
+      }
       rest = trimmed.slice(blockEnd + 2);
       continue;
     }
+
     return trimmed;
   }
 };
@@ -32,10 +42,12 @@ const stripLeadingTrivia = (source: string): string => {
 // export the name.
 const declaredMembers = (source: string, interfaceName: string): string[] => {
   const opening = source.indexOf(`interface ${interfaceName} {`);
+
   if (opening === -1) {
     throw new Error(`${interfaceName} is not declared in the built declarations`);
   }
   const body = source.slice(opening, source.indexOf("\n}", opening));
+
   return [...body.matchAll(/^ {4}(\w+)\??:/gm)].map(([, name]) => name);
 };
 
@@ -93,6 +105,7 @@ describe("the built chat message list", () => {
   it('dist/components/ChatMessageList.js opens with "use client"; as its first statement', () => {
     expect(existsSync(BUILT_FILE)).toBe(true);
     const firstStatement = stripLeadingTrivia(readFileSync(BUILT_FILE, "utf8"));
+
     expect(firstStatement.startsWith('"use client";')).toBe(true);
   });
 
@@ -103,6 +116,7 @@ describe("the built chat message list", () => {
     });
     const [pack] = JSON.parse(output) as [{ files: { path: string }[] }];
     const paths = pack.files.map((file) => file.path);
+
     expect(paths).toContain(BUILT_FILE);
     expect(paths).toContain(BUILT_FILE.replace(/\.js$/, ".d.ts"));
   });
@@ -128,6 +142,7 @@ describe("the built chat message list", () => {
       ],
       { cwd: process.cwd(), encoding: "utf8" }
     );
+
     expect(result).toMatchObject({ status: 0, stderr: "" });
   });
 });

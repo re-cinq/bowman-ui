@@ -4,6 +4,7 @@ import { useSidebarState } from "../src/hooks/useSidebarState.js";
 
 function SidebarProbe() {
   const { isOpen, isHydrated } = useSidebarState("chat", { storagePrefix: "olt-" });
+
   return <div data-open={String(isOpen)} data-hydrated={String(isHydrated)} />;
 }
 
@@ -82,6 +83,7 @@ describe("useSidebarState", () => {
 
   it("reflects a cross-tab write when the storage event key matches", () => {
     const { result } = renderHook(() => useSidebarState("chat", { storagePrefix: "olt-" }));
+
     expect(result.current.isOpen).toBe(true);
 
     act(() => {
@@ -95,6 +97,7 @@ describe("useSidebarState", () => {
   it("re-reads on a whole-store clear (storage event with a null key)", () => {
     localStorage.setItem("olt-chat", "false");
     const { result } = renderHook(() => useSidebarState("chat", { storagePrefix: "olt-" }));
+
     expect(result.current.isOpen).toBe(false);
 
     act(() => {

@@ -5,6 +5,7 @@ import { expect } from "vitest";
 // animation timing cannot drift between them.
 export const expectThinkingDots = (container: HTMLElement) => {
   const dots = [...container.querySelectorAll(".bowman-fade-dot")];
+
   expect(dots.map((dot) => (dot as HTMLElement).style.animationDelay)).toEqual([
     "0s",
     "0.2s",

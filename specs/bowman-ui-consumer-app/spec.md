@@ -160,31 +160,31 @@ All statements below executed green on 2026-09-01 against the packed tarball
 Marginalia Books English-only re-theme.
 
 The rendered screen exposes, by role query rather than CSS selector: one
-`aside` ([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L31)),
+`aside` ([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L32)),
 one `nav` with two items
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L32)), three
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L33)), three
 conversation list items
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L37)), one
-`main` ([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L39)),
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L40)), one
+`main` ([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L42)),
 user and assistant entries
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L40)), and
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L43)), and
 the composer textarea
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L47)).
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L50)).
 `AppShell` renders `renderSidebar` twice (desktop rail and mobile drawer);
 the counts are exact because role queries exclude the `display: none` copy at
 each viewport
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L31)).
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L32)).
 
 Typing into the composer and pressing Enter appends a user entry, and the
 fixture reply appends an assistant entry, with no data layer between the
 composer's submit handler and the list's entries
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L62)).
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L66)).
 
 Clicking copy on an assistant entry shows the toast
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L168)), and
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L179)), and
 it disappears on its own - a real timer in a real event loop, no fake timers
 anywhere in the suite
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L170)). The
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L181)). The
 toast is located via its visible pill and its unmount, because `Toast`
 deliberately renders the message twice (an `aria-hidden` pill and a
 visually-hidden live region).
@@ -193,7 +193,7 @@ One `getComputedStyle` assertion proves the consumer's Tailwind build scanned
 the installed `dist`: the `aside`'s `lg:w-72` - a class only the library's
 built files carry, never written by the demo - resolves to a computed width
 of `288px`
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L57)).
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L61)).
 
 ### Zero English (superseded)
 
@@ -210,26 +210,26 @@ every labelled export.
 ### EU AI Act
 
 The resolved `aiDisclosure` is visible by exact text with entries
-present ([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L181))
+present ([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L193))
 and in the empty state
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L197)). The
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L210)). The
 obligation applies regardless of server location because the agent serves EU
 users. The disclosure sits outside the scrollable region - it is not a
 descendant of the `role="log"` region
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L184)) and
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L197)) and
 stays in the viewport with the transcript scrolled to either end
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L189)).
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L202)).
 
 ### Mobile drawer focus trap
 
 At a 375x667 viewport the drawer starts closed
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L220)), the
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L233)), the
 hamburger opens it
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L223)),
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L237)),
 `Tab` from the last focusable element inside it returns to the first
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L229)), and
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L245)), and
 `Escape` closes it and returns focus to the hamburger
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L232)) - the
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L248)) - the
 first execution of the focus trap where `offsetParent` is a real value rather
 than the jsdom shim.
 

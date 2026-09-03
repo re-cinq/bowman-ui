@@ -27,6 +27,7 @@ describe("AppShell", () => {
       );
 
       const main = document.querySelector("main#main-content");
+
       expect(main).toContainElement(screen.getByText("Detalles del pedido 4711"));
     });
 
@@ -52,6 +53,7 @@ describe("AppShell", () => {
       );
 
       const focusables = container.querySelectorAll("a[href], button, input, select, textarea");
+
       expect(focusables[0]).toBe(screen.getByRole("link", { name: "Skip to main content" }));
     });
 
@@ -69,6 +71,7 @@ describe("AppShell", () => {
   describe("the renderSidebar slot", () => {
     it('renderSidebar is called exactly twice per render, once with variant "desktop" and once with "mobile", and both trees are in the document', () => {
       const renderSidebar = vi.fn(sidebarWithLink);
+
       render(<AppShell renderSidebar={renderSidebar}>content</AppShell>);
 
       expect(renderSidebar).toHaveBeenCalledTimes(2);
@@ -92,6 +95,7 @@ describe("AppShell", () => {
       render(<AppShell>content</AppShell>);
 
       const drawer = getDrawer();
+
       expect(drawer).toHaveClass("-translate-x-full");
       expect(drawer).toHaveAttribute("inert");
 
@@ -145,6 +149,7 @@ describe("AppShell", () => {
   describe("controlled open state", () => {
     it("mobileSidebarOpen={false}: clicking the hamburger calls onMobileSidebarOpenChange once with true and the drawer stays closed", () => {
       const onOpenChange = vi.fn();
+
       render(
         <AppShell mobileSidebarOpen={false} onMobileSidebarOpenChange={onOpenChange}>
           content
@@ -161,6 +166,7 @@ describe("AppShell", () => {
 
     it("mobileSidebarOpen={true} renders the drawer open with no interaction, and closing only reports false", () => {
       const onOpenChange = vi.fn();
+
       render(
         <AppShell mobileSidebarOpen={true} onMobileSidebarOpenChange={onOpenChange}>
           content
@@ -168,6 +174,7 @@ describe("AppShell", () => {
       );
 
       const drawer = getDrawer();
+
       expect(drawer).toHaveClass("translate-x-0");
       expect(drawer).not.toHaveAttribute("inert");
 
@@ -184,6 +191,7 @@ describe("AppShell", () => {
       fireEvent.click(getHamburger());
 
       const drawer = getDrawer();
+
       expect(drawer).toHaveAttribute("role", "dialog");
       expect(drawer).toHaveAttribute("aria-modal", "true");
       expect(drawer).toHaveAttribute("aria-label", "Menu");
@@ -193,6 +201,7 @@ describe("AppShell", () => {
       render(<AppShell>content</AppShell>);
 
       const drawer = getDrawer();
+
       expect(drawer).not.toHaveAttribute("role");
       expect(drawer).not.toHaveAttribute("aria-modal");
       expect(drawer).not.toHaveAttribute("aria-label");
@@ -212,6 +221,7 @@ describe("AppShell", () => {
       render(<AppShell>content</AppShell>);
 
       const hamburger = getHamburger();
+
       expect(getDrawer().id).not.toBe("");
       expect(hamburger.getAttribute("aria-controls")).toBe(getDrawer().id);
       expect(hamburger).not.toHaveAttribute("aria-expanded");
@@ -223,6 +233,7 @@ describe("AppShell", () => {
       render(<AppShell renderSidebar={sidebarWithLink}>content</AppShell>);
 
       const link = screen.getByTestId("sidebar-link-mobile");
+
       expect(getDrawer()).toHaveAttribute("inert");
       expect(link.closest("[inert]")).toBe(getDrawer());
 
@@ -255,6 +266,7 @@ describe("AppShell", () => {
       });
       vi.stubGlobal("requestAnimationFrame", (callback: FrameRequestCallback) => {
         callback(0);
+
         return 0;
       });
     });
@@ -287,6 +299,7 @@ describe("AppShell", () => {
     it("mounting the shell leaves focus on whatever the page had focused", () => {
       render(<button>outside</button>);
       const outside = screen.getByRole("button", { name: "outside" });
+
       outside.focus();
 
       render(<AppShell renderSidebar={sidebarWithLink}>content</AppShell>);
@@ -332,6 +345,7 @@ describe("AppShell", () => {
       document.body.style.overflow = "scroll";
       const changeHandlers: Array<(event: { matches: boolean }) => void> = [];
       let desktop = false;
+
       vi.stubGlobal(
         "matchMedia",
         vi.fn((query: string) => ({
@@ -339,7 +353,9 @@ describe("AppShell", () => {
             return query === "(min-width: 768px)" ? desktop : false;
           },
           addEventListener: (_type: string, handler: (event: { matches: boolean }) => void) => {
-            if (query === "(min-width: 768px)") changeHandlers.push(handler);
+            if (query === "(min-width: 768px)") {
+              changeHandlers.push(handler);
+            }
           },
           removeEventListener: vi.fn(),
         }))
@@ -351,13 +367,17 @@ describe("AppShell", () => {
 
       desktop = true;
       act(() => {
-        for (const handler of changeHandlers) handler({ matches: true });
+        for (const handler of changeHandlers) {
+          handler({ matches: true });
+        }
       });
       expect(document.body.style.overflow).toBe("scroll");
 
       desktop = false;
       act(() => {
-        for (const handler of changeHandlers) handler({ matches: false });
+        for (const handler of changeHandlers) {
+          handler({ matches: false });
+        }
       });
       expect(document.body.style.overflow).toBe("hidden");
     });
@@ -365,6 +385,7 @@ describe("AppShell", () => {
     it('unmounting while open restores the prior "scroll" value', () => {
       document.body.style.overflow = "scroll";
       const { unmount } = render(<AppShell>content</AppShell>);
+
       fireEvent.click(getHamburger());
 
       unmount();
@@ -405,6 +426,7 @@ describe("AppShell", () => {
       render(<AppShell brand={<span data-testid="brand">4711</span>}>content</AppShell>);
 
       const headerRow = getHamburger().parentElement as HTMLElement;
+
       expect(headerRow).toContainElement(screen.getByTestId("brand"));
       expect(headerRow.querySelector("div.h-10.w-10")).not.toBeNull();
     });
@@ -413,6 +435,7 @@ describe("AppShell", () => {
       render(<AppShell>content</AppShell>);
 
       const headerRow = getHamburger().parentElement as HTMLElement;
+
       expect(headerRow.querySelector("div.h-10.w-10")).toBeNull();
     });
 
@@ -434,7 +457,9 @@ describe("AppShell", () => {
       const relativeImports = [...source.matchAll(/from\s+"(\.[^"]*)"/g)].map(
         ([, specifier]) => specifier
       );
+
       expect(relativeImports.length).toBeGreaterThan(0);
+
       for (const specifier of relativeImports) {
         expect(specifier).toMatch(/\.js$/);
       }
@@ -445,6 +470,7 @@ describe("AppShell", () => {
         render(<AppShell renderSidebar={() => <a href="#nav">nav</a>}>content</AppShell>);
 
         const header = document.querySelector("header, .z-40");
+
         expect(header?.className).toContain("z-40");
         expect(document.querySelector('[data-testid="app-shell-drawer"]')?.className).toContain(
           "z-50"
@@ -462,6 +488,7 @@ describe("AppShell", () => {
         );
 
         const spacers = (root: HTMLElement) => root.querySelectorAll("header > div").length;
+
         expect(spacers(withNull)).toBe(spacers(omitted));
       });
     });

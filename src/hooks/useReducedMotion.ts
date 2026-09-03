@@ -8,9 +8,13 @@ const canMatchMedia = (): boolean =>
   typeof window !== "undefined" && typeof window.matchMedia === "function";
 
 const subscribe = (onChange: () => void): (() => void) => {
-  if (!canMatchMedia()) return () => {};
+  if (!canMatchMedia()) {
+    return () => {};
+  }
   const mediaQuery = window.matchMedia(QUERY);
+
   mediaQuery.addEventListener("change", onChange);
+
   return () => mediaQuery.removeEventListener("change", onChange);
 };
 
@@ -45,6 +49,10 @@ export function useReducedMotion(override?: boolean): boolean {
     hasOverride ? getServerSnapshot : getSnapshot,
     getServerSnapshot
   );
-  if (hasOverride) return override;
+
+  if (hasOverride) {
+    return override;
+  }
+
   return prefersReducedMotion;
 }

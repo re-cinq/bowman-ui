@@ -172,6 +172,7 @@ function FallbackTrigger({ broken, onBreak }: { broken: boolean; onBreak: () => 
   if (broken) {
     throw new Error("A render failed");
   }
+
   return (
     <button
       type="button"

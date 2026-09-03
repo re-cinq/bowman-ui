@@ -33,6 +33,7 @@ describe("resolveLabels", () => {
     const resolved = resolveLabels(defaults, {
       deletedCount: (count) => `${count} mensajes eliminados`,
     });
+
     expect(resolved.deletedCount(3)).toBe("3 mensajes eliminados");
     expect(defaults.deletedCount(3)).toBe("3 messages deleted");
   });

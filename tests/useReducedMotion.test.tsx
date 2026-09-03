@@ -9,7 +9,10 @@ const stubMatchMedia = (matches: boolean) => {
   const handlers: ChangeHandler[] = [];
   const removeEventListener = vi.fn((_type: string, handler: ChangeHandler) => {
     const index = handlers.indexOf(handler);
-    if (index !== -1) handlers.splice(index, 1);
+
+    if (index !== -1) {
+      handlers.splice(index, 1);
+    }
   });
   const matchMedia = vi.fn(() => ({
     get matches() {
@@ -20,9 +23,14 @@ const stubMatchMedia = (matches: boolean) => {
   }));
   const emit = (next: boolean) => {
     state.matches = next;
-    for (const handler of handlers) handler({ matches: next });
+
+    for (const handler of handlers) {
+      handler({ matches: next });
+    }
   };
+
   vi.stubGlobal("matchMedia", matchMedia);
+
   return { matchMedia, handlers, removeEventListener, emit };
 };
 
@@ -55,6 +63,7 @@ describe("useReducedMotion", () => {
     const { emit } = stubMatchMedia(false);
 
     const { result } = renderHook(() => useReducedMotion());
+
     expect(result.current).toBe(false);
 
     act(() => {
@@ -68,8 +77,10 @@ describe("useReducedMotion", () => {
     const renders: boolean[] = [];
     const Probe = () => {
       renders.push(useReducedMotion());
+
       return null;
     };
+
     render(<Probe />);
 
     expect(renders[0]).toBe(true);
@@ -87,6 +98,7 @@ describe("useReducedMotion", () => {
     const { removeEventListener } = stubMatchMedia(false);
 
     const { unmount } = renderHook(() => useReducedMotion());
+
     unmount();
 
     expect(removeEventListener).toHaveBeenCalledTimes(1);

@@ -38,15 +38,19 @@ const lint = (): LintResult[] => {
     ],
     { cwd: process.cwd(), encoding: "utf8" }
   );
+
   expect(result.status).toBe(1);
+
   return JSON.parse(result.stdout) as LintResult[];
 };
 
 const messagesFor = (results: LintResult[], fixture: string): LintMessage[] => {
   const match = results.find((entry) => entry.filePath.endsWith(`${sep}${fixture}`));
+
   if (!match) {
     throw new Error(`eslint reported nothing for ${fixture}`);
   }
+
   return match.messages;
 };
 

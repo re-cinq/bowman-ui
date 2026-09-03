@@ -5,9 +5,11 @@ const script = readFileSync(resolve(process.cwd(), "scripts/check-client-directi
 
 const triggerList = (): string[] => {
   const block = script.match(/const BROWSER_GLOBALS = new Set\(\[([\s\S]*?)\]\);/);
+
   if (!block) {
     throw new Error("BROWSER_GLOBALS is no longer declared inline in check-client-directives.mjs");
   }
+
   return [...block[1].matchAll(/"([^"]+)"/g)].map((match) => match[1]);
 };
 
@@ -51,6 +53,7 @@ describe("the browser-global trigger list", () => {
       "Node",
       "SVGSVGElement",
     ];
+
     for (const name of excluded) {
       expect(list.has(name)).toEqual(false);
     }

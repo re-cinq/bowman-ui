@@ -45,6 +45,7 @@ describe("ThinkingIndicator", () => {
     );
 
     const circle = container.querySelector('[aria-hidden="true"]');
+
     expect(circle?.querySelector('[data-testid="mark"]')).toHaveTextContent("4711");
   });
 
@@ -52,6 +53,7 @@ describe("ThinkingIndicator", () => {
     const { container } = render(<ThinkingIndicator />);
 
     const circle = container.querySelector('[aria-hidden="true"]');
+
     expect(circle?.childElementCount).toBe(0);
     expect(circle?.textContent).toBe("");
   });
@@ -65,6 +67,7 @@ describe("ThinkingIndicator", () => {
     );
 
     const circle = container.querySelector('[aria-hidden="true"]');
+
     expect(circle?.classList.contains("bowman-pulse-subtle")).toBe(true);
   });
 
@@ -89,14 +92,17 @@ describe("ThinkingIndicator", () => {
 
     const walk = (dir: string): string[] => {
       const files: string[] = [];
+
       for (const entry of readdirSync(dir)) {
         const fullPath = join(dir, entry);
+
         if (statSync(fullPath).isDirectory()) {
           files.push(...walk(fullPath));
           continue;
         }
         files.push(fullPath);
       }
+
       return files;
     };
 
@@ -107,11 +113,13 @@ describe("ThinkingIndicator", () => {
     it("neither file imports @clerk, swr, next-intl, next/ or @/ and every relative import ends in .js", () => {
       for (const { content } of sources) {
         expect(content).not.toMatch(/@clerk|swr|next-intl|next\/|@\//);
+
         for (const [, spec] of content.matchAll(/from\s+"(\.[^"]+)"/g)) {
           expect(spec).toMatch(/\.js$/);
         }
       }
       const relativeImports = [...sources[0].content.matchAll(/from\s+"(\.[^"]+)"/g)];
+
       expect(relativeImports.length).toBeGreaterThan(0);
     });
 
@@ -120,6 +128,7 @@ describe("ThinkingIndicator", () => {
         resolve(process.cwd(), "src/components/InlineThinkingIndicator.tsx"),
         "utf8"
       );
+
       expect(sources[0].content).toMatch(/from "\.\/ThinkingDots\.js"/);
       expect(inline).toMatch(/from "\.\/ThinkingDots\.js"/);
     });
