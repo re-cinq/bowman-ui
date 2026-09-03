@@ -124,8 +124,9 @@ The typecheck script is `typecheck`, not `type-check`.
 10. **Never rewrite `forwardRef` away** (docs/design-notes.md decision 4) — that would turn the React-19 testing
     claim into a hard floor.
 11. **Lint guardrails** (docs/design-notes.md § Lint guardrails). Five repo-local rules from
-    `tools/eslint-plugin-bowman/` run over `src/**`: `max-boolean-operators` (max 2, lift denser
-    conditions into named predicates), `no-catch-as-control-flow`, `no-network-egress` (the
+    `tools/eslint-plugin-bowman/` run over `src/**`: `max-boolean-operators` (max 2 at inline
+    condition sites; returns and arrow bodies are exempt BY DESIGN - they are where the named
+    predicate lives), `no-catch-as-control-flow`, `no-network-egress` (the
     review-time backstop for invariant 4), `no-prop-mutation`, and `no-inline-styles` (objects of
     only CSS custom properties pass; ConversationList, Toast and ThinkingDots are exempted by
     path in eslint.config.mjs as recorded decisions). Default exports are banned in `src/` via a

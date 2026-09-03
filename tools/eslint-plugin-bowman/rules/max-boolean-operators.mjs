@@ -10,6 +10,14 @@
  * not boolean branching, so it never counts toward the budget — but it is not
  * a boundary either: `&&`/`||` on both sides of a `??` share one budget.
  *
+ * Return statements and arrow-function bodies are DELIBERATELY not counted:
+ * a returned expression belongs to a named function, and the name is the fix
+ * this rule demands. Counting them would put the extracted predicate itself
+ * over budget — `isCopyChord` legally chains four operators for exactly this
+ * reason — and the rule would be demanding an extraction it then forbids.
+ * The cost is that a dense return inside a vaguely-named function passes;
+ * the function name is the reviewable surface there, not the operator count.
+ *
  * Detect-only: naming the predicate is human judgment, not a mechanical
  * rewrite. Default `max` is 2 (a third operator fires).
  */
