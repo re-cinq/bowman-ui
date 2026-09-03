@@ -19,10 +19,12 @@ const boundary = (index: number, wordCount: number, stepCount: number): number =
 
 export const splitIntoChunks = (text: string, stepCount: number): ReadonlyArray<string> => {
   const words = text.split(" ");
+
   return Array.from({ length: stepCount }, (_, index) => {
     const chunk = words
       .slice(boundary(index, words.length, stepCount), boundary(index + 1, words.length, stepCount))
       .join(" ");
+
     return index === 0 ? chunk : ` ${chunk}`;
   });
 };

@@ -31,6 +31,7 @@ const Consumer = () => {
     composerRef.current?.setValue("Ver pedido 4711");
     composerRef.current?.focus();
   };
+
   return (
     <ChatComposer
       ref={composerRef}

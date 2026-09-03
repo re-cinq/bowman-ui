@@ -19,10 +19,10 @@ flag to the callback where the derivation already lives.
 component's own resolved `pending` prop rather than a second derivation. With
 `pending` set the callback's present-tense string renders; without it the
 past-tense one
-([validated by](../../tests/ToolActivity.test.tsx#L98)). The published
+([validated by](../../tests/ToolActivity.test.tsx#L99)). The published
 declarations carry the two-parameter form, reached from the barrel's
 `export type { ... ToolActivityProps } from "./components/ToolActivity.js"`
-([validated by](../../tests/ToolActivity.test.tsx#L222)) - `dist/index.d.ts`
+([validated by](../../tests/ToolActivity.test.tsx#L227)) - `dist/index.d.ts`
 is re-export statements only, so the signature is emitted in the module it
 re-exports.
 
@@ -32,14 +32,14 @@ re-exports.
    parameter counts keeps a one-parameter callback assignable, so no consumer
    is forced to change: `const describe = (entry: ToolChatEntry) => entry.toolName`
    still satisfies the prop and still renders when `pending` is true
-   ([validated by](../../tests/ToolActivity.test.tsx#L112)), and
+   ([validated by](../../tests/ToolActivity.test.tsx#L114)), and
    `tests/types/tool-activity-type-assertions.tsx` compiles against the built
    package suppressing no error
-   ([validated by](../../tests/ToolActivity.test.tsx#L235)). The same
+   ([validated by](../../tests/ToolActivity.test.tsx#L240)). The same
    one-parameter shape stays pinned through `ChatMessageList`'s own assertions
-   ([validated by](../../tests/types/chat-message-list-type-assertions.tsx#L72),
+   ([validated by](../../tests/types/chat-message-list-type-assertions.tsx#L73),
    compiled by
-   [chat-message-list-dist](../../tests/chat-message-list-dist.test.ts#L47)).
+   [chat-message-list-dist](../../tests/chat-message-list-dist.test.ts#L59)).
 2. **One source of truth for the flag.** The value passed is the prop
    `ToolActivity` already resolved (default `false`), so a caller using the
    component directly and one going through `ChatMessageList` see identical
@@ -48,17 +48,17 @@ re-exports.
    `describeTool` unchanged, so with `busy` true and `[user, tool, tool]` the
    first tool entry renders the callback's past-tense string and the trailing
    one its present-tense string, and with `busy` false both read past tense
-   ([validated by](../../tests/ChatMessageList.test.tsx#L767)). Its prop type
+   ([validated by](../../tests/ChatMessageList.test.tsx#L791)). Its prop type
    restates the signature inline and is kept identical to `ToolActivity`'s.
 3. **Replacement semantics are untouched.** A supplied `describeTool` still
    replaces the tensed labels entirely and suppresses nothing else - with
    `showToolName` also set, the fixture's tool name is still in the document
-   ([validated by](../../tests/ToolActivity.test.tsx#L78)). This issue changes
+   ([validated by](../../tests/ToolActivity.test.tsx#L79)). This issue changes
    what the callback knows, not what it controls.
 4. **The component stays off the client-directive trigger list.**
    `ToolActivity.tsx` gains no state: its source still holds no `useState`,
    `useEffect` or `useId`
-   ([validated by](../../tests/ToolActivity.test.tsx#L191)).
+   ([validated by](../../tests/ToolActivity.test.tsx#L196)).
 
 ## Out of scope
 

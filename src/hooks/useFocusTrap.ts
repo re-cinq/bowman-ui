@@ -37,7 +37,9 @@ export function useFocusTrap<T extends HTMLElement = HTMLDivElement>(
 
   // Get all focusable elements within the container
   const getFocusableElements = useCallback((): HTMLElement[] => {
-    if (!containerRef.current) return [];
+    if (!containerRef.current) {
+      return [];
+    }
 
     // checkVisibility with visibilityProperty tests display:none subtrees and
     // visibility:hidden - the states that also remove an element from the tab
@@ -56,20 +58,26 @@ export function useFocusTrap<T extends HTMLElement = HTMLDivElement>(
 
   // Handle keyboard navigation
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen) {
+      return;
+    }
 
     const handleKeyDown = (event: KeyboardEvent) => {
       // Close on Escape
       if (event.key === "Escape") {
         event.preventDefault();
         onClose();
+
         return;
       }
 
       // Trap focus on Tab
       if (event.key === "Tab") {
         const focusableElements = getFocusableElements();
-        if (focusableElements.length === 0) return;
+
+        if (focusableElements.length === 0) {
+          return;
+        }
 
         const firstElement = focusableElements[0];
         const lastElement = focusableElements[focusableElements.length - 1];
@@ -79,6 +87,7 @@ export function useFocusTrap<T extends HTMLElement = HTMLDivElement>(
         if (!containerRef.current?.contains(document.activeElement)) {
           event.preventDefault();
           (event.shiftKey ? lastElement : firstElement).focus();
+
           return;
         }
 
@@ -99,6 +108,7 @@ export function useFocusTrap<T extends HTMLElement = HTMLDivElement>(
     };
 
     document.addEventListener("keydown", handleKeyDown);
+
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, onClose, getFocusableElements]);
 
@@ -111,13 +121,17 @@ export function useFocusTrap<T extends HTMLElement = HTMLDivElement>(
 
       // Focus first focusable element in container
       const focusableElements = getFocusableElements();
-      if (focusableElements.length === 0) return;
+
+      if (focusableElements.length === 0) {
+        return;
+      }
 
       // Small delay to ensure DOM is ready; cancelled on close/unmount so a
       // rapid open-then-close never races focus back into the closed trap
       const frame = requestAnimationFrame(() => {
         focusableElements[0].focus();
       });
+
       return () => cancelAnimationFrame(frame);
     }
 
@@ -125,10 +139,13 @@ export function useFocusTrap<T extends HTMLElement = HTMLDivElement>(
     // the page's focus untouched: with a triggerRef supplied, the unguarded
     // version pulled focus onto the trigger the moment the consumer's shell
     // rendered, stealing it from whatever the user was actually on.
-    if (!hasBeenOpen.current) return;
+    if (!hasBeenOpen.current) {
+      return;
+    }
 
     // Return focus to trigger or previous element
     const returnTarget = triggerRef?.current || previousActiveElement.current;
+
     if (returnTarget && typeof returnTarget.focus === "function") {
       returnTarget.focus();
     }

@@ -73,10 +73,12 @@ export function ChatComposer({
 
   const submit = () => {
     const textarea = textareaRef.current;
+
     if (!textarea || inactive) {
       return;
     }
     const text = textarea.value.trim();
+
     if (!text) {
       return;
     }
@@ -103,6 +105,7 @@ export function ChatComposer({
     focus: () => textareaRef.current?.focus(),
     setValue: (value: string) => {
       const textarea = textareaRef.current;
+
       if (!textarea) {
         return;
       }

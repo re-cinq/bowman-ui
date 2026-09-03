@@ -18,8 +18,8 @@ already in the repo - it adds no new component.
 - A function-valued label - the convention's interpolation form - overrides like any other key
   ([validated by](../../tests/resolveLabels.test.ts#L32)).
 - Neither argument is mutated and `Object.freeze`d defaults do not throw
-  ([validated by](../../tests/resolveLabels.test.ts#L40),
-  [L50](../../tests/resolveLabels.test.ts#L50)).
+  ([validated by](../../tests/resolveLabels.test.ts#L41),
+  [L50](../../tests/resolveLabels.test.ts#L51)).
 - `src/components/ErrorBoundary.tsx` retrofitted onto `resolveLabels` as the worked example:
   `defaultErrorBoundaryLabels: Readonly<Required<ErrorBoundaryLabels>>` is exported, frozen, and
   co-located with its type, so a key added to `ErrorBoundaryLabels` without a default fails
@@ -27,17 +27,17 @@ already in the repo - it adds no new component.
   `tests/types/labels-type-assertions.tsx`, compiled against the BUILT package through the single
   `"."` exports entry ([validated by](../../tests/labels-dist.test.ts#L3)).
 - The three translated labels render with no English remaining; no `labels` prop renders the three
-  021 English defaults unchanged ([validated by](../../tests/ErrorBoundary.test.tsx#L58),
-  [L44](../../tests/ErrorBoundary.test.tsx#L44)).
+  021 English defaults unchanged ([validated by](../../tests/ErrorBoundary.test.tsx#L61),
+  [L44](../../tests/ErrorBoundary.test.tsx#L46)).
 - `eslint.config.mjs` gains a labels entry (core ESLint only): `no-restricted-syntax` selectors
   banning bare Latin JSX text, hardcoded string literals in the seven
   assistive attributes, and
   `strings`/`texts`/`i18n`/`translations`/`messages` property keys, plus
   `no-restricted-imports` on
-  `next-intl` ([validated by](../../tests/eslint-labels.test.ts#L61),
-  [L125](../../tests/eslint-labels.test.ts#L125),
-  [L134](../../tests/eslint-labels.test.ts#L134),
-  [L152](../../tests/eslint-labels.test.ts#L152)).
+  `next-intl` ([validated by](../../tests/eslint-labels.test.ts#L65),
+  [L125](../../tests/eslint-labels.test.ts#L131),
+  [L134](../../tests/eslint-labels.test.ts#L140),
+  [L152](../../tests/eslint-labels.test.ts#L158)).
 - The red fixtures live
   in `tests/fixtures/eslint-labels/`, globally ignored so the committed tree stays green - the
   original four plus the 2026-08-26 review's bypass set (expression-container and template
@@ -52,20 +52,20 @@ already in the repo - it adds no new component.
   every label a unique `⟦sentinel⟧` and asserts no run of three or more Latin letters survives in
   `textContent` or in `aria-label`/`aria-placeholder`/`aria-roledescription`/`aria-valuetext`/
   `title`/`placeholder`/`alt` outside the sentinels, with the sentinel set pinned to
-  the default-labels keys ([validated by](../../tests/labelled-exports.test.tsx#L559),
-  [L400](../../tests/labelled-exports.test.tsx#L454)).
+  the default-labels keys ([validated by](../../tests/labelled-exports.test.tsx#L568),
+  [L400](../../tests/labelled-exports.test.tsx#L463)).
 - **The check's own proof:** reverting 021's `labels` prop to a hardcoded
   `"Something went wrong"` makes the sentinel test fail - the stray English survives sentinel
   stripping and matches the Latin-run regex
-  ([validated by](../../tests/labelled-exports.test.tsx#L559)).
+  ([validated by](../../tests/labelled-exports.test.tsx#L568)).
 - `docs/design-notes.md § Labels` - Decisions 1-5, the flat-union key-naming rule, the function form for
   interpolation, the two `stringPropOnly` exceptions with reasons, and `aiDisclosure` documented
   as required-with-no-default under the EU AI Act.
 - Re-pinned prior behaviour (AC 39): `<LoadingIcon ariaLabel="Cargando" />` renders
   `aria-label="Cargando"` with `"Loading"` nowhere in the output; the translated `announce`
   assertion already existed and is referenced, not duplicated
-  ([validated by](../../tests/icons.test.tsx#L252),
-  [announce](../../tests/useFocusGroups.test.tsx#L120)).
+  ([validated by](../../tests/icons.test.tsx#L267),
+  [announce](../../tests/useFocusGroups.test.tsx#L126)).
 
 ## Recorded decisions, interpretations and deviations
 
@@ -74,7 +74,7 @@ already in the repo - it adds no new component.
   `labels={{ title: undefined }}` blank the title. `resolveLabels` treats that key as missing and
   renders the English default instead. This is the convention's intent; it
   is the one observable behaviour change in the retrofit
-  ([validated by](../../tests/ErrorBoundary.test.tsx#L79)).
+  ([validated by](../../tests/ErrorBoundary.test.tsx#L83)).
 - **Partition is over value exports.** The partition test statically parses `export { ... }`
   blocks of `src/index.ts`; `export type { ... }` names are excluded by design - a type carries
   no renderable string. Interfaces like `ErrorBoundaryLabels` are therefore not partition
@@ -93,7 +93,7 @@ already in the repo - it adds no new component.
   six real `"use client"` files now exist, and Placeholder's hardcoded English text can neither
   pass the new lint rule nor fit any partition bucket. `tests/build-contract.test.ts`'s
   first-statement assertion now targets `dist/hooks/useDebounce.js`, a real directive-carrying
-  file ([validated by](../../tests/build-contract.test.ts#L33)).
+  file ([validated by](../../tests/build-contract.test.ts#L43)).
 - 014's deletion-trigger property
   still holds without Placeholder: coverage includes all of `src/**` at the 100/100/100/90
   floor, so deleting any component's test drops that file below threshold and fails

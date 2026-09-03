@@ -9,6 +9,7 @@ type RunResult = { status: number | null; stdout: string; stderr: string };
 
 const run = (root: string): RunResult => {
   const result = spawnSync(process.execPath, [script, root], { encoding: "utf8" });
+
   return { status: result.status, stdout: result.stdout, stderr: result.stderr };
 };
 
@@ -27,9 +28,11 @@ const cleanPolicy = `export const defaultMarkdownPolicy = Object.freeze({
 
 const makeTree = (): string => {
   const root = mkdtempSync(join(tmpdir(), "check-markdown-safety-"));
+
   write(root, "package.json", JSON.stringify({ name: "fixture", dependencies: {} }));
   write(root, "src/markdown/urlPolicy.ts", cleanPolicy);
   write(root, "src/index.ts", "export const noop = () => undefined;\n");
+
   return root;
 };
 

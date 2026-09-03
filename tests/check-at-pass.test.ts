@@ -19,6 +19,7 @@ type Row = {
 
 const run = (repo: string, ...args: string[]): RunResult => {
   const result = spawnSync(process.execPath, [script, ...args], { cwd: repo, encoding: "utf8" });
+
   return { status: result.status, stdout: result.stdout, stderr: result.stderr };
 };
 
@@ -102,15 +103,18 @@ const renderRecord = (
 // commit on top.
 const makeRepo = (): string => {
   const repo = mkdtempSync(join(tmpdir(), "check-at-pass-"));
+
   git(repo, "init", "-q", "-b", "main");
   git(repo, "config", "user.email", "test@example.test");
   git(repo, "config", "user.name", "Test");
   git(repo, "config", "commit.gpgsign", "false");
+
   for (const path of coveredPaths) {
     write(repo, path, "export const placeholderComponent = () => null;\n");
   }
   git(repo, "add", "-A");
   git(repo, "commit", "-q", "-m", "components");
+
   return repo;
 };
 
@@ -156,12 +160,14 @@ describe("check-at-pass", () => {
 
     expect(run(repo, "--structure")).toMatchObject({ status: 0 });
     const freshness = run(repo, "--freshness");
+
     expect(freshness).toMatchObject({ status: 0 });
     expect(freshness.stdout).toContain("covers the current tree");
   });
 
   it("a missing required field exits 1 naming the field", () => {
     const fields = defaultFields(componentsCommit(repo));
+
     delete fields.runner;
     commitRecord(repo, renderRecord(fields, defaultRows()));
 
@@ -182,6 +188,7 @@ describe("check-at-pass", () => {
 
   it("a missing row verdict exits 1 naming the row and the stack", () => {
     const rows = defaultRows().filter((row) => !(row.id === "A4" && row.stack === "voiceover"));
+
     commitRecord(repo, renderRecord(defaultFields(componentsCommit(repo)), rows));
 
     const result = run(repo, "--structure");
@@ -194,6 +201,7 @@ describe("check-at-pass", () => {
     const rows = defaultRows().map((row) =>
       row.id === "A2" && row.stack === "nvda" ? { ...row, verdict: "fail" } : row
     );
+
     commitRecord(repo, renderRecord(defaultFields(componentsCommit(repo)), rows));
 
     const result = run(repo, "--structure");
@@ -210,6 +218,7 @@ describe("check-at-pass", () => {
         ? { ...row, verdict: "fail", extra: { "fixing-issue": "131-thinking-indicator-announced" } }
         : row
     );
+
     commitRecord(repo, renderRecord(defaultFields(componentsCommit(repo)), rows));
 
     expect(run(repo, "--structure")).toMatchObject({ status: 0 });
@@ -221,6 +230,7 @@ describe("check-at-pass", () => {
         ? { ...row, verdict: "not-run", extra: { reason: "no Windows machine" } }
         : row
     );
+
     commitRecord(repo, renderRecord(defaultFields(componentsCommit(repo)), rows));
 
     const result = run(repo, "--structure");
@@ -233,6 +243,7 @@ describe("check-at-pass", () => {
     const rows = defaultRows().map((row) =>
       row.id === "A1" && row.stack === "voiceover" ? { ...row, verdict: "not-run" } : row
     );
+
     commitRecord(repo, renderRecord(defaultFields(componentsCommit(repo)), rows));
 
     const result = run(repo, "--structure");
@@ -247,6 +258,7 @@ describe("check-at-pass", () => {
         ? { ...row, verdict: "not-run", extra: { reason: "no macOS device with a Danish voice" } }
         : row
     );
+
     commitRecord(repo, renderRecord(defaultFields(componentsCommit(repo)), rows));
 
     expect(run(repo, "--structure")).toMatchObject({ status: 0 });
@@ -256,6 +268,7 @@ describe("check-at-pass", () => {
     const rows = defaultRows().map((row) =>
       row.id === "A6" && row.stack === "nvda" ? { ...row, verdict: "waived" } : row
     );
+
     commitRecord(repo, renderRecord(defaultFields(componentsCommit(repo)), rows));
 
     const result = run(repo, "--structure");
@@ -274,6 +287,7 @@ describe("check-at-pass", () => {
           }
         : row
     );
+
     commitRecord(repo, renderRecord(defaultFields(componentsCommit(repo)), rows));
 
     const structure = run(repo, "--structure");
@@ -294,6 +308,7 @@ describe("check-at-pass", () => {
           }
         : row
     );
+
     commitRecord(repo, renderRecord(defaultFields(componentsCommit(repo)), rows));
 
     expect(run(repo, "--structure")).toMatchObject({ status: 0 });
@@ -314,6 +329,7 @@ describe("check-at-pass", () => {
   it("a later commit to a covered path makes --freshness exit 1 naming both commits", () => {
     commitRecord(repo, validRecord(repo));
     const recordCommit = gitOut(repo, "rev-parse", "HEAD~1");
+
     write(repo, coveredPaths[1], "export const placeholderComponent = () => undefined;\n");
     git(repo, "add", "-A");
     git(repo, "commit", "-q", "-m", "edit a covered component");
@@ -335,6 +351,7 @@ describe("check-at-pass", () => {
       coveredPaths[0],
       "src/components/NoSuchComponent.tsx"
     );
+
     commitRecord(repo, record);
 
     const result = run(repo, "--freshness");
@@ -346,6 +363,7 @@ describe("check-at-pass", () => {
   it("the newest record by filename is the one validated", () => {
     commitRecord(repo, validRecord(repo), "at-pass-2020-01-01.md");
     const fields = defaultFields(componentsCommit(repo));
+
     delete fields.package;
     commitRecord(repo, renderRecord(fields, defaultRows()), "at-pass-2026-08-31.md");
 
@@ -359,6 +377,7 @@ describe("check-at-pass", () => {
   it("a filename date that lies about the front-matter date exits 1 in both modes, even next to a real record", () => {
     commitRecord(repo, validRecord(repo), "at-pass-2026-08-31.md");
     const fields = { ...defaultFields(componentsCommit(repo)), date: "2020-01-01" };
+
     commitRecord(repo, renderRecord(fields, defaultRows()), "at-pass-9999-99-99.md");
 
     const structure = run(repo, "--structure");
@@ -388,6 +407,7 @@ describe("check-at-pass", () => {
         voice: "default",
       },
     ];
+
     commitRecord(
       repo,
       renderRecord(defaultFields(componentsCommit(repo)), defaultRows(), bogusStacks)
@@ -434,6 +454,7 @@ describe("check-at-pass", () => {
           }
         : row
     );
+
     commitRecord(repo, renderRecord(defaultFields(componentsCommit(repo)), rows));
 
     const result = run(repo, "--structure");

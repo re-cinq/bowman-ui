@@ -50,6 +50,7 @@ describe("ChatMessage", () => {
       render(<ChatMessage entry={makeUserEntry()} userInitials="LM" />);
 
       const article = screen.getByRole("article");
+
       expect(article).toHaveAttribute("aria-label", "Your message");
       expect(screen.getByText("Ver pedido 4711")).toBeInTheDocument();
       expect(screen.getByText("LM")).toBeInTheDocument();
@@ -89,6 +90,7 @@ describe("ChatMessage", () => {
       );
 
       const strong = screen.getByText("confirmado");
+
       expect(strong.tagName).toBe("STRONG");
       expect(strong.classList.contains("bowman-md-strong")).toBe(true);
     });
@@ -102,6 +104,7 @@ describe("ChatMessage", () => {
       );
 
       const table = container.querySelector("table");
+
       expect(table).toBeInTheDocument();
       expect(table?.classList.contains("bowman-md-table")).toBe(true);
       expect(screen.getByText("Cuenta")).toBeInTheDocument();
@@ -178,6 +181,7 @@ describe("ChatMessage", () => {
     it("Cmd+C with navigator.clipboard undefined does not throw and still calls onCopy", () => {
       Object.defineProperty(navigator, "clipboard", { value: undefined, configurable: true });
       const onCopy = vi.fn();
+
       render(<ChatMessage entry={makeEntry()} userInitials="LM" onCopy={onCopy} />);
 
       expect(() => {
@@ -194,6 +198,7 @@ describe("ChatMessage", () => {
       });
       const onCopy = vi.fn();
       const onFeedback = vi.fn();
+
       render(
         <form onSubmit={onSubmit}>
           <ChatMessage
@@ -218,6 +223,7 @@ describe("ChatMessage", () => {
   describe("keyboard feedback", () => {
     it("ArrowUp with default props calls onFeedback zero times and does not preventDefault (adaptation b)", () => {
       const onFeedback = vi.fn();
+
       render(<ChatMessage entry={makeEntry()} userInitials="LM" onFeedback={onFeedback} />);
 
       const notPrevented = fireEvent.keyDown(screen.getByRole("article"), { key: "ArrowUp" });
@@ -228,6 +234,7 @@ describe("ChatMessage", () => {
 
     it('with arrowKeyFeedback, ArrowUp calls onFeedback("entry-1", "up"), renders "Thanks!", and sets aria-pressed true on thumbs-up, false on thumbs-down (adaptation a)', () => {
       const onFeedback = vi.fn();
+
       render(
         <ChatMessage
           entry={makeEntry()}
@@ -253,6 +260,7 @@ describe("ChatMessage", () => {
 
     it("with arrowKeyFeedback, Alt+ArrowUp calls onFeedback zero times - modified arrows stay the browser's", () => {
       const onFeedback = vi.fn();
+
       render(
         <ChatMessage
           entry={makeEntry()}
@@ -270,6 +278,7 @@ describe("ChatMessage", () => {
 
     it('with arrowKeyFeedback, ArrowDown calls onFeedback("entry-1", "down") and sets aria-pressed true on thumbs-down, false on thumbs-up (adaptation a)', () => {
       const onFeedback = vi.fn();
+
       render(
         <ChatMessage
           entry={makeEntry()}
@@ -295,6 +304,7 @@ describe("ChatMessage", () => {
 
     it("with arrowKeyFeedback and showFeedback={false}, ArrowUp calls onFeedback zero times and neither thumb button is in the document (adaptation c)", () => {
       const onFeedback = vi.fn();
+
       render(
         <ChatMessage
           entry={makeEntry()}
@@ -314,6 +324,7 @@ describe("ChatMessage", () => {
 
     it("no key handling fires for a user entry", () => {
       const onFeedback = vi.fn();
+
       render(
         <ChatMessage
           entry={makeUserEntry()}
@@ -324,6 +335,7 @@ describe("ChatMessage", () => {
       );
 
       const article = screen.getByRole("article");
+
       fireEvent.keyDown(article, { key: "c", metaKey: true });
       fireEvent.keyDown(article, { key: "ArrowUp" });
       fireEvent.keyDown(article, { key: "ArrowDown" });
@@ -334,6 +346,7 @@ describe("ChatMessage", () => {
 
     it("no key handling fires while isStreaming is true, even with arrowKeyFeedback (adaptation e)", () => {
       const onFeedback = vi.fn();
+
       render(
         <ChatMessage
           entry={makeEntry({ isStreaming: true })}
@@ -344,6 +357,7 @@ describe("ChatMessage", () => {
       );
 
       const article = screen.getByRole("article");
+
       fireEvent.keyDown(article, { key: "c", metaKey: true });
       fireEvent.keyDown(article, { key: "ArrowUp" });
 
@@ -368,6 +382,7 @@ describe("ChatMessage", () => {
       );
 
       const status = screen.getByText("Henter booking");
+
       expect(status.previousElementSibling?.classList.contains("animate-spin")).toBe(true);
     });
 
@@ -375,6 +390,7 @@ describe("ChatMessage", () => {
       const { rerender } = render(
         <ChatMessage entry={makeEntry({ content: "", isStreaming: true })} userInitials="LM" />
       );
+
       expect(screen.getByText("Thinking")).toBeInTheDocument();
 
       rerender(
@@ -398,6 +414,7 @@ describe("ChatMessage", () => {
           userInitials="LM"
         />
       );
+
       expect(screen.getByText("Thinking")).toBeInTheDocument();
 
       rerender(
@@ -421,6 +438,7 @@ describe("ChatMessage", () => {
   describe("showFeedback", () => {
     it('clicking thumbs-up calls onFeedback("entry-1", "up") and clicking thumbs-down overrides it with "down"', () => {
       const onFeedback = vi.fn();
+
       render(<ChatMessage entry={makeEntry()} userInitials="LM" onFeedback={onFeedback} />);
 
       fireEvent.click(screen.getByRole("button", { name: "Good response" }));
@@ -454,9 +472,11 @@ describe("ChatMessage", () => {
   describe("avatar slot", () => {
     const circleOf = (container: HTMLElement): Element => {
       const circle = container.querySelector("article > div > div");
+
       if (!circle) {
         throw new Error("avatar circle not found");
       }
+
       return circle;
     };
 
@@ -476,6 +496,7 @@ describe("ChatMessage", () => {
       const { container } = render(<ChatMessage entry={makeEntry()} userInitials="LM" />);
 
       const circle = circleOf(container);
+
       expect(circle).toBeEmptyDOMElement();
       expect(container.querySelector("svg:not(button svg)")).not.toBeInTheDocument();
     });
@@ -484,6 +505,7 @@ describe("ChatMessage", () => {
       const { container, rerender } = render(
         <ChatMessage entry={makeEntry({ isStreaming: true, content: "" })} userInitials="LM" />
       );
+
       expect(circleOf(container).classList.contains("bowman-pulse-subtle")).toBe(true);
 
       rerender(<ChatMessage entry={makeEntry()} userInitials="LM" />);
@@ -562,9 +584,11 @@ describe("ChatMessage", () => {
   describe("footer slot", () => {
     const columnOf = (container: HTMLElement): Element => {
       const column = container.querySelector("article > div > div:nth-child(2)");
+
       if (!column) {
         throw new Error("message column not found");
       }
+
       return column;
     };
 
@@ -574,6 +598,7 @@ describe("ChatMessage", () => {
       );
 
       const column = columnOf(container);
+
       expect(column.lastElementChild).toBe(screen.getByTestId("footer"));
       expect(column.children.length).toBe(3);
     });
@@ -594,6 +619,7 @@ describe("ChatMessage", () => {
       const { container } = render(<ChatMessage entry={makeEntry()} userInitials="LM" />);
 
       const column = columnOf(container);
+
       expect(column.children.length).toBe(2);
       expect(column.lastElementChild?.querySelector("button")).toBeInTheDocument();
     });
@@ -637,6 +663,7 @@ describe("ChatMessage", () => {
 
     it("a rejecting clipboard write is swallowed and onCopy still fires", async () => {
       const onCopy = vi.fn();
+
       writeTextMock.mockRejectedValueOnce(new Error("NotAllowedError"));
       render(<ChatMessage entry={makeEntry()} userInitials="LM" onCopy={onCopy} />);
 
@@ -659,14 +686,17 @@ describe("ChatMessage", () => {
 
     const walk = (dir: string): string[] => {
       const files: string[] = [];
+
       for (const entry of readdirSync(dir)) {
         const fullPath = join(dir, entry);
+
         if (statSync(fullPath).isDirectory()) {
           files.push(...walk(fullPath));
           continue;
         }
         files.push(fullPath);
       }
+
       return files;
     };
 
@@ -680,7 +710,9 @@ describe("ChatMessage", () => {
         const relativeImports = [...content.matchAll(/from\s+"(\.[^"]+)"/g)].map(
           ([, spec]) => spec
         );
+
         expect(relativeImports.length).toBeGreaterThan(0);
+
         for (const spec of relativeImports) {
           expect(spec).toMatch(/\.js$/);
         }
@@ -701,9 +733,12 @@ describe("ChatMessage", () => {
 
     it('no file under src/ contains "prose", and "translateX" lives only in styles.css (the toast keyframe)', () => {
       const stylesheet = resolve(process.cwd(), "src/styles.css");
+
       for (const file of walk(resolve(process.cwd(), "src"))) {
         const content = readFileSync(file, "utf8");
+
         expect(content).not.toMatch(/\bprose\b/);
+
         if (file !== stylesheet) {
           expect(content).not.toMatch(/translateX/);
         }
@@ -724,6 +759,7 @@ describe("markdown link policy (076)", () => {
     );
 
     const anchor = container.querySelector("a");
+
     expect(anchor).toHaveAttribute("href", "https://tms.example/booking/42");
     expect(anchor).toHaveAttribute("target", "_blank");
     expect(anchor).toHaveAttribute("rel", "noopener noreferrer");

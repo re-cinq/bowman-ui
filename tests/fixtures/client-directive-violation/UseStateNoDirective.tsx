@@ -5,5 +5,6 @@ import { useState } from "react";
 
 export const UseStateNoDirective = () => {
   const [count] = useState(0);
+
   return <span>{count}</span>;
 };

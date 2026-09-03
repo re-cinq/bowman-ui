@@ -50,6 +50,7 @@ export function Toast({ message, onClose, duration = 2000 }: ToastProps) {
       return;
     }
     const timer = setTimeout(() => onCloseRef.current(), duration);
+
     return () => clearTimeout(timer);
   }, [message, duration]);
 

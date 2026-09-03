@@ -36,6 +36,7 @@ describe("ConversationList", () => {
 
       const list = screen.getByRole("list", { name: "Conversations" });
       const rows = screen.getAllByRole("listitem");
+
       expect(rows).toHaveLength(2);
       expect(list).toContainElement(rows[0]);
       expect(list).toContainElement(rows[1]);
@@ -70,9 +71,11 @@ describe("ConversationList", () => {
 
     it("an item without badge renders no badge element, and one without timestamp renders no meta row", () => {
       const { container } = render(<ConversationList items={[makeItem({ timestamp: "Ayer" })]} />);
+
       expect(container.querySelectorAll("span.truncate")).toHaveLength(0);
 
       const bare = render(<ConversationList items={[makeItem({ id: "conv-2" })]} />);
+
       expect(bare.container.querySelectorAll("span.gap-2")).toHaveLength(0);
     });
   });
@@ -87,6 +90,7 @@ describe("ConversationList", () => {
       );
 
       const [first, second] = screen.getAllByRole("button");
+
       expect(first).toHaveAttribute("aria-current", "page");
       expect(second).not.toHaveAttribute("aria-current");
     });
@@ -105,6 +109,7 @@ describe("ConversationList", () => {
   describe("selection", () => {
     it('clicking a row calls onSelect once with "conv-2"', () => {
       const onSelect = vi.fn();
+
       render(
         <ConversationList
           items={[makeItem(), makeItem({ id: "conv-2", title: "Factura 9" })]}
@@ -128,6 +133,7 @@ describe("ConversationList", () => {
   describe("renderLink", () => {
     it("anchors carry the component's className and aria-current, and clicking one calls onSelect with that id", () => {
       const onSelect = vi.fn();
+
       render(
         <ConversationList
           items={[makeItem(), makeItem({ id: "conv-2", title: "Factura 9" })]}
@@ -138,6 +144,7 @@ describe("ConversationList", () => {
       );
 
       const [first, second] = screen.getAllByRole("link");
+
       expect(first).toHaveAttribute("href", "/chat/conv-1");
       expect(first.className).toContain("min-w-0");
       expect(first).not.toHaveAttribute("aria-current");
@@ -150,6 +157,7 @@ describe("ConversationList", () => {
 
     it("a renderLink that spreads everything except onClick calls onSelect zero times", () => {
       const onSelect = vi.fn();
+
       render(
         <ConversationList
           items={[makeItem()]}
@@ -177,6 +185,7 @@ describe("ConversationList", () => {
     it('onDelete renders one button per row named "Delete conversation: Booking 4711"; clicking it calls onDelete with the id and onSelect zero times', () => {
       const onDelete = vi.fn();
       const onSelect = vi.fn();
+
       render(
         <ConversationList
           items={[makeItem(), makeItem({ id: "conv-2", title: "Factura 9" })]}
@@ -186,6 +195,7 @@ describe("ConversationList", () => {
       );
 
       const button = screen.getByRole("button", { name: "Delete conversation: Booking 4711" });
+
       expect(
         screen.getByRole("button", { name: "Delete conversation: Factura 9" })
       ).toBeInTheDocument();
@@ -233,6 +243,7 @@ describe("ConversationList", () => {
       const { rerender } = render(
         <ConversationList items={[makeItem({ title: "New thread", isPlaceholderTitle: true })]} />
       );
+
       expect(titleContainer().textContent).toBe("New thread");
 
       rerender(
@@ -326,6 +337,7 @@ describe("ConversationList", () => {
       const { rerender, unmount } = render(
         <ConversationList items={[makeItem({ title: "New thread", isPlaceholderTitle: true })]} />
       );
+
       rerender(
         <ConversationList
           items={[makeItem({ title: "Booking 4711", isPlaceholderTitle: false })]}
@@ -347,6 +359,7 @@ describe("ConversationList", () => {
       render(<ConversationList items={[makeItem()]} />);
 
       const plainTitle = screen.getByText("Booking 4711");
+
       expect(plainTitle.style).toMatchObject({ position: "absolute", width: "1px" });
       expect(plainTitle.hasAttribute("class")).toBe(false);
       expect(titleContainer()).toHaveAttribute("aria-hidden", "true");
@@ -386,6 +399,7 @@ describe("ConversationList", () => {
       );
 
       const secondTitle = second.container.querySelector("span.whitespace-nowrap") as HTMLElement;
+
       expect(secondTitle.textContent).toBe("Booking 4711");
       expect(
         Array.from(secondTitle.children).every((c) => (c as HTMLElement).style.opacity === "1")
@@ -412,7 +426,9 @@ describe("the source files (grep acceptance criteria)", () => {
   it("no @clerk, swr, next-intl, next/, @/ or lucide-react import, and every relative import ends in .js", () => {
     expect(content).not.toMatch(/@clerk|swr|next-intl|next\/|@\/|lucide-react/);
     const relativeImports = [...content.matchAll(/from\s+"(\.[^"]+)"/g)].map(([, spec]) => spec);
+
     expect(relativeImports.length).toBeGreaterThan(0);
+
     for (const spec of relativeImports) {
       expect(spec).toMatch(/\.js$/);
     }

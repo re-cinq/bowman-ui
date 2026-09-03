@@ -38,6 +38,7 @@ export interface IconProps {
 
 function createSvgProps(props: IconProps): IconSvgProps {
   const { className, ariaLabel, strokeWidth = 2 } = props;
+
   return {
     className,
     strokeWidth,
@@ -55,6 +56,7 @@ function createUniformIcon(
       ...props,
       strokeWidth: props.strokeWidth ?? defaultStrokeWidth,
     });
+
     return (
       <IconWrapper {...svgProps}>
         {pathData.map((d) => (
@@ -70,6 +72,7 @@ function createUniformIcon(
     );
   }
   Object.defineProperty(UniformIcon, "name", { value: displayName });
+
   return Object.assign(UniformIcon, { displayName });
 }
 
@@ -164,6 +167,7 @@ export const DatabaseIcon = /*#__PURE__*/ createUniformIcon(
 export function LoadingIcon(props: IconProps) {
   const { className, ariaLabel = "Loading" } = props;
   const accessibleProps = getAccessibleIconProps(ariaLabel);
+
   return (
     <svg
       className={`animate-spin ${className || ""}`}

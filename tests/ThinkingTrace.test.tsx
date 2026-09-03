@@ -17,10 +17,12 @@ const streamingEntry: ThinkingChatEntry = { ...reasoningEntry, isStreaming: true
 
 const expand = (container: HTMLElement): HTMLDetailsElement => {
   const details = container.querySelector("details");
+
   if (!details) {
     throw new Error("ThinkingTrace rendered no details element");
   }
   details.open = true;
+
   return details;
 };
 
@@ -30,6 +32,7 @@ describe("ThinkingTrace", () => {
       const { container } = render(<ThinkingTrace entry={reasoningEntry} />);
 
       const details = container.querySelector("details");
+
       expect(details?.open).toBe(false);
       expect(details?.querySelector("summary")?.textContent).toBe("Reasoning");
     });
@@ -38,6 +41,7 @@ describe("ThinkingTrace", () => {
       const { container } = render(<ThinkingTrace entry={reasoningEntry} />);
 
       const summaryText = container.querySelector("summary")?.textContent ?? "";
+
       for (const word of reasoningEntry.content.split(" ")) {
         expect(summaryText).not.toContain(word);
       }
@@ -63,6 +67,7 @@ describe("ThinkingTrace", () => {
         isStreaming: false,
       };
       const { container } = render(<ThinkingTrace entry={entry} />);
+
       expand(container);
 
       expect(container.querySelector("a")).toBeNull();
@@ -77,6 +82,7 @@ describe("ThinkingTrace", () => {
       const { container } = render(<ThinkingTrace entry={streamingEntry} />);
 
       const summary = container.querySelector("summary");
+
       expect(summary).not.toBeNull();
       expectThinkingDots(summary as HTMLElement);
       expect(container.querySelector("details")?.open).toBe(false);
@@ -148,6 +154,7 @@ describe("ThinkingTrace", () => {
     it("writes nothing to localStorage when the fixture entry is rendered expanded", () => {
       localStorage.clear();
       const { container } = render(<ThinkingTrace entry={reasoningEntry} />);
+
       expand(container);
 
       expect(localStorage.length).toBe(0);
