@@ -503,6 +503,84 @@ necessary, not less. `ChatMessageList`'s required `aiDisclosure` band renders
 in every state and no prop removes it, `attribution` included; the
 disclosure's wording belongs to the consumer's reviewed catalogue.
 
+## Lint guardrails
+
+Codified house conventions, enforced by the repo-local plugin
+`tools/eslint-plugin-bowman/` (loaded by relative import in
+`eslint.config.mjs` - no package.json, no build, no publish) plus a handful
+of core-ESLint entries. All are validated against committed fixtures by
+`tests/eslint-house-rules.test.ts`, judged by the exact committed config via
+`--no-ignore` (the same mechanism the Labels and duplication fixtures use).
+
+Decisions:
+
+1. **Named exports only in `src/`.** The public surface is `export const`,
+   so a rename is a compile error in every consumer instead of a silent
+   aliasing. Enforced as an `ExportDefaultDeclaration` selector that rides
+   in every `no-restricted-syntax` overlay - a later overlay replaces the
+   whole array, so the selector is spread into each one rather than added as
+   a fourth object.
+2. **A condition chains at most two boolean operators at the sites where
+   conditions live inline** (`bowman/max-boolean-operators`): `if`/loop
+   tests, ternaries, JSX conditional renders, variable initialisers and
+   assignments. Anything denser is lifted into a named predicate -
+   `isCopyChord` and `hasModifier` in `ChatMessage.tsx` are the founding
+   examples. Return statements and arrow-function bodies are deliberately
+   NOT counted: they are where the named predicate lives, and the name is
+   the fix - counting them would put the extraction itself over budget
+   (`isCopyChord` legally chains four operators for exactly this reason).
+   The accepted cost: a dense return inside a vaguely-named function passes,
+   and the function name is the reviewable surface there. `??` is
+   value-selection, not branching, and never counts.
+3. **No catch-as-control-flow** (`bowman/no-catch-as-control-flow`). A catch
+   that swallows the error and fabricates a return value from a call is an
+   `if` in disguise. Sentinel fallbacks (`catch { return null; }`) stay
+   legal.
+4. **No network egress in component code** (`bowman/no-network-egress`). The
+   privacy contract is enforced at runtime by the `tests/setup.ts` traps and
+   at the dependency level by `scripts/check-forbidden-imports.mjs`; the
+   lint rule is the review-time backstop that names the violation before a
+   test ever runs. Denylisted channels: `fetch` (bare or via
+   window/globalThis/self), `new WebSocket/EventSource/XMLHttpRequest`,
+   `navigator.sendBeacon`.
+5. **Props are read-only** (`bowman/no-prop-mutation`). Data flows down as
+   arguments; changes flow up via callback props. Scope-based, so a local
+   sharing a prop's name never trips it; only the first parameter is props,
+   leaving a `forwardRef` second argument and its `.current` writes alone.
+6. **Styling lives in the stylesheet** (`bowman/no-inline-styles`), with one
+   passing shape - an object of nothing but CSS custom properties, because
+   the styling rules then still live in the stylesheet reading the variable.
+   Three components are exempted by path in `eslint.config.mjs`, each a
+   recorded decision asserted by its tests, not tolerated drift:
+   `ConversationList` (assistive-tech hiding and per-character animation
+   must work with no consumer stylesheet), `Toast` (the same visually-hidden
+   pattern for its live region), and `ThinkingDots` (the per-dot stagger is
+   data, one delay per dot).
+7. **House style is autofixable and repo-wide**: `curly` ("all") plus
+   `@stylistic/padding-line-between-statements` (blank line before returns
+   and control flow, after the import block and declaration groups).
+   Prettier neither inserts nor removes single blank lines between
+   statements, so `eslint --fix` followed by `prettier --write` reaches a
+   fixed point. Pinned like every other guardrail: the house-style fixture
+   in `tests/eslint-house-rules.test.ts` fails with both rule ids.
+
+Considered and rejected:
+
+- **`react-hooks` recommended's `refs` and `set-state-in-effect` rules.**
+  Every current hit is a recorded decision asserted by tests: the entry-id
+  latch in `ChatMessage`, the `storedOpenRef` read in `useSidebarState`, and
+  the empty-live-region seeding in `Toast`. Adopting them means refactoring
+  documented behaviour, which is a design conversation, not a lint config
+  change.
+- **Type-aware rules** (`no-floating-promises`, `no-misused-promises`,
+  `await-thenable`). They need `parserOptions.projectService`, and the lint
+  stack parses with `typescript` `~6.0.2` while the build compiles with the
+  aliased `typescript7` - type-aware verdicts from the wrong compiler would
+  be worse than none.
+- **A "test must import its subject" rule.** The `*-dist.test.ts` suites
+  import nothing from `src/` by design - they read `dist/` - so the rule
+  contradicts the test architecture.
+
 ## Seams left open on purpose
 
 - `package.json` declares `"sideEffects": ["*.css"]`, so a stylesheet change
