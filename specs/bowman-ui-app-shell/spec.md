@@ -161,8 +161,8 @@ DOM, and the deliberate decisions below are each pinned by a test.
 - `dist/components/AppShell.js` opens with `"use client";` as its first
   statement per 018's positional check, and `npm pack`
   ships exactly the built pair
-  ([validated by](../../tests/app-shell-dist.test.ts#L40),
-  [L36](../../tests/app-shell-dist.test.ts#L47)).
+  ([validated by](../../tests/app-shell-dist.test.ts#L7),
+  [L36](../../tests/app-shell-dist.test.ts#L14)).
 
 ## Recorded deviations
 
