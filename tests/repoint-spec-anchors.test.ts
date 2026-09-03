@@ -515,4 +515,23 @@ describe("repoint-spec-anchors", () => {
       "Statement 1. ([validated by](../../tests/Foo.test.tsx#L2), [L4](../../tests/Foo.test.tsx#L4))\n"
     );
   });
+
+  it("a short-form label whose href lands on a blank line is rotten, not silently synced", () => {
+    write(repo, "specs/foo/spec.md", asShortSpec([2, "../../tests/Foo.test.tsx#L2"]));
+    write(repo, "tests/Foo.test.tsx", asTestFile(["alpha", "", "gamma", "delta"]));
+    git(repo, "add", "-A");
+    git(repo, "commit", "-q", "-m", "short-form label href on a blank line");
+    const specBefore = read(repo, "specs/foo/spec.md");
+
+    const check = run(repo, "--check", "main");
+    const rewrite = run(repo, "main");
+
+    expect(check).toMatchObject({ status: 1 });
+    expect(check.stdout).toContain("mislabelled: 0");
+    expect(check.stderr).toContain(
+      "rotten specs/foo/spec.md: ../../tests/Foo.test.tsx#L2 -> #L2 lands on a blank or closing line"
+    );
+    expect(rewrite).toMatchObject({ status: 1 });
+    expect(read(repo, "specs/foo/spec.md")).toEqual(specBefore);
+  });
 });
