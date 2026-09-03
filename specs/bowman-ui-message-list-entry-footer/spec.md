@@ -35,7 +35,7 @@ unchanged.
    type through `ChatMessageListProps["renderEntryFooter"]`
    ([validated by](../../tests/types/chat-message-list-type-assertions.tsx#L64),
    compiled against dist by
-   [chat-message-list-dist](../../tests/chat-message-list-dist.test.ts#L124)).
+   [chat-message-list-dist](../../tests/chat-message-list-dist.test.ts#L87)).
    The fixture is what enforces this: `npm run typecheck` compiles `src`
    only.
 2. **The callback runs for every rendered entry, user rows included.**

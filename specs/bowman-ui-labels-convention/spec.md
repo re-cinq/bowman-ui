@@ -93,7 +93,7 @@ already in the repo - it adds no new component.
   six real `"use client"` files now exist, and Placeholder's hardcoded English text can neither
   pass the new lint rule nor fit any partition bucket. `tests/build-contract.test.ts`'s
   first-statement assertion now targets `dist/hooks/useDebounce.js`, a real directive-carrying
-  file ([validated by](../../tests/build-contract.test.ts#L43)).
+  file ([validated by](../../tests/build-contract.test.ts#L12)).
 - 014's deletion-trigger property
   still holds without Placeholder: coverage includes all of `src/**` at the 100/100/100/90
   floor, so deleting any component's test drops that file below threshold and fails

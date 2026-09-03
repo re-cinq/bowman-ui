@@ -76,7 +76,7 @@ union and replaced this issue's `@ts-expect-error` with a positive assertion
 over the same thinking-entry array
 ([validated by](../../tests/types/chat-message-list-type-assertions.tsx#L28),
 compiled by
-[chat-message-list-dist](../../tests/chat-message-list-dist.test.ts#L124)). The
+[chat-message-list-dist](../../tests/chat-message-list-dist.test.ts#L87)). The
 map dispatches on `role`: a tool entry renders `ToolActivity`, everything else
 `ChatMessage`, array order preserved
 ([validated by](../../tests/ChatMessageList.test.tsx#L979)). `busy` makes only
