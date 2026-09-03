@@ -28,10 +28,13 @@ const lint = (): LintResult[] => {
       `${fixtureDir}/max-boolean-operators/violation.ts`,
       `${fixtureDir}/max-boolean-operators/violation-jsx.tsx`,
       `${fixtureDir}/no-catch-as-control-flow/violation.ts`,
+      `${fixtureDir}/no-catch-as-control-flow/violation-property.ts`,
       `${fixtureDir}/no-network-egress/violation.ts`,
       `${fixtureDir}/no-prop-mutation/violation.tsx`,
+      `${fixtureDir}/no-prop-mutation/violation-memo.tsx`,
       `${fixtureDir}/no-inline-styles/violation.tsx`,
       `${fixtureDir}/default-export/component.tsx`,
+      `${fixtureDir}/house-style/violation.ts`,
       `${fixtureDir}/clean/clean.tsx`,
     ],
     { cwd: process.cwd(), encoding: "utf8" }
@@ -75,6 +78,27 @@ describe("the house-rule lint guardrails", () => {
     expect(
       messagesFor(results, `no-catch-as-control-flow${sep}violation.ts`).map((m) => m.ruleId)
     ).toContain("bowman/no-catch-as-control-flow");
+  });
+
+  it("a catch whose parameter appears only as another object's property name fails with bowman/no-catch-as-control-flow", () => {
+    expect(
+      messagesFor(results, `no-catch-as-control-flow${sep}violation-property.ts`).map(
+        (m) => m.ruleId
+      )
+    ).toContain("bowman/no-catch-as-control-flow");
+  });
+
+  it("mutating props inside a memo-wrapped anonymous component fails with bowman/no-prop-mutation", () => {
+    expect(
+      messagesFor(results, `no-prop-mutation${sep}violation-memo.tsx`).map((m) => m.ruleId)
+    ).toContain("bowman/no-prop-mutation");
+  });
+
+  it("a braceless conditional return fails with curly and the padding rule", () => {
+    const ruleIds = messagesFor(results, `house-style${sep}violation.ts`).map((m) => m.ruleId);
+
+    expect(ruleIds).toContain("curly");
+    expect(ruleIds).toContain("@stylistic/padding-line-between-statements");
   });
 
   it("a fetch call in component code fails with bowman/no-network-egress", () => {

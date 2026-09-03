@@ -520,11 +520,18 @@ Decisions:
    in every `no-restricted-syntax` overlay - a later overlay replaces the
    whole array, so the selector is spread into each one rather than added as
    a fourth object.
-2. **A condition chains at most two boolean operators**
-   (`bowman/max-boolean-operators`). Anything denser is lifted into a named
-   predicate - `isCopyChord` and `hasModifier` in `ChatMessage.tsx` are the
-   founding examples. `??` is value-selection, not branching, and never
-   counts.
+2. **A condition chains at most two boolean operators at the sites where
+   conditions live inline** (`bowman/max-boolean-operators`): `if`/loop
+   tests, ternaries, JSX conditional renders, variable initialisers and
+   assignments. Anything denser is lifted into a named predicate -
+   `isCopyChord` and `hasModifier` in `ChatMessage.tsx` are the founding
+   examples. Return statements and arrow-function bodies are deliberately
+   NOT counted: they are where the named predicate lives, and the name is
+   the fix - counting them would put the extraction itself over budget
+   (`isCopyChord` legally chains four operators for exactly this reason).
+   The accepted cost: a dense return inside a vaguely-named function passes,
+   and the function name is the reviewable surface there. `??` is
+   value-selection, not branching, and never counts.
 3. **No catch-as-control-flow** (`bowman/no-catch-as-control-flow`). A catch
    that swallows the error and fabricates a return value from a call is an
    `if` in disguise. Sentinel fallbacks (`catch { return null; }`) stay
@@ -554,7 +561,8 @@ Decisions:
    and control flow, after the import block and declaration groups).
    Prettier neither inserts nor removes single blank lines between
    statements, so `eslint --fix` followed by `prettier --write` reaches a
-   fixed point.
+   fixed point. Pinned like every other guardrail: the house-style fixture
+   in `tests/eslint-house-rules.test.ts` fails with both rule ids.
 
 Considered and rejected:
 

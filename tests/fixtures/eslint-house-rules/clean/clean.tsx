@@ -1,5 +1,7 @@
 export const isRevealed = (open: boolean, mounted: boolean, hidden: boolean) => {
-  return open && mounted && !hidden;
+  const revealed = open && mounted && !hidden;
+
+  return revealed;
 };
 
 export const readStoredRatio = (raw: string): number | null => {
