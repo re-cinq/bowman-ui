@@ -26,7 +26,7 @@ typecheck, and an `AssistantChatEntry` without `isStreaming` does not compile
 `index`, `devMetadata`, `correlationId`, `traceId`, `timings`, `reflection`,
 `scores`, `tenantId`, `organizationId`, `timestamp` or an index signature
 ([validated by](../../tests/types/chat.test.ts#L100),
-[L114](../../tests/types/chat.test.ts#L120)).
+[L120](../../tests/types/chat.test.ts#L120)).
 `AssistantChatEntry.toolStatus?: string` is caller-supplied and has no HAL
 protocol counterpart. The module ships types only: `dist/types/chat.js` is a
 bare `export {};`, so nothing in it can log, serialize or persist the customer
@@ -40,10 +40,10 @@ The four §6.1-6.4 examples map onto `ChatEntry` with `timestamp` as the only
 deliberately dropped field; the mapping function lives in the test file and is
 not part of the published surface
 ([validated by](../../tests/types/chat.test.ts#L189),
-[L192](../../tests/types/chat.test.ts#L200),
-[L203](../../tests/types/chat.test.ts#L212),
-[L214](../../tests/types/chat.test.ts#L224),
-[L226](../../tests/types/chat.test.ts#L237)).
+[L200](../../tests/types/chat.test.ts#L200),
+[L212](../../tests/types/chat.test.ts#L212),
+[L224](../../tests/types/chat.test.ts#L224),
+[L237](../../tests/types/chat.test.ts#L237)).
 
 ## OutgoingMessage mapping
 

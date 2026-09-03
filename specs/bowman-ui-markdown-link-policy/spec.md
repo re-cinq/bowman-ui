@@ -37,7 +37,7 @@ rejects everything
 ([validated by](../../tests/markdown/urlPolicy.test.tsx#L90)).
 `allowRelativeUrls: true` renders `<a href="/booking/42">`; the default does
 not ([validated by](../../tests/markdown/urlPolicy.test.tsx#L99),
-[L104](../../tests/markdown/urlPolicy.test.tsx#L105)).
+[L105](../../tests/markdown/urlPolicy.test.tsx#L105)).
 
 ## Anchor hardening
 
@@ -52,8 +52,8 @@ header ([validated by](../../tests/markdown/urlPolicy.test.tsx#L136)). A
 `linkOpensInNewTab` label, default `"(opens in a new tab)"`, overridable, and
 absent under `_self`
 ([validated by](../../tests/markdown/urlPolicy.test.tsx#L147),
-[L153](../../tests/markdown/urlPolicy.test.tsx#L158),
-[L161](../../tests/markdown/urlPolicy.test.tsx#L166)). The notice class is
+[L158](../../tests/markdown/urlPolicy.test.tsx#L158),
+[L166](../../tests/markdown/urlPolicy.test.tsx#L166)). The notice class is
 `bowman-sr-only`, shipped in `src/styles.css` rather than Tailwind's
 `sr-only`, so a consumer without the `@source` line gets an invisible notice,
 not visible clutter in every link
@@ -62,7 +62,7 @@ not visible clutter in every link
 remark-gfm autolink literals get identical treatment: a bare `https://` URL
 and a bare email render policy-checked anchors
 ([validated by](../../tests/markdown/urlPolicy.test.tsx#L193),
-[L197](../../tests/markdown/urlPolicy.test.tsx#L203)).
+[L203](../../tests/markdown/urlPolicy.test.tsx#L203)).
 
 **Correction to the issue text**: the criterion's bare `www.marginalia-books.invalid`
 case cannot render an anchor under the default policy - remark-gfm autolinks
@@ -83,7 +83,7 @@ default ([validated by](../../tests/markdown/urlPolicy.test.tsx#L233)).
 `allowImages: true` renders one `<img>` with that `src`, still behind the
 scheme allowlist - a `javascript:` source renders none either way
 ([validated by](../../tests/markdown/urlPolicy.test.tsx#L240),
-[L241](../../tests/markdown/urlPolicy.test.tsx#L252)).
+[L252](../../tests/markdown/urlPolicy.test.tsx#L252)).
 
 **GDPR.** With the default policy a fixture containing an image, an autolinked
 URL and a markdown link renders zero `<img>`, zero `src` attributes and zero
@@ -114,8 +114,8 @@ result stays assignable to `react-markdown`'s `Components`
 `resolveLabels`, so an explicit `undefined` field cannot clobber a default)
 and passes the factory's map plus `createUrlTransform`'s result to
 `ReactMarkdown` ([validated by](../../tests/ChatMessage.test.tsx#L753),
-[L649](../../tests/ChatMessage.test.tsx#L782),
-[L661](../../tests/ChatMessage.test.tsx#L794)). A rejected link renders as a
+[L782](../../tests/ChatMessage.test.tsx#L782),
+[L794](../../tests/ChatMessage.test.tsx#L794)). A rejected link renders as a
 span ([validated by](../../tests/ChatMessage.test.tsx#L769)). An image
 renders as alt text
 ([validated by](../../tests/ChatMessage.test.tsx#L819)). The
@@ -150,8 +150,8 @@ renders as alt text
   `mailto:` and `tel:` are non-special, never inherit a base, and have no
   legitimate authority form ([validated
   by](../../tests/markdown/urlPolicy.test.tsx#L329),
-  [L332](../../tests/markdown/urlPolicy.test.tsx#L346),
-  [L341](../../tests/markdown/urlPolicy.test.tsx#L355)).
+  [L346](../../tests/markdown/urlPolicy.test.tsx#L346),
+  [L355](../../tests/markdown/urlPolicy.test.tsx#L355)).
 - **`createUrlTransform` is exported from the package root** alongside the
   issue's three named exports: a consumer using the factory standalone without
   the transform would get the image gate but no href filtering. Declared here
@@ -165,7 +165,7 @@ renders as alt text
   sentinel harness and key-coverage test (docs/design-notes.md § Labels records the
   shape; Toast's closed-list precedent)
   ([validated by](../../tests/labelled-exports.test.tsx#L362),
-  [L349](../../tests/labelled-exports.test.tsx#L446)).
+  [L446](../../tests/labelled-exports.test.tsx#L446)).
 
   `ChatMessage`'s sentinel harness renders a numeric-text link so the notice
   label reaches the checked DOM.
