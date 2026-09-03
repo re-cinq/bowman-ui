@@ -34,14 +34,14 @@ files remain plain GitHub links CI never repoints.
 With the composer empty, the suite records `getBoundingClientRect().height`
 as the baseline and asserts it is greater than `0` and less than `200`
 ([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L274),
-[L223](../../examples/chat-demo/tests/chat-demo.spec.ts#L275)). A baseline of
+[L275](../../examples/chat-demo/tests/chat-demo.spec.ts#L275)). A baseline of
 `0` fails with a message naming the Marginalia Books demo screen
 ([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L273)).
 
 Each of the three tests opens a fresh page and measures its own baseline in
 the same run
 ([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L283),
-[L348](../../examples/chat-demo/tests/chat-demo.spec.ts#L306)) rather than
+[L306](../../examples/chat-demo/tests/chat-demo.spec.ts#L306)) rather than
 sharing one through `beforeAll`: the suite runs `fullyParallel` with two CI
 retries, so cross-test state would either serialize the suite or leak between
 a retry and a fresh worker. A font or line-height change moves the baseline
@@ -79,8 +79,8 @@ scale factor cannot introduce fractions.
 
 After every `fill()` the send button is asserted enabled
 ([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L309),
-[L260](../../examples/chat-demo/tests/chat-demo.spec.ts#L313),
-[L235](../../examples/chat-demo/tests/chat-demo.spec.ts#L288)): the button
+[L313](../../examples/chat-demo/tests/chat-demo.spec.ts#L313),
+[L288](../../examples/chat-demo/tests/chat-demo.spec.ts#L288)): the button
 only enables through the same `onChange` that runs the resize, so this proves
 the programmatic fill actually drove React's change path rather than only
 writing the DOM value.

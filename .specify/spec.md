@@ -56,7 +56,7 @@ Other public data shapes are consumer-supplied and rendered as-is: `Conversation
 
 ### Component Design Principles
 
-1. **Presentational Only** — No side effects, API calls, or complex state logic. All behavior is props-driven. ([validated by](../tests/ChatMessage.test.tsx#L728), [L403](../tests/ConversationList.test.tsx#L420))
+1. **Presentational Only** — No side effects, API calls, or complex state logic. All behavior is props-driven. ([validated by](../tests/ChatMessage.test.tsx#L728), [L420](../tests/ConversationList.test.tsx#L420))
 2. **Composability** — Components combine into larger layouts (e.g., `ChatMessage` + `ChatMessageList` + `ChatComposer` form a chat surface; `AppShell` + `AppSidebar` frame it).
 3. **Controlled by Default** — Components prefer controlled props; the five shipped hooks are `useDebounce`, `useFocusTrap`, `useFocusGroups`, `useReducedMotion`, and `useSidebarState`. ([validated by](../tests/hooks-dist.test.ts#L56))
 4. **Stylesheet Ships With the Package** — Components carry Tailwind utility class names; `./styles.css` supplies the four keyframes and markdown/sr-only rules Tailwind cannot generate, and the consumer's Tailwind v4 build scans `dist`. ([validated by](../tests/styles.test.ts#L93), [source](../tests/tailwind-build.test.ts#L79))
@@ -73,7 +73,7 @@ Other public data shapes are consumer-supplied and rendered as-is: `Conversation
 
 1. **TypeScript Strict Mode** — `tsconfig.json` enforces `strict: true`; all files compile without implicit `any`. ([validated by](../tests/system-contract.test.ts#L53))
 2. **No Console Logs in Production** — Development aids removed before distribution. ([validated by](../tests/system-contract.test.ts#L76))
-3. **Accessibility Baseline** — ARIA attributes, semantic HTML, keyboard support, and 4.5:1 color contrast minimum for text. ([validated by](../tests/icons.test.tsx#L182), [L72](../tests/useFocusTrap.test.tsx#L73))
+3. **Accessibility Baseline** — ARIA attributes, semantic HTML, keyboard support, and 4.5:1 color contrast minimum for text. ([validated by](../tests/icons.test.tsx#L182), [L73](../tests/useFocusTrap.test.tsx#L73))
 4. **Test Coverage ≥80%** — Props, prop combinations, and user interactions covered by React Testing Library tests. ([validated by](../tests/system-contract.test.ts#L61))
 5. **ESLint & Prettier Enforcement** — Consistent formatting and linting; CI blocks merge on violations.
 
