@@ -29,6 +29,9 @@ const asTestFile = (lines: string[]) => `${lines.join("\n")}\n`;
 const asSpec = (...anchors: string[]) =>
   `${anchors.map((anchor, i) => `Statement ${i + 1}. ([validated by](${anchor}))`).join("\n\n")}\n`;
 
+const asShortSpec = (...links: Array<[label: number, anchor: string]>) =>
+  `${links.map(([label, anchor], i) => `Statement ${i + 1}. ([L${label}](${anchor}))`).join("\n\n")}\n`;
+
 const makeRepo = (): string => {
   const repo = mkdtempSync(join(tmpdir(), "repoint-spec-anchors-"));
 
@@ -393,5 +396,123 @@ describe("repoint-spec-anchors", () => {
 
     expect(result).toMatchObject({ status: 2 });
     expect(result.stderr).toContain("usage:");
+  });
+
+  it("re-syncs a short-form label to its href line", () => {
+    write(repo, "specs/foo/spec.md", asShortSpec([9, "../../tests/Foo.test.tsx#L2"]));
+    git(repo, "add", "-A");
+    git(repo, "commit", "-q", "-m", "short-form label out of sync");
+
+    const result = run(repo, "main");
+
+    expect(result).toMatchObject({ status: 0 });
+    expect(result.stdout).toContain("relabelled: 1");
+    expect(read(repo, "specs/foo/spec.md")).toEqual(
+      asShortSpec([2, "../../tests/Foo.test.tsx#L2"])
+    );
+  });
+
+  it("a short-form label follows its href to the moved line", () => {
+    write(repo, "specs/foo/spec.md", asShortSpec([2, "../../tests/Foo.test.tsx#L2"]));
+    git(repo, "add", "-A");
+    git(repo, "commit", "-q", "-m", "short-form label in sync");
+    write(
+      repo,
+      "tests/Foo.test.tsx",
+      asTestFile(["intro", "intro2", "alpha", "beta", "gamma", "delta"])
+    );
+
+    const result = run(repo, "main");
+
+    expect(result).toMatchObject({ status: 0 });
+    expect(read(repo, "specs/foo/spec.md")).toEqual(
+      asShortSpec([4, "../../tests/Foo.test.tsx#L4"])
+    );
+  });
+
+  it("--check exits 1 naming a label that disagrees with its href and rewrites nothing", () => {
+    write(repo, "specs/foo/spec.md", asShortSpec([9, "../../tests/Foo.test.tsx#L2"]));
+    git(repo, "add", "-A");
+    git(repo, "commit", "-q", "-m", "short-form label out of sync");
+    const specBefore = read(repo, "specs/foo/spec.md");
+
+    const check = run(repo, "--check", "main");
+
+    expect(check).toMatchObject({ status: 1 });
+    expect(check.stdout).toContain("mislabelled: 1");
+    expect(check.stderr).toContain(
+      "mislabelled specs/foo/spec.md: ../../tests/Foo.test.tsx#L2 -> label reads L9"
+    );
+    expect(read(repo, "specs/foo/spec.md")).toEqual(specBefore);
+  });
+
+  it("--check exits 0 after labels are synced and a second run changes nothing", () => {
+    write(repo, "specs/foo/spec.md", asShortSpec([9, "../../tests/Foo.test.tsx#L2"]));
+    git(repo, "add", "-A");
+    git(repo, "commit", "-q", "-m", "short-form label out of sync");
+    run(repo, "main");
+    const afterFirst = read(repo, "specs/foo/spec.md");
+
+    const check = run(repo, "--check", "main");
+    const second = run(repo, "main");
+
+    expect(check).toMatchObject({ status: 0 });
+    expect(check.stdout).toContain("mislabelled: 0");
+    expect(second).toMatchObject({ status: 0 });
+    expect(read(repo, "specs/foo/spec.md")).toEqual(afterFirst);
+  });
+
+  it("syncs a label even in a spec skipped for a differing anchor set", () => {
+    write(
+      repo,
+      "specs/foo/spec.md",
+      asShortSpec([2, "../../tests/Foo.test.tsx#L2"], [4, "../../tests/Foo.test.tsx#L4"])
+    );
+    git(repo, "add", "-A");
+    git(repo, "commit", "-q", "-m", "two short-form labels in sync");
+    write(
+      repo,
+      "specs/foo/spec.md",
+      asShortSpec(
+        [9, "../../tests/Foo.test.tsx#L2"],
+        [4, "../../tests/Foo.test.tsx#L4"],
+        [1, "../../tests/Foo.test.tsx#L1"]
+      )
+    );
+
+    const check = run(repo, "--check", "main");
+    const rewrite = run(repo, "main");
+
+    expect(check).toMatchObject({ status: 1 });
+    expect(check.stdout).toContain("mislabelled: 1");
+    expect(check.stderr).toContain("skipped specs/foo/spec.md: anchor set differs from main");
+    expect(check.stderr).toContain(
+      "mislabelled specs/foo/spec.md: ../../tests/Foo.test.tsx#L2 -> label reads L9"
+    );
+    expect(rewrite).toMatchObject({ status: 0 });
+    expect(read(repo, "specs/foo/spec.md")).toEqual(
+      asShortSpec(
+        [2, "../../tests/Foo.test.tsx#L2"],
+        [4, "../../tests/Foo.test.tsx#L4"],
+        [1, "../../tests/Foo.test.tsx#L1"]
+      )
+    );
+  });
+
+  it("leaves a descriptive validated-by label untouched while syncing a short-form label", () => {
+    write(
+      repo,
+      "specs/foo/spec.md",
+      "Statement 1. ([validated by](../../tests/Foo.test.tsx#L2), [L9](../../tests/Foo.test.tsx#L4))\n"
+    );
+    git(repo, "add", "-A");
+    git(repo, "commit", "-q", "-m", "mixed labels");
+
+    const result = run(repo, "main");
+
+    expect(result).toMatchObject({ status: 0 });
+    expect(read(repo, "specs/foo/spec.md")).toEqual(
+      "Statement 1. ([validated by](../../tests/Foo.test.tsx#L2), [L4](../../tests/Foo.test.tsx#L4))\n"
+    );
   });
 });
