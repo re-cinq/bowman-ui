@@ -27,6 +27,18 @@ function referencesName(node, name) {
     return node.name === name;
   }
 
+  // A non-computed property name is not a reference: `settings.err` never
+  // observes the caught `err`. Same for `{ err: value }` keys. Computed
+  // access (`settings[err]`) falls through to the generic walk, where the
+  // identifier genuinely is a reference.
+  if (node.type === "MemberExpression" && !node.computed) {
+    return referencesName(node.object, name);
+  }
+
+  if (node.type === "Property" && !node.computed) {
+    return referencesName(node.value, name);
+  }
+
   for (const key of Object.keys(node)) {
     if (key === "parent") {
       continue;

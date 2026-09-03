@@ -8,7 +8,9 @@
  * Scope-based: each mutation's root identifier is resolved back to the
  * props-param variable, so a local that merely shares a prop's name is never
  * flagged. Only the FIRST parameter is treated as props — a forwardRef's
- * second `ref` argument and its `.current` writes are left alone.
+ * second `ref` argument and its `.current` writes are left alone. A function
+ * counts as a component when it carries a capitalized name OR is passed
+ * directly to memo/forwardRef — the wrapped form is usually anonymous.
  *
  * Detect-only: the fix is lifting state to the owner and passing a callback
  * down, which needs human judgment.
@@ -48,6 +50,34 @@ function isComponentName(name) {
   return typeof name === "string" && /^[A-Z]/.test(name);
 }
 
+const COMPONENT_WRAPPERS = new Set(["memo", "forwardRef"]);
+
+function calleeName(callee) {
+  if (callee.type === "Identifier") {
+    return callee.name;
+  }
+
+  if (
+    callee.type === "MemberExpression" &&
+    !callee.computed &&
+    callee.property.type === "Identifier"
+  ) {
+    return callee.property.name;
+  }
+
+  return null;
+}
+
+function isWrappedComponent(node) {
+  const parent = node.parent;
+
+  return (
+    parent?.type === "CallExpression" &&
+    parent.arguments.includes(node) &&
+    COMPONENT_WRAPPERS.has(calleeName(parent.callee) ?? "")
+  );
+}
+
 function rootIdentifier(node) {
   let current = node;
 
@@ -77,7 +107,11 @@ export default {
     const propRefs = new Set();
 
     function collectProps(node) {
-      if (!isComponentName(componentName(node)) || !node.params[0]) {
+      if (!node.params[0]) {
+        return;
+      }
+
+      if (!isComponentName(componentName(node)) && !isWrappedComponent(node)) {
         return;
       }
 
