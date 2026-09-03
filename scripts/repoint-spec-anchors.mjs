@@ -28,19 +28,32 @@
 // beyond the end of the file, or whose line is blank or closing punctuation
 // is reported as rotten and fails the run in both modes (issue 46).
 //
+// Also independent of any baseline, a short-form [Lnnn](...#Lmmm) label must
+// name the line its own href points at. Labels are re-synced to their href
+// after the anchor rewrite, so a repointed href carries its label with it;
+// --check reports label/href disagreement as mislabelled and fails (issue 18).
+//
 // --check rewrites nothing and exits 1 when any anchor is stale (its baseline
 // content now lives on a different line), unresolved (that content no
-// longer exists), or rotten. Without --check, stale anchors are rewritten in
-// place and unresolved or rotten ones are reported for manual fix with
-// exit 1; a rotten anchor the rewrite itself repoints needs no manual fix
-// and is not reported.
+// longer exists), rotten, or mislabelled. Without --check, stale anchors are
+// rewritten in place, labels are synced, and unresolved or rotten ones are
+// reported for manual fix with exit 1; a rotten anchor the rewrite itself
+// repoints needs no manual fix and is not reported.
 
 import { execFileSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, normalize } from "node:path";
 import process from "node:process";
 
-const ANCHOR = /((?:\.\.\/)+(?:examples\/[^/]+\/)?tests\/[\w./-]+\.(?:tsx|ts))#L(\d+)/g;
+const TEST_PATH = String.raw`(?:\.\.\/)+(?:examples\/[^/]+\/)?tests\/[\w./-]+\.(?:tsx|ts)`;
+const ANCHOR = new RegExp(String.raw`(${TEST_PATH})#L(\d+)`, "g");
+
+// A short-form [Lnnn](../../tests/X.test.tsx#Lmmm) link: its visible label is a
+// bare line number that must equal the href's #L number. The label has no
+// meaning apart from the href, so it is force-synced to the href even when the
+// href was manually retargeted; descriptive labels ([validated by], ...) never
+// match and are never touched.
+const LABEL_LINK = new RegExp(String.raw`\[L(\d+)\]\((${TEST_PATH})#L(\d+)\)`, "g");
 
 const args = process.argv.slice(2);
 const flags = args.filter((arg) => arg.startsWith("--"));
@@ -314,10 +327,40 @@ for (const spec of specFiles) {
   }
 }
 
+// Short-form labels are synced independently of the baseline: a label must
+// agree with its own href regardless of whether that href moved. This runs
+// after the href rewrite above, so a label follows a freshly repointed href.
+let relabelled = 0;
+const mislabelled = [];
+
+for (const spec of specFiles) {
+  const source = readFileSync(join(root, spec), "utf8");
+  const rewritten = source.replace(LABEL_LINK, (whole, labelLine, relPath, hrefLine) => {
+    if (labelLine === hrefLine) {
+      return whole;
+    }
+
+    if (checkMode) {
+      mislabelled.push(`${spec}: ${relPath}#L${hrefLine} -> label reads L${labelLine}`);
+
+      return whole;
+    }
+    relabelled += 1;
+
+    return `[L${hrefLine}](${relPath}#L${hrefLine})`;
+  });
+
+  if (!checkMode && rewritten !== source) {
+    writeFileSync(join(root, spec), rewritten);
+  }
+}
+
 const movedLabel = checkMode ? "stale" : "repointed";
+const relabelledLabel = checkMode ? "mislabelled" : "relabelled";
+const labelCount = checkMode ? mislabelled.length : relabelled;
 
 process.stdout.write(
-  `${movedLabel}: ${moved}, up to date: ${upToDate}, unresolved: ${unresolved.length}\n`
+  `${movedLabel}: ${moved}, up to date: ${upToDate}, unresolved: ${unresolved.length}, ${relabelledLabel}: ${labelCount}\n`
 );
 
 if (retargeted > 0) {
@@ -338,6 +381,13 @@ for (const detail of rotten) {
   process.stderr.write(`rotten ${detail}\n`);
 }
 
-const failed = rotten.length > 0 || unresolved.length > 0 || (checkMode && moved > 0);
+for (const detail of mislabelled) {
+  process.stderr.write(`mislabelled ${detail}\n`);
+}
+
+const failed =
+  rotten.length > 0 ||
+  unresolved.length > 0 ||
+  (checkMode && (moved > 0 || mislabelled.length > 0));
 
 process.exit(failed ? 1 : 0);
