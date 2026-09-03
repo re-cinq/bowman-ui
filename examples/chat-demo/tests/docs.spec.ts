@@ -32,6 +32,7 @@ const componentIds = [
 // the comparison has to be case-insensitive.
 const sectionTitles = async (page: Page): Promise<string[]> => {
   const titles = await page.locator("main h2").allInnerTexts();
+
   return titles.map((title) => title.toLowerCase());
 };
 
@@ -42,15 +43,18 @@ test.describe("documentation index", () => {
     await page.goto("/");
 
     const hero = page.locator("[data-hero-image]");
+
     await expect(hero).toBeVisible();
     await expect(hero).toHaveAttribute("alt", /caching/i);
     const heroSrc = await hero.getAttribute("src");
+
     expect(
       heroSrc,
       "the hero src must be the Vite-hashed asset, proving it was imported not hardcoded"
     ).toMatch(/\/assets\/chat-hero[.-][\w-]+\.png$/);
 
     await expect(page.getByRole("heading", { name: docsLabels.title, level: 1 })).toBeVisible();
+
     for (const componentId of componentIds) {
       await expect(page.locator(`[data-doc-index-entry="${componentId}"]`)).toHaveCount(1);
     }
@@ -64,6 +68,7 @@ test.describe("documentation index", () => {
     await page.goto("/?view=docs");
 
     await expect(page.getByRole("heading", { name: docsLabels.title, level: 1 })).toBeVisible();
+
     for (const componentId of componentIds) {
       await expect(page.locator(`[data-doc-index-entry="${componentId}"]`)).toHaveCount(1);
     }
@@ -91,6 +96,7 @@ test.describe("component pages", () => {
 
       await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
       const titles = await sectionTitles(page);
+
       expect(titles, componentId).toContain(docsLabels.importHeading.toLowerCase());
       expect(titles, componentId).toContain(docsLabels.usage.toLowerCase());
       expect(titles, componentId).toContain(docsLabels.props.toLowerCase());
@@ -104,6 +110,7 @@ test.describe("component pages", () => {
     await page.goto("/?view=docs&component=chat-message");
 
     const listing = page.locator("main pre").nth(1);
+
     await expect(listing).toContainText('import { ChatMessage } from "@re-cinq/bowman-ui";');
     await expect(listing).toContainText("export function ChatMessageExample()");
     await expect(
@@ -117,6 +124,7 @@ test.describe("component pages", () => {
     await page.goto("/?view=docs&component=chat-message-list");
 
     const labels = page.locator("main table").last();
+
     await expect(labels).toContainText("aiDisclosure");
     await expect(labels).toContainText(docsLabels.noDefault);
     await expect(labels).toContainText("Conversation");
@@ -128,9 +136,11 @@ test.describe("component pages", () => {
     await page.goto("/?view=docs&component=error-boundary");
 
     const throwButtons = page.getByRole("button", { name: "Throw during render" });
+
     await throwButtons.first().click();
 
     const alert = page.getByRole("alert").first();
+
     await expect(alert).toBeVisible();
     await alert.getByRole("button").click();
     await expect(throwButtons.first()).toBeVisible();

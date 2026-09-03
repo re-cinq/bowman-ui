@@ -109,6 +109,7 @@ function ChatScreen() {
   const handleSubmit = (text: string) => {
     const conversationId = activeConversationId;
     const replyId = crypto.randomUUID();
+
     appendEntry(conversationId, { id: crypto.randomUUID(), role: "user", content: text });
     setBusy(true);
     cancelStream.current?.();
@@ -116,10 +117,13 @@ function ChatScreen() {
       if (event.kind === "upsert") {
         appendEntry(conversationId, createStreamingAssistantEntry(replyId));
         setBusy(false);
+
         return;
       }
+
       if (event.kind === "delta") {
         growEntry(conversationId, replyId, event.text);
+
         return;
       }
       commitEntry(conversationId, replyId);
@@ -128,8 +132,10 @@ function ChatScreen() {
 
   const navigate = (key: string, close: () => void) => {
     close();
+
     if (key === settingsNavKey) {
       setToastMessage(toastDemoOnlyMessage);
+
       return;
     }
     setActiveNavKey(key);

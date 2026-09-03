@@ -24,6 +24,7 @@ describe("Toast", () => {
     render(<Toast message="Booking 4711 guardado" onClose={() => {}} />);
 
     const status = screen.getByRole("status");
+
     expect(status).toHaveTextContent("Booking 4711 guardado");
     expect(status).toHaveAttribute("aria-live", "polite");
   });
@@ -41,12 +42,14 @@ describe("Toast", () => {
     render(<Toast message="Booking 4711 guardado" onClose={() => {}} />);
 
     const status = screen.getByRole("status");
+
     expect(status).not.toHaveClass("bowman-toast-fade-in");
     expect(status.style).toMatchObject({ position: "absolute", width: "1px", height: "1px" });
   });
 
   it("with no duration prop, onClose is uncalled at 1999ms and called once at 2000ms", () => {
     const onClose = vi.fn();
+
     render(<Toast message="Booking 4711 guardado" onClose={onClose} />);
 
     vi.advanceTimersByTime(1999);
@@ -58,6 +61,7 @@ describe("Toast", () => {
 
   it("duration={500} fires onClose at 500ms", () => {
     const onClose = vi.fn();
+
     render(<Toast message="Booking 4711 guardado" onClose={onClose} duration={500} />);
 
     vi.advanceTimersByTime(499);
@@ -87,6 +91,7 @@ describe("Toast", () => {
     const visible = screen.getByText("Booking 4711 guardado", {
       selector: "div.bowman-toast-fade-in",
     });
+
     expect(visible).toHaveClass(
       "bowman-toast-fade-in",
       "fixed",
@@ -132,6 +137,7 @@ describe("Toast", () => {
   it("duration={null} calls onClose zero times after 60000ms and never invokes setTimeout", () => {
     const setTimeoutSpy = vi.spyOn(globalThis, "setTimeout");
     const onClose = vi.fn();
+
     render(<Toast message="Booking 4711 guardado" onClose={onClose} duration={null} />);
 
     vi.advanceTimersByTime(60000);
@@ -151,6 +157,7 @@ describe("the Toast source", () => {
 
   it("imports no @clerk, swr, next-intl, next/ or @/ and every relative import ends in .js", () => {
     expect(source).not.toMatch(/@clerk|swr|next-intl|next\/|@\//);
+
     for (const [, spec] of source.matchAll(/from\s+"(\.[^"]+)"/g)) {
       expect(spec).toMatch(/\.js$/);
     }
@@ -164,6 +171,7 @@ describe("the Toast source", () => {
     const hits = sourceFiles(resolve(process.cwd(), "src")).filter((file) =>
       readFileSync(file, "utf8").includes("animate-fade-in")
     );
+
     expect(hits).toEqual([]);
   });
 });

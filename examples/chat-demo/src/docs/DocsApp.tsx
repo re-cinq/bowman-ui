@@ -30,6 +30,7 @@ export const docsHref = (componentId?: string): string => {
   if (componentId === undefined) {
     return "?view=docs";
   }
+
   return `?view=docs&component=${componentId}`;
 };
 
@@ -47,9 +48,11 @@ function body(componentId: string | null): ReactNode {
     return <OverviewPage />;
   }
   const doc = componentDocById(componentId);
+
   if (doc) {
     return <ComponentDocPage doc={doc} />;
   }
+
   return <IndexPage />;
 }
 

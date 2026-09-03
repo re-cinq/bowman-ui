@@ -29,6 +29,7 @@ describe("ChatComposer", () => {
   describe("submitting", () => {
     it('typing "Hvor er min booking?" and clicking send calls onSubmit once with exactly that string, then the draft is "" and the height is back to auto', () => {
       const onSubmit = vi.fn();
+
       render(<ChatComposer onSubmit={onSubmit} />);
 
       typeDraft("Hvor er min booking?");
@@ -42,6 +43,7 @@ describe("ChatComposer", () => {
 
     it('"  Ja  " submits as "Ja" - trimmed, with no length floor', () => {
       const onSubmit = vi.fn();
+
       render(<ChatComposer onSubmit={onSubmit} />);
 
       typeDraft("  Ja  ");
@@ -53,6 +55,7 @@ describe("ChatComposer", () => {
 
     it('"   " leaves the send button disabled and onSubmit uncalled', () => {
       const onSubmit = vi.fn();
+
       render(<ChatComposer onSubmit={onSubmit} />);
 
       typeDraft("   ");
@@ -74,6 +77,7 @@ describe("ChatComposer", () => {
   describe("the keyboard", () => {
     it("Enter submits the trimmed draft once", () => {
       const onSubmit = vi.fn();
+
       render(<ChatComposer onSubmit={onSubmit} />);
 
       typeDraft("Hvor er min booking?");
@@ -85,6 +89,7 @@ describe("ChatComposer", () => {
 
     it("Enter on a whitespace-only draft calls onSubmit zero times", () => {
       const onSubmit = vi.fn();
+
       render(<ChatComposer onSubmit={onSubmit} />);
 
       typeDraft("   ");
@@ -95,6 +100,7 @@ describe("ChatComposer", () => {
 
     it("Shift+Enter does not submit and leaves the draft in the box", () => {
       const onSubmit = vi.fn();
+
       render(<ChatComposer onSubmit={onSubmit} />);
 
       typeDraft("linje 1");
@@ -106,6 +112,7 @@ describe("ChatComposer", () => {
 
     it("Enter while isComposing does not submit and does not preventDefault - the IME guard the inline copies lack", () => {
       const onSubmit = vi.fn();
+
       render(<ChatComposer onSubmit={onSubmit} />);
 
       typeDraft("かな");
@@ -127,6 +134,7 @@ describe("ChatComposer", () => {
 
     it("Escape does not clear the draft and calls nothing - pinned so the shortcut is not added without a decision", () => {
       const onSubmit = vi.fn();
+
       render(<ChatComposer onSubmit={onSubmit} />);
 
       typeDraft("Hvor er min booking?");
@@ -152,6 +160,7 @@ describe("ChatComposer", () => {
 
     it('busy marks the composer surface aria-busy="true"; idle and plain disabled mark it "false"', () => {
       const { container, rerender } = render(<ChatComposer onSubmit={vi.fn()} busy />);
+
       expect(container.firstElementChild).toHaveAttribute("aria-busy", "true");
 
       rerender(<ChatComposer onSubmit={vi.fn()} />);
@@ -173,6 +182,7 @@ describe("ChatComposer", () => {
   describe("the ref handle", () => {
     it('setValue("linje 1\\nlinje 2") puts the text in the textarea, enables send, and re-runs the resize', () => {
       const ref = createRef<ChatComposerHandle>();
+
       render(<ChatComposer onSubmit={vi.fn()} ref={ref} />);
       stubScrollHeight(textareaOf(), 320);
 
@@ -185,6 +195,7 @@ describe("ChatComposer", () => {
 
     it("setValue with a blank string leaves the send button disabled", () => {
       const ref = createRef<ChatComposerHandle>();
+
       render(<ChatComposer onSubmit={vi.fn()} ref={ref} />);
 
       act(() => ref.current?.setValue("   "));
@@ -196,6 +207,7 @@ describe("ChatComposer", () => {
       const ref = createRef<ChatComposerHandle>();
       const { unmount } = render(<ChatComposer onSubmit={vi.fn()} ref={ref} />);
       const handle = ref.current;
+
       unmount();
 
       expect(() => handle?.setValue("Ver pedido 4711")).not.toThrow();
@@ -203,6 +215,7 @@ describe("ChatComposer", () => {
 
     it("focus() makes the textarea document.activeElement", () => {
       const ref = createRef<ChatComposerHandle>();
+
       render(<ChatComposer onSubmit={vi.fn()} ref={ref} />);
 
       act(() => ref.current?.focus());
@@ -212,6 +225,7 @@ describe("ChatComposer", () => {
 
     it("autoFocus focuses the textarea on mount, and its default is false", () => {
       const first = render(<ChatComposer onSubmit={vi.fn()} />);
+
       expect(document.activeElement).not.toBe(textareaOf());
       first.unmount();
 
@@ -251,6 +265,7 @@ describe("ChatComposer", () => {
       render(<ChatComposer onSubmit={vi.fn()} attachSlot={<button type="button">4711</button>} />);
 
       const buttons = screen.getAllByRole("button");
+
       expect(buttons).toHaveLength(2);
       expect(buttons[0]).toHaveTextContent("4711");
       expect(
@@ -270,6 +285,7 @@ describe("ChatComposer", () => {
 
     it("clicking send inside a consumer's <form onSubmit> does not fire the form's submit handler", () => {
       const formSubmit = vi.fn();
+
       render(
         <form onSubmit={formSubmit}>
           <ChatComposer onSubmit={vi.fn()} />
@@ -311,6 +327,7 @@ describe("ChatComposer", () => {
       render(<ChatComposer onSubmit={vi.fn()} labels={{ send: "Send til supporten" }} />);
 
       const button = screen.getByRole("button", { name: "Send til supporten" });
+
       expect(button.querySelector("svg")).toHaveAttribute("aria-hidden", "true");
     });
   });
@@ -322,14 +339,17 @@ describe("the authored source (grep acceptance criteria)", () => {
 
   const walk = (dir: string): string[] => {
     const files: string[] = [];
+
     for (const entry of readdirSync(dir)) {
       const fullPath = join(dir, entry);
+
       if (statSync(fullPath).isDirectory()) {
         files.push(...walk(fullPath));
         continue;
       }
       files.push(fullPath);
     }
+
     return files;
   };
 
@@ -342,6 +362,7 @@ describe("the authored source (grep acceptance criteria)", () => {
     for (const file of walk(resolve(process.cwd(), "src"))) {
       expect(readFileSync(file, "utf8")).not.toMatch(/paperclip/i);
     }
+
     for (const file of walk(resolve(process.cwd(), "dist")).filter(
       (file) => file.endsWith(".js") || file.endsWith(".d.ts") || file.endsWith(".css")
     )) {
@@ -358,7 +379,9 @@ describe("the authored source (grep acceptance criteria)", () => {
   it("no @clerk, swr, next-intl, next/, @/ or lucide-react import, and every relative import ends in .js", () => {
     expect(content).not.toMatch(/@clerk|swr|next-intl|next\/|@\/|lucide-react/);
     const relativeImports = [...content.matchAll(/from\s+"(\.[^"]+)"/g)].map(([, spec]) => spec);
+
     expect(relativeImports.length).toBeGreaterThan(0);
+
     for (const spec of relativeImports) {
       expect(spec).toMatch(/\.js$/);
     }

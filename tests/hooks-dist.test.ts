@@ -13,14 +13,17 @@ const BUILT_FILES = [
 
 const walk = (dir: string): string[] => {
   const files: string[] = [];
+
   for (const entry of readdirSync(dir)) {
     const fullPath = join(dir, entry);
+
     if (statSync(fullPath).isDirectory()) {
       files.push(...walk(fullPath));
       continue;
     }
     files.push(fullPath);
   }
+
   return files;
 };
 
@@ -46,6 +49,7 @@ describe("the built hook surface", () => {
       ],
       { cwd: process.cwd(), encoding: "utf8" }
     );
+
     expect(result).toMatchObject({ status: 0, stderr: "" });
   });
 
@@ -56,6 +60,7 @@ describe("the built hook surface", () => {
     });
     const [pack] = JSON.parse(output) as [{ files: { path: string }[] }];
     const paths = pack.files.map((file) => file.path);
+
     for (const built of BUILT_FILES) {
       expect(paths).toContain(built);
       expect(paths).toContain(built.replace(/\.js$/, ".d.ts"));
@@ -66,19 +71,23 @@ describe("the built hook surface", () => {
     for (const built of BUILT_FILES) {
       expect(existsSync(built)).toBe(true);
       const firstStatement = readFileSync(built, "utf8").trimStart();
+
       expect(firstStatement.startsWith('"use client";')).toBe(true);
     }
   });
 
   it("no built file reads process.env and no NEXT_PUBLIC flag string survives in src/", () => {
     const distSources = walk("dist").filter((file) => file.endsWith(".js"));
+
     for (const file of distSources) {
       expect(readFileSync(file, "utf8")).not.toMatch(/process\.env/);
     }
 
     const srcSources = walk("src");
+
     for (const file of srcSources) {
       const content = readFileSync(file, "utf8");
+
       expect(content).not.toMatch(/NEXT_PUBLIC_FLAG_ANIMATIONS/);
     }
   });

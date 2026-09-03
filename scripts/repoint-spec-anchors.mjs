@@ -45,6 +45,7 @@ const ANCHOR = /((?:\.\.\/)+(?:examples\/[^/]+\/)?tests\/[\w./-]+\.(?:tsx|ts))#L
 const args = process.argv.slice(2);
 const flags = args.filter((arg) => arg.startsWith("--"));
 const positional = args.filter((arg) => !arg.startsWith("--"));
+
 if (flags.some((flag) => flag !== "--check") || positional.length > 1) {
   process.stderr.write("usage: repoint-spec-anchors.mjs [--check] [base-ref]\n");
   process.exit(2);
@@ -60,11 +61,13 @@ const refResolves = () => {
       cwd: root,
       stdio: "ignore",
     });
+
     return true;
   } catch {
     return false;
   }
 };
+
 if (!refResolves()) {
   process.stderr.write(`base ref does not resolve to a commit: ${baseRef}\n`);
   process.exit(2);
@@ -84,16 +87,23 @@ const readBaseFile = (path) => {
 
 const baseFileCache = new Map();
 const baseFile = (path) => {
-  if (!baseFileCache.has(path)) baseFileCache.set(path, readBaseFile(path));
+  if (!baseFileCache.has(path)) {
+    baseFileCache.set(path, readBaseFile(path));
+  }
+
   return baseFileCache.get(path);
 };
 
 const workingFileCache = new Map();
 const workingFile = (path) => {
-  if (workingFileCache.has(path)) return workingFileCache.get(path);
+  if (workingFileCache.has(path)) {
+    return workingFileCache.get(path);
+  }
   const fullPath = join(root, path);
   const content = existsSync(fullPath) ? readFileSync(fullPath, "utf8") : null;
+
   workingFileCache.set(path, content);
+
   return content;
 };
 
@@ -105,10 +115,20 @@ const CONTENTLESS = /^[)\]}>,;]*$/;
 const rottenReason = (anchor, specDir) => {
   const testPath = normalize(join(specDir, anchor.path));
   const working = workingFile(testPath);
-  if (working === null) return `${testPath} does not exist in the working tree`;
+
+  if (working === null) {
+    return `${testPath} does not exist in the working tree`;
+  }
   const target = working.split("\n")[anchor.line - 1];
-  if (target === undefined) return `#L${anchor.line} is beyond the end of ${testPath}`;
-  if (CONTENTLESS.test(target.trim())) return `#L${anchor.line} lands on a blank or closing line`;
+
+  if (target === undefined) {
+    return `#L${anchor.line} is beyond the end of ${testPath}`;
+  }
+
+  if (CONTENTLESS.test(target.trim())) {
+    return `#L${anchor.line} lands on a blank or closing line`;
+  }
+
   return null;
 };
 
@@ -119,12 +139,17 @@ const CONTEXT_RADIUS = 4;
 
 const contextScore = (baseLines, workingLines, baselineLine, candidateLine) => {
   let score = 0;
+
   for (let offset = -CONTEXT_RADIUS; offset <= CONTEXT_RADIUS; offset += 1) {
-    if (offset === 0) continue;
+    if (offset === 0) {
+      continue;
+    }
+
     if (baseLines[baselineLine - 1 + offset] === workingLines[candidateLine - 1 + offset]) {
       score += 1;
     }
   }
+
   return score;
 };
 
@@ -136,30 +161,43 @@ const contextScore = (baseLines, workingLines, baselineLine, candidateLine) => {
 const resolveAnchor = (anchor, baselineLine, specDir) => {
   const testPath = normalize(join(specDir, anchor.path));
   const base = baseFile(testPath);
-  if (base === null) return { failure: `${testPath} does not exist at ${baseRef}` };
+
+  if (base === null) {
+    return { failure: `${testPath} does not exist at ${baseRef}` };
+  }
   const working = workingFile(testPath);
-  if (working === null) return { failure: `${testPath} does not exist in the working tree` };
+
+  if (working === null) {
+    return { failure: `${testPath} does not exist in the working tree` };
+  }
   const baseLines = base.split("\n");
   const workingLines = working.split("\n");
   const target = baseLines[baselineLine - 1];
+
   if (target === undefined) {
     return { failure: `#L${baselineLine} is beyond the end of ${testPath} at ${baseRef}` };
   }
   const candidates = workingLines.flatMap((line, index) => (line === target ? [index + 1] : []));
+
   if (candidates.length === 0) {
     return { failure: `"${target.trim().slice(0, 70)}" no longer exists in ${testPath}` };
   }
-  if (candidates.length === 1) return { expectedLine: candidates[0] };
+
+  if (candidates.length === 1) {
+    return { expectedLine: candidates[0] };
+  }
   const scores = candidates.map((candidate) =>
     contextScore(baseLines, workingLines, baselineLine, candidate)
   );
   const bestScore = Math.max(...scores);
   const best = candidates.filter((_, index) => scores[index] === bestScore);
+
   if (best.length > 1) {
     return {
       failure: `"${target.trim().slice(0, 70)}" matches ambiguously at lines ${best.join(", ")} of ${testPath}`,
     };
   }
+
   return { expectedLine: best[0] };
 };
 
@@ -181,22 +219,31 @@ const rotten = [];
 for (const spec of specFiles) {
   const source = readFileSync(join(root, spec), "utf8");
   const anchors = extractAnchors(source);
-  if (anchors.length === 0) continue;
+
+  if (anchors.length === 0) {
+    continue;
+  }
   const specDir = dirname(spec);
   const rottenReasons = anchors.map((anchor) => rottenReason(anchor, specDir));
   const reportRotten = (index) => {
     const reason = rottenReasons[index];
-    if (reason === null) return;
+
+    if (reason === null) {
+      return;
+    }
     const anchor = anchors[index];
+
     rotten.push(`${spec}: ${anchor.path}#L${anchor.line} -> ${reason}`);
   };
   const baseSpec = baseFile(spec);
+
   if (baseSpec === null) {
     process.stderr.write(`skipped ${spec}: not present at ${baseRef}\n`);
     anchors.forEach((_, index) => reportRotten(index));
     continue;
   }
   const baseAnchors = extractAnchors(baseSpec);
+
   if (!sameAnchorPaths(anchors, baseAnchors)) {
     process.stderr.write(
       `skipped ${spec}: anchor set differs from ${baseRef} (anchors are taken as authored against the working tree)\n`
@@ -205,35 +252,52 @@ for (const spec of specFiles) {
     continue;
   }
   const resolutions = anchors.map((anchor, index) => {
-    if (anchor.line !== baseAnchors[index].line) return { retargeted: true };
+    if (anchor.line !== baseAnchors[index].line) {
+      return { retargeted: true };
+    }
+
     return resolveAnchor(anchor, baseAnchors[index].line, specDir);
   });
+
   resolutions.forEach((resolution, index) => {
     const anchor = anchors[index];
     const staysPut =
       resolution.retargeted || resolution.failure || resolution.expectedLine === anchor.line;
-    if (checkMode || staysPut) reportRotten(index);
+
+    if (checkMode || staysPut) {
+      reportRotten(index);
+    }
+
     if (resolution.retargeted) {
       retargeted += 1;
       upToDate += 1;
+
       return;
     }
+
     if (resolution.failure) {
       unresolved.push(`${spec}: ${anchor.path}#L${anchor.line} -> ${resolution.failure}`);
+
       return;
     }
+
     if (resolution.expectedLine === anchor.line) {
       upToDate += 1;
+
       return;
     }
     moved += 1;
     staleDetails.push(`${spec}: ${anchor.path}#L${anchor.line} -> #L${resolution.expectedLine}`);
   });
-  if (checkMode) continue;
+
+  if (checkMode) {
+    continue;
+  }
   let occurrence = -1;
   const rewritten = source.replace(ANCHOR, (whole, relPath) => {
     occurrence += 1;
     const resolution = resolutions[occurrence];
+
     if (
       resolution.retargeted ||
       resolution.failure ||
@@ -241,21 +305,39 @@ for (const spec of specFiles) {
     ) {
       return whole;
     }
+
     return `${relPath}#L${resolution.expectedLine}`;
   });
-  if (rewritten !== source) writeFileSync(join(root, spec), rewritten);
+
+  if (rewritten !== source) {
+    writeFileSync(join(root, spec), rewritten);
+  }
 }
 
 const movedLabel = checkMode ? "stale" : "repointed";
+
 process.stdout.write(
   `${movedLabel}: ${moved}, up to date: ${upToDate}, unresolved: ${unresolved.length}\n`
 );
-if (retargeted > 0) process.stdout.write(`retargeted (not checked): ${retargeted}\n`);
-if (checkMode) {
-  for (const detail of staleDetails) process.stderr.write(`stale ${detail}\n`);
+
+if (retargeted > 0) {
+  process.stdout.write(`retargeted (not checked): ${retargeted}\n`);
 }
-for (const detail of unresolved) process.stderr.write(`unresolved ${detail}\n`);
-for (const detail of rotten) process.stderr.write(`rotten ${detail}\n`);
+
+if (checkMode) {
+  for (const detail of staleDetails) {
+    process.stderr.write(`stale ${detail}\n`);
+  }
+}
+
+for (const detail of unresolved) {
+  process.stderr.write(`unresolved ${detail}\n`);
+}
+
+for (const detail of rotten) {
+  process.stderr.write(`rotten ${detail}\n`);
+}
 
 const failed = rotten.length > 0 || unresolved.length > 0 || (checkMode && moved > 0);
+
 process.exit(failed ? 1 : 0);

@@ -42,6 +42,7 @@ const renderThroughChatMessage = (
     content,
     isStreaming: options.isStreaming ?? false,
   };
+
   return render(
     <ChatMessage
       entry={entry}

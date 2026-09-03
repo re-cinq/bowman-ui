@@ -140,6 +140,7 @@ const attributionFor = (
   if (entry.role !== "assistant" || !entry.persona) {
     return undefined;
   }
+
   return attribution?.[entry.persona];
 };
 
@@ -149,6 +150,7 @@ const isNearBottom = (node: HTMLElement | null): boolean => {
   if (!node) {
     return false;
   }
+
   return node.scrollHeight - node.scrollTop - node.clientHeight <= PINNED_THRESHOLD_PX;
 };
 
@@ -159,8 +161,10 @@ const scrollRegionToBottom = (node: HTMLElement | null, behavior: ScrollBehavior
   if (!node) {
     return;
   }
+
   if (typeof node.scrollTo === "function") {
     node.scrollTo({ top: node.scrollHeight, behavior });
+
     return;
   }
   node.scrollTop = node.scrollHeight;
@@ -205,17 +209,22 @@ export const ChatMessageList = forwardRef<ChatMessageListHandle, ChatMessageList
 
     useEffect(() => {
       const previousLength = previousLengthRef.current;
+
       previousLengthRef.current = entries.length;
+
       if (previousLength === null) {
         smoothScrollInFlightRef.current = false;
         scrollRegionToBottom(regionRef.current, "auto");
+
         return;
       }
+
       if (!pinnedRef.current) {
         return;
       }
       const grew = entries.length > previousLength;
       const behavior: ScrollBehavior = prefersReducedMotion || !grew ? "auto" : "smooth";
+
       smoothScrollInFlightRef.current = behavior === "smooth";
       scrollRegionToBottom(regionRef.current, behavior);
     }, [entries, busy, prefersReducedMotion]);
@@ -225,6 +234,7 @@ export const ChatMessageList = forwardRef<ChatMessageListHandle, ChatMessageList
       () => ({
         scrollToBottom: () => {
           const behavior: ScrollBehavior = prefersReducedMotion ? "auto" : "smooth";
+
           pinnedRef.current = true;
           smoothScrollInFlightRef.current = behavior === "smooth";
           scrollRegionToBottom(regionRef.current, behavior);
@@ -240,12 +250,16 @@ export const ChatMessageList = forwardRef<ChatMessageListHandle, ChatMessageList
     const handleScroll = (event: UIEvent<HTMLDivElement>) => {
       const node = event.currentTarget;
       const previousTop = lastScrollTopRef.current;
+
       lastScrollTopRef.current = node.scrollTop;
+
       if (isNearBottom(node)) {
         pinnedRef.current = true;
         smoothScrollInFlightRef.current = false;
+
         return;
       }
+
       if (smoothScrollInFlightRef.current && node.scrollTop > previousTop) {
         return;
       }
@@ -278,9 +292,11 @@ export const ChatMessageList = forwardRef<ChatMessageListHandle, ChatMessageList
           />
         );
       }
+
       if (entry.role === "thinking" && !showThinking) {
         return null;
       }
+
       if (entry.role === "thinking") {
         return (
           <ThinkingTrace
@@ -292,6 +308,7 @@ export const ChatMessageList = forwardRef<ChatMessageListHandle, ChatMessageList
         );
       }
       const attributed = attributionFor(entry, attribution);
+
       return (
         <ChatMessage
           key={entry.id}

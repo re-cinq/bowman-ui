@@ -5,6 +5,7 @@ function BreakOnDemand({ broken, onBreak }: { broken: boolean; onBreak: () => vo
   if (broken) {
     throw new Error("A render failed");
   }
+
   return (
     <button
       type="button"

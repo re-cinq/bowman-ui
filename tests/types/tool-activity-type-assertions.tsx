@@ -15,11 +15,13 @@ const weatherEntry: ToolChatEntry = {
 
 const describeWithEntry = (entry: ToolChatEntry) => entry.toolName;
 const oneParameter: ComponentProps<typeof ToolActivity>["describeTool"] = describeWithEntry;
+
 void oneParameter;
 
 const describeWithPending = (entry: ToolChatEntry, pending: boolean): ReactNode =>
   pending ? `Consultando ${entry.toolName}` : `Consultado ${entry.toolName}`;
 const bothParameters: ComponentProps<typeof ToolActivity>["describeTool"] = describeWithPending;
+
 void bothParameters;
 
 const Consumer = () => (

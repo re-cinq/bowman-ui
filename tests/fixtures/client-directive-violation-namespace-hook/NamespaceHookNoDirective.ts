@@ -5,5 +5,6 @@ import * as React from "react";
 
 export const useCounter = () => {
   const [count] = React.useState(0);
+
   return count;
 };
