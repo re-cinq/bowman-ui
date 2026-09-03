@@ -508,9 +508,12 @@ disclosure's wording belongs to the consumer's reviewed catalogue.
 Codified house conventions, enforced by the repo-local plugin
 `tools/eslint-plugin-bowman/` (loaded by relative import in
 `eslint.config.mjs` - no package.json, no build, no publish) plus a handful
-of core-ESLint entries. All are validated against committed fixtures by
-`tests/eslint-house-rules.test.ts`, judged by the exact committed config via
-`--no-ignore` (the same mechanism the Labels and duplication fixtures use).
+of core-ESLint entries (decisions 1-7). Those are validated against committed
+fixtures by `tests/eslint-house-rules.test.ts`, judged by the exact committed
+config via `--no-ignore` (the same mechanism the Labels and duplication
+fixtures use). Decision 8's third-party `react-hooks` rules carry no such
+fixture: they are validated by the three exempt components' own behavioural
+tests.
 
 Decisions:
 
@@ -563,20 +566,32 @@ Decisions:
    statements, so `eslint --fix` followed by `prettier --write` reaches a
    fixed point. Pinned like every other guardrail: the house-style fixture
    in `tests/eslint-house-rules.test.ts` fails with both rule ids.
+8. **`react-hooks`'s `refs` and `set-state-in-effect`.** The
+   recommended-latest set fires exactly six times, all at three documented,
+   test-asserted render patterns and nowhere else, so the two rules are
+   adopted and those three sites are exempted by path in `eslint.config.mjs`,
+   each a recorded decision rather than tolerated drift: `ChatMessage`'s
+   monotonic entry-id thinking-indicator latch (a ref read and written during
+   render, keyed by `entry.id` and idempotent) and `useSidebarState`'s
+   `storedOpenRef` latest-value read are exempted from `refs`; `Toast`'s
+   empty-then-filled live region, seeded in a mount effect so its text is
+   reliably announced, is exempted from `set-state-in-effect`. As with
+   decision 6 the exemption is file-wide, the accepted cost being that a
+   genuinely unsafe ref or effect later added to one of these three files
+   would pass.
 
 Considered and rejected:
 
-- **`react-hooks` recommended's `refs` and `set-state-in-effect` rules.**
-  Every current hit is a recorded decision asserted by tests: the entry-id
-  latch in `ChatMessage`, the `storedOpenRef` read in `useSidebarState`, and
-  the empty-live-region seeding in `Toast`. Adopting them means refactoring
-  documented behaviour, which is a design conversation, not a lint config
-  change.
 - **Type-aware rules** (`no-floating-promises`, `no-misused-promises`,
-  `await-thenable`). They need `parserOptions.projectService`, and the lint
-  stack parses with `typescript` `~6.0.2` while the build compiles with the
-  aliased `typescript7` - type-aware verdicts from the wrong compiler would
-  be worse than none.
+  `await-thenable`). They run à la carte under `parserOptions.projectService`
+  without `recommendedTypeChecked` and report zero violations against the
+  current tree - the async surface is timers only, no data-fetching. But the
+  lint parser resolves types with `typescript` `~6.0.2` (typescript-eslint
+  caps its peer below `6.1.0`) while the build and shipped types come from the
+  aliased `typescript7` `~7.0.2`: a type-aware verdict from the wrong compiler
+  would be worse than none, for a guard that catches nothing today and adds
+  `projectService` cost to every lint run. Revisit when typescript-eslint's
+  peer range admits TypeScript 7.
 - **A "test must import its subject" rule.** The `*-dist.test.ts` suites
   import nothing from `src/` by design - they read `dist/` - so the rule
   contradicts the test architecture.
