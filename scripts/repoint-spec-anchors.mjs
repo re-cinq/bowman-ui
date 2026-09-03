@@ -32,6 +32,9 @@
 // name the line its own href points at. Labels are re-synced to their href
 // after the anchor rewrite, so a repointed href carries its label with it;
 // --check reports label/href disagreement as mislabelled and fails (issue 18).
+// --check rewrites nothing, so it judges each label against its current
+// (un-repointed) href: a stale href is reported as stale, and once a plain run
+// repoints it the label follows, so the two runs still converge in one pass.
 //
 // --check rewrites nothing and exits 1 when any anchor is stale (its baseline
 // content now lives on a different line), unresolved (that content no
@@ -228,9 +231,12 @@ let retargeted = 0;
 const unresolved = [];
 const staleDetails = [];
 const rotten = [];
+const specContent = new Map();
 
 for (const spec of specFiles) {
   const source = readFileSync(join(root, spec), "utf8");
+
+  specContent.set(spec, source);
   const anchors = extractAnchors(source);
 
   if (anchors.length === 0) {
@@ -322,19 +328,22 @@ for (const spec of specFiles) {
     return `${relPath}#L${resolution.expectedLine}`;
   });
 
+  specContent.set(spec, rewritten);
+
   if (rewritten !== source) {
     writeFileSync(join(root, spec), rewritten);
   }
 }
 
 // Short-form labels are synced independently of the baseline: a label must
-// agree with its own href regardless of whether that href moved. This runs
-// after the href rewrite above, so a label follows a freshly repointed href.
+// agree with its own href regardless of whether that href moved. This reads
+// the in-memory content the href rewrite above produced, so a label follows a
+// freshly repointed href without re-reading the file from disk.
 let relabelled = 0;
 const mislabelled = [];
 
 for (const spec of specFiles) {
-  const source = readFileSync(join(root, spec), "utf8");
+  const source = specContent.get(spec);
   const rewritten = source.replace(LABEL_LINK, (whole, labelLine, relPath, hrefLine) => {
     if (labelLine === hrefLine) {
       return whole;
