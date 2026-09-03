@@ -76,6 +76,8 @@ The typecheck script is `typecheck`, not `type-check`.
 - `examples/chat-demo` (Vite + Playwright); `examples/rsc-fixture` (Next.js — the ONLY place
   `next` may appear).
 - `scripts/` — 12 enforcement scripts.
+- `tools/eslint-plugin-bowman/` — repo-local ESLint rules (no package.json; loaded by relative
+  import in eslint.config.mjs). See invariant 11.
 
 ## Enforced invariants
 
@@ -121,7 +123,17 @@ The typecheck script is `typecheck`, not `type-check`.
    mark ships.
 10. **Never rewrite `forwardRef` away** (docs/design-notes.md decision 4) — that would turn the React-19 testing
     claim into a hard floor.
-11. **Publishing** is tag-triggered CI only, via npm OIDC trusted publishing
+11. **Lint guardrails** (docs/design-notes.md § Lint guardrails). Five repo-local rules from
+    `tools/eslint-plugin-bowman/` run over `src/**`: `max-boolean-operators` (max 2, lift denser
+    conditions into named predicates), `no-catch-as-control-flow`, `no-network-egress` (the
+    review-time backstop for invariant 4), `no-prop-mutation`, and `no-inline-styles` (objects of
+    only CSS custom properties pass; ConversationList, Toast and ThinkingDots are exempted by
+    path in eslint.config.mjs as recorded decisions). Default exports are banned in `src/` via a
+    `no-restricted-syntax` selector that MUST ride in every overlay (arrays replace, never
+    merge). House style is `curly: all` + `@stylistic/padding-line-between-statements`,
+    repo-wide and autofixable. All validated by tests/eslint-house-rules.test.ts against
+    committed fixtures.
+12. **Publishing** is tag-triggered CI only, via npm OIDC trusted publishing
     (.github/workflows/publish.yml: `tags: ["v*"]`, `id-token: write`, no `NPM_TOKEN`). Never
     `npm publish` by hand. Never push to `main` — guard-main-pushes.yml opens a security issue,
     because push access to `main` is transitively npm-publish access.
@@ -155,5 +167,7 @@ wrong; the correct fact is on the right.
 - Never add a fourth `stringPropOnly` export without amending docs/design-notes.md in the same PR.
 - Never author a paperclip icon, ship a default brand mark, or rewrite `forwardRef` away.
 - Never import `next` (or the other forbidden specifiers) outside `examples/rsc-fixture`.
+- Never add a `no-restricted-syntax` overlay without re-listing every shared selector (labels,
+  focusable-literal, svg, default-export) — arrays replace, they never merge.
 - Never remove the `rm -rf dist` from the build script.
 - Never `npm publish` by hand and never push to `main`.
