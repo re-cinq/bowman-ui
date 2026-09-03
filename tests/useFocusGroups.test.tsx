@@ -3,6 +3,7 @@ import { useFocusGroups, type FocusGroupsOptions } from "../src/hooks/useFocusGr
 
 const Harness = (options: FocusGroupsOptions & { withButtons?: boolean; noOrder?: boolean }) => {
   const { withButtons = true, noOrder, ...focusOptions } = options;
+
   useFocusGroups(focusOptions);
 
   return (
@@ -26,6 +27,7 @@ describe("useFocusGroups", () => {
     vi.useFakeTimers();
     vi.stubGlobal("requestAnimationFrame", (callback: FrameRequestCallback) => {
       callback(0);
+
       return 0;
     });
   });
@@ -72,6 +74,7 @@ describe("useFocusGroups", () => {
     const names = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l"];
     const ManyGroups = () => {
       useFocusGroups({ announce: () => null });
+
       return (
         <>
           {names.map((name) => (
@@ -82,10 +85,12 @@ describe("useFocusGroups", () => {
         </>
       );
     };
+
     render(<ManyGroups />);
 
     const visited = names.map(() => {
       pressF6();
+
       return document.activeElement?.textContent;
     });
 
@@ -98,6 +103,7 @@ describe("useFocusGroups", () => {
     pressF6();
 
     const region = screen.getByRole("status");
+
     expect(region).toHaveTextContent("Moved to main");
     expect(region).toHaveAttribute("aria-live", "polite");
     expect(region).toHaveAttribute("aria-atomic", "true");
@@ -139,6 +145,7 @@ describe("useFocusGroups", () => {
     pressF6();
 
     const main = document.querySelector('[data-focus-group="main"]') as HTMLElement;
+
     expect(main).toHaveFocus();
     expect(main.tabIndex).toBe(-1);
     expect(main.hasAttribute("tabindex")).toBe(false);
@@ -147,21 +154,26 @@ describe("useFocusGroups", () => {
   it("a group that already carried a tabindex attribute gets it restored", () => {
     const Preset = () => {
       useFocusGroups();
+
       return <section data-focus-group="preset" tabIndex={5} />;
     };
+
     render(<Preset />);
 
     pressF6();
 
     const preset = document.querySelector('[data-focus-group="preset"]') as HTMLElement;
+
     expect(preset).toHaveFocus();
     expect(preset.getAttribute("tabindex")).toBe("5");
   });
 
   it("the live region is inserted empty and receives its text a frame later, so screen readers announce it", () => {
     const frames: FrameRequestCallback[] = [];
+
     vi.stubGlobal("requestAnimationFrame", (callback: FrameRequestCallback) => {
       frames.push(callback);
+
       return frames.length;
     });
     render(<Harness />);
@@ -169,10 +181,13 @@ describe("useFocusGroups", () => {
     pressF6();
 
     const region = screen.getByRole("status");
+
     expect(region).toHaveTextContent("");
 
     act(() => {
-      for (const frame of frames) frame(0);
+      for (const frame of frames) {
+        frame(0);
+      }
     });
     expect(region).toHaveTextContent("Moved to main");
   });
@@ -201,8 +216,10 @@ describe("useFocusGroups", () => {
   it("F6 with no groups on the page leaves the browser's own F6 behavior alone", () => {
     const Groupless = () => {
       useFocusGroups();
+
       return <div>no groups here</div>;
     };
+
     render(<Groupless />);
 
     const notPrevented = fireEvent.keyDown(document, { key: "F6" });
@@ -214,12 +231,14 @@ describe("useFocusGroups", () => {
     const Twice = () => {
       useFocusGroups();
       useFocusGroups();
+
       return (
         <main data-focus-group="main">
           <button>main action</button>
         </main>
       );
     };
+
     render(<Twice />);
 
     pressF6();
@@ -238,8 +257,10 @@ describe("useFocusGroups", () => {
   it("F6 on a page without groups does nothing", () => {
     const Groupless = () => {
       useFocusGroups();
+
       return <div>no groups here</div>;
     };
+
     render(<Groupless />);
 
     pressF6();
@@ -249,6 +270,7 @@ describe("useFocusGroups", () => {
 
   it("unmounting removes the keydown listener", () => {
     const { unmount } = render(<Harness />);
+
     unmount();
 
     pressF6();

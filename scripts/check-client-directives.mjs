@@ -69,8 +69,14 @@ const BROWSER_GLOBALS = new Set([
 ]);
 
 const scriptKindFor = (fileName) => {
-  if (fileName.endsWith(".tsx")) return ts.ScriptKind.TSX;
-  if (fileName.endsWith(".ts")) return ts.ScriptKind.TS;
+  if (fileName.endsWith(".tsx")) {
+    return ts.ScriptKind.TSX;
+  }
+
+  if (fileName.endsWith(".ts")) {
+    return ts.ScriptKind.TS;
+  }
+
   return ts.ScriptKind.JS;
 };
 
@@ -84,6 +90,7 @@ const parseErrors = (sourceFile) =>
 
 const hasClientDirective = (sourceFile) => {
   const [first] = sourceFile.statements;
+
   return (
     first !== undefined &&
     ts.isExpressionStatement(first) &&
@@ -95,56 +102,87 @@ const hasClientDirective = (sourceFile) => {
 const importTriggers = (statement) => {
   const triggers = [];
   const clause = statement.importClause;
-  if (clause === undefined || clause.isTypeOnly) return triggers;
+
+  if (clause === undefined || clause.isTypeOnly) {
+    return triggers;
+  }
+
   if (clause.name !== undefined && HOOK_NAME.test(clause.name.text)) {
     triggers.push(`imports ${clause.name.text} (hook-shaped import)`);
   }
   const bindings = clause.namedBindings;
-  if (bindings === undefined || !ts.isNamedImports(bindings)) return triggers;
+
+  if (bindings === undefined || !ts.isNamedImports(bindings)) {
+    return triggers;
+  }
+
   for (const specifier of bindings.elements) {
-    if (specifier.isTypeOnly) continue;
+    if (specifier.isTypeOnly) {
+      continue;
+    }
     const importedName = (specifier.propertyName ?? specifier.name).text;
     const localName = specifier.name.text;
+
     if (HOOK_NAME.test(importedName) || HOOK_NAME.test(localName)) {
       triggers.push(`imports ${importedName} (hook-shaped import)`);
       continue;
     }
+
     if (importedName === "createContext" || localName === "createContext") {
       triggers.push("imports createContext");
     }
   }
+
   return triggers;
 };
 
 const heritageName = (expression) => {
-  if (ts.isIdentifier(expression)) return expression.text;
+  if (ts.isIdentifier(expression)) {
+    return expression.text;
+  }
+
   if (ts.isPropertyAccessExpression(expression) && ts.isIdentifier(expression.name)) {
     return expression.name.text;
   }
+
   return undefined;
 };
 
 const heritageTriggers = (node, sourceFile) => {
   const triggers = [];
+
   for (const clause of node.heritageClauses ?? []) {
-    if (clause.token !== ts.SyntaxKind.ExtendsKeyword) continue;
+    if (clause.token !== ts.SyntaxKind.ExtendsKeyword) {
+      continue;
+    }
+
     for (const type of clause.types) {
       const name = heritageName(type.expression);
+
       if (name === "Component" || name === "PureComponent") {
         triggers.push(`extends ${type.expression.getText(sourceFile)} (class component)`);
       }
     }
   }
+
   return triggers;
 };
 
 const isValueReference = (identifier) => {
   const parent = identifier.parent;
-  if (ts.isPropertyAccessExpression(parent)) return parent.expression === identifier;
-  if (ts.isPropertyAssignment(parent)) return parent.initializer === identifier;
+
+  if (ts.isPropertyAccessExpression(parent)) {
+    return parent.expression === identifier;
+  }
+
+  if (ts.isPropertyAssignment(parent)) {
+    return parent.initializer === identifier;
+  }
+
   if (ts.isVariableDeclaration(parent) || ts.isParameter(parent) || ts.isBindingElement(parent)) {
     return parent.initializer === identifier;
   }
+
   if (
     ts.isFunctionDeclaration(parent) ||
     ts.isFunctionExpression(parent) ||
@@ -160,7 +198,11 @@ const isValueReference = (identifier) => {
   ) {
     return parent.name !== identifier;
   }
-  if (ts.isQualifiedName(parent) || ts.isJsxAttribute(parent)) return false;
+
+  if (ts.isQualifiedName(parent) || ts.isJsxAttribute(parent)) {
+    return false;
+  }
+
   if (
     ts.isLabeledStatement(parent) ||
     ts.isBreakStatement(parent) ||
@@ -168,6 +210,7 @@ const isValueReference = (identifier) => {
   ) {
     return false;
   }
+
   return true;
 };
 
@@ -182,52 +225,70 @@ const collectTriggers = (sourceFile) => {
     ) {
       return;
     }
+
     if (ts.isHeritageClause(node)) {
-      if (node.token !== ts.SyntaxKind.ExtendsKeyword) return;
+      if (node.token !== ts.SyntaxKind.ExtendsKeyword) {
+        return;
+      }
+
       for (const type of node.types) {
         visit(type.expression);
       }
+
       return;
     }
+
     if (ts.isImportDeclaration(node)) {
       triggers.push(...importTriggers(node));
+
       return;
     }
+
     if (ts.isClassDeclaration(node) || ts.isClassExpression(node)) {
       triggers.push(...heritageTriggers(node, sourceFile));
     }
+
     if (ts.isJsxAttribute(node) && ts.isIdentifier(node.name) && JSX_HANDLER.test(node.name.text)) {
       triggers.push(`has JSX handler ${node.name.text}`);
     }
+
     if (ts.isPropertyAccessExpression(node) && ts.isIdentifier(node.name)) {
       if (HOOK_NAME.test(node.name.text)) {
         triggers.push(`references .${node.name.text} (hook-shaped member)`);
       }
+
       if (node.name.text === "createContext") {
         triggers.push(`references .${node.name.text} (createContext member)`);
       }
     }
+
     if (ts.isIdentifier(node) && BROWSER_GLOBALS.has(node.text) && isValueReference(node)) {
       triggers.push(`references browser global ${node.text}`);
     }
     ts.forEachChild(node, visit);
   };
+
   visit(sourceFile);
+
   return [...new Set(triggers)];
 };
 
 const walk = (dir, extensions) => {
   const files = [];
+
   for (const entry of readdirSync(dir)) {
     const fullPath = join(dir, entry);
+
     if (statSync(fullPath).isDirectory()) {
       files.push(...walk(fullPath, extensions));
       continue;
     }
+
     if (extensions.some((extension) => entry.endsWith(extension))) {
       files.push(fullPath);
     }
   }
+
   return files;
 };
 
@@ -235,39 +296,49 @@ const parsedFile = (file) => parse(file, readFileSync(file, "utf8"));
 
 const checkSourceDirection = (dir) => {
   const violations = [];
+
   for (const file of walk(dir, [".ts", ".tsx"])) {
     const path = relative(process.cwd(), file);
     const sourceFile = parsedFile(file);
     const errors = parseErrors(sourceFile);
+
     if (errors.length > 0) {
       violations.push(`${path}: does not parse - ${errors[0]}`);
       continue;
     }
     const triggers = collectTriggers(sourceFile);
+
     if (triggers.length > 0 && !hasClientDirective(sourceFile)) {
       violations.push(
         `${path}: ${triggers.join(", ")} but "use client" is not its first statement`
       );
     }
   }
+
   return violations;
 };
 
 const checkBuiltDirection = (srcDir, distDir) => {
   const violations = [];
+
   for (const file of walk(srcDir, [".ts", ".tsx"])) {
-    if (!hasClientDirective(parsedFile(file))) continue;
+    if (!hasClientDirective(parsedFile(file))) {
+      continue;
+    }
     const builtFile = join(distDir, relative(srcDir, file)).replace(/\.tsx?$/, ".js");
+
     if (!existsSync(builtFile)) {
       violations.push(`${relative(process.cwd(), builtFile)}: missing - run npm run build first`);
       continue;
     }
+
     if (!hasClientDirective(parsedFile(builtFile))) {
       violations.push(
         `${relative(process.cwd(), builtFile)}: built output does not open with "use client"; as its first statement`
       );
     }
   }
+
   return violations;
 };
 
@@ -277,21 +348,27 @@ const isPlainReExport = (sourceFile) =>
 const checkBarrel = (srcDir, distDir) => {
   const violations = [];
   const barrelSource = join(srcDir, "index.ts");
+
   if (existsSync(barrelSource) && hasClientDirective(parsedFile(barrelSource))) {
     violations.push('src/index.ts: the barrel must not carry "use client"');
   }
   const barrelBuilt = join(distDir, "index.js");
+
   if (!existsSync(barrelBuilt)) {
     violations.push("dist/index.js: missing - run npm run build first");
+
     return violations;
   }
   const built = parsedFile(barrelBuilt);
+
   if (hasClientDirective(built)) {
     violations.push('dist/index.js: the built barrel must not carry "use client"');
   }
+
   if (!isPlainReExport(built)) {
     violations.push("dist/index.js: the built barrel must be a plain re-export");
   }
+
   return violations;
 };
 
@@ -301,6 +378,7 @@ const violations = [];
 if (targetDir === undefined) {
   const srcDir = resolve(process.cwd(), "src");
   const distDir = resolve(process.cwd(), "dist");
+
   violations.push(...checkSourceDirection(srcDir));
   violations.push(...checkBuiltDirection(srcDir, distDir));
   violations.push(...checkBarrel(srcDir, distDir));

@@ -47,6 +47,7 @@ const withThinking: ReadonlyArray<UserChatEntry | ThinkingChatEntry> = [
   { id: "th1", role: "thinking", content: "Consultando el pedido", isStreaming: false },
 ];
 const acceptedEntries: ComponentProps<typeof ChatMessageList>["entries"] = withThinking;
+
 void acceptedEntries;
 
 // @ts-expect-error -- aiDisclosure is declared without a default (EU AI Act:
@@ -74,6 +75,7 @@ const Consumer = () => {
     }
     listRef.current?.scrollToBottom();
   };
+
   return (
     <>
       <ChatMessageList

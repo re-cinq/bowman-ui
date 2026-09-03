@@ -20,6 +20,7 @@ const readChatDts = (): string => {
   if (!existsSync(chatDtsPath)) {
     throw new Error("dist/types/chat.d.ts is missing - run npm run build first");
   }
+
   return readFileSync(chatDtsPath, "utf8");
 };
 
@@ -55,12 +56,15 @@ const toChatEntry = (entry: FixtureEntry, id: string): ChatEntry => {
   if (entry.role === "user") {
     return { id, role: "user", content: entry.content };
   }
+
   if (entry.role === "assistant") {
     return { id, role: "assistant", content: entry.content, isStreaming: entry.isStreaming };
   }
+
   if (entry.role === "thinking") {
     return { id, role: "thinking", content: entry.content, isStreaming: entry.isStreaming };
   }
+
   return { id, role: "tool", toolName: entry.toolName, toolInput: entry.toolInput };
 };
 
@@ -87,6 +91,7 @@ describe("type-level assertions", () => {
       ],
       { cwd: process.cwd(), encoding: "utf8" }
     );
+
     expect(result).toMatchObject({ status: 0, stderr: "" });
   });
 });
@@ -106,6 +111,7 @@ describe("dist/types/chat.d.ts", () => {
       "organizationId",
       "timestamp",
     ];
+
     for (const name of bannedProperties) {
       expect(chatDts).not.toMatch(new RegExp(`^\\s*(readonly\\s+)?${name}\\??\\s*:`, "m"));
     }
@@ -119,6 +125,7 @@ describe("dist/types/chat.d.ts", () => {
     const exportedNames = [
       ...readChatDts().matchAll(/^export (?:interface|type) ([A-Za-z0-9_]+)/gm),
     ].map((match) => match[1]);
+
     expect([...exportedNames].sort()).toEqual([...chatExports].sort());
   });
 });
@@ -181,6 +188,7 @@ describe("representability of the protocol's §6.1-6.4 examples", () => {
 
   it("maps the user example to a UserChatEntry, dropping only timestamp", () => {
     const mapped = toChatEntry(fixture.entries.user, "entry-0") as UserChatEntry;
+
     expect(mapped).toEqual({
       id: "entry-0",
       role: "user",
@@ -191,6 +199,7 @@ describe("representability of the protocol's §6.1-6.4 examples", () => {
 
   it("maps the assistant example to an AssistantChatEntry, dropping only timestamp", () => {
     const mapped = toChatEntry(fixture.entries.assistant, "entry-1") as AssistantChatEntry;
+
     expect(mapped).toEqual({
       id: "entry-1",
       role: "assistant",
@@ -202,6 +211,7 @@ describe("representability of the protocol's §6.1-6.4 examples", () => {
 
   it("maps the thinking example to a ThinkingChatEntry with every field surviving", () => {
     const mapped = toChatEntry(fixture.entries.thinking, "entry-2") as ThinkingChatEntry;
+
     expect(mapped).toEqual({
       id: "entry-2",
       role: "thinking",
@@ -213,6 +223,7 @@ describe("representability of the protocol's §6.1-6.4 examples", () => {
 
   it("maps the tool example to a ToolChatEntry with every field surviving and no content", () => {
     const mapped = toChatEntry(fixture.entries.tool, "entry-3") as ToolChatEntry;
+
     expect(mapped).toEqual({
       id: "entry-3",
       role: "tool",
@@ -230,7 +241,9 @@ describe("representability of the protocol's §6.1-6.4 examples", () => {
 
 describe("dist/types/chat.js", () => {
   it("is absent or contains no statement other than export {}", () => {
-    if (!existsSync(chatJsPath)) return;
+    if (!existsSync(chatJsPath)) {
+      return;
+    }
     expect(readFileSync(chatJsPath, "utf8").trim()).toBe("export {};");
   });
 });

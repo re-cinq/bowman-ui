@@ -39,15 +39,19 @@ const lint = (): LintResult[] => {
     ],
     { cwd: process.cwd(), encoding: "utf8" }
   );
+
   expect(result.status).toBe(1);
+
   return JSON.parse(result.stdout) as LintResult[];
 };
 
 const messagesFor = (results: LintResult[], fixture: string): LintMessage[] => {
   const match = results.find((entry) => entry.filePath.endsWith(`${sep}${fixture}`));
+
   if (!match) {
     throw new Error(`eslint reported nothing for ${fixture}`);
   }
+
   return match.messages;
 };
 
@@ -89,7 +93,9 @@ describe("the labels lint rules", () => {
     const messages = messagesFor(results, "jsx-logical-text.tsx").filter(
       (entry) => entry.ruleId === "no-restricted-syntax"
     );
+
     expect(messages.length).toBeGreaterThanOrEqual(3);
+
     for (const entry of messages) {
       expect(entry.message).toContain("Hardcoded JSX text");
     }

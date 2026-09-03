@@ -9,6 +9,7 @@ type RunResult = { status: number | null; stdout: string; stderr: string };
 
 const run = (repo: string, ...args: string[]): RunResult => {
   const result = spawnSync(process.execPath, [script, ...args], { cwd: repo, encoding: "utf8" });
+
   return { status: result.status, stdout: result.stdout, stderr: result.stderr };
 };
 
@@ -30,6 +31,7 @@ const asSpec = (...anchors: string[]) =>
 
 const makeRepo = (): string => {
   const repo = mkdtempSync(join(tmpdir(), "repoint-spec-anchors-"));
+
   git(repo, "init", "-q", "-b", "main");
   git(repo, "config", "user.email", "test@example.test");
   git(repo, "config", "user.name", "Test");
@@ -43,6 +45,7 @@ const makeRepo = (): string => {
   write(repo, ".specify/spec.md", asSpec("../tests/Foo.test.tsx#L3"));
   git(repo, "add", "-A");
   git(repo, "commit", "-q", "-m", "baseline");
+
   return repo;
 };
 
@@ -238,6 +241,7 @@ describe("repoint-spec-anchors", () => {
     git(repo, "add", "-A");
     git(repo, "commit", "-q", "-m", "duplicates differing four lines out");
     const baseline = read(repo, "tests/Foo.test.tsx");
+
     write(repo, "tests/Foo.test.tsx", `intro1\nintro2\n${baseline}`);
 
     const result = run(repo, "main");
@@ -279,8 +283,10 @@ describe("repoint-spec-anchors", () => {
 
   it("defaults the base ref to origin/main", () => {
     const clone = mkdtempSync(join(tmpdir(), "repoint-spec-anchors-clone-"));
+
     execFileSync("git", ["clone", "-q", repo, join(clone, "repo")], { stdio: "ignore" });
     const cloneRepo = join(clone, "repo");
+
     write(
       cloneRepo,
       "tests/Foo.test.tsx",

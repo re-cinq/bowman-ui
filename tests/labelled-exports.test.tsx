@@ -145,6 +145,7 @@ describe("the labels export partition", () => {
     const classified = [...labelsProp, ...stringPropOnly, ...noStrings].sort();
 
     const unclassified = exported.filter((name) => !classified.includes(name));
+
     expect(
       unclassified,
       `Unclassified export(s): ${unclassified.join(", ")}. Every value export must be placed in ` +
@@ -323,8 +324,10 @@ const sentinelHarnesses: Record<
       // (copied, copiedNotice, feedbackNotice) so a hardcoded string on
       // those paths cannot hide from the Latin-run check.
       const [copyButton, thumbsUp] = getAllByRole("button");
+
       fireEvent.click(copyButton);
       fireEvent.click(thumbsUp);
+
       return container;
     },
   },
@@ -361,8 +364,10 @@ const sentinelHarnesses: Record<
         />
       );
       const [copyButton, thumbsUp] = getAllByRole("button");
+
       fireEvent.click(copyButton);
       fireEvent.click(thumbsUp);
+
       return container;
     },
   },
@@ -385,6 +390,7 @@ const sentinelHarnesses: Record<
         content: numericContent,
         isStreaming: true,
       } satisfies ThinkingChatEntry;
+
       return render(<ThinkingTrace entry={entry} labels={thinkingTraceSentinels} />).container;
     },
   },
@@ -397,6 +403,7 @@ const sentinelHarnesses: Record<
         toolName: "4711",
         toolInput: { "4712": 4713 },
       } satisfies ToolChatEntry;
+
       // The pending instance surfaces activity and the disclosure summary; the
       // resting one surfaces activityDone. showToolName stays false and the
       // input is numeric, so the only Latin runs are the sentinels themselves.
@@ -425,9 +432,11 @@ const sentinelHarnesses: Record<
           {numericContent}
         </AppShell>
       );
+
       // The dialog name renders only on the open drawer, so the harness
       // opens it to surface the sidebarDialog sentinel.
       fireEvent.click(getByRole("button", { name: appShellSentinels.openSidebar }));
+
       return container;
     },
   },
@@ -559,6 +568,7 @@ describe("the sentinel render check", () => {
   it("no run of three Latin letters survives outside the sentinels for any labelsProp member", () => {
     for (const name of labelsProp) {
       const harness = sentinelHarnesses[name];
+
       if (!harness) {
         throw new Error(
           `${name} is in labelsProp but has no sentinel harness - add one to sentinelHarnesses ` +
@@ -569,6 +579,7 @@ describe("the sentinel render check", () => {
       const container = harness.renderContainer();
 
       const strayText = stripSentinels(container.textContent ?? "", harness.sentinels);
+
       expect(strayText, `${name} renders hardcoded text: "${strayText.trim()}"`).not.toMatch(
         LATIN_RUN
       );
@@ -576,10 +587,12 @@ describe("the sentinel render check", () => {
       for (const element of container.querySelectorAll("*")) {
         for (const attribute of SENTINEL_ATTRIBUTES) {
           const value = element.getAttribute(attribute);
+
           if (value === null) {
             continue;
           }
           const strayAttribute = stripSentinels(value, harness.sentinels);
+
           expect(
             strayAttribute,
             `${name} renders a hardcoded ${attribute}: "${value}"`

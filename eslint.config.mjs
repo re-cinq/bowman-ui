@@ -2,6 +2,7 @@ import js from "@eslint/js";
 import tseslint from "typescript-eslint";
 import reactHooks from "eslint-plugin-react-hooks";
 import sonarjs from "eslint-plugin-sonarjs";
+import stylistic from "@stylistic/eslint-plugin";
 
 // docs/design-notes.md § Labels: the shared no-restricted-syntax selector set. Hoisted
 // into a const so the src/** overlays below (raw-<svg> ban, inline
@@ -94,8 +95,41 @@ export default [
     rules: {
       "react-hooks/rules-of-hooks": "error",
       "react-hooks/exhaustive-deps": "warn",
-      "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
-      "@typescript-eslint/no-explicit-any": "warn",
+      "@typescript-eslint/no-unused-vars": [
+        "error",
+        { argsIgnorePattern: "^_", varsIgnorePattern: "^_", caughtErrorsIgnorePattern: "^_" },
+      ],
+      "@typescript-eslint/no-explicit-any": "error",
+    },
+  },
+  // House readability baseline for every file the linter reaches (src, tests,
+  // scripts, examples): control flow always takes braces, and a blank line
+  // separates returns, the import block, declaration groups, and control-flow
+  // statements from what precedes them. Both rules are autofixable, and
+  // Prettier neither inserts nor removes single blank lines between
+  // statements, so --fix followed by prettier --write reaches a fixed point.
+  {
+    files: ["**/*.{ts,tsx,mts,cts,mjs,cjs,js}"],
+    plugins: { "@stylistic": stylistic },
+    rules: {
+      curly: ["error", "all"],
+      "@stylistic/padding-line-between-statements": [
+        "error",
+        { blankLine: "always", prev: "*", next: "return" },
+        { blankLine: "always", prev: "import", next: "*" },
+        { blankLine: "any", prev: "import", next: "import" },
+        { blankLine: "always", prev: ["const", "let", "var"], next: "*" },
+        {
+          blankLine: "any",
+          prev: ["const", "let", "var"],
+          next: ["const", "let", "var"],
+        },
+        {
+          blankLine: "always",
+          prev: "*",
+          next: ["if", "for", "while", "switch", "try", "do"],
+        },
+      ],
     },
   },
   // docs/design-notes.md § Labels: hardcoded user-visible/assistive strings and i18n

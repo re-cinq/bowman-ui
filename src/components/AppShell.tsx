@@ -84,15 +84,19 @@ export function AppShell({
   // 768px literal mirrors the component's own md:* classes: a consumer
   // redefining --breakpoint-md diverges from those classes identically.
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen) {
+      return;
+    }
     const previousOverflow = document.body.style.overflow;
     const desktopQuery =
       typeof window.matchMedia === "function" ? window.matchMedia("(min-width: 768px)") : undefined;
     const applyLock = () => {
       document.body.style.overflow = desktopQuery?.matches ? previousOverflow : "hidden";
     };
+
     applyLock();
     desktopQuery?.addEventListener("change", applyLock);
+
     return () => {
       desktopQuery?.removeEventListener("change", applyLock);
       document.body.style.overflow = previousOverflow;

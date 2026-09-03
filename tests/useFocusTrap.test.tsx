@@ -57,6 +57,7 @@ describe("useFocusTrap", () => {
     });
     vi.stubGlobal("requestAnimationFrame", (callback: FrameRequestCallback) => {
       callback(0);
+
       return 0;
     });
   });
@@ -104,6 +105,7 @@ describe("useFocusTrap", () => {
 
   it("Escape calls onClose", () => {
     const onClose = vi.fn();
+
     render(<Harness isOpen onClose={onClose} />);
 
     fireEvent.keyDown(document, { key: "Escape" });
@@ -122,9 +124,11 @@ describe("useFocusTrap", () => {
   it("closing returns focus to the previously active element without a trigger ref", () => {
     render(<button>outside</button>);
     const outside = screen.getByRole("button", { name: "outside" });
+
     outside.focus();
 
     const { rerender } = render(<Harness isOpen onClose={vi.fn()} />);
+
     rerender(<Harness isOpen={false} onClose={vi.fn()} />);
 
     expect(outside).toHaveFocus();
@@ -156,6 +160,7 @@ describe("useFocusTrap", () => {
   it("mounting closed with a trigger ref leaves focus on the element the user was already on", () => {
     render(<button>outside</button>);
     const outside = screen.getByRole("button", { name: "outside" });
+
     outside.focus();
 
     render(<Harness isOpen={false} onClose={vi.fn()} withTrigger />);
@@ -166,8 +171,10 @@ describe("useFocusTrap", () => {
   it("closing before the focus frame fires never steals focus into the closed trap", () => {
     const queue: FrameRequestCallback[] = [];
     const cancelled: number[] = [];
+
     vi.stubGlobal("requestAnimationFrame", (callback: FrameRequestCallback) => {
       queue.push(callback);
+
       return queue.length;
     });
     vi.stubGlobal("cancelAnimationFrame", (id: number) => {
@@ -175,9 +182,13 @@ describe("useFocusTrap", () => {
     });
 
     const { rerender } = render(<Harness isOpen onClose={vi.fn()} withTrigger />);
+
     rerender(<Harness isOpen={false} onClose={vi.fn()} withTrigger />);
+
     for (const [index, callback] of queue.entries()) {
-      if (!cancelled.includes(index + 1)) callback(0);
+      if (!cancelled.includes(index + 1)) {
+        callback(0);
+      }
     }
 
     expect(screen.getByRole("button", { name: "trigger" })).toHaveFocus();
@@ -222,6 +233,7 @@ describe("useFocusTrap", () => {
     render(<Harness isOpen onClose={vi.fn()} empty />);
     render(<button>outside</button>);
     const outside = screen.getByRole("button", { name: "outside" });
+
     outside.focus();
 
     fireEvent.keyDown(document, { key: "Tab" });

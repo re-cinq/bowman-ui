@@ -11,6 +11,7 @@ const runAgainst = (targetDir?: string) =>
 
 it("exits non-zero when a specifier is not declared in package.json", () => {
   const result = runAgainst("tests/fixtures/forbidden-imports");
+
   expect(result.status).not.toBe(0);
   expect(result.stderr).toContain("red.tsx");
   expect(result.stderr).toContain('"swr"');
@@ -19,12 +20,14 @@ it("exits non-zero when a specifier is not declared in package.json", () => {
 
 it("exits non-zero on a devDependency such as typescript", () => {
   const result = runAgainst("tests/fixtures/forbidden-imports");
+
   expect(result.status).not.toBe(0);
   expect(result.stderr).toContain('"typescript"');
 });
 
 it("exits non-zero on the @/ path alias and undeclared scoped packages", () => {
   const result = runAgainst("tests/fixtures/forbidden-imports");
+
   expect(result.status).not.toBe(0);
   expect(result.stderr).toContain('"@/components/anything"');
   expect(result.stderr).toContain('"@clerk/nextjs"');
@@ -33,12 +36,14 @@ it("exits non-zero on the @/ path alias and undeclared scoped packages", () => {
 
 it("exits zero for declared packages, their subpaths, and relative imports", () => {
   const result = runAgainst("tests/fixtures/forbidden-imports-clean");
+
   expect(result).toMatchObject({ status: 0, stderr: "" });
   expect(result.stdout).toContain("tests/fixtures/forbidden-imports-clean is clean");
 });
 
 it("exits zero against src/ and reports the self-test passed", () => {
   const result = runAgainst();
+
   expect(result).toMatchObject({ status: 0, stderr: "" });
   expect(result.stdout).toContain("src is clean (self-test passed)");
 });

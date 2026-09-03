@@ -96,6 +96,7 @@ export function AppSidebar({
               onClick: () => onNavigate?.(item.key),
               "aria-current": item.isActive === true ? "page" : undefined,
             };
+
             return <Fragment key={item.key}>{renderNavLink(item, linkProps)}</Fragment>;
           })}
         </nav>

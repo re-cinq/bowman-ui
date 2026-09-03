@@ -50,6 +50,7 @@ describe("ToolActivity", () => {
       const { container } = render(<ToolActivity entry={weatherEntry} showToolInput />);
 
       const pre = container.querySelector("pre");
+
       expect(pre?.textContent).toContain('"location": "Berlin"');
     });
 
@@ -101,6 +102,7 @@ describe("ToolActivity", () => {
       const { rerender } = render(
         <ToolActivity entry={weatherEntry} describeTool={describeTool} pending />
       );
+
       expect(screen.getByText("Looking up the weather")).toBeInTheDocument();
       expect(screen.queryByText("Looked up the weather")).not.toBeInTheDocument();
 
@@ -111,6 +113,7 @@ describe("ToolActivity", () => {
 
     it("takes a one-parameter callback unchanged, ignoring the pending argument", () => {
       const describe = (entry: ToolChatEntry) => entry.toolName;
+
       render(<ToolActivity entry={weatherEntry} describeTool={describe} pending />);
 
       expect(screen.getByText("get_weather")).toBeInTheDocument();
@@ -138,6 +141,7 @@ describe("ToolActivity", () => {
       const { container } = render(<ToolActivity entry={weatherEntry} showToolInput />);
 
       const details = container.querySelector("details");
+
       expect(details).not.toBeNull();
       expect(details?.open).toBe(false);
       expect(details?.querySelector("summary")?.textContent).toBe("Details");
@@ -174,6 +178,7 @@ describe("ToolActivity", () => {
       const { rerender } = render(
         <ToolActivity entry={weatherEntry} icon={<span data-testid="tool-icon">4711</span>} />
       );
+
       expect(screen.getByTestId("tool-icon")).toBeInTheDocument();
 
       rerender(<ToolActivity entry={weatherEntry} />);
@@ -237,6 +242,7 @@ describe("ToolActivity", () => {
         resolve(process.cwd(), "tests/types/tool-activity-type-assertions.tsx"),
         "utf8"
       );
+
       expect(assertions).not.toContain("@ts-expect-error");
 
       const result = spawnSync(

@@ -73,6 +73,7 @@ describe("rendering the fixture through react-markdown with remark-gfm", () => {
 
   it.each([...coveredTags])("renders <%s> carrying the class bowman-md-%s", (tag) => {
     const element = container.querySelector(tag);
+
     expect(element?.classList.contains(`bowman-md-${tag}`)).toBe(true);
   });
 
@@ -110,5 +111,6 @@ it("tsc accepts markdown-type-assertions.ts, proving the map is assignable to re
     ],
     { cwd: process.cwd(), encoding: "utf8" }
   );
+
   expect(result).toMatchObject({ status: 0, stderr: "" });
 });

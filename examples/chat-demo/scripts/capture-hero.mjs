@@ -39,6 +39,7 @@ const server = spawn(
 );
 
 let browser;
+
 try {
   browser = await chromium.launch();
   const page = await browser.newPage({
@@ -48,6 +49,7 @@ try {
   });
 
   const deadline = Date.now() + 30_000;
+
   for (;;) {
     try {
       await page.goto(url, { waitUntil: "networkidle" });
@@ -61,6 +63,7 @@ try {
   }
 
   const capture = page.locator("[data-hero-capture]");
+
   await capture.waitFor({ state: "visible" });
   await page.waitForTimeout(300);
   await capture.screenshot({ path: outputPath });

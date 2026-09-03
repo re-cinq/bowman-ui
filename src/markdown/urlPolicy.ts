@@ -31,21 +31,26 @@ const originRelativeSchemes = ["http", "https", "ws", "wss", "ftp", "file"];
 // allowlist that browsers strip before navigating.
 export const createUrlTransform = (policy?: MarkdownPolicy) => {
   const resolved = resolveLabels(defaultMarkdownPolicy, policy);
+
   return (value: string): string => {
     const colon = value.indexOf(":");
     const delimiter = value.search(/[/?#]/);
     const hasScheme = colon !== -1 && (delimiter === -1 || colon < delimiter);
+
     if (!hasScheme) {
       if (schemeRelativePattern.test(value)) {
         return "";
       }
+
       return resolved.allowRelativeUrls ? value : "";
     }
     const scheme = value.slice(0, colon).toLowerCase();
+
     if (!resolved.allowedSchemes.some((allowed) => allowed.toLowerCase() === scheme)) {
       return "";
     }
     const needsAuthority = originRelativeSchemes.includes(scheme);
+
     return needsAuthority && !schemeRelativePattern.test(value.slice(colon + 1)) ? "" : value;
   };
 };

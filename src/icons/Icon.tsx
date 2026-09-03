@@ -59,6 +59,7 @@ export function getAccessibleIconProps(
       "aria-label": ariaLabel,
     };
   }
+
   return {
     "aria-hidden": true,
   };

@@ -21,5 +21,6 @@ it("tsc accepts labels-type-assertions.tsx against dist via the '.' exports entr
     ],
     { cwd: process.cwd(), encoding: "utf8" }
   );
+
   expect(result).toMatchObject({ status: 0, stderr: "" });
 });
