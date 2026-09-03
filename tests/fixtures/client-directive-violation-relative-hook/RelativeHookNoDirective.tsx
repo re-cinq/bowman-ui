@@ -6,5 +6,6 @@ import { useWidgetState } from "./useWidgetState.js";
 
 export const RelativeHookNoDirective = () => {
   const widget = useWidgetState();
+
   return <span>{widget}</span>;
 };

@@ -17,6 +17,7 @@ describe("AppSidebar", () => {
 
       const aside = screen.getByRole("complementary", { name: "Sidebar" });
       const nav = screen.getByRole("navigation", { name: "Main navigation" });
+
       expect(aside).toContainElement(nav);
       expect(container.querySelectorAll("nav")).toHaveLength(1);
     });
@@ -37,6 +38,7 @@ describe("AppSidebar", () => {
       render(<AppSidebar navItems={threeItems} />);
 
       const aside = screen.getByRole("complementary", { name: "Sidebar" });
+
       for (const token of [
         "flex-1",
         "min-h-0",
@@ -58,6 +60,7 @@ describe("AppSidebar", () => {
       render(<AppSidebar navItems={threeItems} />);
 
       const rows = screen.getAllByRole("button");
+
       expect(rows).toHaveLength(3);
       expect(rows.map((row) => row.textContent)).toEqual(["Dashboard", "Chat", "Ajustes"]);
       expect(rows[0]).not.toHaveAttribute("aria-current");
@@ -87,6 +90,7 @@ describe("AppSidebar", () => {
       rerender(<AppSidebar navItems={[...threeItems].reverse()} />);
 
       const after = screen.getAllByRole("button");
+
       expect(after.map((row) => row.textContent)).toEqual(["Ajustes", "Chat", "Dashboard"]);
       expect(after[2]).toBe(dashboardBefore);
       expect(after[0]).toBe(settingsBefore);
@@ -106,6 +110,7 @@ describe("AppSidebar", () => {
 
     it('clicking an item calls onNavigate once with "settings"', () => {
       const onNavigate = vi.fn();
+
       render(<AppSidebar navItems={threeItems} onNavigate={onNavigate} />);
 
       fireEvent.click(screen.getByRole("button", { name: "Ajustes" }));
@@ -124,6 +129,7 @@ describe("AppSidebar", () => {
   describe("renderNavLink", () => {
     it("anchors carry the component's className and aria-current, and clicking one calls onNavigate with that key", () => {
       const onNavigate = vi.fn();
+
       render(
         <AppSidebar
           navItems={threeItems}
@@ -133,6 +139,7 @@ describe("AppSidebar", () => {
       );
 
       const [dashboard, chat] = screen.getAllByRole("link");
+
       expect(dashboard).toHaveAttribute("href", "/dashboard");
       expect(dashboard.className).toContain("rounded-lg");
       expect(dashboard).not.toHaveAttribute("aria-current");
@@ -145,6 +152,7 @@ describe("AppSidebar", () => {
 
     it("a renderNavLink that spreads everything except onClick calls onNavigate zero times", () => {
       const onNavigate = vi.fn();
+
       render(
         <AppSidebar
           navItems={threeItems}
@@ -175,6 +183,7 @@ describe("AppSidebar", () => {
       );
 
       const svg = container.querySelector("svg");
+
       expect(svg).toHaveClass("h-5", "w-5");
     });
 
@@ -195,6 +204,7 @@ describe("AppSidebar", () => {
       );
 
       const wrapper = screen.getByTestId("middle-child").parentElement as HTMLElement;
+
       for (const token of ["flex", "min-h-0", "flex-1", "flex-col", "overflow-y-auto"]) {
         expect(wrapper.classList).toContain(token);
       }
@@ -205,6 +215,7 @@ describe("AppSidebar", () => {
       const { container } = render(<AppSidebar footer={<button type="button">Log ud</button>} />);
 
       const regions = container.querySelectorAll(".border-t");
+
       expect(regions).toHaveLength(1);
       expect(regions[0]).toContainElement(screen.getByRole("button", { name: "Log ud" }));
     });
@@ -219,6 +230,7 @@ describe("AppSidebar", () => {
       render(<AppSidebar brand={<span>Acme Support</span>} navItems={threeItems} />);
 
       const row = screen.getByText("Acme Support").parentElement as HTMLElement;
+
       for (const token of ["h-14", "border-b"]) {
         expect(row.classList).toContain(token);
       }
@@ -246,7 +258,9 @@ describe("the source files (grep acceptance criteria)", () => {
   it("no @clerk, swr, next-intl, next/, @/ or lucide-react import, and every relative import ends in .js", () => {
     expect(content).not.toMatch(/@clerk|swr|next-intl|next\/|@\/|lucide-react/);
     const relativeImports = [...content.matchAll(/from\s+"(\.[^"]+)"/g)].map(([, spec]) => spec);
+
     expect(relativeImports.length).toBeGreaterThan(0);
+
     for (const spec of relativeImports) {
       expect(spec).toMatch(/\.js$/);
     }

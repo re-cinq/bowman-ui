@@ -11,6 +11,7 @@ import { join } from "node:path";
 import process from "node:process";
 
 const selector = process.argv[2];
+
 if (!selector || !selector.includes("::")) {
   process.stderr.write('usage: lore-run-test.mjs "<file>::<full test name>"\n');
   process.exit(2);
@@ -28,6 +29,7 @@ execFileSync("npm", ["run", "build"], {
 });
 
 let runFailed = false;
+
 try {
   execFileSync(
     "npx",
@@ -54,9 +56,11 @@ try {
 }
 
 const report = JSON.parse(readFileSync(reportFile, "utf8"));
+
 rmSync(reportFile, { force: true });
 
 const ran = report.numTotalTests - (report.numPendingTests ?? 0);
+
 if (ran === 0) {
   process.stderr.write(`selector matched no test: ${selector}\n`);
   process.exit(1);

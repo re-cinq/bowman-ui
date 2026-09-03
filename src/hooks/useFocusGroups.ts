@@ -61,12 +61,14 @@ export function useFocusGroups(options: FocusGroupsOptions = {}): void {
 
   const focusFirstElement = useCallback((group: HTMLElement) => {
     const focusable = group.querySelector<HTMLElement>(FOCUSABLE_SELECTOR);
+
     if (focusable) {
       focusable.focus();
     } else {
       // If no focusable element, make the group itself focusable temporarily
       const hadTabIndexAttribute = group.hasAttribute("tabindex");
       const originalTabIndex = group.tabIndex;
+
       group.tabIndex = -1;
       group.focus();
       // Restore after focus: an element that carried no tabindex attribute
@@ -85,10 +87,15 @@ export function useFocusGroups(options: FocusGroupsOptions = {}): void {
     const handleKeyDown = (event: KeyboardEvent) => {
       // defaultPrevented: a second mounted instance leaves a press one
       // instance has already handled alone, instead of moving focus twice.
-      if (event.key !== "F6" || event.defaultPrevented) return;
+      if (event.key !== "F6" || event.defaultPrevented) {
+        return;
+      }
 
       const groups = getFocusGroups();
-      if (groups.length === 0) return;
+
+      if (groups.length === 0) {
+        return;
+      }
 
       event.preventDefault();
 
@@ -107,12 +114,15 @@ export function useFocusGroups(options: FocusGroupsOptions = {}): void {
 
       // Focus the target group
       const targetGroup = groups[currentGroupIndex.current];
+
       focusFirstElement(targetGroup);
 
       // Announce for screen readers
       const groupName = targetGroup.dataset.focusGroup;
+
       if (groupName) {
         const message = announce(groupName);
+
         if (message !== null) {
           announceToScreenReader(message);
         }
@@ -120,6 +130,7 @@ export function useFocusGroups(options: FocusGroupsOptions = {}): void {
     };
 
     document.addEventListener("keydown", handleKeyDown);
+
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [getFocusGroups, focusFirstElement, announce]);
 }
@@ -131,6 +142,7 @@ export function useFocusGroups(options: FocusGroupsOptions = {}): void {
  */
 function announceToScreenReader(message: string): void {
   const announcement = document.createElement("div");
+
   announcement.setAttribute("role", "status");
   announcement.setAttribute("aria-live", "polite");
   announcement.setAttribute("aria-atomic", "true");

@@ -21,6 +21,7 @@ const types = [...declarations.matchAll(/export type \{([^}]*)\}/g)]
   .sort();
 
 const surface = { values: Object.keys(built).sort(), types };
+
 writeFileSync(
   resolve(root, "tests/fixtures/public-api.json"),
   `${JSON.stringify(surface, null, 2)}\n`

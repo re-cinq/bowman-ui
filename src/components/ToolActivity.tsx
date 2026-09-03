@@ -44,6 +44,7 @@ const headlineFor = (
   if (describeTool) {
     return describeTool(entry, pending);
   }
+
   return pending ? resolved.activity : resolved.activityDone;
 };
 

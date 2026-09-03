@@ -8,20 +8,30 @@ const BUILT_FILES = ["dist/components/ThinkingIndicator.js", "dist/components/Th
 // check, same as tests/build-contract.test.ts).
 const stripLeadingTrivia = (source: string): string => {
   let rest = source;
+
   for (;;) {
     const trimmed = rest.replace(/^\s+/, "");
+
     if (trimmed.startsWith("//")) {
       const lineEnd = trimmed.indexOf("\n");
-      if (lineEnd === -1) return "";
+
+      if (lineEnd === -1) {
+        return "";
+      }
       rest = trimmed.slice(lineEnd + 1);
       continue;
     }
+
     if (trimmed.startsWith("/*")) {
       const blockEnd = trimmed.indexOf("*/");
-      if (blockEnd === -1) return "";
+
+      if (blockEnd === -1) {
+        return "";
+      }
       rest = trimmed.slice(blockEnd + 2);
       continue;
     }
+
     return trimmed;
   }
 };
@@ -31,6 +41,7 @@ describe("the built thinking indicator surface", () => {
     for (const built of BUILT_FILES) {
       expect(existsSync(built)).toBe(true);
       const firstStatement = stripLeadingTrivia(readFileSync(built, "utf8"));
+
       expect(firstStatement.startsWith('"use client";')).toBe(true);
     }
   });
@@ -42,6 +53,7 @@ describe("the built thinking indicator surface", () => {
     });
     const [pack] = JSON.parse(output) as [{ files: { path: string }[] }];
     const paths = pack.files.map((file) => file.path);
+
     for (const built of BUILT_FILES) {
       expect(paths).toContain(built);
       expect(paths).toContain(built.replace(/\.js$/, ".d.ts"));
@@ -69,6 +81,7 @@ describe("the built thinking indicator surface", () => {
       ],
       { cwd: process.cwd(), encoding: "utf8" }
     );
+
     expect(result).toMatchObject({ status: 0, stderr: "" });
   });
 });

@@ -66,7 +66,9 @@ const markdownElement = (tag: MarkdownTag) => {
       ...rest,
       className: mergeClassName(`bowman-md-${tag}`, className),
     });
+
   MarkdownElement.displayName = `BowmanMarkdown(${tag})`;
+
   return MarkdownElement;
 };
 
@@ -89,6 +91,7 @@ const markdownAnchor = (
         </span>
       );
     }
+
     return (
       <a
         {...rest}
@@ -102,7 +105,9 @@ const markdownAnchor = (
       </a>
     );
   };
+
   MarkdownAnchor.displayName = "BowmanMarkdown(a)";
+
   return MarkdownAnchor;
 };
 
@@ -117,11 +122,14 @@ const markdownImage = (policy: Required<MarkdownPolicy>) => {
     if (!policy.allowImages || !src) {
       return <>{alt}</>;
     }
+
     return (
       <img {...rest} src={src} alt={alt} className={mergeClassName("bowman-md-img", className)} />
     );
   };
+
   MarkdownImage.displayName = "BowmanMarkdown(img)";
+
   return MarkdownImage;
 };
 
@@ -148,6 +156,7 @@ const staticComponents = {
 export const createMarkdownComponents = (options: MarkdownComponentsOptions = {}) => {
   const policy = resolveLabels(defaultMarkdownPolicy, options.policy);
   const labels = resolveLabels(defaultMarkdownComponentsLabels, options.labels);
+
   return {
     ...staticComponents,
     a: markdownAnchor(policy, labels),

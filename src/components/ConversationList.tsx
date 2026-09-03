@@ -75,11 +75,16 @@ function TypewriterTitle({
 
   useEffect(() => {
     const previous = previousRef.current;
+
     previousRef.current = { text, isPlaceholder };
-    if (text === previous.text) return;
+
+    if (text === previous.text) {
+      return;
+    }
 
     if (!previous.isPlaceholder || reducedMotion) {
       setChars(text.split("").map((ch) => ({ ch, opacity: 1 })));
+
       return;
     }
 
@@ -97,15 +102,18 @@ function TypewriterTitle({
         oldChars[i] = { ...oldChars[i], opacity: 0 };
         setChars([...oldChars]);
         i++;
+
         if (i >= oldChars.length) {
           phase = 2;
           i = 0;
           setChars(newChars.map((ch) => ({ ch, opacity: 0 })));
         }
+
         return;
       }
       setChars((current) => current.map((c, index) => (index <= i ? { ...c, opacity: 1 } : c)));
       i++;
+
       if (i >= newChars.length) {
         clearInterval(interval);
         setIsAnimating(false);

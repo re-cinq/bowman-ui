@@ -6,5 +6,6 @@ import { useTransition } from "react";
 
 export const UseTransitionNoDirective = () => {
   const [isPending] = useTransition();
+
   return <span>{isPending ? 1 : 0}</span>;
 };

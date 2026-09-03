@@ -23,6 +23,7 @@ const labelSample = (value: LabelValue): string => {
   if (typeof value === "function") {
     return value("…");
   }
+
   return value;
 };
 

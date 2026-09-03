@@ -34,6 +34,7 @@ try {
 const report = JSON.parse(readFileSync(reportFile, "utf8"));
 const tests = report.testResults.flatMap((suite) => {
   const file = relative(process.cwd(), suite.name);
+
   return suite.assertionResults.map((assertion) => ({
     id: `${file}::${assertion.fullName}`,
     name: assertion.fullName,

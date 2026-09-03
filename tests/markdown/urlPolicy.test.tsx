@@ -124,7 +124,9 @@ describe("anchor attributes", () => {
     );
 
     const anchors = container.querySelectorAll("a");
+
     expect(anchors).toHaveLength(3);
+
     for (const anchor of anchors) {
       expect(anchor).toHaveAttribute("rel", "noopener noreferrer");
       expect(anchor).toHaveAttribute("target", "_blank");
@@ -137,6 +139,7 @@ describe("anchor attributes", () => {
     });
 
     const anchor = container.querySelector("a");
+
     expect(anchor).not.toHaveAttribute("target");
     expect(anchor).toHaveAttribute("rel", "noopener noreferrer");
   });
@@ -145,6 +148,7 @@ describe("anchor attributes", () => {
     const { container } = renderMarkdown("[4711](https://tms.example/x)");
 
     const notice = container.querySelector("a .bowman-sr-only");
+
     expect(notice?.textContent).toBe("(opens in a new tab)");
     expect(defaultMarkdownComponentsLabels).toEqual({
       linkOpensInNewTab: "(opens in a new tab)",
@@ -190,6 +194,7 @@ describe("remark-gfm autolink literals", () => {
     const { container } = renderMarkdown("Mira https://tms.example/x hoy");
 
     const anchor = container.querySelector("a");
+
     expect(anchor).toHaveAttribute("href", "https://tms.example/x");
     expect(anchor).toHaveAttribute("rel", "noopener noreferrer");
     expect(anchor?.querySelector(".bowman-sr-only")?.textContent).toBe("(opens in a new tab)");
@@ -217,6 +222,7 @@ describe("remark-gfm autolink literals", () => {
     });
 
     const anchor = container.querySelector("a");
+
     expect(anchor).toHaveAttribute("href", "http://www.marginalia-books.invalid");
     expect(anchor).toHaveAttribute("rel", "noopener noreferrer");
     expect(anchor?.querySelector(".bowman-sr-only")?.textContent).toBe("(opens in a new tab)");
@@ -237,6 +243,7 @@ describe("the image gate", () => {
     });
 
     const images = container.querySelectorAll("img");
+
     expect(images).toHaveLength(1);
     expect(images[0]).toHaveAttribute("src", "https://host/p.png");
     expect(images[0]).toHaveAttribute("alt", "alt text");
@@ -273,6 +280,7 @@ describe("the markdown sources (grep acceptance criteria)", () => {
   const walk = (dir: string): string[] =>
     readdirSync(dir).flatMap((entry) => {
       const fullPath = join(dir, entry);
+
       return statSync(fullPath).isDirectory() ? walk(fullPath) : [fullPath];
     });
 
@@ -295,9 +303,11 @@ describe("review hardening (076 diff review)", () => {
 
     expect(container.querySelector("a")).toBeNull();
     const reference = container.querySelector("sup > span");
+
     expect(reference).toHaveAttribute("id", "user-content-fnref-1");
     expect(reference).toHaveAttribute("aria-describedby", "footnote-label");
     const backref = container.querySelector('span[aria-label="Back to reference 1"]');
+
     expect(backref?.textContent).toBe("↩");
   });
 

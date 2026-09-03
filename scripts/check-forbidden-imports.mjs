@@ -36,6 +36,7 @@ const isRelative = (specifier) => specifier.startsWith("./") || specifier.starts
 
 const packageNameOf = (specifier) => {
   const segments = specifier.split("/");
+
   return specifier.startsWith("@") ? segments.slice(0, 2).join("/") : segments[0];
 };
 
@@ -52,6 +53,7 @@ const collectSpecifiers = (sourceFile) => {
     ) {
       specifiers.push(node.moduleSpecifier.text);
     }
+
     if (
       ts.isCallExpression(node) &&
       (node.expression.kind === ts.SyntaxKind.ImportKeyword ||
@@ -63,27 +65,34 @@ const collectSpecifiers = (sourceFile) => {
     }
     ts.forEachChild(node, visit);
   };
+
   visit(sourceFile);
+
   return specifiers;
 };
 
 const listSourceFiles = (directory) => {
   const files = [];
+
   for (const entry of readdirSync(directory, { withFileTypes: true })) {
     const fullPath = join(directory, entry.name);
+
     if (entry.isDirectory()) {
       files.push(...listSourceFiles(fullPath));
       continue;
     }
+
     if (/\.(ts|tsx|mts|cts)$/.test(entry.name)) {
       files.push(fullPath);
     }
   }
+
   return files;
 };
 
 const listImports = (directory) => {
   const imports = [];
+
   for (const filePath of listSourceFiles(directory)) {
     const sourceFile = ts.createSourceFile(
       filePath,
@@ -92,10 +101,12 @@ const listImports = (directory) => {
       true,
       filePath.endsWith(".tsx") ? ts.ScriptKind.TSX : ts.ScriptKind.TS
     );
+
     for (const specifier of collectSpecifiers(sourceFile)) {
       imports.push({ file: relative(process.cwd(), filePath), specifier });
     }
   }
+
   return imports;
 };
 
@@ -105,8 +116,10 @@ const findViolations = (directory) =>
 const fixtureDirectory = "tests/fixtures/forbidden-imports";
 const fixtureImports = listImports(fixtureDirectory);
 const untrippedSpecifiers = fixtureImports.filter((entry) => isAllowed(entry.specifier));
+
 if (fixtureImports.length === 0 || untrippedSpecifiers.length > 0) {
   const names = untrippedSpecifiers.map((entry) => entry.specifier).join(", ");
+
   process.stderr.write(
     `self-test failed: the red fixture in ${fixtureDirectory} carries specifiers ` +
       `the allowlist no longer trips: ${names || "(fixture is empty)"}\n`
@@ -116,6 +129,7 @@ if (fixtureImports.length === 0 || untrippedSpecifiers.length > 0) {
 
 const targetDirectory = process.argv[2] ?? "src";
 const violations = findViolations(targetDirectory);
+
 if (violations.length > 0) {
   for (const violation of violations) {
     process.stderr.write(

@@ -151,6 +151,7 @@ describe("ChatMessageList", () => {
       const empty = render(
         <ChatMessageList entries={[]} userInitials="LM" labels={{ aiDisclosure }} />
       );
+
       expect(within(empty.container).getByText(aiDisclosure)).toBeInTheDocument();
       expect(empty.getByRole("log").contains(empty.getByText(aiDisclosure))).toBe(false);
       empty.unmount();
@@ -158,6 +159,7 @@ describe("ChatMessageList", () => {
       const filled = render(
         <ChatMessageList entries={twoEntries} userInitials="LM" labels={{ aiDisclosure }} />
       );
+
       expect(within(filled.container).getByText(aiDisclosure)).toBeInTheDocument();
       expect(filled.getByRole("log").contains(filled.getByText(aiDisclosure))).toBe(false);
     });
@@ -212,6 +214,7 @@ describe("ChatMessageList", () => {
         assistantEntry("a1", "Primera respuesta"),
         assistantEntry("a2", "Segunda respuesta"),
       ];
+
       render(
         <ChatMessageList
           entries={entries}
@@ -222,6 +225,7 @@ describe("ChatMessageList", () => {
       );
 
       const articles = screen.getAllByRole("article");
+
       expect(articles).toHaveLength(2);
       expect(articles[0]).toHaveTextContent("Primera respuesta");
       expect(articles[1]).toHaveTextContent("Segunda respuesta");
@@ -264,6 +268,7 @@ describe("ChatMessageList", () => {
       const { rerender } = render(
         <ChatMessageList entries={entries} userInitials="LM" labels={{ aiDisclosure }} />
       );
+
       expect(screen.getByRole("link", { name: /42/ })).toHaveAttribute("target", "_blank");
 
       rerender(
@@ -326,10 +331,12 @@ describe("ChatMessageList", () => {
       );
 
       const footers = screen.getAllByTestId("entry-footer");
+
       expect(footers).toHaveLength(1);
       expect(footers[0]).toHaveAttribute("data-entry-id", "a1");
       const column = footers[0].parentElement;
       const copyButton = screen.getByRole("button", { name: "Copy message" });
+
       expect(column?.contains(copyButton)).toBe(true);
       expect(column?.lastElementChild).toBe(footers[0]);
       expect(
@@ -366,6 +373,7 @@ describe("ChatMessageList", () => {
       );
 
       const footers = screen.getAllByTestId("entry-footer");
+
       expect(footers).toHaveLength(1);
       expect(footers[0]).toHaveAttribute("data-entry-id", "a1");
     });
@@ -375,6 +383,7 @@ describe("ChatMessageList", () => {
         <ChatMessageList entries={twoEntries} userInitials="LM" labels={{ aiDisclosure }} />
       );
       const withoutProp = omitted.container.innerHTML;
+
       omitted.unmount();
 
       const { container } = render(
@@ -400,6 +409,7 @@ describe("ChatMessageList", () => {
       );
 
       const band = screen.getByText(aiDisclosure);
+
       expect(container.firstElementChild?.firstElementChild).toBe(band);
       expect(screen.getByRole("log").contains(band)).toBe(false);
     });
@@ -413,6 +423,7 @@ describe("ChatMessageList", () => {
           renderEntryFooter={footerFor}
         />
       );
+
       expect(screen.getByTestId("entry-footer")).toBeInTheDocument();
 
       rerender(
@@ -430,9 +441,11 @@ describe("ChatMessageList", () => {
       );
 
       const indicators = screen.getAllByRole("status");
+
       expect(indicators).toHaveLength(1);
       const articles = screen.getAllByRole("article");
       const lastArticle = articles[articles.length - 1];
+
       expect(
         lastArticle.compareDocumentPosition(indicators[0]) & Node.DOCUMENT_POSITION_FOLLOWING
       ).toBeTruthy();
@@ -484,6 +497,7 @@ describe("ChatMessageList", () => {
       );
 
       const [first, second] = screen.getAllByRole("article");
+
       expect(within(first).getByText("Facturación")).toBeInTheDocument();
       expect(within(first).getByTestId("icon-a")).toBeInTheDocument();
       expect(first).toHaveAttribute("aria-label", "Response from Facturación");
@@ -557,6 +571,7 @@ describe("ChatMessageList", () => {
       );
 
       const indicator = screen.getByRole("status");
+
       expect(within(indicator).getByTestId("default-mark")).toBeInTheDocument();
       expect(within(indicator).queryByTestId("icon-a")).not.toBeInTheDocument();
     });
@@ -600,6 +615,7 @@ describe("ChatMessageList", () => {
       const { rerender } = render(
         <ChatMessageList entries={twoEntries} userInitials="LM" labels={{ aiDisclosure }} />
       );
+
       stubGeometry(regionOf());
       regionOf().scrollTop = 800;
       scrollToMock.mockClear();
@@ -616,6 +632,7 @@ describe("ChatMessageList", () => {
       const { rerender } = render(
         <ChatMessageList entries={twoEntries} userInitials="LM" labels={{ aiDisclosure }} />
       );
+
       stubGeometry(regionOf());
       regionOf().scrollTop = 100;
       fireEvent.scroll(regionOf());
@@ -633,6 +650,7 @@ describe("ChatMessageList", () => {
       const { rerender } = render(
         <ChatMessageList entries={twoEntries} userInitials="LM" labels={{ aiDisclosure }} />
       );
+
       stubGeometry(regionOf());
       regionOf().scrollTop = 100;
       fireEvent.scroll(regionOf());
@@ -652,6 +670,7 @@ describe("ChatMessageList", () => {
       const { rerender } = render(
         <ChatMessageList entries={twoEntries} userInitials="LM" labels={{ aiDisclosure }} />
       );
+
       stubGeometry(regionOf());
       scrollToMock.mockClear();
 
@@ -676,6 +695,7 @@ describe("ChatMessageList", () => {
           reducedMotion
         />
       );
+
       stubGeometry(regionOf());
       scrollToMock.mockClear();
 
@@ -707,6 +727,7 @@ describe("ChatMessageList", () => {
       const { rerender } = render(
         <ChatMessageList entries={twoEntries} userInitials="LM" labels={{ aiDisclosure }} />
       );
+
       stubGeometry(regionOf());
       scrollToMock.mockClear();
 
@@ -722,6 +743,7 @@ describe("ChatMessageList", () => {
         <ChatMessageList entries={twoEntries} userInitials="LM" labels={{ aiDisclosure }} />
       );
       const region = regionOf();
+
       expect(typeof region.scrollTo).toBe("undefined");
       stubGeometry(region);
 
@@ -738,6 +760,7 @@ describe("ChatMessageList", () => {
       const { rerender } = render(
         <ChatMessageList entries={twoEntries} userInitials="LM" labels={{ aiDisclosure }} />
       );
+
       stubGeometry(regionOf());
       regionOf().scrollTop = 768;
       fireEvent.scroll(regionOf());
@@ -764,6 +787,7 @@ describe("ChatMessageList", () => {
       const { rerender } = render(
         <ChatMessageList entries={twoEntries} userInitials="LM" labels={{ aiDisclosure }} />
       );
+
       stubGeometry(regionOf());
       scrollToMock.mockClear();
 
@@ -799,6 +823,7 @@ describe("ChatMessageList", () => {
   describe("the ref handle", () => {
     it("isPinnedToBottom is true at the bottom and false after a scroll event leaving 800px below", () => {
       const ref = createRef<ChatMessageListHandle>();
+
       render(
         <ChatMessageList
           ref={ref}
@@ -829,6 +854,7 @@ describe("ChatMessageList", () => {
           labels={{ aiDisclosure }}
         />
       );
+
       stubGeometry(regionOf());
       regionOf().scrollTop = 100;
       fireEvent.scroll(regionOf());
@@ -852,6 +878,7 @@ describe("ChatMessageList", () => {
     it("scrollToBottom under reducedMotion scrolls with behavior auto", () => {
       installScrollTo();
       const ref = createRef<ChatMessageListHandle>();
+
       render(
         <ChatMessageList
           ref={ref}
@@ -880,6 +907,7 @@ describe("ChatMessageList", () => {
         />
       );
       const handle = ref.current;
+
       unmount();
 
       expect(() => handle?.scrollToBottom()).not.toThrow();
@@ -898,6 +926,7 @@ describe("ChatMessageList", () => {
       );
 
       const region = screen.getByRole("log");
+
       expect(region).toHaveAttribute("aria-live", "off");
       expect(region).toHaveAccessibleName("Transcripción");
     });
@@ -906,6 +935,7 @@ describe("ChatMessageList", () => {
       const { rerender } = render(
         <ChatMessageList entries={twoEntries} userInitials="LM" labels={{ aiDisclosure }} />
       );
+
       expect(regionOf().querySelectorAll('[aria-live="polite"]')).toHaveLength(0);
 
       rerender(
@@ -924,7 +954,9 @@ describe("ChatMessageList", () => {
     it("imports no @clerk, swr, next-intl, next/, @/ or lucide-react and every relative import ends in .js", () => {
       expect(source).not.toMatch(/@clerk|swr|next-intl|next\/|@\/|lucide-react/);
       const relativeImports = [...source.matchAll(/from\s+"(\.[^"]+)"/g)].map(([, spec]) => spec);
+
       expect(relativeImports.length).toBeGreaterThan(0);
+
       for (const spec of relativeImports) {
         expect(spec).toMatch(/\.js$/);
       }
@@ -959,6 +991,7 @@ describe("ChatMessageList", () => {
 
       const column = container.querySelector(".max-w-3xl");
       const children = Array.from(column?.children ?? []);
+
       expect(children.map((child) => child.tagName)).toEqual(["ARTICLE", "DIV", "ARTICLE"]);
       expect(children[0]).toHaveTextContent("Ver pedido 4711");
       expect(children[1]).toHaveTextContent("Looked something up");
@@ -970,6 +1003,7 @@ describe("ChatMessageList", () => {
       const { rerender } = render(
         <ChatMessageList entries={entries} userInitials="LM" busy labels={{ aiDisclosure }} />
       );
+
       expect(screen.getByText("Looking something up")).toBeInTheDocument();
 
       rerender(<ChatMessageList entries={entries} userInitials="LM" labels={{ aiDisclosure }} />);
@@ -1034,6 +1068,7 @@ describe("ChatMessageList", () => {
 
       const column = container.querySelector(".max-w-3xl");
       const children = Array.from(column?.children ?? []);
+
       expect(children[1]).toHaveTextContent("Looked up the weather");
       expect(children[2]).toHaveTextContent("Looking up the weather");
 
@@ -1086,6 +1121,7 @@ describe("ChatMessageList", () => {
       );
 
       const children = Array.from(container.querySelector(".max-w-3xl")?.children ?? []);
+
       expect(children.map((child) => child.tagName)).toEqual(["ARTICLE", "ARTICLE"]);
       expect(children[0]).toHaveTextContent("Ver pedido 4711");
       expect(children[1]).toHaveTextContent("Booking 4711 er fundet");
@@ -1102,6 +1138,7 @@ describe("ChatMessageList", () => {
       );
 
       const children = Array.from(container.querySelector(".max-w-3xl")?.children ?? []);
+
       expect(children.map((child) => child.tagName)).toEqual(["ARTICLE", "DETAILS", "ARTICLE"]);
       expect(container.querySelectorAll("details")).toHaveLength(1);
       expect(children[1].querySelector("summary")?.textContent).toBe("Reasoning");

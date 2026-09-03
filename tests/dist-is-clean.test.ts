@@ -17,13 +17,18 @@ const root = process.cwd();
 const walk = (dir: string): string[] =>
   readdirSync(dir).flatMap((entry) => {
     const full = join(dir, entry);
+
     return statSync(full).isDirectory() ? walk(full) : [full];
   });
 
 const expectedSource = (builtFile: string): string[] => {
   const rel = relative(join(root, "dist"), builtFile);
-  if (rel === "styles.css") return [join(root, "src", "styles.css")];
+
+  if (rel === "styles.css") {
+    return [join(root, "src", "styles.css")];
+  }
   const base = rel.replace(/\.d\.ts$/, "").replace(/\.js$/, "");
+
   return [join(root, "src", `${base}.ts`), join(root, "src", `${base}.tsx`)];
 };
 
@@ -41,6 +46,7 @@ describe("dist matches src", () => {
 const candidateExists = (path: string): boolean => {
   try {
     statSync(path);
+
     return true;
   } catch {
     return false;

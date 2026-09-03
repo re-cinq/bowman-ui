@@ -25,6 +25,7 @@ const Consumer = () => {
   const reduced: boolean = useReducedMotion(true);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
   const containerRef = useFocusTrap<HTMLDivElement>(true, () => {}, triggerRef);
+
   useFocusGroups(focusOptions);
   const sidebar = useSidebarState("chat", sidebarOptions);
 

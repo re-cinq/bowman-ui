@@ -15,14 +15,18 @@ const bundleOneIconConsumer = async (importedIcon: string): Promise<string> => {
   const distIndex = resolve(process.cwd(), "dist/icons/index.js");
   const consumerDir = mkdtempSync(join(tmpdir(), "bowman-ui-icon-treeshake-"));
   const entry = join(consumerDir, "entry.js");
+
   writeFileSync(
     entry,
     `import { ${importedIcon} } from ${JSON.stringify(distIndex)};\nexport { ${importedIcon} };\n`
   );
+
   try {
     const bundle = await rolldown({ input: entry, external: [/^react/] });
     const { output } = await bundle.generate({ format: "esm" });
+
     await bundle.close();
+
     return output.map((chunk) => ("code" in chunk ? chunk.code : "")).join("\n");
   } finally {
     rmSync(consumerDir, { recursive: true, force: true });
@@ -37,6 +41,7 @@ const unusedIconPath = "M12 4v16m8-8H4"; // PlusIcon
 describe("the built icon surface tree-shakes to the imported icons", () => {
   it("bundling a SearchIcon-only consumer against dist drops the unused PlusIcon path", async () => {
     const code = await bundleOneIconConsumer("SearchIcon");
+
     expect(code).toContain(usedIconPath);
     expect(code).not.toContain(unusedIconPath);
   });
@@ -64,6 +69,7 @@ describe("the built icon surface", () => {
       ],
       { cwd: process.cwd(), encoding: "utf8" }
     );
+
     expect(result).toMatchObject({ status: 0, stderr: "" });
   });
 
@@ -74,6 +80,7 @@ describe("the built icon surface", () => {
     });
     const [pack] = JSON.parse(output) as [{ files: { path: string }[] }];
     const paths = pack.files.map((file) => file.path);
+
     for (const built of [
       "dist/icons/Icon.js",
       "dist/icons/Icon.d.ts",
