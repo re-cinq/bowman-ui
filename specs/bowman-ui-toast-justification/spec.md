@@ -51,7 +51,7 @@ button, dismissal is entirely the consumer unmounting the element, and a
 toast a consumer forgets to unmount occupies the
 `fixed bottom-8 left-1/2 z-50` overlay for the life of the page
 ([validated by](../../tests/Toast.test.tsx#L137),
-[L87](../../tests/Toast.test.tsx#L88)).
+[L88](../../tests/Toast.test.tsx#L88)).
 
 ## What deliberately did not change
 
