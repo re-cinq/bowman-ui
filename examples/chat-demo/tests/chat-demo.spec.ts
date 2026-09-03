@@ -18,6 +18,7 @@ const lastAssistantArticle = (page: Page): Locator =>
 
 const send = async (page: Page, question: string): Promise<void> => {
   const composer = page.getByRole("textbox", { name: chatComposerLabels.composerInput });
+
   await composer.fill(question);
   await composer.press("Enter");
 };
@@ -30,10 +31,12 @@ test.describe("full screen structure", () => {
 
     await expect(page.getByRole("complementary")).toHaveCount(1);
     const navigation = page.getByRole("navigation", { name: "Main navigation" });
+
     await expect(navigation).toHaveCount(1);
     await expect(navigation.getByRole("button")).toHaveCount(2);
 
     const conversationList = page.getByRole("list", { name: "Conversations" });
+
     await expect(conversationList.getByRole("listitem")).toHaveCount(3);
 
     await expect(page.getByRole("main")).toHaveCount(1);
@@ -54,6 +57,7 @@ test.describe("full screen structure", () => {
     const asideWidth = await page
       .getByRole("complementary")
       .evaluate((aside) => getComputedStyle(aside).width);
+
     expect(asideWidth).toBe("288px");
   });
 });
@@ -65,9 +69,11 @@ test.describe("composing and replying", () => {
     await page.goto("/?view=chat");
 
     const question = "Can I get a receipt for the delivery change?";
+
     await send(page, question);
 
     const userArticles = page.getByRole("article", { name: chatMessageListLabels.userMessage });
+
     await expect(userArticles).toHaveCount(5);
     await expect(userArticles.last()).toContainText(question);
 
@@ -89,10 +95,12 @@ test.describe("streamed assistant reply", () => {
     await send(page, "Can I move my delivery to next week?");
 
     const reply = lastAssistantArticle(page);
+
     await expect(reply).toBeVisible();
 
     await page.waitForTimeout(900);
     const firstSample = (await reply.innerText()).length;
+
     await page.waitForTimeout(1700);
     const secondSample = (await reply.innerText()).length;
 
@@ -132,10 +140,12 @@ test.describe("streamed assistant reply", () => {
             const article = articles[articles.length - 1];
             const length = (article?.textContent ?? "").length;
             const previous = lengths.at(-1);
+
             if (previous === undefined || length > previous) {
               lengths.push(length);
               times.push(performance.now());
             }
+
             if (length >= fullLength || performance.now() - started > timeoutMs) {
               finish();
             }
@@ -165,6 +175,7 @@ test.describe("copy toast", () => {
     const toastPill = page
       .locator("div[aria-hidden='true']")
       .filter({ hasText: toastCopiedMessage });
+
     await expect(toastPill).toBeVisible();
 
     await expect(page.getByText(toastCopiedMessage)).toHaveCount(0, { timeout: 10_000 });
@@ -178,9 +189,11 @@ test.describe("EU AI Act disclosure", () => {
     await page.goto("/?view=chat");
 
     const disclosure = page.getByText(aiDisclosure, { exact: true });
+
     await expect(disclosure).toBeVisible();
 
     const transcript = page.getByRole("log");
+
     await expect(transcript).not.toContainText(aiDisclosure);
 
     await transcript.evaluate((region) => {
@@ -220,11 +233,14 @@ test.describe("mobile drawer", () => {
     await expect(page.getByRole("dialog")).toHaveCount(0);
 
     const hamburger = page.getByRole("button", { name: appShellLabels.openSidebar });
+
     await hamburger.click();
     const drawer = page.getByRole("dialog", { name: appShellLabels.sidebarDialog });
+
     await expect(drawer).toBeVisible();
 
     const lastFocusable = drawer.getByRole("button", { name: "Sign out of the demo" });
+
     await lastFocusable.focus();
     await page.keyboard.press("Tab");
     await expect(drawer.getByRole("button", { name: appShellLabels.closeSidebar })).toBeFocused();
@@ -251,6 +267,7 @@ test.describe("composer auto-resize", () => {
     await page.goto("/?view=chat");
 
     const baseline = await measuredHeight(composerOf(page));
+
     expect(
       baseline,
       "the empty composer on the Marginalia Books demo screen rendered with no measurable height"
@@ -266,6 +283,7 @@ test.describe("composer auto-resize", () => {
     const baseline = await measuredHeight(composer);
 
     const draft = "An invented draft about a delivery change";
+
     await composer.fill(draft);
     await expect(page.getByRole("button", { name: chatComposerLabels.send })).toBeEnabled();
     await composer.press("Shift+Enter");
@@ -302,11 +320,13 @@ test.describe("composer auto-resize", () => {
       clientHeight: textarea.clientHeight,
       scrollTop: textarea.scrollTop,
     }));
+
     expect(scrollState.scrollHeight).toBeGreaterThan(scrollState.clientHeight);
     expect(scrollState.scrollTop).toBeGreaterThan(0);
 
     await composer.press("Enter");
     const userArticles = page.getByRole("article", { name: chatMessageListLabels.userMessage });
+
     await expect(userArticles).toHaveCount(5);
     await expect(userArticles.last()).toContainText("Invented line 24 of 24");
     await expect(composer).toHaveValue("");

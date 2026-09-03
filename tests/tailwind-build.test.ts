@@ -21,11 +21,13 @@ const tailwindCli = resolve(repoRoot, "node_modules/@tailwindcss/cli/dist/index.
 
 const buildConsumer = (): { withSource: string; withoutSource: string; cleanup: () => void } => {
   const builtStyles = resolve(repoRoot, "dist/styles.css");
+
   if (!existsSync(builtStyles)) {
     throw new Error("dist/styles.css is missing - run npm run build first");
   }
   const consumerDir = mkdtempSync(join(tmpdir(), "bowman-ui-tailwind-consumer-"));
   const installedPackageDir = join(consumerDir, "node_modules", "@re-cinq", "bowman-ui");
+
   mkdirSync(join(installedPackageDir, "dist"), { recursive: true });
   copyFileSync(resolve(repoRoot, "package.json"), join(installedPackageDir, "package.json"));
   copyFileSync(builtStyles, join(installedPackageDir, "dist", "styles.css"));
@@ -41,10 +43,12 @@ const buildConsumer = (): { withSource: string; withoutSource: string; cleanup: 
   const compile = (inputName: string): string => {
     copyFileSync(join(fixtureDir, inputName), join(consumerDir, inputName));
     const outputPath = join(consumerDir, inputName.replace(".css", ".out.css"));
+
     execFileSync(process.execPath, [tailwindCli, "-i", inputName, "-o", outputPath], {
       cwd: consumerDir,
       encoding: "utf8",
     });
+
     return readFileSync(outputPath, "utf8");
   };
 

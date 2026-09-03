@@ -108,9 +108,11 @@ const resolveArticleLabel = (
   if (entry.role === "user") {
     return resolved.userMessage;
   }
+
   if (!assistantName) {
     return resolved.assistantMessage;
   }
+
   return resolved.assistantMessageFrom(assistantName);
 };
 
@@ -134,7 +136,9 @@ export function ChatMessage({
 
   useEffect(() => {
     return () => {
-      if (copiedTimerRef.current !== null) clearTimeout(copiedTimerRef.current);
+      if (copiedTimerRef.current !== null) {
+        clearTimeout(copiedTimerRef.current);
+      }
     };
   }, []);
 
@@ -146,9 +150,12 @@ export function ChatMessage({
       // error handler fires - onCopy still reports the attempt either way.
       navigator.clipboard?.writeText(text)?.catch?.(() => {});
       setCopiedId(entryId);
+
       // A rapid second copy replaces the pending timer instead of letting the
       // first one dismiss the new notice early.
-      if (copiedTimerRef.current !== null) clearTimeout(copiedTimerRef.current);
+      if (copiedTimerRef.current !== null) {
+        clearTimeout(copiedTimerRef.current);
+      }
       copiedTimerRef.current = setTimeout(() => setCopiedId(null), 2000);
       onCopy?.(text, entryId);
     },
@@ -165,7 +172,9 @@ export function ChatMessage({
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent<HTMLElement>) => {
-      if (entry.role !== "assistant" || entry.isStreaming) return;
+      if (entry.role !== "assistant" || entry.isStreaming) {
+        return;
+      }
 
       // Cmd/Ctrl + C stays unconditional: it steals no navigation key and
       // already yields to an active text selection. Lowercasing covers Caps
@@ -184,9 +193,13 @@ export function ChatMessage({
 
       // Arrow handling requires BOTH terms: showFeedback off must silence
       // the keyboard path too, not just hide the thumbs.
-      if (!showFeedback || !arrowKeyFeedback) return;
+      if (!showFeedback || !arrowKeyFeedback) {
+        return;
+      }
 
-      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) {
+        return;
+      }
 
       if (e.key === "ArrowUp") {
         e.preventDefault();
@@ -293,6 +306,7 @@ function AssistantMessage({
       linkTarget,
       allowImages,
     };
+
     return {
       components: createMarkdownComponents({ policy, labels: { linkOpensInNewTab } }),
       urlTransform: createUrlTransform(policy),
@@ -304,9 +318,11 @@ function AssistantMessage({
   // on an id change: a consumer typically keys its message list by id, but
   // a library cannot assume every consumer does.
   const latch = useRef({ id: entry.id, hasReceivedContent: false });
+
   if (latch.current.id !== entry.id) {
     latch.current = { id: entry.id, hasReceivedContent: false };
   }
+
   if (entry.content || entry.toolStatus) {
     latch.current.hasReceivedContent = true;
   }

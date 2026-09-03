@@ -8,6 +8,7 @@ const Bomb = ({ error }: { error: Error }) => {
 
 const RetryableBomb = () => {
   const [armed, setArmed] = useState(true);
+
   if (armed) {
     return (
       <ErrorBoundary
@@ -25,6 +26,7 @@ const RetryableBomb = () => {
       </ErrorBoundary>
     );
   }
+
   return <p>recovered</p>;
 };
 
@@ -50,6 +52,7 @@ describe("ErrorBoundary", () => {
     );
 
     const alert = screen.getByRole("alert");
+
     expect(alert).toHaveTextContent("Something went wrong");
     expect(alert).toHaveTextContent("An unexpected error occurred. Please try again.");
     expect(screen.getByRole("button", { name: "Try again" })).toBeInTheDocument();
@@ -70,6 +73,7 @@ describe("ErrorBoundary", () => {
     );
 
     const alert = screen.getByRole("alert");
+
     expect(alert).toHaveTextContent("Algo salió mal");
     expect(alert).toHaveTextContent("Inténtalo de nuevo más tarde.");
     expect(screen.getByRole("button", { name: "Reintentar" })).toBeInTheDocument();
@@ -85,6 +89,7 @@ describe("ErrorBoundary", () => {
     );
 
     const alert = screen.getByRole("alert");
+
     expect(alert).toHaveTextContent("Something went wrong");
     expect(screen.getByRole("button", { name: "Reintentar" })).toBeInTheDocument();
   });
@@ -104,6 +109,7 @@ describe("ErrorBoundary", () => {
   it("the retry button re-renders children", () => {
     const Recoverable = () => {
       const [attempt, setAttempt] = useState(0);
+
       return (
         <div onClickCapture={() => setAttempt((n) => n + 1)}>
           <ErrorBoundary>
@@ -112,6 +118,7 @@ describe("ErrorBoundary", () => {
         </div>
       );
     };
+
     render(<Recoverable />, silenced);
 
     fireEvent.click(screen.getByRole("button", { name: "Try again" }));
@@ -123,6 +130,7 @@ describe("ErrorBoundary", () => {
     const onSubmit = vi.fn((event: React.FormEvent) => {
       event.preventDefault();
     });
+
     render(
       <form onSubmit={onSubmit}>
         <ErrorBoundary>
@@ -149,6 +157,7 @@ describe("ErrorBoundary", () => {
     const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
     const consoleWarn = vi.spyOn(console, "warn").mockImplementation(() => {});
     const consoleLog = vi.spyOn(console, "log").mockImplementation(() => {});
+
     localStorage.clear();
     const onError = vi.fn();
     const bookingError = new Error("booking 4711 not found");

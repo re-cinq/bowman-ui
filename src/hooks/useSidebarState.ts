@@ -62,9 +62,13 @@ export function useSidebarState(key: string, options: SidebarStateOptions) {
   const subscribe = useCallback(
     (onChange: () => void): (() => void) => {
       const handler = (event: StorageEvent) => {
-        if (event.key === null || event.key === storageKey) onChange();
+        if (event.key === null || event.key === storageKey) {
+          onChange();
+        }
       };
+
       window.addEventListener("storage", handler);
+
       return () => window.removeEventListener("storage", handler);
     },
     [storageKey]
@@ -83,18 +87,22 @@ export function useSidebarState(key: string, options: SidebarStateOptions) {
   const isOpen = userValue === null ? storedOpen : userValue;
 
   const storedOpenRef = useRef(storedOpen);
+
   storedOpenRef.current = storedOpen;
 
   const setIsOpen = useCallback<Dispatch<SetStateAction<boolean>>>((value) => {
     setUserValue((previous) => {
       const current = previous === null ? storedOpenRef.current : previous;
+
       return typeof value === "function" ? value(current) : value;
     });
   }, []);
 
   // Persist only what the consumer changed, so a mount never clobbers the stored value.
   useEffect(() => {
-    if (userValue === null) return;
+    if (userValue === null) {
+      return;
+    }
     writeStoredValue(storageKey, String(userValue));
   }, [userValue, storageKey]);
 

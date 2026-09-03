@@ -34,6 +34,7 @@ beforeEach(() => {
   OriginalXMLHttpRequest = globalThis.XMLHttpRequest;
   globalThis.fetch = ((input: unknown) => {
     networkCalls.push(`fetch: ${String(input)}`);
+
     return new Promise<Response>(() => {});
   }) as typeof globalThis.fetch;
   globalThis.XMLHttpRequest = class {

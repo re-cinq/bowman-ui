@@ -9,22 +9,33 @@ const scriptPath = resolve(process.cwd(), "scripts/lore-post.sh");
 const extractRunBlock = (stepName: string): string => {
   const lines = workflow.split("\n");
   const stepIndex = lines.findIndex((line) => line.trim() === `- name: ${stepName}`);
-  if (stepIndex === -1) throw new Error(`step not found in workflow: ${stepName}`);
+
+  if (stepIndex === -1) {
+    throw new Error(`step not found in workflow: ${stepName}`);
+  }
   const runIndex = lines.findIndex((line, index) => index > stepIndex && line.trim() === "run: |");
   const body: string[] = [];
+
   for (const line of lines.slice(runIndex + 1)) {
-    if (line !== "" && !line.startsWith("          ")) break;
+    if (line !== "" && !line.startsWith("          ")) {
+      break;
+    }
     body.push(line.slice(10));
   }
+
   return body.join("\n");
 };
 
 const extractStepEnv = (stepName: string): string => {
   const lines = workflow.split("\n");
   const stepIndex = lines.findIndex((line) => line.trim() === `- name: ${stepName}`);
-  if (stepIndex === -1) throw new Error(`step not found in workflow: ${stepName}`);
+
+  if (stepIndex === -1) {
+    throw new Error(`step not found in workflow: ${stepName}`);
+  }
   const envIndex = lines.findIndex((line, index) => index > stepIndex && line.trim() === "env:");
   const runIndex = lines.findIndex((line, index) => index > stepIndex && line.trim() === "run: |");
+
   return lines.slice(envIndex + 1, runIndex).join("\n");
 };
 
@@ -43,8 +54,10 @@ exit "\${CURL_STUB_EXIT:-0}"
 const runLorePost = (env: Record<string, string>) => {
   const workDir = mkdtempSync(join(tmpdir(), "lore-ingest-test-"));
   const stubPath = join(workDir, "curl");
+
   writeFileSync(stubPath, curlStub);
   chmodSync(stubPath, 0o755);
+
   return spawnSync(
     "bash",
     [
@@ -71,18 +84,21 @@ const runLorePost = (env: Record<string, string>) => {
 describe("scripts/lore-post.sh", () => {
   it("exits 1 with ::error when LORE_INGEST_URL is empty", () => {
     const result = runLorePost({ LORE_INGEST_URL: "" });
+
     expect(result.status).toBe(1);
     expect(result.stdout).toContain("::error::LORE_INGEST_URL");
   });
 
   it("exits 1 with ::error when LORE_INGEST_TOKEN is empty", () => {
     const result = runLorePost({ LORE_INGEST_TOKEN: "" });
+
     expect(result.status).toBe(1);
     expect(result.stdout).toContain("::error::LORE_INGEST_TOKEN");
   });
 
   it("exits 0 and prints HTTP 200 on success without warnings", () => {
     const result = runLorePost({ CURL_STUB_STATUS: "200" });
+
     expect(result.status).toBe(0);
     expect(result.stdout).toContain("HTTP 200");
     expect(result.stdout).not.toContain("::warning");
@@ -94,6 +110,7 @@ describe("scripts/lore-post.sh", () => {
       CURL_STUB_STATUS: "401",
       CURL_STUB_BODY: '{"error":"unauthorized"}',
     });
+
     expect(result.status).toBe(1);
     expect(result.stdout).toMatch(/^::error::/m);
     expect(result.stdout).toContain("401");
@@ -102,6 +119,7 @@ describe("scripts/lore-post.sh", () => {
 
   it("exits 1 with ::error on HTTP 308 redirect", () => {
     const result = runLorePost({ CURL_STUB_STATUS: "308" });
+
     expect(result.status).toBe(1);
     expect(result.stdout).toMatch(/^::error::/m);
     expect(result.stdout).toContain("308");
@@ -109,6 +127,7 @@ describe("scripts/lore-post.sh", () => {
 
   it("exits 0 with ::warning on HTTP 503", () => {
     const result = runLorePost({ CURL_STUB_STATUS: "503" });
+
     expect(result.status).toBe(0);
     expect(result.stdout).toMatch(/^::warning::/m);
     expect(result.stdout).toContain("503");
@@ -116,6 +135,7 @@ describe("scripts/lore-post.sh", () => {
 
   it("exits 0 with ::warning on connection-refused curl exit 7", () => {
     const result = runLorePost({ CURL_STUB_STATUS: "000", CURL_STUB_EXIT: "7" });
+
     expect(result.status).toBe(0);
     expect(result.stdout).toMatch(/^::warning::/m);
     expect(result.stdout).toContain("curl exit 7");
@@ -123,6 +143,7 @@ describe("scripts/lore-post.sh", () => {
 
   it("exits 1 with ::error on unresolvable host curl exit 6", () => {
     const result = runLorePost({ CURL_STUB_STATUS: "000", CURL_STUB_EXIT: "6" });
+
     expect(result.status).toBe(1);
     expect(result.stdout).toMatch(/^::error::/m);
     expect(result.stdout).toContain("exit 6");
@@ -133,6 +154,7 @@ describe("scripts/lore-post.sh", () => {
       CURL_STUB_STATUS: "503",
       CURL_STUB_BODY: "::notice::injected",
     });
+
     expect(result.stdout).not.toMatch(/^\s*::notice::/m);
     expect(result.stdout).toContain("| ::notice::injected");
   });
@@ -141,6 +163,7 @@ describe("scripts/lore-post.sh", () => {
 describe("workflow wiring", () => {
   it("invokes scripts/lore-post.sh from the ingest step with the /api/ingest endpoint and failure noun", () => {
     const runBlock = extractRunBlock("Notify Lore to ingest");
+
     expect(runBlock).toContain("scripts/lore-post.sh");
     expect(runBlock).toContain("/api/ingest");
     expect(runBlock).toContain("context was NOT ingested");
@@ -151,6 +174,7 @@ describe("workflow wiring", () => {
 
   it("invokes scripts/lore-post.sh from the graph step with the ingest-graph endpoint and failure noun", () => {
     const runBlock = extractRunBlock("Project ${{ matrix.kind }} into the graph");
+
     expect(runBlock).toContain("scripts/lore-post.sh");
     expect(runBlock).toContain("/api/repos/${{ github.repository }}/ingest-graph");
     expect(runBlock).toContain("${{ matrix.kind }} were NOT projected");
@@ -159,6 +183,7 @@ describe("workflow wiring", () => {
 
   it("declares LORE_INGEST_URL, LORE_INGEST_TOKEN, and FILES env on the ingest step", () => {
     const env = extractStepEnv("Notify Lore to ingest");
+
     expect(env).toContain("LORE_INGEST_TOKEN: ${{ secrets.LORE_INGEST_TOKEN }}");
     expect(env).toContain("LORE_INGEST_URL: ${{ vars.LORE_INGEST_URL || vars.LORE_API_URL }}");
     expect(env).toContain("FILES: ${{ steps.changes.outputs.files }}");
@@ -166,6 +191,7 @@ describe("workflow wiring", () => {
 
   it("declares LORE_INGEST_URL and LORE_INGEST_TOKEN env on the graph step", () => {
     const env = extractStepEnv("Project ${{ matrix.kind }} into the graph");
+
     expect(env).toContain("LORE_INGEST_TOKEN: ${{ secrets.LORE_INGEST_TOKEN }}");
     expect(env).toContain("LORE_INGEST_URL: ${{ vars.LORE_INGEST_URL || vars.LORE_API_URL }}");
   });

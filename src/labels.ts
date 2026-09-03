@@ -8,14 +8,18 @@ export const resolveLabels = <T extends object>(
   overrides?: Partial<T>
 ): Required<T> => {
   const resolved: Required<T> = { ...defaults };
+
   if (!overrides) {
     return resolved;
   }
+
   for (const key of Object.keys(overrides) as (keyof T)[]) {
     const value = overrides[key];
+
     if (value !== undefined) {
       resolved[key] = value as Required<T>[typeof key];
     }
   }
+
   return resolved;
 };
