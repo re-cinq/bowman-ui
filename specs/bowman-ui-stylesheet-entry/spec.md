@@ -13,7 +13,7 @@ over a node script because CI and development both run on POSIX shells)
 `dist/styles.css` ships in the tarball under the `sideEffects:
 ["*.css"]` seam `018` left open - already present, not re-added
 ([validated by](../../tests/styles.test.ts#L108),
-[L91](../../tests/styles.test.ts#L100)).
+[L100](../../tests/styles.test.ts#L100)).
 
 ## What ships
 
@@ -21,7 +21,7 @@ Exactly three keyframes with their utility rules - `bowman-fade-in`,
 `bowman-fade-dot`, `bowman-pulse-subtle` - plus the `bowman-md-*` markdown
 element styling and an unconditional reduced-motion rule
 ([validated by](../../tests/styles.test.ts#L31),
-[L38](../../tests/styles.test.ts#L42)). All class and
+[L42](../../tests/styles.test.ts#L42)). All class and
 keyframe names carry the `bowman-` prefix so they cannot collide with a
 consumer's own `animate-*` utilities; the issue prescribed `.bowman-fade-in`
 for the split fade and the other two follow the same convention
@@ -59,7 +59,7 @@ a consumer ([validated by](../../tests/hooks-dist.test.ts#L76)).
 file contains
 the string the plugin's classes are built from
 ([validated by](../../tests/styles.test.ts#L104),
-[L115](../../tests/styles.test.ts#L119)). Instead, `markdownComponents`
+[L119](../../tests/styles.test.ts#L119)). Instead, `markdownComponents`
 is a named export from the package root: a `react-markdown` `components` map
 covering exactly `p`, `a`, `ul`, `ol`, `li`, `code`, `pre`, `blockquote`,
 `h1`-`h3`, `table`, `thead`, `th`, `td`, `hr`, `strong`, `em`
@@ -69,8 +69,8 @@ through `react-markdown` + `remark-gfm`, incoming
 classes like `language-js` are merged rather than clobbered, and the
 `node` prop `react-markdown` passes never reaches the DOM
 ([validated by](../../tests/markdown-components.test.tsx#L74),
-[L79](../../tests/markdown-components.test.tsx#L80),
-[L87](../../tests/markdown-components.test.tsx#L88)).
+[L80](../../tests/markdown-components.test.tsx#L80),
+[L88](../../tests/markdown-components.test.tsx#L88)).
 
 ## Recorded decisions
 
