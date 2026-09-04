@@ -6,7 +6,7 @@ Presentational React components for AI chat interfaces.
 
 The name follows the pairing the org chose: HAL Engine is the engine that thinks, Bowman is the face that talks to you.
 
-<img alt="A full chat application composed from bowman-ui exports: a sidebar with a new chat button and a conversation list beside a transcript where an assistant answers a caching-strategy question with a markdown list, a code block and a table, a thinking indicator, and the composer." src="docs/assets/hero-split.png" />
+<img alt="A full chat application composed from bowman-ui exports: a sidebar with a new chat button and a conversation list beside a transcript where an assistant answers a caching-strategy question with a markdown list, a code block and a table, a thinking indicator, and the composer." src="https://raw.githubusercontent.com/re-cinq/bowman-ui/main/docs/assets/hero-split.png" />
 
 _One surface, every piece: sidebar, transcript, and composer, rendered through the library's own components._
 
@@ -37,6 +37,78 @@ Add two lines to your app's CSS entry:
 Tailwind CSS v4 is required: the stylesheet ships only what Tailwind cannot generate from a class name - four animation keyframes (`bowman-fade-in`, `bowman-toast-fade-in`, `bowman-fade-dot`, `bowman-pulse-subtle`) with their utility rules, the `bowman-md-*` markdown element styling and `bowman-sr-only` notice rule used by `createMarkdownComponents`, and an unconditional `prefers-reduced-motion` rule. Everything else on the components - layout, color, `dark:` variants - is plain Tailwind utility class names in the built files, and your own Tailwind v4 build generates their CSS by scanning the installed `dist`. That is what the `@source` line is for: Tailwind v4 does not scan `node_modules` by default, so without it the components render unstyled. How `dark:` resolves (media query or class strategy) stays your build's decision.
 
 `styles.css` itself is plain CSS - no Tailwind at-rules - so a non-Tailwind consumer can import it too, but must then supply the utility styles the components reference by other means.
+
+## Minimal app
+
+Every screen in this package is assembled the same way: the consumer owns the entries and the
+busy flag, the components render them and report what the user did. This is the whole surface
+for a single conversation - the sidebar, the transcript with its required AI disclosure, and
+the composer:
+
+```tsx
+import { useState } from "react";
+import {
+  AppShell,
+  AppSidebar,
+  ChatComposer,
+  ChatMessageList,
+  ConversationList,
+  type AssistantChatEntry,
+  type UserChatEntry,
+} from "@re-cinq/bowman-ui";
+
+type Entry = UserChatEntry | AssistantChatEntry;
+
+const labels = {
+  aiDisclosure: "You are talking to an artificial intelligence. Answers can contain mistakes.",
+};
+
+export function ChatScreen() {
+  const [entries, setEntries] = useState<Entry[]>([]);
+  const [busy, setBusy] = useState(false);
+
+  const send = async (text: string) => {
+    setEntries((current) => [...current, { id: crypto.randomUUID(), role: "user", content: text }]);
+    setBusy(true);
+    const reply = await askYourEngine(text);
+
+    setEntries((current) => [
+      ...current,
+      { id: crypto.randomUUID(), role: "assistant", content: reply, isStreaming: false },
+    ]);
+    setBusy(false);
+  };
+
+  return (
+    <AppShell
+      brand="Your app"
+      renderSidebar={({ close }) => (
+        <AppSidebar brand="Your app">
+          <ConversationList items={[{ id: "1", title: "Today" }]} activeId="1" onSelect={close} />
+        </AppSidebar>
+      )}
+    >
+      <div className="flex h-full min-h-0 flex-col">
+        <ChatMessageList entries={entries} userInitials="AB" labels={labels} busy={busy} />
+        <div className="mx-auto w-full max-w-3xl px-4 pb-4">
+          <ChatComposer onSubmit={(text) => void send(text)} busy={busy} />
+        </div>
+      </div>
+    </AppShell>
+  );
+}
+```
+
+`askYourEngine` stands for your adapter - a fetch, a socket, an SDK call. To stream instead of
+waiting, append the assistant entry with `isStreaming: true` and empty content as soon as the
+reply starts, hand `ChatMessageList` a new array on every delta, and flip the flag to `false`
+on commit; `examples/chat-demo` does exactly that over a canned reply.
+
+Two behaviours the components own so the adapter does not have to: `ChatComposer` submits on
+Enter and inserts a newline on Shift+Enter (a press during IME composition is ignored), and the
+copy button on each message writes to the clipboard itself, then shows a two-second
+confirmation. `onCopy` is a notification, fired whether or not the write succeeded - an insecure
+context has no clipboard - so use it for a toast, not for copying.
 
 ## Worked consumer
 
@@ -121,21 +193,18 @@ import { createMarkdownComponents, createUrlTransform } from "@re-cinq/bowman-ui
 
 Every piece on screen is one export:
 
-![Annotated screenshot labeling AppShell's renderSidebar slot, ConversationList, ChatMessage with createMarkdownComponents, InlineThinkingIndicator, and ChatComposer on a rendered chat surface.](docs/assets/anatomy.png)
+![Annotated screenshot labeling AppShell's renderSidebar slot, ConversationList, ChatMessage with createMarkdownComponents, InlineThinkingIndicator, and ChatComposer on a rendered chat surface.](https://raw.githubusercontent.com/re-cinq/bowman-ui/main/docs/assets/anatomy.png)
 
 Data flows one way in and one way out - the package never talks to a backend, it only renders what it is handed and reports what the user did:
 
-```mermaid
-flowchart LR
-  E["an engine that thinks"] -->|protocol events| A["your adapter"]
-  A -->|"ChatEntry[]"| B["bowman-ui: the face that talks"]
-  B -->|"onSubmit, onCopy, onFeedback, onDelete"| A
-  A -->|messages| E
+```text
+an engine that thinks  --(protocol events)-->  your adapter  --(ChatEntry[])-->  bowman-ui, the face that talks
+an engine that thinks  <--(messages)--------  your adapter  <--(onSubmit, onCopy, onFeedback, onDelete)--  bowman-ui
 ```
 
 On a phone the sidebar becomes a focus-trapped drawer behind the hamburger. It opens on request - every time, without argument:
 
-<img src="docs/assets/mobile-drawer.png" alt="The mobile drawer open over the chat surface: conversation list and new-chat button over a dimmed backdrop." width="300" />
+<img src="https://raw.githubusercontent.com/re-cinq/bowman-ui/main/docs/assets/mobile-drawer.png" alt="The mobile drawer open over the chat surface: conversation list and new-chat button over a dimmed backdrop." width="300" />
 
 ## Labels and translations
 
