@@ -39,7 +39,7 @@ re-exports.
    one-parameter shape stays pinned through `ChatMessageList`'s own assertions
    ([validated by](../../tests/types/chat-message-list-type-assertions.tsx#L73),
    compiled by
-   [chat-message-list-dist](../../tests/chat-message-list-dist.test.ts#L59)).
+   [chat-message-list-dist](../../tests/chat-message-list-dist.test.ts#L27)).
 2. **One source of truth for the flag.** The value passed is the prop
    `ToolActivity` already resolved (default `false`), so a caller using the
    component directly and one going through `ChatMessageList` see identical

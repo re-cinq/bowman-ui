@@ -51,7 +51,7 @@ only; `Toast` keeps its centring in its own dedicated rule
 utility classes, with no `data-animations` attribute in any selector
 ([validated by](../../tests/styles.test.ts#L80)). No
 `NEXT_PUBLIC_FLAG_ANIMATIONS` escape hatch exists: flag plumbing belongs to
-a consumer ([validated by](../../tests/hooks-dist.test.ts#L80)).
+a consumer ([validated by](../../tests/hooks-dist.test.ts#L76)).
 
 ## The typography-plugin replacement
 
@@ -59,7 +59,7 @@ a consumer ([validated by](../../tests/hooks-dist.test.ts#L80)).
 file contains
 the string the plugin's classes are built from
 ([validated by](../../tests/styles.test.ts#L104),
-[L125](../../tests/styles.test.ts#L125)). Instead, `markdownComponents`
+[L119](../../tests/styles.test.ts#L119)). Instead, `markdownComponents`
 is a named export from the package root: a `react-markdown` `components` map
 covering exactly `p`, `a`, `ul`, `ol`, `li`, `code`, `pre`, `blockquote`,
 `h1`-`h3`, `table`, `thead`, `th`, `td`, `hr`, `strong`, `em`

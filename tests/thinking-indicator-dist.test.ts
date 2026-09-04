@@ -1,40 +1,8 @@
-import { execFileSync, spawnSync } from "node:child_process";
+import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
+import { packedPaths, stripLeadingTrivia } from "./helpers/built-package.js";
 
 const BUILT_FILES = ["dist/components/ThinkingIndicator.js", "dist/components/ThinkingDots.js"];
-
-// docs/design-notes.md decision 1 requires "use client" as the first *statement*, so
-// leading comments and blank lines are allowed above it (018's positional
-// check, same as tests/build-contract.test.ts).
-const stripLeadingTrivia = (source: string): string => {
-  let rest = source;
-
-  for (;;) {
-    const trimmed = rest.replace(/^\s+/, "");
-
-    if (trimmed.startsWith("//")) {
-      const lineEnd = trimmed.indexOf("\n");
-
-      if (lineEnd === -1) {
-        return "";
-      }
-      rest = trimmed.slice(lineEnd + 1);
-      continue;
-    }
-
-    if (trimmed.startsWith("/*")) {
-      const blockEnd = trimmed.indexOf("*/");
-
-      if (blockEnd === -1) {
-        return "";
-      }
-      rest = trimmed.slice(blockEnd + 2);
-      continue;
-    }
-
-    return trimmed;
-  }
-};
 
 describe("the built thinking indicator surface", () => {
   it('each built thinking indicator file opens with "use client"; as its first statement', () => {
@@ -47,12 +15,7 @@ describe("the built thinking indicator surface", () => {
   });
 
   it("npm pack --dry-run ships both files with their d.ts counterparts", () => {
-    const output = execFileSync("npm", ["pack", "--dry-run", "--json"], {
-      cwd: process.cwd(),
-      encoding: "utf8",
-    });
-    const [pack] = JSON.parse(output) as [{ files: { path: string }[] }];
-    const paths = pack.files.map((file) => file.path);
+    const paths = packedPaths();
 
     for (const built of BUILT_FILES) {
       expect(paths).toContain(built);

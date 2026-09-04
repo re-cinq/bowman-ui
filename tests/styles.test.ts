@@ -1,6 +1,6 @@
-import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join, resolve } from "node:path";
+import { packedPaths } from "./helpers/built-package.js";
 
 const stylesPath = resolve(process.cwd(), "dist/styles.css");
 
@@ -106,13 +106,7 @@ describe("package.json stylesheet contract", () => {
   });
 
   it("lists dist/styles.css in npm pack --dry-run", () => {
-    const output = execFileSync("npm", ["pack", "--dry-run", "--json"], {
-      cwd: process.cwd(),
-      encoding: "utf8",
-    });
-    const [pack] = JSON.parse(output) as [{ files: { path: string }[] }];
-
-    expect(pack.files.map((file) => file.path)).toContain("dist/styles.css");
+    expect(packedPaths()).toContain("dist/styles.css");
   });
 });
 

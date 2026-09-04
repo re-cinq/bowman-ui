@@ -129,7 +129,7 @@ accessible name is the resolved `send` label with its `SendIcon`
 key added without a default fails `npm run typecheck`, pinned by the
 `@ts-expect-error` fixture in `tests/types/chat-composer-type-assertions.tsx`
 compiled against `dist/`
-([validated by](../../tests/chat-composer-dist.test.ts#L59), fixture at
+([validated by](../../tests/chat-composer-dist.test.ts#L22), fixture at
 [chat-composer-type-assertions](../../tests/types/chat-composer-type-assertions.tsx)).
 `ChatComposer` joins the `labelsProp` partition and the sentinel render
 covers it ([validated by](../../tests/labelled-exports.test.tsx#L493)).
@@ -160,7 +160,7 @@ No `@clerk`, `swr`, `next-intl`, `next/`, `@/` or
 `dist/components/ChatComposer.js` opens with `"use client";` as its first
 statement per 018 Decision 1's positional check, and `npm pack` ships it
 with its `.d.ts`
-([validated by](../../tests/chat-composer-dist.test.ts#L40)).
+([validated by](../../tests/chat-composer-dist.test.ts#L8)).
 
 ## Recorded deviations from the issue text
 

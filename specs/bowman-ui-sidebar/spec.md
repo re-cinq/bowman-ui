@@ -59,7 +59,7 @@ sentinel render with both labels set to sentinels
      `href` - `SidebarNavItem` has no `href` field, pinned by a
      `@ts-expect-error` fixture compiled against the built package
      ([validated by](../../tests/types/app-sidebar-type-assertions.tsx#L26),
-     [compiled by](../../tests/app-sidebar-dist.test.ts#L59)).
+     [compiled by](../../tests/app-sidebar-dist.test.ts#L22)).
    - The consumer's element must spread every prop it is handed -
      docs/design-notes.md § renderNavLink states it, pinned together with the anchor
      round-trip and the dropped-`onClick` failure mode
@@ -122,8 +122,8 @@ The file imports nothing from `@clerk`, `swr`, `next-intl`, `next/`,
 ([validated by](../../tests/AppSidebar.test.tsx#L259)).
 `dist/components/AppSidebar.js` carries `"use client"` as its first statement
 and ships with its `.d.ts`
-([validated by](../../tests/app-sidebar-dist.test.ts#L40),
-[L47](../../tests/app-sidebar-dist.test.ts#L47)). A key added to
+([validated by](../../tests/app-sidebar-dist.test.ts#L8),
+[L15](../../tests/app-sidebar-dist.test.ts#L15)). A key added to
 `AppSidebarLabels` without a default cannot satisfy
 `Readonly<Required<AppSidebarLabels>>`
 ([validated by](../../tests/types/app-sidebar-type-assertions.tsx#L19)).
