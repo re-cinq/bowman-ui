@@ -47,10 +47,7 @@ export interface ChatComposerHandle {
   setValue(value: string): void;
 }
 
-// The chat input surface. The draft is uncontrolled - outside writes go
-// through the ref handle - and the Enter-to-send path carries an
-// isComposing guard, so committing an IME candidate never sends a
-// half-finished message.
+// Uncontrolled draft (outside writes use the ref handle); the isComposing guard keeps an IME commit from sending.
 export function ChatComposer({
   onSubmit,
   busy = false,

@@ -55,11 +55,7 @@ const navLinkClassName = (isActive: boolean) =>
       : "text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white"
   }`;
 
-// Below md the only 030 position is the drawer - a column flex beside a 56px
-// close row, where flex-1 + min-h-0 fills the remaining height and h-full
-// would overflow. At md+ the only position is the row-flex rail, where flex-1
-// (basis 0) would collapse the width, so the aside pins its own size and
-// right border there; the drawer supplies both below md.
+// Drawer below md (flex-1 + min-h-0 fills the height); rail at md+ pins its own width, as flex-1 would collapse it.
 const asideClassName =
   "flex min-h-0 flex-1 flex-col bg-white dark:bg-slate-900 md:h-full md:w-64 md:flex-none md:border-r md:border-slate-200 md:dark:border-slate-800 lg:w-72";
 
@@ -83,21 +79,21 @@ export function AppSidebar({
       )}
       {navItems !== undefined && navItems.length > 0 && (
         <nav aria-label={resolved.mainNavigation} className="flex-shrink-0 space-y-1 px-3 py-3">
-          {navItems.map((item) => {
-            const Icon = item.icon;
+          {navItems.map((navItem) => {
+            const Icon = navItem.icon;
             const linkProps: SidebarNavLinkProps = {
-              className: navLinkClassName(item.isActive === true),
+              className: navLinkClassName(navItem.isActive === true),
               children: (
                 <>
                   {Icon && <Icon className="h-5 w-5" />}
-                  {item.label}
+                  {navItem.label}
                 </>
               ),
-              onClick: () => onNavigate?.(item.key),
-              "aria-current": item.isActive === true ? "page" : undefined,
+              onClick: () => onNavigate?.(navItem.key),
+              "aria-current": navItem.isActive === true ? "page" : undefined,
             };
 
-            return <Fragment key={item.key}>{renderNavLink(item, linkProps)}</Fragment>;
+            return <Fragment key={navItem.key}>{renderNavLink(navItem, linkProps)}</Fragment>;
           })}
         </nav>
       )}

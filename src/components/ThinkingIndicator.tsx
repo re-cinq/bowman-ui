@@ -22,11 +22,7 @@ export interface ThinkingIndicatorProps {
   labels?: Partial<ThinkingIndicatorLabels>;
 }
 
-// The block loading indicator shown while waiting for a response. The
-// circle is always
-// aria-hidden - an announced avatar inside a role="status" region would just
-// be noise - and always pulses, since this component is itself the loading
-// state.
+// The circle stays aria-hidden (noise inside role="status") and always pulses - this component is the loading state.
 export function ThinkingIndicator({ assistantAvatar, labels }: ThinkingIndicatorProps) {
   const resolved = resolveLabels(defaultThinkingIndicatorLabels, labels);
 

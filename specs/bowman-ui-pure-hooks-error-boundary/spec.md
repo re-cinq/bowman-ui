@@ -42,24 +42,24 @@ exports entry for a consumer ([validated by](../../tests/hooks-dist.test.ts#L66)
   ([validated by](../../tests/useFocusTrap.test.tsx#L73),
   [L79](../../tests/useFocusTrap.test.tsx#L79),
   [L88](../../tests/useFocusTrap.test.tsx#L88), [L97](../../tests/useFocusTrap.test.tsx#L97),
-  [L137](../../tests/useFocusTrap.test.tsx#L137),
-  [L212](../../tests/useFocusTrap.test.tsx#L212),
-  [L222](../../tests/useFocusTrap.test.tsx#L222),
-  [L106](../../tests/useFocusTrap.test.tsx#L106),
-  [L116](../../tests/useFocusTrap.test.tsx#L116),
-  [L124](../../tests/useFocusTrap.test.tsx#L124)).
+  [L146](../../tests/useFocusTrap.test.tsx#L146),
+  [L221](../../tests/useFocusTrap.test.tsx#L221),
+  [L231](../../tests/useFocusTrap.test.tsx#L231),
+  [L115](../../tests/useFocusTrap.test.tsx#L115),
+  [L125](../../tests/useFocusTrap.test.tsx#L125),
+  [L133](../../tests/useFocusTrap.test.tsx#L133)).
 - `useFocusGroups({announce})` — the hardcoded English `Moved to ${groupName}` and the Tailwind
   `sr-only` class are both gone from the contract: `announce` maps a group name to the
   announcement (English default preserved, `null` suppresses), and the live region is visually
   hidden with
   inline styles and carries no class attribute. F6 order semantics pinned, including
   the fall-back-to-DOM-order quirk where the first F6 lands on the second group
-  ([validated by](../../tests/useFocusGroups.test.tsx#L100),
-  [L134](../../tests/useFocusGroups.test.tsx#L134),
-  [L73](../../tests/useFocusGroups.test.tsx#L73),
-  [L43](../../tests/useFocusGroups.test.tsx#L43),
-  [L51](../../tests/useFocusGroups.test.tsx#L51),
-  [L65](../../tests/useFocusGroups.test.tsx#L65)).
+  ([validated by](../../tests/useFocusGroups.test.tsx#L110),
+  [L144](../../tests/useFocusGroups.test.tsx#L144),
+  [L83](../../tests/useFocusGroups.test.tsx#L83),
+  [L53](../../tests/useFocusGroups.test.tsx#L53),
+  [L61](../../tests/useFocusGroups.test.tsx#L61),
+  [L75](../../tests/useFocusGroups.test.tsx#L75)).
 - `ErrorBoundary` — the `console.error` call is gone: `onError` is the only reporting channel,
   and rendering a thrown error writes nothing to the console and nothing to localStorage — the
   GDPR zero-retention rider on the error text. The three English strings became
@@ -90,6 +90,7 @@ string survives in `src/`
 - **Directive-checker gap recorded.** `scripts/check-client-directives.mjs`'s client-API regex
   matches hooks and `createContext` but not class-component APIs; `ErrorBoundary` is caught only
   via its `onClick=` JSX handler. Widening the trigger list is issue 128's job.
+- **Visibility test.** `useFocusTrap` treats `display: none` and `visibility: hidden` as hidden (the states that also leave the tab order) and deliberately not opacity: an `opacity-0` element stays tabbable in browsers, and the package's own reveal-on-focus buttons rely on that. Where `checkVisibility` is missing, the `offsetParent` fallback misreports fixed-position descendants as hidden; it is all older engines offer.
 - **jsdom limits.** jsdom reports `offsetParent: null` for everything (stubbed in the focus
   tests) and performs no real focus traversal; these tests pin the handler contract and DOM
   effects. Verification against a real assistive technology is issue 071's job.

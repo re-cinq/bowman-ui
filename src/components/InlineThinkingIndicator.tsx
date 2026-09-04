@@ -18,9 +18,7 @@ export interface InlineThinkingIndicatorProps {
   labels?: Partial<InlineThinkingIndicatorLabels>;
 }
 
-// The streaming placeholder shown inside a message before any content has
-// arrived. The block form (ThinkingIndicator) is its own public component;
-// this inline form stays private because its only call site is ChatMessage.
+// Streaming placeholder inside a message before content arrives; private because ChatMessage is its only call site.
 export function InlineThinkingIndicator({ labels }: InlineThinkingIndicatorProps) {
   const resolved = resolveLabels(defaultInlineThinkingIndicatorLabels, labels);
 
