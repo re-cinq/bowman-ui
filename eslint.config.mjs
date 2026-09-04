@@ -108,8 +108,31 @@ export default [
     rules: {
       "react-hooks/rules-of-hooks": "error",
       "react-hooks/exhaustive-deps": "warn",
+      "react-hooks/refs": "error",
+      "react-hooks/set-state-in-effect": "error",
       "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
       "@typescript-eslint/no-explicit-any": "error",
+    },
+  },
+  // Recorded react-hooks exemptions - each a documented, test-asserted render
+  // pattern, not drift (see docs/design-notes.md § Lint guardrails decision 8).
+  // - ChatMessage: the monotonic entry-id thinking-indicator latch, a ref read
+  //   and written during render, keyed by entry.id and idempotent.
+  // - useSidebarState: the storedOpenRef latest-value read that seeds the
+  //   controlled state without a stale closure.
+  {
+    files: ["src/components/ChatMessage.tsx", "src/hooks/useSidebarState.ts"],
+    rules: {
+      "react-hooks/refs": "off",
+    },
+  },
+  // - Toast: the live region is seeded empty then filled in a mount effect, so
+  //   a screen reader reliably announces the text; the extra commit is the
+  //   mechanism, not an accident.
+  {
+    files: ["src/components/Toast.tsx"],
+    rules: {
+      "react-hooks/set-state-in-effect": "off",
     },
   },
   // House readability baseline for every file the linter reaches (src, tests,
