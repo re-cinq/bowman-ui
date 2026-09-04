@@ -581,17 +581,19 @@ Decisions:
    would pass.
 9. **House style and Prettier are mirrored from re-cinq/lore.** The
    house-style block's rule values (`eslint.house-style.mjs`, consumed by
-   `eslint.config.mjs`) and `.prettierrc` are verbatim byte-for-byte mirrors
-   of the canonical files at the root of the public re-cinq/lore repo, chosen
-   over an npm/git-dependency install because ~30 lines of shared config do
-   not justify cloning a monorepo on every cold `npm ci`.
-   `scripts/check-house-style-sync.mjs` fetches both canonical files from
-   lore's raw main URL in CI and fails on any byte difference (exit 2, not 1,
-   on fetch failure - a network problem is not drift); `--write` refreshes
-   the mirrors, and a `.prettierrc` refresh is adopted by rerunning
-   `npm run prettier` and repointing spec anchors in the same PR. Both
-   mirrors are `.prettierignore`d so lore remains the format authority for
-   their bytes. Never edit either mirror in this repo.
+   `eslint.config.mjs`) and the Prettier options (`prettier.house-style.mjs`,
+   consumed by this repo's own `prettier.config.mjs`) are verbatim
+   byte-for-byte mirrors of the canonical modules at the root of the public
+   re-cinq/lore repo - the same module-plus-importing-config arrangement for
+   both tools - chosen over an npm/git-dependency install because ~30 lines
+   of shared config do not justify cloning a monorepo on every cold
+   `npm ci`. `scripts/check-house-style-sync.mjs` fetches both canonical
+   files from lore's raw main URL in CI and fails on any byte difference
+   (exit 2, not 1, on fetch failure - a network problem is not drift);
+   `--write` refreshes the mirrors, and a `prettier.house-style.mjs` refresh
+   is adopted by rerunning `npm run prettier` and repointing spec anchors in
+   the same PR. Both mirrors are `.prettierignore`d so lore remains the
+   format authority for their bytes. Never edit either mirror in this repo.
 
 Considered and rejected:
 

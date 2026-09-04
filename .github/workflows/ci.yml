@@ -71,11 +71,12 @@ jobs:
       # raising the threshold in the same PR with the reason recorded.
       - name: Duplication check
         run: npm run check:duplication
-      # eslint.house-style.mjs and .prettierrc are verbatim mirrors of
-      # re-cinq/lore's canonical shared config. This byte-compares them against
-      # lore's main; a red check means lore updated its rules - run
-      # `npm run check:house-style-sync -- --write`, commit, and adopt the
-      # reformat if .prettierrc changed. Exit 2 is a fetch failure, not drift.
+      # eslint.house-style.mjs and prettier.house-style.mjs are verbatim
+      # mirrors of re-cinq/lore's canonical shared config. This byte-compares
+      # them against lore's main; a red check means lore updated its rules -
+      # run `npm run check:house-style-sync -- --write`, commit, and adopt the
+      # reformat if the prettier module changed. Exit 2 is a fetch failure,
+      # not drift.
       - name: House-style sync check
         run: npm run check:house-style-sync
       # Issue 97: the assistive-technology pass's structure gate. Validates the

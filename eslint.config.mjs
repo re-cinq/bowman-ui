@@ -141,10 +141,10 @@ export default [
   },
   // Org house style (braces + blank-line padding). eslint.house-style.mjs is a
   // verbatim mirror of the canonical definition in re-cinq/lore (as is
-  // .prettierrc) - never edited here. scripts/check-house-style-sync.mjs
-  // byte-compares both mirrors against lore's main in CI and refreshes them
-  // with --write; .prettierignore exempts them so lore stays the format
-  // authority for their bytes.
+  // prettier.house-style.mjs) - never edited here.
+  // scripts/check-house-style-sync.mjs byte-compares both mirrors against
+  // lore's main in CI and refreshes them with --write; .prettierignore exempts
+  // them so lore stays the format authority for their bytes.
   {
     files: ["**/*.{ts,tsx,mts,cts,mjs,cjs,js}"],
     plugins: { "@stylistic": stylistic },
