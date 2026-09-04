@@ -38,7 +38,7 @@ describe("the built sidebar surface", () => {
         "react-jsx",
         "tests/types/app-sidebar-type-assertions.tsx",
       ],
-      { cwd: process.cwd(), encoding: "utf8" }
+      { cwd: process.cwd(), encoding: "utf8" },
     );
 
     expect(result).toMatchObject({ status: 0, stderr: "" });

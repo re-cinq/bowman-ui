@@ -41,7 +41,8 @@ export const chatMessagePropDocs = {
   entry: {
     type: "UserChatEntry | AssistantChatEntry",
     required: true,
-    description: "The turn to render. A thinking or tool entry is a compile error, never a blank.",
+    description:
+      "The turn to render. A thinking or tool entry is a compile error, never a blank.",
   },
   userInitials: {
     type: "string",
@@ -51,7 +52,8 @@ export const chatMessagePropDocs = {
   assistantAvatar: {
     type: "ReactNode",
     required: false,
-    description: "Fills the assistant avatar circle; it renders empty without one.",
+    description:
+      "Fills the assistant avatar circle; it renders empty without one.",
   },
   assistantName: {
     type: "string",
@@ -62,7 +64,8 @@ export const chatMessagePropDocs = {
     type: "boolean",
     required: false,
     default: "true",
-    description: "Shows the thumb buttons and gates the feedback keyboard path.",
+    description:
+      "Shows the thumb buttons and gates the feedback keyboard path.",
   },
   arrowKeyFeedback: {
     type: "boolean",
@@ -86,12 +89,14 @@ export const chatMessagePropDocs = {
     type: "Partial<ChatMessageLabels>",
     required: false,
     default: "defaultChatMessageLabels",
-    description: "Overrides the component's strings; English defaults apply per key.",
+    description:
+      "Overrides the component's strings; English defaults apply per key.",
   },
   onCopy: {
     type: "(text: string, entryId: string) => void",
     required: false,
-    description: "Fires after the copy attempt, whether or not the clipboard accepted it.",
+    description:
+      "Fires after the copy attempt, whether or not the clipboard accepted it.",
   },
   onFeedback: {
     type: '(entryId: string, type: "up" | "down") => void',
@@ -104,9 +109,14 @@ export const chatMessageListPropDocs = {
   entries: {
     type: "ReadonlyArray<ChatEntry>",
     required: true,
-    description: "The conversation in order, all four roles. A delta must arrive as a new array.",
+    description:
+      "The conversation in order, all four roles. A delta must arrive as a new array.",
   },
-  userInitials: { type: "string", required: true, description: "Fills every user avatar circle." },
+  userInitials: {
+    type: "string",
+    required: true,
+    description: "Fills every user avatar circle.",
+  },
   labels: {
     type: "Partial<ChatMessageListLabels> & { aiDisclosure: string }",
     required: true,
@@ -115,12 +125,14 @@ export const chatMessageListPropDocs = {
   attribution: {
     type: "Readonly<Record<string, ChatAttribution>>",
     required: false,
-    description: "Persona id to name and avatar. A lookup table, so RSC can pass it.",
+    description:
+      "Persona id to name and avatar. A lookup table, so RSC can pass it.",
   },
   assistantAvatar: {
     type: "ReactNode",
     required: false,
-    description: "Fills the avatar circle of every message and the busy indicator.",
+    description:
+      "Fills the avatar circle of every message and the busy indicator.",
   },
   busy: {
     type: "boolean",
@@ -164,7 +176,8 @@ export const chatMessageListPropDocs = {
   reducedMotion: {
     type: "boolean",
     required: false,
-    description: "Forces instant scrolling; undefined tracks the OS preference.",
+    description:
+      "Forces instant scrolling; undefined tracks the OS preference.",
   },
   describeTool: {
     type: "(entry: ToolChatEntry, pending: boolean) => ReactNode",
@@ -182,7 +195,8 @@ export const chatMessageListPropDocs = {
     type: "boolean",
     required: false,
     default: "false",
-    description: "Reveals each tool entry's arguments as JSON behind a disclosure.",
+    description:
+      "Reveals each tool entry's arguments as JSON behind a disclosure.",
   },
   toolIcon: {
     type: "ReactNode",
@@ -193,7 +207,8 @@ export const chatMessageListPropDocs = {
     type: "boolean",
     required: false,
     default: "false",
-    description: "Mounts a ThinkingTrace per thinking entry. Off gates the mount, not the display.",
+    description:
+      "Mounts a ThinkingTrace per thinking entry. Off gates the mount, not the display.",
   },
   onCopy: {
     type: "(text: string, entryId: string) => void",
@@ -208,17 +223,23 @@ export const chatMessageListPropDocs = {
 } satisfies Record<keyof ChatMessageListProps, PropDoc>;
 
 export const toolActivityPropDocs = {
-  entry: { type: "ToolChatEntry", required: true, description: "The tool call to describe." },
+  entry: {
+    type: "ToolChatEntry",
+    required: true,
+    description: "The tool call to describe.",
+  },
   describeTool: {
     type: "(entry: ToolChatEntry, pending: boolean) => ReactNode",
     required: false,
-    description: "Replaces the default sentence; still reveals no name or input on its own.",
+    description:
+      "Replaces the default sentence; still reveals no name or input on its own.",
   },
   pending: {
     type: "boolean",
     required: false,
     default: "false",
-    description: "The call is still in flight; ChatMessageList derives it from busy.",
+    description:
+      "The call is still in flight; ChatMessageList derives it from busy.",
   },
   showToolName: {
     type: "boolean",
@@ -230,23 +251,34 @@ export const toolActivityPropDocs = {
     type: "boolean",
     required: false,
     default: "false",
-    description: "Reveals entry.toolInput as JSON in a pre, never as markdown or HTML.",
+    description:
+      "Reveals entry.toolInput as JSON in a pre, never as markdown or HTML.",
   },
-  icon: { type: "ReactNode", required: false, description: "Rendered in an aria-hidden circle." },
+  icon: {
+    type: "ReactNode",
+    required: false,
+    description: "Rendered in an aria-hidden circle.",
+  },
   labels: {
     type: "Partial<ToolActivityLabels>",
     required: false,
     default: "defaultToolActivityLabels",
-    description: "Overrides the component's strings; English defaults apply per key.",
+    description:
+      "Overrides the component's strings; English defaults apply per key.",
   },
 } satisfies Record<keyof ToolActivityProps, PropDoc>;
 
 export const thinkingTracePropDocs = {
-  entry: { type: "ThinkingChatEntry", required: true, description: "The reasoning to render." },
+  entry: {
+    type: "ThinkingChatEntry",
+    required: true,
+    description: "The reasoning to render.",
+  },
   reducedMotion: {
     type: "boolean",
     required: false,
-    description: "Forces the streaming dots still; undefined tracks the OS preference.",
+    description:
+      "Forces the streaming dots still; undefined tracks the OS preference.",
   },
   labels: {
     type: "Partial<ThinkingTraceLabels>",
@@ -260,7 +292,8 @@ export const chatComposerPropDocs = {
   onSubmit: {
     type: "(text: string) => void",
     required: true,
-    description: "Receives the trimmed draft; the composer clears itself after calling it.",
+    description:
+      "Receives the trimmed draft; the composer clears itself after calling it.",
   },
   busy: {
     type: "boolean",
@@ -295,7 +328,8 @@ export const chatComposerPropDocs = {
     type: "Partial<ChatComposerLabels>",
     required: false,
     default: "defaultChatComposerLabels",
-    description: "Overrides the composer's strings; English defaults apply per key.",
+    description:
+      "Overrides the composer's strings; English defaults apply per key.",
   },
 } satisfies Record<keyof ChatComposerProps, PropDoc>;
 
@@ -323,11 +357,16 @@ export const inlineThinkingIndicatorPropDocs = {
 } satisfies Record<keyof InlineThinkingIndicatorProps, PropDoc>;
 
 export const toastPropDocs = {
-  message: { type: "string", required: true, description: "The text shown and announced." },
+  message: {
+    type: "string",
+    required: true,
+    description: "The text shown and announced.",
+  },
   onClose: {
     type: "() => void",
     required: true,
-    description: "Called when the countdown ends; the consumer unmounts the Toast.",
+    description:
+      "Called when the countdown ends; the consumer unmounts the Toast.",
   },
   duration: {
     type: "number | null",
@@ -338,7 +377,11 @@ export const toastPropDocs = {
 } satisfies Record<keyof ToastProps, PropDoc>;
 
 export const errorBoundaryPropDocs = {
-  children: { type: "ReactNode", required: true, description: "The subtree being guarded." },
+  children: {
+    type: "ReactNode",
+    required: true,
+    description: "The subtree being guarded.",
+  },
   fallback: {
     type: "ReactNode",
     required: false,
@@ -354,7 +397,8 @@ export const errorBoundaryPropDocs = {
   onError: {
     type: "(error: Error, errorInfo: ErrorInfo) => void",
     required: false,
-    description: "The only reporting channel; the boundary never writes to the console.",
+    description:
+      "The only reporting channel; the boundary never writes to the console.",
   },
 } satisfies Record<keyof ErrorBoundaryProps, PropDoc>;
 
@@ -369,17 +413,23 @@ export const conversationListPropDocs = {
     required: false,
     description: 'Marks one row current, with aria-current="page".',
   },
-  onSelect: { type: "(id: string) => void", required: false, description: "Fires on a row press." },
+  onSelect: {
+    type: "(id: string) => void",
+    required: false,
+    description: "Fires on a row press.",
+  },
   onDelete: {
     type: "(id: string) => void",
     required: false,
-    description: "Fires immediately - confirmation is the consumer's decision. Omitted: no button.",
+    description:
+      "Fires immediately - confirmation is the consumer's decision. Omitted: no button.",
   },
   renderLink: {
     type: "(item, props: ConversationLinkProps) => ReactNode",
     required: false,
     default: "a plain button",
-    description: "The routing seam; the returned element must spread every prop it is handed.",
+    description:
+      "The routing seam; the returned element must spread every prop it is handed.",
   },
   isLoading: {
     type: "boolean",
@@ -390,13 +440,15 @@ export const conversationListPropDocs = {
   reducedMotion: {
     type: "boolean",
     required: false,
-    description: "Switches the placeholder-title typewriter off; undefined tracks the OS setting.",
+    description:
+      "Switches the placeholder-title typewriter off; undefined tracks the OS setting.",
   },
   labels: {
     type: "Partial<ConversationListLabels>",
     required: false,
     default: "defaultConversationListLabels",
-    description: "Overrides the list's strings; English defaults apply per key.",
+    description:
+      "Overrides the list's strings; English defaults apply per key.",
   },
 } satisfies Record<keyof ConversationListProps, PropDoc>;
 
@@ -404,7 +456,8 @@ export const appSidebarPropDocs = {
   brand: {
     type: "ReactNode",
     required: false,
-    description: "Rendered in the bordered top row; omitted, no row renders at all.",
+    description:
+      "Rendered in the bordered top row; omitted, no row renders at all.",
   },
   navItems: {
     type: "ReadonlyArray<SidebarNavItem>",
@@ -420,7 +473,8 @@ export const appSidebarPropDocs = {
     type: "(item, props: SidebarNavLinkProps) => ReactNode",
     required: false,
     default: "a plain button",
-    description: "The routing seam; the returned element must spread every prop it is handed.",
+    description:
+      "The routing seam; the returned element must spread every prop it is handed.",
   },
   children: {
     type: "ReactNode",
@@ -441,7 +495,11 @@ export const appSidebarPropDocs = {
 } satisfies Record<keyof AppSidebarProps, PropDoc>;
 
 export const appShellPropDocs = {
-  children: { type: "ReactNode", required: true, description: "The main region's content." },
+  children: {
+    type: "ReactNode",
+    required: true,
+    description: "The main region's content.",
+  },
   renderSidebar: {
     type: "(context: SidebarSlotContext) => ReactNode",
     required: false,
@@ -455,7 +513,8 @@ export const appShellPropDocs = {
   mobileSidebarOpen: {
     type: "boolean",
     required: false,
-    description: "Controlled open state; a controlling consumer owns closing on navigation.",
+    description:
+      "Controlled open state; a controlling consumer owns closing on navigation.",
   },
   onMobileSidebarOpenChange: {
     type: "(open: boolean) => void",
@@ -477,13 +536,15 @@ export const appShellPropDocs = {
   reducedMotion: {
     type: "boolean",
     required: false,
-    description: "Switches the drawer transitions off; undefined tracks the OS preference.",
+    description:
+      "Switches the drawer transitions off; undefined tracks the OS preference.",
   },
   labels: {
     type: "Partial<AppShellLabels>",
     required: false,
     default: "defaultAppShellLabels",
-    description: "Names the hamburger, the close button, the skip link and the drawer dialog.",
+    description:
+      "Names the hamburger, the close button, the skip link and the drawer dialog.",
   },
 } satisfies Record<keyof AppShellProps, PropDoc>;
 
@@ -496,7 +557,8 @@ export const iconPropDocs = {
   ariaLabel: {
     type: "string",
     required: false,
-    description: 'With a name the icon becomes role="img"; without one it is aria-hidden.',
+    description:
+      'With a name the icon becomes role="img"; without one it is aria-hidden.',
   },
   strokeWidth: {
     type: "number",

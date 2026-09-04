@@ -7,7 +7,9 @@ export function AppShellExample() {
         brand={<span className="text-sm font-semibold">Marginalia Books</span>}
         renderSidebar={({ variant, close }) => (
           <AppSidebar
-            brand={<span className="text-sm font-semibold">Marginalia Books</span>}
+            brand={
+              <span className="text-sm font-semibold">Marginalia Books</span>
+            }
             navItems={[{ key: "chat", label: "Chat", isActive: true }]}
             onNavigate={close}
           >
@@ -18,8 +20,8 @@ export function AppShellExample() {
         )}
       >
         <p className="p-6 text-sm text-slate-600 dark:text-slate-400">
-          The screen goes here. Below the md breakpoint the sidebar becomes a focus-trapped drawer
-          behind the hamburger; above it, a fixed rail.
+          The screen goes here. Below the md breakpoint the sidebar becomes a
+          focus-trapped drawer behind the hamburger; above it, a fixed rail.
         </p>
       </AppShell>
     </div>

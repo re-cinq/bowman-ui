@@ -14,10 +14,14 @@ const fixtureReplyText = "This is a canned demo reply from a fixture.";
 const streamCommitTimeoutMs = 20_000;
 
 const lastAssistantArticle = (page: Page): Locator =>
-  page.getByRole("article", { name: chatMessageListLabels.assistantMessage }).last();
+  page
+    .getByRole("article", { name: chatMessageListLabels.assistantMessage })
+    .last();
 
 const send = async (page: Page, question: string): Promise<void> => {
-  const composer = page.getByRole("textbox", { name: chatComposerLabels.composerInput });
+  const composer = page.getByRole("textbox", {
+    name: chatComposerLabels.composerInput,
+  });
 
   await composer.fill(question);
   await composer.press("Enter");
@@ -30,7 +34,9 @@ test.describe("full screen structure", () => {
     await page.goto("/?view=chat");
 
     await expect(page.getByRole("complementary")).toHaveCount(1);
-    const navigation = page.getByRole("navigation", { name: "Main navigation" });
+    const navigation = page.getByRole("navigation", {
+      name: "Main navigation",
+    });
 
     await expect(navigation).toHaveCount(1);
     await expect(navigation.getByRole("button")).toHaveCount(2);
@@ -41,17 +47,21 @@ test.describe("full screen structure", () => {
 
     await expect(page.getByRole("main")).toHaveCount(1);
     await expect(
-      page.getByRole("article", { name: chatMessageListLabels.userMessage })
+      page.getByRole("article", { name: chatMessageListLabels.userMessage }),
     ).toHaveCount(4);
     await expect(
-      page.getByRole("article", { name: chatMessageListLabels.assistantMessage })
+      page.getByRole("article", {
+        name: chatMessageListLabels.assistantMessage,
+      }),
     ).toHaveCount(4);
     await expect(
-      page.getByRole("textbox", { name: chatComposerLabels.composerInput })
+      page.getByRole("textbox", { name: chatComposerLabels.composerInput }),
     ).toBeVisible();
   });
 
-  test("the consumer Tailwind build scanned the installed dist", async ({ page }) => {
+  test("the consumer Tailwind build scanned the installed dist", async ({
+    page,
+  }) => {
     await page.goto("/?view=chat");
 
     const asideWidth = await page
@@ -72,15 +82,21 @@ test.describe("composing and replying", () => {
 
     await send(page, question);
 
-    const userArticles = page.getByRole("article", { name: chatMessageListLabels.userMessage });
+    const userArticles = page.getByRole("article", {
+      name: chatMessageListLabels.userMessage,
+    });
 
     await expect(userArticles).toHaveCount(5);
     await expect(userArticles.last()).toContainText(question);
 
     await expect(
-      page.getByRole("article", { name: chatMessageListLabels.assistantMessage })
+      page.getByRole("article", {
+        name: chatMessageListLabels.assistantMessage,
+      }),
     ).toHaveCount(5);
-    await expect(page.getByText(fixtureReplyText)).toBeVisible({ timeout: streamCommitTimeoutMs });
+    await expect(page.getByText(fixtureReplyText)).toBeVisible({
+      timeout: streamCommitTimeoutMs,
+    });
   });
 });
 
@@ -108,7 +124,9 @@ test.describe("streamed assistant reply", () => {
     expect(firstSample).toBeLessThan(streamedReplyText.length);
     expect(secondSample).toBeGreaterThan(firstSample);
 
-    await expect(page.getByText(fixtureReplyText)).toBeVisible({ timeout: streamCommitTimeoutMs });
+    await expect(page.getByText(fixtureReplyText)).toBeVisible({
+      timeout: streamCommitTimeoutMs,
+    });
     await expect(reply).toContainText(streamedReplyText);
   });
 
@@ -122,7 +140,9 @@ test.describe("streamed assistant reply", () => {
     await send(page, "How much does gift wrapping cost?");
 
     await expect(
-      page.getByRole("article", { name: chatMessageListLabels.assistantMessage })
+      page.getByRole("article", {
+        name: chatMessageListLabels.assistantMessage,
+      }),
     ).toHaveCount(5);
 
     const observed = await page.evaluate(
@@ -132,7 +152,10 @@ test.describe("streamed assistant reply", () => {
           const times: number[] = [];
           const finish = () => {
             clearInterval(interval);
-            resolve({ steps: lengths.length, spanMs: (times.at(-1) ?? 0) - (times[0] ?? 0) });
+            resolve({
+              steps: lengths.length,
+              spanMs: (times.at(-1) ?? 0) - (times[0] ?? 0),
+            });
           };
           const started = performance.now();
           const interval = setInterval(() => {
@@ -146,7 +169,10 @@ test.describe("streamed assistant reply", () => {
               times.push(performance.now());
             }
 
-            if (length >= fullLength || performance.now() - started > timeoutMs) {
+            if (
+              length >= fullLength ||
+              performance.now() - started > timeoutMs
+            ) {
               finish();
             }
           }, 25);
@@ -155,7 +181,7 @@ test.describe("streamed assistant reply", () => {
         selector: `article[aria-label="${chatMessageListLabels.assistantMessage}"]`,
         fullLength: streamedReplyText.length,
         timeoutMs: streamCommitTimeoutMs,
-      }
+      },
     );
 
     expect(observed.steps).toBeGreaterThanOrEqual(20);
@@ -170,7 +196,10 @@ test.describe("copy toast", () => {
   }) => {
     await page.goto("/?view=chat");
 
-    await page.getByRole("button", { name: chatMessageListLabels.copy }).first().click();
+    await page
+      .getByRole("button", { name: chatMessageListLabels.copy })
+      .first()
+      .click();
 
     const toastPill = page
       .locator("div[aria-hidden='true']")
@@ -178,7 +207,9 @@ test.describe("copy toast", () => {
 
     await expect(toastPill).toBeVisible();
 
-    await expect(page.getByText(toastCopiedMessage)).toHaveCount(0, { timeout: 10_000 });
+    await expect(page.getByText(toastCopiedMessage)).toHaveCount(0, {
+      timeout: 10_000,
+    });
   });
 });
 
@@ -217,33 +248,47 @@ test.describe("EU AI Act disclosure", () => {
 });
 
 test.describe("static demo note", () => {
-  test("the static demo note is visible under the composer", async ({ page }) => {
+  test("the static demo note is visible under the composer", async ({
+    page,
+  }) => {
     await page.goto("/?view=chat");
 
-    await expect(page.locator("[data-static-demo-note]")).toContainText(staticDemoNote);
+    await expect(page.locator("[data-static-demo-note]")).toContainText(
+      staticDemoNote,
+    );
   });
 });
 
 test.describe("mobile drawer", () => {
   test.use({ viewport: { width: 375, height: 667 } });
 
-  test("the drawer starts closed, traps focus and closes on Escape", async ({ page }) => {
+  test("the drawer starts closed, traps focus and closes on Escape", async ({
+    page,
+  }) => {
     await page.goto("/?view=chat");
 
     await expect(page.getByRole("dialog")).toHaveCount(0);
 
-    const hamburger = page.getByRole("button", { name: appShellLabels.openSidebar });
+    const hamburger = page.getByRole("button", {
+      name: appShellLabels.openSidebar,
+    });
 
     await hamburger.click();
-    const drawer = page.getByRole("dialog", { name: appShellLabels.sidebarDialog });
+    const drawer = page.getByRole("dialog", {
+      name: appShellLabels.sidebarDialog,
+    });
 
     await expect(drawer).toBeVisible();
 
-    const lastFocusable = drawer.getByRole("button", { name: "Sign out of the demo" });
+    const lastFocusable = drawer.getByRole("button", {
+      name: "Sign out of the demo",
+    });
 
     await lastFocusable.focus();
     await page.keyboard.press("Tab");
-    await expect(drawer.getByRole("button", { name: appShellLabels.closeSidebar })).toBeFocused();
+    await expect(
+      drawer.getByRole("button", { name: appShellLabels.closeSidebar }),
+    ).toBeFocused();
 
     await page.keyboard.press("Escape");
     await expect(page.getByRole("dialog")).toHaveCount(0);
@@ -259,18 +304,21 @@ test.describe("composer auto-resize", () => {
     composer.evaluate((textarea) => textarea.getBoundingClientRect().height);
 
   const inventedLines = (count: number): string =>
-    Array.from({ length: count }, (_, index) => `Invented line ${index + 1} of ${count}`).join(
-      "\n"
-    );
+    Array.from(
+      { length: count },
+      (_, index) => `Invented line ${index + 1} of ${count}`,
+    ).join("\n");
 
-  test("the empty composer measures above 0 and below the 200px cap", async ({ page }) => {
+  test("the empty composer measures above 0 and below the 200px cap", async ({
+    page,
+  }) => {
     await page.goto("/?view=chat");
 
     const baseline = await measuredHeight(composerOf(page));
 
     expect(
       baseline,
-      "the empty composer on the Marginalia Books demo screen rendered with no measurable height"
+      "the empty composer on the Marginalia Books demo screen rendered with no measurable height",
     ).toBeGreaterThan(0);
     expect(baseline).toBeLessThan(200);
   });
@@ -285,14 +333,16 @@ test.describe("composer auto-resize", () => {
     const draft = "An invented draft about a delivery change";
 
     await composer.fill(draft);
-    await expect(page.getByRole("button", { name: chatComposerLabels.send })).toBeEnabled();
+    await expect(
+      page.getByRole("button", { name: chatComposerLabels.send }),
+    ).toBeEnabled();
     await composer.press("Shift+Enter");
     await composer.press("Shift+Enter");
     await composer.press("Shift+Enter");
 
     await expect(composer).toHaveValue(`${draft}\n\n\n`);
     await expect(
-      page.getByRole("article", { name: chatMessageListLabels.userMessage })
+      page.getByRole("article", { name: chatMessageListLabels.userMessage }),
     ).toHaveCount(4);
     expect(await measuredHeight(composer)).toBeGreaterThan(baseline);
   });
@@ -302,7 +352,9 @@ test.describe("composer auto-resize", () => {
   }) => {
     await page.goto("/?view=chat");
     const composer = composerOf(page);
-    const sendButton = page.getByRole("button", { name: chatComposerLabels.send });
+    const sendButton = page.getByRole("button", {
+      name: chatComposerLabels.send,
+    });
     const baseline = await measuredHeight(composer);
 
     await composer.fill(inventedLines(12));
@@ -325,7 +377,9 @@ test.describe("composer auto-resize", () => {
     expect(scrollState.scrollTop).toBeGreaterThan(0);
 
     await composer.press("Enter");
-    const userArticles = page.getByRole("article", { name: chatMessageListLabels.userMessage });
+    const userArticles = page.getByRole("article", {
+      name: chatMessageListLabels.userMessage,
+    });
 
     await expect(userArticles).toHaveCount(5);
     await expect(userArticles.last()).toContainText("Invented line 24 of 24");

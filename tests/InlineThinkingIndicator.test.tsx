@@ -1,5 +1,8 @@
 import { render, screen } from "@testing-library/react";
-import { InlineThinkingIndicator, defaultInlineThinkingIndicatorLabels } from "../src/index.js";
+import {
+  InlineThinkingIndicator,
+  defaultInlineThinkingIndicatorLabels,
+} from "../src/index.js";
 import { expectThinkingDots } from "./helpers/expect-thinking-dots.js";
 
 describe("InlineThinkingIndicator", () => {
@@ -24,6 +27,8 @@ describe("InlineThinkingIndicator", () => {
 
   it('defaultInlineThinkingIndicatorLabels is frozen and holds exactly { thinking: "Thinking" }', () => {
     expect(Object.isFrozen(defaultInlineThinkingIndicatorLabels)).toBe(true);
-    expect(defaultInlineThinkingIndicatorLabels).toEqual({ thinking: "Thinking" });
+    expect(defaultInlineThinkingIndicatorLabels).toEqual({
+      thinking: "Thinking",
+    });
   });
 });

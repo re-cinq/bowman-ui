@@ -13,7 +13,9 @@ import type { AssistantChatEntry, UserChatEntry } from "../src/index.js";
 
 const writeTextMock = vi.fn();
 
-const makeEntry = (overrides?: Partial<AssistantChatEntry>): AssistantChatEntry => ({
+const makeEntry = (
+  overrides?: Partial<AssistantChatEntry>,
+): AssistantChatEntry => ({
   id: "entry-1",
   role: "assistant",
   content: "Pedido 4711 confirmado",
@@ -59,15 +61,24 @@ describe("ChatMessage", () => {
     it('an assistant entry\'s article aria-label is exactly "Assistant response" with no labels prop', () => {
       render(<ChatMessage entry={makeEntry()} userInitials="LM" />);
 
-      expect(screen.getByRole("article")).toHaveAttribute("aria-label", "Assistant response");
+      expect(screen.getByRole("article")).toHaveAttribute(
+        "aria-label",
+        "Assistant response",
+      );
     });
 
     it('button aria-labels are "Copy message", "Good response" and "Bad response" without shortcut parentheticals', () => {
       render(<ChatMessage entry={makeEntry()} userInitials="LM" />);
 
-      expect(screen.getByRole("button", { name: "Copy message" })).toBeInTheDocument();
-      expect(screen.getByRole("button", { name: "Good response" })).toBeInTheDocument();
-      expect(screen.getByRole("button", { name: "Bad response" })).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: "Copy message" }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: "Good response" }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: "Bad response" }),
+      ).toBeInTheDocument();
     });
 
     it('after clicking copy, the button aria-label is "Copied"', () => {
@@ -76,7 +87,9 @@ describe("ChatMessage", () => {
 
       fireEvent.click(screen.getByRole("button", { name: "Copy message" }));
 
-      expect(screen.getByRole("button", { name: "Copied" })).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: "Copied" }),
+      ).toBeInTheDocument();
     });
   });
 
@@ -86,7 +99,7 @@ describe("ChatMessage", () => {
         <ChatMessage
           entry={makeEntry({ content: "Pedido 4711 **confirmado**" })}
           userInitials="LM"
-        />
+        />,
       );
 
       const strong = screen.getByText("confirmado");
@@ -98,9 +111,11 @@ describe("ChatMessage", () => {
     it("a GFM pipe table renders a <table> element carrying the bowman-md-table class", () => {
       const { container } = render(
         <ChatMessage
-          entry={makeEntry({ content: "| Cuenta | Importe |\n| --- | --- |\n| 4711 | 100 |" })}
+          entry={makeEntry({
+            content: "| Cuenta | Importe |\n| --- | --- |\n| 4711 | 100 |",
+          })}
           userInitials="LM"
-        />
+        />,
       );
 
       const table = container.querySelector("table");
@@ -113,13 +128,17 @@ describe("ChatMessage", () => {
     it("raw HTML in content renders as escaped text, not as an element (C-18)", () => {
       const { container } = render(
         <ChatMessage
-          entry={makeEntry({ content: 'Mira <img src="x" onerror="alert(1)"> aquí' })}
+          entry={makeEntry({
+            content: 'Mira <img src="x" onerror="alert(1)"> aquí',
+          })}
           userInitials="LM"
-        />
+        />,
       );
 
       expect(container.querySelector("img")).not.toBeInTheDocument();
-      expect(container.textContent).toContain('<img src="x" onerror="alert(1)">');
+      expect(container.textContent).toContain(
+        '<img src="x" onerror="alert(1)">',
+      );
     });
   });
 
@@ -128,7 +147,10 @@ describe("ChatMessage", () => {
       vi.useFakeTimers();
       render(<ChatMessage entry={makeEntry()} userInitials="LM" />);
 
-      fireEvent.keyDown(screen.getByRole("article"), { key: "c", metaKey: true });
+      fireEvent.keyDown(screen.getByRole("article"), {
+        key: "c",
+        metaKey: true,
+      });
 
       expect(writeTextMock).toHaveBeenCalledWith("Pedido 4711 confirmado");
       expect(screen.getByText("Copied!")).toBeInTheDocument();
@@ -143,7 +165,10 @@ describe("ChatMessage", () => {
       vi.useFakeTimers();
       render(<ChatMessage entry={makeEntry()} userInitials="LM" />);
 
-      fireEvent.keyDown(screen.getByRole("article"), { key: "c", ctrlKey: true });
+      fireEvent.keyDown(screen.getByRole("article"), {
+        key: "c",
+        ctrlKey: true,
+      });
 
       expect(writeTextMock).toHaveBeenCalledWith("Pedido 4711 confirmado");
     });
@@ -152,7 +177,10 @@ describe("ChatMessage", () => {
       vi.useFakeTimers();
       render(<ChatMessage entry={makeEntry()} userInitials="LM" />);
 
-      fireEvent.keyDown(screen.getByRole("article"), { key: "C", metaKey: true });
+      fireEvent.keyDown(screen.getByRole("article"), {
+        key: "C",
+        metaKey: true,
+      });
 
       expect(writeTextMock).toHaveBeenCalledWith("Pedido 4711 confirmado");
     });
@@ -161,7 +189,11 @@ describe("ChatMessage", () => {
       vi.useFakeTimers();
       render(<ChatMessage entry={makeEntry()} userInitials="LM" />);
 
-      fireEvent.keyDown(screen.getByRole("article"), { key: "C", metaKey: true, shiftKey: true });
+      fireEvent.keyDown(screen.getByRole("article"), {
+        key: "C",
+        metaKey: true,
+        shiftKey: true,
+      });
 
       expect(writeTextMock).not.toHaveBeenCalled();
     });
@@ -173,19 +205,30 @@ describe("ChatMessage", () => {
       } as unknown as Selection);
       render(<ChatMessage entry={makeEntry()} userInitials="LM" />);
 
-      fireEvent.keyDown(screen.getByRole("article"), { key: "c", metaKey: true });
+      fireEvent.keyDown(screen.getByRole("article"), {
+        key: "c",
+        metaKey: true,
+      });
 
       expect(writeTextMock).not.toHaveBeenCalled();
     });
 
     it("Cmd+C with navigator.clipboard undefined does not throw and still calls onCopy", () => {
-      Object.defineProperty(navigator, "clipboard", { value: undefined, configurable: true });
+      Object.defineProperty(navigator, "clipboard", {
+        value: undefined,
+        configurable: true,
+      });
       const onCopy = vi.fn();
 
-      render(<ChatMessage entry={makeEntry()} userInitials="LM" onCopy={onCopy} />);
+      render(
+        <ChatMessage entry={makeEntry()} userInitials="LM" onCopy={onCopy} />,
+      );
 
       expect(() => {
-        fireEvent.keyDown(screen.getByRole("article"), { key: "c", metaKey: true });
+        fireEvent.keyDown(screen.getByRole("article"), {
+          key: "c",
+          metaKey: true,
+        });
       }).not.toThrow();
       expect(onCopy).toHaveBeenCalledWith("Pedido 4711 confirmado", "entry-1");
     });
@@ -207,7 +250,7 @@ describe("ChatMessage", () => {
             onCopy={onCopy}
             onFeedback={onFeedback}
           />
-        </form>
+        </form>,
       );
 
       fireEvent.click(screen.getByRole("button", { name: "Copy message" }));
@@ -224,9 +267,17 @@ describe("ChatMessage", () => {
     it("ArrowUp with default props calls onFeedback zero times and does not preventDefault (adaptation b)", () => {
       const onFeedback = vi.fn();
 
-      render(<ChatMessage entry={makeEntry()} userInitials="LM" onFeedback={onFeedback} />);
+      render(
+        <ChatMessage
+          entry={makeEntry()}
+          userInitials="LM"
+          onFeedback={onFeedback}
+        />,
+      );
 
-      const notPrevented = fireEvent.keyDown(screen.getByRole("article"), { key: "ArrowUp" });
+      const notPrevented = fireEvent.keyDown(screen.getByRole("article"), {
+        key: "ArrowUp",
+      });
 
       expect(onFeedback).not.toHaveBeenCalled();
       expect(notPrevented).toBe(true);
@@ -241,21 +292,19 @@ describe("ChatMessage", () => {
           userInitials="LM"
           arrowKeyFeedback
           onFeedback={onFeedback}
-        />
+        />,
       );
 
       fireEvent.keyDown(screen.getByRole("article"), { key: "ArrowUp" });
 
       expect(onFeedback).toHaveBeenCalledWith("entry-1", "up");
       expect(screen.getByText("Thanks!")).toBeInTheDocument();
-      expect(screen.getByRole("button", { name: "Good response" })).toHaveAttribute(
-        "aria-pressed",
-        "true"
-      );
-      expect(screen.getByRole("button", { name: "Bad response" })).toHaveAttribute(
-        "aria-pressed",
-        "false"
-      );
+      expect(
+        screen.getByRole("button", { name: "Good response" }),
+      ).toHaveAttribute("aria-pressed", "true");
+      expect(
+        screen.getByRole("button", { name: "Bad response" }),
+      ).toHaveAttribute("aria-pressed", "false");
     });
 
     it("with arrowKeyFeedback, Alt+ArrowUp calls onFeedback zero times - modified arrows stay the browser's", () => {
@@ -267,11 +316,17 @@ describe("ChatMessage", () => {
           userInitials="LM"
           arrowKeyFeedback
           onFeedback={onFeedback}
-        />
+        />,
       );
 
-      fireEvent.keyDown(screen.getByRole("article"), { key: "ArrowUp", altKey: true });
-      fireEvent.keyDown(screen.getByRole("article"), { key: "ArrowDown", altKey: true });
+      fireEvent.keyDown(screen.getByRole("article"), {
+        key: "ArrowUp",
+        altKey: true,
+      });
+      fireEvent.keyDown(screen.getByRole("article"), {
+        key: "ArrowDown",
+        altKey: true,
+      });
 
       expect(onFeedback).not.toHaveBeenCalled();
     });
@@ -285,21 +340,19 @@ describe("ChatMessage", () => {
           userInitials="LM"
           arrowKeyFeedback
           onFeedback={onFeedback}
-        />
+        />,
       );
 
       fireEvent.keyDown(screen.getByRole("article"), { key: "ArrowDown" });
 
       expect(onFeedback).toHaveBeenCalledWith("entry-1", "down");
       expect(screen.getByText("Thanks!")).toBeInTheDocument();
-      expect(screen.getByRole("button", { name: "Bad response" })).toHaveAttribute(
-        "aria-pressed",
-        "true"
-      );
-      expect(screen.getByRole("button", { name: "Good response" })).toHaveAttribute(
-        "aria-pressed",
-        "false"
-      );
+      expect(
+        screen.getByRole("button", { name: "Bad response" }),
+      ).toHaveAttribute("aria-pressed", "true");
+      expect(
+        screen.getByRole("button", { name: "Good response" }),
+      ).toHaveAttribute("aria-pressed", "false");
     });
 
     it("with arrowKeyFeedback and showFeedback={false}, ArrowUp calls onFeedback zero times and neither thumb button is in the document (adaptation c)", () => {
@@ -312,14 +365,18 @@ describe("ChatMessage", () => {
           arrowKeyFeedback
           showFeedback={false}
           onFeedback={onFeedback}
-        />
+        />,
       );
 
       fireEvent.keyDown(screen.getByRole("article"), { key: "ArrowUp" });
 
       expect(onFeedback).not.toHaveBeenCalled();
-      expect(screen.queryByRole("button", { name: "Good response" })).not.toBeInTheDocument();
-      expect(screen.queryByRole("button", { name: "Bad response" })).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole("button", { name: "Good response" }),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole("button", { name: "Bad response" }),
+      ).not.toBeInTheDocument();
     });
 
     it("no key handling fires for a user entry", () => {
@@ -331,7 +388,7 @@ describe("ChatMessage", () => {
           userInitials="LM"
           arrowKeyFeedback
           onFeedback={onFeedback}
-        />
+        />,
       );
 
       const article = screen.getByRole("article");
@@ -353,7 +410,7 @@ describe("ChatMessage", () => {
           userInitials="LM"
           arrowKeyFeedback
           onFeedback={onFeedback}
-        />
+        />,
       );
 
       const article = screen.getByRole("article");
@@ -368,7 +425,12 @@ describe("ChatMessage", () => {
 
   describe("streaming", () => {
     it("while isStreaming is true, no copy or feedback button is in the document", () => {
-      render(<ChatMessage entry={makeEntry({ isStreaming: true })} userInitials="LM" />);
+      render(
+        <ChatMessage
+          entry={makeEntry({ isStreaming: true })}
+          userInitials="LM"
+        />,
+      );
 
       expect(screen.queryByRole("button")).not.toBeInTheDocument();
     });
@@ -378,17 +440,22 @@ describe("ChatMessage", () => {
         <ChatMessage
           entry={makeEntry({ isStreaming: true, toolStatus: "Henter booking" })}
           userInitials="LM"
-        />
+        />,
       );
 
       const status = screen.getByText("Henter booking");
 
-      expect(status.previousElementSibling?.classList.contains("animate-spin")).toBe(true);
+      expect(
+        status.previousElementSibling?.classList.contains("animate-spin"),
+      ).toBe(true);
     });
 
     it("streaming with empty content shows the inline thinking indicator; content removes it; emptying content again does not bring it back", () => {
       const { rerender } = render(
-        <ChatMessage entry={makeEntry({ content: "", isStreaming: true })} userInitials="LM" />
+        <ChatMessage
+          entry={makeEntry({ content: "", isStreaming: true })}
+          userInitials="LM"
+        />,
       );
 
       expect(screen.getByText("Thinking")).toBeInTheDocument();
@@ -397,12 +464,15 @@ describe("ChatMessage", () => {
         <ChatMessage
           entry={makeEntry({ content: "Booking 4711", isStreaming: true })}
           userInitials="LM"
-        />
+        />,
       );
       expect(screen.queryByText("Thinking")).not.toBeInTheDocument();
 
       rerender(
-        <ChatMessage entry={makeEntry({ content: "", isStreaming: true })} userInitials="LM" />
+        <ChatMessage
+          entry={makeEntry({ content: "", isStreaming: true })}
+          userInitials="LM"
+        />,
       );
       expect(screen.queryByText("Thinking")).not.toBeInTheDocument();
     });
@@ -412,16 +482,20 @@ describe("ChatMessage", () => {
         <ChatMessage
           entry={makeEntry({ id: "entry-1", content: "", isStreaming: true })}
           userInitials="LM"
-        />
+        />,
       );
 
       expect(screen.getByText("Thinking")).toBeInTheDocument();
 
       rerender(
         <ChatMessage
-          entry={makeEntry({ id: "entry-1", content: "Booking 4711", isStreaming: true })}
+          entry={makeEntry({
+            id: "entry-1",
+            content: "Booking 4711",
+            isStreaming: true,
+          })}
           userInitials="LM"
-        />
+        />,
       );
       expect(screen.queryByText("Thinking")).not.toBeInTheDocument();
 
@@ -429,7 +503,7 @@ describe("ChatMessage", () => {
         <ChatMessage
           entry={makeEntry({ id: "entry-2", content: "", isStreaming: true })}
           userInitials="LM"
-        />
+        />,
       );
       expect(screen.getByText("Thinking")).toBeInTheDocument();
     });
@@ -439,33 +513,48 @@ describe("ChatMessage", () => {
     it('clicking thumbs-up calls onFeedback("entry-1", "up") and clicking thumbs-down overrides it with "down"', () => {
       const onFeedback = vi.fn();
 
-      render(<ChatMessage entry={makeEntry()} userInitials="LM" onFeedback={onFeedback} />);
+      render(
+        <ChatMessage
+          entry={makeEntry()}
+          userInitials="LM"
+          onFeedback={onFeedback}
+        />,
+      );
 
       fireEvent.click(screen.getByRole("button", { name: "Good response" }));
       expect(onFeedback).toHaveBeenCalledWith("entry-1", "up");
-      expect(screen.getByRole("button", { name: "Good response" })).toHaveAttribute(
-        "aria-pressed",
-        "true"
-      );
+      expect(
+        screen.getByRole("button", { name: "Good response" }),
+      ).toHaveAttribute("aria-pressed", "true");
 
       fireEvent.click(screen.getByRole("button", { name: "Bad response" }));
       expect(onFeedback).toHaveBeenCalledWith("entry-1", "down");
-      expect(screen.getByRole("button", { name: "Bad response" })).toHaveAttribute(
-        "aria-pressed",
-        "true"
-      );
-      expect(screen.getByRole("button", { name: "Good response" })).toHaveAttribute(
-        "aria-pressed",
-        "false"
-      );
+      expect(
+        screen.getByRole("button", { name: "Bad response" }),
+      ).toHaveAttribute("aria-pressed", "true");
+      expect(
+        screen.getByRole("button", { name: "Good response" }),
+      ).toHaveAttribute("aria-pressed", "false");
     });
 
     it("showFeedback={false} removes both thumb buttons while leaving copy in place", () => {
-      render(<ChatMessage entry={makeEntry()} userInitials="LM" showFeedback={false} />);
+      render(
+        <ChatMessage
+          entry={makeEntry()}
+          userInitials="LM"
+          showFeedback={false}
+        />,
+      );
 
-      expect(screen.getByRole("button", { name: "Copy message" })).toBeInTheDocument();
-      expect(screen.queryByRole("button", { name: "Good response" })).not.toBeInTheDocument();
-      expect(screen.queryByRole("button", { name: "Bad response" })).not.toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: "Copy message" }),
+      ).toBeInTheDocument();
+      expect(
+        screen.queryByRole("button", { name: "Good response" }),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole("button", { name: "Bad response" }),
+      ).not.toBeInTheDocument();
     });
   });
 
@@ -486,55 +575,82 @@ describe("ChatMessage", () => {
           entry={makeEntry()}
           userInitials="LM"
           assistantAvatar={<span data-testid="avatar-mark" />}
-        />
+        />,
       );
 
-      expect(circleOf(container)).toContainElement(screen.getByTestId("avatar-mark"));
+      expect(circleOf(container)).toContainElement(
+        screen.getByTestId("avatar-mark"),
+      );
     });
 
     it("with no assistantAvatar the circle renders empty and no bundled mark appears", () => {
-      const { container } = render(<ChatMessage entry={makeEntry()} userInitials="LM" />);
+      const { container } = render(
+        <ChatMessage entry={makeEntry()} userInitials="LM" />,
+      );
 
       const circle = circleOf(container);
 
       expect(circle).toBeEmptyDOMElement();
-      expect(container.querySelector("svg:not(button svg)")).not.toBeInTheDocument();
+      expect(
+        container.querySelector("svg:not(button svg)"),
+      ).not.toBeInTheDocument();
     });
 
     it("while isStreaming the circle carries bowman-pulse-subtle; not streaming it does not", () => {
       const { container, rerender } = render(
-        <ChatMessage entry={makeEntry({ isStreaming: true, content: "" })} userInitials="LM" />
+        <ChatMessage
+          entry={makeEntry({ isStreaming: true, content: "" })}
+          userInitials="LM"
+        />,
       );
 
-      expect(circleOf(container).classList.contains("bowman-pulse-subtle")).toBe(true);
+      expect(
+        circleOf(container).classList.contains("bowman-pulse-subtle"),
+      ).toBe(true);
 
       rerender(<ChatMessage entry={makeEntry()} userInitials="LM" />);
-      expect(circleOf(container).classList.contains("bowman-pulse-subtle")).toBe(false);
+      expect(
+        circleOf(container).classList.contains("bowman-pulse-subtle"),
+      ).toBe(false);
     });
   });
 
   describe("assistantName (121)", () => {
     it('assistantName "Facturación" renders that name and labels the article "Response from Facturación"', () => {
-      render(<ChatMessage entry={makeEntry()} userInitials="LM" assistantName="Facturación" />);
+      render(
+        <ChatMessage
+          entry={makeEntry()}
+          userInitials="LM"
+          assistantName="Facturación"
+        />,
+      );
 
       expect(screen.getByText("Facturación")).toBeInTheDocument();
       expect(screen.getByRole("article")).toHaveAttribute(
         "aria-label",
-        "Response from Facturación"
+        "Response from Facturación",
       );
     });
 
     it('with no assistantName the article aria-label stays "Assistant response" and exactly one element fewer renders', () => {
       const named = render(
-        <ChatMessage entry={makeEntry()} userInitials="LM" assistantName="Facturación" />
+        <ChatMessage
+          entry={makeEntry()}
+          userInitials="LM"
+          assistantName="Facturación"
+        />,
       ).container;
-      const unnamed = render(<ChatMessage entry={makeEntry()} userInitials="LM" />).container;
+      const unnamed = render(
+        <ChatMessage entry={makeEntry()} userInitials="LM" />,
+      ).container;
 
-      expect(unnamed.querySelectorAll("*")).toHaveLength(named.querySelectorAll("*").length - 1);
+      expect(unnamed.querySelectorAll("*")).toHaveLength(
+        named.querySelectorAll("*").length - 1,
+      );
       expect(unnamed.textContent).not.toContain("Facturación");
       expect(within(unnamed).getByRole("article")).toHaveAttribute(
         "aria-label",
-        "Assistant response"
+        "Assistant response",
       );
     });
 
@@ -544,26 +660,38 @@ describe("ChatMessage", () => {
           entry={makeEntry()}
           userInitials="LM"
           assistantName="Facturación"
-          labels={{ assistantMessageFrom: (name: string) => "Respuesta de " + name }}
-        />
+          labels={{
+            assistantMessageFrom: (name: string) => "Respuesta de " + name,
+          }}
+        />,
       );
 
-      expect(screen.getByRole("article")).toHaveAttribute("aria-label", "Respuesta de Facturación");
+      expect(screen.getByRole("article")).toHaveAttribute(
+        "aria-label",
+        "Respuesta de Facturación",
+      );
     });
 
     it("defaultChatMessageLabels.assistantMessageFrom is a function of one string", () => {
       expect(defaultChatMessageLabels.assistantMessageFrom).toHaveLength(1);
       expect(defaultChatMessageLabels.assistantMessageFrom("Facturación")).toBe(
-        "Response from Facturación"
+        "Response from Facturación",
       );
     });
 
     it("assistantName with a user entry renders no name and leaves the user aria-label unchanged", () => {
       const { container } = render(
-        <ChatMessage entry={makeUserEntry()} userInitials="LM" assistantName="Facturación" />
+        <ChatMessage
+          entry={makeUserEntry()}
+          userInitials="LM"
+          assistantName="Facturación"
+        />,
       );
 
-      expect(screen.getByRole("article")).toHaveAttribute("aria-label", "Your message");
+      expect(screen.getByRole("article")).toHaveAttribute(
+        "aria-label",
+        "Your message",
+      );
       expect(container.textContent).not.toContain("Facturación");
     });
 
@@ -574,16 +702,20 @@ describe("ChatMessage", () => {
           userInitials="LM"
           assistantName="Facturación"
           assistantAvatar={<span data-testid="avatar-mark">4711</span>}
-        />
+        />,
       );
 
-      expect(screen.getByRole("article")).toHaveAccessibleName("Response from Facturación");
+      expect(screen.getByRole("article")).toHaveAccessibleName(
+        "Response from Facturación",
+      );
     });
   });
 
   describe("footer slot", () => {
     const columnOf = (container: HTMLElement): Element => {
-      const column = container.querySelector("article > div > div:nth-child(2)");
+      const column = container.querySelector(
+        "article > div > div:nth-child(2)",
+      );
 
       if (!column) {
         throw new Error("message column not found");
@@ -594,7 +726,11 @@ describe("ChatMessage", () => {
 
     it("footer renders as the last child of the message column, after the action row, when not streaming", () => {
       const { container } = render(
-        <ChatMessage entry={makeEntry()} userInitials="LM" footer={<div data-testid="footer" />} />
+        <ChatMessage
+          entry={makeEntry()}
+          userInitials="LM"
+          footer={<div data-testid="footer" />}
+        />,
       );
 
       const column = columnOf(container);
@@ -609,32 +745,44 @@ describe("ChatMessage", () => {
           entry={makeEntry({ isStreaming: true })}
           userInitials="LM"
           footer={<div data-testid="footer" />}
-        />
+        />,
       );
 
-      expect(columnOf(container).lastElementChild).toBe(screen.getByTestId("footer"));
+      expect(columnOf(container).lastElementChild).toBe(
+        screen.getByTestId("footer"),
+      );
     });
 
     it("with no footer, nothing renders after the action row", () => {
-      const { container } = render(<ChatMessage entry={makeEntry()} userInitials="LM" />);
+      const { container } = render(
+        <ChatMessage entry={makeEntry()} userInitials="LM" />,
+      );
 
       const column = columnOf(container);
 
       expect(column.children.length).toBe(2);
-      expect(column.lastElementChild?.querySelector("button")).toBeInTheDocument();
+      expect(
+        column.lastElementChild?.querySelector("button"),
+      ).toBeInTheDocument();
     });
   });
 
   describe("confirmation spans", () => {
     it("the copy and feedback confirmation spans carry the bowman-fade-in class", () => {
       vi.useFakeTimers();
-      render(<ChatMessage entry={makeEntry()} userInitials="LM" arrowKeyFeedback />);
+      render(
+        <ChatMessage entry={makeEntry()} userInitials="LM" arrowKeyFeedback />,
+      );
 
       fireEvent.click(screen.getByRole("button", { name: "Copy message" }));
       fireEvent.keyDown(screen.getByRole("article"), { key: "ArrowUp" });
 
-      expect(screen.getByText("Copied!").classList.contains("bowman-fade-in")).toBe(true);
-      expect(screen.getByText("Thanks!").classList.contains("bowman-fade-in")).toBe(true);
+      expect(
+        screen.getByText("Copied!").classList.contains("bowman-fade-in"),
+      ).toBe(true);
+      expect(
+        screen.getByText("Thanks!").classList.contains("bowman-fade-in"),
+      ).toBe(true);
     });
   });
 
@@ -665,9 +813,14 @@ describe("ChatMessage", () => {
       const onCopy = vi.fn();
 
       writeTextMock.mockRejectedValueOnce(new Error("NotAllowedError"));
-      render(<ChatMessage entry={makeEntry()} userInitials="LM" onCopy={onCopy} />);
+      render(
+        <ChatMessage entry={makeEntry()} userInitials="LM" onCopy={onCopy} />,
+      );
 
-      fireEvent.keyDown(screen.getByRole("article"), { key: "c", metaKey: true });
+      fireEvent.keyDown(screen.getByRole("article"), {
+        key: "c",
+        metaKey: true,
+      });
       await act(async () => {});
 
       expect(onCopy).toHaveBeenCalledTimes(1);
@@ -701,15 +854,17 @@ describe("ChatMessage", () => {
     };
 
     it("ChatMessage.tsx carries no showDevInfo, conversationId, onRetryJudge or scores", () => {
-      expect(sources[0].content).not.toMatch(/showDevInfo|conversationId|onRetryJudge|scores/);
+      expect(sources[0].content).not.toMatch(
+        /showDevInfo|conversationId|onRetryJudge|scores/,
+      );
     });
 
     it("neither file imports @clerk, swr, next-intl, next/ or @/ and every relative import ends in .js", () => {
       for (const { content } of sources) {
         expect(content).not.toMatch(/@clerk|swr|next-intl|next\/|@\//);
-        const relativeImports = [...content.matchAll(/from\s+"(\.[^"]+)"/g)].map(
-          ([, spec]) => spec
-        );
+        const relativeImports = [
+          ...content.matchAll(/from\s+"(\.[^"]+)"/g),
+        ].map(([, spec]) => spec);
 
         expect(relativeImports.length).toBeGreaterThan(0);
 
@@ -727,7 +882,9 @@ describe("ChatMessage", () => {
 
     it("GDPR: neither file calls console.*, localStorage, sessionStorage, fetch or sendBeacon", () => {
       for (const { content } of sources) {
-        expect(content).not.toMatch(/console\.|localStorage|sessionStorage|fetch|sendBeacon/);
+        expect(content).not.toMatch(
+          /console\.|localStorage|sessionStorage|fetch|sendBeacon/,
+        );
       }
     });
 
@@ -753,9 +910,11 @@ describe("markdown link policy (076)", () => {
   it("an https link renders an anchor with target, the rel pair and the hidden notice", () => {
     const { container } = render(
       <ChatMessage
-        entry={makeEntry({ content: "Mira [tu pedido](https://tms.example/booking/42)" })}
+        entry={makeEntry({
+          content: "Mira [tu pedido](https://tms.example/booking/42)",
+        })}
         userInitials="LM"
-      />
+      />,
     );
 
     const anchor = container.querySelector("a");
@@ -763,7 +922,9 @@ describe("markdown link policy (076)", () => {
     expect(anchor).toHaveAttribute("href", "https://tms.example/booking/42");
     expect(anchor).toHaveAttribute("target", "_blank");
     expect(anchor).toHaveAttribute("rel", "noopener noreferrer");
-    expect(anchor?.querySelector(".bowman-sr-only")?.textContent).toBe("(opens in a new tab)");
+    expect(anchor?.querySelector(".bowman-sr-only")?.textContent).toBe(
+      "(opens in a new tab)",
+    );
   });
 
   it("a javascript: link renders no anchor and no empty href, the text in a <span>", () => {
@@ -771,7 +932,7 @@ describe("markdown link policy (076)", () => {
       <ChatMessage
         entry={makeEntry({ content: "[4711](javascript:alert(1))" })}
         userInitials="LM"
-      />
+      />,
     );
 
     expect(container.querySelector("a")).toBeNull();
@@ -785,10 +946,13 @@ describe("markdown link policy (076)", () => {
         entry={makeEntry({ content: "[4711](http://tms.example/x)" })}
         userInitials="LM"
         markdown={{ allowedSchemes: ["https", "http"] }}
-      />
+      />,
     );
 
-    expect(container.querySelector("a")).toHaveAttribute("href", "http://tms.example/x");
+    expect(container.querySelector("a")).toHaveAttribute(
+      "href",
+      "http://tms.example/x",
+    );
   });
 
   it("markdown allowedSchemes [] renders even an https link as text", () => {
@@ -797,7 +961,7 @@ describe("markdown link policy (076)", () => {
         entry={makeEntry({ content: "[4711](https://tms.example/x)" })}
         userInitials="LM"
         markdown={{ allowedSchemes: [] }}
-      />
+      />,
     );
 
     expect(container.querySelector("a")).toBeNull();
@@ -810,10 +974,12 @@ describe("markdown link policy (076)", () => {
         entry={makeEntry({ content: "[4711](https://tms.example/x)" })}
         userInitials="LM"
         labels={{ linkOpensInNewTab: "⟦notice⟧" }}
-      />
+      />,
     );
 
-    expect(container.querySelector(".bowman-sr-only")?.textContent).toBe("⟦notice⟧");
+    expect(container.querySelector(".bowman-sr-only")?.textContent).toBe(
+      "⟦notice⟧",
+    );
   });
 
   it("an image in assistant content renders alt text and no img under the default policy", () => {
@@ -821,7 +987,7 @@ describe("markdown link policy (076)", () => {
       <ChatMessage
         entry={makeEntry({ content: "![alt text](https://host/p.png)" })}
         userInitials="LM"
-      />
+      />,
     );
 
     expect(container.querySelectorAll("img")).toHaveLength(0);

@@ -22,7 +22,8 @@ const subscribe = (onChange: () => void): (() => void) => {
 // user never sees a first-frame flash of animation and later change events are
 // reflected by re-reading `matches`. The guard is not dead code: "use client"
 // components still server-render once, and the render phase has no window there.
-const getSnapshot = (): boolean => (canMatchMedia() ? window.matchMedia(QUERY).matches : false);
+const getSnapshot = (): boolean =>
+  canMatchMedia() ? window.matchMedia(QUERY).matches : false;
 
 const getServerSnapshot = (): boolean => false;
 
@@ -47,7 +48,7 @@ export function useReducedMotion(override?: boolean): boolean {
   const prefersReducedMotion = useSyncExternalStore(
     hasOverride ? noopSubscribe : subscribe,
     hasOverride ? getServerSnapshot : getSnapshot,
-    getServerSnapshot
+    getServerSnapshot,
   );
 
   if (hasOverride) {

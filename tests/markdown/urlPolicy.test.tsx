@@ -18,7 +18,7 @@ import {
 const renderMarkdown = (
   content: string,
   policy?: MarkdownPolicy,
-  labels?: Partial<MarkdownComponentsLabels>
+  labels?: Partial<MarkdownComponentsLabels>,
 ) =>
   render(
     <ReactMarkdown
@@ -27,7 +27,7 @@ const renderMarkdown = (
       urlTransform={createUrlTransform(policy)}
     >
       {content}
-    </ReactMarkdown>
+    </ReactMarkdown>,
   );
 
 it("defaultMarkdownPolicy is the https/mailto/tel, no-relative, new-tab, no-image policy", () => {
@@ -60,15 +60,22 @@ describe("the scheme allowlist", () => {
     "/api/logout",
     "../admin",
     "#anchor",
-  ])("renders no anchor for %s and shows the link text in a <span>", (destination) => {
-    const { container } = renderMarkdown(`[4711](${destination})`);
+  ])(
+    "renders no anchor for %s and shows the link text in a <span>",
+    (destination) => {
+      const { container } = renderMarkdown(`[4711](${destination})`);
 
-    expect(container.querySelector("a")).toBeNull();
-    expect(screen.getByText("4711").tagName).toBe("SPAN");
-    expect(document.querySelectorAll('a[href=""]')).toHaveLength(0);
-  });
+      expect(container.querySelector("a")).toBeNull();
+      expect(screen.getByText("4711").tagName).toBe("SPAN");
+      expect(document.querySelectorAll('a[href=""]')).toHaveLength(0);
+    },
+  );
 
-  it.each(["JAVASCRIPT:alert(1)", "JaVaScRiPt:alert(1)", "java&#x09;script:alert(1)"])(
+  it.each([
+    "JAVASCRIPT:alert(1)",
+    "JaVaScRiPt:alert(1)",
+    "java&#x09;script:alert(1)",
+  ])(
     "case and entity encoding do not get %s past the allowlist",
     (destination) => {
       const { container } = renderMarkdown(`[4711](${destination})`);
@@ -76,7 +83,7 @@ describe("the scheme allowlist", () => {
       expect(container.querySelector("a")).toBeNull();
       expect(screen.getByText("4711").tagName).toBe("SPAN");
       expect(document.querySelectorAll('a[href=""]')).toHaveLength(0);
-    }
+    },
   );
 
   it('allowedSchemes ["https", "http"] renders an anchor for http://tms.example/x', () => {
@@ -84,11 +91,16 @@ describe("the scheme allowlist", () => {
       allowedSchemes: ["https", "http"],
     });
 
-    expect(container.querySelector("a")).toHaveAttribute("href", "http://tms.example/x");
+    expect(container.querySelector("a")).toHaveAttribute(
+      "href",
+      "http://tms.example/x",
+    );
   });
 
   it("allowedSchemes [] renders even an https destination as text", () => {
-    const { container } = renderMarkdown("[4711](https://tms.example/x)", { allowedSchemes: [] });
+    const { container } = renderMarkdown("[4711](https://tms.example/x)", {
+      allowedSchemes: [],
+    });
 
     expect(container.querySelector("a")).toBeNull();
     expect(screen.getByText("4711").tagName).toBe("SPAN");
@@ -97,7 +109,9 @@ describe("the scheme allowlist", () => {
 
 describe("relative URLs", () => {
   it('allowRelativeUrls: true renders <a href="/booking/42">', () => {
-    const { container } = renderMarkdown("[4711](/booking/42)", { allowRelativeUrls: true });
+    const { container } = renderMarkdown("[4711](/booking/42)", {
+      allowRelativeUrls: true,
+    });
 
     expect(container.querySelector("a")).toHaveAttribute("href", "/booking/42");
   });
@@ -113,14 +127,14 @@ describe("relative URLs", () => {
     "createUrlTransform rejects the protocol-relative %s even with allowRelativeUrls: true",
     (value) => {
       expect(createUrlTransform({ allowRelativeUrls: true })(value)).toBe("");
-    }
+    },
   );
 });
 
 describe("anchor attributes", () => {
   it('every rendered anchor carries rel="noopener noreferrer" and target="_blank"', () => {
     const { container } = renderMarkdown(
-      "[a](https://tms.example/x) [b](mailto:support@marginalia-books.invalid) [c](tel:+4570123456)"
+      "[a](https://tms.example/x) [b](mailto:support@marginalia-books.invalid) [c](tel:+4570123456)",
     );
 
     const anchors = container.querySelectorAll("a");
@@ -156,11 +170,17 @@ describe("anchor attributes", () => {
   });
 
   it("a labels override replaces the notice text", () => {
-    const { container } = renderMarkdown("[4711](https://tms.example/x)", undefined, {
-      linkOpensInNewTab: "⟦notice⟧",
-    });
+    const { container } = renderMarkdown(
+      "[4711](https://tms.example/x)",
+      undefined,
+      {
+        linkOpensInNewTab: "⟦notice⟧",
+      },
+    );
 
-    expect(container.querySelector("a .bowman-sr-only")?.textContent).toBe("⟦notice⟧");
+    expect(container.querySelector("a .bowman-sr-only")?.textContent).toBe(
+      "⟦notice⟧",
+    );
   });
 
   it('linkTarget: "_self" renders no notice element', () => {
@@ -172,7 +192,9 @@ describe("anchor attributes", () => {
   });
 
   it("merges an incoming className on the anchor and the image", () => {
-    const components = createMarkdownComponents({ policy: { allowImages: true } });
+    const components = createMarkdownComponents({
+      policy: { allowImages: true },
+    });
     const Anchor = components.a;
     const Image = components.img;
     const { container } = render(
@@ -180,12 +202,18 @@ describe("anchor attributes", () => {
         <Anchor href="https://tms.example/x" className="extra-a">
           4711
         </Anchor>
-        <Image src="https://tms.example/p.png" alt="4711" className="extra-img" />
-      </>
+        <Image
+          src="https://tms.example/p.png"
+          alt="4711"
+          className="extra-img"
+        />
+      </>,
     );
 
     expect(container.querySelector("a")?.className).toBe("bowman-md-a extra-a");
-    expect(container.querySelector("img")?.className).toBe("bowman-md-img extra-img");
+    expect(container.querySelector("img")?.className).toBe(
+      "bowman-md-img extra-img",
+    );
   });
 });
 
@@ -197,15 +225,19 @@ describe("remark-gfm autolink literals", () => {
 
     expect(anchor).toHaveAttribute("href", "https://tms.example/x");
     expect(anchor).toHaveAttribute("rel", "noopener noreferrer");
-    expect(anchor?.querySelector(".bowman-sr-only")?.textContent).toBe("(opens in a new tab)");
+    expect(anchor?.querySelector(".bowman-sr-only")?.textContent).toBe(
+      "(opens in a new tab)",
+    );
   });
 
   it("a bare email autolinks to a mailto anchor", () => {
-    const { container } = renderMarkdown("Write to support@marginalia-books.invalid");
+    const { container } = renderMarkdown(
+      "Write to support@marginalia-books.invalid",
+    );
 
     expect(container.querySelector("a")).toHaveAttribute(
       "href",
-      "mailto:support@marginalia-books.invalid"
+      "mailto:support@marginalia-books.invalid",
     );
   });
 
@@ -213,7 +245,9 @@ describe("remark-gfm autolink literals", () => {
     const { container } = renderMarkdown("See www.marginalia-books.invalid");
 
     expect(container.querySelector("a")).toBeNull();
-    expect(screen.getByText("www.marginalia-books.invalid").tagName).toBe("SPAN");
+    expect(screen.getByText("www.marginalia-books.invalid").tagName).toBe(
+      "SPAN",
+    );
   });
 
   it('a bare www autolink renders an anchor with the rel pair and the notice under allowedSchemes ["https", "http"]', () => {
@@ -223,9 +257,14 @@ describe("remark-gfm autolink literals", () => {
 
     const anchor = container.querySelector("a");
 
-    expect(anchor).toHaveAttribute("href", "http://www.marginalia-books.invalid");
+    expect(anchor).toHaveAttribute(
+      "href",
+      "http://www.marginalia-books.invalid",
+    );
     expect(anchor).toHaveAttribute("rel", "noopener noreferrer");
-    expect(anchor?.querySelector(".bowman-sr-only")?.textContent).toBe("(opens in a new tab)");
+    expect(anchor?.querySelector(".bowman-sr-only")?.textContent).toBe(
+      "(opens in a new tab)",
+    );
   });
 });
 
@@ -272,7 +311,10 @@ describe("GDPR: no network request from model-authored content", () => {
 });
 
 describe("the markdown sources (grep acceptance criteria)", () => {
-  const sources = ["src/markdown/urlPolicy.ts", "src/markdown/components.tsx"].map((path) => ({
+  const sources = [
+    "src/markdown/urlPolicy.ts",
+    "src/markdown/components.tsx",
+  ].map((path) => ({
     path,
     content: readFileSync(resolve(process.cwd(), path), "utf8"),
   }));
@@ -286,13 +328,17 @@ describe("the markdown sources (grep acceptance criteria)", () => {
 
   it("no file under src/ mentions rehype or defaultUrlTransform", () => {
     for (const file of walk(resolve(process.cwd(), "src"))) {
-      expect(readFileSync(file, "utf8")).not.toMatch(/rehype|defaultUrlTransform/i);
+      expect(readFileSync(file, "utf8")).not.toMatch(
+        /rehype|defaultUrlTransform/i,
+      );
     }
   });
 
   it("GDPR: neither markdown file calls console.*, localStorage, sessionStorage, fetch or sendBeacon", () => {
     for (const { content } of sources) {
-      expect(content).not.toMatch(/console\.|localStorage|sessionStorage|fetch|sendBeacon/);
+      expect(content).not.toMatch(
+        /console\.|localStorage|sessionStorage|fetch|sendBeacon/,
+      );
     }
   });
 });
@@ -306,7 +352,9 @@ describe("review hardening (076 diff review)", () => {
 
     expect(reference).toHaveAttribute("id", "user-content-fnref-1");
     expect(reference).toHaveAttribute("aria-describedby", "footnote-label");
-    const backref = container.querySelector('span[aria-label="Back to reference 1"]');
+    const backref = container.querySelector(
+      'span[aria-label="Back to reference 1"]',
+    );
 
     expect(backref?.textContent).toBe("↩");
   });
@@ -318,7 +366,10 @@ describe("review hardening (076 diff review)", () => {
   });
 
   it("styles.css ships the bowman-sr-only and bowman-md-img rules", () => {
-    const styles = readFileSync(resolve(process.cwd(), "src/styles.css"), "utf8");
+    const styles = readFileSync(
+      resolve(process.cwd(), "src/styles.css"),
+      "utf8",
+    );
 
     expect(styles).toMatch(/\.bowman-sr-only \{/);
     expect(styles).toMatch(/\.bowman-md-img \{/);
@@ -340,7 +391,7 @@ describe("an authority-less special scheme is not a way around allowRelativeUrls
 
       expect(container.querySelector("a")).toBeNull();
       expect(screen.getByText("4711").tagName).toBe("SPAN");
-    }
+    },
   );
 
   it("the rejection survives allowRelativeUrls: true and an http opt-in", () => {
@@ -349,7 +400,10 @@ describe("an authority-less special scheme is not a way around allowRelativeUrls
       allowRelativeUrls: true,
     });
 
-    expect([transform("https:/api/logout"), transform("http:api/x")]).toEqual(["", ""]);
+    expect([transform("https:/api/logout"), transform("http:api/x")]).toEqual([
+      "",
+      "",
+    ]);
   });
 
   it("mailto and tel keep their authority-less form", () => {

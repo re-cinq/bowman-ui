@@ -4,6 +4,7 @@ import reactHooks from "eslint-plugin-react-hooks";
 import sonarjs from "eslint-plugin-sonarjs";
 import stylistic from "@stylistic/eslint-plugin";
 import bowman from "./tools/eslint-plugin-bowman/index.mjs";
+import { houseStyleRules } from "./eslint.house-style.mjs";
 
 // docs/design-notes.md § Labels: the shared no-restricted-syntax selector set. Hoisted
 // into a const so the src/** overlays below (raw-<svg> ban, inline
@@ -110,7 +111,10 @@ export default [
       "react-hooks/exhaustive-deps": "warn",
       "react-hooks/refs": "error",
       "react-hooks/set-state-in-effect": "error",
-      "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
+      "@typescript-eslint/no-unused-vars": [
+        "error",
+        { argsIgnorePattern: "^_" },
+      ],
       "@typescript-eslint/no-explicit-any": "error",
     },
   },
@@ -135,35 +139,16 @@ export default [
       "react-hooks/set-state-in-effect": "off",
     },
   },
-  // House readability baseline for every file the linter reaches (src, tests,
-  // scripts, examples): control flow always takes braces, and a blank line
-  // separates returns, the import block, declaration groups, and control-flow
-  // statements from what precedes them. Both rules are autofixable, and
-  // Prettier neither inserts nor removes single blank lines between
-  // statements, so --fix followed by prettier --write reaches a fixed point.
+  // Org house style (braces + blank-line padding). eslint.house-style.mjs is a
+  // verbatim mirror of the canonical definition in re-cinq/lore (as is
+  // .prettierrc) - never edited here. scripts/check-house-style-sync.mjs
+  // byte-compares both mirrors against lore's main in CI and refreshes them
+  // with --write; .prettierignore exempts them so lore stays the format
+  // authority for their bytes.
   {
     files: ["**/*.{ts,tsx,mts,cts,mjs,cjs,js}"],
     plugins: { "@stylistic": stylistic },
-    rules: {
-      curly: ["error", "all"],
-      "@stylistic/padding-line-between-statements": [
-        "error",
-        { blankLine: "always", prev: "*", next: "return" },
-        { blankLine: "always", prev: "import", next: "*" },
-        { blankLine: "any", prev: "import", next: "import" },
-        { blankLine: "always", prev: ["const", "let", "var"], next: "*" },
-        {
-          blankLine: "any",
-          prev: ["const", "let", "var"],
-          next: ["const", "let", "var"],
-        },
-        {
-          blankLine: "always",
-          prev: "*",
-          next: ["if", "for", "while", "switch", "try", "do"],
-        },
-      ],
-    },
+    rules: houseStyleRules,
   },
   // docs/design-notes.md § Labels: hardcoded user-visible/assistive strings and i18n
   // runtimes are banned from src/. Core ESLint only - no new plugin. The
@@ -173,7 +158,11 @@ export default [
   {
     files: ["src/**/*.{ts,tsx}", "tests/fixtures/eslint-labels/**/*.{ts,tsx}"],
     rules: {
-      "no-restricted-syntax": ["error", ...labelsRestrictedSyntax, defaultExportBan],
+      "no-restricted-syntax": [
+        "error",
+        ...labelsRestrictedSyntax,
+        defaultExportBan,
+      ],
       "no-restricted-imports": [
         "error",
         {
@@ -232,7 +221,10 @@ export default [
   // ignored below, linted with --no-ignore by tests/eslint-house-rules.test.ts)
   // are checked against these exact rules, not a copy of them.
   {
-    files: ["src/**/*.{ts,tsx}", "tests/fixtures/eslint-house-rules/**/*.{ts,tsx}"],
+    files: [
+      "src/**/*.{ts,tsx}",
+      "tests/fixtures/eslint-house-rules/**/*.{ts,tsx}",
+    ],
     plugins: { bowman },
     rules: {
       "bowman/max-boolean-operators": ["error", { max: 2 }],
@@ -270,10 +262,16 @@ export default [
   // directive and the `rect(0, 0, 0, 0)` visually-hidden clip each appear once
   // per file, so neither reaches the threshold - see report for the analysis.
   {
-    files: ["src/**/*.{ts,tsx}", "tests/fixtures/eslint-duplication/**/*.{ts,tsx}"],
+    files: [
+      "src/**/*.{ts,tsx}",
+      "tests/fixtures/eslint-duplication/**/*.{ts,tsx}",
+    ],
     plugins: { sonarjs },
     rules: {
-      "sonarjs/no-duplicate-string": ["error", { threshold: 3, ignoreStrings: "use client" }],
+      "sonarjs/no-duplicate-string": [
+        "error",
+        { threshold: 3, ignoreStrings: "use client" },
+      ],
       "sonarjs/no-identical-functions": "error",
     },
   },

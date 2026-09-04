@@ -10,5 +10,7 @@ const reasoning: ThinkingChatEntry = {
 };
 
 export function ThinkingTraceExample() {
-  return <ThinkingTrace entry={reasoning} labels={{ thinkingTrace: "Reasoning" }} />;
+  return (
+    <ThinkingTrace entry={reasoning} labels={{ thinkingTrace: "Reasoning" }} />
+  );
 }

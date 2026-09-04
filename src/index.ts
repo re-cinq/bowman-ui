@@ -10,7 +10,10 @@ export type {
 } from "./types/chat.js";
 export { createMarkdownComponents } from "./markdown/components.js";
 export type { MarkdownElementProps } from "./markdown/components.js";
-export { createUrlTransform, defaultMarkdownPolicy } from "./markdown/urlPolicy.js";
+export {
+  createUrlTransform,
+  defaultMarkdownPolicy,
+} from "./markdown/urlPolicy.js";
 export type { MarkdownPolicy } from "./markdown/urlPolicy.js";
 export {
   ArtifactsIcon,
@@ -47,10 +50,22 @@ export type { FocusGroupsOptions } from "./hooks/useFocusGroups.js";
 export { useReducedMotion } from "./hooks/useReducedMotion.js";
 export { useSidebarState } from "./hooks/useSidebarState.js";
 export type { SidebarStateOptions } from "./hooks/useSidebarState.js";
-export { ErrorBoundary, defaultErrorBoundaryLabels } from "./components/ErrorBoundary.js";
-export type { ErrorBoundaryLabels, ErrorBoundaryProps } from "./components/ErrorBoundary.js";
-export { ChatMessage, defaultChatMessageLabels } from "./components/ChatMessage.js";
-export type { ChatMessageLabels, ChatMessageProps } from "./components/ChatMessage.js";
+export {
+  ErrorBoundary,
+  defaultErrorBoundaryLabels,
+} from "./components/ErrorBoundary.js";
+export type {
+  ErrorBoundaryLabels,
+  ErrorBoundaryProps,
+} from "./components/ErrorBoundary.js";
+export {
+  ChatMessage,
+  defaultChatMessageLabels,
+} from "./components/ChatMessage.js";
+export type {
+  ChatMessageLabels,
+  ChatMessageProps,
+} from "./components/ChatMessage.js";
 export {
   InlineThinkingIndicator,
   defaultInlineThinkingIndicatorLabels,
@@ -67,11 +82,26 @@ export type {
   ThinkingIndicatorLabels,
   ThinkingIndicatorProps,
 } from "./components/ThinkingIndicator.js";
-export { ThinkingTrace, defaultThinkingTraceLabels } from "./components/ThinkingTrace.js";
-export type { ThinkingTraceLabels, ThinkingTraceProps } from "./components/ThinkingTrace.js";
-export { ToolActivity, defaultToolActivityLabels } from "./components/ToolActivity.js";
-export type { ToolActivityLabels, ToolActivityProps } from "./components/ToolActivity.js";
-export { ChatComposer, defaultChatComposerLabels } from "./components/ChatComposer.js";
+export {
+  ThinkingTrace,
+  defaultThinkingTraceLabels,
+} from "./components/ThinkingTrace.js";
+export type {
+  ThinkingTraceLabels,
+  ThinkingTraceProps,
+} from "./components/ThinkingTrace.js";
+export {
+  ToolActivity,
+  defaultToolActivityLabels,
+} from "./components/ToolActivity.js";
+export type {
+  ToolActivityLabels,
+  ToolActivityProps,
+} from "./components/ToolActivity.js";
+export {
+  ChatComposer,
+  defaultChatComposerLabels,
+} from "./components/ChatComposer.js";
 export type {
   ChatComposerHandle,
   ChatComposerLabels,
@@ -79,7 +109,10 @@ export type {
 } from "./components/ChatComposer.js";
 export { Toast } from "./components/Toast.js";
 export type { ToastProps } from "./components/Toast.js";
-export { ConversationList, defaultConversationListLabels } from "./components/ConversationList.js";
+export {
+  ConversationList,
+  defaultConversationListLabels,
+} from "./components/ConversationList.js";
 export type {
   ConversationLinkProps,
   ConversationListItem,
@@ -87,15 +120,25 @@ export type {
   ConversationListProps,
 } from "./components/ConversationList.js";
 export { AppShell, defaultAppShellLabels } from "./components/AppShell.js";
-export type { AppShellLabels, AppShellProps, SidebarSlotContext } from "./components/AppShell.js";
-export { AppSidebar, defaultAppSidebarLabels } from "./components/AppSidebar.js";
+export type {
+  AppShellLabels,
+  AppShellProps,
+  SidebarSlotContext,
+} from "./components/AppShell.js";
+export {
+  AppSidebar,
+  defaultAppSidebarLabels,
+} from "./components/AppSidebar.js";
 export type {
   AppSidebarLabels,
   AppSidebarProps,
   SidebarNavItem,
   SidebarNavLinkProps,
 } from "./components/AppSidebar.js";
-export { ChatMessageList, defaultChatMessageListLabels } from "./components/ChatMessageList.js";
+export {
+  ChatMessageList,
+  defaultChatMessageListLabels,
+} from "./components/ChatMessageList.js";
 export type {
   ChatAttribution,
   ChatMessageListHandle,

@@ -48,12 +48,20 @@ const chatRequested = query.get("view") === "chat";
 const requestedComponent = query.get("component");
 
 export function App() {
-  return chatRequested ? <ChatScreen /> : <DocsApp componentId={requestedComponent} />;
+  return chatRequested ? (
+    <ChatScreen />
+  ) : (
+    <DocsApp componentId={requestedComponent} />
+  );
 }
 
 function ChatScreen() {
-  const [entriesByConversation, setEntriesByConversation] = useState(initialEntriesByConversation);
-  const [activeConversationId, setActiveConversationId] = useState(conversations[0].id);
+  const [entriesByConversation, setEntriesByConversation] = useState(
+    initialEntriesByConversation,
+  );
+  const [activeConversationId, setActiveConversationId] = useState(
+    conversations[0].id,
+  );
   const [activeNavKey, setActiveNavKey] = useState(conversationsNavKey);
   const [busy, setBusy] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -86,23 +94,30 @@ function ChatScreen() {
   const mapEntry = (
     conversationId: string,
     entryId: string,
-    change: (entry: DemoEntry) => DemoEntry
+    change: (entry: DemoEntry) => DemoEntry,
   ) => {
     setEntriesByConversation((current) => ({
       ...current,
       [conversationId]: (current[conversationId] ?? []).map((entry) =>
-        entry.id === entryId ? change(entry) : entry
+        entry.id === entryId ? change(entry) : entry,
       ),
     }));
   };
 
-  const growEntry = (conversationId: string, entryId: string, chunk: string) => {
-    mapEntry(conversationId, entryId, (entry) => ({ ...entry, content: entry.content + chunk }));
+  const growEntry = (
+    conversationId: string,
+    entryId: string,
+    chunk: string,
+  ) => {
+    mapEntry(conversationId, entryId, (entry) => ({
+      ...entry,
+      content: entry.content + chunk,
+    }));
   };
 
   const commitEntry = (conversationId: string, entryId: string) => {
     mapEntry(conversationId, entryId, (entry) =>
-      entry.role === "assistant" ? { ...entry, isStreaming: false } : entry
+      entry.role === "assistant" ? { ...entry, isStreaming: false } : entry,
     );
   };
 
@@ -110,7 +125,11 @@ function ChatScreen() {
     const conversationId = activeConversationId;
     const replyId = crypto.randomUUID();
 
-    appendEntry(conversationId, { id: crypto.randomUUID(), role: "user", content: text });
+    appendEntry(conversationId, {
+      id: crypto.randomUUID(),
+      role: "user",
+      content: text,
+    });
     setBusy(true);
     cancelStream.current?.();
     cancelStream.current = streamAssistantReply((event) => {
@@ -176,14 +195,22 @@ function ChatScreen() {
 
   return (
     <>
-      <AppShell brand={brandName} renderSidebar={renderSidebar} labels={appShellLabels}>
+      <AppShell
+        brand={brandName}
+        renderSidebar={renderSidebar}
+        labels={appShellLabels}
+      >
         <div className="flex h-full min-h-0 flex-col">
           <ChatMessageList
             entries={activeEntries}
             userInitials={demoUserInitials}
             labels={chatMessageListLabels}
             busy={busy}
-            greeting={<p className="text-lg text-slate-600 dark:text-slate-300">{greetingText}</p>}
+            greeting={
+              <p className="text-lg text-slate-600 dark:text-slate-300">
+                {greetingText}
+              </p>
+            }
             onCopy={() => setToastMessage(toastCopiedMessage)}
           />
           <div className="mx-auto w-full max-w-3xl px-4 pb-4">

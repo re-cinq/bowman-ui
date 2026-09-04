@@ -135,7 +135,7 @@ const parseValueExports = (source: string): string[] =>
     names
       .split(",")
       .map((name) => name.trim())
-      .filter(Boolean)
+      .filter(Boolean),
   );
 
 describe("the labels export partition", () => {
@@ -150,7 +150,7 @@ describe("the labels export partition", () => {
       unclassified,
       `Unclassified export(s): ${unclassified.join(", ")}. Every value export must be placed in ` +
         `labelsProp, stringPropOnly or noStrings in tests/labelled-exports.test.tsx - ` +
-        `see docs/design-notes.md § Labels for which bucket applies.`
+        `see docs/design-notes.md § Labels for which bucket applies.`,
     ).toEqual([]);
     expect(classified).toEqual(exported);
   });
@@ -270,7 +270,9 @@ const numericContent = "4711 – ok";
 // A function-form label's sentinel is computed per argument, so a harness that
 // renders one lists the computed string beside the plain ones.
 const plainSentinels = (sentinels: Record<string, unknown>): string[] =>
-  Object.values(sentinels).filter((value): value is string => typeof value === "string");
+  Object.values(sentinels).filter(
+    (value): value is string => typeof value === "string",
+  );
 
 // Every labelsProp member needs an entry here: the harness renders it with
 // every label set to a unique sentinel. Adding a labelsProp component without
@@ -286,7 +288,7 @@ const sentinelHarnesses: Record<
         <ErrorBoundary labels={errorBoundarySentinels}>
           <Bomb />
         </ErrorBoundary>,
-        silenced
+        silenced,
       ).container,
   },
   ChatMessage: {
@@ -314,11 +316,16 @@ const sentinelHarnesses: Record<
             labels={chatMessageSentinels}
           />
           <ChatMessage
-            entry={{ id: "a2", role: "assistant", content: "", isStreaming: true }}
+            entry={{
+              id: "a2",
+              role: "assistant",
+              content: "",
+              isStreaming: true,
+            }}
             userInitials="LM"
             labels={chatMessageSentinels}
           />
-        </>
+        </>,
       );
       // Clicking copy and thumbs-up surfaces the interaction-only labels
       // (copied, copiedNotice, feedbackNotice) so a hardcoded string on
@@ -341,7 +348,12 @@ const sentinelHarnesses: Record<
         <ChatMessageList
           entries={[
             { id: "u1", role: "user", content: numericContent },
-            { id: "th1", role: "thinking", content: numericContent, isStreaming: false },
+            {
+              id: "th1",
+              role: "thinking",
+              content: numericContent,
+              isStreaming: false,
+            },
             {
               id: "a1",
               role: "assistant",
@@ -361,7 +373,7 @@ const sentinelHarnesses: Record<
           showThinking
           attribution={{ "p-one": { name: personaName } }}
           labels={chatMessageListSentinels}
-        />
+        />,
       );
       const [copyButton, thumbsUp] = getAllByRole("button");
 
@@ -374,12 +386,15 @@ const sentinelHarnesses: Record<
   InlineThinkingIndicator: {
     sentinels: Object.values(inlineThinkingIndicatorSentinels),
     renderContainer: () =>
-      render(<InlineThinkingIndicator labels={inlineThinkingIndicatorSentinels} />).container,
+      render(
+        <InlineThinkingIndicator labels={inlineThinkingIndicatorSentinels} />,
+      ).container,
   },
   ThinkingIndicator: {
     sentinels: Object.values(thinkingIndicatorSentinels),
     renderContainer: () =>
-      render(<ThinkingIndicator labels={thinkingIndicatorSentinels} />).container,
+      render(<ThinkingIndicator labels={thinkingIndicatorSentinels} />)
+        .container,
   },
   ThinkingTrace: {
     sentinels: Object.values(thinkingTraceSentinels),
@@ -391,7 +406,9 @@ const sentinelHarnesses: Record<
         isStreaming: true,
       } satisfies ThinkingChatEntry;
 
-      return render(<ThinkingTrace entry={entry} labels={thinkingTraceSentinels} />).container;
+      return render(
+        <ThinkingTrace entry={entry} labels={thinkingTraceSentinels} />,
+      ).container;
     },
   },
   ToolActivity: {
@@ -409,16 +426,23 @@ const sentinelHarnesses: Record<
       // input is numeric, so the only Latin runs are the sentinels themselves.
       return render(
         <>
-          <ToolActivity entry={entry} pending showToolInput labels={toolActivitySentinels} />
+          <ToolActivity
+            entry={entry}
+            pending
+            showToolInput
+            labels={toolActivitySentinels}
+          />
           <ToolActivity entry={entry} labels={toolActivitySentinels} />
-        </>
+        </>,
       ).container;
     },
   },
   ChatComposer: {
     sentinels: Object.values(chatComposerSentinels),
     renderContainer: () =>
-      render(<ChatComposer onSubmit={() => {}} labels={chatComposerSentinels} />).container,
+      render(
+        <ChatComposer onSubmit={() => {}} labels={chatComposerSentinels} />,
+      ).container,
   },
   AppShell: {
     sentinels: Object.values(appShellSentinels),
@@ -430,12 +454,14 @@ const sentinelHarnesses: Record<
           renderSidebar={() => <span>4712</span>}
         >
           {numericContent}
-        </AppShell>
+        </AppShell>,
       );
 
       // The dialog name renders only on the open drawer, so the harness
       // opens it to surface the sidebarDialog sentinel.
-      fireEvent.click(getByRole("button", { name: appShellSentinels.openSidebar }));
+      fireEvent.click(
+        getByRole("button", { name: appShellSentinels.openSidebar }),
+      );
 
       return container;
     },
@@ -451,7 +477,7 @@ const sentinelHarnesses: Record<
           footer={<span>4714</span>}
         >
           {numericContent}
-        </AppSidebar>
+        </AppSidebar>,
       ).container,
   },
   createMarkdownComponents: {
@@ -460,11 +486,13 @@ const sentinelHarnesses: Record<
       render(
         <ReactMarkdown
           remarkPlugins={[remarkGfm]}
-          components={createMarkdownComponents({ labels: markdownComponentsSentinels })}
+          components={createMarkdownComponents({
+            labels: markdownComponentsSentinels,
+          })}
           urlTransform={createUrlTransform()}
         >
           {"[4711](https://4711.example/4711)"}
-        </ReactMarkdown>
+        </ReactMarkdown>,
       ).container,
   },
   ConversationList: {
@@ -478,13 +506,24 @@ const sentinelHarnesses: Record<
       render(
         <>
           <ConversationList
-            items={[{ id: "c1", title: numericContent, timestamp: "12–08", badge: "4711" }]}
+            items={[
+              {
+                id: "c1",
+                title: numericContent,
+                timestamp: "12–08",
+                badge: "4711",
+              },
+            ]}
             onDelete={() => {}}
             labels={conversationListSentinels}
           />
           <ConversationList items={[]} labels={conversationListSentinels} />
-          <ConversationList items={[]} isLoading labels={conversationListSentinels} />
-        </>
+          <ConversationList
+            items={[]}
+            isLoading
+            labels={conversationListSentinels}
+          />
+        </>,
       ).container,
   },
 };
@@ -495,73 +534,73 @@ const stripSentinels = (text: string, sentinels: string[]): string =>
 describe("the sentinel render check", () => {
   it("ErrorBoundary's sentinel labels cover every defaultErrorBoundaryLabels key", () => {
     expect(Object.keys(errorBoundarySentinels).sort()).toEqual(
-      Object.keys(defaultErrorBoundaryLabels).sort()
+      Object.keys(defaultErrorBoundaryLabels).sort(),
     );
   });
 
   it("ChatMessage's sentinel labels cover every defaultChatMessageLabels key", () => {
     expect(Object.keys(chatMessageSentinels).sort()).toEqual(
-      Object.keys(defaultChatMessageLabels).sort()
+      Object.keys(defaultChatMessageLabels).sort(),
     );
   });
 
   it("ChatMessageList's sentinel labels cover every defaultChatMessageListLabels key plus the required aiDisclosure", () => {
     expect(Object.keys(chatMessageListSentinels).sort()).toEqual(
-      [...Object.keys(defaultChatMessageListLabels), "aiDisclosure"].sort()
+      [...Object.keys(defaultChatMessageListLabels), "aiDisclosure"].sort(),
     );
   });
 
   it("InlineThinkingIndicator's sentinel labels cover every defaultInlineThinkingIndicatorLabels key", () => {
     expect(Object.keys(inlineThinkingIndicatorSentinels).sort()).toEqual(
-      Object.keys(defaultInlineThinkingIndicatorLabels).sort()
+      Object.keys(defaultInlineThinkingIndicatorLabels).sort(),
     );
   });
 
   it("ThinkingIndicator's sentinel labels cover every defaultThinkingIndicatorLabels key", () => {
     expect(Object.keys(thinkingIndicatorSentinels).sort()).toEqual(
-      Object.keys(defaultThinkingIndicatorLabels).sort()
+      Object.keys(defaultThinkingIndicatorLabels).sort(),
     );
   });
 
   it("ThinkingTrace's sentinel labels cover every defaultThinkingTraceLabels key", () => {
     expect(Object.keys(thinkingTraceSentinels).sort()).toEqual(
-      Object.keys(defaultThinkingTraceLabels).sort()
+      Object.keys(defaultThinkingTraceLabels).sort(),
     );
   });
 
   it("ToolActivity's sentinel labels cover every defaultToolActivityLabels key", () => {
     expect(Object.keys(toolActivitySentinels).sort()).toEqual(
-      Object.keys(defaultToolActivityLabels).sort()
+      Object.keys(defaultToolActivityLabels).sort(),
     );
   });
 
   it("ChatComposer's sentinel labels cover every defaultChatComposerLabels key", () => {
     expect(Object.keys(chatComposerSentinels).sort()).toEqual(
-      Object.keys(defaultChatComposerLabels).sort()
+      Object.keys(defaultChatComposerLabels).sort(),
     );
   });
 
   it("ConversationList's sentinel labels cover every defaultConversationListLabels key", () => {
     expect(Object.keys(conversationListSentinels).sort()).toEqual(
-      Object.keys(defaultConversationListLabels).sort()
+      Object.keys(defaultConversationListLabels).sort(),
     );
   });
 
   it("AppShell's sentinel labels cover every defaultAppShellLabels key", () => {
     expect(Object.keys(appShellSentinels).sort()).toEqual(
-      Object.keys(defaultAppShellLabels).sort()
+      Object.keys(defaultAppShellLabels).sort(),
     );
   });
 
   it("AppSidebar's sentinel labels cover every defaultAppSidebarLabels key", () => {
     expect(Object.keys(appSidebarSentinels).sort()).toEqual(
-      Object.keys(defaultAppSidebarLabels).sort()
+      Object.keys(defaultAppSidebarLabels).sort(),
     );
   });
 
   it("createMarkdownComponents' sentinel labels cover every defaultMarkdownComponentsLabels key", () => {
     expect(Object.keys(markdownComponentsSentinels).sort()).toEqual(
-      Object.keys(defaultMarkdownComponentsLabels).sort()
+      Object.keys(defaultMarkdownComponentsLabels).sort(),
     );
   });
 
@@ -572,17 +611,21 @@ describe("the sentinel render check", () => {
       if (!harness) {
         throw new Error(
           `${name} is in labelsProp but has no sentinel harness - add one to sentinelHarnesses ` +
-            `in tests/labelled-exports.test.tsx (docs/design-notes.md § Labels).`
+            `in tests/labelled-exports.test.tsx (docs/design-notes.md § Labels).`,
         );
       }
 
       const container = harness.renderContainer();
 
-      const strayText = stripSentinels(container.textContent ?? "", harness.sentinels);
-
-      expect(strayText, `${name} renders hardcoded text: "${strayText.trim()}"`).not.toMatch(
-        LATIN_RUN
+      const strayText = stripSentinels(
+        container.textContent ?? "",
+        harness.sentinels,
       );
+
+      expect(
+        strayText,
+        `${name} renders hardcoded text: "${strayText.trim()}"`,
+      ).not.toMatch(LATIN_RUN);
 
       for (const element of container.querySelectorAll("*")) {
         for (const attribute of SENTINEL_ATTRIBUTES) {
@@ -595,7 +638,7 @@ describe("the sentinel render check", () => {
 
           expect(
             strayAttribute,
-            `${name} renders a hardcoded ${attribute}: "${value}"`
+            `${name} renders a hardcoded ${attribute}: "${value}"`,
           ).not.toMatch(LATIN_RUN);
         }
       }

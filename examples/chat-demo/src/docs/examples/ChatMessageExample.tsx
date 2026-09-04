@@ -10,5 +10,11 @@ const reply: AssistantChatEntry = {
 };
 
 export function ChatMessageExample() {
-  return <ChatMessage entry={reply} userInitials="MW" assistantName="Marginalia Support" />;
+  return (
+    <ChatMessage
+      entry={reply}
+      userInitials="MW"
+      assistantName="Marginalia Support"
+    />
+  );
 }

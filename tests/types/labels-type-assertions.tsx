@@ -11,12 +11,17 @@ import {
   type ErrorBoundaryLabels,
 } from "@re-cinq/bowman-ui";
 
-const resolved: Required<ErrorBoundaryLabels> = resolveLabels(defaultErrorBoundaryLabels, {
-  title: "Algo salió mal",
-  retry: undefined,
-});
+const resolved: Required<ErrorBoundaryLabels> = resolveLabels(
+  defaultErrorBoundaryLabels,
+  {
+    title: "Algo salió mal",
+    retry: undefined,
+  },
+);
 
-const complete = defaultErrorBoundaryLabels satisfies Readonly<Required<ErrorBoundaryLabels>>;
+const complete = defaultErrorBoundaryLabels satisfies Readonly<
+  Required<ErrorBoundaryLabels>
+>;
 
 // @ts-expect-error -- a labels key without a default must not compile: an
 // object missing `retry` is not a Readonly<Required<ErrorBoundaryLabels>>.
@@ -29,7 +34,10 @@ const incomplete: Readonly<Required<ErrorBoundaryLabels>> = {
 
 const Consumer = () => (
   <ErrorBoundary labels={{ title: resolved.title }}>
-    <span data-complete={complete === defaultErrorBoundaryLabels} data-title={incomplete.title} />
+    <span
+      data-complete={complete === defaultErrorBoundaryLabels}
+      data-title={incomplete.title}
+    />
   </ErrorBoundary>
 );
 

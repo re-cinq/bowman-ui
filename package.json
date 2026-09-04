@@ -34,6 +34,7 @@
     "test:coverage": "npm run build && vitest run --coverage",
     "lint": "eslint . --max-warnings 0",
     "check:duplication": "jscpd",
+    "check:house-style-sync": "node scripts/check-house-style-sync.mjs",
     "check:markdown-safety": "node scripts/check-markdown-safety.mjs",
     "check:at-pass": "node scripts/check-at-pass.mjs",
     "consumer": "scripts/consumer-app.sh",

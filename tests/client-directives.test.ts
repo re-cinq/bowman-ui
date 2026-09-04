@@ -4,7 +4,10 @@ import { resolve } from "node:path";
 const script = resolve(process.cwd(), "scripts/check-client-directives.mjs");
 
 const runAgainst = (fixtureDir: string) =>
-  spawnSync("node", [script, fixtureDir], { cwd: process.cwd(), encoding: "utf8" });
+  spawnSync("node", [script, fixtureDir], {
+    cwd: process.cwd(),
+    encoding: "utf8",
+  });
 
 it("exits non-zero when a useState file carries no directive", () => {
   const result = runAgainst("tests/fixtures/client-directive-violation");
@@ -15,7 +18,9 @@ it("exits non-zero when a useState file carries no directive", () => {
 });
 
 it("exits non-zero when a useTransition import carries no directive", () => {
-  const result = runAgainst("tests/fixtures/client-directive-violation-use-transition");
+  const result = runAgainst(
+    "tests/fixtures/client-directive-violation-use-transition",
+  );
 
   expect(result.status).not.toBe(0);
   expect(result.stderr).toContain("UseTransitionNoDirective.tsx");
@@ -23,15 +28,21 @@ it("exits non-zero when a useTransition import carries no directive", () => {
 });
 
 it("exits non-zero when the hook-shaped import comes from a relative specifier", () => {
-  const result = runAgainst("tests/fixtures/client-directive-violation-relative-hook");
+  const result = runAgainst(
+    "tests/fixtures/client-directive-violation-relative-hook",
+  );
 
   expect(result.status).not.toBe(0);
   expect(result.stderr).toContain("RelativeHookNoDirective.tsx");
-  expect(result.stderr).toContain("imports useWidgetState (hook-shaped import)");
+  expect(result.stderr).toContain(
+    "imports useWidgetState (hook-shaped import)",
+  );
 });
 
 it("exits non-zero when the hook arrives as a React.useState namespace call", () => {
-  const result = runAgainst("tests/fixtures/client-directive-violation-namespace-hook");
+  const result = runAgainst(
+    "tests/fixtures/client-directive-violation-namespace-hook",
+  );
 
   expect(result.status).not.toBe(0);
   expect(result.stderr).toContain("NamespaceHookNoDirective.ts");
@@ -39,26 +50,36 @@ it("exits non-zero when the hook arrives as a React.useState namespace call", ()
 });
 
 it("exits non-zero when a createContext import carries no directive", () => {
-  const result = runAgainst("tests/fixtures/client-directive-violation-create-context");
+  const result = runAgainst(
+    "tests/fixtures/client-directive-violation-create-context",
+  );
 
   expect(result.status).not.toBe(0);
   expect(result.stderr).toContain("CreateContextNoDirective.ts");
   expect(result.stderr).toContain("imports createContext");
-  expect(result.stderr).toContain("references .createContext (createContext member)");
+  expect(result.stderr).toContain(
+    "references .createContext (createContext member)",
+  );
 });
 
 it("exits non-zero when a class extends Component with no hook and no handler", () => {
-  const result = runAgainst("tests/fixtures/client-directive-violation-component-class");
+  const result = runAgainst(
+    "tests/fixtures/client-directive-violation-component-class",
+  );
 
   expect(result.status).not.toBe(0);
   expect(result.stderr).toContain("ComponentClassNoDirective.tsx");
   expect(result.stderr).toContain("extends Component (class component)");
-  expect(result.stderr).toContain("extends React.PureComponent (class component)");
+  expect(result.stderr).toContain(
+    "extends React.PureComponent (class component)",
+  );
   expect(result.stderr).toContain("references browser global localStorage");
 });
 
 it("exits non-zero when the only client reference is localStorage.getItem", () => {
-  const result = runAgainst("tests/fixtures/client-directive-violation-browser-global");
+  const result = runAgainst(
+    "tests/fixtures/client-directive-violation-browser-global",
+  );
 
   expect(result.status).not.toBe(0);
   expect(result.stderr).toContain("LocalStorageNoDirective.ts");
@@ -66,7 +87,9 @@ it("exits non-zero when the only client reference is localStorage.getItem", () =
 });
 
 it("exits non-zero when a typeof window guard carries no directive", () => {
-  const result = runAgainst("tests/fixtures/client-directive-violation-typeof-window");
+  const result = runAgainst(
+    "tests/fixtures/client-directive-violation-typeof-window",
+  );
 
   expect(result.status).not.toBe(0);
   expect(result.stderr).toContain("TypeofWindowNoDirective.ts");
@@ -74,7 +97,9 @@ it("exits non-zero when a typeof window guard carries no directive", () => {
 });
 
 it("exits non-zero when the only client reference is an onClick JSX attribute", () => {
-  const result = runAgainst("tests/fixtures/client-directive-violation-jsx-handler");
+  const result = runAgainst(
+    "tests/fixtures/client-directive-violation-jsx-handler",
+  );
 
   expect(result.status).not.toBe(0);
   expect(result.stderr).toContain("JsxHandlerNoDirective.tsx");
@@ -88,7 +113,10 @@ it("exits zero for the barrel, type-only imports, implements clauses, and handle
 });
 
 it("exits zero against src/ and dist/", () => {
-  const result = spawnSync("node", [script], { cwd: process.cwd(), encoding: "utf8" });
+  const result = spawnSync("node", [script], {
+    cwd: process.cwd(),
+    encoding: "utf8",
+  });
 
   expect(result).toMatchObject({ status: 0, stderr: "" });
 });

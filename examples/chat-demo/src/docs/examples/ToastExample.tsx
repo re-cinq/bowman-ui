@@ -14,7 +14,11 @@ export function ToastExample() {
         Show a notification
       </button>
       {message !== null && (
-        <Toast message={message} duration={4000} onClose={() => setMessage(null)} />
+        <Toast
+          message={message}
+          duration={4000}
+          onClose={() => setMessage(null)}
+        />
       )}
     </>
   );

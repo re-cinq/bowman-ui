@@ -8,7 +8,13 @@
 // running render and the printed listing in the same keystroke; there is no
 // second copy to forget.
 
-import { useEffect, useRef, useState, type ComponentType, type ReactNode } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type ComponentType,
+  type ReactNode,
+} from "react";
 import {
   AppSidebar,
   ChatComposer,
@@ -144,7 +150,7 @@ function GrownComposer() {
 
   useEffect(() => {
     composerRef.current?.setValue(
-      "Hello again,\nI would like to move the delivery to Friday.\nSame delivery slot if that is possible."
+      "Hello again,\nI would like to move the delivery to Friday.\nSame delivery slot if that is possible.",
     );
   }, []);
 
@@ -159,7 +165,8 @@ function CustomFallbackBoundary() {
       onError={() => setBroken(false)}
       fallback={
         <p role="alert" className="text-sm text-red-600 dark:text-red-400">
-          A consumer-authored fallback, including its own role=&quot;alert&quot;.
+          A consumer-authored fallback, including its own
+          role=&quot;alert&quot;.
         </p>
       }
     >
@@ -168,7 +175,13 @@ function CustomFallbackBoundary() {
   );
 }
 
-function FallbackTrigger({ broken, onBreak }: { broken: boolean; onBreak: () => void }) {
+function FallbackTrigger({
+  broken,
+  onBreak,
+}: {
+  broken: boolean;
+  onBreak: () => void;
+}) {
   if (broken) {
     throw new Error("A render failed");
   }
@@ -202,21 +215,35 @@ export const componentDocs: ReadonlyArray<ComponentDoc> = [
       {
         id: "user",
         caption: "User turn",
-        node: <ChatMessage entry={docsUserEntry} userInitials={docsUserInitials} />,
+        node: (
+          <ChatMessage entry={docsUserEntry} userInitials={docsUserInitials} />
+        ),
       },
       {
         id: "markdown",
-        caption: "Assistant, committed, with markdown and a policy-allowed link",
-        node: <ChatMessage entry={docsMarkdownEntry} userInitials={docsUserInitials} />,
+        caption:
+          "Assistant, committed, with markdown and a policy-allowed link",
+        node: (
+          <ChatMessage
+            entry={docsMarkdownEntry}
+            userInitials={docsUserInitials}
+          />
+        ),
       },
       {
         id: "streaming",
         caption: "Assistant, streaming: no action row until the entry commits",
-        node: <ChatMessage entry={docsStreamingEntry} userInitials={docsUserInitials} />,
+        node: (
+          <ChatMessage
+            entry={docsStreamingEntry}
+            userInitials={docsUserInitials}
+          />
+        ),
       },
       {
         id: "named",
-        caption: "With assistantName: a name line, and the article's accessible name",
+        caption:
+          "With assistantName: a name line, and the article's accessible name",
         node: (
           <ChatMessage
             entry={docsNamedEntry}
@@ -251,11 +278,15 @@ export const componentDocs: ReadonlyArray<ComponentDoc> = [
     Example: ChatMessageListExample,
     exampleSource: chatMessageListSource,
     props: chatMessageListPropDocs,
-    labels: { defaults: defaultChatMessageListLabels, missing: ["aiDisclosure"] },
+    labels: {
+      defaults: defaultChatMessageListLabels,
+      missing: ["aiDisclosure"],
+    },
     variants: [
       {
         id: "conversation",
-        caption: "All four roles, showThinking on, two personas through attribution",
+        caption:
+          "All four roles, showThinking on, two personas through attribution",
         node: (
           <BoundedList>
             <ChatMessageList
@@ -270,7 +301,8 @@ export const componentDocs: ReadonlyArray<ComponentDoc> = [
       },
       {
         id: "busy",
-        caption: "busy: a ThinkingIndicator after the last entry, and a pending tool row",
+        caption:
+          "busy: a ThinkingIndicator after the last entry, and a pending tool row",
         node: (
           <BoundedList>
             <ChatMessageList
@@ -284,7 +316,8 @@ export const componentDocs: ReadonlyArray<ComponentDoc> = [
       },
       {
         id: "empty",
-        caption: "Empty state: the greeting replaces the transcript, the disclosure stays",
+        caption:
+          "Empty state: the greeting replaces the transcript, the disclosure stays",
         node: (
           <BoundedList>
             <ChatMessageList
@@ -342,7 +375,11 @@ export const componentDocs: ReadonlyArray<ComponentDoc> = [
         caption: "describeTool: a caller-authored sentence, in both tenses",
         node: (
           <div className="flex flex-col gap-2">
-            <ToolActivity entry={docsToolEntry} describeTool={describeTool} pending />
+            <ToolActivity
+              entry={docsToolEntry}
+              describeTool={describeTool}
+              pending
+            />
             <ToolActivity entry={docsToolEntry} describeTool={describeTool} />
           </div>
         ),
@@ -393,7 +430,11 @@ export const componentDocs: ReadonlyArray<ComponentDoc> = [
     props: chatComposerPropDocs,
     labels: { defaults: defaultChatComposerLabels, missing: [] },
     variants: [
-      { id: "empty", caption: "Empty", node: <ChatComposer onSubmit={ignore} /> },
+      {
+        id: "empty",
+        caption: "Empty",
+        node: <ChatComposer onSubmit={ignore} />,
+      },
       {
         id: "grown",
         caption: "Grown to several lines through the ref handle's setValue()",
@@ -421,7 +462,9 @@ export const componentDocs: ReadonlyArray<ComponentDoc> = [
     exampleSource: thinkingIndicatorSource,
     props: thinkingIndicatorPropDocs,
     labels: { defaults: defaultThinkingIndicatorLabels, missing: [] },
-    variants: [{ id: "default", caption: "Default", node: <ThinkingIndicator /> }],
+    variants: [
+      { id: "default", caption: "Default", node: <ThinkingIndicator /> },
+    ],
   },
   {
     id: "inline-thinking-indicator",
@@ -433,7 +476,9 @@ export const componentDocs: ReadonlyArray<ComponentDoc> = [
     exampleSource: inlineThinkingIndicatorSource,
     props: inlineThinkingIndicatorPropDocs,
     labels: { defaults: defaultInlineThinkingIndicatorLabels, missing: [] },
-    variants: [{ id: "default", caption: "Default", node: <InlineThinkingIndicator /> }],
+    variants: [
+      { id: "default", caption: "Default", node: <InlineThinkingIndicator /> },
+    ],
   },
   {
     id: "toast",
@@ -480,7 +525,11 @@ export const componentDocs: ReadonlyArray<ComponentDoc> = [
         caption: "isLoading: a labelled spinner in place of the list",
         node: <ConversationList items={[]} isLoading />,
       },
-      { id: "empty", caption: "No items", node: <ConversationList items={[]} /> },
+      {
+        id: "empty",
+        caption: "No items",
+        node: <ConversationList items={[]} />,
+      },
     ],
   },
   {
@@ -496,12 +545,16 @@ export const componentDocs: ReadonlyArray<ComponentDoc> = [
     variants: [
       {
         id: "no-chrome",
-        caption: "No brand and no footer: neither bordered region renders at all",
+        caption:
+          "No brand and no footer: neither bordered region renders at all",
         node: (
           <div className="flex h-64 w-72 flex-col overflow-hidden rounded-lg border border-slate-200 dark:border-slate-800">
             <AppSidebar>
               <div className="px-3 py-3">
-                <ConversationList items={docsConversationItems} activeId="docs-1" />
+                <ConversationList
+                  items={docsConversationItems}
+                  activeId="docs-1"
+                />
               </div>
             </AppSidebar>
           </div>

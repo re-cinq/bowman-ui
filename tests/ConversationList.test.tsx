@@ -11,17 +11,22 @@ import { resolve } from "node:path";
 import { ConversationList } from "../src/index.js";
 import type { ConversationListItem } from "../src/index.js";
 
-const makeItem = (overrides?: Partial<ConversationListItem>): ConversationListItem => ({
+const makeItem = (
+  overrides?: Partial<ConversationListItem>,
+): ConversationListItem => ({
   id: "conv-1",
   title: "Booking 4711",
   ...overrides,
 });
 
 /** TypewriterTitle splits titles into per-character spans, so plain getByText fails. */
-const titleContainer = () => document.querySelector("span.whitespace-nowrap") as HTMLElement;
+const titleContainer = () =>
+  document.querySelector("span.whitespace-nowrap") as HTMLElement;
 
 const charOpacities = () =>
-  Array.from(titleContainer().children).map((c) => (c as HTMLElement).style.opacity);
+  Array.from(titleContainer().children).map(
+    (c) => (c as HTMLElement).style.opacity,
+  );
 
 afterEach(() => {
   vi.useRealTimers();
@@ -31,7 +36,9 @@ describe("ConversationList", () => {
   describe("the list", () => {
     it('two items render two <li>s inside one <ul> named "Conversations" by default, in items order', () => {
       render(
-        <ConversationList items={[makeItem(), makeItem({ id: "conv-2", title: "Factura 9" })]} />
+        <ConversationList
+          items={[makeItem(), makeItem({ id: "conv-2", title: "Factura 9" })]}
+        />,
       );
 
       const list = screen.getByRole("list", { name: "Conversations" });
@@ -52,17 +59,24 @@ describe("ConversationList", () => {
 
     it('labels={{conversations: "Conversaciones"}} names the <ul> "Conversaciones"', () => {
       render(
-        <ConversationList items={[makeItem()]} labels={{ conversations: "Conversaciones" }} />
+        <ConversationList
+          items={[makeItem()]}
+          labels={{ conversations: "Conversaciones" }}
+        />,
       );
 
-      expect(screen.getByRole("list", { name: "Conversaciones" })).toBeInTheDocument();
+      expect(
+        screen.getByRole("list", { name: "Conversaciones" }),
+      ).toBeInTheDocument();
     });
 
     it('timestamp "Ayer" and badge "Marginalia Books Ltd" render verbatim in the row', () => {
       render(
         <ConversationList
-          items={[makeItem({ timestamp: "Ayer", badge: "Marginalia Books Ltd" })]}
-        />
+          items={[
+            makeItem({ timestamp: "Ayer", badge: "Marginalia Books Ltd" }),
+          ]}
+        />,
       );
 
       expect(screen.getByText("Ayer")).toBeInTheDocument();
@@ -70,11 +84,15 @@ describe("ConversationList", () => {
     });
 
     it("an item without badge renders no badge element, and one without timestamp renders no meta row", () => {
-      const { container } = render(<ConversationList items={[makeItem({ timestamp: "Ayer" })]} />);
+      const { container } = render(
+        <ConversationList items={[makeItem({ timestamp: "Ayer" })]} />,
+      );
 
       expect(container.querySelectorAll("span.truncate")).toHaveLength(0);
 
-      const bare = render(<ConversationList items={[makeItem({ id: "conv-2" })]} />);
+      const bare = render(
+        <ConversationList items={[makeItem({ id: "conv-2" })]} />,
+      );
 
       expect(bare.container.querySelectorAll("span.gap-2")).toHaveLength(0);
     });
@@ -86,7 +104,7 @@ describe("ConversationList", () => {
         <ConversationList
           items={[makeItem(), makeItem({ id: "conv-2", title: "Factura 9" })]}
           activeId="conv-1"
-        />
+        />,
       );
 
       const [first, second] = screen.getAllByRole("button");
@@ -97,7 +115,9 @@ describe("ConversationList", () => {
 
     it("with activeId undefined no row carries aria-current", () => {
       render(
-        <ConversationList items={[makeItem(), makeItem({ id: "conv-2", title: "Factura 9" })]} />
+        <ConversationList
+          items={[makeItem(), makeItem({ id: "conv-2", title: "Factura 9" })]}
+        />,
       );
 
       for (const row of screen.getAllByRole("button")) {
@@ -114,7 +134,7 @@ describe("ConversationList", () => {
         <ConversationList
           items={[makeItem(), makeItem({ id: "conv-2", title: "Factura 9" })]}
           onSelect={onSelect}
-        />
+        />,
       );
 
       fireEvent.click(screen.getAllByRole("button")[1]);
@@ -139,8 +159,10 @@ describe("ConversationList", () => {
           items={[makeItem(), makeItem({ id: "conv-2", title: "Factura 9" })]}
           activeId="conv-2"
           onSelect={onSelect}
-          renderLink={(item, props) => <a href={"/chat/" + item.id} {...props} />}
-        />
+          renderLink={(item, props) => (
+            <a href={"/chat/" + item.id} {...props} />
+          )}
+        />,
       );
 
       const [first, second] = screen.getAllByRole("link");
@@ -165,7 +187,7 @@ describe("ConversationList", () => {
           renderLink={(item, { onClick: _onClick, ...rest }) => (
             <a href={"/chat/" + item.id} {...rest} />
           )}
-        />
+        />,
       );
 
       fireEvent.click(screen.getByRole("link"));
@@ -174,7 +196,10 @@ describe("ConversationList", () => {
     });
 
     it("the design notes' renderLink section requires the consumer to spread every prop", () => {
-      const designNotes = readFileSync(resolve(process.cwd(), "docs/design-notes.md"), "utf8");
+      const designNotes = readFileSync(
+        resolve(process.cwd(), "docs/design-notes.md"),
+        "utf8",
+      );
 
       expect(designNotes).toMatch(/## renderLink/);
       expect(designNotes).toMatch(/spread \*\*every\*\* prop/);
@@ -191,13 +216,15 @@ describe("ConversationList", () => {
           items={[makeItem(), makeItem({ id: "conv-2", title: "Factura 9" })]}
           onSelect={onSelect}
           onDelete={onDelete}
-        />
+        />,
       );
 
-      const button = screen.getByRole("button", { name: "Delete conversation: Booking 4711" });
+      const button = screen.getByRole("button", {
+        name: "Delete conversation: Booking 4711",
+      });
 
       expect(
-        screen.getByRole("button", { name: "Delete conversation: Factura 9" })
+        screen.getByRole("button", { name: "Delete conversation: Factura 9" }),
       ).toBeInTheDocument();
 
       fireEvent.click(button);
@@ -211,7 +238,9 @@ describe("ConversationList", () => {
       const { container } = render(<ConversationList items={[makeItem()]} />);
 
       expect(container.querySelector("svg")).toBeNull();
-      expect(screen.queryByRole("button", { name: /Delete conversation/ })).toBeNull();
+      expect(
+        screen.queryByRole("button", { name: /Delete conversation/ }),
+      ).toBeNull();
     });
   });
 
@@ -221,10 +250,12 @@ describe("ConversationList", () => {
         <ConversationList
           items={[makeItem(), makeItem({ id: "conv-2", title: "Factura 9" })]}
           isLoading
-        />
+        />,
       );
 
-      expect(screen.getByRole("status", { name: "Loading conversations" })).toBeInTheDocument();
+      expect(
+        screen.getByRole("status", { name: "Loading conversations" }),
+      ).toBeInTheDocument();
       expect(screen.queryAllByRole("listitem")).toHaveLength(0);
       expect(screen.queryByRole("list")).toBeNull();
     });
@@ -241,15 +272,19 @@ describe("ConversationList", () => {
     it('a rerender from a placeholder "New thread" to "Booking 4711" steps character by character at 25ms intervals', () => {
       vi.useFakeTimers();
       const { rerender } = render(
-        <ConversationList items={[makeItem({ title: "New thread", isPlaceholderTitle: true })]} />
+        <ConversationList
+          items={[makeItem({ title: "New thread", isPlaceholderTitle: true })]}
+        />,
       );
 
       expect(titleContainer().textContent).toBe("New thread");
 
       rerender(
         <ConversationList
-          items={[makeItem({ title: "Booking 4711", isPlaceholderTitle: false })]}
-        />
+          items={[
+            makeItem({ title: "Booking 4711", isPlaceholderTitle: false }),
+          ]}
+        />,
       );
 
       expect(titleContainer().textContent).toBe("New thread");
@@ -285,14 +320,18 @@ describe("ConversationList", () => {
       vi.useFakeTimers();
       const { rerender } = render(
         <ConversationList
-          items={[makeItem({ title: "Booking 4711", isPlaceholderTitle: false })]}
-        />
+          items={[
+            makeItem({ title: "Booking 4711", isPlaceholderTitle: false }),
+          ]}
+        />,
       );
 
       rerender(
         <ConversationList
-          items={[makeItem({ title: "Booking 4712", isPlaceholderTitle: false })]}
-        />
+          items={[
+            makeItem({ title: "Booking 4712", isPlaceholderTitle: false }),
+          ]}
+        />,
       );
 
       expect(titleContainer().textContent).toBe("Booking 4712");
@@ -302,9 +341,13 @@ describe("ConversationList", () => {
 
     it('a rerender from "Untitled" to "Booking 4711" with isPlaceholderTitle absent on both animates zero times - the case literal-title sniffing would animate', () => {
       vi.useFakeTimers();
-      const { rerender } = render(<ConversationList items={[makeItem({ title: "Untitled" })]} />);
+      const { rerender } = render(
+        <ConversationList items={[makeItem({ title: "Untitled" })]} />,
+      );
 
-      rerender(<ConversationList items={[makeItem({ title: "Booking 4711" })]} />);
+      rerender(
+        <ConversationList items={[makeItem({ title: "Booking 4711" })]} />,
+      );
 
       expect(titleContainer().textContent).toBe("Booking 4711");
       expect(charOpacities().every((o) => o === "1")).toBe(true);
@@ -317,14 +360,16 @@ describe("ConversationList", () => {
         <ConversationList
           items={[makeItem({ title: "New thread", isPlaceholderTitle: true })]}
           reducedMotion
-        />
+        />,
       );
 
       rerender(
         <ConversationList
-          items={[makeItem({ title: "Booking 4711", isPlaceholderTitle: false })]}
+          items={[
+            makeItem({ title: "Booking 4711", isPlaceholderTitle: false }),
+          ]}
           reducedMotion
-        />
+        />,
       );
 
       expect(titleContainer().textContent).toBe("Booking 4711");
@@ -335,13 +380,17 @@ describe("ConversationList", () => {
     it("unmounting mid-animation clears the interval - advancing past the full run afterwards produces no state update and no act warning", () => {
       vi.useFakeTimers();
       const { rerender, unmount } = render(
-        <ConversationList items={[makeItem({ title: "New thread", isPlaceholderTitle: true })]} />
+        <ConversationList
+          items={[makeItem({ title: "New thread", isPlaceholderTitle: true })]}
+        />,
       );
 
       rerender(
         <ConversationList
-          items={[makeItem({ title: "Booking 4711", isPlaceholderTitle: false })]}
-        />
+          items={[
+            makeItem({ title: "Booking 4711", isPlaceholderTitle: false }),
+          ]}
+        />,
       );
       act(() => {
         vi.advanceTimersByTime(50);
@@ -360,7 +409,10 @@ describe("ConversationList", () => {
 
       const plainTitle = screen.getByText("Booking 4711");
 
-      expect(plainTitle.style).toMatchObject({ position: "absolute", width: "1px" });
+      expect(plainTitle.style).toMatchObject({
+        position: "absolute",
+        width: "1px",
+      });
       expect(plainTitle.hasAttribute("class")).toBe(false);
       expect(titleContainer()).toHaveAttribute("aria-hidden", "true");
     });
@@ -368,13 +420,17 @@ describe("ConversationList", () => {
     it("mid-animation, assistive tech already reads the new title while the characters still show the old one", () => {
       vi.useFakeTimers();
       const { rerender } = render(
-        <ConversationList items={[makeItem({ title: "New thread", isPlaceholderTitle: true })]} />
+        <ConversationList
+          items={[makeItem({ title: "New thread", isPlaceholderTitle: true })]}
+        />,
       );
 
       rerender(
         <ConversationList
-          items={[makeItem({ title: "Booking 4711", isPlaceholderTitle: false })]}
-        />
+          items={[
+            makeItem({ title: "Booking 4711", isPlaceholderTitle: false }),
+          ]}
+        />,
       );
 
       expect(screen.getByText("Booking 4711")).toBeInTheDocument();
@@ -389,20 +445,28 @@ describe("ConversationList", () => {
     it("a second list does not animate from the first list's titles - the previous-title record is component-scoped, not module-scoped", () => {
       vi.useFakeTimers();
       render(
-        <ConversationList items={[makeItem({ title: "New thread", isPlaceholderTitle: true })]} />
+        <ConversationList
+          items={[makeItem({ title: "New thread", isPlaceholderTitle: true })]}
+        />,
       );
 
       const second = render(
         <ConversationList
-          items={[makeItem({ title: "Booking 4711", isPlaceholderTitle: false })]}
-        />
+          items={[
+            makeItem({ title: "Booking 4711", isPlaceholderTitle: false }),
+          ]}
+        />,
       );
 
-      const secondTitle = second.container.querySelector("span.whitespace-nowrap") as HTMLElement;
+      const secondTitle = second.container.querySelector(
+        "span.whitespace-nowrap",
+      ) as HTMLElement;
 
       expect(secondTitle.textContent).toBe("Booking 4711");
       expect(
-        Array.from(secondTitle.children).every((c) => (c as HTMLElement).style.opacity === "1")
+        Array.from(secondTitle.children).every(
+          (c) => (c as HTMLElement).style.opacity === "1",
+        ),
       ).toBe(true);
       expect(vi.getTimerCount()).toBe(0);
     });
@@ -419,13 +483,15 @@ describe("the source files (grep acceptance criteria)", () => {
 
   it("GDPR: the file calls no console.*, localStorage, sessionStorage, fetch, sendBeacon or analytics", () => {
     expect(content).not.toMatch(
-      /console\.|localStorage|sessionStorage|fetch|sendBeacon|analytics|indexedDB/i
+      /console\.|localStorage|sessionStorage|fetch|sendBeacon|analytics|indexedDB/i,
     );
   });
 
   it("no @clerk, swr, next-intl, next/, @/ or lucide-react import, and every relative import ends in .js", () => {
     expect(content).not.toMatch(/@clerk|swr|next-intl|next\/|@\/|lucide-react/);
-    const relativeImports = [...content.matchAll(/from\s+"(\.[^"]+)"/g)].map(([, spec]) => spec);
+    const relativeImports = [...content.matchAll(/from\s+"(\.[^"]+)"/g)].map(
+      ([, spec]) => spec,
+    );
 
     expect(relativeImports.length).toBeGreaterThan(0);
 

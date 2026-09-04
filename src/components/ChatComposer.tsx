@@ -19,11 +19,12 @@ export interface ChatComposerLabels {
   send: string;
 }
 
-export const defaultChatComposerLabels: Readonly<Required<ChatComposerLabels>> = Object.freeze({
-  composerInput: "Your message",
-  composerPlaceholder: "Reply...",
-  send: "Send message",
-});
+export const defaultChatComposerLabels: Readonly<Required<ChatComposerLabels>> =
+  Object.freeze({
+    composerInput: "Your message",
+    composerPlaceholder: "Reply...",
+    send: "Send message",
+  });
 
 export interface ChatComposerProps {
   /** Receives the trimmed draft; the component clears itself after calling it. */
@@ -94,7 +95,11 @@ export function ChatComposer({
   };
 
   const handleKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
-    if (event.key !== "Enter" || event.shiftKey || event.nativeEvent.isComposing) {
+    if (
+      event.key !== "Enter" ||
+      event.shiftKey ||
+      event.nativeEvent.isComposing
+    ) {
       return;
     }
     event.preventDefault();

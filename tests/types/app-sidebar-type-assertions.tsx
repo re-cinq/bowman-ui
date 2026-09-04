@@ -14,7 +14,9 @@ import {
   type SidebarNavLinkProps,
 } from "@re-cinq/bowman-ui";
 
-const completeDefaults = defaultAppSidebarLabels satisfies Readonly<Required<AppSidebarLabels>>;
+const completeDefaults = defaultAppSidebarLabels satisfies Readonly<
+  Required<AppSidebarLabels>
+>;
 
 // @ts-expect-error -- a labels key without a default must not compile: an
 // object missing `mainNavigation` is not a
@@ -23,10 +25,14 @@ const incompleteDefaults: Readonly<Required<AppSidebarLabels>> = {
   sidebar: "Sidebar",
 };
 
-// @ts-expect-error -- SidebarNavItem has no href field: a nav item carries
-// its resolved label and no route, so this fails the build if href ever
-// compiles.
-const itemWithHref: SidebarNavItem = { key: "chat", label: "Chat", href: "/chat" };
+const itemWithHref: SidebarNavItem = {
+  key: "chat",
+  label: "Chat",
+  // @ts-expect-error -- SidebarNavItem has no href field: a nav item carries
+  // its resolved label and no route, so this fails the build if href ever
+  // compiles.
+  href: "/chat",
+};
 
 const items: SidebarNavItem[] = [
   { key: "dashboard", label: "Dashboard", icon: ChatIcon, isActive: true },

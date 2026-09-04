@@ -27,12 +27,18 @@ import { join, relative, resolve } from "node:path";
 import process from "node:process";
 
 const SRC_TOKENS = [
-  { pattern: /rehype/, reason: "src/ mentions rehype (raw-HTML rendering is forbidden)" },
+  {
+    pattern: /rehype/,
+    reason: "src/ mentions rehype (raw-HTML rendering is forbidden)",
+  },
   {
     pattern: /dangerouslySetInnerHTML/,
     reason: "src/ uses dangerouslySetInnerHTML (raw-HTML injection)",
   },
-  { pattern: /remark-html/, reason: "src/ imports remark-html (raw-HTML rendering)" },
+  {
+    pattern: /remark-html/,
+    reason: "src/ imports remark-html (raw-HTML rendering)",
+  },
   {
     pattern: /skipHtml\s*=\s*\{?\s*false/,
     reason: "src/ sets skipHtml={false} (re-enables raw-HTML rendering)",
@@ -89,7 +95,11 @@ const scanPackageJson = (root) => {
   }
   const content = readFileSync(path, "utf8");
 
-  return { violations: /rehype-raw/.test(content) ? ["package.json declares rehype-raw"] : [] };
+  return {
+    violations: /rehype-raw/.test(content)
+      ? ["package.json declares rehype-raw"]
+      : [],
+  };
 };
 
 const defaultPolicyBlock = (source) => {
@@ -107,24 +117,31 @@ const scanPolicy = (root) => {
   const block = defaultPolicyBlock(readFileSync(path, "utf8"));
 
   if (block === undefined) {
-    return { fatal: "defaultMarkdownPolicy declaration not found in src/markdown/urlPolicy.ts" };
+    return {
+      fatal:
+        "defaultMarkdownPolicy declaration not found in src/markdown/urlPolicy.ts",
+    };
   }
   const violations = [];
   const allowImages = block.match(/allowImages:\s*(true|false)/);
 
   if (allowImages === null || allowImages[1] !== "false") {
-    violations.push("defaultMarkdownPolicy.allowImages must be literally false");
+    violations.push(
+      "defaultMarkdownPolicy.allowImages must be literally false",
+    );
   }
   const schemes = block.match(/allowedSchemes:[^[]*\[([^\]]*)\]/);
   const declared =
     schemes === null
       ? []
-      : [...schemes[1].matchAll(/["']([^"']+)["']/g)].map((m) => m[1].toLowerCase());
+      : [...schemes[1].matchAll(/["']([^"']+)["']/g)].map((m) =>
+          m[1].toLowerCase(),
+        );
 
   for (const banned of BANNED_SCHEMES) {
     if (declared.includes(banned)) {
       violations.push(
-        `defaultMarkdownPolicy.allowedSchemes admits the dangerous scheme "${banned}"`
+        `defaultMarkdownPolicy.allowedSchemes admits the dangerous scheme "${banned}"`,
       );
     }
   }
@@ -132,7 +149,8 @@ const scanPolicy = (root) => {
   return { violations };
 };
 
-const root = process.argv[2] === undefined ? process.cwd() : resolve(process.argv[2]);
+const root =
+  process.argv[2] === undefined ? process.cwd() : resolve(process.argv[2]);
 const pkg = scanPackageJson(root);
 const policy = scanPolicy(root);
 const fatal = pkg.fatal ?? policy.fatal;
@@ -142,7 +160,11 @@ if (fatal !== undefined) {
   process.exit(2);
 }
 
-const violations = [...(pkg.violations ?? []), ...scanSource(root), ...(policy.violations ?? [])];
+const violations = [
+  ...(pkg.violations ?? []),
+  ...scanSource(root),
+  ...(policy.violations ?? []),
+];
 
 if (violations.length > 0) {
   for (const violation of violations) {
@@ -151,4 +173,6 @@ if (violations.length > 0) {
   process.exit(1);
 }
 
-process.stdout.write("check-markdown-safety: markdown pipeline invariants hold\n");
+process.stdout.write(
+  "check-markdown-safety: markdown pipeline invariants hold\n",
+);

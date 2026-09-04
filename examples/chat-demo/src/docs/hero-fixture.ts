@@ -25,7 +25,11 @@ export const heroSidebarConversations: ReadonlyArray<ConversationListItem> = [
     timestamp: "Today",
     badge: "active",
   },
-  { id: "flaky-test-triage", title: "Flaky test triage", timestamp: "Yesterday" },
+  {
+    id: "flaky-test-triage",
+    title: "Flaky test triage",
+    timestamp: "Yesterday",
+  },
   { id: "new-conversation", title: "New conversation", timestamp: "Aug 20" },
 ];
 

@@ -14,7 +14,9 @@ export interface ErrorBoundaryLabels {
 // its complete English defaults are co-located, so a key added to
 // ErrorBoundaryLabels without a default is a compile error here, not an
 // `undefined` in the DOM.
-export const defaultErrorBoundaryLabels: Readonly<Required<ErrorBoundaryLabels>> = Object.freeze({
+export const defaultErrorBoundaryLabels: Readonly<
+  Required<ErrorBoundaryLabels>
+> = Object.freeze({
   title: "Something went wrong",
   description: "An unexpected error occurred. Please try again.",
   retry: "Try again",
@@ -60,7 +62,10 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, State> {
         return this.props.fallback;
       }
 
-      const labels = resolveLabels(defaultErrorBoundaryLabels, this.props.labels);
+      const labels = resolveLabels(
+        defaultErrorBoundaryLabels,
+        this.props.labels,
+      );
 
       return (
         <div
@@ -73,7 +78,9 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, State> {
           <h2 className="mb-2 text-lg font-semibold text-slate-900 dark:text-slate-100">
             {labels.title}
           </h2>
-          <p className="mb-4 text-sm text-slate-600 dark:text-slate-400">{labels.description}</p>
+          <p className="mb-4 text-sm text-slate-600 dark:text-slate-400">
+            {labels.description}
+          </p>
           <button
             type="button"
             onClick={this.handleRetry}

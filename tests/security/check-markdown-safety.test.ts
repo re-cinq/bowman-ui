@@ -8,9 +8,15 @@ const script = join(process.cwd(), "scripts", "check-markdown-safety.mjs");
 type RunResult = { status: number | null; stdout: string; stderr: string };
 
 const run = (root: string): RunResult => {
-  const result = spawnSync(process.execPath, [script, root], { encoding: "utf8" });
+  const result = spawnSync(process.execPath, [script, root], {
+    encoding: "utf8",
+  });
 
-  return { status: result.status, stdout: result.stdout, stderr: result.stderr };
+  return {
+    status: result.status,
+    stdout: result.stdout,
+    stderr: result.stderr,
+  };
 };
 
 const write = (root: string, path: string, content: string) => {
@@ -29,7 +35,11 @@ const cleanPolicy = `export const defaultMarkdownPolicy = Object.freeze({
 const makeTree = (): string => {
   const root = mkdtempSync(join(tmpdir(), "check-markdown-safety-"));
 
-  write(root, "package.json", JSON.stringify({ name: "fixture", dependencies: {} }));
+  write(
+    root,
+    "package.json",
+    JSON.stringify({ name: "fixture", dependencies: {} }),
+  );
   write(root, "src/markdown/urlPolicy.ts", cleanPolicy);
   write(root, "src/index.ts", "export const noop = () => undefined;\n");
 
@@ -64,7 +74,7 @@ describe("check-markdown-safety", () => {
     write(
       root,
       "package.json",
-      JSON.stringify({ name: "fixture", dependencies: { "rehype-raw": "^7" } })
+      JSON.stringify({ name: "fixture", dependencies: { "rehype-raw": "^7" } }),
     );
 
     const result = run(root);
@@ -74,7 +84,11 @@ describe("check-markdown-safety", () => {
   });
 
   it("exits 1 when a src file imports rehype-raw", () => {
-    write(root, "src/markdown/components.tsx", 'import rehypeRaw from "rehype-raw";\n');
+    write(
+      root,
+      "src/markdown/components.tsx",
+      'import rehypeRaw from "rehype-raw";\n',
+    );
 
     const result = run(root);
 
@@ -83,7 +97,11 @@ describe("check-markdown-safety", () => {
   });
 
   it("exits 1 when a src file uses dangerouslySetInnerHTML", () => {
-    write(root, "src/render.tsx", "export const x = { dangerouslySetInnerHTML: { __html: y } };\n");
+    write(
+      root,
+      "src/render.tsx",
+      "export const x = { dangerouslySetInnerHTML: { __html: y } };\n",
+    );
 
     const result = run(root);
 
@@ -95,7 +113,7 @@ describe("check-markdown-safety", () => {
     write(
       root,
       "src/render.tsx",
-      "const node = <ReactMarkdown skipHtml={false}>{x}</ReactMarkdown>;\n"
+      "const node = <ReactMarkdown skipHtml={false}>{x}</ReactMarkdown>;\n",
     );
 
     const result = run(root);
@@ -108,7 +126,7 @@ describe("check-markdown-safety", () => {
     write(
       root,
       "src/markdown/urlPolicy.ts",
-      cleanPolicy.replace("allowImages: false", "allowImages: true")
+      cleanPolicy.replace("allowImages: false", "allowImages: true"),
     );
 
     const result = run(root);
@@ -120,13 +138,17 @@ describe("check-markdown-safety", () => {
   it.each(["javascript", "data", "vbscript", "file"])(
     "exits 1 when the default allowlist admits the %s scheme",
     (scheme) => {
-      write(root, "src/markdown/urlPolicy.ts", cleanPolicy.replace('"tel"', `"tel", "${scheme}"`));
+      write(
+        root,
+        "src/markdown/urlPolicy.ts",
+        cleanPolicy.replace('"tel"', `"tel", "${scheme}"`),
+      );
 
       const result = run(root);
 
       expect(result).toMatchObject({ status: 1 });
       expect(result.stderr).toContain(scheme);
-    }
+    },
   );
 
   it("exits 2 when the tree has no urlPolicy.ts", () => {

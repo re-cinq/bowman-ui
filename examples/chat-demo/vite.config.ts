@@ -9,7 +9,9 @@ import { defineConfig } from "vite";
 // the workflow, so a value copied from actions/configure-pages ("/bowman-ui")
 // works unedited.
 const configuredBasePath = process.env.VITE_BASE_PATH ?? "/";
-const base = configuredBasePath.endsWith("/") ? configuredBasePath : `${configuredBasePath}/`;
+const base = configuredBasePath.endsWith("/")
+  ? configuredBasePath
+  : `${configuredBasePath}/`;
 
 export default defineConfig({
   base,

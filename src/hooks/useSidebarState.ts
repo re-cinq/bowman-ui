@@ -1,6 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import type { Dispatch, SetStateAction } from "react";
 
 export interface SidebarStateOptions {
@@ -53,7 +59,7 @@ export function useSidebarState(key: string, options: SidebarStateOptions) {
   const isHydrated = useSyncExternalStore(
     subscribeHydration,
     () => true,
-    () => false
+    () => false,
   );
 
   // The stored value is an external store: getServerSnapshot yields the default
@@ -71,15 +77,16 @@ export function useSidebarState(key: string, options: SidebarStateOptions) {
 
       return () => window.removeEventListener("storage", handler);
     },
-    [storageKey]
+    [storageKey],
   );
   const storedValue = useSyncExternalStore(
     subscribe,
     () => readStoredValue(storageKey),
-    () => null
+    () => null,
   );
 
-  const storedOpen = storedValue === null ? defaultOpen : storedValue === "true";
+  const storedOpen =
+    storedValue === null ? defaultOpen : storedValue === "true";
 
   // Once the consumer changes the value it becomes the source of truth, so the
   // persisted read only seeds the initial state and cross-tab updates.

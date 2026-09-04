@@ -10,11 +10,12 @@ export interface ToolActivityLabels {
   details: string;
 }
 
-export const defaultToolActivityLabels: Readonly<Required<ToolActivityLabels>> = Object.freeze({
-  activity: "Looking something up",
-  activityDone: "Looked something up",
-  details: "Details",
-});
+export const defaultToolActivityLabels: Readonly<Required<ToolActivityLabels>> =
+  Object.freeze({
+    activity: "Looking something up",
+    activityDone: "Looked something up",
+    details: "Details",
+  });
 
 export interface ToolActivityProps {
   entry: ToolChatEntry;
@@ -39,7 +40,7 @@ const headlineFor = (
   resolved: Required<ToolActivityLabels>,
   entry: ToolChatEntry,
   pending: boolean,
-  describeTool?: (entry: ToolChatEntry, pending: boolean) => ReactNode
+  describeTool?: (entry: ToolChatEntry, pending: boolean) => ReactNode,
 ): ReactNode => {
   if (describeTool) {
     return describeTool(entry, pending);

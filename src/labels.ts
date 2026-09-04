@@ -5,7 +5,7 @@
 // plain spread would be wrong here. Neither argument is mutated.
 export const resolveLabels = <T extends object>(
   defaults: Required<T>,
-  overrides?: Partial<T>
+  overrides?: Partial<T>,
 ): Required<T> => {
   const resolved: Required<T> = { ...defaults };
 

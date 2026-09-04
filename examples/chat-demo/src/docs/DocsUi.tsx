@@ -4,7 +4,13 @@
 
 import type { ReactNode } from "react";
 
-export function DocSection({ title, children }: { title: string; children: ReactNode }) {
+export function DocSection({
+  title,
+  children,
+}: {
+  title: string;
+  children: ReactNode;
+}) {
   return (
     <section className="flex flex-col gap-3">
       <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">

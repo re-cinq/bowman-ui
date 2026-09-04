@@ -23,11 +23,13 @@ export const appShellLabels: AppShellLabels = defaultAppShellLabels;
 
 export const appSidebarLabels: AppSidebarLabels = defaultAppSidebarLabels;
 
-export const conversationListLabels: ConversationListLabels = defaultConversationListLabels;
+export const conversationListLabels: ConversationListLabels =
+  defaultConversationListLabels;
 
 export const chatMessageListLabels: ChatMessageListLabels = {
   ...defaultChatMessageListLabels,
-  aiDisclosure: "You are talking to an artificial intelligence. Answers can contain mistakes.",
+  aiDisclosure:
+    "You are talking to an artificial intelligence. Answers can contain mistakes.",
 };
 
 export const chatComposerLabels: ChatComposerLabels = defaultChatComposerLabels;

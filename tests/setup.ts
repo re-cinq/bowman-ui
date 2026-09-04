@@ -49,5 +49,8 @@ afterEach(() => {
   console.warn = originalConsoleWarn;
   globalThis.fetch = originalFetch;
   globalThis.XMLHttpRequest = OriginalXMLHttpRequest;
-  expect({ consoleCalls, networkCalls }).toEqual({ consoleCalls: [], networkCalls: [] });
+  expect({ consoleCalls, networkCalls }).toEqual({
+    consoleCalls: [],
+    networkCalls: [],
+  });
 });

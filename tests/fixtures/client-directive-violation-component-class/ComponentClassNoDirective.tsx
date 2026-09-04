@@ -21,4 +21,6 @@ declare const withStoredDefaults: (value: unknown) => new () => object;
 
 // A mixin expression is walked for value references even though the heritage
 // head is not a React class - only implements clauses are skipped wholesale.
-export class MixinNoDirective extends withStoredDefaults(localStorage.getItem("theme")) {}
+export class MixinNoDirective extends withStoredDefaults(
+  localStorage.getItem("theme"),
+) {}

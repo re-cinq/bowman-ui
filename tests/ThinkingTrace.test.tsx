@@ -9,11 +9,15 @@ import { expectThinkingDots } from "./helpers/expect-thinking-dots.js";
 const reasoningEntry: ThinkingChatEntry = {
   id: "th1",
   role: "thinking",
-  content: "I should look up the weather for Berlin using the get_weather tool.",
+  content:
+    "I should look up the weather for Berlin using the get_weather tool.",
   isStreaming: false,
 };
 
-const streamingEntry: ThinkingChatEntry = { ...reasoningEntry, isStreaming: true };
+const streamingEntry: ThinkingChatEntry = {
+  ...reasoningEntry,
+  isStreaming: true,
+};
 
 const expand = (container: HTMLElement): HTMLDetailsElement => {
   const details = container.querySelector("details");
@@ -55,7 +59,7 @@ describe("ThinkingTrace", () => {
 
       expect(details.textContent).toContain(reasoningEntry.content);
       expect(container.querySelector(".whitespace-pre-wrap")?.textContent).toBe(
-        reasoningEntry.content
+        reasoningEntry.content,
       );
     });
 
@@ -98,14 +102,20 @@ describe("ThinkingTrace", () => {
 
   describe("reducedMotion", () => {
     it("true keeps the three dots but strips the bowman-fade-dot animation class", () => {
-      const { container } = render(<ThinkingTrace entry={streamingEntry} reducedMotion />);
+      const { container } = render(
+        <ThinkingTrace entry={streamingEntry} reducedMotion />,
+      );
 
       expect(container.querySelectorAll(".bowman-fade-dot")).toHaveLength(0);
-      expect(container.querySelectorAll("summary .bg-blue-500")).toHaveLength(3);
+      expect(container.querySelectorAll("summary .bg-blue-500")).toHaveLength(
+        3,
+      );
     });
 
     it("false keeps the animation class and the staggered delays", () => {
-      const { container } = render(<ThinkingTrace entry={streamingEntry} reducedMotion={false} />);
+      const { container } = render(
+        <ThinkingTrace entry={streamingEntry} reducedMotion={false} />,
+      );
 
       expectThinkingDots(container);
     });
@@ -113,7 +123,12 @@ describe("ThinkingTrace", () => {
 
   describe("labels and defaults", () => {
     it("resolves an override over the English default", () => {
-      render(<ThinkingTrace entry={reasoningEntry} labels={{ thinkingTrace: "Razonamiento" }} />);
+      render(
+        <ThinkingTrace
+          entry={reasoningEntry}
+          labels={{ thinkingTrace: "Razonamiento" }}
+        />,
+      );
 
       expect(screen.getByText("Razonamiento")).toBeInTheDocument();
       expect(screen.queryByText("Reasoning")).not.toBeInTheDocument();
@@ -121,15 +136,22 @@ describe("ThinkingTrace", () => {
 
     it('defaultThinkingTraceLabels is frozen and holds exactly thinkingTrace: "Reasoning"', () => {
       expect(Object.isFrozen(defaultThinkingTraceLabels)).toBe(true);
-      expect(defaultThinkingTraceLabels).toEqual({ thinkingTrace: "Reasoning" });
+      expect(defaultThinkingTraceLabels).toEqual({
+        thinkingTrace: "Reasoning",
+      });
     });
   });
 
   describe("the data-boundary source (grep acceptance criteria)", () => {
-    const source = readFileSync(resolve(process.cwd(), "src/components/ThinkingTrace.tsx"), "utf8");
+    const source = readFileSync(
+      resolve(process.cwd(), "src/components/ThinkingTrace.tsx"),
+      "utf8",
+    );
 
     it("references no dangerouslySetInnerHTML, react-markdown or remark-", () => {
-      expect(source).not.toMatch(/dangerouslySetInnerHTML|react-markdown|remark-/);
+      expect(source).not.toMatch(
+        /dangerouslySetInnerHTML|react-markdown|remark-/,
+      );
     });
 
     it("imports useReducedMotion instead of reading matchMedia itself", () => {
@@ -138,11 +160,15 @@ describe("ThinkingTrace", () => {
     });
 
     it("declares none of onCopy, onFeedback, showFeedback or assistantAvatar", () => {
-      expect(source).not.toMatch(/onCopy|onFeedback|showFeedback|assistantAvatar/);
+      expect(source).not.toMatch(
+        /onCopy|onFeedback|showFeedback|assistantAvatar/,
+      );
     });
 
     it("makes no console call and touches no client storage", () => {
-      expect(source).not.toMatch(/console\.|localStorage|sessionStorage|IndexedDB|indexedDB/);
+      expect(source).not.toMatch(
+        /console\.|localStorage|sessionStorage|IndexedDB|indexedDB/,
+      );
     });
 
     it("never sets the details element's open attribute", () => {
@@ -163,7 +189,10 @@ describe("ThinkingTrace", () => {
 
   describe("the published surface", () => {
     it("the barrel exports ThinkingTrace and its labels but never ThinkingDots", () => {
-      const barrel = readFileSync(resolve(process.cwd(), "src/index.ts"), "utf8");
+      const barrel = readFileSync(
+        resolve(process.cwd(), "src/index.ts"),
+        "utf8",
+      );
 
       expect(barrel).toContain("ThinkingTrace");
       expect(barrel).toContain("defaultThinkingTraceLabels");

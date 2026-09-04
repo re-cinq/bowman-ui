@@ -7,12 +7,13 @@ export interface MarkdownPolicy {
   allowImages?: boolean;
 }
 
-export const defaultMarkdownPolicy: Readonly<Required<MarkdownPolicy>> = Object.freeze({
-  allowedSchemes: Object.freeze(["https", "mailto", "tel"]),
-  allowRelativeUrls: false,
-  linkTarget: "_blank",
-  allowImages: false,
-});
+export const defaultMarkdownPolicy: Readonly<Required<MarkdownPolicy>> =
+  Object.freeze({
+    allowedSchemes: Object.freeze(["https", "mailto", "tel"]),
+    allowRelativeUrls: false,
+    linkTarget: "_blank",
+    allowImages: false,
+  });
 
 // A leading pair of slashes (forward, back, or mixed) is a protocol-relative
 // URL: it resolves to a model-chosen host, so it never counts as relative.
@@ -46,11 +47,17 @@ export const createUrlTransform = (policy?: MarkdownPolicy) => {
     }
     const scheme = value.slice(0, colon).toLowerCase();
 
-    if (!resolved.allowedSchemes.some((allowed) => allowed.toLowerCase() === scheme)) {
+    if (
+      !resolved.allowedSchemes.some(
+        (allowed) => allowed.toLowerCase() === scheme,
+      )
+    ) {
       return "";
     }
     const needsAuthority = originRelativeSchemes.includes(scheme);
 
-    return needsAuthority && !schemeRelativePattern.test(value.slice(colon + 1)) ? "" : value;
+    return needsAuthority && !schemeRelativePattern.test(value.slice(colon + 1))
+      ? ""
+      : value;
   };
 };

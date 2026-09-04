@@ -53,7 +53,9 @@ const coveredTags = [
 ] as const;
 
 it("covers exactly the eighteen tags 019 named plus 076's img gate", () => {
-  expect(Object.keys(createMarkdownComponents()).sort()).toEqual([...coveredTags, "img"].sort());
+  expect(Object.keys(createMarkdownComponents()).sort()).toEqual(
+    [...coveredTags, "img"].sort(),
+  );
 });
 
 describe("rendering the fixture through react-markdown with remark-gfm", () => {
@@ -67,22 +69,29 @@ describe("rendering the fixture through react-markdown with remark-gfm", () => {
         urlTransform={createUrlTransform()}
       >
         {fixtureMarkdown}
-      </ReactMarkdown>
+      </ReactMarkdown>,
     ));
   });
 
-  it.each([...coveredTags])("renders <%s> carrying the class bowman-md-%s", (tag) => {
-    const element = container.querySelector(tag);
+  it.each([...coveredTags])(
+    "renders <%s> carrying the class bowman-md-%s",
+    (tag) => {
+      const element = container.querySelector(tag);
 
-    expect(element?.classList.contains(`bowman-md-${tag}`)).toBe(true);
-  });
+      expect(element?.classList.contains(`bowman-md-${tag}`)).toBe(true);
+    },
+  );
 
   it("merges react-markdown's own className into the fenced code block", () => {
-    expect(container.querySelector("pre > code")?.className).toBe("bowman-md-code language-js");
+    expect(container.querySelector("pre > code")?.className).toBe(
+      "bowman-md-code language-js",
+    );
   });
 
   it("keeps the inline code class bare", () => {
-    expect(container.querySelector("p > code")?.className).toBe("bowman-md-code");
+    expect(container.querySelector("p > code")?.className).toBe(
+      "bowman-md-code",
+    );
   });
 
   it("leaks no node prop onto the DOM", () => {
@@ -109,7 +118,7 @@ it("tsc accepts markdown-type-assertions.ts, proving the map is assignable to re
       "--skipLibCheck",
       "tests/types/markdown-type-assertions.ts",
     ],
-    { cwd: process.cwd(), encoding: "utf8" }
+    { cwd: process.cwd(), encoding: "utf8" },
   );
 
   expect(result).toMatchObject({ status: 0, stderr: "" });

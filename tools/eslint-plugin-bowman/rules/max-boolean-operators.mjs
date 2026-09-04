@@ -31,7 +31,9 @@ function countBooleanOperators(node) {
 
   const self = BOOLEAN_OPERATORS.has(node.operator) ? 1 : 0;
 
-  return self + countBooleanOperators(node.left) + countBooleanOperators(node.right);
+  return (
+    self + countBooleanOperators(node.left) + countBooleanOperators(node.right)
+  );
 }
 
 export default {
@@ -64,7 +66,11 @@ export default {
       const count = countBooleanOperators(expression);
 
       if (count > max) {
-        context.report({ node: expression, messageId: "tooManyOperators", data: { count, max } });
+        context.report({
+          node: expression,
+          messageId: "tooManyOperators",
+          data: { count, max },
+        });
       }
     }
 

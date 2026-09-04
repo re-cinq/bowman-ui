@@ -30,13 +30,14 @@ export interface ConversationListLabels {
   deleteConversation: (title: string) => string;
 }
 
-export const defaultConversationListLabels: Readonly<Required<ConversationListLabels>> =
-  Object.freeze({
-    conversations: "Conversations",
-    noConversations: "No conversations yet",
-    loadingConversations: "Loading conversations",
-    deleteConversation: (title: string) => `Delete conversation: ${title}`,
-  });
+export const defaultConversationListLabels: Readonly<
+  Required<ConversationListLabels>
+> = Object.freeze({
+  conversations: "Conversations",
+  noConversations: "No conversations yet",
+  loadingConversations: "Loading conversations",
+  deleteConversation: (title: string) => `Delete conversation: ${title}`,
+});
 
 export interface ConversationListProps {
   items: ReadonlyArray<ConversationListItem>;
@@ -45,7 +46,10 @@ export interface ConversationListProps {
   /** Fires immediately - confirmation is the consumer's product decision. Omitted: no button. */
   onDelete?: (id: string) => void;
   /** The routing seam: the consumer's element must spread every prop it is handed (docs/design-notes.md § renderLink). */
-  renderLink?: (item: ConversationListItem, props: ConversationLinkProps) => ReactNode;
+  renderLink?: (
+    item: ConversationListItem,
+    props: ConversationLinkProps,
+  ) => ReactNode;
   isLoading?: boolean;
   /** Switches the typewriter off entirely; undefined tracks prefers-reduced-motion. */
   reducedMotion?: boolean;
@@ -67,8 +71,8 @@ function TypewriterTitle({
   isPlaceholder: boolean;
   reducedMotion: boolean;
 }) {
-  const [chars, setChars] = useState<Array<{ ch: string; opacity: number }>>(() =>
-    text.split("").map((ch) => ({ ch, opacity: 1 }))
+  const [chars, setChars] = useState<Array<{ ch: string; opacity: number }>>(
+    () => text.split("").map((ch) => ({ ch, opacity: 1 })),
   );
   const [isAnimating, setIsAnimating] = useState(false);
   const previousRef = useRef({ text, isPlaceholder });
@@ -111,7 +115,9 @@ function TypewriterTitle({
 
         return;
       }
-      setChars((current) => current.map((c, index) => (index <= i ? { ...c, opacity: 1 } : c)));
+      setChars((current) =>
+        current.map((c, index) => (index <= i ? { ...c, opacity: 1 } : c)),
+      );
       i++;
 
       if (i >= newChars.length) {
@@ -165,9 +171,10 @@ function TypewriterTitle({
   );
 }
 
-const defaultRenderLink = (_item: ConversationListItem, props: ConversationLinkProps) => (
-  <button type="button" {...props} />
-);
+const defaultRenderLink = (
+  _item: ConversationListItem,
+  props: ConversationLinkProps,
+) => <button type="button" {...props} />;
 
 export function ConversationList({
   items,
@@ -206,7 +213,11 @@ export function ConversationList({
     // role="list" is redundant markup everywhere except Safari, where
     // list-style: none strips a ul's list semantics and takes the accessible
     // name with it. The explicit role keeps VoiceOver announcing the list.
-    <ul role="list" aria-label={resolved.conversations} className="list-none space-y-1">
+    <ul
+      role="list"
+      aria-label={resolved.conversations}
+      className="list-none space-y-1"
+    >
       {items.map((item) => {
         const isActive = item.id === activeId;
         const linkProps: ConversationLinkProps = {

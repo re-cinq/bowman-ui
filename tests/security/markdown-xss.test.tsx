@@ -14,8 +14,16 @@ import { resolve } from "node:path";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
-import { ChatMessage, createMarkdownComponents, createUrlTransform } from "../../src/index.js";
-import type { AssistantChatEntry, ChatMessageLabels, MarkdownPolicy } from "../../src/index.js";
+import {
+  ChatMessage,
+  createMarkdownComponents,
+  createUrlTransform,
+} from "../../src/index.js";
+import type {
+  AssistantChatEntry,
+  ChatMessageLabels,
+  MarkdownPolicy,
+} from "../../src/index.js";
 
 const renderThroughComponents = (content: string, policy?: MarkdownPolicy) =>
   render(
@@ -25,7 +33,7 @@ const renderThroughComponents = (content: string, policy?: MarkdownPolicy) =>
       urlTransform={createUrlTransform(policy)}
     >
       {content}
-    </ReactMarkdown>
+    </ReactMarkdown>,
   );
 
 const renderThroughChatMessage = (
@@ -34,7 +42,7 @@ const renderThroughChatMessage = (
     markdown?: MarkdownPolicy;
     labels?: Partial<ChatMessageLabels>;
     isStreaming?: boolean;
-  } = {}
+  } = {},
 ) => {
   const entry: AssistantChatEntry = {
     id: "corpus",
@@ -49,7 +57,7 @@ const renderThroughChatMessage = (
       userInitials="LM"
       markdown={options.markdown}
       labels={options.labels}
-    />
+    />,
   );
 };
 
@@ -66,9 +74,11 @@ describe("raw HTML passthrough (no rehype-raw: model-authored HTML is inert text
     (payload) => {
       const { container } = renderThroughComponents(payload);
 
-      expect(container.querySelector("script,svg,img,[onerror],[onload],[onclick]")).toBeNull();
+      expect(
+        container.querySelector("script,svg,img,[onerror],[onload],[onclick]"),
+      ).toBeNull();
       expect(container.textContent).toContain(payload);
-    }
+    },
   );
 
   it.each(rawHtmlRows)(
@@ -76,9 +86,11 @@ describe("raw HTML passthrough (no rehype-raw: model-authored HTML is inert text
     (payload) => {
       const { container } = renderThroughChatMessage(payload);
 
-      expect(container.querySelector("img,[onerror],[onload],[onclick]")).toBeNull();
+      expect(
+        container.querySelector("img,[onerror],[onload],[onclick]"),
+      ).toBeNull();
       expect(container.textContent).toContain(payload);
-    }
+    },
   );
 });
 
@@ -99,7 +111,7 @@ describe("dangerous schemes on a markdown link render a hrefless span", () => {
 
       expect(container.querySelector("a")).toBeNull();
       expect(screen.getByText("x").tagName).toBe("SPAN");
-    }
+    },
   );
 
   it.each(["<\tjavascript:alert(1)>", "<java\nscript:alert(1)>"])(
@@ -108,11 +120,14 @@ describe("dangerous schemes on a markdown link render a hrefless span", () => {
       const { container } = renderThroughComponents(`[x](${destination})`);
 
       expect(container.querySelector('a[href*="javascript" i]')).toBeNull();
-    }
+    },
   );
 
   it("src/markdown/urlPolicy.ts never percent-decodes before comparing the scheme", () => {
-    const source = readFileSync(resolve(process.cwd(), "src/markdown/urlPolicy.ts"), "utf8");
+    const source = readFileSync(
+      resolve(process.cwd(), "src/markdown/urlPolicy.ts"),
+      "utf8",
+    );
 
     expect(source).not.toMatch(/decodeURI|decodeURIComponent/);
   });
@@ -120,7 +135,9 @@ describe("dangerous schemes on a markdown link render a hrefless span", () => {
 
 describe("protocol-relative and mixed-slash destinations drop the href", () => {
   it("[x](//evil.com) renders no anchor even with allowRelativeUrls true (protocol-relative)", () => {
-    const { container } = renderThroughComponents("[x](//evil.com)", { allowRelativeUrls: true });
+    const { container } = renderThroughComponents("[x](//evil.com)", {
+      allowRelativeUrls: true,
+    });
 
     expect(container.querySelector("a")).toBeNull();
     expect(screen.getByText("x").tagName).toBe("SPAN");
@@ -133,18 +150,17 @@ describe("protocol-relative and mixed-slash destinations drop the href", () => {
 
       expect(container.querySelector("a")).toBeNull();
       expect(screen.getByText("x").tagName).toBe("SPAN");
-    }
+    },
   );
 
   it("createUrlTransform drops every protocol-relative slash form even with allowRelativeUrls true", () => {
     const transform = createUrlTransform({ allowRelativeUrls: true });
 
-    expect(["//evil.com", "\\\\evil.com", "/\\evil.com", "\\/evil.com"].map(transform)).toEqual([
-      "",
-      "",
-      "",
-      "",
-    ]);
+    expect(
+      ["//evil.com", "\\\\evil.com", "/\\evil.com", "\\/evil.com"].map(
+        transform,
+      ),
+    ).toEqual(["", "", "", ""]);
   });
 });
 
@@ -166,13 +182,18 @@ describe("gfm autolink literals: only mailto survives the default allowlist", ()
   it("a bare email autolinks to a mailto anchor - the only surviving scheme", () => {
     const { container } = renderThroughComponents("Mail attacker@evil.com now");
 
-    expect(container.querySelector("a")).toHaveAttribute("href", "mailto:attacker@evil.com");
+    expect(container.querySelector("a")).toHaveAttribute(
+      "href",
+      "mailto:attacker@evil.com",
+    );
   });
 });
 
 describe("image vectors: opt-in never bypasses the scheme allowlist", () => {
   it("the default policy renders alt text and no img for an https image", () => {
-    const { container } = renderThroughComponents("![payload](https://host/p.png)");
+    const { container } = renderThroughComponents(
+      "![payload](https://host/p.png)",
+    );
 
     expect(container.querySelector("img")).toBeNull();
     expect(container.textContent).toContain("payload");
@@ -180,7 +201,7 @@ describe("image vectors: opt-in never bypasses the scheme allowlist", () => {
 
   it("the default policy renders alt text and no img for a data: svg image", () => {
     const { container } = renderThroughComponents(
-      "![payload](data:image/svg+xml,%3Csvg%20onload=alert(1)%3E)"
+      "![payload](data:image/svg+xml,%3Csvg%20onload=alert(1)%3E)",
     );
 
     expect(container.querySelector("img")).toBeNull();
@@ -191,7 +212,7 @@ describe("image vectors: opt-in never bypasses the scheme allowlist", () => {
   it("allowImages true still drops a data: svg src and renders no img", () => {
     const { container } = renderThroughComponents(
       "![payload](data:image/svg+xml,%3Csvg%20onload=alert(1)%3E)",
-      { allowImages: true }
+      { allowImages: true },
     );
 
     expect(container.querySelector("img")).toBeNull();
@@ -199,11 +220,17 @@ describe("image vectors: opt-in never bypasses the scheme allowlist", () => {
   });
 
   it("allowImages true renders an img only for the https src", () => {
-    const { container } = renderThroughComponents("![payload](https://example.com/a.png)", {
-      allowImages: true,
-    });
+    const { container } = renderThroughComponents(
+      "![payload](https://example.com/a.png)",
+      {
+        allowImages: true,
+      },
+    );
 
-    expect(container.querySelector("img")).toHaveAttribute("src", "https://example.com/a.png");
+    expect(container.querySelector("img")).toHaveAttribute(
+      "src",
+      "https://example.com/a.png",
+    );
   });
 });
 
@@ -211,12 +238,17 @@ describe("label injection (022): a labels field set to HTML renders as text", ()
   const injection = "<img src=x onerror=alert(1)>";
 
   it("linkOpensInNewTab set to an HTML string renders in the sr-only span as literal text", () => {
-    const { container } = renderThroughChatMessage("[x](https://example.com/a)", {
-      labels: { linkOpensInNewTab: injection },
-    });
+    const { container } = renderThroughChatMessage(
+      "[x](https://example.com/a)",
+      {
+        labels: { linkOpensInNewTab: injection },
+      },
+    );
 
     expect(container.querySelector("img,[onerror]")).toBeNull();
-    expect(container.querySelector(".bowman-sr-only")?.textContent).toBe(injection);
+    expect(container.querySelector(".bowman-sr-only")?.textContent).toBe(
+      injection,
+    );
   });
 
   it("the thinking label set to an HTML string renders as literal text with no element", () => {

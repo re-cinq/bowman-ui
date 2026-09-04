@@ -18,7 +18,11 @@ import {
   type UserChatEntry,
 } from "@re-cinq/bowman-ui";
 
-const userEntry: UserChatEntry = { id: "u1", role: "user", content: "Ver pedido 4711" };
+const userEntry: UserChatEntry = {
+  id: "u1",
+  role: "user",
+  content: "Ver pedido 4711",
+};
 const assistantEntry: AssistantChatEntry = {
   id: "a1",
   role: "assistant",
@@ -41,12 +45,18 @@ const toolEntry: ToolChatEntry = {
 const Renderable = () => (
   <>
     <ChatMessage entry={userEntry} userInitials="LM" />
-    <ChatMessage entry={assistantEntry} userInitials="LM" markdown={defaultMarkdownPolicy} />
+    <ChatMessage
+      entry={assistantEntry}
+      userInitials="LM"
+      markdown={defaultMarkdownPolicy}
+    />
     <ChatMessage
       entry={assistantEntry}
       userInitials="LM"
       assistantName="Facturación"
-      labels={{ assistantMessageFrom: (name: string) => `Respuesta de ${name}` }}
+      labels={{
+        assistantMessageFrom: (name: string) => `Respuesta de ${name}`,
+      }}
     />
     {/* @ts-expect-error -- Decision 1: a ThinkingChatEntry must fail the entry prop */}
     <ChatMessage entry={thinkingEntry} userInitials="LM" />
@@ -55,7 +65,9 @@ const Renderable = () => (
   </>
 );
 
-const completeDefaults = defaultChatMessageLabels satisfies Readonly<Required<ChatMessageLabels>>;
+const completeDefaults = defaultChatMessageLabels satisfies Readonly<
+  Required<ChatMessageLabels>
+>;
 
 // @ts-expect-error -- a ChatMessageLabels key without a default must not
 // compile: an object missing `linkOpensInNewTab` (076's tenth key) is not a

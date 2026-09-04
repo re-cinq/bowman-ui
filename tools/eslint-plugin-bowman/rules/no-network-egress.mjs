@@ -12,7 +12,11 @@
  * legitimately touch plenty of other globals.
  */
 
-const NETWORK_CONSTRUCTORS = new Set(["WebSocket", "EventSource", "XMLHttpRequest"]);
+const NETWORK_CONSTRUCTORS = new Set([
+  "WebSocket",
+  "EventSource",
+  "XMLHttpRequest",
+]);
 const GLOBAL_HOSTS = new Set(["window", "globalThis", "self"]);
 
 export default {
@@ -36,7 +40,10 @@ export default {
 
     return {
       NewExpression(node) {
-        if (node.callee.type === "Identifier" && NETWORK_CONSTRUCTORS.has(node.callee.name)) {
+        if (
+          node.callee.type === "Identifier" &&
+          NETWORK_CONSTRUCTORS.has(node.callee.name)
+        ) {
           report(node, `new ${node.callee.name}`);
 
           return;
@@ -51,7 +58,10 @@ export default {
           node.callee.object.type === "Identifier" &&
           GLOBAL_HOSTS.has(node.callee.object.name)
         ) {
-          report(node, `new ${node.callee.object.name}.${node.callee.property.name}`);
+          report(
+            node,
+            `new ${node.callee.object.name}.${node.callee.property.name}`,
+          );
         }
       },
       CallExpression(node) {
@@ -71,7 +81,8 @@ export default {
           return;
         }
 
-        const host = callee.object.type === "Identifier" ? callee.object.name : null;
+        const host =
+          callee.object.type === "Identifier" ? callee.object.name : null;
 
         if (callee.property.name === "fetch" && GLOBAL_HOSTS.has(host)) {
           report(node, "fetch");
@@ -89,7 +100,10 @@ export default {
           callee.object.object.type === "Identifier" &&
           GLOBAL_HOSTS.has(callee.object.object.name);
 
-        if (callee.property.name === "sendBeacon" && (host === "navigator" || viaGlobalHost)) {
+        if (
+          callee.property.name === "sendBeacon" &&
+          (host === "navigator" || viaGlobalHost)
+        ) {
           report(node, "navigator.sendBeacon");
         }
       },

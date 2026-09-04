@@ -8,28 +8,40 @@
 
 import { streamedReplyText } from "./fixtures";
 
-export type StreamEvent = { kind: "upsert" } | { kind: "delta"; text: string } | { kind: "commit" };
+export type StreamEvent =
+  { kind: "upsert" } | { kind: "delta"; text: string } | { kind: "commit" };
 
 export const streamStepCount = 24;
 export const streamStepIntervalMs = 150;
 export const streamStartDelayMs = 400;
 
-const boundary = (index: number, wordCount: number, stepCount: number): number =>
-  Math.round((index * wordCount) / stepCount);
+const boundary = (
+  index: number,
+  wordCount: number,
+  stepCount: number,
+): number => Math.round((index * wordCount) / stepCount);
 
-export const splitIntoChunks = (text: string, stepCount: number): ReadonlyArray<string> => {
+export const splitIntoChunks = (
+  text: string,
+  stepCount: number,
+): ReadonlyArray<string> => {
   const words = text.split(" ");
 
   return Array.from({ length: stepCount }, (_, index) => {
     const chunk = words
-      .slice(boundary(index, words.length, stepCount), boundary(index + 1, words.length, stepCount))
+      .slice(
+        boundary(index, words.length, stepCount),
+        boundary(index + 1, words.length, stepCount),
+      )
       .join(" ");
 
     return index === 0 ? chunk : ` ${chunk}`;
   });
 };
 
-export const streamAssistantReply = (emit: (event: StreamEvent) => void): (() => void) => {
+export const streamAssistantReply = (
+  emit: (event: StreamEvent) => void,
+): (() => void) => {
   const chunks = splitIntoChunks(streamedReplyText, streamStepCount);
   const timers: ReturnType<typeof setTimeout>[] = [];
   const at = (delayMs: number, event: StreamEvent) => {
@@ -38,9 +50,14 @@ export const streamAssistantReply = (emit: (event: StreamEvent) => void): (() =>
 
   at(streamStartDelayMs, { kind: "upsert" });
   chunks.forEach((text, index) => {
-    at(streamStartDelayMs + (index + 1) * streamStepIntervalMs, { kind: "delta", text });
+    at(streamStartDelayMs + (index + 1) * streamStepIntervalMs, {
+      kind: "delta",
+      text,
+    });
   });
-  at(streamStartDelayMs + (chunks.length + 1) * streamStepIntervalMs, { kind: "commit" });
+  at(streamStartDelayMs + (chunks.length + 1) * streamStepIntervalMs, {
+    kind: "commit",
+  });
 
   return () => {
     for (const timer of timers) {

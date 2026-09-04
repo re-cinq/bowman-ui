@@ -18,7 +18,8 @@ const stubMatchMedia = (matches: boolean) => {
     get matches() {
       return state.matches;
     },
-    addEventListener: (_type: string, handler: ChangeHandler) => handlers.push(handler),
+    addEventListener: (_type: string, handler: ChangeHandler) =>
+      handlers.push(handler),
     removeEventListener,
   }));
   const emit = (next: boolean) => {

@@ -46,7 +46,9 @@ export function useFocusGroups(options: FocusGroupsOptions = {}): void {
   const currentGroupIndex = useRef(0);
 
   const getFocusGroups = useCallback((): HTMLElement[] => {
-    const groups = Array.from(document.querySelectorAll<HTMLElement>("[data-focus-group]"));
+    const groups = Array.from(
+      document.querySelectorAll<HTMLElement>("[data-focus-group]"),
+    );
 
     // Sort by order attribute if present, otherwise by DOM order. Array#sort
     // is stable and querySelectorAll already returns DOM order, so groups
@@ -55,7 +57,7 @@ export function useFocusGroups(options: FocusGroupsOptions = {}): void {
     return groups.sort(
       (a, b) =>
         parseInt(a.dataset.focusGroupOrder || "999", 10) -
-        parseInt(b.dataset.focusGroupOrder || "999", 10)
+        parseInt(b.dataset.focusGroupOrder || "999", 10),
     );
   }, []);
 
@@ -107,10 +109,12 @@ export function useFocusGroups(options: FocusGroupsOptions = {}): void {
       // only the fallback for focus outside every group.
       const activeGroup = document.activeElement?.closest("[data-focus-group]");
       const activeIndex = groups.findIndex((group) => group === activeGroup);
-      const fromIndex = activeIndex === -1 ? currentGroupIndex.current : activeIndex;
+      const fromIndex =
+        activeIndex === -1 ? currentGroupIndex.current : activeIndex;
 
       // Calculate next index with wrapping
-      currentGroupIndex.current = (fromIndex + direction + groups.length) % groups.length;
+      currentGroupIndex.current =
+        (fromIndex + direction + groups.length) % groups.length;
 
       // Focus the target group
       const targetGroup = groups[currentGroupIndex.current];

@@ -6,7 +6,10 @@
 // decision: ThinkingDots must stay out of the public type surface, so importing
 // it is a compile error. The runtime export set is pinned separately by
 // tests/public-api.test.ts's dist/index.js snapshot.
-import { defaultThinkingIndicatorLabels, type ThinkingIndicatorLabels } from "@re-cinq/bowman-ui";
+import {
+  defaultThinkingIndicatorLabels,
+  type ThinkingIndicatorLabels,
+} from "@re-cinq/bowman-ui";
 // @ts-expect-error -- ThinkingDots is the shared private subcomponent and is
 // deliberately not exported; the day it reaches the barrel this directive
 // turns unused and the compile fails.

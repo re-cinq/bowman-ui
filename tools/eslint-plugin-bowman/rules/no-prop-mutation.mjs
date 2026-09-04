@@ -39,7 +39,11 @@ function componentName(node) {
 
   const parent = node.parent;
 
-  if (parent && parent.type === "VariableDeclarator" && parent.id.type === "Identifier") {
+  if (
+    parent &&
+    parent.type === "VariableDeclarator" &&
+    parent.id.type === "Identifier"
+  ) {
     return parent.id.name;
   }
 

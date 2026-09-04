@@ -9,7 +9,9 @@ export interface ThinkingTraceLabels {
   thinkingTrace: string;
 }
 
-export const defaultThinkingTraceLabels: Readonly<Required<ThinkingTraceLabels>> = Object.freeze({
+export const defaultThinkingTraceLabels: Readonly<
+  Required<ThinkingTraceLabels>
+> = Object.freeze({
   thinkingTrace: "Reasoning",
 });
 
@@ -29,7 +31,11 @@ export interface ThinkingTraceProps {
 // nobody reviews its shape the way an assistant answer is reviewed, so it is
 // never markdown and never HTML. It is not a message either: no avatar, no
 // copy, no feedback - internal deliberation is not an answer to rate.
-export function ThinkingTrace({ entry, reducedMotion, labels }: ThinkingTraceProps) {
+export function ThinkingTrace({
+  entry,
+  reducedMotion,
+  labels,
+}: ThinkingTraceProps) {
   const resolved = resolveLabels(defaultThinkingTraceLabels, labels);
   const prefersReducedMotion = useReducedMotion(reducedMotion);
 
@@ -37,7 +43,9 @@ export function ThinkingTrace({ entry, reducedMotion, labels }: ThinkingTracePro
     <details className="w-full text-sm text-slate-500 dark:text-slate-400">
       <summary className="flex cursor-pointer items-center gap-2">
         <span>{resolved.thinkingTrace}</span>
-        {entry.isStreaming && <ThinkingDots reducedMotion={prefersReducedMotion} />}
+        {entry.isStreaming && (
+          <ThinkingDots reducedMotion={prefersReducedMotion} />
+        )}
       </summary>
       <div className="mt-2 whitespace-pre-wrap break-words text-slate-600 dark:text-slate-300">
         {entry.content}

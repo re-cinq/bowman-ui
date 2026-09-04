@@ -28,7 +28,7 @@ const snapshot = JSON.parse(readFileSync(snapshotPath, "utf8")) as {
 const declaredTypeExports = (): string[] =>
   [
     ...readFileSync(resolve(process.cwd(), "dist/index.d.ts"), "utf8").matchAll(
-      /export type \{([^}]*)\}/g
+      /export type \{([^}]*)\}/g,
     ),
   ]
     .flatMap((match) => match[1].split(","))
@@ -55,12 +55,20 @@ describe("public API surface", () => {
   });
 
   it("every labelled component ships its defaults object alongside it", () => {
-    const labelled = snapshot.values.filter((name) => /^default(.+)Labels$/.test(name));
-    const components = labelled.map((name) => name.replace(/^default(.+)Labels$/, "$1"));
-
-    expect(components.every((component) => snapshot.values.includes(component))).toBe(true);
-    expect(components.every((component) => snapshot.types.includes(`${component}Labels`))).toBe(
-      true
+    const labelled = snapshot.values.filter((name) =>
+      /^default(.+)Labels$/.test(name),
     );
+    const components = labelled.map((name) =>
+      name.replace(/^default(.+)Labels$/, "$1"),
+    );
+
+    expect(
+      components.every((component) => snapshot.values.includes(component)),
+    ).toBe(true);
+    expect(
+      components.every((component) =>
+        snapshot.types.includes(`${component}Labels`),
+      ),
+    ).toBe(true);
   });
 });

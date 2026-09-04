@@ -31,8 +31,5 @@ export const fixturePersonaEntry: AssistantChatEntry = {
   persona: fixturePersonaId,
 };
 
-export const fixtureEntries: ReadonlyArray<UserChatEntry | AssistantChatEntry> = [
-  fixtureUserEntry,
-  fixtureAssistantEntry,
-  fixturePersonaEntry,
-];
+export const fixtureEntries: ReadonlyArray<UserChatEntry | AssistantChatEntry> =
+  [fixtureUserEntry, fixtureAssistantEntry, fixturePersonaEntry];

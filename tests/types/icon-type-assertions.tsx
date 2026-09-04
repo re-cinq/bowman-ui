@@ -14,11 +14,18 @@ import type { ReactElement } from "react";
 
 const Wrapped = (p: IconProps) => <SendIcon {...p} />;
 
-const explicitProps: IconProps = { className: "h-4 w-4", ariaLabel: "Send", strokeWidth: 1.5 };
+const explicitProps: IconProps = {
+  className: "h-4 w-4",
+  ariaLabel: "Send",
+  strokeWidth: 1.5,
+};
 
 const directCall: ReactElement = SendIcon(explicitProps);
 
-const svgProps: IconSvgProps = { className: "h-4 w-4", ...getAccessibleIconProps("Send") };
+const svgProps: IconSvgProps = {
+  className: "h-4 w-4",
+  ...getAccessibleIconProps("Send"),
+};
 
 const wrapped = (
   <IconWrapper {...svgProps}>

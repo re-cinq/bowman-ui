@@ -12,7 +12,9 @@ const declaredMembers = (source: string, interfaceName: string): string[] => {
   const opening = source.indexOf(`interface ${interfaceName} {`);
 
   if (opening === -1) {
-    throw new Error(`${interfaceName} is not declared in the built declarations`);
+    throw new Error(
+      `${interfaceName} is not declared in the built declarations`,
+    );
   }
   const body = source.slice(opening, source.indexOf("\n}", opening));
 
@@ -20,11 +22,16 @@ const declaredMembers = (source: string, interfaceName: string): string[] => {
 };
 
 describe("ChatAttribution's built shape", () => {
-  const listDeclarations = readFileSync("dist/components/ChatMessageList.d.ts", "utf8");
+  const listDeclarations = readFileSync(
+    "dist/components/ChatMessageList.d.ts",
+    "utf8",
+  );
   const indexDeclarations = readFileSync("dist/index.d.ts", "utf8");
 
   it("dist/index.d.ts exports ChatAttribution as a type", () => {
-    const typeExports = [...indexDeclarations.matchAll(/export type \{([^}]*)\}/g)]
+    const typeExports = [
+      ...indexDeclarations.matchAll(/export type \{([^}]*)\}/g),
+    ]
       .flatMap((match) => match[1].split(","))
       .map((name) => name.trim())
       .filter(Boolean);
@@ -33,7 +40,10 @@ describe("ChatAttribution's built shape", () => {
   });
 
   it("ChatAttribution declares exactly name and avatar", () => {
-    expect(declaredMembers(listDeclarations, "ChatAttribution")).toEqual(["name", "avatar"]);
+    expect(declaredMembers(listDeclarations, "ChatAttribution")).toEqual([
+      "name",
+      "avatar",
+    ]);
   });
 
   it("ChatMessageListProps gains attribution and nothing else", () => {
@@ -64,8 +74,12 @@ describe("ChatAttribution's built shape", () => {
   // renderEntry is bounded: 133's renderEntryFooter is a footer slot, not the
   // per-entry render prop this rejects in favour of the lookup table.
   it("dist/index.d.ts declares no describeAssistant, renderAttribution or renderEntry", () => {
-    expect(indexDeclarations).not.toMatch(/describeAssistant|renderAttribution|renderEntry\b/);
-    expect(listDeclarations).not.toMatch(/describeAssistant|renderAttribution|renderEntry\b/);
+    expect(indexDeclarations).not.toMatch(
+      /describeAssistant|renderAttribution|renderEntry\b/,
+    );
+    expect(listDeclarations).not.toMatch(
+      /describeAssistant|renderAttribution|renderEntry\b/,
+    );
   });
 });
 
@@ -103,7 +117,7 @@ describe("the built chat message list", () => {
         "react-jsx",
         "tests/types/chat-message-list-type-assertions.tsx",
       ],
-      { cwd: process.cwd(), encoding: "utf8" }
+      { cwd: process.cwd(), encoding: "utf8" },
     );
 
     expect(result).toMatchObject({ status: 0, stderr: "" });

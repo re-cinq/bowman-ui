@@ -15,7 +15,8 @@ import type { PropDoc } from "./propDocs";
 
 const headerCellClassName =
   "border-b border-slate-200 px-3 py-2 text-left font-medium dark:border-slate-800";
-const cellClassName = "border-b border-slate-100 px-3 py-2 align-top dark:border-slate-900";
+const cellClassName =
+  "border-b border-slate-100 px-3 py-2 align-top dark:border-slate-900";
 
 // An interpolated label is a function by convention (docs/design-notes.md § Labels), so
 // the table shows what it produces rather than "function".
@@ -37,7 +38,9 @@ function PropsTable({ props }: { props: Readonly<Record<string, PropDoc>> }) {
             <th className={headerCellClassName}>{docsLabels.propType}</th>
             <th className={headerCellClassName}>{docsLabels.propRequired}</th>
             <th className={headerCellClassName}>{docsLabels.propDefault}</th>
-            <th className={headerCellClassName}>{docsLabels.propDescription}</th>
+            <th className={headerCellClassName}>
+              {docsLabels.propDescription}
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -47,7 +50,9 @@ function PropsTable({ props }: { props: Readonly<Record<string, PropDoc>> }) {
                 <code className="font-mono">{name}</code>
               </td>
               <td className={cellClassName}>
-                <code className="font-mono text-slate-500 dark:text-slate-400">{doc.type}</code>
+                <code className="font-mono text-slate-500 dark:text-slate-400">
+                  {doc.type}
+                </code>
               </td>
               <td className={cellClassName}>
                 {doc.required ? docsLabels.required : docsLabels.optional}
@@ -74,7 +79,9 @@ function LabelsTable({ doc }: { doc: ComponentDoc }) {
 
   return (
     <DocSection title={docsLabels.labelsHeading}>
-      <p className="text-sm text-slate-600 dark:text-slate-400">{docsLabels.labelsNote}</p>
+      <p className="text-sm text-slate-600 dark:text-slate-400">
+        {docsLabels.labelsNote}
+      </p>
       <div className="overflow-x-auto">
         <table className="w-full min-w-[32rem] border-collapse text-left text-xs text-slate-700 dark:text-slate-300">
           <tbody>
@@ -83,7 +90,9 @@ function LabelsTable({ doc }: { doc: ComponentDoc }) {
                 <td className={cellClassName}>
                   <code className="font-mono">{key}</code>
                 </td>
-                <td className={`${cellClassName} text-slate-500 dark:text-slate-400`}>
+                <td
+                  className={`${cellClassName} text-slate-500 dark:text-slate-400`}
+                >
                   {docsLabels.noDefault}
                 </td>
               </tr>
@@ -115,8 +124,12 @@ export function ComponentDocPage({ doc }: { doc: ComponentDoc }) {
         >
           {docsLabels.backToIndex}
         </a>
-        <h1 className="text-2xl font-semibold text-slate-900 dark:text-slate-100">{doc.name}</h1>
-        <p className="text-sm leading-6 text-slate-600 dark:text-slate-400">{doc.purpose}</p>
+        <h1 className="text-2xl font-semibold text-slate-900 dark:text-slate-100">
+          {doc.name}
+        </h1>
+        <p className="text-sm leading-6 text-slate-600 dark:text-slate-400">
+          {doc.purpose}
+        </p>
       </header>
 
       <DocSection title={docsLabels.importHeading}>

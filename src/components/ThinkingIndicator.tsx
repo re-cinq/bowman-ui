@@ -9,11 +9,12 @@ export interface ThinkingIndicatorLabels {
   thinkingRegion: string;
 }
 
-export const defaultThinkingIndicatorLabels: Readonly<Required<ThinkingIndicatorLabels>> =
-  Object.freeze({
-    thinking: "Thinking",
-    thinkingRegion: "Loading response",
-  });
+export const defaultThinkingIndicatorLabels: Readonly<
+  Required<ThinkingIndicatorLabels>
+> = Object.freeze({
+  thinking: "Thinking",
+  thinkingRegion: "Loading response",
+});
 
 export interface ThinkingIndicatorProps {
   /** Fills the avatar circle; without it the circle stays empty (018 decision 3). */
@@ -27,7 +28,10 @@ export interface ThinkingIndicatorProps {
 // aria-hidden - an announced avatar inside a role="status" region would just
 // be noise - and always pulses, since this component is itself the loading
 // state.
-export function ThinkingIndicator({ assistantAvatar, labels }: ThinkingIndicatorProps) {
+export function ThinkingIndicator({
+  assistantAvatar,
+  labels,
+}: ThinkingIndicatorProps) {
   const resolved = resolveLabels(defaultThinkingIndicatorLabels, labels);
 
   return (
@@ -44,7 +48,9 @@ export function ThinkingIndicator({ assistantAvatar, labels }: ThinkingIndicator
         {assistantAvatar}
       </div>
       <div className="flex items-center gap-2 py-2">
-        <span className="text-sm text-slate-500 dark:text-slate-400">{resolved.thinking}</span>
+        <span className="text-sm text-slate-500 dark:text-slate-400">
+          {resolved.thinking}
+        </span>
         <ThinkingDots />
       </div>
     </div>

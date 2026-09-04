@@ -18,9 +18,16 @@ import {
   type UserChatEntry,
 } from "@re-cinq/bowman-ui";
 
-const entries: ReadonlyArray<UserChatEntry | AssistantChatEntry | ToolChatEntry> = [
+const entries: ReadonlyArray<
+  UserChatEntry | AssistantChatEntry | ToolChatEntry
+> = [
   { id: "u1", role: "user", content: "Ver pedido 4711" },
-  { id: "t1", role: "tool", toolName: "get_weather", toolInput: { location: "Berlin" } },
+  {
+    id: "t1",
+    role: "tool",
+    toolName: "get_weather",
+    toolInput: { location: "Berlin" },
+  },
   {
     id: "a1",
     role: "assistant",
@@ -33,20 +40,32 @@ const entries: ReadonlyArray<UserChatEntry | AssistantChatEntry | ToolChatEntry>
 // A lookup table, never a render function: a server component can pass this
 // object literal across the RSC boundary (docs/design-notes.md § RSC fixture).
 const attribution: Readonly<Record<string, ChatAttribution>> = {
-  "olt-support": { name: "Facturación", avatar: <span data-testid="persona-a" /> },
+  "olt-support": {
+    name: "Facturación",
+    avatar: <span data-testid="persona-a" />,
+  },
 };
 
-// @ts-expect-error -- ChatAttribution carries name and avatar and nothing else
-const attributionWithThirdMember: ChatAttribution = { name: "Facturación", persona: "olt-support" };
+const attributionWithThirdMember: ChatAttribution = {
+  name: "Facturación",
+  // @ts-expect-error -- ChatAttribution carries name and avatar and nothing else
+  persona: "olt-support",
+};
 
 // 087-bowman-ui-thinking-trace widened `entries` to the full ChatEntry union,
 // so a ThinkingChatEntry is now accepted - the positive case that replaced
 // 086's @ts-expect-error.
 const withThinking: ReadonlyArray<UserChatEntry | ThinkingChatEntry> = [
   { id: "u1", role: "user", content: "Ver pedido 4711" },
-  { id: "th1", role: "thinking", content: "Consultando el pedido", isStreaming: false },
+  {
+    id: "th1",
+    role: "thinking",
+    content: "Consultando el pedido",
+    isStreaming: false,
+  },
 ];
-const acceptedEntries: ComponentProps<typeof ChatMessageList>["entries"] = withThinking;
+const acceptedEntries: ComponentProps<typeof ChatMessageList>["entries"] =
+  withThinking;
 
 void acceptedEntries;
 
@@ -57,11 +76,13 @@ const withDisclosureDefault = defaultChatMessageListLabels satisfies Readonly<
   Required<ChatMessageListLabels>
 >;
 
-const scoreFooter: NonNullable<ChatMessageListProps["renderEntryFooter"]> = (entry) => (
-  <span data-entry-id={entry.id} />
-);
+const scoreFooter: NonNullable<ChatMessageListProps["renderEntryFooter"]> = (
+  entry,
+) => <span data-entry-id={entry.id} />;
 
-const toolNameFooter: NonNullable<ChatMessageListProps["renderEntryFooter"]> = (entry) =>
+const toolNameFooter: NonNullable<ChatMessageListProps["renderEntryFooter"]> = (
+  entry,
+) =>
   // @ts-expect-error -- the parameter stays UserChatEntry | AssistantChatEntry:
   // a widened `entries` must not widen this callback, so a tool row's
   // toolName is unreadable here.

@@ -1,4 +1,8 @@
-export const isRevealed = (open: boolean, mounted: boolean, hidden: boolean) => {
+export const isRevealed = (
+  open: boolean,
+  mounted: boolean,
+  hidden: boolean,
+) => {
   const revealed = open && mounted && !hidden;
 
   return revealed;

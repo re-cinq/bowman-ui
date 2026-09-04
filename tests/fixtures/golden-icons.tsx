@@ -26,7 +26,7 @@ interface IconSvgProps {
 }
 
 function getAccessibleIconProps(
-  ariaLabel?: string
+  ariaLabel?: string,
 ): Pick<IconSvgProps, "aria-hidden" | "role" | "aria-label"> {
   if (ariaLabel) {
     return {
@@ -383,7 +383,14 @@ export function LoadingIcon(props: BaseIconProps) {
       viewBox="0 0 24 24"
       {...accessibleProps}
     >
-      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+      <circle
+        className="opacity-25"
+        cx="12"
+        cy="12"
+        r="10"
+        stroke="currentColor"
+        strokeWidth="4"
+      />
       <path
         className="opacity-75"
         fill="currentColor"
@@ -394,7 +401,10 @@ export function LoadingIcon(props: BaseIconProps) {
 }
 
 export function DatabaseIcon(props: BaseIconProps) {
-  const svgProps = createSvgProps({ ...props, strokeWidth: props.strokeWidth ?? 1.5 });
+  const svgProps = createSvgProps({
+    ...props,
+    strokeWidth: props.strokeWidth ?? 1.5,
+  });
 
   return (
     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" {...svgProps}>

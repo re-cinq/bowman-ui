@@ -1,5 +1,11 @@
 import { execFileSync, spawnSync } from "node:child_process";
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import {
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 
@@ -8,9 +14,16 @@ const script = join(process.cwd(), "scripts", "repoint-spec-anchors.mjs");
 type RunResult = { status: number | null; stdout: string; stderr: string };
 
 const run = (repo: string, ...args: string[]): RunResult => {
-  const result = spawnSync(process.execPath, [script, ...args], { cwd: repo, encoding: "utf8" });
+  const result = spawnSync(process.execPath, [script, ...args], {
+    cwd: repo,
+    encoding: "utf8",
+  });
 
-  return { status: result.status, stdout: result.stdout, stderr: result.stderr };
+  return {
+    status: result.status,
+    stdout: result.stdout,
+    stderr: result.stderr,
+  };
 };
 
 const git = (repo: string, ...args: string[]) => {
@@ -22,7 +35,8 @@ const write = (repo: string, path: string, content: string) => {
   writeFileSync(join(repo, path), content);
 };
 
-const read = (repo: string, path: string) => readFileSync(join(repo, path), "utf8");
+const read = (repo: string, path: string) =>
+  readFileSync(join(repo, path), "utf8");
 
 const asTestFile = (lines: string[]) => `${lines.join("\n")}\n`;
 
@@ -39,11 +53,15 @@ const makeRepo = (): string => {
   git(repo, "config", "user.email", "test@example.test");
   git(repo, "config", "user.name", "Test");
   git(repo, "config", "commit.gpgsign", "false");
-  write(repo, "tests/Foo.test.tsx", asTestFile(["alpha", "beta", "gamma", "delta"]));
+  write(
+    repo,
+    "tests/Foo.test.tsx",
+    asTestFile(["alpha", "beta", "gamma", "delta"]),
+  );
   write(
     repo,
     "specs/foo/spec.md",
-    asSpec("../../tests/Foo.test.tsx#L2", "../../tests/Foo.test.tsx#L4")
+    asSpec("../../tests/Foo.test.tsx#L2", "../../tests/Foo.test.tsx#L4"),
   );
   write(repo, ".specify/spec.md", asSpec("../tests/Foo.test.tsx#L3"));
   git(repo, "add", "-A");
@@ -67,33 +85,47 @@ describe("repoint-spec-anchors", () => {
     write(
       repo,
       "tests/Foo.test.tsx",
-      asTestFile(["intro", "intro2", "alpha", "beta", "gamma", "delta"])
+      asTestFile(["intro", "intro2", "alpha", "beta", "gamma", "delta"]),
     );
 
     const result = run(repo, "main");
 
     expect(result).toMatchObject({ status: 0 });
-    expect(result.stdout).toContain("repointed: 3, up to date: 0, unresolved: 0");
-    expect(read(repo, "specs/foo/spec.md")).toEqual(
-      asSpec("../../tests/Foo.test.tsx#L4", "../../tests/Foo.test.tsx#L6")
+    expect(result.stdout).toContain(
+      "repointed: 3, up to date: 0, unresolved: 0",
     );
-    expect(read(repo, ".specify/spec.md")).toEqual(asSpec("../tests/Foo.test.tsx#L5"));
+    expect(read(repo, "specs/foo/spec.md")).toEqual(
+      asSpec("../../tests/Foo.test.tsx#L4", "../../tests/Foo.test.tsx#L6"),
+    );
+    expect(read(repo, ".specify/spec.md")).toEqual(
+      asSpec("../tests/Foo.test.tsx#L5"),
+    );
   });
 
   it("a second run against the same baseline changes nothing", () => {
-    write(repo, "tests/Foo.test.tsx", asTestFile(["intro", "alpha", "beta", "gamma", "delta"]));
+    write(
+      repo,
+      "tests/Foo.test.tsx",
+      asTestFile(["intro", "alpha", "beta", "gamma", "delta"]),
+    );
     run(repo, "main");
     const afterFirst = read(repo, "specs/foo/spec.md");
 
     const second = run(repo, "main");
 
     expect(second).toMatchObject({ status: 0 });
-    expect(second.stdout).toContain("repointed: 0, up to date: 3, unresolved: 0");
+    expect(second.stdout).toContain(
+      "repointed: 0, up to date: 3, unresolved: 0",
+    );
     expect(read(repo, "specs/foo/spec.md")).toEqual(afterFirst);
   });
 
   it("--check exits 1 listing stale anchors and rewrites nothing", () => {
-    write(repo, "tests/Foo.test.tsx", asTestFile(["intro", "alpha", "beta", "gamma", "delta"]));
+    write(
+      repo,
+      "tests/Foo.test.tsx",
+      asTestFile(["intro", "alpha", "beta", "gamma", "delta"]),
+    );
     const specBefore = read(repo, "specs/foo/spec.md");
 
     const check = run(repo, "--check", "main");
@@ -106,7 +138,11 @@ describe("repoint-spec-anchors", () => {
   });
 
   it("--check exits 0 once anchors are repointed", () => {
-    write(repo, "tests/Foo.test.tsx", asTestFile(["intro", "alpha", "beta", "gamma", "delta"]));
+    write(
+      repo,
+      "tests/Foo.test.tsx",
+      asTestFile(["intro", "alpha", "beta", "gamma", "delta"]),
+    );
     run(repo, "main");
 
     const check = run(repo, "--check", "main");
@@ -116,7 +152,11 @@ describe("repoint-spec-anchors", () => {
   });
 
   it("an anchor whose base content vanished is reported unresolved and exits 1", () => {
-    write(repo, "tests/Foo.test.tsx", asTestFile(["alpha", "BETA", "gamma", "delta"]));
+    write(
+      repo,
+      "tests/Foo.test.tsx",
+      asTestFile(["alpha", "BETA", "gamma", "delta"]),
+    );
 
     const result = run(repo, "main");
 
@@ -124,7 +164,7 @@ describe("repoint-spec-anchors", () => {
     expect(result.stdout).toContain("unresolved: 1");
     expect(result.stderr).toContain("Foo.test.tsx#L2");
     expect(read(repo, "specs/foo/spec.md")).toEqual(
-      asSpec("../../tests/Foo.test.tsx#L2", "../../tests/Foo.test.tsx#L4")
+      asSpec("../../tests/Foo.test.tsx#L2", "../../tests/Foo.test.tsx#L4"),
     );
   });
 
@@ -132,13 +172,13 @@ describe("repoint-spec-anchors", () => {
     write(
       repo,
       "tests/Foo.test.tsx",
-      asTestFile(["x", "y", "beta", "z", "beta", "gamma", "delta"])
+      asTestFile(["x", "y", "beta", "z", "beta", "gamma", "delta"]),
     );
 
     run(repo, "main");
 
     expect(read(repo, "specs/foo/spec.md")).toEqual(
-      asSpec("../../tests/Foo.test.tsx#L5", "../../tests/Foo.test.tsx#L7")
+      asSpec("../../tests/Foo.test.tsx#L5", "../../tests/Foo.test.tsx#L7"),
     );
   });
 
@@ -146,12 +186,17 @@ describe("repoint-spec-anchors", () => {
     write(
       repo,
       "tests/Foo.test.tsx",
-      asTestFile(["setup", "expect(height).toBe(200);", "teardown", "expect(height).toBe(200);"])
+      asTestFile([
+        "setup",
+        "expect(height).toBe(200);",
+        "teardown",
+        "expect(height).toBe(200);",
+      ]),
     );
     write(
       repo,
       "specs/foo/spec.md",
-      asSpec("../../tests/Foo.test.tsx#L2", "../../tests/Foo.test.tsx#L4")
+      asSpec("../../tests/Foo.test.tsx#L2", "../../tests/Foo.test.tsx#L4"),
     );
     write(repo, ".specify/spec.md", asSpec("../tests/Foo.test.tsx#L2"));
     git(repo, "add", "-A");
@@ -167,14 +212,14 @@ describe("repoint-spec-anchors", () => {
         "expect(height).toBe(200);",
         "teardown",
         "expect(height).toBe(200);",
-      ])
+      ]),
     );
 
     const result = run(repo, "main");
 
     expect(result).toMatchObject({ status: 0 });
     expect(read(repo, "specs/foo/spec.md")).toEqual(
-      asSpec("../../tests/Foo.test.tsx#L5", "../../tests/Foo.test.tsx#L7")
+      asSpec("../../tests/Foo.test.tsx#L5", "../../tests/Foo.test.tsx#L7"),
     );
   });
 
@@ -237,7 +282,7 @@ describe("repoint-spec-anchors", () => {
         "s5",
         "s6",
         "end",
-      ])
+      ]),
     );
     write(repo, "specs/foo/spec.md", asSpec("../../tests/Foo.test.tsx#L13"));
     write(repo, ".specify/spec.md", asSpec("../tests/Foo.test.tsx#L1"));
@@ -250,7 +295,9 @@ describe("repoint-spec-anchors", () => {
     const result = run(repo, "main");
 
     expect(result).toMatchObject({ status: 0 });
-    expect(read(repo, "specs/foo/spec.md")).toEqual(asSpec("../../tests/Foo.test.tsx#L15"));
+    expect(read(repo, "specs/foo/spec.md")).toEqual(
+      asSpec("../../tests/Foo.test.tsx#L15"),
+    );
   });
 
   it("skips a spec whose anchor set differs from the base ref", () => {
@@ -260,18 +307,26 @@ describe("repoint-spec-anchors", () => {
       asSpec(
         "../../tests/Foo.test.tsx#L2",
         "../../tests/Foo.test.tsx#L4",
-        "../../tests/Foo.test.tsx#L1"
-      )
+        "../../tests/Foo.test.tsx#L1",
+      ),
     );
-    write(repo, "tests/Foo.test.tsx", asTestFile(["intro", "alpha", "beta", "gamma", "delta"]));
+    write(
+      repo,
+      "tests/Foo.test.tsx",
+      asTestFile(["intro", "alpha", "beta", "gamma", "delta"]),
+    );
     const specBefore = read(repo, "specs/foo/spec.md");
 
     const result = run(repo, "main");
 
     expect(result).toMatchObject({ status: 0 });
-    expect(result.stderr).toContain("skipped specs/foo/spec.md: anchor set differs from main");
+    expect(result.stderr).toContain(
+      "skipped specs/foo/spec.md: anchor set differs from main",
+    );
     expect(read(repo, "specs/foo/spec.md")).toEqual(specBefore);
-    expect(read(repo, ".specify/spec.md")).toEqual(asSpec("../tests/Foo.test.tsx#L4"));
+    expect(read(repo, ".specify/spec.md")).toEqual(
+      asSpec("../tests/Foo.test.tsx#L4"),
+    );
   });
 
   it("a spec absent from the base ref is skipped", () => {
@@ -280,27 +335,33 @@ describe("repoint-spec-anchors", () => {
     const result = run(repo, "main");
 
     expect(result).toMatchObject({ status: 0 });
-    expect(result.stderr).toContain("skipped specs/new/spec.md: not present at main");
-    expect(read(repo, "specs/new/spec.md")).toEqual(asSpec("../../tests/Foo.test.tsx#L1"));
+    expect(result.stderr).toContain(
+      "skipped specs/new/spec.md: not present at main",
+    );
+    expect(read(repo, "specs/new/spec.md")).toEqual(
+      asSpec("../../tests/Foo.test.tsx#L1"),
+    );
   });
 
   it("defaults the base ref to origin/main", () => {
     const clone = mkdtempSync(join(tmpdir(), "repoint-spec-anchors-clone-"));
 
-    execFileSync("git", ["clone", "-q", repo, join(clone, "repo")], { stdio: "ignore" });
+    execFileSync("git", ["clone", "-q", repo, join(clone, "repo")], {
+      stdio: "ignore",
+    });
     const cloneRepo = join(clone, "repo");
 
     write(
       cloneRepo,
       "tests/Foo.test.tsx",
-      asTestFile(["intro", "alpha", "beta", "gamma", "delta"])
+      asTestFile(["intro", "alpha", "beta", "gamma", "delta"]),
     );
 
     const result = run(cloneRepo);
 
     expect(result).toMatchObject({ status: 0 });
     expect(read(cloneRepo, "specs/foo/spec.md")).toEqual(
-      asSpec("../../tests/Foo.test.tsx#L3", "../../tests/Foo.test.tsx#L5")
+      asSpec("../../tests/Foo.test.tsx#L3", "../../tests/Foo.test.tsx#L5"),
     );
     rmSync(clone, { recursive: true, force: true });
   });
@@ -309,7 +370,7 @@ describe("repoint-spec-anchors", () => {
     write(
       repo,
       "specs/foo/spec.md",
-      asSpec("../../tests/Foo.test.tsx#L3", "../../tests/Foo.test.tsx#L1")
+      asSpec("../../tests/Foo.test.tsx#L3", "../../tests/Foo.test.tsx#L1"),
     );
     const specBefore = read(repo, "specs/foo/spec.md");
 
@@ -323,7 +384,11 @@ describe("repoint-spec-anchors", () => {
   });
 
   it("an anchor landing on a blank line is rotten and exits 1 in both modes", () => {
-    write(repo, "tests/Foo.test.tsx", asTestFile(["alpha", "", "gamma", "delta"]));
+    write(
+      repo,
+      "tests/Foo.test.tsx",
+      asTestFile(["alpha", "", "gamma", "delta"]),
+    );
     git(repo, "add", "-A");
     git(repo, "commit", "-q", "-m", "blank line at L2");
     const specBefore = read(repo, "specs/foo/spec.md");
@@ -333,14 +398,18 @@ describe("repoint-spec-anchors", () => {
 
     expect(check).toMatchObject({ status: 1 });
     expect(check.stderr).toContain(
-      "rotten specs/foo/spec.md: ../../tests/Foo.test.tsx#L2 -> #L2 lands on a blank or closing line"
+      "rotten specs/foo/spec.md: ../../tests/Foo.test.tsx#L2 -> #L2 lands on a blank or closing line",
     );
     expect(rewrite).toMatchObject({ status: 1 });
     expect(read(repo, "specs/foo/spec.md")).toEqual(specBefore);
   });
 
   it("an anchor landing on closing punctuation is rotten", () => {
-    write(repo, "tests/Foo.test.tsx", asTestFile(["alpha", "  });", "gamma", "delta"]));
+    write(
+      repo,
+      "tests/Foo.test.tsx",
+      asTestFile(["alpha", "  });", "gamma", "delta"]),
+    );
     git(repo, "add", "-A");
     git(repo, "commit", "-q", "-m", "closing brace at L2");
 
@@ -351,36 +420,48 @@ describe("repoint-spec-anchors", () => {
   });
 
   it("a rotten anchor whose baseline content moved is rewritten and not reported", () => {
-    write(repo, "tests/Foo.test.tsx", asTestFile(["alpha", "", "beta", "gamma", "delta"]));
+    write(
+      repo,
+      "tests/Foo.test.tsx",
+      asTestFile(["alpha", "", "beta", "gamma", "delta"]),
+    );
 
     const rewrite = run(repo, "main");
 
     expect(rewrite).toMatchObject({ status: 0 });
-    expect(rewrite.stdout).toContain("repointed: 3, up to date: 0, unresolved: 0");
+    expect(rewrite.stdout).toContain(
+      "repointed: 3, up to date: 0, unresolved: 0",
+    );
     expect(rewrite.stderr).not.toContain("rotten");
     expect(read(repo, "specs/foo/spec.md")).toEqual(
-      asSpec("../../tests/Foo.test.tsx#L3", "../../tests/Foo.test.tsx#L5")
+      asSpec("../../tests/Foo.test.tsx#L3", "../../tests/Foo.test.tsx#L5"),
     );
   });
 
   it("the rotten check still applies to a spec skipped for a differing anchor set", () => {
-    write(repo, "tests/Foo.test.tsx", asTestFile(["alpha", "beta", "gamma", ""]));
+    write(
+      repo,
+      "tests/Foo.test.tsx",
+      asTestFile(["alpha", "beta", "gamma", ""]),
+    );
     write(
       repo,
       "specs/foo/spec.md",
       asSpec(
         "../../tests/Foo.test.tsx#L2",
         "../../tests/Foo.test.tsx#L4",
-        "../../tests/Foo.test.tsx#L1"
-      )
+        "../../tests/Foo.test.tsx#L1",
+      ),
     );
 
     const check = run(repo, "--check", "main");
 
     expect(check).toMatchObject({ status: 1 });
-    expect(check.stderr).toContain("skipped specs/foo/spec.md: anchor set differs from main");
     expect(check.stderr).toContain(
-      "rotten specs/foo/spec.md: ../../tests/Foo.test.tsx#L4 -> #L4 lands on a blank or closing line"
+      "skipped specs/foo/spec.md: anchor set differs from main",
+    );
+    expect(check.stderr).toContain(
+      "rotten specs/foo/spec.md: ../../tests/Foo.test.tsx#L4 -> #L4 lands on a blank or closing line",
     );
   });
 
@@ -399,7 +480,11 @@ describe("repoint-spec-anchors", () => {
   });
 
   it("re-syncs a short-form label to its href line", () => {
-    write(repo, "specs/foo/spec.md", asShortSpec([9, "../../tests/Foo.test.tsx#L2"]));
+    write(
+      repo,
+      "specs/foo/spec.md",
+      asShortSpec([9, "../../tests/Foo.test.tsx#L2"]),
+    );
     git(repo, "add", "-A");
     git(repo, "commit", "-q", "-m", "short-form label out of sync");
 
@@ -408,30 +493,38 @@ describe("repoint-spec-anchors", () => {
     expect(result).toMatchObject({ status: 0 });
     expect(result.stdout).toContain("relabelled: 1");
     expect(read(repo, "specs/foo/spec.md")).toEqual(
-      asShortSpec([2, "../../tests/Foo.test.tsx#L2"])
+      asShortSpec([2, "../../tests/Foo.test.tsx#L2"]),
     );
   });
 
   it("a short-form label follows its href to the moved line", () => {
-    write(repo, "specs/foo/spec.md", asShortSpec([2, "../../tests/Foo.test.tsx#L2"]));
+    write(
+      repo,
+      "specs/foo/spec.md",
+      asShortSpec([2, "../../tests/Foo.test.tsx#L2"]),
+    );
     git(repo, "add", "-A");
     git(repo, "commit", "-q", "-m", "short-form label in sync");
     write(
       repo,
       "tests/Foo.test.tsx",
-      asTestFile(["intro", "intro2", "alpha", "beta", "gamma", "delta"])
+      asTestFile(["intro", "intro2", "alpha", "beta", "gamma", "delta"]),
     );
 
     const result = run(repo, "main");
 
     expect(result).toMatchObject({ status: 0 });
     expect(read(repo, "specs/foo/spec.md")).toEqual(
-      asShortSpec([4, "../../tests/Foo.test.tsx#L4"])
+      asShortSpec([4, "../../tests/Foo.test.tsx#L4"]),
     );
   });
 
   it("--check exits 1 naming a label that disagrees with its href and rewrites nothing", () => {
-    write(repo, "specs/foo/spec.md", asShortSpec([9, "../../tests/Foo.test.tsx#L2"]));
+    write(
+      repo,
+      "specs/foo/spec.md",
+      asShortSpec([9, "../../tests/Foo.test.tsx#L2"]),
+    );
     git(repo, "add", "-A");
     git(repo, "commit", "-q", "-m", "short-form label out of sync");
     const specBefore = read(repo, "specs/foo/spec.md");
@@ -441,13 +534,17 @@ describe("repoint-spec-anchors", () => {
     expect(check).toMatchObject({ status: 1 });
     expect(check.stdout).toContain("mislabelled: 1");
     expect(check.stderr).toContain(
-      "mislabelled specs/foo/spec.md: ../../tests/Foo.test.tsx#L2 -> label reads L9"
+      "mislabelled specs/foo/spec.md: ../../tests/Foo.test.tsx#L2 -> label reads L9",
     );
     expect(read(repo, "specs/foo/spec.md")).toEqual(specBefore);
   });
 
   it("--check exits 0 after labels are synced and a second run changes nothing", () => {
-    write(repo, "specs/foo/spec.md", asShortSpec([9, "../../tests/Foo.test.tsx#L2"]));
+    write(
+      repo,
+      "specs/foo/spec.md",
+      asShortSpec([9, "../../tests/Foo.test.tsx#L2"]),
+    );
     git(repo, "add", "-A");
     git(repo, "commit", "-q", "-m", "short-form label out of sync");
     run(repo, "main");
@@ -466,7 +563,10 @@ describe("repoint-spec-anchors", () => {
     write(
       repo,
       "specs/foo/spec.md",
-      asShortSpec([2, "../../tests/Foo.test.tsx#L2"], [4, "../../tests/Foo.test.tsx#L4"])
+      asShortSpec(
+        [2, "../../tests/Foo.test.tsx#L2"],
+        [4, "../../tests/Foo.test.tsx#L4"],
+      ),
     );
     git(repo, "add", "-A");
     git(repo, "commit", "-q", "-m", "two short-form labels in sync");
@@ -476,8 +576,8 @@ describe("repoint-spec-anchors", () => {
       asShortSpec(
         [9, "../../tests/Foo.test.tsx#L2"],
         [4, "../../tests/Foo.test.tsx#L4"],
-        [1, "../../tests/Foo.test.tsx#L1"]
-      )
+        [1, "../../tests/Foo.test.tsx#L1"],
+      ),
     );
 
     const check = run(repo, "--check", "main");
@@ -485,17 +585,19 @@ describe("repoint-spec-anchors", () => {
 
     expect(check).toMatchObject({ status: 1 });
     expect(check.stdout).toContain("mislabelled: 1");
-    expect(check.stderr).toContain("skipped specs/foo/spec.md: anchor set differs from main");
     expect(check.stderr).toContain(
-      "mislabelled specs/foo/spec.md: ../../tests/Foo.test.tsx#L2 -> label reads L9"
+      "skipped specs/foo/spec.md: anchor set differs from main",
+    );
+    expect(check.stderr).toContain(
+      "mislabelled specs/foo/spec.md: ../../tests/Foo.test.tsx#L2 -> label reads L9",
     );
     expect(rewrite).toMatchObject({ status: 0 });
     expect(read(repo, "specs/foo/spec.md")).toEqual(
       asShortSpec(
         [2, "../../tests/Foo.test.tsx#L2"],
         [4, "../../tests/Foo.test.tsx#L4"],
-        [1, "../../tests/Foo.test.tsx#L1"]
-      )
+        [1, "../../tests/Foo.test.tsx#L1"],
+      ),
     );
   });
 
@@ -503,7 +605,7 @@ describe("repoint-spec-anchors", () => {
     write(
       repo,
       "specs/foo/spec.md",
-      "Statement 1. ([validated by](../../tests/Foo.test.tsx#L2), [L9](../../tests/Foo.test.tsx#L4))\n"
+      "Statement 1. ([validated by](../../tests/Foo.test.tsx#L2), [L9](../../tests/Foo.test.tsx#L4))\n",
     );
     git(repo, "add", "-A");
     git(repo, "commit", "-q", "-m", "mixed labels");
@@ -512,13 +614,21 @@ describe("repoint-spec-anchors", () => {
 
     expect(result).toMatchObject({ status: 0 });
     expect(read(repo, "specs/foo/spec.md")).toEqual(
-      "Statement 1. ([validated by](../../tests/Foo.test.tsx#L2), [L4](../../tests/Foo.test.tsx#L4))\n"
+      "Statement 1. ([validated by](../../tests/Foo.test.tsx#L2), [L4](../../tests/Foo.test.tsx#L4))\n",
     );
   });
 
   it("a short-form label whose href lands on a blank line is rotten, not silently synced", () => {
-    write(repo, "specs/foo/spec.md", asShortSpec([2, "../../tests/Foo.test.tsx#L2"]));
-    write(repo, "tests/Foo.test.tsx", asTestFile(["alpha", "", "gamma", "delta"]));
+    write(
+      repo,
+      "specs/foo/spec.md",
+      asShortSpec([2, "../../tests/Foo.test.tsx#L2"]),
+    );
+    write(
+      repo,
+      "tests/Foo.test.tsx",
+      asTestFile(["alpha", "", "gamma", "delta"]),
+    );
     git(repo, "add", "-A");
     git(repo, "commit", "-q", "-m", "short-form label href on a blank line");
     const specBefore = read(repo, "specs/foo/spec.md");
@@ -529,7 +639,7 @@ describe("repoint-spec-anchors", () => {
     expect(check).toMatchObject({ status: 1 });
     expect(check.stdout).toContain("mislabelled: 0");
     expect(check.stderr).toContain(
-      "rotten specs/foo/spec.md: ../../tests/Foo.test.tsx#L2 -> #L2 lands on a blank or closing line"
+      "rotten specs/foo/spec.md: ../../tests/Foo.test.tsx#L2 -> #L2 lands on a blank or closing line",
     );
     expect(rewrite).toMatchObject({ status: 1 });
     expect(read(repo, "specs/foo/spec.md")).toEqual(specBefore);

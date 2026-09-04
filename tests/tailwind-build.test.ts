@@ -17,37 +17,58 @@ import { join, resolve } from "node:path";
 // compiled by the real Tailwind v4 CLI.
 const repoRoot = process.cwd();
 const fixtureDir = resolve(repoRoot, "tests/fixtures/tailwind-consumer");
-const tailwindCli = resolve(repoRoot, "node_modules/@tailwindcss/cli/dist/index.mjs");
+const tailwindCli = resolve(
+  repoRoot,
+  "node_modules/@tailwindcss/cli/dist/index.mjs",
+);
 
-const buildConsumer = (): { withSource: string; withoutSource: string; cleanup: () => void } => {
+const buildConsumer = (): {
+  withSource: string;
+  withoutSource: string;
+  cleanup: () => void;
+} => {
   const builtStyles = resolve(repoRoot, "dist/styles.css");
 
   if (!existsSync(builtStyles)) {
     throw new Error("dist/styles.css is missing - run npm run build first");
   }
-  const consumerDir = mkdtempSync(join(tmpdir(), "bowman-ui-tailwind-consumer-"));
-  const installedPackageDir = join(consumerDir, "node_modules", "@re-cinq", "bowman-ui");
+  const consumerDir = mkdtempSync(
+    join(tmpdir(), "bowman-ui-tailwind-consumer-"),
+  );
+  const installedPackageDir = join(
+    consumerDir,
+    "node_modules",
+    "@re-cinq",
+    "bowman-ui",
+  );
 
   mkdirSync(join(installedPackageDir, "dist"), { recursive: true });
-  copyFileSync(resolve(repoRoot, "package.json"), join(installedPackageDir, "package.json"));
+  copyFileSync(
+    resolve(repoRoot, "package.json"),
+    join(installedPackageDir, "package.json"),
+  );
   copyFileSync(builtStyles, join(installedPackageDir, "dist", "styles.css"));
   copyFileSync(
     join(fixtureDir, "FixtureComponent.js"),
-    join(installedPackageDir, "dist", "FixtureComponent.js")
+    join(installedPackageDir, "dist", "FixtureComponent.js"),
   );
   symlinkSync(
     resolve(repoRoot, "node_modules/tailwindcss"),
-    join(consumerDir, "node_modules", "tailwindcss")
+    join(consumerDir, "node_modules", "tailwindcss"),
   );
 
   const compile = (inputName: string): string => {
     copyFileSync(join(fixtureDir, inputName), join(consumerDir, inputName));
     const outputPath = join(consumerDir, inputName.replace(".css", ".out.css"));
 
-    execFileSync(process.execPath, [tailwindCli, "-i", inputName, "-o", outputPath], {
-      cwd: consumerDir,
-      encoding: "utf8",
-    });
+    execFileSync(
+      process.execPath,
+      [tailwindCli, "-i", inputName, "-o", outputPath],
+      {
+        cwd: consumerDir,
+        encoding: "utf8",
+      },
+    );
 
     return readFileSync(outputPath, "utf8");
   };

@@ -36,7 +36,8 @@ describe("dist matches src", () => {
   it("every built file traces back to a source file - no stale artifacts ship", () => {
     const built = walk(resolve(root, "dist"));
     const orphans = built.filter(
-      (file) => !expectedSource(file).some((candidate) => candidateExists(candidate))
+      (file) =>
+        !expectedSource(file).some((candidate) => candidateExists(candidate)),
     );
 
     expect(orphans.map((file) => relative(root, file))).toEqual([]);

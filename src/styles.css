@@ -92,7 +92,8 @@
   margin: 0.25em 0;
 }
 .bowman-md-code {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  font-family:
+    ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
   font-size: 0.875em;
   background-color: color-mix(in srgb, currentColor 8%, transparent);
   border-radius: 0.25em;

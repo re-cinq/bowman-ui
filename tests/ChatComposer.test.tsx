@@ -12,13 +12,17 @@ import { ChatComposer } from "../src/index.js";
 import type { ChatComposerHandle } from "../src/index.js";
 
 const textareaOf = (): HTMLTextAreaElement => screen.getByRole("textbox");
-const sendButtonOf = (): HTMLButtonElement => screen.getByRole("button", { name: "Send message" });
+const sendButtonOf = (): HTMLButtonElement =>
+  screen.getByRole("button", { name: "Send message" });
 
 // jsdom performs no layout and reports scrollHeight 0, so the auto-resize
 // assertions stub the property. A passing resize test here proves the
 // min(scrollHeight, cap) arithmetic, never real browser layout.
 const stubScrollHeight = (textarea: HTMLTextAreaElement, value: number) => {
-  Object.defineProperty(textarea, "scrollHeight", { value, configurable: true });
+  Object.defineProperty(textarea, "scrollHeight", {
+    value,
+    configurable: true,
+  });
 };
 
 const typeDraft = (text: string) => {
@@ -116,7 +120,10 @@ describe("ChatComposer", () => {
       render(<ChatComposer onSubmit={onSubmit} />);
 
       typeDraft("かな");
-      const notPrevented = fireEvent.keyDown(textareaOf(), { key: "Enter", isComposing: true });
+      const notPrevented = fireEvent.keyDown(textareaOf(), {
+        key: "Enter",
+        isComposing: true,
+      });
 
       expect(onSubmit).not.toHaveBeenCalled();
       expect(notPrevented).toBe(true);
@@ -159,7 +166,9 @@ describe("ChatComposer", () => {
     });
 
     it('busy marks the composer surface aria-busy="true"; idle and plain disabled mark it "false"', () => {
-      const { container, rerender } = render(<ChatComposer onSubmit={vi.fn()} busy />);
+      const { container, rerender } = render(
+        <ChatComposer onSubmit={vi.fn()} busy />,
+      );
 
       expect(container.firstElementChild).toHaveAttribute("aria-busy", "true");
 
@@ -171,7 +180,9 @@ describe("ChatComposer", () => {
     });
 
     it("disabled without busy disables both and the wrapper carries no pulse class", () => {
-      const { container } = render(<ChatComposer onSubmit={vi.fn()} disabled />);
+      const { container } = render(
+        <ChatComposer onSubmit={vi.fn()} disabled />,
+      );
 
       expect(textareaOf()).toBeDisabled();
       expect(sendButtonOf()).toBeDisabled();
@@ -262,14 +273,20 @@ describe("ChatComposer", () => {
     });
 
     it("attachSlot renders left of send", () => {
-      render(<ChatComposer onSubmit={vi.fn()} attachSlot={<button type="button">4711</button>} />);
+      render(
+        <ChatComposer
+          onSubmit={vi.fn()}
+          attachSlot={<button type="button">4711</button>}
+        />,
+      );
 
       const buttons = screen.getAllByRole("button");
 
       expect(buttons).toHaveLength(2);
       expect(buttons[0]).toHaveTextContent("4711");
       expect(
-        buttons[0].compareDocumentPosition(sendButtonOf()) & Node.DOCUMENT_POSITION_FOLLOWING
+        buttons[0].compareDocumentPosition(sendButtonOf()) &
+          Node.DOCUMENT_POSITION_FOLLOWING,
       ).toBeTruthy();
     });
   });
@@ -289,7 +306,7 @@ describe("ChatComposer", () => {
       render(
         <form onSubmit={formSubmit}>
           <ChatComposer onSubmit={vi.fn()} />
-        </form>
+        </form>,
       );
 
       typeDraft("Ja");
@@ -304,31 +321,40 @@ describe("ChatComposer", () => {
       render(
         <ChatComposer
           onSubmit={vi.fn()}
-          labels={{ composerInput: "Tu mensaje", composerPlaceholder: "Responder..." }}
-        />
+          labels={{
+            composerInput: "Tu mensaje",
+            composerPlaceholder: "Responder...",
+          }}
+        />,
       );
 
-      expect(screen.getByRole("textbox", { name: "Tu mensaje" })).toHaveAttribute(
-        "placeholder",
-        "Responder..."
-      );
+      expect(
+        screen.getByRole("textbox", { name: "Tu mensaje" }),
+      ).toHaveAttribute("placeholder", "Responder...");
     });
 
     it('the defaults name the textarea "Your message" with placeholder "Reply..."', () => {
       render(<ChatComposer onSubmit={vi.fn()} />);
 
-      expect(screen.getByRole("textbox", { name: "Your message" })).toHaveAttribute(
-        "placeholder",
-        "Reply..."
-      );
+      expect(
+        screen.getByRole("textbox", { name: "Your message" }),
+      ).toHaveAttribute("placeholder", "Reply...");
     });
 
     it("the send button's accessible name is the resolved send label and its SendIcon is aria-hidden", () => {
-      render(<ChatComposer onSubmit={vi.fn()} labels={{ send: "Send til supporten" }} />);
+      render(
+        <ChatComposer
+          onSubmit={vi.fn()}
+          labels={{ send: "Send til supporten" }}
+        />,
+      );
 
       const button = screen.getByRole("button", { name: "Send til supporten" });
 
-      expect(button.querySelector("svg")).toHaveAttribute("aria-hidden", "true");
+      expect(button.querySelector("svg")).toHaveAttribute(
+        "aria-hidden",
+        "true",
+      );
     });
   });
 });
@@ -364,7 +390,8 @@ describe("the authored source (grep acceptance criteria)", () => {
     }
 
     for (const file of walk(resolve(process.cwd(), "dist")).filter(
-      (file) => file.endsWith(".js") || file.endsWith(".d.ts") || file.endsWith(".css")
+      (file) =>
+        file.endsWith(".js") || file.endsWith(".d.ts") || file.endsWith(".css"),
     )) {
       expect(readFileSync(file, "utf8")).not.toMatch(/paperclip/i);
     }
@@ -372,13 +399,15 @@ describe("the authored source (grep acceptance criteria)", () => {
 
   it("GDPR: the file calls no console.*, localStorage, sessionStorage, fetch, sendBeacon or analytics, and holds no draft persistence", () => {
     expect(content).not.toMatch(
-      /console\.|localStorage|sessionStorage|fetch|sendBeacon|analytics|indexedDB/i
+      /console\.|localStorage|sessionStorage|fetch|sendBeacon|analytics|indexedDB/i,
     );
   });
 
   it("no @clerk, swr, next-intl, next/, @/ or lucide-react import, and every relative import ends in .js", () => {
     expect(content).not.toMatch(/@clerk|swr|next-intl|next\/|@\/|lucide-react/);
-    const relativeImports = [...content.matchAll(/from\s+"(\.[^"]+)"/g)].map(([, spec]) => spec);
+    const relativeImports = [...content.matchAll(/from\s+"(\.[^"]+)"/g)].map(
+      ([, spec]) => spec,
+    );
 
     expect(relativeImports.length).toBeGreaterThan(0);
 

@@ -13,7 +13,9 @@ import {
   type ChatComposerLabels,
 } from "@re-cinq/bowman-ui";
 
-const completeDefaults = defaultChatComposerLabels satisfies Readonly<Required<ChatComposerLabels>>;
+const completeDefaults = defaultChatComposerLabels satisfies Readonly<
+  Required<ChatComposerLabels>
+>;
 
 // @ts-expect-error -- a ChatComposerLabels key without a default must not
 // compile: an object missing `send` (the third key) is not a
@@ -40,7 +42,9 @@ const Consumer = () => {
       disabled
       autoFocus
       maxHeightPx={400}
-      attachSlot={<button type="button" data-title={incompleteDefaults.composerInput} />}
+      attachSlot={
+        <button type="button" data-title={incompleteDefaults.composerInput} />
+      }
       labels={{ composerInput: completeDefaults.composerInput }}
     />
   );

@@ -47,7 +47,9 @@ const stripQuotes = (value) => value.replace(/^["'](.*)["']$/, "$1").trim();
 const pairOf = (text) => {
   const match = text.match(/^([A-Za-z][\w-]*):\s*(.*)$/);
 
-  return match === null ? null : { key: match[1], value: stripQuotes(match[2]) };
+  return match === null
+    ? null
+    : { key: match[1], value: stripQuotes(match[2]) };
 };
 
 // A deliberately small front-matter reader for the one shape this record uses:
@@ -111,10 +113,13 @@ const parseFrontMatter = (source) => {
   return { data };
 };
 
-const isFilledString = (value) => typeof value === "string" && value.trim() !== "";
+const isFilledString = (value) =>
+  typeof value === "string" && value.trim() !== "";
 
 const isMapList = (value) =>
-  Array.isArray(value) && value.length > 0 && value.every((entry) => typeof entry === "object");
+  Array.isArray(value) &&
+  value.length > 0 &&
+  value.every((entry) => typeof entry === "object");
 
 const today = () => new Date().toISOString().slice(0, 10);
 
@@ -123,7 +128,9 @@ const checkScalars = (data) => {
 
   for (const field of SCALAR_FIELDS) {
     if (!isFilledString(data[field])) {
-      violations.push(`front matter is missing the required field \`${field}\``);
+      violations.push(
+        `front matter is missing the required field \`${field}\``,
+      );
     }
   }
 
@@ -132,7 +139,9 @@ const checkScalars = (data) => {
   }
 
   if (isFilledString(data.commit) && !/^[0-9a-f]{40}$/.test(data.commit)) {
-    violations.push(`\`commit\` must be a 40-hex commit sha, found "${data.commit}"`);
+    violations.push(
+      `\`commit\` must be a 40-hex commit sha, found "${data.commit}"`,
+    );
   }
 
   return violations;
@@ -142,10 +151,14 @@ const checkCovers = (data) => {
   const covers = data.covers;
 
   if (!Array.isArray(covers) || covers.length === 0) {
-    return ["front matter is missing the required field `covers` (a non-empty path list)"];
+    return [
+      "front matter is missing the required field `covers` (a non-empty path list)",
+    ];
   }
 
-  return covers.every(isFilledString) ? [] : ["`covers` must be a list of paths"];
+  return covers.every(isFilledString)
+    ? []
+    : ["`covers` must be a list of paths"];
 };
 
 const identifyStack = (screenReader) => {
@@ -164,7 +177,9 @@ const identifyStack = (screenReader) => {
 
 const checkStacks = (data) => {
   if (!isMapList(data.stacks)) {
-    return ["front matter is missing the required field `stacks` (a non-empty list)"];
+    return [
+      "front matter is missing the required field `stacks` (a non-empty list)",
+    ];
   }
   const violations = [];
 
@@ -179,9 +194,11 @@ const checkStacks = (data) => {
   if (violations.length > 0) {
     return violations;
   }
-  const identified = data.stacks.map((stack) => identifyStack(stack.screenReader));
+  const identified = data.stacks.map((stack) =>
+    identifyStack(stack.screenReader),
+  );
   const identifiesEachStackOnce = STACKS.every(
-    (name) => identified.filter((entry) => entry === name).length === 1
+    (name) => identified.filter((entry) => entry === name).length === 1,
   );
 
   if (data.stacks.length !== STACKS.length || !identifiesEachStackOnce) {
@@ -203,7 +220,9 @@ const checkRowVerdict = (row, now) => {
   }
 
   if (row.verdict === "not-run" && row.stack !== NOT_RUN_STACK) {
-    return [`${where} is \`not-run\`, which is legal only on the ${NOT_RUN_STACK} stack`];
+    return [
+      `${where} is \`not-run\`, which is legal only on the ${NOT_RUN_STACK} stack`,
+    ];
   }
 
   if (row.verdict === "not-run" && !isFilledString(row.reason)) {
@@ -215,7 +234,9 @@ const checkRowVerdict = (row, now) => {
     !isFilledString(row["fixing-issue"]) &&
     !isFilledString(row["accepted-by"])
   ) {
-    return [`${where} is \`fail\` without a \`fixing-issue\` or an \`accepted-by\``];
+    return [
+      `${where} is \`fail\` without a \`fixing-issue\` or an \`accepted-by\``,
+    ];
   }
 
   if (row.verdict !== "waived") {
@@ -223,7 +244,9 @@ const checkRowVerdict = (row, now) => {
   }
 
   if (!isFilledString(row["waived-by"]) || !isFilledString(row.expires)) {
-    return [`${where} is \`waived\` without both \`waived-by\` and \`expires\``];
+    return [
+      `${where} is \`waived\` without both \`waived-by\` and \`expires\``,
+    ];
   }
 
   if (!/^\d{4}-\d{2}-\d{2}$/.test(row.expires)) {
@@ -233,7 +256,9 @@ const checkRowVerdict = (row, now) => {
   }
 
   if (row.expires < now) {
-    return [`${where} is \`waived\` with an expiry of ${row.expires}, already past on ${now}`];
+    return [
+      `${where} is \`waived\` with an expiry of ${row.expires}, already past on ${now}`,
+    ];
   }
 
   return [];
@@ -241,13 +266,17 @@ const checkRowVerdict = (row, now) => {
 
 const checkRows = (data, now) => {
   if (!isMapList(data.rows)) {
-    return ["front matter is missing the required field `rows` (a non-empty list)"];
+    return [
+      "front matter is missing the required field `rows` (a non-empty list)",
+    ];
   }
   const violations = [];
 
   for (const rowId of ROWS) {
     for (const stack of STACKS) {
-      const row = data.rows.find((entry) => entry.id === rowId && entry.stack === stack);
+      const row = data.rows.find(
+        (entry) => entry.id === rowId && entry.stack === stack,
+      );
 
       if (row === undefined) {
         violations.push(`row ${rowId} carries no verdict on stack ${stack}`);
@@ -265,7 +294,9 @@ const checkPlaceholders = (source) => {
   const block = match === null ? "" : match[1];
   const offending = block.split("\n").filter((line) => PLACEHOLDER.test(line));
 
-  return offending.map((line) => `front matter still carries a placeholder: ${line.trim()}`);
+  return offending.map(
+    (line) => `front matter still carries a placeholder: ${line.trim()}`,
+  );
 };
 
 // The filename's date segment is not decorative: it is what `newestRecord`
@@ -277,11 +308,17 @@ const checkFilenameDate = (name, data) => {
   const match = name.match(/^at-pass-(.+)\.md$/);
   const filenameDate = match === null ? null : match[1];
 
-  if (filenameDate === null || !isFilledString(data.date) || filenameDate === data.date) {
+  if (
+    filenameDate === null ||
+    !isFilledString(data.date) ||
+    filenameDate === data.date
+  ) {
     return [];
   }
 
-  return [`filename date \`${filenameDate}\` does not match front matter \`date: ${data.date}\``];
+  return [
+    `filename date \`${filenameDate}\` does not match front matter \`date: ${data.date}\``,
+  ];
 };
 
 const validateRecord = (source, now, name) => {
@@ -313,7 +350,9 @@ const newestRecord = (root) => {
     .sort();
   const newest = names.at(-1);
 
-  return newest === undefined ? null : { name: newest, path: join(directory, newest) };
+  return newest === undefined
+    ? null
+    : { name: newest, path: join(directory, newest) };
 };
 
 const git = (root, ...args) => {
@@ -343,12 +382,24 @@ const isAncestor = (root, ancestor, descendant) => {
 
 const checkFreshness = (root, data, recordName) => {
   if (git(root, "rev-parse", "--git-dir") === null) {
-    return { fatal: `${root} is not a git repository; --freshness needs git history` };
+    return {
+      fatal: `${root} is not a git repository; --freshness needs git history`,
+    };
   }
   const recordCommit = data.commit;
 
-  if (git(root, "rev-parse", "--verify", "--quiet", `${recordCommit}^{commit}`) === null) {
-    return { fatal: `${recordName} names a commit this repository does not have: ${recordCommit}` };
+  if (
+    git(
+      root,
+      "rev-parse",
+      "--verify",
+      "--quiet",
+      `${recordCommit}^{commit}`,
+    ) === null
+  ) {
+    return {
+      fatal: `${recordName} names a commit this repository does not have: ${recordCommit}`,
+    };
   }
   const violations = [];
 
@@ -357,7 +408,7 @@ const checkFreshness = (root, data, recordName) => {
 
     if (lastCommit === null || lastCommit === "") {
       violations.push(
-        `${recordName}: no commit in this repository touches the covered path ${path}`
+        `${recordName}: no commit in this repository touches the covered path ${path}`,
       );
       continue;
     }
@@ -366,7 +417,7 @@ const checkFreshness = (root, data, recordName) => {
       continue;
     }
     violations.push(
-      `${recordName} is stale for ${path}: its last commit ${lastCommit} is not an ancestor of the record's commit ${recordCommit}`
+      `${recordName} is stale for ${path}: its last commit ${lastCommit} is not an ancestor of the record's commit ${recordCommit}`,
     );
   }
 
@@ -385,18 +436,25 @@ const flags = args.filter((arg) => arg.startsWith("--"));
 const positional = args.filter((arg) => !arg.startsWith("--"));
 const mode = flags[0];
 
-if (flags.length !== 1 || !["--structure", "--freshness"].includes(mode) || positional.length > 1) {
-  process.stderr.write("usage: check-at-pass.mjs --structure|--freshness [root]\n");
+if (
+  flags.length !== 1 ||
+  !["--structure", "--freshness"].includes(mode) ||
+  positional.length > 1
+) {
+  process.stderr.write(
+    "usage: check-at-pass.mjs --structure|--freshness [root]\n",
+  );
   process.exit(2);
 }
 
-const root = positional[0] === undefined ? process.cwd() : resolve(positional[0]);
+const root =
+  positional[0] === undefined ? process.cwd() : resolve(positional[0]);
 const record = newestRecord(root);
 
 if (record === null && mode === "--structure") {
   process.stdout.write(
     `check-at-pass: no ${RECORD_DIRECTORY}/at-pass-*.md record yet - structure check has nothing to validate.\n` +
-      "The first record is written by the first human screen-reader pass (re-cinq/Otto#97); until then this check passes and --freshness blocks publishing.\n"
+      "The first record is written by the first human screen-reader pass (re-cinq/Otto#97); until then this check passes and --freshness blocks publishing.\n",
   );
   process.exit(0);
 }
@@ -409,13 +467,17 @@ if (record === null) {
 
 const source = readFileSync(record.path, "utf8");
 const validated = validateRecord(source, today(), record.name);
-const prefixed = validated.violations.map((violation) => `${record.name}: ${violation}`);
+const prefixed = validated.violations.map(
+  (violation) => `${record.name}: ${violation}`,
+);
 
 if (mode === "--structure") {
   if (prefixed.length > 0) {
     fail(prefixed);
   }
-  process.stdout.write(`check-at-pass: ${record.name} is structurally complete\n`);
+  process.stdout.write(
+    `check-at-pass: ${record.name} is structurally complete\n`,
+  );
   process.exit(0);
 }
 

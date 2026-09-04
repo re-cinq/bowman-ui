@@ -32,7 +32,10 @@ ESM-only (`"type": "module"`, no CJS). `exports`: `"."` → `dist/index.js`, `".
 `dist/styles.css`; `sideEffects: ["*.css"]`. Peers `react`/`react-dom` `^19.0.0` **only** — a
 testing claim, not a technical floor (docs/design-notes.md decision 4). Runtime deps: only `react-markdown` +
 `remark-gfm`. Node `>=22`. Vitest 4 + jsdom + Testing Library. Consumers require Tailwind v4.
-Prettier: `printWidth` 100, double quotes, semicolons (.prettierrc).
+Prettier: `printWidth` 80, double quotes, semicolons, `trailingComma: "all"` — .prettierrc is a
+verbatim MIRROR of re-cinq/lore's canonical config, as is eslint.house-style.mjs; never edit
+either here, refresh with `npm run check:house-style-sync -- --write` (docs/design-notes.md
+§ Lint guardrails decision 9). Both are .prettierignore'd so lore stays their format authority.
 
 **Two-TypeScript landmine:** `typescript` (`~6.0.2`) feeds the lint stack because
 `typescript-eslint` caps its peer range below TypeScript 7; the aliased `typescript7`
@@ -51,9 +54,13 @@ The typecheck script is `typecheck`, not `type-check`.
   first: `*-dist.test.ts` read `dist/`, tests/public-api.test.ts imports `dist/index.js`.
 - `npm run lint` — `eslint . --max-warnings 0`.
 - `npm run prettier` / `npm run prettier:check`.
+- `npm run check:house-style-sync` — byte-compares the two lore mirrors (eslint.house-style.mjs,
+  .prettierrc) against re-cinq/lore main; `-- --write` refreshes them. Exit 2 = fetch failure,
+  not drift.
 - `npm run check:markdown-safety`; `npm run consumer`; `npm run rsc`.
 - `npm run check:duplication` — jscpd copy-paste gate over `src` + `tests` (config in
-  .jscpd.json): fails above 4% duplicated lines at min-tokens 50; `tests/fixtures/**` is exempt.
+  .jscpd.json): fails above 4.5% duplicated lines at min-tokens 50 (raised from 4% when the
+  width-80 reformat rewrapped existing clones); `tests/fixtures/**` is exempt.
 - `node scripts/repoint-spec-anchors.mjs [--check]` — after editing a test file, re-run WITHOUT
   `--check` or CI reds.
 - `node scripts/write-public-api.mjs` — only after deliberately deciding a surface change is

@@ -19,7 +19,7 @@ it("tsc accepts labels-type-assertions.tsx against dist via the '.' exports entr
       "react-jsx",
       "tests/types/labels-type-assertions.tsx",
     ],
-    { cwd: process.cwd(), encoding: "utf8" }
+    { cwd: process.cwd(), encoding: "utf8" },
   );
 
   expect(result).toMatchObject({ status: 0, stderr: "" });

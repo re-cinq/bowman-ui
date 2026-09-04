@@ -38,7 +38,7 @@ describe("the built chat composer surface", () => {
         "react-jsx",
         "tests/types/chat-composer-type-assertions.tsx",
       ],
-      { cwd: process.cwd(), encoding: "utf8" }
+      { cwd: process.cwd(), encoding: "utf8" },
     );
 
     expect(result).toMatchObject({ status: 0, stderr: "" });

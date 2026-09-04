@@ -81,11 +81,17 @@ const scriptKindFor = (fileName) => {
 };
 
 const parse = (fileName, source) =>
-  ts.createSourceFile(fileName, source, ts.ScriptTarget.Latest, true, scriptKindFor(fileName));
+  ts.createSourceFile(
+    fileName,
+    source,
+    ts.ScriptTarget.Latest,
+    true,
+    scriptKindFor(fileName),
+  );
 
 const parseErrors = (sourceFile) =>
   (sourceFile.parseDiagnostics ?? []).map((diagnostic) =>
-    ts.flattenDiagnosticMessageText(diagnostic.messageText, " ")
+    ts.flattenDiagnosticMessageText(diagnostic.messageText, " "),
   );
 
 const hasClientDirective = (sourceFile) => {
@@ -141,7 +147,10 @@ const heritageName = (expression) => {
     return expression.text;
   }
 
-  if (ts.isPropertyAccessExpression(expression) && ts.isIdentifier(expression.name)) {
+  if (
+    ts.isPropertyAccessExpression(expression) &&
+    ts.isIdentifier(expression.name)
+  ) {
     return expression.name.text;
   }
 
@@ -160,7 +169,9 @@ const heritageTriggers = (node, sourceFile) => {
       const name = heritageName(type.expression);
 
       if (name === "Component" || name === "PureComponent") {
-        triggers.push(`extends ${type.expression.getText(sourceFile)} (class component)`);
+        triggers.push(
+          `extends ${type.expression.getText(sourceFile)} (class component)`,
+        );
       }
     }
   }
@@ -179,7 +190,11 @@ const isValueReference = (identifier) => {
     return parent.initializer === identifier;
   }
 
-  if (ts.isVariableDeclaration(parent) || ts.isParameter(parent) || ts.isBindingElement(parent)) {
+  if (
+    ts.isVariableDeclaration(parent) ||
+    ts.isParameter(parent) ||
+    ts.isBindingElement(parent)
+  ) {
     return parent.initializer === identifier;
   }
 
@@ -248,7 +263,11 @@ const collectTriggers = (sourceFile) => {
       triggers.push(...heritageTriggers(node, sourceFile));
     }
 
-    if (ts.isJsxAttribute(node) && ts.isIdentifier(node.name) && JSX_HANDLER.test(node.name.text)) {
+    if (
+      ts.isJsxAttribute(node) &&
+      ts.isIdentifier(node.name) &&
+      JSX_HANDLER.test(node.name.text)
+    ) {
       triggers.push(`has JSX handler ${node.name.text}`);
     }
 
@@ -262,7 +281,11 @@ const collectTriggers = (sourceFile) => {
       }
     }
 
-    if (ts.isIdentifier(node) && BROWSER_GLOBALS.has(node.text) && isValueReference(node)) {
+    if (
+      ts.isIdentifier(node) &&
+      BROWSER_GLOBALS.has(node.text) &&
+      isValueReference(node)
+    ) {
       triggers.push(`references browser global ${node.text}`);
     }
     ts.forEachChild(node, visit);
@@ -310,7 +333,7 @@ const checkSourceDirection = (dir) => {
 
     if (triggers.length > 0 && !hasClientDirective(sourceFile)) {
       violations.push(
-        `${path}: ${triggers.join(", ")} but "use client" is not its first statement`
+        `${path}: ${triggers.join(", ")} but "use client" is not its first statement`,
       );
     }
   }
@@ -325,16 +348,21 @@ const checkBuiltDirection = (srcDir, distDir) => {
     if (!hasClientDirective(parsedFile(file))) {
       continue;
     }
-    const builtFile = join(distDir, relative(srcDir, file)).replace(/\.tsx?$/, ".js");
+    const builtFile = join(distDir, relative(srcDir, file)).replace(
+      /\.tsx?$/,
+      ".js",
+    );
 
     if (!existsSync(builtFile)) {
-      violations.push(`${relative(process.cwd(), builtFile)}: missing - run npm run build first`);
+      violations.push(
+        `${relative(process.cwd(), builtFile)}: missing - run npm run build first`,
+      );
       continue;
     }
 
     if (!hasClientDirective(parsedFile(builtFile))) {
       violations.push(
-        `${relative(process.cwd(), builtFile)}: built output does not open with "use client"; as its first statement`
+        `${relative(process.cwd(), builtFile)}: built output does not open with "use client"; as its first statement`,
       );
     }
   }
@@ -349,7 +377,10 @@ const checkBarrel = (srcDir, distDir) => {
   const violations = [];
   const barrelSource = join(srcDir, "index.ts");
 
-  if (existsSync(barrelSource) && hasClientDirective(parsedFile(barrelSource))) {
+  if (
+    existsSync(barrelSource) &&
+    hasClientDirective(parsedFile(barrelSource))
+  ) {
     violations.push('src/index.ts: the barrel must not carry "use client"');
   }
   const barrelBuilt = join(distDir, "index.js");
@@ -362,11 +393,15 @@ const checkBarrel = (srcDir, distDir) => {
   const built = parsedFile(barrelBuilt);
 
   if (hasClientDirective(built)) {
-    violations.push('dist/index.js: the built barrel must not carry "use client"');
+    violations.push(
+      'dist/index.js: the built barrel must not carry "use client"',
+    );
   }
 
   if (!isPlainReExport(built)) {
-    violations.push("dist/index.js: the built barrel must be a plain re-export");
+    violations.push(
+      "dist/index.js: the built barrel must be a plain re-export",
+    );
   }
 
   return violations;

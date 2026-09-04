@@ -3,7 +3,9 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { useSidebarState } from "../src/hooks/useSidebarState.js";
 
 function SidebarProbe() {
-  const { isOpen, isHydrated } = useSidebarState("chat", { storagePrefix: "olt-" });
+  const { isOpen, isHydrated } = useSidebarState("chat", {
+    storagePrefix: "olt-",
+  });
 
   return <div data-open={String(isOpen)} data-hydrated={String(isHydrated)} />;
 }
@@ -18,21 +20,25 @@ describe("useSidebarState", () => {
   });
 
   it("starts open by default and reports hydrated after mount", () => {
-    const { result } = renderHook(() => useSidebarState("chat", { storagePrefix: "olt-" }));
+    const { result } = renderHook(() =>
+      useSidebarState("chat", { storagePrefix: "olt-" }),
+    );
 
     expect(result.current).toMatchObject({ isOpen: true, isHydrated: true });
   });
 
   it("defaultOpen: false starts closed when nothing is stored", () => {
     const { result } = renderHook(() =>
-      useSidebarState("chat", { storagePrefix: "olt-", defaultOpen: false })
+      useSidebarState("chat", { storagePrefix: "olt-", defaultOpen: false }),
     );
 
     expect(result.current.isOpen).toBe(false);
   });
 
   it('persists toggles under the exact key "olt-chat"', () => {
-    const { result } = renderHook(() => useSidebarState("chat", { storagePrefix: "olt-" }));
+    const { result } = renderHook(() =>
+      useSidebarState("chat", { storagePrefix: "olt-" }),
+    );
 
     act(() => {
       result.current.toggle();
@@ -58,7 +64,9 @@ describe("useSidebarState", () => {
   it('a stored "false" wins over defaultOpen on mount', () => {
     localStorage.setItem("olt-chat", "false");
 
-    const { result } = renderHook(() => useSidebarState("chat", { storagePrefix: "olt-" }));
+    const { result } = renderHook(() =>
+      useSidebarState("chat", { storagePrefix: "olt-" }),
+    );
 
     expect(result.current.isOpen).toBe(false);
   });
@@ -71,7 +79,9 @@ describe("useSidebarState", () => {
       throw new Error("SecurityError");
     });
 
-    const { result } = renderHook(() => useSidebarState("chat", { storagePrefix: "olt-" }));
+    const { result } = renderHook(() =>
+      useSidebarState("chat", { storagePrefix: "olt-" }),
+    );
 
     expect(result.current).toMatchObject({ isOpen: true, isHydrated: true });
 
@@ -82,7 +92,9 @@ describe("useSidebarState", () => {
   });
 
   it("reflects a cross-tab write when the storage event key matches", () => {
-    const { result } = renderHook(() => useSidebarState("chat", { storagePrefix: "olt-" }));
+    const { result } = renderHook(() =>
+      useSidebarState("chat", { storagePrefix: "olt-" }),
+    );
 
     expect(result.current.isOpen).toBe(true);
 
@@ -96,7 +108,9 @@ describe("useSidebarState", () => {
 
   it("re-reads on a whole-store clear (storage event with a null key)", () => {
     localStorage.setItem("olt-chat", "false");
-    const { result } = renderHook(() => useSidebarState("chat", { storagePrefix: "olt-" }));
+    const { result } = renderHook(() =>
+      useSidebarState("chat", { storagePrefix: "olt-" }),
+    );
 
     expect(result.current.isOpen).toBe(false);
 
@@ -109,7 +123,9 @@ describe("useSidebarState", () => {
   });
 
   it("ignores a storage event for an unrelated key", () => {
-    const { result } = renderHook(() => useSidebarState("chat", { storagePrefix: "olt-" }));
+    const { result } = renderHook(() =>
+      useSidebarState("chat", { storagePrefix: "olt-" }),
+    );
 
     act(() => {
       localStorage.setItem("other-key", "false");

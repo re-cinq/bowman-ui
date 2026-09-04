@@ -2,7 +2,11 @@ import { ChatMessageList } from "@re-cinq/bowman-ui";
 import type { ChatEntry } from "@re-cinq/bowman-ui";
 
 const entries: ReadonlyArray<ChatEntry> = [
-  { id: "1", role: "user", content: "When is The Cartographer's Atlas back in stock?" },
+  {
+    id: "1",
+    role: "user",
+    content: "When is The Cartographer's Atlas back in stock?",
+  },
   {
     id: "2",
     role: "tool",
@@ -26,7 +30,8 @@ export function ChatMessageListExample() {
         userInitials="MW"
         attribution={{ support: { name: "Marginalia Support" } }}
         labels={{
-          aiDisclosure: "You are talking to an artificial intelligence. Answers can be wrong.",
+          aiDisclosure:
+            "You are talking to an artificial intelligence. Answers can be wrong.",
         }}
       />
     </div>

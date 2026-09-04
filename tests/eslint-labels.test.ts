@@ -37,7 +37,7 @@ const lint = (): LintResult[] => {
       `${fixtureDir}/t-prop.ts`,
       `${fixtureDir}/next-intl-import.tsx`,
     ],
-    { cwd: process.cwd(), encoding: "utf8" }
+    { cwd: process.cwd(), encoding: "utf8" },
   );
 
   expect(result.status).toBe(1);
@@ -46,7 +46,9 @@ const lint = (): LintResult[] => {
 };
 
 const messagesFor = (results: LintResult[], fixture: string): LintMessage[] => {
-  const match = results.find((entry) => entry.filePath.endsWith(`${sep}${fixture}`));
+  const match = results.find((entry) =>
+    entry.filePath.endsWith(`${sep}${fixture}`),
+  );
 
   if (!match) {
     throw new Error(`eslint reported nothing for ${fixture}`);
@@ -67,7 +69,7 @@ describe("the labels lint rules", () => {
       expect.objectContaining({
         ruleId: "no-restricted-syntax",
         message: expect.stringContaining("Hardcoded JSX text"),
-      })
+      }),
     );
   });
 
@@ -76,7 +78,7 @@ describe("the labels lint rules", () => {
       expect.objectContaining({
         ruleId: "no-restricted-syntax",
         message: expect.stringContaining("Hardcoded JSX text"),
-      })
+      }),
     );
   });
 
@@ -85,13 +87,13 @@ describe("the labels lint rules", () => {
       expect.objectContaining({
         ruleId: "no-restricted-syntax",
         message: expect.stringContaining("Hardcoded JSX text"),
-      })
+      }),
     );
   });
 
   it('{ok && "Copied to clipboard"}, the ternary and the + concat each fail with the hardcoded-JSX-text message', () => {
     const messages = messagesFor(results, "jsx-logical-text.tsx").filter(
-      (entry) => entry.ruleId === "no-restricted-syntax"
+      (entry) => entry.ruleId === "no-restricted-syntax",
     );
 
     expect(messages.length).toBeGreaterThanOrEqual(3);
@@ -106,16 +108,18 @@ describe("the labels lint rules", () => {
       expect.objectContaining({
         ruleId: "no-restricted-syntax",
         message: expect.stringContaining("Hardcoded assistive string"),
-      })
+      }),
     );
   });
 
   it('aria-label={"Copy message"} fails with the hardcoded-assistive-string message', () => {
-    expect(messagesFor(results, "attribute-expression-literal.tsx")).toContainEqual(
+    expect(
+      messagesFor(results, "attribute-expression-literal.tsx"),
+    ).toContainEqual(
       expect.objectContaining({
         ruleId: "no-restricted-syntax",
         message: expect.stringContaining("Hardcoded assistive string"),
-      })
+      }),
     );
   });
 
@@ -124,7 +128,7 @@ describe("the labels lint rules", () => {
       expect.objectContaining({
         ruleId: "no-restricted-syntax",
         message: expect.stringContaining("Hardcoded assistive string"),
-      })
+      }),
     );
   });
 
@@ -133,7 +137,7 @@ describe("the labels lint rules", () => {
       expect.objectContaining({
         ruleId: "no-restricted-syntax",
         message: expect.stringContaining("Hardcoded assistive string"),
-      })
+      }),
     );
   });
 
@@ -142,7 +146,7 @@ describe("the labels lint rules", () => {
       expect.objectContaining({
         ruleId: "no-restricted-syntax",
         message: expect.stringContaining("labels?: Partial<XLabels>"),
-      })
+      }),
     );
   });
 
@@ -151,7 +155,7 @@ describe("the labels lint rules", () => {
       expect.objectContaining({
         ruleId: "no-restricted-syntax",
         message: expect.stringContaining("labels?: Partial<XLabels>"),
-      })
+      }),
     );
   });
 
@@ -160,7 +164,7 @@ describe("the labels lint rules", () => {
       expect.objectContaining({
         ruleId: "no-restricted-imports",
         message: expect.stringContaining("no i18n runtime"),
-      })
+      }),
     );
   });
 });

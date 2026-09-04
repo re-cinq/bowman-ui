@@ -56,7 +56,12 @@ const allFourRolesCompile: ChatEntry[] = [
     persona: "olt-support",
   },
   { id: "t1", role: "thinking", content: "", isStreaming: true },
-  { id: "x1", role: "tool", toolName: "get_weather", toolInput: { location: "Berlin" } },
+  {
+    id: "x1",
+    role: "tool",
+    toolName: "get_weather",
+    toolInput: { location: "Berlin" },
+  },
 ];
 
 void fifthRole;

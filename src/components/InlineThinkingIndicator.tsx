@@ -21,12 +21,16 @@ export interface InlineThinkingIndicatorProps {
 // The streaming placeholder shown inside a message before any content has
 // arrived. The block form (ThinkingIndicator) is its own public component;
 // this inline form stays private because its only call site is ChatMessage.
-export function InlineThinkingIndicator({ labels }: InlineThinkingIndicatorProps) {
+export function InlineThinkingIndicator({
+  labels,
+}: InlineThinkingIndicatorProps) {
   const resolved = resolveLabels(defaultInlineThinkingIndicatorLabels, labels);
 
   return (
     <div className="flex items-center gap-2 py-1">
-      <span className="text-sm text-slate-500 dark:text-slate-400">{resolved.thinking}</span>
+      <span className="text-sm text-slate-500 dark:text-slate-400">
+        {resolved.thinking}
+      </span>
       <ThinkingDots />
     </div>
   );

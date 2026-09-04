@@ -1,13 +1,20 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
-const script = readFileSync(resolve(process.cwd(), "scripts/check-client-directives.mjs"), "utf8");
+const script = readFileSync(
+  resolve(process.cwd(), "scripts/check-client-directives.mjs"),
+  "utf8",
+);
 
 const triggerList = (): string[] => {
-  const block = script.match(/const BROWSER_GLOBALS = new Set\(\[([\s\S]*?)\]\);/);
+  const block = script.match(
+    /const BROWSER_GLOBALS = new Set\(\[([\s\S]*?)\]\);/,
+  );
 
   if (!block) {
-    throw new Error("BROWSER_GLOBALS is no longer declared inline in check-client-directives.mjs");
+    throw new Error(
+      "BROWSER_GLOBALS is no longer declared inline in check-client-directives.mjs",
+    );
   }
 
   return [...block[1].matchAll(/"([^"]+)"/g)].map((match) => match[1]);

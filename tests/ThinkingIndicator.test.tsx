@@ -13,16 +13,24 @@ describe("ThinkingIndicator", () => {
     render(<ThinkingIndicator />);
 
     expect(screen.getByText("Thinking")).toBeInTheDocument();
-    expect(screen.getByRole("status")).toHaveAttribute("aria-label", "Loading response");
+    expect(screen.getByRole("status")).toHaveAttribute(
+      "aria-label",
+      "Loading response",
+    );
   });
 
   it('labels {thinking: "Pensando", thinkingRegion: "Cargando respuesta"} leaves no English string in the output', () => {
     const { container } = render(
-      <ThinkingIndicator labels={{ thinking: "Pensando", thinkingRegion: "Cargando respuesta" }} />
+      <ThinkingIndicator
+        labels={{ thinking: "Pensando", thinkingRegion: "Cargando respuesta" }}
+      />,
     );
 
     expect(screen.getByText("Pensando")).toBeInTheDocument();
-    expect(screen.getByRole("status")).toHaveAttribute("aria-label", "Cargando respuesta");
+    expect(screen.getByRole("status")).toHaveAttribute(
+      "aria-label",
+      "Cargando respuesta",
+    );
     expect(container.innerHTML).not.toMatch(/Thinking|Loading response/);
   });
 
@@ -41,12 +49,16 @@ describe("ThinkingIndicator", () => {
 
   it("assistantAvatar renders inside the avatar circle", () => {
     const { container } = render(
-      <ThinkingIndicator assistantAvatar={<span data-testid="mark">4711</span>} />
+      <ThinkingIndicator
+        assistantAvatar={<span data-testid="mark">4711</span>}
+      />,
     );
 
     const circle = container.querySelector('[aria-hidden="true"]');
 
-    expect(circle?.querySelector('[data-testid="mark"]')).toHaveTextContent("4711");
+    expect(circle?.querySelector('[data-testid="mark"]')).toHaveTextContent(
+      "4711",
+    );
   });
 
   it("with no assistantAvatar the circle is empty", () => {
@@ -63,7 +75,7 @@ describe("ThinkingIndicator", () => {
       <ThinkingIndicator
         assistantAvatar={<span>4711</span>}
         labels={{ thinking: "Pensando", thinkingRegion: "Cargando respuesta" }}
-      />
+      />,
     );
 
     const circle = container.querySelector('[aria-hidden="true"]');
@@ -118,7 +130,9 @@ describe("ThinkingIndicator", () => {
           expect(spec).toMatch(/\.js$/);
         }
       }
-      const relativeImports = [...sources[0].content.matchAll(/from\s+"(\.[^"]+)"/g)];
+      const relativeImports = [
+        ...sources[0].content.matchAll(/from\s+"(\.[^"]+)"/g),
+      ];
 
       expect(relativeImports.length).toBeGreaterThan(0);
     });
@@ -126,7 +140,7 @@ describe("ThinkingIndicator", () => {
     it("ThinkingDots is imported by both ThinkingIndicator and InlineThinkingIndicator", () => {
       const inline = readFileSync(
         resolve(process.cwd(), "src/components/InlineThinkingIndicator.tsx"),
-        "utf8"
+        "utf8",
       );
 
       expect(sources[0].content).toMatch(/from "\.\/ThinkingDots\.js"/);
@@ -135,7 +149,9 @@ describe("ThinkingIndicator", () => {
 
     it("GDPR: neither file calls console.*, localStorage, sessionStorage, fetch or sendBeacon", () => {
       for (const { content } of sources) {
-        expect(content).not.toMatch(/console\.|localStorage|sessionStorage|fetch|sendBeacon/);
+        expect(content).not.toMatch(
+          /console\.|localStorage|sessionStorage|fetch|sendBeacon/,
+        );
       }
     });
 

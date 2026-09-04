@@ -26,7 +26,9 @@ describe("resolveLabels", () => {
   });
 
   it('{ copy: undefined } - a consumer\'s missed catalogue lookup - returns "Copy message", not undefined', () => {
-    expect(resolveLabels(defaults, { copy: undefined })).toMatchObject({ copy: "Copy message" });
+    expect(resolveLabels(defaults, { copy: undefined })).toMatchObject({
+      copy: "Copy message",
+    });
   });
 
   it("a function-valued label overrides like any other key, pinning the interpolation form", () => {
@@ -39,7 +41,9 @@ describe("resolveLabels", () => {
   });
 
   it("mutates neither argument", () => {
-    const frozenCopy = JSON.parse(JSON.stringify({ copy: defaults.copy, retry: defaults.retry }));
+    const frozenCopy = JSON.parse(
+      JSON.stringify({ copy: defaults.copy, retry: defaults.retry }),
+    );
     const overrides = { copy: "Copiar", retry: undefined };
 
     resolveLabels(defaults, overrides);

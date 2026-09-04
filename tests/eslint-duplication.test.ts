@@ -36,7 +36,7 @@ const lint = (): LintResult[] => {
       `${duplicationDir}/clean/clean.ts`,
       `${labelsDir}/jsx-text.tsx`,
     ],
-    { cwd: process.cwd(), encoding: "utf8" }
+    { cwd: process.cwd(), encoding: "utf8" },
   );
 
   expect(result.status).toBe(1);
@@ -45,7 +45,9 @@ const lint = (): LintResult[] => {
 };
 
 const messagesFor = (results: LintResult[], fixture: string): LintMessage[] => {
-  const match = results.find((entry) => entry.filePath.endsWith(`${sep}${fixture}`));
+  const match = results.find((entry) =>
+    entry.filePath.endsWith(`${sep}${fixture}`),
+  );
 
   if (!match) {
     throw new Error(`eslint reported nothing for ${fixture}`);
@@ -66,7 +68,7 @@ describe("the duplication lint guardrails", () => {
       expect.objectContaining({
         ruleId: "no-restricted-syntax",
         message: expect.stringContaining("Raw <svg>"),
-      })
+      }),
     );
   });
 
@@ -75,7 +77,7 @@ describe("the duplication lint guardrails", () => {
       expect.objectContaining({
         ruleId: "no-restricted-syntax",
         message: expect.stringContaining("FOCUSABLE_SELECTOR"),
-      })
+      }),
     );
   });
 
@@ -83,7 +85,7 @@ describe("the duplication lint guardrails", () => {
     expect(messagesFor(results, "dupes.ts")).toContainEqual(
       expect.objectContaining({
         ruleId: "sonarjs/no-duplicate-string",
-      })
+      }),
     );
   });
 
@@ -91,7 +93,7 @@ describe("the duplication lint guardrails", () => {
     expect(messagesFor(results, "funcs.ts")).toContainEqual(
       expect.objectContaining({
         ruleId: "sonarjs/no-identical-functions",
-      })
+      }),
     );
   });
 
@@ -104,7 +106,7 @@ describe("the duplication lint guardrails", () => {
       expect.objectContaining({
         ruleId: "no-restricted-syntax",
         message: expect.stringContaining("Hardcoded JSX text"),
-      })
+      }),
     );
   });
 });

@@ -89,7 +89,8 @@ export interface ToolChatEntry {
  * nothing about transport: the adapter that turns protocol events into
  * these entries lives in the consuming app.
  */
-export type ChatEntry = UserChatEntry | AssistantChatEntry | ThinkingChatEntry | ToolChatEntry;
+export type ChatEntry =
+  UserChatEntry | AssistantChatEntry | ThinkingChatEntry | ToolChatEntry;
 
 /**
  * Coarse conversation state a chat surface renders: `"idle"` between

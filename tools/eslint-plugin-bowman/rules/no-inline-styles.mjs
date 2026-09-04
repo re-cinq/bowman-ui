@@ -46,7 +46,8 @@ function customPropertiesOnly(node) {
   }
 
   return node.properties.every(
-    (property) => property.type === "Property" && customPropertyName(property.key)
+    (property) =>
+      property.type === "Property" && customPropertyName(property.key),
   );
 }
 
@@ -83,7 +84,9 @@ export default {
         context.report({
           node,
           messageId: "inlineStyle",
-          data: { element: owner?.type === "JSXIdentifier" ? owner.name : "element" },
+          data: {
+            element: owner?.type === "JSXIdentifier" ? owner.name : "element",
+          },
         });
       },
     };

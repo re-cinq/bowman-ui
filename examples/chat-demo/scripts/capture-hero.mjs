@@ -35,7 +35,7 @@ const url = `http://127.0.0.1:${port}/hero.html`;
 const server = spawn(
   "npx",
   ["vite", "--host", "127.0.0.1", "--port", String(port), "--strictPort"],
-  { cwd: appDir, stdio: "inherit" }
+  { cwd: appDir, stdio: "inherit" },
 );
 
 let browser;

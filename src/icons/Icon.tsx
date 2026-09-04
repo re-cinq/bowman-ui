@@ -50,7 +50,7 @@ export function IconWrapper({
  * Helper to create accessible icon props based on whether it has a label.
  */
 export function getAccessibleIconProps(
-  ariaLabel?: string
+  ariaLabel?: string,
 ): Pick<IconSvgProps, "aria-hidden" | "role" | "aria-label"> {
   if (ariaLabel) {
     return {

@@ -50,8 +50,8 @@ consequence is documented instead: with `duration={null}` and no close
 button, dismissal is entirely the consumer unmounting the element, and a
 toast a consumer forgets to unmount occupies the
 `fixed bottom-8 left-1/2 z-50` overlay for the life of the page
-([validated by](../../tests/Toast.test.tsx#L137),
-[L88](../../tests/Toast.test.tsx#L88)).
+([validated by](../../tests/Toast.test.tsx#L153),
+[L100](../../tests/Toast.test.tsx#L100)).
 
 ## What deliberately did not change
 
@@ -62,7 +62,7 @@ toast a consumer forgets to unmount occupies the
   unchanged ([validated by](../../tests/labelled-exports.test.tsx#L136)).
 - The 2000ms default: 015's characterization suite pins it (uncalled at
   1999ms, called once at 2000ms) and removing it is not this issue's call
-  ([validated by](../../tests/Toast.test.tsx#L50)).
+  ([validated by](../../tests/Toast.test.tsx#L54)).
 - 044's two call sites still omit `duration`: making them actually pass
   `duration={null}` is 098's work, in the support agent repo.
 

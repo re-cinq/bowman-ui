@@ -1,17 +1,28 @@
 import { act, fireEvent, render, screen } from "@testing-library/react";
-import { useFocusGroups, type FocusGroupsOptions } from "../src/hooks/useFocusGroups.js";
+import {
+  useFocusGroups,
+  type FocusGroupsOptions,
+} from "../src/hooks/useFocusGroups.js";
 
-const Harness = (options: FocusGroupsOptions & { withButtons?: boolean; noOrder?: boolean }) => {
+const Harness = (
+  options: FocusGroupsOptions & { withButtons?: boolean; noOrder?: boolean },
+) => {
   const { withButtons = true, noOrder, ...focusOptions } = options;
 
   useFocusGroups(focusOptions);
 
   return (
     <>
-      <main data-focus-group="main" data-focus-group-order={noOrder ? undefined : "1"}>
+      <main
+        data-focus-group="main"
+        data-focus-group-order={noOrder ? undefined : "1"}
+      >
         {withButtons && <button>main action</button>}
       </main>
-      <header data-focus-group="header" data-focus-group-order={noOrder ? undefined : "0"}>
+      <header
+        data-focus-group="header"
+        data-focus-group-order={noOrder ? undefined : "0"}
+      >
         {withButtons && <button>header action</button>}
       </header>
     </>
@@ -108,7 +119,11 @@ describe("useFocusGroups", () => {
     expect(region).toHaveAttribute("aria-live", "polite");
     expect(region).toHaveAttribute("aria-atomic", "true");
     expect(region.hasAttribute("class")).toBe(false);
-    expect(region.style).toMatchObject({ position: "absolute", width: "1px", height: "1px" });
+    expect(region.style).toMatchObject({
+      position: "absolute",
+      width: "1px",
+      height: "1px",
+    });
   });
 
   it("the announcement element is removed after 1000ms", () => {
@@ -144,7 +159,9 @@ describe("useFocusGroups", () => {
 
     pressF6();
 
-    const main = document.querySelector('[data-focus-group="main"]') as HTMLElement;
+    const main = document.querySelector(
+      '[data-focus-group="main"]',
+    ) as HTMLElement;
 
     expect(main).toHaveFocus();
     expect(main.tabIndex).toBe(-1);
@@ -162,7 +179,9 @@ describe("useFocusGroups", () => {
 
     pressF6();
 
-    const preset = document.querySelector('[data-focus-group="preset"]') as HTMLElement;
+    const preset = document.querySelector(
+      '[data-focus-group="preset"]',
+    ) as HTMLElement;
 
     expect(preset).toHaveFocus();
     expect(preset.getAttribute("tabindex")).toBe("5");

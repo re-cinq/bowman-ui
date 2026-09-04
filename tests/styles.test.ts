@@ -22,14 +22,18 @@ const keyframeBlock = (css: string, name: string): string => {
   return match[0];
 };
 
-const packageJson = JSON.parse(readFileSync(resolve(process.cwd(), "package.json"), "utf8")) as {
+const packageJson = JSON.parse(
+  readFileSync(resolve(process.cwd(), "package.json"), "utf8"),
+) as {
   exports: Record<string, unknown>;
   sideEffects: string[];
 };
 
 describe("dist/styles.css", () => {
   it("declares exactly the four keyframes bowman-fade-in, bowman-toast-fade-in, bowman-fade-dot and bowman-pulse-subtle", () => {
-    const names = [...readStyles().matchAll(/@keyframes ([\w-]+)/g)].map((match) => match[1]);
+    const names = [...readStyles().matchAll(/@keyframes ([\w-]+)/g)].map(
+      (match) => match[1],
+    );
 
     expect(names).toEqual([
       "bowman-fade-in",
@@ -79,10 +83,12 @@ describe("dist/styles.css", () => {
 
   it("neutralises all four animations under prefers-reduced-motion, touching no transform, with no data-animations selector", () => {
     const css = readStyles();
-    const media = css.match(/@media \(prefers-reduced-motion: reduce\) \{[\s\S]*?\n\}/);
+    const media = css.match(
+      /@media \(prefers-reduced-motion: reduce\) \{[\s\S]*?\n\}/,
+    );
 
     expect(media?.[0]).toMatch(
-      /\.bowman-fade-in,\n {2}\.bowman-toast-fade-in,\n {2}\.bowman-fade-dot,\n {2}\.bowman-pulse-subtle \{\n {4}animation: none;/
+      /\.bowman-fade-in,\n {2}\.bowman-toast-fade-in,\n {2}\.bowman-fade-dot,\n {2}\.bowman-pulse-subtle \{\n {4}animation: none;/,
     );
     expect(media?.[0]).not.toMatch(/transform/);
     expect(css).not.toMatch(/data-animations/);
@@ -112,13 +118,15 @@ describe("package.json stylesheet contract", () => {
 
 const sourceFiles = (dir: string): string[] =>
   readdirSync(dir, { withFileTypes: true }).flatMap((entry) =>
-    entry.isDirectory() ? sourceFiles(join(dir, entry.name)) : [join(dir, entry.name)]
+    entry.isDirectory()
+      ? sourceFiles(join(dir, entry.name))
+      : [join(dir, entry.name)],
   );
 
 describe("the typography-plugin replacement", () => {
   it('grep for "prose" in src/ returns nothing', () => {
     const hits = sourceFiles(resolve(process.cwd(), "src")).filter((file) =>
-      readFileSync(file, "utf8").includes("prose")
+      readFileSync(file, "utf8").includes("prose"),
     );
 
     expect(hits).toEqual([]);

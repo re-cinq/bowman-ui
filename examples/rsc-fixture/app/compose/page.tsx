@@ -7,7 +7,9 @@ export default function ComposePage() {
     <AppShell
       renderSidebar={({ close }) => (
         <AppSidebar
-          navItems={[{ key: "fixture-home", label: "Fixture home", isActive: true }]}
+          navItems={[
+            { key: "fixture-home", label: "Fixture home", isActive: true },
+          ]}
           onNavigate={close}
         />
       )}

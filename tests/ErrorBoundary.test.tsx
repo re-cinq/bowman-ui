@@ -37,7 +37,7 @@ describe("ErrorBoundary", () => {
     render(
       <ErrorBoundary>
         <p>all is well</p>
-      </ErrorBoundary>
+      </ErrorBoundary>,
     );
 
     expect(screen.getByText("all is well")).toBeInTheDocument();
@@ -48,14 +48,18 @@ describe("ErrorBoundary", () => {
       <ErrorBoundary>
         <Bomb error={new Error("boom")} />
       </ErrorBoundary>,
-      silenced
+      silenced,
     );
 
     const alert = screen.getByRole("alert");
 
     expect(alert).toHaveTextContent("Something went wrong");
-    expect(alert).toHaveTextContent("An unexpected error occurred. Please try again.");
-    expect(screen.getByRole("button", { name: "Try again" })).toBeInTheDocument();
+    expect(alert).toHaveTextContent(
+      "An unexpected error occurred. Please try again.",
+    );
+    expect(
+      screen.getByRole("button", { name: "Try again" }),
+    ).toBeInTheDocument();
   });
 
   it("labels override the defaults per key and no English remains", () => {
@@ -69,14 +73,16 @@ describe("ErrorBoundary", () => {
       >
         <Bomb error={new Error("boom")} />
       </ErrorBoundary>,
-      silenced
+      silenced,
     );
 
     const alert = screen.getByRole("alert");
 
     expect(alert).toHaveTextContent("Algo salió mal");
     expect(alert).toHaveTextContent("Inténtalo de nuevo más tarde.");
-    expect(screen.getByRole("button", { name: "Reintentar" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Reintentar" }),
+    ).toBeInTheDocument();
     expect(alert.textContent).not.toMatch(/Something went wrong|Try again/);
   });
 
@@ -85,21 +91,26 @@ describe("ErrorBoundary", () => {
       <ErrorBoundary labels={{ title: undefined, retry: "Reintentar" }}>
         <Bomb error={new Error("boom")} />
       </ErrorBoundary>,
-      silenced
+      silenced,
     );
 
     const alert = screen.getByRole("alert");
 
     expect(alert).toHaveTextContent("Something went wrong");
-    expect(screen.getByRole("button", { name: "Reintentar" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Reintentar" }),
+    ).toBeInTheDocument();
   });
 
   it("a fallback node wins over labels", () => {
     render(
-      <ErrorBoundary fallback={<p>custom fallback</p>} labels={{ title: "ignored" }}>
+      <ErrorBoundary
+        fallback={<p>custom fallback</p>}
+        labels={{ title: "ignored" }}
+      >
         <Bomb error={new Error("boom")} />
       </ErrorBoundary>,
-      silenced
+      silenced,
     );
 
     expect(screen.getByText("custom fallback")).toBeInTheDocument();
@@ -113,7 +124,11 @@ describe("ErrorBoundary", () => {
       return (
         <div onClickCapture={() => setAttempt((n) => n + 1)}>
           <ErrorBoundary>
-            {attempt === 0 ? <Bomb error={new Error("first render")} /> : <p>second attempt</p>}
+            {attempt === 0 ? (
+              <Bomb error={new Error("first render")} />
+            ) : (
+              <p>second attempt</p>
+            )}
           </ErrorBoundary>
         </div>
       );
@@ -137,7 +152,7 @@ describe("ErrorBoundary", () => {
           <Bomb error={new Error("boom")} />
         </ErrorBoundary>
       </form>,
-      silenced
+      silenced,
     );
 
     fireEvent.click(screen.getByRole("button", { name: "Try again" }));
@@ -154,7 +169,9 @@ describe("ErrorBoundary", () => {
   });
 
   it("reports only through onError and writes nothing to the console or localStorage", () => {
-    const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
+    const consoleError = vi
+      .spyOn(console, "error")
+      .mockImplementation(() => {});
     const consoleWarn = vi.spyOn(console, "warn").mockImplementation(() => {});
     const consoleLog = vi.spyOn(console, "log").mockImplementation(() => {});
 
@@ -166,13 +183,13 @@ describe("ErrorBoundary", () => {
       <ErrorBoundary onError={onError}>
         <Bomb error={bookingError} />
       </ErrorBoundary>,
-      silenced
+      silenced,
     );
 
     expect(onError).toHaveBeenCalledTimes(1);
     expect(onError).toHaveBeenCalledWith(
       bookingError,
-      expect.objectContaining({ componentStack: expect.any(String) })
+      expect.objectContaining({ componentStack: expect.any(String) }),
     );
     expect(consoleError).not.toHaveBeenCalled();
     expect(consoleWarn).not.toHaveBeenCalled();

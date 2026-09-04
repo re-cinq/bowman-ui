@@ -56,14 +56,19 @@ const ANCHOR = new RegExp(String.raw`(${TEST_PATH})#L(\d+)`, "g");
 // meaning apart from the href, so it is force-synced to the href even when the
 // href was manually retargeted; descriptive labels ([validated by], ...) never
 // match and are never touched.
-const LABEL_LINK = new RegExp(String.raw`\[L(\d+)\]\((${TEST_PATH})#L(\d+)\)`, "g");
+const LABEL_LINK = new RegExp(
+  String.raw`\[L(\d+)\]\((${TEST_PATH})#L(\d+)\)`,
+  "g",
+);
 
 const args = process.argv.slice(2);
 const flags = args.filter((arg) => arg.startsWith("--"));
 const positional = args.filter((arg) => !arg.startsWith("--"));
 
 if (flags.some((flag) => flag !== "--check") || positional.length > 1) {
-  process.stderr.write("usage: repoint-spec-anchors.mjs [--check] [base-ref]\n");
+  process.stderr.write(
+    "usage: repoint-spec-anchors.mjs [--check] [base-ref]\n",
+  );
   process.exit(2);
 }
 const checkMode = flags.includes("--check");
@@ -73,10 +78,14 @@ const root = process.cwd();
 
 const refResolves = () => {
   try {
-    execFileSync("git", ["rev-parse", "--verify", "--quiet", `${baseRef}^{commit}`], {
-      cwd: root,
-      stdio: "ignore",
-    });
+    execFileSync(
+      "git",
+      ["rev-parse", "--verify", "--quiet", `${baseRef}^{commit}`],
+      {
+        cwd: root,
+        stdio: "ignore",
+      },
+    );
 
     return true;
   } catch {
@@ -124,7 +133,10 @@ const workingFile = (path) => {
 };
 
 const extractAnchors = (source) =>
-  [...source.matchAll(ANCHOR)].map((match) => ({ path: match[1], line: Number(match[2]) }));
+  [...source.matchAll(ANCHOR)].map((match) => ({
+    path: match[1],
+    line: Number(match[2]),
+  }));
 
 const CONTENTLESS = /^[)\]}>,;]*$/;
 
@@ -149,7 +161,8 @@ const rottenReason = (anchor, specDir) => {
 };
 
 const sameAnchorPaths = (a, b) =>
-  a.length === b.length && a.every((anchor, index) => anchor.path === b[index].path);
+  a.length === b.length &&
+  a.every((anchor, index) => anchor.path === b[index].path);
 
 const CONTEXT_RADIUS = 4;
 
@@ -161,7 +174,10 @@ const contextScore = (baseLines, workingLines, baselineLine, candidateLine) => {
       continue;
     }
 
-    if (baseLines[baselineLine - 1 + offset] === workingLines[candidateLine - 1 + offset]) {
+    if (
+      baseLines[baselineLine - 1 + offset] ===
+      workingLines[candidateLine - 1 + offset]
+    ) {
       score += 1;
     }
   }
@@ -191,19 +207,25 @@ const resolveAnchor = (anchor, baselineLine, specDir) => {
   const target = baseLines[baselineLine - 1];
 
   if (target === undefined) {
-    return { failure: `#L${baselineLine} is beyond the end of ${testPath} at ${baseRef}` };
+    return {
+      failure: `#L${baselineLine} is beyond the end of ${testPath} at ${baseRef}`,
+    };
   }
-  const candidates = workingLines.flatMap((line, index) => (line === target ? [index + 1] : []));
+  const candidates = workingLines.flatMap((line, index) =>
+    line === target ? [index + 1] : [],
+  );
 
   if (candidates.length === 0) {
-    return { failure: `"${target.trim().slice(0, 70)}" no longer exists in ${testPath}` };
+    return {
+      failure: `"${target.trim().slice(0, 70)}" no longer exists in ${testPath}`,
+    };
   }
 
   if (candidates.length === 1) {
     return { expectedLine: candidates[0] };
   }
   const scores = candidates.map((candidate) =>
-    contextScore(baseLines, workingLines, baselineLine, candidate)
+    contextScore(baseLines, workingLines, baselineLine, candidate),
   );
   const bestScore = Math.max(...scores);
   const best = candidates.filter((_, index) => scores[index] === bestScore);
@@ -265,7 +287,7 @@ for (const spec of specFiles) {
 
   if (!sameAnchorPaths(anchors, baseAnchors)) {
     process.stderr.write(
-      `skipped ${spec}: anchor set differs from ${baseRef} (anchors are taken as authored against the working tree)\n`
+      `skipped ${spec}: anchor set differs from ${baseRef} (anchors are taken as authored against the working tree)\n`,
     );
     anchors.forEach((_, index) => reportRotten(index));
     continue;
@@ -281,7 +303,9 @@ for (const spec of specFiles) {
   resolutions.forEach((resolution, index) => {
     const anchor = anchors[index];
     const staysPut =
-      resolution.retargeted || resolution.failure || resolution.expectedLine === anchor.line;
+      resolution.retargeted ||
+      resolution.failure ||
+      resolution.expectedLine === anchor.line;
 
     if (checkMode || staysPut) {
       reportRotten(index);
@@ -295,7 +319,9 @@ for (const spec of specFiles) {
     }
 
     if (resolution.failure) {
-      unresolved.push(`${spec}: ${anchor.path}#L${anchor.line} -> ${resolution.failure}`);
+      unresolved.push(
+        `${spec}: ${anchor.path}#L${anchor.line} -> ${resolution.failure}`,
+      );
 
       return;
     }
@@ -306,7 +332,9 @@ for (const spec of specFiles) {
       return;
     }
     moved += 1;
-    staleDetails.push(`${spec}: ${anchor.path}#L${anchor.line} -> #L${resolution.expectedLine}`);
+    staleDetails.push(
+      `${spec}: ${anchor.path}#L${anchor.line} -> #L${resolution.expectedLine}`,
+    );
   });
 
   if (checkMode) {
@@ -344,20 +372,25 @@ const mislabelled = [];
 
 for (const spec of specFiles) {
   const source = specContent.get(spec);
-  const rewritten = source.replace(LABEL_LINK, (whole, labelLine, relPath, hrefLine) => {
-    if (labelLine === hrefLine) {
-      return whole;
-    }
+  const rewritten = source.replace(
+    LABEL_LINK,
+    (whole, labelLine, relPath, hrefLine) => {
+      if (labelLine === hrefLine) {
+        return whole;
+      }
 
-    if (checkMode) {
-      mislabelled.push(`${spec}: ${relPath}#L${hrefLine} -> label reads L${labelLine}`);
+      if (checkMode) {
+        mislabelled.push(
+          `${spec}: ${relPath}#L${hrefLine} -> label reads L${labelLine}`,
+        );
 
-      return whole;
-    }
-    relabelled += 1;
+        return whole;
+      }
+      relabelled += 1;
 
-    return `[L${hrefLine}](${relPath}#L${hrefLine})`;
-  });
+      return `[L${hrefLine}](${relPath}#L${hrefLine})`;
+    },
+  );
 
   if (!checkMode && rewritten !== source) {
     writeFileSync(join(root, spec), rewritten);
@@ -369,7 +402,7 @@ const relabelledLabel = checkMode ? "mislabelled" : "relabelled";
 const labelCount = checkMode ? mislabelled.length : relabelled;
 
 process.stdout.write(
-  `${movedLabel}: ${moved}, up to date: ${upToDate}, unresolved: ${unresolved.length}, ${relabelledLabel}: ${labelCount}\n`
+  `${movedLabel}: ${moved}, up to date: ${upToDate}, unresolved: ${unresolved.length}, ${relabelledLabel}: ${labelCount}\n`,
 );
 
 if (retargeted > 0) {

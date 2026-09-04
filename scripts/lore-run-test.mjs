@@ -49,7 +49,7 @@ try {
       "--coverage.thresholds.statements=0",
       "--coverage.thresholds.branches=0",
     ],
-    { cwd: process.cwd(), stdio: ["ignore", "inherit", "inherit"] }
+    { cwd: process.cwd(), stdio: ["ignore", "inherit", "inherit"] },
   );
 } catch {
   runFailed = true;

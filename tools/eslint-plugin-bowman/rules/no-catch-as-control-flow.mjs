@@ -50,7 +50,11 @@ function referencesName(node, name) {
       if (value.some((child) => referencesName(child, name))) {
         return true;
       }
-    } else if (value && typeof value.type === "string" && referencesName(value, name)) {
+    } else if (
+      value &&
+      typeof value.type === "string" &&
+      referencesName(value, name)
+    ) {
       return true;
     }
   }
@@ -97,7 +101,9 @@ function fabricatesValue(returnStatement) {
     argument = argument.argument;
   }
 
-  return argument.type === "CallExpression" || argument.type === "NewExpression";
+  return (
+    argument.type === "CallExpression" || argument.type === "NewExpression"
+  );
 }
 
 function swallowsError(catchClause) {

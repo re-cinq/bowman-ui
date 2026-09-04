@@ -62,12 +62,22 @@ jobs:
       - name: Markdown safety check
         run: npm run check:markdown-safety
       # jscpd copy-paste gate over src and tests (config in .jscpd.json):
-      # duplicated lines stay below 4% at min-tokens 50. tests/fixtures/** is
-      # exempt - golden fixtures duplicate by design. A red check is fixed by
-      # extracting a shared helper, or by raising the threshold in the same PR
-      # with the reason recorded.
+      # duplicated lines stay below 4.5% at min-tokens 50 (4% originally; the
+      # width-80 reformat rewrapped the existing clones across more lines and
+      # moved the line-based ratio to 4.1% with token-level duplication
+      # unchanged, so the ceiling rose once to keep headroom without admitting
+      # new clones). tests/fixtures/** is exempt - golden fixtures duplicate by
+      # design. A red check is fixed by extracting a shared helper, or by
+      # raising the threshold in the same PR with the reason recorded.
       - name: Duplication check
         run: npm run check:duplication
+      # eslint.house-style.mjs and .prettierrc are verbatim mirrors of
+      # re-cinq/lore's canonical shared config. This byte-compares them against
+      # lore's main; a red check means lore updated its rules - run
+      # `npm run check:house-style-sync -- --write`, commit, and adopt the
+      # reformat if .prettierrc changed. Exit 2 is a fetch failure, not drift.
+      - name: House-style sync check
+        run: npm run check:house-style-sync
       # Issue 97: the assistive-technology pass's structure gate. Validates the
       # newest docs/accessibility/at-pass-*.md when one exists - required
       # fields, a verdict per row per stack, no unexplained not-run, no fail

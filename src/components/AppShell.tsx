@@ -1,6 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useId, useRef, useState, type ReactNode } from "react";
+import {
+  useCallback,
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import { useFocusTrap } from "../hooks/useFocusTrap.js";
 import { useReducedMotion } from "../hooks/useReducedMotion.js";
 import { CloseIcon, MenuIcon } from "../icons/index.js";
@@ -22,12 +29,13 @@ export interface AppShellLabels {
   sidebarDialog: string;
 }
 
-export const defaultAppShellLabels: Readonly<Required<AppShellLabels>> = Object.freeze({
-  openSidebar: "Open menu",
-  closeSidebar: "Close menu",
-  skipToMainContent: "Skip to main content",
-  sidebarDialog: "Menu",
-});
+export const defaultAppShellLabels: Readonly<Required<AppShellLabels>> =
+  Object.freeze({
+    openSidebar: "Open menu",
+    closeSidebar: "Close menu",
+    skipToMainContent: "Skip to main content",
+    sidebarDialog: "Menu",
+  });
 
 export interface AppShellProps {
   children: ReactNode;
@@ -70,7 +78,7 @@ export function AppShell({
       }
       onMobileSidebarOpenChange?.(open);
     },
-    [isControlled, onMobileSidebarOpenChange]
+    [isControlled, onMobileSidebarOpenChange],
   );
   const close = useCallback(() => setOpen(false), [setOpen]);
 
@@ -89,9 +97,13 @@ export function AppShell({
     }
     const previousOverflow = document.body.style.overflow;
     const desktopQuery =
-      typeof window.matchMedia === "function" ? window.matchMedia("(min-width: 768px)") : undefined;
+      typeof window.matchMedia === "function"
+        ? window.matchMedia("(min-width: 768px)")
+        : undefined;
     const applyLock = () => {
-      document.body.style.overflow = desktopQuery?.matches ? previousOverflow : "hidden";
+      document.body.style.overflow = desktopQuery?.matches
+        ? previousOverflow
+        : "hidden";
     };
 
     applyLock();
@@ -103,9 +115,15 @@ export function AppShell({
     };
   }, [isOpen]);
 
-  const backdropMotionClass = motionOff ? "" : " transition-opacity duration-300";
-  const backdropStateClass = isOpen ? "opacity-100" : "pointer-events-none opacity-0";
-  const drawerMotionClass = motionOff ? "" : " transition-transform duration-300 ease-out";
+  const backdropMotionClass = motionOff
+    ? ""
+    : " transition-opacity duration-300";
+  const backdropStateClass = isOpen
+    ? "opacity-100"
+    : "pointer-events-none opacity-0";
+  const drawerMotionClass = motionOff
+    ? ""
+    : " transition-transform duration-300 ease-out";
   const drawerStateClass = isOpen ? "translate-x-0" : "-translate-x-full";
 
   return (
@@ -119,7 +137,9 @@ export function AppShell({
         </a>
       )}
 
-      <div className="hidden md:flex">{renderSidebar?.({ variant: "desktop", close })}</div>
+      <div className="hidden md:flex">
+        {renderSidebar?.({ variant: "desktop", close })}
+      </div>
 
       <div
         data-testid="app-shell-backdrop"
@@ -173,7 +193,9 @@ export function AppShell({
         id={mainContentId}
         className="relative flex flex-1 flex-col overflow-hidden pt-14 md:pt-0"
       >
-        <div className="flex-1 overflow-auto bg-white dark:bg-slate-950">{children}</div>
+        <div className="flex-1 overflow-auto bg-white dark:bg-slate-950">
+          {children}
+        </div>
       </main>
     </div>
   );

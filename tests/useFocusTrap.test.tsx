@@ -6,7 +6,7 @@ import { useFocusTrap } from "../src/hooks/useFocusTrap.js";
 // every element as hidden; give attached elements a real-looking offsetParent.
 const offsetParentDescriptor = Object.getOwnPropertyDescriptor(
   HTMLElement.prototype,
-  "offsetParent"
+  "offsetParent",
 );
 
 const Harness = ({
@@ -26,7 +26,7 @@ const Harness = ({
   const containerRef = useFocusTrap<HTMLDivElement>(
     isOpen,
     onClose,
-    withTrigger ? triggerRef : undefined
+    withTrigger ? triggerRef : undefined,
   );
 
   return (
@@ -64,7 +64,11 @@ describe("useFocusTrap", () => {
 
   afterEach(() => {
     if (offsetParentDescriptor) {
-      Object.defineProperty(HTMLElement.prototype, "offsetParent", offsetParentDescriptor);
+      Object.defineProperty(
+        HTMLElement.prototype,
+        "offsetParent",
+        offsetParentDescriptor,
+      );
     }
     Reflect.deleteProperty(HTMLElement.prototype, "checkVisibility");
     vi.unstubAllGlobals();
@@ -114,7 +118,9 @@ describe("useFocusTrap", () => {
   });
 
   it("closing returns focus to the trigger ref when one is given", () => {
-    const { rerender } = render(<Harness isOpen onClose={vi.fn()} withTrigger />);
+    const { rerender } = render(
+      <Harness isOpen onClose={vi.fn()} withTrigger />,
+    );
 
     rerender(<Harness isOpen={false} onClose={vi.fn()} withTrigger />);
 
@@ -181,7 +187,9 @@ describe("useFocusTrap", () => {
       cancelled.push(id);
     });
 
-    const { rerender } = render(<Harness isOpen onClose={vi.fn()} withTrigger />);
+    const { rerender } = render(
+      <Harness isOpen onClose={vi.fn()} withTrigger />,
+    );
 
     rerender(<Harness isOpen={false} onClose={vi.fn()} withTrigger />);
 
@@ -197,7 +205,11 @@ describe("useFocusTrap", () => {
 
   it("checkVisibility wins over offsetParent, so a fixed-position container's children are not treated as hidden", () => {
     if (offsetParentDescriptor) {
-      Object.defineProperty(HTMLElement.prototype, "offsetParent", offsetParentDescriptor);
+      Object.defineProperty(
+        HTMLElement.prototype,
+        "offsetParent",
+        offsetParentDescriptor,
+      );
     }
     Object.defineProperty(HTMLElement.prototype, "checkVisibility", {
       configurable: true,

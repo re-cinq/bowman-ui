@@ -24,10 +24,11 @@ export interface MarkdownComponentsLabels {
   linkOpensInNewTab: string;
 }
 
-export const defaultMarkdownComponentsLabels: Readonly<Required<MarkdownComponentsLabels>> =
-  Object.freeze({
-    linkOpensInNewTab: "(opens in a new tab)",
-  });
+export const defaultMarkdownComponentsLabels: Readonly<
+  Required<MarkdownComponentsLabels>
+> = Object.freeze({
+  linkOpensInNewTab: "(opens in a new tab)",
+});
 
 export interface MarkdownComponentsOptions {
   policy?: MarkdownPolicy;
@@ -74,7 +75,7 @@ const markdownElement = (tag: MarkdownTag) => {
 
 const markdownAnchor = (
   policy: Required<MarkdownPolicy>,
-  labels: Required<MarkdownComponentsLabels>
+  labels: Required<MarkdownComponentsLabels>,
 ) => {
   const opensInNewTab = policy.linkTarget === "_blank";
   const MarkdownAnchor = ({
@@ -101,7 +102,9 @@ const markdownAnchor = (
         rel="noopener noreferrer"
       >
         {children}
-        {opensInNewTab && <span className="bowman-sr-only">{labels.linkOpensInNewTab}</span>}
+        {opensInNewTab && (
+          <span className="bowman-sr-only">{labels.linkOpensInNewTab}</span>
+        )}
       </a>
     );
   };
@@ -124,7 +127,12 @@ const markdownImage = (policy: Required<MarkdownPolicy>) => {
     }
 
     return (
-      <img {...rest} src={src} alt={alt} className={mergeClassName("bowman-md-img", className)} />
+      <img
+        {...rest}
+        src={src}
+        alt={alt}
+        className={mergeClassName("bowman-md-img", className)}
+      />
     );
   };
 
@@ -153,7 +161,9 @@ const staticComponents = {
   em: markdownElement("em"),
 };
 
-export const createMarkdownComponents = (options: MarkdownComponentsOptions = {}) => {
+export const createMarkdownComponents = (
+  options: MarkdownComponentsOptions = {},
+) => {
   const policy = resolveLabels(defaultMarkdownPolicy, options.policy);
   const labels = resolveLabels(defaultMarkdownComponentsLabels, options.labels);
 

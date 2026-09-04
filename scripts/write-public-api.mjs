@@ -24,9 +24,9 @@ const surface = { values: Object.keys(built).sort(), types };
 
 writeFileSync(
   resolve(root, "tests/fixtures/public-api.json"),
-  `${JSON.stringify(surface, null, 2)}\n`
+  `${JSON.stringify(surface, null, 2)}\n`,
 );
 
 process.stdout.write(
-  `public-api.json written: ${surface.values.length} values, ${types.length} types\n`
+  `public-api.json written: ${surface.values.length} values, ${types.length} types\n`,
 );

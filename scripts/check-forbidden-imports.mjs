@@ -32,12 +32,15 @@ const allowedPackages = new Set([
   ...Object.keys(packageJson.peerDependencies ?? {}),
 ]);
 
-const isRelative = (specifier) => specifier.startsWith("./") || specifier.startsWith("../");
+const isRelative = (specifier) =>
+  specifier.startsWith("./") || specifier.startsWith("../");
 
 const packageNameOf = (specifier) => {
   const segments = specifier.split("/");
 
-  return specifier.startsWith("@") ? segments.slice(0, 2).join("/") : segments[0];
+  return specifier.startsWith("@")
+    ? segments.slice(0, 2).join("/")
+    : segments[0];
 };
 
 const isAllowed = (specifier) =>
@@ -57,7 +60,8 @@ const collectSpecifiers = (sourceFile) => {
     if (
       ts.isCallExpression(node) &&
       (node.expression.kind === ts.SyntaxKind.ImportKeyword ||
-        (ts.isIdentifier(node.expression) && node.expression.text === "require")) &&
+        (ts.isIdentifier(node.expression) &&
+          node.expression.text === "require")) &&
       node.arguments.length > 0 &&
       ts.isStringLiteral(node.arguments[0])
     ) {
@@ -99,7 +103,7 @@ const listImports = (directory) => {
       readFileSync(filePath, "utf8"),
       ts.ScriptTarget.Latest,
       true,
-      filePath.endsWith(".tsx") ? ts.ScriptKind.TSX : ts.ScriptKind.TS
+      filePath.endsWith(".tsx") ? ts.ScriptKind.TSX : ts.ScriptKind.TS,
     );
 
     for (const specifier of collectSpecifiers(sourceFile)) {
@@ -115,14 +119,16 @@ const findViolations = (directory) =>
 
 const fixtureDirectory = "tests/fixtures/forbidden-imports";
 const fixtureImports = listImports(fixtureDirectory);
-const untrippedSpecifiers = fixtureImports.filter((entry) => isAllowed(entry.specifier));
+const untrippedSpecifiers = fixtureImports.filter((entry) =>
+  isAllowed(entry.specifier),
+);
 
 if (fixtureImports.length === 0 || untrippedSpecifiers.length > 0) {
   const names = untrippedSpecifiers.map((entry) => entry.specifier).join(", ");
 
   process.stderr.write(
     `self-test failed: the red fixture in ${fixtureDirectory} carries specifiers ` +
-      `the allowlist no longer trips: ${names || "(fixture is empty)"}\n`
+      `the allowlist no longer trips: ${names || "(fixture is empty)"}\n`,
   );
   process.exit(1);
 }
@@ -134,10 +140,12 @@ if (violations.length > 0) {
   for (const violation of violations) {
     process.stderr.write(
       `${violation.file}: forbidden import "${violation.specifier}" ` +
-        `(not declared in package.json dependencies or peerDependencies)\n`
+        `(not declared in package.json dependencies or peerDependencies)\n`,
     );
   }
   process.exit(1);
 }
 
-process.stdout.write(`check-forbidden-imports: ${targetDirectory} is clean (self-test passed)\n`);
+process.stdout.write(
+  `check-forbidden-imports: ${targetDirectory} is clean (self-test passed)\n`,
+);

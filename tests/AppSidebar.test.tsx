@@ -26,12 +26,19 @@ describe("AppSidebar", () => {
       render(
         <AppSidebar
           navItems={threeItems}
-          labels={{ sidebar: "Panel lateral", mainNavigation: "Navegación principal" }}
-        />
+          labels={{
+            sidebar: "Panel lateral",
+            mainNavigation: "Navegación principal",
+          }}
+        />,
       );
 
-      expect(screen.getByRole("complementary", { name: "Panel lateral" })).toBeInTheDocument();
-      expect(screen.getByRole("navigation", { name: "Navegación principal" })).toBeInTheDocument();
+      expect(
+        screen.getByRole("complementary", { name: "Panel lateral" }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("navigation", { name: "Navegación principal" }),
+      ).toBeInTheDocument();
     });
 
     it("the aside grows in the 030 drawer and sizes itself in the rail: flex-1 min-h-0 below md, md:h-full md:w-64 md:flex-none md:border-r lg:w-72", () => {
@@ -62,7 +69,11 @@ describe("AppSidebar", () => {
       const rows = screen.getAllByRole("button");
 
       expect(rows).toHaveLength(3);
-      expect(rows.map((row) => row.textContent)).toEqual(["Dashboard", "Chat", "Ajustes"]);
+      expect(rows.map((row) => row.textContent)).toEqual([
+        "Dashboard",
+        "Chat",
+        "Ajustes",
+      ]);
       expect(rows[0]).not.toHaveAttribute("aria-current");
       expect(rows[1]).toHaveAttribute("aria-current", "page");
       expect(rows[2]).not.toHaveAttribute("aria-current");
@@ -75,7 +86,7 @@ describe("AppSidebar", () => {
             { key: "dashboard", label: "Dashboard" },
             { key: "chat", label: "Chat" },
           ]}
-        />
+        />,
       );
 
       for (const row of screen.getAllByRole("button")) {
@@ -91,7 +102,11 @@ describe("AppSidebar", () => {
 
       const after = screen.getAllByRole("button");
 
-      expect(after.map((row) => row.textContent)).toEqual(["Ajustes", "Chat", "Dashboard"]);
+      expect(after.map((row) => row.textContent)).toEqual([
+        "Ajustes",
+        "Chat",
+        "Dashboard",
+      ]);
       expect(after[2]).toBe(dashboardBefore);
       expect(after[0]).toBe(settingsBefore);
     });
@@ -122,7 +137,9 @@ describe("AppSidebar", () => {
     it("with onNavigate omitted, clicking an item throws nothing", () => {
       render(<AppSidebar navItems={threeItems} />);
 
-      expect(() => fireEvent.click(screen.getByRole("button", { name: "Chat" }))).not.toThrow();
+      expect(() =>
+        fireEvent.click(screen.getByRole("button", { name: "Chat" })),
+      ).not.toThrow();
     });
   });
 
@@ -134,8 +151,10 @@ describe("AppSidebar", () => {
         <AppSidebar
           navItems={threeItems}
           onNavigate={onNavigate}
-          renderNavLink={(item, props) => <a href={"/" + item.key} {...props} />}
-        />
+          renderNavLink={(item, props) => (
+            <a href={"/" + item.key} {...props} />
+          )}
+        />,
       );
 
       const [dashboard, chat] = screen.getAllByRole("link");
@@ -160,7 +179,7 @@ describe("AppSidebar", () => {
           renderNavLink={(item, { onClick: _onClick, ...rest }) => (
             <a href={"/" + item.key} {...rest} />
           )}
-        />
+        />,
       );
 
       fireEvent.click(screen.getAllByRole("link")[0]);
@@ -169,17 +188,24 @@ describe("AppSidebar", () => {
     });
 
     it("the design notes' renderNavLink section requires the consumer to spread every prop", () => {
-      const designNotes = readFileSync(resolve(process.cwd(), "docs/design-notes.md"), "utf8");
+      const designNotes = readFileSync(
+        resolve(process.cwd(), "docs/design-notes.md"),
+        "utf8",
+      );
 
       expect(designNotes).toMatch(/## renderNavLink/);
-      expect(designNotes.split("## renderNavLink")[1]).toMatch(/spread \*\*every\*\* prop/);
+      expect(designNotes.split("## renderNavLink")[1]).toMatch(
+        /spread \*\*every\*\* prop/,
+      );
     });
   });
 
   describe("icons", () => {
     it('an item with icon: ChatIcon renders that component with className "h-5 w-5"', () => {
       const { container } = render(
-        <AppSidebar navItems={[{ key: "chat", label: "Chat", icon: ChatIcon }]} />
+        <AppSidebar
+          navItems={[{ key: "chat", label: "Chat", icon: ChatIcon }]}
+        />,
       );
 
       const svg = container.querySelector("svg");
@@ -188,7 +214,9 @@ describe("AppSidebar", () => {
     });
 
     it("an item without icon renders its label and no <svg>", () => {
-      const { container } = render(<AppSidebar navItems={[{ key: "chat", label: "Chat" }]} />);
+      const { container } = render(
+        <AppSidebar navItems={[{ key: "chat", label: "Chat" }]} />,
+      );
 
       expect(screen.getByRole("button", { name: "Chat" })).toBeInTheDocument();
       expect(container.querySelector("svg")).toBeNull();
@@ -200,34 +228,51 @@ describe("AppSidebar", () => {
       render(
         <AppSidebar>
           <span data-testid="middle-child">4711</span>
-        </AppSidebar>
+        </AppSidebar>,
       );
 
-      const wrapper = screen.getByTestId("middle-child").parentElement as HTMLElement;
+      const wrapper = screen.getByTestId("middle-child")
+        .parentElement as HTMLElement;
 
-      for (const token of ["flex", "min-h-0", "flex-1", "flex-col", "overflow-y-auto"]) {
+      for (const token of [
+        "flex",
+        "min-h-0",
+        "flex-1",
+        "flex-col",
+        "overflow-y-auto",
+      ]) {
         expect(wrapper.classList).toContain(token);
       }
-      expect(screen.getByRole("complementary", { name: "Sidebar" })).toContainElement(wrapper);
+      expect(
+        screen.getByRole("complementary", { name: "Sidebar" }),
+      ).toContainElement(wrapper);
     });
 
     it("footer={<button>Log ud</button>} renders that node inside exactly one border-t region", () => {
-      const { container } = render(<AppSidebar footer={<button type="button">Log ud</button>} />);
+      const { container } = render(
+        <AppSidebar footer={<button type="button">Log ud</button>} />,
+      );
 
       const regions = container.querySelectorAll(".border-t");
 
       expect(regions).toHaveLength(1);
-      expect(regions[0]).toContainElement(screen.getByRole("button", { name: "Log ud" }));
+      expect(regions[0]).toContainElement(
+        screen.getByRole("button", { name: "Log ud" }),
+      );
     });
 
     it("footer omitted renders no border-t region", () => {
-      const { container } = render(<AppSidebar navItems={threeItems}>4711</AppSidebar>);
+      const { container } = render(
+        <AppSidebar navItems={threeItems}>4711</AppSidebar>,
+      );
 
       expect(container.querySelectorAll(".border-t")).toHaveLength(0);
     });
 
     it("brand={<span>Acme Support</span>} renders it inside the bordered top row", () => {
-      render(<AppSidebar brand={<span>Acme Support</span>} navItems={threeItems} />);
+      render(
+        <AppSidebar brand={<span>Acme Support</span>} navItems={threeItems} />,
+      );
 
       const row = screen.getByText("Acme Support").parentElement as HTMLElement;
 
@@ -251,13 +296,15 @@ describe("the source files (grep acceptance criteria)", () => {
 
   it("GDPR: the file calls no console.*, localStorage, sessionStorage, fetch, sendBeacon or analytics", () => {
     expect(content).not.toMatch(
-      /console\.|localStorage|sessionStorage|fetch|sendBeacon|analytics|indexedDB/i
+      /console\.|localStorage|sessionStorage|fetch|sendBeacon|analytics|indexedDB/i,
     );
   });
 
   it("no @clerk, swr, next-intl, next/, @/ or lucide-react import, and every relative import ends in .js", () => {
     expect(content).not.toMatch(/@clerk|swr|next-intl|next\/|@\/|lucide-react/);
-    const relativeImports = [...content.matchAll(/from\s+"(\.[^"]+)"/g)].map(([, spec]) => spec);
+    const relativeImports = [...content.matchAll(/from\s+"(\.[^"]+)"/g)].map(
+      ([, spec]) => spec,
+    );
 
     expect(relativeImports.length).toBeGreaterThan(0);
 

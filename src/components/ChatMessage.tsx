@@ -11,7 +11,12 @@ import {
 } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { CheckIcon, CopyIcon, ThumbsDownIcon, ThumbsUpIcon } from "../icons/index.js";
+import {
+  CheckIcon,
+  CopyIcon,
+  ThumbsDownIcon,
+  ThumbsUpIcon,
+} from "../icons/index.js";
 import { resolveLabels } from "../labels.js";
 import {
   createMarkdownComponents,
@@ -47,19 +52,20 @@ export interface ChatMessageLabels {
 // The keyboard shortcuts are off by default (arrowKeyFeedback), so the
 // default aria-label and thumb labels carry no shortcut parentheticals; a
 // consumer that re-enables the shortcuts supplies labels that mention them.
-export const defaultChatMessageLabels: Readonly<Required<ChatMessageLabels>> = Object.freeze({
-  userMessage: "Your message",
-  assistantMessage: "Assistant response",
-  assistantMessageFrom: (name: string) => `Response from ${name}`,
-  copy: "Copy message",
-  copied: "Copied",
-  copiedNotice: "Copied!",
-  feedbackPositive: "Good response",
-  feedbackNegative: "Bad response",
-  feedbackNotice: "Thanks!",
-  thinking: "Thinking",
-  linkOpensInNewTab: defaultMarkdownComponentsLabels.linkOpensInNewTab,
-});
+export const defaultChatMessageLabels: Readonly<Required<ChatMessageLabels>> =
+  Object.freeze({
+    userMessage: "Your message",
+    assistantMessage: "Assistant response",
+    assistantMessageFrom: (name: string) => `Response from ${name}`,
+    copy: "Copy message",
+    copied: "Copied",
+    copiedNotice: "Copied!",
+    feedbackPositive: "Good response",
+    feedbackNegative: "Bad response",
+    feedbackNotice: "Thanks!",
+    thinking: "Thinking",
+    linkOpensInNewTab: defaultMarkdownComponentsLabels.linkOpensInNewTab,
+  });
 
 export interface ChatMessageProps {
   /**
@@ -103,7 +109,7 @@ export interface ChatMessageProps {
 const resolveArticleLabel = (
   entry: UserChatEntry | AssistantChatEntry,
   assistantName: string | undefined,
-  resolved: Required<ChatMessageLabels>
+  resolved: Required<ChatMessageLabels>,
 ): string => {
   if (entry.role === "user") {
     return resolved.userMessage;
@@ -120,7 +126,10 @@ const resolveArticleLabel = (
 // Cmd+Shift+C (the browser's inspect chord) keeps its meaning, and
 // lowercasing covers Caps Lock ("C").
 const isCopyChord = (e: KeyboardEvent<HTMLElement>): boolean =>
-  (e.metaKey || e.ctrlKey) && !e.shiftKey && !e.altKey && e.key.toLowerCase() === "c";
+  (e.metaKey || e.ctrlKey) &&
+  !e.shiftKey &&
+  !e.altKey &&
+  e.key.toLowerCase() === "c";
 
 const hasModifier = (e: KeyboardEvent<HTMLElement>): boolean =>
   e.metaKey || e.ctrlKey || e.shiftKey || e.altKey;
@@ -140,7 +149,10 @@ export function ChatMessage({
 }: ChatMessageProps) {
   const resolved = resolveLabels(defaultChatMessageLabels, labels);
   const [copiedId, setCopiedId] = useState<string | null>(null);
-  const [feedbackId, setFeedbackId] = useState<{ id: string; type: "up" | "down" } | null>(null);
+  const [feedbackId, setFeedbackId] = useState<{
+    id: string;
+    type: "up" | "down";
+  } | null>(null);
   const copiedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
@@ -168,7 +180,7 @@ export function ChatMessage({
       copiedTimerRef.current = setTimeout(() => setCopiedId(null), 2000);
       onCopy?.(text, entryId);
     },
-    [onCopy]
+    [onCopy],
   );
 
   const handleFeedback = useCallback(
@@ -176,7 +188,7 @@ export function ChatMessage({
       setFeedbackId({ id: entryId, type });
       onFeedback?.(entryId, type);
     },
-    [onFeedback]
+    [onFeedback],
   );
 
   const handleKeyDown = useCallback(
@@ -212,7 +224,7 @@ export function ChatMessage({
         handleFeedback(entry.id, "down");
       }
     },
-    [entry, showFeedback, arrowKeyFeedback, copyToClipboard, handleFeedback]
+    [entry, showFeedback, arrowKeyFeedback, copyToClipboard, handleFeedback],
   );
 
   const ariaLabel = resolveArticleLabel(entry, assistantName, resolved);
@@ -294,10 +306,8 @@ function AssistantMessage({
   // object, so an inline `markdown={{...}}` literal does not hand ReactMarkdown
   // fresh component identities - and a remounted markdown subtree - on every
   // streaming token.
-  const { allowedSchemes, allowRelativeUrls, linkTarget, allowImages } = resolveLabels(
-    defaultMarkdownPolicy,
-    markdown
-  );
+  const { allowedSchemes, allowRelativeUrls, linkTarget, allowImages } =
+    resolveLabels(defaultMarkdownPolicy, markdown);
   const schemesKey = JSON.stringify(allowedSchemes);
   const linkOpensInNewTab = resolved.linkOpensInNewTab;
   const { components, urlTransform } = useMemo(() => {
@@ -309,10 +319,19 @@ function AssistantMessage({
     };
 
     return {
-      components: createMarkdownComponents({ policy, labels: { linkOpensInNewTab } }),
+      components: createMarkdownComponents({
+        policy,
+        labels: { linkOpensInNewTab },
+      }),
       urlTransform: createUrlTransform(policy),
     };
-  }, [schemesKey, allowRelativeUrls, linkTarget, allowImages, linkOpensInNewTab]);
+  }, [
+    schemesKey,
+    allowRelativeUrls,
+    linkTarget,
+    allowImages,
+    linkOpensInNewTab,
+  ]);
 
   // Once content or tool status has appeared for THIS entry id, never show
   // the thinking indicator again. The latch is keyed by entry.id and reset
@@ -368,7 +387,9 @@ function AssistantMessage({
               type="button"
               className="rounded p-1.5 text-slate-400 ring-offset-2 transition-colors hover:bg-slate-100 hover:text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:ring-offset-slate-950 dark:hover:bg-slate-800 dark:hover:text-slate-300 dark:focus:ring-blue-400"
               onClick={() => onCopy(entry.content, entry.id)}
-              aria-label={copiedId === entry.id ? resolved.copied : resolved.copy}
+              aria-label={
+                copiedId === entry.id ? resolved.copied : resolved.copy
+              }
             >
               {copiedId === entry.id ? (
                 <CheckIcon className="h-4 w-4 text-green-500" />
@@ -393,7 +414,9 @@ function AssistantMessage({
                   }`}
                   onClick={() => onFeedback(entry.id, "up")}
                   aria-label={resolved.feedbackPositive}
-                  aria-pressed={feedbackId?.id === entry.id && feedbackId.type === "up"}
+                  aria-pressed={
+                    feedbackId?.id === entry.id && feedbackId.type === "up"
+                  }
                 >
                   <ThumbsUpIcon className="h-4 w-4" />
                 </button>
@@ -406,7 +429,9 @@ function AssistantMessage({
                   }`}
                   onClick={() => onFeedback(entry.id, "down")}
                   aria-label={resolved.feedbackNegative}
-                  aria-pressed={feedbackId?.id === entry.id && feedbackId.type === "down"}
+                  aria-pressed={
+                    feedbackId?.id === entry.id && feedbackId.type === "down"
+                  }
                 >
                   <ThumbsDownIcon className="h-4 w-4" />
                 </button>

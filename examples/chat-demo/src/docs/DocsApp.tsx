@@ -62,14 +62,23 @@ export function DocsApp({ componentId }: { componentId: string | null }) {
   const renderSidebar = (_context: SidebarSlotContext) => (
     <AppSidebar
       brand={<DocsBrand />}
-      navItems={navItems.map((item) => ({ ...item, isActive: item.key === activeKey }))}
-      renderNavLink={(item, props) => <a {...props} href={docsHref(item.key)} />}
+      navItems={navItems.map((item) => ({
+        ...item,
+        isActive: item.key === activeKey,
+      }))}
+      renderNavLink={(item, props) => (
+        <a {...props} href={docsHref(item.key)} />
+      )}
       labels={defaultAppSidebarLabels}
     />
   );
 
   return (
-    <AppShell brand={<DocsBrand />} renderSidebar={renderSidebar} labels={defaultAppShellLabels}>
+    <AppShell
+      brand={<DocsBrand />}
+      renderSidebar={renderSidebar}
+      labels={defaultAppShellLabels}
+    >
       <div className="mx-auto flex w-full max-w-3xl flex-col gap-8 px-4 py-8">
         {body(componentId)}
       </div>

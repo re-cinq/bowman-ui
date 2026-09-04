@@ -72,12 +72,16 @@ import {
   type UserChatEntry,
 } from "@re-cinq/bowman-ui";
 
-const isRenderable = (entry: ChatEntry): entry is UserChatEntry | AssistantChatEntry =>
+const isRenderable = (
+  entry: ChatEntry,
+): entry is UserChatEntry | AssistantChatEntry =>
   entry.role === "user" || entry.role === "assistant";
 
 entries
   .filter(isRenderable)
-  .map((entry) => <ChatMessage key={entry.id} entry={entry} userInitials="AB" />);
+  .map((entry) => (
+    <ChatMessage key={entry.id} entry={entry} userInitials="AB" />
+  ));
 ```
 
 The components own no scroll position: keeping the transcript pinned to the newest message while a reply streams is the consumer's job.
@@ -98,7 +102,11 @@ A rejected URL renders its link text in a `<span>` - never an empty anchor, whic
 Override fields per `ChatMessage` through the `markdown` prop, merged over `defaultMarkdownPolicy`:
 
 ```tsx
-<ChatMessage entry={entry} userInitials="AB" markdown={{ allowedSchemes: ["https", "http"] }} />
+<ChatMessage
+  entry={entry}
+  userInitials="AB"
+  markdown={{ allowedSchemes: ["https", "http"] }}
+/>
 ```
 
 Setting `allowImages: true` renders `<img>` for scheme-allowed sources - and costs a network request at render time (React preloads image sources), so opt in only when the image host is trusted. Rendering markdown outside `ChatMessage` uses the same pair the component uses internally:
@@ -106,7 +114,10 @@ Setting `allowImages: true` renders `<img>` for scheme-allowed sources - and cos
 ```tsx
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { createMarkdownComponents, createUrlTransform } from "@re-cinq/bowman-ui";
+import {
+  createMarkdownComponents,
+  createUrlTransform,
+} from "@re-cinq/bowman-ui";
 
 <ReactMarkdown
   remarkPlugins={[remarkGfm]}
@@ -151,7 +162,10 @@ import {
   type ConversationListLabels,
 } from "@re-cinq/bowman-ui";
 
-const catalogue: { composer: ChatComposerLabels; conversationList: ConversationListLabels } = {
+const catalogue: {
+  composer: ChatComposerLabels;
+  conversationList: ConversationListLabels;
+} = {
   composer: {
     composerInput: "Tu mensaje",
     composerPlaceholder: "Responder...",

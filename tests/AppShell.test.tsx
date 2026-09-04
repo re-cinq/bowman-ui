@@ -3,7 +3,10 @@ import { resolve } from "node:path";
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import { AppShell, type SidebarSlotContext } from "../src/index.js";
 
-const source = readFileSync(resolve(process.cwd(), "src/components/AppShell.tsx"), "utf8");
+const source = readFileSync(
+  resolve(process.cwd(), "src/components/AppShell.tsx"),
+  "utf8",
+);
 
 const sidebarWithLink = ({ variant }: SidebarSlotContext) => (
   <span data-testid={`sidebar-${variant}`}>
@@ -23,45 +26,52 @@ describe("AppShell", () => {
       render(
         <AppShell>
           <p>Detalles del pedido 4711</p>
-        </AppShell>
+        </AppShell>,
       );
 
       const main = document.querySelector("main#main-content");
 
-      expect(main).toContainElement(screen.getByText("Detalles del pedido 4711"));
+      expect(main).toContainElement(
+        screen.getByText("Detalles del pedido 4711"),
+      );
     });
 
     it('mainContentId="olt-main" renders <main id="olt-main"> and a skip link with href "#olt-main"', () => {
       render(
         <AppShell mainContentId="olt-main">
           <p>content</p>
-        </AppShell>
+        </AppShell>,
       );
 
-      expect(document.querySelector("main#olt-main")).toContainElement(screen.getByText("content"));
-      expect(screen.getByRole("link", { name: "Skip to main content" })).toHaveAttribute(
-        "href",
-        "#olt-main"
+      expect(document.querySelector("main#olt-main")).toContainElement(
+        screen.getByText("content"),
       );
+      expect(
+        screen.getByRole("link", { name: "Skip to main content" }),
+      ).toHaveAttribute("href", "#olt-main");
     });
 
     it("the skip link is the first focusable element in the rendered tree", () => {
       const { container } = render(
         <AppShell renderSidebar={sidebarWithLink} brand={<span>4711</span>}>
           <button>inside main</button>
-        </AppShell>
+        </AppShell>,
       );
 
-      const focusables = container.querySelectorAll("a[href], button, input, select, textarea");
+      const focusables = container.querySelectorAll(
+        "a[href], button, input, select, textarea",
+      );
 
-      expect(focusables[0]).toBe(screen.getByRole("link", { name: "Skip to main content" }));
+      expect(focusables[0]).toBe(
+        screen.getByRole("link", { name: "Skip to main content" }),
+      );
     });
 
     it("skipLink={false} renders no anchor pointing at mainContentId", () => {
       const { container } = render(
         <AppShell skipLink={false}>
           <p>content</p>
-        </AppShell>
+        </AppShell>,
       );
 
       expect(container.querySelector('a[href="#main-content"]')).toBeNull();
@@ -75,10 +85,9 @@ describe("AppShell", () => {
       render(<AppShell renderSidebar={renderSidebar}>content</AppShell>);
 
       expect(renderSidebar).toHaveBeenCalledTimes(2);
-      expect(renderSidebar.mock.calls.map(([context]) => context.variant)).toEqual([
-        "desktop",
-        "mobile",
-      ]);
+      expect(
+        renderSidebar.mock.calls.map(([context]) => context.variant),
+      ).toEqual(["desktop", "mobile"]);
       expect(screen.getByTestId("sidebar-desktop")).toBeInTheDocument();
       expect(screen.getByTestId("sidebar-mobile")).toBeInTheDocument();
     });
@@ -136,7 +145,7 @@ describe("AppShell", () => {
           )}
         >
           content
-        </AppShell>
+        </AppShell>,
       );
       fireEvent.click(getHamburger());
 
@@ -151,9 +160,12 @@ describe("AppShell", () => {
       const onOpenChange = vi.fn();
 
       render(
-        <AppShell mobileSidebarOpen={false} onMobileSidebarOpenChange={onOpenChange}>
+        <AppShell
+          mobileSidebarOpen={false}
+          onMobileSidebarOpenChange={onOpenChange}
+        >
           content
-        </AppShell>
+        </AppShell>,
       );
 
       fireEvent.click(getHamburger());
@@ -168,9 +180,12 @@ describe("AppShell", () => {
       const onOpenChange = vi.fn();
 
       render(
-        <AppShell mobileSidebarOpen={true} onMobileSidebarOpenChange={onOpenChange}>
+        <AppShell
+          mobileSidebarOpen={true}
+          onMobileSidebarOpenChange={onOpenChange}
+        >
           content
-        </AppShell>
+        </AppShell>,
       );
 
       const drawer = getDrawer();
@@ -208,7 +223,9 @@ describe("AppShell", () => {
     });
 
     it('labels={{sidebarDialog: "Menu 4711"}} names the open dialog', () => {
-      render(<AppShell labels={{ sidebarDialog: "Menu 4711" }}>content</AppShell>);
+      render(
+        <AppShell labels={{ sidebarDialog: "Menu 4711" }}>content</AppShell>,
+      );
       fireEvent.click(getHamburger());
 
       expect(getDrawer()).toHaveAttribute("aria-label", "Menu 4711");
@@ -254,7 +271,7 @@ describe("AppShell", () => {
     // it makes the three assertions below fail.
     const offsetParentDescriptor = Object.getOwnPropertyDescriptor(
       HTMLElement.prototype,
-      "offsetParent"
+      "offsetParent",
     );
 
     beforeEach(() => {
@@ -264,16 +281,23 @@ describe("AppShell", () => {
           return (this as HTMLElement).parentElement;
         },
       });
-      vi.stubGlobal("requestAnimationFrame", (callback: FrameRequestCallback) => {
-        callback(0);
+      vi.stubGlobal(
+        "requestAnimationFrame",
+        (callback: FrameRequestCallback) => {
+          callback(0);
 
-        return 0;
-      });
+          return 0;
+        },
+      );
     });
 
     afterEach(() => {
       if (offsetParentDescriptor) {
-        Object.defineProperty(HTMLElement.prototype, "offsetParent", offsetParentDescriptor);
+        Object.defineProperty(
+          HTMLElement.prototype,
+          "offsetParent",
+          offsetParentDescriptor,
+        );
       }
       vi.unstubAllGlobals();
     });
@@ -352,13 +376,16 @@ describe("AppShell", () => {
           get matches() {
             return query === "(min-width: 768px)" ? desktop : false;
           },
-          addEventListener: (_type: string, handler: (event: { matches: boolean }) => void) => {
+          addEventListener: (
+            _type: string,
+            handler: (event: { matches: boolean }) => void,
+          ) => {
             if (query === "(min-width: 768px)") {
               changeHandlers.push(handler);
             }
           },
           removeEventListener: vi.fn(),
-        }))
+        })),
       );
 
       render(<AppShell>content</AppShell>);
@@ -399,7 +426,9 @@ describe("AppShell", () => {
       render(<AppShell reducedMotion={true}>content</AppShell>);
 
       expect(getDrawer()).not.toHaveClass("transition-transform");
-      expect(screen.getByTestId("app-shell-backdrop")).not.toHaveClass("transition-opacity");
+      expect(screen.getByTestId("app-shell-backdrop")).not.toHaveClass(
+        "transition-opacity",
+      );
     });
 
     it("reducedMotion omitted with matchMedia matching nothing renders both transition classes", () => {
@@ -409,13 +438,15 @@ describe("AppShell", () => {
           matches: false,
           addEventListener: vi.fn(),
           removeEventListener: vi.fn(),
-        })
+        }),
       );
 
       render(<AppShell>content</AppShell>);
 
       expect(getDrawer()).toHaveClass("transition-transform");
-      expect(screen.getByTestId("app-shell-backdrop")).toHaveClass("transition-opacity");
+      expect(screen.getByTestId("app-shell-backdrop")).toHaveClass(
+        "transition-opacity",
+      );
 
       vi.unstubAllGlobals();
     });
@@ -423,7 +454,11 @@ describe("AppShell", () => {
 
   describe("the brand slot", () => {
     it("brand renders inside the mobile header row with the centring spacer", () => {
-      render(<AppShell brand={<span data-testid="brand">4711</span>}>content</AppShell>);
+      render(
+        <AppShell brand={<span data-testid="brand">4711</span>}>
+          content
+        </AppShell>,
+      );
 
       const headerRow = getHamburger().parentElement as HTMLElement;
 
@@ -447,15 +482,17 @@ describe("AppShell", () => {
   describe("GDPR and import hygiene", () => {
     it("the source references no console, fetch, sendBeacon or Web Storage API", () => {
       expect(source).not.toMatch(
-        /console\.|fetch|sendBeacon|localStorage|sessionStorage|indexedDB|analytics/
+        /console\.|fetch|sendBeacon|localStorage|sessionStorage|indexedDB|analytics/,
       );
     });
 
     it("no framework, auth, i18n or aliased import survives, and every relative import ends in .js", () => {
-      expect(source).not.toMatch(/@clerk|swr|next-intl|next\/|@\/|lucide-react/);
+      expect(source).not.toMatch(
+        /@clerk|swr|next-intl|next\/|@\/|lucide-react/,
+      );
 
       const relativeImports = [...source.matchAll(/from\s+"(\.[^"]*)"/g)].map(
-        ([, specifier]) => specifier
+        ([, specifier]) => specifier,
       );
 
       expect(relativeImports.length).toBeGreaterThan(0);
@@ -467,27 +504,32 @@ describe("AppShell", () => {
 
     describe("review fixes (issue 030)", () => {
       it("the mobile header stacks under the drawer: z-40 header, z-50 drawer", () => {
-        render(<AppShell renderSidebar={() => <a href="#nav">nav</a>}>content</AppShell>);
+        render(
+          <AppShell renderSidebar={() => <a href="#nav">nav</a>}>
+            content
+          </AppShell>,
+        );
 
         const header = document.querySelector("header, .z-40");
 
         expect(header?.className).toContain("z-40");
-        expect(document.querySelector('[data-testid="app-shell-drawer"]')?.className).toContain(
-          "z-50"
-        );
+        expect(
+          document.querySelector('[data-testid="app-shell-drawer"]')?.className,
+        ).toContain("z-50");
       });
 
       it("brand={null} renders no brand spacer, same as omitting the prop", () => {
         const { container: withNull } = render(
           <AppShell brand={null} renderSidebar={() => null}>
             content
-          </AppShell>
+          </AppShell>,
         );
         const { container: omitted } = render(
-          <AppShell renderSidebar={() => null}>content</AppShell>
+          <AppShell renderSidebar={() => null}>content</AppShell>,
         );
 
-        const spacers = (root: HTMLElement) => root.querySelectorAll("header > div").length;
+        const spacers = (root: HTMLElement) =>
+          root.querySelectorAll("header > div").length;
 
         expect(spacers(withNull)).toBe(spacers(omitted));
       });

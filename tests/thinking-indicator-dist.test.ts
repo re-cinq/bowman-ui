@@ -2,7 +2,10 @@ import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { packedPaths, stripLeadingTrivia } from "./helpers/built-package.js";
 
-const BUILT_FILES = ["dist/components/ThinkingIndicator.js", "dist/components/ThinkingDots.js"];
+const BUILT_FILES = [
+  "dist/components/ThinkingIndicator.js",
+  "dist/components/ThinkingDots.js",
+];
 
 describe("the built thinking indicator surface", () => {
   it('each built thinking indicator file opens with "use client"; as its first statement', () => {
@@ -42,7 +45,7 @@ describe("the built thinking indicator surface", () => {
         "react-jsx",
         "tests/types/thinking-indicator-type-assertions.tsx",
       ],
-      { cwd: process.cwd(), encoding: "utf8" }
+      { cwd: process.cwd(), encoding: "utf8" },
     );
 
     expect(result).toMatchObject({ status: 0, stderr: "" });

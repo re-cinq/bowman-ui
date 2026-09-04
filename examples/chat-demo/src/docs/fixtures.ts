@@ -43,7 +43,8 @@ export const docsStreamingEntry: AssistantChatEntry = {
 export const docsNamedEntry: AssistantChatEntry = {
   id: "docs-named",
   role: "assistant",
-  content: "The gift wrapping is on the order. An updated confirmation follows shortly.",
+  content:
+    "The gift wrapping is on the order. An updated confirmation follows shortly.",
   isStreaming: false,
   persona: "orders",
 };
@@ -51,7 +52,8 @@ export const docsNamedEntry: AssistantChatEntry = {
 export const docsFooterEntry: AssistantChatEntry = {
   id: "docs-footer",
   role: "assistant",
-  content: "A delivery date can be moved without a fee until the day before dispatch.",
+  content:
+    "A delivery date can be moved without a fee until the day before dispatch.",
   isStreaming: false,
 };
 
@@ -59,7 +61,11 @@ export const docsToolEntry: ToolChatEntry = {
   id: "docs-tool",
   role: "tool",
   toolName: "lookup_stock",
-  toolInput: { title: "the-cartographers-atlas", format: "hardback", copies: 2 },
+  toolInput: {
+    title: "the-cartographers-atlas",
+    format: "hardback",
+    copies: 2,
+  },
 };
 
 export const docsThinkingEntry: ThinkingChatEntry = {
@@ -92,7 +98,10 @@ export const docsConversation: ReadonlyArray<ChatEntry> = [
   },
 ];
 
-export const docsBusyConversation: ReadonlyArray<ChatEntry> = [docsUserEntry, docsToolEntry];
+export const docsBusyConversation: ReadonlyArray<ChatEntry> = [
+  docsUserEntry,
+  docsToolEntry,
+];
 
 export const docsAttribution: Readonly<Record<string, ChatAttribution>> = {
   orders: { name: "Marginalia Orders" },
@@ -100,12 +109,21 @@ export const docsAttribution: Readonly<Record<string, ChatAttribution>> = {
 };
 
 export const docsConversationItems: ReadonlyArray<ConversationListItem> = [
-  { id: "docs-1", title: "Delivery change for MB-4821-XQ", timestamp: "today 09:14" },
+  {
+    id: "docs-1",
+    title: "Delivery change for MB-4821-XQ",
+    timestamp: "today 09:14",
+  },
   {
     id: "docs-2",
     title: "Damaged copy of The Cartographer's Atlas",
     timestamp: "yesterday 16:02",
     badge: "2",
   },
-  { id: "docs-3", title: "New conversation", timestamp: "today 10:31", isPlaceholderTitle: true },
+  {
+    id: "docs-3",
+    title: "New conversation",
+    timestamp: "today 10:31",
+    isPlaceholderTitle: true,
+  },
 ];

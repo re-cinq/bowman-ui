@@ -6,6 +6,7 @@ import type { Components } from "react-markdown";
 
 import { createMarkdownComponents } from "../../src/markdown/components.js";
 
-const mapSatisfiesReactMarkdownComponents: Components = createMarkdownComponents();
+const mapSatisfiesReactMarkdownComponents: Components =
+  createMarkdownComponents();
 
 void mapSatisfiesReactMarkdownComponents;

@@ -19,7 +19,9 @@ export function ChatComposerExample() {
       <button
         type="button"
         className="self-start rounded-lg border border-slate-300 px-3 py-1.5 text-sm dark:border-slate-700"
-        onClick={() => composerRef.current?.setValue("Move my delivery to Friday")}
+        onClick={() =>
+          composerRef.current?.setValue("Move my delivery to Friday")
+        }
       >
         Fill the draft from outside
       </button>

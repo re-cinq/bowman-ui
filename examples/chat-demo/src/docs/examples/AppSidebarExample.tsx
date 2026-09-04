@@ -14,10 +14,15 @@ export function AppSidebarExample() {
     <div className="flex h-80 w-72 flex-col overflow-hidden rounded-lg border border-slate-200 dark:border-slate-800">
       <AppSidebar
         brand={<span className="text-sm font-semibold">Marginalia Books</span>}
-        navItems={navItems.map((item) => ({ ...item, isActive: item.key === activeKey }))}
+        navItems={navItems.map((item) => ({
+          ...item,
+          isActive: item.key === activeKey,
+        }))}
         onNavigate={setActiveKey}
         footer={
-          <p className="px-4 py-3 text-sm text-slate-500 dark:text-slate-400">Signed in as MV</p>
+          <p className="px-4 py-3 text-sm text-slate-500 dark:text-slate-400">
+            Signed in as MV
+          </p>
         }
       >
         <p className="px-4 py-3 text-sm text-slate-500 dark:text-slate-400">

@@ -12,7 +12,10 @@ import { tmpdir } from "node:os";
 import { join, relative } from "node:path";
 import process from "node:process";
 
-const reportFile = join(tmpdir(), `bowman-ui-vitest-report-${process.pid}.json`);
+const reportFile = join(
+  tmpdir(),
+  `bowman-ui-vitest-report-${process.pid}.json`,
+);
 
 // Build first: tests/public-api.test.ts reads dist/ at collection time, so in
 // a clean checkout its tests would silently vanish from the list without this.
@@ -22,10 +25,14 @@ execFileSync("npm", ["run", "build"], {
 });
 
 try {
-  execFileSync("npx", ["vitest", "run", "--reporter=json", `--outputFile=${reportFile}`], {
-    cwd: process.cwd(),
-    stdio: ["ignore", "ignore", "inherit"],
-  });
+  execFileSync(
+    "npx",
+    ["vitest", "run", "--reporter=json", `--outputFile=${reportFile}`],
+    {
+      cwd: process.cwd(),
+      stdio: ["ignore", "ignore", "inherit"],
+    },
+  );
 } catch {
   // A failing test still produces a full report; listing must not depend on
   // the suite being green. A missing report file below is the real failure.

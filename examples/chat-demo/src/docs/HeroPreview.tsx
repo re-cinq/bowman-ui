@@ -61,7 +61,10 @@ const renderSidebar = () => (
 
 export function HeroPreview() {
   return (
-    <div data-hero-capture className="h-screen w-[1320px] overflow-hidden bg-slate-50">
+    <div
+      data-hero-capture
+      className="h-screen w-[1320px] overflow-hidden bg-slate-50"
+    >
       <AppShell renderSidebar={renderSidebar} labels={defaultAppShellLabels}>
         <div className="flex h-full min-h-0 flex-col">
           <ChatMessageList

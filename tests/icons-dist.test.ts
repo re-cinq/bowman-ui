@@ -19,7 +19,7 @@ const bundleOneIconConsumer = async (importedIcon: string): Promise<string> => {
 
   writeFileSync(
     entry,
-    `import { ${importedIcon} } from ${JSON.stringify(distIndex)};\nexport { ${importedIcon} };\n`
+    `import { ${importedIcon} } from ${JSON.stringify(distIndex)};\nexport { ${importedIcon} };\n`,
   );
 
   try {
@@ -28,7 +28,9 @@ const bundleOneIconConsumer = async (importedIcon: string): Promise<string> => {
 
     await bundle.close();
 
-    return output.map((chunk) => ("code" in chunk ? chunk.code : "")).join("\n");
+    return output
+      .map((chunk) => ("code" in chunk ? chunk.code : ""))
+      .join("\n");
   } finally {
     rmSync(consumerDir, { recursive: true, force: true });
   }
@@ -68,7 +70,7 @@ describe("the built icon surface", () => {
         "react-jsx",
         "tests/types/icon-type-assertions.tsx",
       ],
-      { cwd: process.cwd(), encoding: "utf8" }
+      { cwd: process.cwd(), encoding: "utf8" },
     );
 
     expect(result).toMatchObject({ status: 0, stderr: "" });

@@ -29,7 +29,7 @@ import { FOCUSABLE_SELECTOR } from "./focusableSelector.js";
 export function useFocusTrap<T extends HTMLElement = HTMLDivElement>(
   isOpen: boolean,
   onClose: () => void,
-  triggerRef?: RefObject<HTMLElement | null>
+  triggerRef?: RefObject<HTMLElement | null>,
 ): RefObject<T | null> {
   const containerRef = useRef<T | null>(null);
   const previousActiveElement = useRef<HTMLElement | null>(null);
@@ -48,11 +48,11 @@ export function useFocusTrap<T extends HTMLElement = HTMLDivElement>(
     // on that). The offsetParent fallback misreports fixed-position
     // descendants as hidden but is all older engines offer.
     return Array.from(
-      containerRef.current.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)
+      containerRef.current.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR),
     ).filter((el) =>
       typeof el.checkVisibility === "function"
         ? el.checkVisibility({ visibilityProperty: true })
-        : el.offsetParent !== null
+        : el.offsetParent !== null,
     );
   }, []);
 

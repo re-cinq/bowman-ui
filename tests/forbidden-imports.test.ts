@@ -38,7 +38,9 @@ it("exits zero for declared packages, their subpaths, and relative imports", () 
   const result = runAgainst("tests/fixtures/forbidden-imports-clean");
 
   expect(result).toMatchObject({ status: 0, stderr: "" });
-  expect(result.stdout).toContain("tests/fixtures/forbidden-imports-clean is clean");
+  expect(result.stdout).toContain(
+    "tests/fixtures/forbidden-imports-clean is clean",
+  );
 });
 
 it("exits zero against src/ and reports the self-test passed", () => {

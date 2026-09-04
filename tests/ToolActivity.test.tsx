@@ -47,7 +47,9 @@ describe("ToolActivity", () => {
 
   describe("showToolInput", () => {
     it("true renders a pre containing the JSON arguments", () => {
-      const { container } = render(<ToolActivity entry={weatherEntry} showToolInput />);
+      const { container } = render(
+        <ToolActivity entry={weatherEntry} showToolInput />,
+      );
 
       const pre = container.querySelector("pre");
 
@@ -68,7 +70,9 @@ describe("ToolActivity", () => {
         toolName: "lookup",
         toolInput: { note: "<img src=x onerror=alert(1)>" },
       };
-      const { container } = render(<ToolActivity entry={entry} showToolInput />);
+      const { container } = render(
+        <ToolActivity entry={entry} showToolInput />,
+      );
 
       expect(container.querySelector("img")).toBeNull();
       expect(container.textContent).toContain("<img src=x onerror=alert(1)>");
@@ -82,7 +86,7 @@ describe("ToolActivity", () => {
           entry={weatherEntry}
           describeTool={() => "Consultando tu pedido"}
           showToolName
-        />
+        />,
       );
 
       expect(screen.getByText("Consultando tu pedido")).toBeInTheDocument();
@@ -91,7 +95,12 @@ describe("ToolActivity", () => {
     });
 
     it("receives the entry", () => {
-      render(<ToolActivity entry={weatherEntry} describeTool={(entry) => entry.toolName} />);
+      render(
+        <ToolActivity
+          entry={weatherEntry}
+          describeTool={(entry) => entry.toolName}
+        />,
+      );
 
       expect(screen.getByText("get_weather")).toBeInTheDocument();
     });
@@ -100,21 +109,33 @@ describe("ToolActivity", () => {
       const describeTool = (entry: ToolChatEntry, pending: boolean) =>
         pending ? "Looking up the weather" : "Looked up the weather";
       const { rerender } = render(
-        <ToolActivity entry={weatherEntry} describeTool={describeTool} pending />
+        <ToolActivity
+          entry={weatherEntry}
+          describeTool={describeTool}
+          pending
+        />,
       );
 
       expect(screen.getByText("Looking up the weather")).toBeInTheDocument();
-      expect(screen.queryByText("Looked up the weather")).not.toBeInTheDocument();
+      expect(
+        screen.queryByText("Looked up the weather"),
+      ).not.toBeInTheDocument();
 
-      rerender(<ToolActivity entry={weatherEntry} describeTool={describeTool} />);
+      rerender(
+        <ToolActivity entry={weatherEntry} describeTool={describeTool} />,
+      );
       expect(screen.getByText("Looked up the weather")).toBeInTheDocument();
-      expect(screen.queryByText("Looking up the weather")).not.toBeInTheDocument();
+      expect(
+        screen.queryByText("Looking up the weather"),
+      ).not.toBeInTheDocument();
     });
 
     it("takes a one-parameter callback unchanged, ignoring the pending argument", () => {
       const describe = (entry: ToolChatEntry) => entry.toolName;
 
-      render(<ToolActivity entry={weatherEntry} describeTool={describe} pending />);
+      render(
+        <ToolActivity entry={weatherEntry} describeTool={describe} pending />,
+      );
 
       expect(screen.getByText("get_weather")).toBeInTheDocument();
     });
@@ -132,13 +153,17 @@ describe("ToolActivity", () => {
       render(<ToolActivity entry={weatherEntry} />);
 
       expect(screen.getByText("Looked something up")).toBeInTheDocument();
-      expect(screen.queryByText("Looking something up")).not.toBeInTheDocument();
+      expect(
+        screen.queryByText("Looking something up"),
+      ).not.toBeInTheDocument();
     });
   });
 
   describe("the disclosure", () => {
     it("is a details/summary closed by default with the details label as its summary", () => {
-      const { container } = render(<ToolActivity entry={weatherEntry} showToolInput />);
+      const { container } = render(
+        <ToolActivity entry={weatherEntry} showToolInput />,
+      );
 
       const details = container.querySelector("details");
 
@@ -156,7 +181,7 @@ describe("ToolActivity", () => {
           pending
           showToolInput
           labels={{ activity: "Consultando", details: "Detalles" }}
-        />
+        />,
       );
 
       expect(screen.getByText("Consultando")).toBeInTheDocument();
@@ -176,7 +201,10 @@ describe("ToolActivity", () => {
   describe("the icon slot", () => {
     it("renders the caller icon and stays out of the document without one", () => {
       const { rerender } = render(
-        <ToolActivity entry={weatherEntry} icon={<span data-testid="tool-icon">4711</span>} />
+        <ToolActivity
+          entry={weatherEntry}
+          icon={<span data-testid="tool-icon">4711</span>}
+        />,
       );
 
       expect(screen.getByTestId("tool-icon")).toBeInTheDocument();
@@ -187,10 +215,15 @@ describe("ToolActivity", () => {
   });
 
   describe("the data-boundary source (grep acceptance criteria)", () => {
-    const source = readFileSync(resolve(process.cwd(), "src/components/ToolActivity.tsx"), "utf8");
+    const source = readFileSync(
+      resolve(process.cwd(), "src/components/ToolActivity.tsx"),
+      "utf8",
+    );
 
     it("references no dangerouslySetInnerHTML, react-markdown or remark-", () => {
-      expect(source).not.toMatch(/dangerouslySetInnerHTML|react-markdown|remark-/);
+      expect(source).not.toMatch(
+        /dangerouslySetInnerHTML|react-markdown|remark-/,
+      );
     });
 
     it("holds no useState, useEffect or useId", () => {
@@ -198,11 +231,15 @@ describe("ToolActivity", () => {
     });
 
     it("makes no console call and touches no client storage", () => {
-      expect(source).not.toMatch(/console\.|localStorage|sessionStorage|IndexedDB|indexedDB/);
+      expect(source).not.toMatch(
+        /console\.|localStorage|sessionStorage|IndexedDB|indexedDB/,
+      );
     });
 
     it("declares none of assistantAvatar, onCopy, onFeedback or showFeedback", () => {
-      expect(source).not.toMatch(/assistantAvatar|onCopy|onFeedback|showFeedback/);
+      expect(source).not.toMatch(
+        /assistantAvatar|onCopy|onFeedback|showFeedback/,
+      );
     });
   });
 
@@ -217,7 +254,10 @@ describe("ToolActivity", () => {
 
   describe("the published surface", () => {
     it("dist/index.d.ts declares no renderEntry escape hatch", () => {
-      const declarations = readFileSync(resolve(process.cwd(), "dist/index.d.ts"), "utf8");
+      const declarations = readFileSync(
+        resolve(process.cwd(), "dist/index.d.ts"),
+        "utf8",
+      );
 
       expect(declarations).not.toContain("renderEntry");
     });
@@ -225,22 +265,27 @@ describe("ToolActivity", () => {
     // dist/index.d.ts is a barrel of re-export statements, so the widened
     // signature is emitted in the module it re-exports rather than inline.
     it("the declarations reached from dist/index.d.ts carry the two-parameter describeTool", () => {
-      const barrel = readFileSync(resolve(process.cwd(), "dist/index.d.ts"), "utf8");
+      const barrel = readFileSync(
+        resolve(process.cwd(), "dist/index.d.ts"),
+        "utf8",
+      );
       const declarations = readFileSync(
         resolve(process.cwd(), "dist/components/ToolActivity.d.ts"),
-        "utf8"
+        "utf8",
       );
 
-      expect(barrel).toContain('ToolActivityProps } from "./components/ToolActivity.js"');
+      expect(barrel).toContain(
+        'ToolActivityProps, } from "./components/ToolActivity.js"',
+      );
       expect(declarations).toContain(
-        "describeTool?: (entry: ToolChatEntry, pending: boolean) => ReactNode;"
+        "describeTool?: (entry: ToolChatEntry, pending: boolean) => ReactNode;",
       );
     });
 
     it("tsc accepts tool-activity-type-assertions.tsx against dist, with no @ts-expect-error in it", () => {
       const assertions = readFileSync(
         resolve(process.cwd(), "tests/types/tool-activity-type-assertions.tsx"),
-        "utf8"
+        "utf8",
       );
 
       expect(assertions).not.toContain("@ts-expect-error");
@@ -263,7 +308,7 @@ describe("ToolActivity", () => {
           "react-jsx",
           "tests/types/tool-activity-type-assertions.tsx",
         ],
-        { cwd: process.cwd(), encoding: "utf8" }
+        { cwd: process.cwd(), encoding: "utf8" },
       );
 
       expect(result).toMatchObject({ status: 0, stderr: "" });

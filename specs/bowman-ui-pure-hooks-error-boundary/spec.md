@@ -18,58 +18,58 @@ exports entry for a consumer ([validated by](../../tests/hooks-dist.test.ts#L66)
   pinned at the 299/301ms edges
   with restart-on-change
   ([validated by](../../tests/useDebounce.test.tsx#L19),
-  [L36](../../tests/useDebounce.test.tsx#L36)).
+  [L39](../../tests/useDebounce.test.tsx#L39)).
 - `useReducedMotion(override?: boolean)` — reads no `process.env`
   flag; a boolean override returns as-is without consulting `matchMedia`, and with no override
   the hook tracks `prefers-reduced-motion: reduce` including change events and listener cleanup
-  ([validated by](../../tests/useReducedMotion.test.tsx#L42),
-  [L62](../../tests/useReducedMotion.test.tsx#L62),
-  [L75](../../tests/useReducedMotion.test.tsx#L75),
-  [L97](../../tests/useReducedMotion.test.tsx#L97)).
+  ([validated by](../../tests/useReducedMotion.test.tsx#L43),
+  [L63](../../tests/useReducedMotion.test.tsx#L63),
+  [L76](../../tests/useReducedMotion.test.tsx#L76),
+  [L98](../../tests/useReducedMotion.test.tsx#L98)).
 - `useSidebarState(key, {storagePrefix, defaultOpen})` — `storagePrefix` is
   required with no default; the stored key is `${storagePrefix}${key}`, a stored
   value wins over `defaultOpen`, and storage access
   that throws degrades to in-memory state instead of crashing. Omitting `storagePrefix` does not
   compile, via `tests/types/hooks-type-assertions.tsx`
-  ([validated by](../../tests/useSidebarState.test.tsx#L34),
-  [L58](../../tests/useSidebarState.test.tsx#L58),
-  [L66](../../tests/useSidebarState.test.tsx#L66),
+  ([validated by](../../tests/useSidebarState.test.tsx#L38),
+  [L64](../../tests/useSidebarState.test.tsx#L64),
+  [L74](../../tests/useSidebarState.test.tsx#L74),
   [types](../../tests/hooks-dist.test.ts#L32)).
 - `useFocusTrap` — verbatim: first-element focus on open, Tab/Shift+Tab wrap at the ends while
   focus is inside, and pull focus back to an end when it sits outside the open trap (the
   2026-08-26 review's modal-only hardening), Escape closes, and focus returns to the trigger ref
   or the previously active element
-  ([validated by](../../tests/useFocusTrap.test.tsx#L73),
-  [L79](../../tests/useFocusTrap.test.tsx#L79),
-  [L88](../../tests/useFocusTrap.test.tsx#L88), [L97](../../tests/useFocusTrap.test.tsx#L97),
-  [L137](../../tests/useFocusTrap.test.tsx#L137),
-  [L212](../../tests/useFocusTrap.test.tsx#L212),
-  [L222](../../tests/useFocusTrap.test.tsx#L222),
-  [L106](../../tests/useFocusTrap.test.tsx#L106),
-  [L116](../../tests/useFocusTrap.test.tsx#L116),
-  [L124](../../tests/useFocusTrap.test.tsx#L124)).
+  ([validated by](../../tests/useFocusTrap.test.tsx#L77),
+  [L83](../../tests/useFocusTrap.test.tsx#L83),
+  [L92](../../tests/useFocusTrap.test.tsx#L92), [L101](../../tests/useFocusTrap.test.tsx#L101),
+  [L143](../../tests/useFocusTrap.test.tsx#L143),
+  [L224](../../tests/useFocusTrap.test.tsx#L224),
+  [L234](../../tests/useFocusTrap.test.tsx#L234),
+  [L110](../../tests/useFocusTrap.test.tsx#L110),
+  [L120](../../tests/useFocusTrap.test.tsx#L120),
+  [L130](../../tests/useFocusTrap.test.tsx#L130)).
 - `useFocusGroups({announce})` — the hardcoded English `Moved to ${groupName}` and the Tailwind
   `sr-only` class are both gone from the contract: `announce` maps a group name to the
   announcement (English default preserved, `null` suppresses), and the live region is visually
   hidden with
   inline styles and carries no class attribute. F6 order semantics pinned, including
   the fall-back-to-DOM-order quirk where the first F6 lands on the second group
-  ([validated by](../../tests/useFocusGroups.test.tsx#L100),
-  [L134](../../tests/useFocusGroups.test.tsx#L134),
-  [L73](../../tests/useFocusGroups.test.tsx#L73),
-  [L43](../../tests/useFocusGroups.test.tsx#L43),
-  [L51](../../tests/useFocusGroups.test.tsx#L51),
-  [L65](../../tests/useFocusGroups.test.tsx#L65)).
+  ([validated by](../../tests/useFocusGroups.test.tsx#L111),
+  [L149](../../tests/useFocusGroups.test.tsx#L149),
+  [L84](../../tests/useFocusGroups.test.tsx#L84),
+  [L54](../../tests/useFocusGroups.test.tsx#L54),
+  [L62](../../tests/useFocusGroups.test.tsx#L62),
+  [L76](../../tests/useFocusGroups.test.tsx#L76)).
 - `ErrorBoundary` — the `console.error` call is gone: `onError` is the only reporting channel,
   and rendering a thrown error writes nothing to the console and nothing to localStorage — the
   GDPR zero-retention rider on the error text. The three English strings became
   `labels?: Partial<ErrorBoundaryLabels>` merged over English defaults; a `fallback` node wins
   over labels; retry re-renders children
-  ([validated by](../../tests/ErrorBoundary.test.tsx#L156),
+  ([validated by](../../tests/ErrorBoundary.test.tsx#L171),
   [L46](../../tests/ErrorBoundary.test.tsx#L46),
-  [L61](../../tests/ErrorBoundary.test.tsx#L61),
-  [L97](../../tests/ErrorBoundary.test.tsx#L97),
-  [L109](../../tests/ErrorBoundary.test.tsx#L109)).
+  [L65](../../tests/ErrorBoundary.test.tsx#L65),
+  [L105](../../tests/ErrorBoundary.test.tsx#L105),
+  [L120](../../tests/ErrorBoundary.test.tsx#L120)).
 
 No built file reads `process.env`, and no `NEXT_PUBLIC_FLAG_ANIMATIONS`
 string survives in `src/`

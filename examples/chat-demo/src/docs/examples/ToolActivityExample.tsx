@@ -12,7 +12,9 @@ export function ToolActivityExample() {
   return (
     <ToolActivity
       entry={call}
-      describeTool={(_entry, pending) => (pending ? "Looking up stock" : "Looked up stock")}
+      describeTool={(_entry, pending) =>
+        pending ? "Looking up stock" : "Looked up stock"
+      }
     />
   );
 }

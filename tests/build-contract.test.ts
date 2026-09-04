@@ -11,9 +11,13 @@ const builtDirectiveFile = resolve(process.cwd(), "dist/hooks/useDebounce.js");
 
 it('emits "use client"; as the first statement of dist/hooks/useDebounce.js', () => {
   if (!existsSync(builtDirectiveFile)) {
-    throw new Error("dist/hooks/useDebounce.js is missing - run npm run build first");
+    throw new Error(
+      "dist/hooks/useDebounce.js is missing - run npm run build first",
+    );
   }
-  const firstStatement = stripLeadingTrivia(readFileSync(builtDirectiveFile, "utf8"));
+  const firstStatement = stripLeadingTrivia(
+    readFileSync(builtDirectiveFile, "utf8"),
+  );
 
   expect(firstStatement).toMatch(/^(['"])use client\1;/);
 });

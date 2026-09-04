@@ -26,10 +26,11 @@ export interface AppSidebarLabels {
   mainNavigation: string;
 }
 
-export const defaultAppSidebarLabels: Readonly<Required<AppSidebarLabels>> = Object.freeze({
-  sidebar: "Sidebar",
-  mainNavigation: "Main navigation",
-});
+export const defaultAppSidebarLabels: Readonly<Required<AppSidebarLabels>> =
+  Object.freeze({
+    sidebar: "Sidebar",
+    mainNavigation: "Main navigation",
+  });
 
 export interface AppSidebarProps {
   /** Rendered inside the bordered top row; omitted, no row renders at all. */
@@ -37,16 +38,20 @@ export interface AppSidebarProps {
   navItems?: ReadonlyArray<SidebarNavItem>;
   onNavigate?: (key: string) => void;
   /** The routing seam: the consumer's element must spread every prop it is handed (docs/design-notes.md § renderNavLink). */
-  renderNavLink?: (item: SidebarNavItem, props: SidebarNavLinkProps) => ReactNode;
+  renderNavLink?: (
+    item: SidebarNavItem,
+    props: SidebarNavLinkProps,
+  ) => ReactNode;
   children?: ReactNode;
   /** One slot for whatever the consumer keeps at the bottom; omitted, no bordered region renders. */
   footer?: ReactNode;
   labels?: Partial<AppSidebarLabels>;
 }
 
-const defaultRenderNavLink = (_item: SidebarNavItem, props: SidebarNavLinkProps) => (
-  <button type="button" {...props} />
-);
+const defaultRenderNavLink = (
+  _item: SidebarNavItem,
+  props: SidebarNavLinkProps,
+) => <button type="button" {...props} />;
 
 const navLinkClassName = (isActive: boolean) =>
   `group flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm font-medium ring-offset-2 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 dark:ring-offset-slate-900 dark:focus:ring-blue-400 ${
@@ -82,7 +87,10 @@ export function AppSidebar({
         </div>
       )}
       {navItems !== undefined && navItems.length > 0 && (
-        <nav aria-label={resolved.mainNavigation} className="flex-shrink-0 space-y-1 px-3 py-3">
+        <nav
+          aria-label={resolved.mainNavigation}
+          className="flex-shrink-0 space-y-1 px-3 py-3"
+        >
           {navItems.map((item) => {
             const Icon = item.icon;
             const linkProps: SidebarNavLinkProps = {
@@ -97,11 +105,17 @@ export function AppSidebar({
               "aria-current": item.isActive === true ? "page" : undefined,
             };
 
-            return <Fragment key={item.key}>{renderNavLink(item, linkProps)}</Fragment>;
+            return (
+              <Fragment key={item.key}>
+                {renderNavLink(item, linkProps)}
+              </Fragment>
+            );
           })}
         </nav>
       )}
-      <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">{children}</div>
+      <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
+        {children}
+      </div>
       {footer != null && (
         <div className="flex-shrink-0 border-t border-slate-200 dark:border-slate-800">
           {footer}

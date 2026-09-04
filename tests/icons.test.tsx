@@ -37,7 +37,10 @@ const iconNames = [...uniformIconNames, "LoadingIcon"] as const;
 
 type IconName = (typeof iconNames)[number];
 
-const renderRootSvg = (Icon: ComponentType<IconProps>, props: IconProps = {}): SVGSVGElement => {
+const renderRootSvg = (
+  Icon: ComponentType<IconProps>,
+  props: IconProps = {},
+): SVGSVGElement => {
   const { container } = render(<Icon {...props} />);
   const svg = container.querySelector("svg");
 
@@ -49,31 +52,40 @@ const renderRootSvg = (Icon: ComponentType<IconProps>, props: IconProps = {}): S
 };
 
 const attributeMap = (element: Element): Record<string, string> =>
-  Object.fromEntries([...element.attributes].map((attr) => [attr.name, attr.value]));
+  Object.fromEntries(
+    [...element.attributes].map((attr) => [attr.name, attr.value]),
+  );
 
 const sourceFiles = (dir: string): string[] =>
   readdirSync(dir, { withFileTypes: true }).flatMap((entry) =>
-    entry.isDirectory() ? sourceFiles(join(dir, entry.name)) : [join(dir, entry.name)]
+    entry.isDirectory()
+      ? sourceFiles(join(dir, entry.name))
+      : [join(dir, entry.name)],
   );
 
 describe("the icon set inventory", () => {
   it("exports exactly the 23 icon components plus IconWrapper and getAccessibleIconProps", () => {
     expect(Object.keys(icons).sort()).toEqual(
-      [...iconNames, "IconWrapper", "getAccessibleIconProps"].sort()
+      [...iconNames, "IconWrapper", "getAccessibleIconProps"].sort(),
     );
   });
 
   it("declares the 22 uniform icons as /*#__PURE__*/-annotated createUniformIcon calls over one IconWrapper site and only LoadingIcon as a raw <svg> - the annotation is what lets a bundler drop unused icons (#55)", () => {
-    const source = readFileSync(resolve(process.cwd(), "src/icons/index.tsx"), "utf8");
+    const source = readFileSync(
+      resolve(process.cwd(), "src/icons/index.tsx"),
+      "utf8",
+    );
 
-    expect(source.match(/= \/\*#__PURE__\*\/ createUniformIcon\(/g)).toHaveLength(22);
+    expect(
+      source.match(/= \/\*#__PURE__\*\/ createUniformIcon\(/g),
+    ).toHaveLength(22);
     expect(source.match(/<IconWrapper /g)).toHaveLength(1);
     expect(source.match(/<svg/g)).toHaveLength(1);
   });
 
   it('grep for "LogoIcon" in src/ returns nothing', () => {
     const hits = sourceFiles(resolve(process.cwd(), "src")).filter((file) =>
-      readFileSync(file, "utf8").includes("LogoIcon")
+      readFileSync(file, "utf8").includes("LogoIcon"),
     );
 
     expect(hits).toEqual([]);
@@ -82,7 +94,7 @@ describe("the icon set inventory", () => {
   it("the registry-lookup {name: string} IconProps shape is absent from src/", () => {
     const declaresIconNameLookup = /Icon\w*Props\b[^}]*\bname\??:\s*string/;
     const hits = sourceFiles(resolve(process.cwd(), "src")).filter((file) =>
-      declaresIconNameLookup.test(readFileSync(file, "utf8"))
+      declaresIconNameLookup.test(readFileSync(file, "utf8")),
     );
 
     expect(hits).toEqual([]);
@@ -99,7 +111,9 @@ describe("the icon set inventory", () => {
       .filter((file) => {
         const source = readFileSync(file, "utf8");
 
-        return source.includes("name: string") || source.includes("name?: string");
+        return (
+          source.includes("name: string") || source.includes("name?: string")
+        );
       })
       .sort();
 
@@ -116,7 +130,9 @@ describe("the icon set inventory", () => {
   it('every relative import under src/icons ends in .js and no file contains "@/', () => {
     for (const file of sourceFiles(resolve(process.cwd(), "src/icons"))) {
       const source = readFileSync(file, "utf8");
-      const relativeImports = [...source.matchAll(/from "(\.[^"]*)"/g)].map((match) => match[1]);
+      const relativeImports = [...source.matchAll(/from "(\.[^"]*)"/g)].map(
+        (match) => match[1],
+      );
 
       for (const specifier of relativeImports) {
         expect(specifier).toMatch(/\.js$/);
@@ -132,9 +148,9 @@ describe("the icon set inventory", () => {
   });
 
   it("src/styles.css gains no rule for animate-spin - it is Tailwind's core utility", () => {
-    expect(readFileSync(resolve(process.cwd(), "src/styles.css"), "utf8")).not.toContain(
-      "animate-spin"
-    );
+    expect(
+      readFileSync(resolve(process.cwd(), "src/styles.css"), "utf8"),
+    ).not.toContain("animate-spin");
   });
 });
 
@@ -145,13 +161,21 @@ describe("root <svg> contract", () => {
       const svg = renderRootSvg(icons[name]);
 
       expect(svg.tagName.toLowerCase()).toBe("svg");
-      expect(attributeMap(svg)).toMatchObject({ fill: "none", viewBox: "0 0 24 24" });
-    }
+      expect(attributeMap(svg)).toMatchObject({
+        fill: "none",
+        viewBox: "0 0 24 24",
+      });
+    },
   );
 
-  it.each([...uniformIconNames])('%s carries stroke="currentColor" on the root', (name) => {
-    expect(renderRootSvg(icons[name]).getAttribute("stroke")).toBe("currentColor");
-  });
+  it.each([...uniformIconNames])(
+    '%s carries stroke="currentColor" on the root',
+    (name) => {
+      expect(renderRootSvg(icons[name]).getAttribute("stroke")).toBe(
+        "currentColor",
+      );
+    },
+  );
 });
 
 const propScenarios: [string, IconProps][] = [
@@ -173,9 +197,9 @@ describe.each(propScenarios)(
 
         expect(attributeMap(current)).toEqual(attributeMap(previous));
         expect(current.innerHTML).toBe(previous.innerHTML);
-      }
+      },
     );
-  }
+  },
 );
 
 describe("getAccessibleIconProps", () => {
@@ -205,7 +229,9 @@ describe("SearchIcon", () => {
   });
 
   it("is accessible when ariaLabel is provided", () => {
-    render(<icons.SearchIcon className="h-4 w-4" ariaLabel="Search conversations" />);
+    render(
+      <icons.SearchIcon className="h-4 w-4" ariaLabel="Search conversations" />,
+    );
     const svg = screen.getByRole("img", { name: "Search conversations" });
 
     expect(svg).toHaveAttribute("aria-hidden", "false");
@@ -214,7 +240,10 @@ describe("SearchIcon", () => {
 
 describe("ChatIcon", () => {
   it("is decorative by default", () => {
-    expect(renderRootSvg(icons.ChatIcon)).toHaveAttribute("aria-hidden", "true");
+    expect(renderRootSvg(icons.ChatIcon)).toHaveAttribute(
+      "aria-hidden",
+      "true",
+    );
   });
 
   it("is accessible when ariaLabel is provided", () => {
@@ -225,18 +254,26 @@ describe("ChatIcon", () => {
 
 describe("DashboardIcon", () => {
   it("is decorative by default", () => {
-    expect(renderRootSvg(icons.DashboardIcon)).toHaveAttribute("aria-hidden", "true");
+    expect(renderRootSvg(icons.DashboardIcon)).toHaveAttribute(
+      "aria-hidden",
+      "true",
+    );
   });
 
   it("is accessible when ariaLabel is provided", () => {
     render(<icons.DashboardIcon ariaLabel="Go to dashboard" />);
-    expect(screen.getByRole("img", { name: "Go to dashboard" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("img", { name: "Go to dashboard" }),
+    ).toBeInTheDocument();
   });
 });
 
 describe("MenuIcon", () => {
   it("is decorative by default", () => {
-    expect(renderRootSvg(icons.MenuIcon)).toHaveAttribute("aria-hidden", "true");
+    expect(renderRootSvg(icons.MenuIcon)).toHaveAttribute(
+      "aria-hidden",
+      "true",
+    );
   });
 
   it("is accessible when ariaLabel is provided", () => {
@@ -247,12 +284,17 @@ describe("MenuIcon", () => {
 
 describe("CloseIcon", () => {
   it("is decorative by default", () => {
-    expect(renderRootSvg(icons.CloseIcon)).toHaveAttribute("aria-hidden", "true");
+    expect(renderRootSvg(icons.CloseIcon)).toHaveAttribute(
+      "aria-hidden",
+      "true",
+    );
   });
 
   it("is accessible when ariaLabel is provided", () => {
     render(<icons.CloseIcon ariaLabel="Close dialog" />);
-    expect(screen.getByRole("img", { name: "Close dialog" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("img", { name: "Close dialog" }),
+    ).toBeInTheDocument();
   });
 });
 
@@ -264,13 +306,18 @@ describe("LoadingIcon", () => {
 
   it("accepts custom ariaLabel", () => {
     render(<icons.LoadingIcon ariaLabel="Processing request" />);
-    expect(screen.getByRole("img", { name: "Processing request" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("img", { name: "Processing request" }),
+    ).toBeInTheDocument();
   });
 
   it('ariaLabel="Cargando" renders aria-label="Cargando" and "Loading" appears nowhere', () => {
     const { container } = render(<icons.LoadingIcon ariaLabel="Cargando" />);
 
-    expect(container.querySelector("svg")).toHaveAttribute("aria-label", "Cargando");
+    expect(container.querySelector("svg")).toHaveAttribute(
+      "aria-label",
+      "Cargando",
+    );
     expect(container.innerHTML).not.toContain("Loading");
   });
 
@@ -305,32 +352,49 @@ describe("strokeWidth customization", () => {
     const { container } = render(<icons.SearchIcon />);
 
     expect(container.querySelector("svg")).toHaveAttribute("stroke-width", "2");
-    expect(container.querySelector("path")).toHaveAttribute("stroke-width", "2");
+    expect(container.querySelector("path")).toHaveAttribute(
+      "stroke-width",
+      "2",
+    );
   });
 
   it("accepts custom strokeWidth: SearchIcon strokeWidth={1.5} renders stroke-width 1.5 on the path", () => {
     const { container } = render(<icons.SearchIcon strokeWidth={1.5} />);
 
-    expect(container.querySelector("path")).toHaveAttribute("stroke-width", "1.5");
+    expect(container.querySelector("path")).toHaveAttribute(
+      "stroke-width",
+      "1.5",
+    );
   });
 
   it("DatabaseIcon defaults strokeWidth to 1.5 on both the <svg> and the <path>", () => {
     const { container } = render(<icons.DatabaseIcon />);
 
-    expect(container.querySelector("svg")).toHaveAttribute("stroke-width", "1.5");
-    expect(container.querySelector("path")).toHaveAttribute("stroke-width", "1.5");
+    expect(container.querySelector("svg")).toHaveAttribute(
+      "stroke-width",
+      "1.5",
+    );
+    expect(container.querySelector("path")).toHaveAttribute(
+      "stroke-width",
+      "1.5",
+    );
   });
 
   it("DatabaseIcon strokeWidth={3} overrides its 1.5 default", () => {
     const { container } = render(<icons.DatabaseIcon strokeWidth={3} />);
 
-    expect(container.querySelector("path")).toHaveAttribute("stroke-width", "3");
+    expect(container.querySelector("path")).toHaveAttribute(
+      "stroke-width",
+      "3",
+    );
   });
 });
 
 describe("className propagation", () => {
   it("applies className to svg element", () => {
-    const svg = renderRootSvg(icons.SearchIcon, { className: "h-6 w-6 text-blue-500" });
+    const svg = renderRootSvg(icons.SearchIcon, {
+      className: "h-6 w-6 text-blue-500",
+    });
 
     // SVG className is an SVGAnimatedString, use getAttribute instead
     expect(svg.getAttribute("class")).toBe("h-6 w-6 text-blue-500");
@@ -341,12 +405,17 @@ describe("uniform icon identity", () => {
   it.each([...uniformIconNames])(
     "%s carries its own displayName and Function.name - React DevTools and ErrorBoundary componentStacks must never report a factory-made icon as UniformIcon",
     (name) => {
-      const icon = icons[name] as ((props: IconProps) => unknown) & { displayName?: string };
+      const icon = icons[name] as ((props: IconProps) => unknown) & {
+        displayName?: string;
+      };
 
-      expect({ displayName: icon.displayName, functionName: icon.name }).toEqual({
+      expect({
+        displayName: icon.displayName,
+        functionName: icon.name,
+      }).toEqual({
         displayName: name,
         functionName: name,
       });
-    }
+    },
   );
 });

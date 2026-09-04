@@ -46,7 +46,7 @@ describe("the built chat message surface", () => {
         "react-jsx",
         "tests/types/chat-message-type-assertions.tsx",
       ],
-      { cwd: process.cwd(), encoding: "utf8" }
+      { cwd: process.cwd(), encoding: "utf8" },
     );
 
     expect(result).toMatchObject({ status: 0, stderr: "" });
@@ -54,7 +54,9 @@ describe("the built chat message surface", () => {
 });
 
 describe("the manifest after 023", () => {
-  const manifest = JSON.parse(readFileSync(resolve(process.cwd(), "package.json"), "utf8")) as {
+  const manifest = JSON.parse(
+    readFileSync(resolve(process.cwd(), "package.json"), "utf8"),
+  ) as {
     dependencies?: Record<string, string>;
     devDependencies?: Record<string, string>;
     peerDependencies?: Record<string, string>;

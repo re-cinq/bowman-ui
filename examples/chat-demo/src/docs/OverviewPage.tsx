@@ -4,18 +4,36 @@
 import { docsLabels } from "../docs-labels";
 import { docsHref } from "./DocsApp";
 import { CodeBlock, DocSection } from "./DocsUi";
-import { hookNotes, labelNotes, markdownNotes, typeNotes, type ApiNote } from "./overview";
+import {
+  hookNotes,
+  labelNotes,
+  markdownNotes,
+  typeNotes,
+  type ApiNote,
+} from "./overview";
 
-function NoteGroup({ title, notes }: { title: string; notes: ReadonlyArray<ApiNote> }) {
+function NoteGroup({
+  title,
+  notes,
+}: {
+  title: string;
+  notes: ReadonlyArray<ApiNote>;
+}) {
   return (
     <DocSection title={title}>
       <div className="flex flex-col gap-6">
         {notes.map((note) => (
-          <article key={note.id} data-doc-note={note.id} className="flex flex-col gap-2">
+          <article
+            key={note.id}
+            data-doc-note={note.id}
+            className="flex flex-col gap-2"
+          >
             <h3 className="font-mono text-sm font-semibold text-slate-900 dark:text-slate-100">
               {note.name}
             </h3>
-            <p className="text-sm leading-6 text-slate-600 dark:text-slate-400">{note.summary}</p>
+            <p className="text-sm leading-6 text-slate-600 dark:text-slate-400">
+              {note.summary}
+            </p>
             <CodeBlock code={note.snippet} />
           </article>
         ))}
@@ -38,8 +56,8 @@ export function OverviewPage() {
           {docsLabels.overview}
         </h1>
         <p className="text-sm leading-6 text-slate-600 dark:text-slate-400">
-          Everything the package exports that is not a component. No props tables here: these are
-          signatures rather than rendered surfaces.
+          Everything the package exports that is not a component. No props
+          tables here: these are signatures rather than rendered surfaces.
         </p>
       </header>
 
