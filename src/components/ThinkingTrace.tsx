@@ -21,14 +21,7 @@ export interface ThinkingTraceProps {
   labels?: Partial<ThinkingTraceLabels>;
 }
 
-// The model's own reasoning, persisted as a ThinkingChatEntry and rendered
-// behind a native <details> that stays collapsed until a reader asks for it -
-// the summary carries the label alone, never a preview, and no state opens the
-// section on its own. The content is plain text in a whitespace-pre-wrap
-// block: HAL parses it out of literal <thinking> tags, escaping nothing, and
-// nobody reviews its shape the way an assistant answer is reviewed, so it is
-// never markdown and never HTML. It is not a message either: no avatar, no
-// copy, no feedback - internal deliberation is not an answer to rate.
+// Label-only <details>, collapsed; plain text, never markdown or HTML; not a message (design-notes § Thinking trace).
 export function ThinkingTrace({ entry, reducedMotion, labels }: ThinkingTraceProps) {
   const resolved = resolveLabels(defaultThinkingTraceLabels, labels);
   const prefersReducedMotion = useReducedMotion(reducedMotion);

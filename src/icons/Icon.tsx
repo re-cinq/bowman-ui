@@ -1,11 +1,4 @@
-/**
- * Base icon plumbing.
- *
- * Accessibility (WCAG 2.1 AA):
- * - Decorative icons: aria-hidden="true" (default)
- * - Meaningful icons: aria-label for screen readers
- * - role="img" whenever an accessible name is provided
- */
+/** Base icon plumbing: aria-hidden by default, role="img" plus aria-label when a label is given (WCAG 2.1 AA). */
 
 import { type ReactNode, type Ref } from "react";
 
@@ -17,9 +10,7 @@ export interface IconSvgProps {
   "aria-label"?: string;
 }
 
-/**
- * Base wrapper for SVG icons with accessibility support.
- */
+/** Base wrapper for SVG icons with accessibility support. */
 export function IconWrapper({
   ref,
   className,
@@ -46,9 +37,7 @@ export function IconWrapper({
   );
 }
 
-/**
- * Helper to create accessible icon props based on whether it has a label.
- */
+/** Builds the accessibility props for an icon from whether it has a label. */
 export function getAccessibleIconProps(
   ariaLabel?: string
 ): Pick<IconSvgProps, "aria-hidden" | "role" | "aria-label"> {

@@ -52,12 +52,7 @@ export interface ConversationListProps {
   labels?: Partial<ConversationListLabels>;
 }
 
-// The typewriter animation keeps its previous render per component instance
-// (rows are keyed by item.id), instead of sniffing placeholder-title
-// literals: it animates only when the title changed and the
-// previous render carried isPlaceholderTitle, so a conversation genuinely
-// titled with a placeholder-looking string never animates, and a third
-// locale's placeholder animates without this file knowing its wording.
+// Animates only when a title replaces a previous placeholder render; no literal sniffing, so any locale works.
 function TypewriterTitle({
   text,
   isPlaceholder,
@@ -97,27 +92,37 @@ function TypewriterTitle({
 
     setChars([...oldChars]);
 
-    const interval = setInterval(() => {
-      if (phase === 1) {
-        oldChars[i] = { ...oldChars[i], opacity: 0 };
-        setChars([...oldChars]);
-        i++;
+    const fadeOutPreviousTitle = () => {
+      oldChars[i] = { ...oldChars[i], opacity: 0 };
+      setChars([...oldChars]);
+      i++;
 
-        if (i >= oldChars.length) {
-          phase = 2;
-          i = 0;
-          setChars(newChars.map((ch) => ({ ch, opacity: 0 })));
-        }
-
+      if (i < oldChars.length) {
         return;
       }
+      phase = 2;
+      i = 0;
+      setChars(newChars.map((ch) => ({ ch, opacity: 0 })));
+    };
+
+    const fadeInNewTitle = () => {
       setChars((current) => current.map((c, index) => (index <= i ? { ...c, opacity: 1 } : c)));
       i++;
 
-      if (i >= newChars.length) {
-        clearInterval(interval);
-        setIsAnimating(false);
+      if (i < newChars.length) {
+        return;
       }
+      clearInterval(interval);
+      setIsAnimating(false);
+    };
+
+    const interval = setInterval(() => {
+      if (phase === 1) {
+        fadeOutPreviousTitle();
+
+        return;
+      }
+      fadeInNewTitle();
     }, 25);
 
     return () => {
@@ -126,10 +131,7 @@ function TypewriterTitle({
     };
   }, [text, isPlaceholder, reducedMotion]);
 
-  // The per-character spans are presentation only: assistive tech reads the
-  // plain full title (already the new one mid-animation) instead of a stream
-  // of one-letter text nodes. Hidden with inline styles so the package needs
-  // no stylesheet or Tailwind config from the consumer.
+  // The spans are presentation only - AT reads the plain title; hidden inline so no consumer stylesheet is needed.
   return (
     <>
       <span
@@ -170,7 +172,7 @@ const defaultRenderLink = (_item: ConversationListItem, props: ConversationLinkP
 );
 
 export function ConversationList({
-  items,
+  items: conversationItems,
   activeId,
   onSelect,
   onDelete,
@@ -194,7 +196,7 @@ export function ConversationList({
     );
   }
 
-  if (items.length === 0) {
+  if (conversationItems.length === 0) {
     return (
       <p className="py-8 text-center text-sm text-slate-400 dark:text-slate-500">
         {resolved.noConversations}
@@ -203,12 +205,10 @@ export function ConversationList({
   }
 
   return (
-    // role="list" is redundant markup everywhere except Safari, where
-    // list-style: none strips a ul's list semantics and takes the accessible
-    // name with it. The explicit role keeps VoiceOver announcing the list.
+    // Explicit role="list": Safari drops a list-style: none ul's list semantics and its accessible name with them.
     <ul role="list" aria-label={resolved.conversations} className="list-none space-y-1">
-      {items.map((item) => {
-        const isActive = item.id === activeId;
+      {conversationItems.map((conversation) => {
+        const isActive = conversation.id === activeId;
         const linkProps: ConversationLinkProps = {
           className:
             "-m-1 flex min-w-0 flex-1 flex-col gap-0.5 rounded-lg px-3 py-2 text-left ring-offset-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-white dark:ring-offset-slate-900 dark:focus:ring-blue-400",
@@ -216,47 +216,47 @@ export function ConversationList({
             <>
               <span className="text-sm font-medium text-slate-700 dark:text-slate-200">
                 <TypewriterTitle
-                  text={item.title}
-                  isPlaceholder={item.isPlaceholderTitle ?? false}
+                  text={conversation.title}
+                  isPlaceholder={conversation.isPlaceholderTitle ?? false}
                   reducedMotion={motionOff}
                 />
               </span>
-              {(item.timestamp !== undefined || item.badge !== undefined) && (
+              {(conversation.timestamp !== undefined || conversation.badge !== undefined) && (
                 <span className="flex items-center gap-2">
-                  {item.timestamp !== undefined && (
+                  {conversation.timestamp !== undefined && (
                     <span className="text-xs text-slate-500 dark:text-slate-400">
-                      {item.timestamp}
+                      {conversation.timestamp}
                     </span>
                   )}
-                  {item.badge !== undefined && (
+                  {conversation.badge !== undefined && (
                     <span className="truncate rounded bg-slate-200 px-1.5 py-0.5 text-[10px] font-medium text-slate-600 dark:bg-slate-700 dark:text-slate-300">
-                      {item.badge}
+                      {conversation.badge}
                     </span>
                   )}
                 </span>
               )}
             </>
           ),
-          onClick: () => onSelect?.(item.id),
+          onClick: () => onSelect?.(conversation.id),
           "aria-current": isActive ? "page" : undefined,
         };
 
         return (
           <li
-            key={item.id}
+            key={conversation.id}
             className={`group flex w-full items-center rounded-lg p-1 transition-colors ${
               isActive
                 ? "bg-slate-100 dark:bg-slate-800"
                 : "hover:bg-slate-50 dark:hover:bg-slate-800"
             }`}
           >
-            {renderLink(item, linkProps)}
+            {renderLink(conversation, linkProps)}
             {onDelete && (
               <button
                 type="button"
-                onClick={() => onDelete(item.id)}
+                onClick={() => onDelete(conversation.id)}
                 className="ml-1 flex-shrink-0 rounded p-1.5 text-slate-400 opacity-0 ring-offset-2 transition-opacity hover:bg-slate-200 hover:text-red-500 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-white group-hover:opacity-100 group-focus-within:opacity-100 dark:ring-offset-slate-900 dark:hover:bg-slate-700 dark:focus:ring-blue-400"
-                aria-label={resolved.deleteConversation(item.title)}
+                aria-label={resolved.deleteConversation(conversation.title)}
               >
                 <TrashIcon className="h-4 w-4" aria-hidden="true" />
               </button>

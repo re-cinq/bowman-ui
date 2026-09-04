@@ -103,6 +103,15 @@ describe("useFocusTrap", () => {
     expect(screen.getByRole("button", { name: "middle" })).toHaveFocus();
   });
 
+  it("a non-Tab, non-Escape key leaves focus untouched", () => {
+    render(<Harness isOpen onClose={vi.fn()} />);
+
+    screen.getByRole("button", { name: "middle" }).focus();
+    fireEvent.keyDown(document, { key: "Enter" });
+
+    expect(screen.getByRole("button", { name: "middle" })).toHaveFocus();
+  });
+
   it("Escape calls onClose", () => {
     const onClose = vi.fn();
 

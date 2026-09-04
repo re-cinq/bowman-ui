@@ -65,7 +65,7 @@ already in the repo - it adds no new component.
   `aria-label="Cargando"` with `"Loading"` nowhere in the output; the translated `announce`
   assertion already existed and is referenced, not duplicated
   ([validated by](../../tests/icons.test.tsx#L267),
-  [announce](../../tests/useFocusGroups.test.tsx#L126)).
+  [announce](../../tests/useFocusGroups.test.tsx#L136)).
 
 ## Recorded decisions, interpretations and deviations
 
