@@ -28,11 +28,7 @@ import { InlineThinkingIndicator } from "./InlineThinkingIndicator.js";
 export interface ChatMessageLabels {
   userMessage: string;
   assistantMessage: string;
-  /**
-   * The article's accessible name when `assistantName` is set - the
-   * function form docs/design-notes.md § Labels decision 4 requires of an
-   * interpolated label.
-   */
+  /** The article's accessible name when assistantName is set - function-form per design-notes § Labels decision 4. */
   assistantMessageFrom: (name: string) => string;
   copy: string;
   copied: string;
@@ -44,9 +40,7 @@ export interface ChatMessageLabels {
   linkOpensInNewTab: string;
 }
 
-// The keyboard shortcuts are off by default (arrowKeyFeedback), so the
-// default aria-label and thumb labels carry no shortcut parentheticals; a
-// consumer that re-enables the shortcuts supplies labels that mention them.
+// Shortcuts default off (arrowKeyFeedback), so the default labels mention none; enable them and supply labels that do.
 export const defaultChatMessageLabels: Readonly<Required<ChatMessageLabels>> = Object.freeze({
   userMessage: "Your message",
   assistantMessage: "Assistant response",
@@ -62,37 +56,20 @@ export const defaultChatMessageLabels: Readonly<Required<ChatMessageLabels>> = O
 });
 
 export interface ChatMessageProps {
-  /**
-   * The turn to render. Only user and assistant entries are renderable: a
-   * `ThinkingChatEntry` or `ToolChatEntry` is a compile error, never a
-   * silent `null` render, so tool arguments cannot reach a customer's
-   * screen by accident.
-   */
+  /** The user or assistant turn to render; thinking and tool entries are compile errors, never a silent null. */
   entry: UserChatEntry | AssistantChatEntry;
   userInitials: string;
   /** Fills the assistant avatar circle; the circle renders empty without it. */
   assistantAvatar?: ReactNode;
-  /**
-   * Who answered, rendered as a name line above the response and as the
-   * article's accessible name through `assistantMessageFrom`. Ignored for a
-   * user entry. The avatar is decorative, so this line is the only place
-   * authorship reaches assistive technology.
-   */
+  /** Who answered - name line and accessible name, the avatar being decorative; ignored for user entries. */
   assistantName?: string;
   /** Shows the thumb buttons and gates the feedback keyboard path. Default true. */
   showFeedback?: boolean;
-  /**
-   * Opt-in ArrowUp/ArrowDown feedback shortcuts on a focused assistant
-   * message. Off by default: the shortcuts preventDefault the scroll keys.
-   */
+  /** Opt-in ArrowUp/ArrowDown feedback shortcuts; off by default because they preventDefault the scroll keys. */
   arrowKeyFeedback?: boolean;
   /** Rendered last in the message column, streaming or not. */
   footer?: ReactNode;
-  /**
-   * Overrides the link and image policy for the assistant markdown, field by
-   * field over `defaultMarkdownPolicy` (https/mailto/tel links only, no
-   * relative URLs, new tab, no images).
-   */
+  /** Field-by-field override of defaultMarkdownPolicy (https/mailto/tel only, no relative URLs, new tab, no images). */
   markdown?: MarkdownPolicy;
   /** Overrides the component's strings; English defaults apply per key. */
   labels?: Partial<ChatMessageLabels>;
@@ -116,9 +93,7 @@ const resolveArticleLabel = (
   return resolved.assistantMessageFrom(assistantName);
 };
 
-// The copy chord is Cmd/Ctrl + C alone: Shift and Alt stay excluded so
-// Cmd+Shift+C (the browser's inspect chord) keeps its meaning, and
-// lowercasing covers Caps Lock ("C").
+// Cmd/Ctrl + C alone: Shift and Alt excluded so Cmd+Shift+C (inspect) keeps its meaning; lowercased for Caps Lock.
 const isCopyChord = (e: KeyboardEvent<HTMLElement>): boolean =>
   (e.metaKey || e.ctrlKey) && !e.shiftKey && !e.altKey && e.key.toLowerCase() === "c";
 
@@ -153,15 +128,11 @@ export function ChatMessage({
 
   const copyToClipboard = useCallback(
     (text: string, entryId: string) => {
-      // Optional-chained: an insecure-context browser has no
-      // navigator.clipboard and is a supported consumer environment. A denied
-      // permission rejects the promise; swallow it so no consumer window
-      // error handler fires - onCopy still reports the attempt either way.
+      // Insecure contexts lack navigator.clipboard and denials reject: swallow both, onCopy reports either way.
       navigator.clipboard?.writeText(text)?.catch?.(() => {});
       setCopiedId(entryId);
 
-      // A rapid second copy replaces the pending timer instead of letting the
-      // first one dismiss the new notice early.
+      // A rapid second copy replaces the pending timer, so the first cannot dismiss the new notice early.
       if (copiedTimerRef.current !== null) {
         clearTimeout(copiedTimerRef.current);
       }
@@ -185,15 +156,13 @@ export function ChatMessage({
         return;
       }
 
-      // Cmd/Ctrl + C stays unconditional: it steals no navigation key and
-      // already yields to an active text selection.
+      // Cmd/Ctrl + C stays unconditional: it steals no navigation key and yields to an active text selection.
       if (isCopyChord(e) && !window.getSelection()?.toString()) {
         e.preventDefault();
         copyToClipboard(entry.content, entry.id);
       }
 
-      // Arrow handling requires BOTH terms: showFeedback off must silence
-      // the keyboard path too, not just hide the thumbs.
+      // Both terms: showFeedback off must silence the keyboard path too, not just hide the thumbs.
       if (!showFeedback || !arrowKeyFeedback) {
         return;
       }
@@ -290,10 +259,7 @@ function AssistantMessage({
   onCopy,
   onFeedback,
 }: AssistantMessageProps) {
-  // The memo keys on the resolved policy fields rather than the `markdown`
-  // object, so an inline `markdown={{...}}` literal does not hand ReactMarkdown
-  // fresh component identities - and a remounted markdown subtree - on every
-  // streaming token.
+  // Keyed on resolved policy fields: an inline markdown={{...}} literal must not remount the subtree per token.
   const { allowedSchemes, allowRelativeUrls, linkTarget, allowImages } = resolveLabels(
     defaultMarkdownPolicy,
     markdown
@@ -314,10 +280,7 @@ function AssistantMessage({
     };
   }, [schemesKey, allowRelativeUrls, linkTarget, allowImages, linkOpensInNewTab]);
 
-  // Once content or tool status has appeared for THIS entry id, never show
-  // the thinking indicator again. The latch is keyed by entry.id and reset
-  // on an id change: a consumer typically keys its message list by id, but
-  // a library cannot assume every consumer does.
+  // Latch per entry.id: once content or tool status has shown, the indicator never returns until the id changes.
   const latch = useRef({ id: entry.id, hasReceivedContent: false });
 
   if (latch.current.id !== entry.id) {

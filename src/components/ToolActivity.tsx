@@ -18,11 +18,7 @@ export const defaultToolActivityLabels: Readonly<Required<ToolActivityLabels>> =
 
 export interface ToolActivityProps {
   entry: ToolChatEntry;
-  /**
-   * Replaces the default sentence with a caller-authored one; still no tool
-   * name or input unless opted in. Receives this component's resolved
-   * `pending`, so a tensed sentence can match the built-in labels.
-   */
+  /** Replaces the default sentence (name and input still opt-in); receives the resolved pending so tense can match. */
   describeTool?: (entry: ToolChatEntry, pending: boolean) => ReactNode;
   /** The call is still in flight. Default false: `ChatMessageList` derives it from `busy`. */
   pending?: boolean;
@@ -48,13 +44,7 @@ const headlineFor = (
   return pending ? resolved.activity : resolved.activityDone;
 };
 
-// A tool invocation the model requested on the customer's behalf. It is not a
-// message: no avatar, copy or feedback affordance. The default withholds the
-// tool name (an English machine identifier in a Danish-first product) and the
-// arguments (model-authored data that may carry a booking reference or a
-// customer identifier); a consumer opts each in per prop. Arguments, when
-// shown, are JSON in a <pre> behind a native <details> - never markdown or
-// HTML - so nothing model-authored is interpreted.
+// Not a message; name and arguments are opt-in per prop, shown as JSON in a <details>, never markdown or HTML.
 export function ToolActivity({
   entry,
   describeTool,

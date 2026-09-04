@@ -54,6 +54,10 @@ The typecheck script is `typecheck`, not `type-check`.
 - `npm run check:markdown-safety`; `npm run consumer`; `npm run rsc`.
 - `npm run check:duplication` — jscpd copy-paste gate over `src` + `tests` (config in
   .jscpd.json): fails above 4% duplicated lines at min-tokens 50; `tests/fixtures/**` is exempt.
+- `npm run check:lore-plugin-sync` — byte-compares every file under
+  tools/eslint-plugin-lore/rules/ against re-cinq/lore main and fails on an upstream rule not
+  yet mirrored or recorded as excluded; `-- --write` refreshes mirrors. Exit 2 = fetch
+  failure, not drift. See docs/design-notes.md § Lint guardrails decision 9.
 - `node scripts/repoint-spec-anchors.mjs [--check]` — after editing a test file, re-run WITHOUT
   `--check` or CI reds.
 - `node scripts/write-public-api.mjs` — only after deliberately deciding a surface change is
@@ -80,6 +84,8 @@ The typecheck script is `typecheck`, not `type-check`.
 - `scripts/` — 12 enforcement scripts.
 - `tools/eslint-plugin-bowman/` — repo-local ESLint rules (no package.json; loaded by relative
   import in eslint.config.mjs). See invariant 11.
+- `tools/eslint-plugin-lore/` — verbatim mirrors of seven re-cinq/lore rules (`rules/**`, never
+  edited here) behind a local `index.mjs`. See invariant 11.
 
 ## Enforced invariants
 
@@ -135,7 +141,12 @@ The typecheck script is `typecheck`, not `type-check`.
     `no-restricted-syntax` selector that MUST ride in every overlay (arrays replace, never
     merge). House style is `curly: all` + `@stylistic/padding-line-between-statements`,
     repo-wide and autofixable. All validated by tests/eslint-house-rules.test.ts against
-    committed fixtures.
+    committed fixtures. Seven lore rules mirrored verbatim in `tools/eslint-plugin-lore/rules/`
+    (decision 9) also run at error over `src/**`: `no-forwarding-class`, `no-nested-if`,
+    `no-nested-loop`, `no-vague-names`, `prefer-early-return`, `prefer-enforce-true`, and
+    `max-comment-lines` at max 1 — a comment in `src/` is ONE line; essays go to
+    docs/design-notes.md, the feature spec, or README. They carry no local fixtures (tested
+    upstream) and are policed by `npm run check:lore-plugin-sync`.
 12. **Publishing** is tag-triggered CI only, via npm OIDC trusted publishing
     (.github/workflows/publish.yml: `tags: ["v*"]`, `id-token: write`, no `NPM_TOKEN`). Never
     `npm publish` by hand. Never push to `main` — guard-main-pushes.yml opens a security issue,
@@ -172,5 +183,7 @@ wrong; the correct fact is on the right.
 - Never import `next` (or the other forbidden specifiers) outside `examples/rsc-fixture`.
 - Never add a `no-restricted-syntax` overlay without re-listing every shared selector (labels,
   focusable-literal, svg, default-export) — arrays replace, they never merge.
+- Never edit a file under `tools/eslint-plugin-lore/rules/`; refresh with
+  `npm run check:lore-plugin-sync -- --write`. Never write a multi-line comment in `src/`.
 - Never remove the `rm -rf dist` from the build script.
 - Never `npm publish` by hand and never push to `main`.

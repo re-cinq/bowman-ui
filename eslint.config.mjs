@@ -4,6 +4,7 @@ import reactHooks from "eslint-plugin-react-hooks";
 import sonarjs from "eslint-plugin-sonarjs";
 import stylistic from "@stylistic/eslint-plugin";
 import bowman from "./tools/eslint-plugin-bowman/index.mjs";
+import lore from "./tools/eslint-plugin-lore/index.mjs";
 
 // docs/design-notes.md § Labels: the shared no-restricted-syntax selector set. Hoisted
 // into a const so the src/** overlays below (raw-<svg> ban, inline
@@ -242,6 +243,25 @@ export default [
       "bowman/no-prop-mutation": "error",
     },
   },
+  // Mirrored lore craftsmanship rules: tools/eslint-plugin-lore/rules/** are
+  // verbatim mirrors of the generic subset of re-cinq/lore's plugin, policed
+  // against lore's main by scripts/check-lore-plugin-sync.mjs (which also
+  // fails on an upstream rule this repo has neither mirrored nor excluded).
+  // Scoped to src/** like the bowman house rules; max-comment-lines carries
+  // lore's own limit. See docs/design-notes.md § Lint guardrails decision 9.
+  {
+    files: ["src/**/*.{ts,tsx}"],
+    plugins: { lore },
+    rules: {
+      "lore/max-comment-lines": ["error", { max: 1 }],
+      "lore/no-forwarding-class": "error",
+      "lore/no-nested-if": "error",
+      "lore/no-nested-loop": "error",
+      "lore/no-vague-names": "error",
+      "lore/prefer-early-return": "error",
+      "lore/prefer-enforce-true": "error",
+    },
+  },
   // Recorded no-inline-styles exemptions - deliberate decisions, not
   // tolerated drift, each asserted by its component's tests. The exemptions
   // live here, by path, where they are visible and reviewable:
@@ -283,6 +303,10 @@ export default [
       "dist/**",
       "coverage/**",
       "node_modules/**",
+      // Verbatim lore mirrors (rule files only - the local index.mjs subset
+      // selector is linted): lore does not house-style-lint its own plugin,
+      // so its bytes cannot be expected to pass this config.
+      "tools/eslint-plugin-lore/rules/**",
       "tests/fixtures/eslint-labels/**",
       "tests/fixtures/eslint-duplication/**",
       "tests/fixtures/eslint-house-rules/**",

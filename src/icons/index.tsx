@@ -1,27 +1,4 @@
-/**
- * Accessible icon set.
- *
- * The glyphs are not original artwork: their path data is adapted from, and
- * includes modified versions of, Lucide (ISC) and Heroicons v1/v2 (MIT). See
- * THIRD-PARTY-NOTICES.md at the repository root for the upstream copyright and
- * license notices. Attribution is at the set level; per-icon provenance is not
- * tracked.
- *
- * All icons use proper ARIA attributes for accessibility compliance (WCAG 2.1 AA).
- *
- * Usage:
- * - Pass just className for decorative icons (aria-hidden automatically)
- * - Pass ariaLabel for meaningful icons (announced to screen readers)
- *
- * @example
- * import { SearchIcon, ChatIcon } from "@re-cinq/bowman-ui";
- *
- * // Decorative - not announced
- * <SearchIcon className="h-4 w-4" />
- *
- * // Accessible - announced as "Search conversations"
- * <SearchIcon className="h-4 w-4" ariaLabel="Search conversations" />
- */
+/** Glyphs adapted from Lucide (ISC) and Heroicons (MIT), see THIRD-PARTY-NOTICES.md; ariaLabel makes one announced. */
 
 import type { ReactElement } from "react";
 
@@ -159,11 +136,7 @@ export const DatabaseIcon = /*#__PURE__*/ createUniformIcon(
   1.5
 );
 
-// LoadingIcon deliberately keeps its own svg root: IconWrapper hardcodes
-// stroke="currentColor" on the root, which would put a stroke on the
-// deliberately strokeless spinner path, and LoadingIcon composes its
-// className rather than passing it through. Its "Loading" default is the
-// icon set's only user-visible string, overridable per call site.
+// LoadingIcon keeps its own svg root: IconWrapper's stroke="currentColor" would stroke the strokeless spinner path.
 export function LoadingIcon(props: IconProps) {
   const { className, ariaLabel = "Loading" } = props;
   const accessibleProps = getAccessibleIconProps(ariaLabel);

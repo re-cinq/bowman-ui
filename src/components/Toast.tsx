@@ -9,14 +9,9 @@ export interface ToastProps {
   duration?: number | null;
 }
 
-// The transient notification surface. A naive timeout effect keyed on
-// [onClose, duration] restarts the countdown whenever a parent re-render
-// supplies a fresh onClose identity; here the latest onClose lives in a ref and the
-// timeout is keyed on [message, duration] - a new message restarts the
-// countdown, a new callback identity does not.
+// onClose lives in a ref; the timeout keys on [message, duration], so a new callback identity never restarts it.
 
-// Hides the status region with inline styles so the package needs no
-// stylesheet or Tailwind config from the consumer.
+// Hidden with inline styles so the package needs no consumer stylesheet or Tailwind config.
 const visuallyHidden = {
   position: "absolute",
   width: "1px",
@@ -31,10 +26,7 @@ const visuallyHidden = {
 
 export function Toast({ message, onClose, duration = 2000 }: ToastProps) {
   const onCloseRef = useRef(onClose);
-  // A live region inserted into the DOM already holding its text is
-  // unreliably announced. The visible pill shows the message immediately;
-  // the separate hidden status region renders empty on the first commit and
-  // receives the message in the mount effect, once the region exists.
+  // A live region born with text is unreliably announced: mount it empty, fill it in the mount effect.
   const [announced, setAnnounced] = useState(false);
 
   useEffect(() => {
