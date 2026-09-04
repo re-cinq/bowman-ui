@@ -19,7 +19,7 @@ already in the repo - it adds no new component.
   ([validated by](../../tests/resolveLabels.test.ts#L32)).
 - Neither argument is mutated and `Object.freeze`d defaults do not throw
   ([validated by](../../tests/resolveLabels.test.ts#L41),
-  [L50](../../tests/resolveLabels.test.ts#L51)).
+  [L51](../../tests/resolveLabels.test.ts#L51)).
 - `src/components/ErrorBoundary.tsx` retrofitted onto `resolveLabels` as the worked example:
   `defaultErrorBoundaryLabels: Readonly<Required<ErrorBoundaryLabels>>` is exported, frozen, and
   co-located with its type, so a key added to `ErrorBoundaryLabels` without a default fails
@@ -28,16 +28,16 @@ already in the repo - it adds no new component.
   `"."` exports entry ([validated by](../../tests/labels-dist.test.ts#L3)).
 - The three translated labels render with no English remaining; no `labels` prop renders the three
   021 English defaults unchanged ([validated by](../../tests/ErrorBoundary.test.tsx#L61),
-  [L44](../../tests/ErrorBoundary.test.tsx#L46)).
+  [L46](../../tests/ErrorBoundary.test.tsx#L46)).
 - `eslint.config.mjs` gains a labels entry (core ESLint only): `no-restricted-syntax` selectors
   banning bare Latin JSX text, hardcoded string literals in the seven
   assistive attributes, and
   `strings`/`texts`/`i18n`/`translations`/`messages` property keys, plus
   `no-restricted-imports` on
   `next-intl` ([validated by](../../tests/eslint-labels.test.ts#L65),
-  [L125](../../tests/eslint-labels.test.ts#L131),
-  [L134](../../tests/eslint-labels.test.ts#L140),
-  [L152](../../tests/eslint-labels.test.ts#L158)).
+  [L131](../../tests/eslint-labels.test.ts#L131),
+  [L140](../../tests/eslint-labels.test.ts#L140),
+  [L158](../../tests/eslint-labels.test.ts#L158)).
 - The red fixtures live
   in `tests/fixtures/eslint-labels/`, globally ignored so the committed tree stays green - the
   original four plus the 2026-08-26 review's bypass set (expression-container and template
@@ -53,7 +53,7 @@ already in the repo - it adds no new component.
   `textContent` or in `aria-label`/`aria-placeholder`/`aria-roledescription`/`aria-valuetext`/
   `title`/`placeholder`/`alt` outside the sentinels, with the sentinel set pinned to
   the default-labels keys ([validated by](../../tests/labelled-exports.test.tsx#L568),
-  [L400](../../tests/labelled-exports.test.tsx#L463)).
+  [L463](../../tests/labelled-exports.test.tsx#L463)).
 - **The check's own proof:** reverting 021's `labels` prop to a hardcoded
   `"Something went wrong"` makes the sentinel test fail - the stray English survives sentinel
   stripping and matches the Latin-run regex
