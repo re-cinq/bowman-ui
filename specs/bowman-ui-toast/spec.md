@@ -130,8 +130,8 @@ and the partition still asserts the full barrel
 - `"use client"` as the first statement of `dist/components/Toast.js`, per
   docs/design-notes.md decision 1's positional check and
   `scripts/check-client-directives.mjs`; `npm pack` ships the built file
-  with its `d.ts` ([validated by](../../tests/toast-dist.test.ts#L40),
-  [L47](../../tests/toast-dist.test.ts#L47)).
+  with its `d.ts` ([validated by](../../tests/toast-dist.test.ts#L7),
+  [L14](../../tests/toast-dist.test.ts#L14)).
 - No `@clerk`, `swr`, `next-intl`, `next/` or `@/` import,
   and every relative import ends in `.js`
   ([validated by](../../tests/Toast.test.tsx#L158)).

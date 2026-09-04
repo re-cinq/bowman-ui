@@ -9,9 +9,9 @@ Five hooks under `src/hooks/` and `src/components/ErrorBoundary.tsx`, all export
 barrel with their option types (`FocusGroupsOptions`, `SidebarStateOptions`,
 `ErrorBoundaryLabels`). Every file carries `"use client"` as its first statement, verified on the
 built output, ships in the tarball with its `.d.ts` and resolves through the `"."`
-exports entry for a consumer ([validated by](../../tests/hooks-dist.test.ts#L70),
-[L56](../../tests/hooks-dist.test.ts#L56),
-[L31](../../tests/hooks-dist.test.ts#L31)).
+exports entry for a consumer ([validated by](../../tests/hooks-dist.test.ts#L66),
+[L57](../../tests/hooks-dist.test.ts#L57),
+[L32](../../tests/hooks-dist.test.ts#L32)).
 
 - `useDebounce` — carries its own `"use client"` directive rather than inheriting it from its
   importers (the directive-inheritance failure docs/design-notes.md decision 1 records). Timing
@@ -34,7 +34,7 @@ exports entry for a consumer ([validated by](../../tests/hooks-dist.test.ts#L70)
   ([validated by](../../tests/useSidebarState.test.tsx#L34),
   [L58](../../tests/useSidebarState.test.tsx#L58),
   [L66](../../tests/useSidebarState.test.tsx#L66),
-  [types](../../tests/hooks-dist.test.ts#L31)).
+  [types](../../tests/hooks-dist.test.ts#L32)).
 - `useFocusTrap` — verbatim: first-element focus on open, Tab/Shift+Tab wrap at the ends while
   focus is inside, and pull focus back to an end when it sits outside the open trap (the
   2026-08-26 review's modal-only hardening), Escape closes, and focus returns to the trigger ref
@@ -73,7 +73,7 @@ exports entry for a consumer ([validated by](../../tests/hooks-dist.test.ts#L70)
 
 No built file reads `process.env`, and no `NEXT_PUBLIC_FLAG_ANIMATIONS`
 string survives in `src/`
-([validated by](../../tests/hooks-dist.test.ts#L80)).
+([validated by](../../tests/hooks-dist.test.ts#L76)).
 
 ## Recorded decisions and limitations
 
