@@ -108,13 +108,13 @@ at `tests/labelled-exports.test.tsx`, not the issue text's
 `tests/ThinkingIndicator.test.tsx`, not `tests/components/` - the repo's
 shipped layout since 022
 ([validated by](../../tests/ThinkingIndicator.test.tsx#L37),
-[L59](../../tests/ThinkingIndicator.test.tsx#L61)).
+[L61](../../tests/ThinkingIndicator.test.tsx#L61)).
 
 ## Carried across mechanically
 
 - `ThinkingIndicator` joins the `labelsProp` partition bucket with a sentinel
   harness ([validated by](../../tests/labelled-exports.test.tsx#L67),
-  [L361](../../tests/labelled-exports.test.tsx#L364)).
+  [L364](../../tests/labelled-exports.test.tsx#L364)).
   - The partition test still asserts the full barrel, which `ThinkingDots`
     never enters.
   - The `thinkingRegion` sentinel lands in `aria-label`, one of the seven

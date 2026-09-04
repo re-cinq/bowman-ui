@@ -23,7 +23,7 @@ and is what every fixture test uses
 1. **Hook-shaped import, any module specifier.**
    - A named or default import whose imported or local name matches
      `/^use[A-Z]/` ([validated by](../../tests/client-directives.test.ts#L9),
-     [L16](../../tests/client-directives.test.ts#L17)).
+     [L17](../../tests/client-directives.test.ts#L17)).
    - This includes a relative specifier - the clause that carries the widening
      ([validated by](../../tests/client-directives.test.ts#L25)).
    - A hook-shaped **member access** (`React.useState`, called or passed as a
