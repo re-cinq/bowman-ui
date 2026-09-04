@@ -1,8 +1,9 @@
-import { execFileSync, spawnSync } from "node:child_process";
+import { spawnSync } from "node:child_process";
 import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { rolldown } from "rolldown";
+import { packedPaths } from "./helpers/built-package.js";
 
 // The tree-shaking guarantee lives in the bundle, not in the module: a
 // consumer that imports one icon must not ship the other 21. sideEffects only
@@ -74,12 +75,7 @@ describe("the built icon surface", () => {
   });
 
   it("npm pack --dry-run ships dist/icons/Icon and dist/icons/index with their d.ts files", () => {
-    const output = execFileSync("npm", ["pack", "--dry-run", "--json"], {
-      cwd: process.cwd(),
-      encoding: "utf8",
-    });
-    const [pack] = JSON.parse(output) as [{ files: { path: string }[] }];
-    const paths = pack.files.map((file) => file.path);
+    const paths = packedPaths();
 
     for (const built of [
       "dist/icons/Icon.js",

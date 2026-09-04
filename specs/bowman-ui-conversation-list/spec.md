@@ -122,8 +122,8 @@ consumer-computed `badge` string).
 - `dist/components/ConversationList.js` opens with `"use client";` as its
   first statement per 018's positional check, and
   `npm pack` ships exactly the built pair
-  ([validated by](../../tests/conversation-list-dist.test.ts#L40),
-  [L47](../../tests/conversation-list-dist.test.ts#L47)).
+  ([validated by](../../tests/conversation-list-dist.test.ts#L7),
+  [L14](../../tests/conversation-list-dist.test.ts#L14)).
 
 ## Recorded deviations from the issue text
 
