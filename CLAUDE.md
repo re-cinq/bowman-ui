@@ -52,6 +52,8 @@ The typecheck script is `typecheck`, not `type-check`.
 - `npm run lint` — `eslint . --max-warnings 0`.
 - `npm run prettier` / `npm run prettier:check`.
 - `npm run check:markdown-safety`; `npm run consumer`; `npm run rsc`.
+- `npm run check:duplication` — jscpd copy-paste gate over `src` + `tests` (config in
+  .jscpd.json): fails above 4% duplicated lines at min-tokens 50; `tests/fixtures/**` is exempt.
 - `node scripts/repoint-spec-anchors.mjs [--check]` — after editing a test file, re-run WITHOUT
   `--check` or CI reds.
 - `node scripts/write-public-api.mjs` — only after deliberately deciding a surface change is
