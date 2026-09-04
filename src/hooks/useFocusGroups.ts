@@ -5,42 +5,13 @@ import { useEffect, useCallback, useRef } from "react";
 import { FOCUSABLE_SELECTOR } from "./focusableSelector.js";
 
 export interface FocusGroupsOptions {
-  /**
-   * Maps a group name to the screen-reader announcement for it.
-   * Returning null suppresses the announcement entirely.
-   * Defaults to the English sentence `Moved to ${groupName}`.
-   */
+  /** Maps a group name to its screen-reader announcement; null suppresses it. Default: `Moved to ${groupName}`. */
   announce?: (groupName: string) => string | null;
 }
 
 const defaultAnnounce = (groupName: string): string => `Moved to ${groupName}`;
 
-/**
- * Hook for F6-based focus group navigation (WCAG 2.1 AA)
- *
- * Implements F6 keyboard navigation between major page sections:
- * - F6 moves focus to next focus group
- * - Shift+F6 moves focus to previous focus group
- *
- * This is a standard accessibility pattern used in browser DevTools
- * and complex multi-panel interfaces.
- *
- * Usage:
- * 1. Add data-focus-group="group-name" to each major section
- * 2. Optionally add data-focus-group-order="0" to control order
- * 3. Call useFocusGroups() to enable the navigation
- *
- * @example
- * useFocusGroups(); // Enable F6 navigation
- *
- * return (
- *   <>
- *     <header data-focus-group="header" data-focus-group-order="0">...</header>
- *     <main data-focus-group="main" data-focus-group-order="1">...</main>
- *     <footer data-focus-group="footer" data-focus-group-order="2">...</footer>
- *   </>
- * );
- */
+/** F6 / Shift+F6 cycles focus through [data-focus-group] sections, by data-focus-group-order then DOM order. */
 export function useFocusGroups(options: FocusGroupsOptions = {}): void {
   const { announce = defaultAnnounce } = options;
   const currentGroupIndex = useRef(0);
@@ -48,10 +19,7 @@ export function useFocusGroups(options: FocusGroupsOptions = {}): void {
   const getFocusGroups = useCallback((): HTMLElement[] => {
     const groups = Array.from(document.querySelectorAll<HTMLElement>("[data-focus-group]"));
 
-    // Sort by order attribute if present, otherwise by DOM order. Array#sort
-    // is stable and querySelectorAll already returns DOM order, so groups
-    // sharing an order need no tiebreak - and must not get one that calls
-    // indexOf on the very array sort is midway through reordering.
+    // Stable sort of a DOM-ordered list: equal orders need no tiebreak, and an indexOf tiebreak mid-sort is unsafe.
     return groups.sort(
       (a, b) =>
         parseInt(a.dataset.focusGroupOrder || "999", 10) -
@@ -64,29 +32,29 @@ export function useFocusGroups(options: FocusGroupsOptions = {}): void {
 
     if (focusable) {
       focusable.focus();
-    } else {
-      // If no focusable element, make the group itself focusable temporarily
-      const hadTabIndexAttribute = group.hasAttribute("tabindex");
-      const originalTabIndex = group.tabIndex;
 
-      group.tabIndex = -1;
-      group.focus();
-      // Restore after focus: an element that carried no tabindex attribute
-      // gets it removed again rather than keeping a permanent tabindex="-1"
-      requestAnimationFrame(() => {
-        if (hadTabIndexAttribute) {
-          group.tabIndex = originalTabIndex;
-        } else {
-          group.removeAttribute("tabindex");
-        }
-      });
+      return;
     }
+    // If no focusable element, make the group itself focusable temporarily
+    const hadTabIndexAttribute = group.hasAttribute("tabindex");
+    const originalTabIndex = group.tabIndex;
+
+    group.tabIndex = -1;
+    group.focus();
+    // An element that carried no tabindex gets it removed again, not a permanent tabindex="-1".
+    requestAnimationFrame(() => {
+      if (hadTabIndexAttribute) {
+        group.tabIndex = originalTabIndex;
+
+        return;
+      }
+      group.removeAttribute("tabindex");
+    });
   }, []);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      // defaultPrevented: a second mounted instance leaves a press one
-      // instance has already handled alone, instead of moving focus twice.
+      // defaultPrevented: a second mounted instance leaves a handled press alone instead of moving focus twice.
       if (event.key !== "F6" || event.defaultPrevented) {
         return;
       }
@@ -102,9 +70,7 @@ export function useFocusGroups(options: FocusGroupsOptions = {}): void {
       // Determine direction
       const direction = event.shiftKey ? -1 : 1;
 
-      // Step from the group that actually holds focus - the user may have
-      // tabbed or clicked elsewhere since the last F6. The stored index is
-      // only the fallback for focus outside every group.
+      // Step from the group that actually holds focus; the stored index only covers focus outside every group.
       const activeGroup = document.activeElement?.closest("[data-focus-group]");
       const activeIndex = groups.findIndex((group) => group === activeGroup);
       const fromIndex = activeIndex === -1 ? currentGroupIndex.current : activeIndex;
@@ -120,12 +86,13 @@ export function useFocusGroups(options: FocusGroupsOptions = {}): void {
       // Announce for screen readers
       const groupName = targetGroup.dataset.focusGroup;
 
-      if (groupName) {
-        const message = announce(groupName);
+      if (!groupName) {
+        return;
+      }
+      const message = announce(groupName);
 
-        if (message !== null) {
-          announceToScreenReader(message);
-        }
+      if (message !== null) {
+        announceToScreenReader(message);
       }
     };
 
@@ -135,11 +102,7 @@ export function useFocusGroups(options: FocusGroupsOptions = {}): void {
   }, [getFocusGroups, focusFirstElement, announce]);
 }
 
-/**
- * Announce a message to screen readers using a live region.
- * The element is visually hidden with inline styles so the package
- * needs no stylesheet or Tailwind config from the consumer.
- */
+/** Announces to screen readers through a live region hidden with inline styles, so no consumer stylesheet is needed. */
 function announceToScreenReader(message: string): void {
   const announcement = document.createElement("div");
 
@@ -156,11 +119,7 @@ function announceToScreenReader(message: string): void {
   announcement.style.whiteSpace = "nowrap";
   announcement.style.border = "0";
 
-  // A live region inserted already holding its text is unreliably announced;
-  // insert it empty and write the text once the region exists in the tree.
-  // The frame always fires before the removal timer here: the announcement
-  // is keyboard-triggered, and a keydown implies a focused, visible tab
-  // where frames are not suspended.
+  // Mount empty, fill next frame: a born-with-text region is unreliably announced, and a keydown implies frames run.
   document.body.appendChild(announcement);
   requestAnimationFrame(() => {
     announcement.textContent = message;

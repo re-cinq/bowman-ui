@@ -68,6 +68,15 @@ jobs:
       # with the reason recorded.
       - name: Duplication check
         run: npm run check:duplication
+      # tools/eslint-plugin-lore/rules/** are verbatim mirrors of the generic
+      # subset of re-cinq/lore's eslint plugin. This byte-compares them against
+      # lore's main and fails when lore ships a rule this repo has neither
+      # mirrored nor recorded as excluded. A red check is fixed by
+      # `npm run check:lore-plugin-sync -- --write` (drift) or by deciding the
+      # new rule in scripts/check-lore-plugin-sync.mjs. Exit 2 is a fetch
+      # failure, not drift.
+      - name: Lore plugin sync check
+        run: npm run check:lore-plugin-sync
       # Issue 97: the assistive-technology pass's structure gate. Validates the
       # newest docs/accessibility/at-pass-*.md when one exists - required
       # fields, a verdict per row per stack, no unexplained not-run, no fail

@@ -18,6 +18,16 @@ const Harness = (options: FocusGroupsOptions & { withButtons?: boolean; noOrder?
   );
 };
 
+const UnnamedGroup = () => {
+  useFocusGroups({});
+
+  return (
+    <div data-focus-group="">
+      <button>unnamed action</button>
+    </div>
+  );
+};
+
 const pressF6 = (shiftKey = false) => {
   fireEvent.keyDown(document, { key: "F6", shiftKey });
 };
@@ -136,6 +146,15 @@ describe("useFocusGroups", () => {
 
     pressF6();
 
+    expect(screen.queryByRole("status")).not.toBeInTheDocument();
+  });
+
+  it("a group with an empty data-focus-group name gains focus with no live region rendered", () => {
+    render(<UnnamedGroup />);
+
+    pressF6();
+
+    expect(screen.getByRole("button", { name: "unnamed action" })).toHaveFocus();
     expect(screen.queryByRole("status")).not.toBeInTheDocument();
   });
 
