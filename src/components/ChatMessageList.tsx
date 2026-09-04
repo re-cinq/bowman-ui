@@ -31,12 +31,7 @@ import {
 
 export interface ChatMessageListLabels
   extends ChatMessageLabels, ThinkingIndicatorLabels, ThinkingTraceLabels, ToolActivityLabels {
-  /**
-   * The EU AI Act disclosure line, rendered outside the scroll region in
-   * every state. Required with no default: no unreviewed English
-   * placeholder may stand in for it (docs/design-notes.md § Labels
-   * decision 5).
-   */
+  /** EU AI Act disclosure, outside the scroll region in every state; no default (design-notes § Labels decision 5). */
   aiDisclosure: string;
   /** The scroll region's accessible name. */
   transcript: string;
@@ -52,36 +47,19 @@ export const defaultChatMessageListLabels: Readonly<
   transcript: "Conversation",
 });
 
-/**
- * The chrome one persona renders with: a display name and an avatar node,
- * both consumer-owned and carrying no customer data
- * (docs/design-notes.md § Attribution). Nothing else - a third member would be a
- * second place authorship is decided.
- */
+/** One persona's chrome - a name and an avatar node, consumer-owned, no customer data (design-notes § Attribution). */
 export interface ChatAttribution {
   name?: string;
   avatar?: ReactNode;
 }
 
 export interface ChatMessageListProps {
-  /**
-   * The conversation to render, in order - all four entry roles. A delta must
-   * arrive as a new array.
-   */
+  /** The conversation in order, all four entry roles; a delta must arrive as a new array. */
   entries: ReadonlyArray<ChatEntry>;
   userInitials: string;
-  /**
-   * Required, unlike every sibling component's optional `labels`:
-   * `aiDisclosure` has no default, so the prop cannot be omitted.
-   */
+  /** Required, unlike sibling components' labels: aiDisclosure has no default, so the prop cannot be omitted. */
   labels: Partial<ChatMessageListLabels> & Required<Pick<ChatMessageListLabels, "aiDisclosure">>;
-  /**
-   * Persona id to chrome, looked up per entry. A lookup table and not a
-   * render function on purpose: a server component can pass this object
-   * literal across the RSC boundary but not a closure
-   * (docs/design-notes.md § RSC fixture). An id absent from the table falls back to
-   * `assistantAvatar` with no name, and is never rendered.
-   */
+  /** Persona id to chrome; a table so it crosses the RSC boundary, and an unknown id gets assistantAvatar, no name. */
   attribution?: Readonly<Record<string, ChatAttribution>>;
   /** Fills the avatar circle of every ChatMessage and the busy indicator. */
   assistantAvatar?: ReactNode;
@@ -91,23 +69,14 @@ export interface ChatMessageListProps {
   greeting?: ReactNode;
   /** Empty state only, rendered under the greeting. */
   prompts?: ReactNode;
-  /**
-   * Rendered last in each message's column, under the action row, through
-   * ChatMessage's `footer` slot. Runs for every rendered entry, user rows
-   * included: the caller decides what deserves a footer. The parameter type
-   * is written out rather than derived from `entries`, so widening the list
-   * never widens this callback.
-   */
+  /** Footer under every entry's action row, user rows too; typed explicitly so widening entries cannot widen it. */
   renderEntryFooter?: (entry: UserChatEntry | AssistantChatEntry) => ReactNode;
   showFeedback?: boolean;
   arrowKeyFeedback?: boolean;
   markdown?: MarkdownPolicy;
   /** Forces instant scrolling; undefined tracks the OS preference. */
   reducedMotion?: boolean;
-  /**
-   * Replaces a tool entry's default sentence; forwarded to `ToolActivity`,
-   * which calls it with the same `pending` this list derives for its labels.
-   */
+  /** Replaces a tool entry's default sentence; forwarded to ToolActivity with the same pending this list derives. */
   describeTool?: (entry: ToolChatEntry, pending: boolean) => ReactNode;
   /** Reveals each tool entry's `toolName`. Default false. */
   showToolName?: boolean;
@@ -115,11 +84,7 @@ export interface ChatMessageListProps {
   showToolInput?: boolean;
   /** Fills the icon slot of every `ToolActivity`. */
   toolIcon?: ReactNode;
-  /**
-   * Mounts a `ThinkingTrace` for every thinking entry. Default false: nothing
-   * asks a customer to read the model's internal deliberation, and the content
-   * is unreviewed model output (docs/design-notes.md § Thinking trace).
-   */
+  /** Mounts a ThinkingTrace per thinking entry; off by default, see design-notes § Thinking trace. */
   showThinking?: boolean;
   onCopy?: (text: string, entryId: string) => void;
   onFeedback?: (entryId: string, type: "up" | "down") => void;
@@ -130,9 +95,7 @@ export interface ChatMessageListHandle {
   isPinnedToBottom(): boolean;
 }
 
-// The per-entry lookup. A user entry carries no persona at all, and an id the
-// table does not hold resolves to nothing - a persisted or replayed session can
-// name a persona the consumer has since retired, and the raw id is never chrome.
+// User entries carry no persona, and an id the table lacks (a retired persona, replayed) resolves to nothing.
 const attributionFor = (
   entry: UserChatEntry | AssistantChatEntry,
   attribution: Readonly<Record<string, ChatAttribution>> | undefined
@@ -154,9 +117,7 @@ const isNearBottom = (node: HTMLElement | null): boolean => {
   return node.scrollHeight - node.scrollTop - node.clientHeight <= PINNED_THRESHOLD_PX;
 };
 
-// scrollTo with a scrollTop fallback - never the element-walking scroll
-// method, which targets the nearest scrollable ancestor outside this
-// package's control. jsdom implements neither, hence the fallback.
+// scrollTo with a scrollTop fallback (jsdom); never the element-walking method, which scrolls outside ancestors.
 const scrollRegionToBottom = (node: HTMLElement | null, behavior: ScrollBehavior) => {
   if (!node) {
     return;
@@ -244,9 +205,7 @@ export const ChatMessageList = forwardRef<ChatMessageListHandle, ChatMessageList
       [prefersReducedMotion]
     );
 
-    // A smooth animation this component started fires downward scroll
-    // events of its own; those must not unpin the reader. Reaching the
-    // bottom (or any upward, reader-initiated movement) settles the flight.
+    // Our smooth scroll's own downward events must not unpin the reader; the bottom or an upward move settles it.
     const handleScroll = (event: UIEvent<HTMLDivElement>) => {
       const node = event.currentTarget;
       const previousTop = lastScrollTopRef.current;
@@ -269,10 +228,7 @@ export const ChatMessageList = forwardRef<ChatMessageListHandle, ChatMessageList
 
     const showEmptyState = entries.length === 0 && !busy;
 
-    // One row per entry, dispatched on `role`. A thinking entry renders
-    // nothing at all unless `showThinking` is on: the flag gates the mount,
-    // not just the visibility, so unreviewed reasoning never reaches the DOM
-    // of a customer-facing surface.
+    // One row per entry by role; showThinking gates the mount itself, so unreviewed reasoning never reaches the DOM.
     const renderRow = (entry: ChatEntry, index: number) => {
       if (entry.role === "tool") {
         return (

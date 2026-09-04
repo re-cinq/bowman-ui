@@ -10,10 +10,7 @@ export interface ErrorBoundaryLabels {
   retry: string;
 }
 
-// The labels convention's worked example (docs/design-notes.md § Labels): the type and
-// its complete English defaults are co-located, so a key added to
-// ErrorBoundaryLabels without a default is a compile error here, not an
-// `undefined` in the DOM.
+// Labels convention worked example (design-notes § Labels): a key without a default fails to compile here.
 export const defaultErrorBoundaryLabels: Readonly<Required<ErrorBoundaryLabels>> = Object.freeze({
   title: "Something went wrong",
   description: "An unexpected error occurred. Please try again.",
@@ -22,9 +19,7 @@ export const defaultErrorBoundaryLabels: Readonly<Required<ErrorBoundaryLabels>>
 
 export interface ErrorBoundaryProps {
   children: ReactNode;
-  /** Replaces the built-in fallback UI entirely - including its `role="alert"`
-   *  wrapper, which the consumer must re-add if screen readers should announce
-   *  the failure; wins over `labels`. */
+  /** Replaces the built-in fallback, its role="alert" wrapper included (re-add it to announce); wins over labels. */
   fallback?: ReactNode;
   /** Overrides the built-in fallback's strings; English defaults apply per key. */
   labels?: Partial<ErrorBoundaryLabels>;
@@ -55,36 +50,36 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, State> {
   };
 
   render() {
-    if (this.state.hasError) {
-      if (this.props.fallback) {
-        return this.props.fallback;
-      }
-
-      const labels = resolveLabels(defaultErrorBoundaryLabels, this.props.labels);
-
-      return (
-        <div
-          role="alert"
-          className="flex min-h-[200px] flex-col items-center justify-center p-8 text-center"
-        >
-          <div className="mb-4 rounded-full bg-red-100 p-3 dark:bg-red-900/20">
-            <WarningIcon className="h-6 w-6 text-red-600 dark:text-red-400" />
-          </div>
-          <h2 className="mb-2 text-lg font-semibold text-slate-900 dark:text-slate-100">
-            {labels.title}
-          </h2>
-          <p className="mb-4 text-sm text-slate-600 dark:text-slate-400">{labels.description}</p>
-          <button
-            type="button"
-            onClick={this.handleRetry}
-            className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-slate-800 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-200"
-          >
-            {labels.retry}
-          </button>
-        </div>
-      );
+    if (!this.state.hasError) {
+      return this.props.children;
     }
 
-    return this.props.children;
+    if (this.props.fallback) {
+      return this.props.fallback;
+    }
+
+    const labels = resolveLabels(defaultErrorBoundaryLabels, this.props.labels);
+
+    return (
+      <div
+        role="alert"
+        className="flex min-h-[200px] flex-col items-center justify-center p-8 text-center"
+      >
+        <div className="mb-4 rounded-full bg-red-100 p-3 dark:bg-red-900/20">
+          <WarningIcon className="h-6 w-6 text-red-600 dark:text-red-400" />
+        </div>
+        <h2 className="mb-2 text-lg font-semibold text-slate-900 dark:text-slate-100">
+          {labels.title}
+        </h2>
+        <p className="mb-4 text-sm text-slate-600 dark:text-slate-400">{labels.description}</p>
+        <button
+          type="button"
+          onClick={this.handleRetry}
+          className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-slate-800 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-200"
+        >
+          {labels.retry}
+        </button>
+      </div>
+    );
   }
 }

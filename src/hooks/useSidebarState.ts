@@ -22,43 +22,25 @@ const writeStoredValue = (storageKey: string, value: string): void => {
   try {
     localStorage.setItem(storageKey, value);
   } catch {
-    // Storage access can throw (blocked third-party cookies, full quota);
-    // degrade to in-memory state instead of crashing the consumer's shell.
+    // Storage can throw (blocked cookies, full quota); fall back to in-memory state rather than crash the shell.
   }
 };
 
 const subscribeHydration = (): (() => void) => () => {};
 
-/**
- * Hook to persist sidebar collapse state across sessions
- *
- * Stores state in localStorage for EU/EAA accessibility compliance:
- * - User preference is remembered between visits
- * - Sidebar state persists across page navigation
- *
- * The stored key is `${storagePrefix}${key}`.
- *
- * @param key - Unique key within the consumer's prefix (e.g. "chat", "dashboard")
- * @param options - `storagePrefix` (required) and `defaultOpen`
- *
- * @example
- * const { isOpen, toggle, open, close } = useSidebarState("chat", { storagePrefix: "olt-" });
- */
+/** Persists sidebar open state in localStorage under `${storagePrefix}${key}`, surviving navigation and visits. */
 export function useSidebarState(key: string, options: SidebarStateOptions) {
   const { storagePrefix, defaultOpen = true } = options;
   const storageKey = `${storagePrefix}${key}`;
 
-  // isHydrated flips false -> true across the server/client snapshot boundary, so
-  // consumers can tell when the persisted value has taken over without a flash.
+  // isHydrated flips false -> true across the server/client snapshot boundary, so consumers can avoid a flash.
   const isHydrated = useSyncExternalStore(
     subscribeHydration,
     () => true,
     () => false
   );
 
-  // The stored value is an external store: getServerSnapshot yields the default
-  // (null) so server render and the first hydration render agree, then the client
-  // snapshot reads localStorage and cross-tab writes arrive via the storage event.
+  // External store: null server snapshot so hydration agrees; the client reads storage plus cross-tab storage events.
   const subscribe = useCallback(
     (onChange: () => void): (() => void) => {
       const handler = (event: StorageEvent) => {
@@ -81,8 +63,7 @@ export function useSidebarState(key: string, options: SidebarStateOptions) {
 
   const storedOpen = storedValue === null ? defaultOpen : storedValue === "true";
 
-  // Once the consumer changes the value it becomes the source of truth, so the
-  // persisted read only seeds the initial state and cross-tab updates.
+  // Once the consumer changes the value it is the source of truth; the persisted read only seeds and syncs cross-tab.
   const [userValue, setUserValue] = useState<boolean | null>(null);
   const isOpen = userValue === null ? storedOpen : userValue;
 
