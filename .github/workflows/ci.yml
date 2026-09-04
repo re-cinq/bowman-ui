@@ -61,6 +61,13 @@ jobs:
       # scheme (javascript/data/vbscript/file) admitted to the default allowlist.
       - name: Markdown safety check
         run: npm run check:markdown-safety
+      # jscpd copy-paste gate over src and tests (config in .jscpd.json):
+      # duplicated lines stay below 4% at min-tokens 50. tests/fixtures/** is
+      # exempt - golden fixtures duplicate by design. A red check is fixed by
+      # extracting a shared helper, or by raising the threshold in the same PR
+      # with the reason recorded.
+      - name: Duplication check
+        run: npm run check:duplication
       # Issue 97: the assistive-technology pass's structure gate. Validates the
       # newest docs/accessibility/at-pass-*.md when one exists - required
       # fields, a verdict per row per stack, no unexplained not-run, no fail
