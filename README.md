@@ -188,6 +188,27 @@ A lookup that produces `undefined` is safe: the merge helper treats an explicit 
 
 There is no brand mark in the set. A consumer who wants one supplies it through the `assistantAvatar` slot described in [the design notes](./docs/design-notes.md) (decision 3) - the library does not ship a fallback logo.
 
+## Hooks
+
+Five hooks ship beside the components, each pure (no console, no network, no storage except `useSidebarState`):
+
+```tsx
+useFocusGroups(); // F6 / Shift+F6 cycles focus through [data-focus-group] sections, by data-focus-group-order then DOM order
+<header data-focus-group="header" data-focus-group-order="0">...</header>
+<main data-focus-group="main" data-focus-group-order="1">...</main>
+
+const triggerRef = useRef<HTMLButtonElement>(null);
+const containerRef = useFocusTrap(isOpen, onClose, triggerRef); // modal surfaces only: Tab is trapped, Escape closes and refocuses the trigger
+<div ref={containerRef}>...</div>
+
+const prefersReducedMotion = useReducedMotion(); // pass a boolean to override the OS preference
+const animationDuration = prefersReducedMotion ? 0 : 300;
+
+const debouncedQuery = useDebounce(query, 300);
+
+const { isOpen, toggle, open, close, isHydrated } = useSidebarState("chat", { storagePrefix: "olt-" }); // stored under `${storagePrefix}${key}`
+```
+
 ## Development
 
 ```sh

@@ -8,9 +8,7 @@ import { resolveLabels } from "../labels.js";
 
 export interface SidebarSlotContext {
   variant: "desktop" | "mobile";
-  /** Closes the mobile drawer. Callable from either variant: from the
-   *  desktop rail it re-reports the (already false-effective) open state,
-   *  which keeps a shared renderSidebar implementation safe to wire. */
+  /** Closes the mobile drawer; safe from the desktop rail too, where it re-reports the already-false open state. */
   close: () => void;
 }
 
@@ -78,11 +76,7 @@ export function AppShell({
   const drawerRef = useFocusTrap<HTMLDivElement>(isOpen, close, hamburgerRef);
   const drawerId = useId();
 
-  // The lock lifts while the viewport sits at the desktop breakpoint, where
-  // md:hidden hides the drawer but the open state persists - without the
-  // media listener a rotate-to-desktop stranded the page unscrollable. The
-  // 768px literal mirrors the component's own md:* classes: a consumer
-  // redefining --breakpoint-md diverges from those classes identically.
+  // Lift the lock at md (768px = the md:* classes): a rotate-to-desktop otherwise strands the page unscrollable.
   useEffect(() => {
     if (!isOpen) {
       return;

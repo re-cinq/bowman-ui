@@ -8,3 +8,9 @@
 # interface; either way the directory's contents belong to that tool, not to
 # this repo's formatter.
 .lore/
+
+# Verbatim mirrors of re-cinq/lore's eslint plugin rules, byte-compared
+# against lore main by scripts/check-lore-plugin-sync.mjs. Formatting them
+# here would break byte identity - lore is the format authority. The local
+# tools/eslint-plugin-lore/index.mjs is this repo's own and stays formatted.
+tools/eslint-plugin-lore/rules/

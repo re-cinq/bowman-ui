@@ -2,15 +2,7 @@
 
 import { useState, useEffect } from "react";
 
-/**
- * Custom hook to debounce a value with a specified delay.
- * Useful for search inputs, form inputs, and other frequent state changes
- * where you want to defer expensive operations (API calls, etc).
- *
- * @param value - The value to debounce
- * @param delay - Delay in milliseconds
- * @returns The debounced value
- */
+/** Returns `value` once it has held still for `delay` ms - for search and form inputs that gate expensive work. */
 export function useDebounce<T>(value: T, delay: number): T {
   const [debouncedValue, setDebouncedValue] = useState(value);
 

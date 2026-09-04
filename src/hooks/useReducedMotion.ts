@@ -18,30 +18,14 @@ const subscribe = (onChange: () => void): (() => void) => {
   return () => mediaQuery.removeEventListener("change", onChange);
 };
 
-// Client snapshot reads the live preference on every render, so a reduced-motion
-// user never sees a first-frame flash of animation and later change events are
-// reflected by re-reading `matches`. The guard is not dead code: "use client"
-// components still server-render once, and the render phase has no window there.
+// Read live (no first-frame flash); the window guard stays - "use client" files still server-render once.
 const getSnapshot = (): boolean => (canMatchMedia() ? window.matchMedia(QUERY).matches : false);
 
 const getServerSnapshot = (): boolean => false;
 
 const noopSubscribe = (): (() => void) => () => {};
 
-/**
- * Hook to detect user's reduced motion preference
- *
- * A boolean `override` is returned as-is without consulting the OS preference,
- * so a consumer's own flag plumbing (feature flags, settings) stays at the
- * call site. With `override` undefined, the hook tracks
- * `prefers-reduced-motion: reduce` via `matchMedia`.
- *
- * Use this hook for JS-controlled animations that can't be handled by CSS alone.
- *
- * @example
- * const prefersReducedMotion = useReducedMotion();
- * const animationDuration = prefersReducedMotion ? 0 : 300;
- */
+/** Tracks prefers-reduced-motion via matchMedia for JS-driven animation; a boolean override is returned as-is. */
 export function useReducedMotion(override?: boolean): boolean {
   const hasOverride = override !== undefined;
   const prefersReducedMotion = useSyncExternalStore(

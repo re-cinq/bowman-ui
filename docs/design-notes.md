@@ -505,10 +505,11 @@ disclosure's wording belongs to the consumer's reviewed catalogue.
 
 ## Lint guardrails
 
-Codified house conventions, enforced by the repo-local plugin
-`tools/eslint-plugin-bowman/` (loaded by relative import in
-`eslint.config.mjs` - no package.json, no build, no publish) plus a handful
-of core-ESLint entries (decisions 1-7). Those are validated against committed
+Codified house conventions, enforced by two repo-local plugins loaded by
+relative import in `eslint.config.mjs` (no package.json, no build, no
+publish): `tools/eslint-plugin-bowman/` for this repo's own rules and
+`tools/eslint-plugin-lore/` for verbatim mirrors of re-cinq/lore's generic
+rules (decision 9), plus a handful of core-ESLint entries (decisions 1-7). Those are validated against committed
 fixtures by `tests/eslint-house-rules.test.ts`, judged by the exact committed
 config via `--no-ignore` (the same mechanism the Labels and duplication
 fixtures use). Decision 8's third-party `react-hooks` rules carry no such
@@ -580,6 +581,29 @@ Decisions:
    genuinely unsafe ref or effect later added to one of these three files
    would pass.
 
+9. **The generic subset of lore's lint plugin is mirrored verbatim.**
+   `tools/eslint-plugin-lore/rules/` holds byte-for-byte copies of seven
+   re-cinq/lore rules plus their two lib helpers, selected by the LOCAL
+   `tools/eslint-plugin-lore/index.mjs` and policed in CI by
+   `scripts/check-lore-plugin-sync.mjs`, which fetches each canonical file
+   from lore's public main branch and fails on any byte difference (exit 2,
+   not 1, on fetch failure - a network problem is not drift; `--write`
+   refreshes). The gate also fails when lore ships a rule this repo has
+   neither mirrored nor recorded as excluded, with the reason, in that
+   script - a new upstream rule is a decision, not drift. Chosen over an
+   npm or git-dependency install because lore's plugin is a private,
+   unbuilt package inside a monorepo. All seven run at error over `src/**`:
+   `no-forwarding-class`, `no-nested-if`, `no-nested-loop`,
+   `no-vague-names`, `prefer-early-return`, `prefer-enforce-true` after an
+   18-site sweep, and `max-comment-lines` at lore's `max: 1` after an
+   84-site sweep - a comment in `src/` is one line stating the constraint
+   the code cannot show; rationale essays live in this file or the feature
+   specs, and hook usage examples live in README § Hooks. The mirrors carry
+   no local fixtures (they are tested upstream in lore), the same trade
+   recorded for `react-hooks` in decision 8; the rule files are
+   `.prettierignore`d and eslint-ignored so lore stays their format
+   authority. Never edit a file under `tools/eslint-plugin-lore/rules/`.
+
 Considered and rejected:
 
 - **Type-aware rules** (`no-floating-promises`, `no-misused-promises`,
@@ -595,6 +619,15 @@ Considered and rejected:
 - **A "test must import its subject" rule.** The `*-dist.test.ts` suites
   import nothing from `src/` by design - they read `dist/` - so the rule
   contradicts the test architecture.
+- **Replacing bowman's four overlapping ports with lore's originals**
+  (`max-boolean-operators`, `no-catch-as-control-flow`, `no-inline-styles`,
+  `no-prop-mutation`). Lore's `no-inline-styles` and `no-prop-mutation` fire
+  only under a hardcoded `/apps/web-ui/` path marker, so mirrored here they
+  would never fire - a silent loss of two guardrails - and lore's other two
+  miss the JSX-chain and property-name detections the committed fixtures
+  pin. The four stay bowman's own and are recorded as excluded in the sync
+  gate; upstreaming the extensions to lore, with `files:` scoping instead
+  of path markers, is the eventual fix.
 
 ## Seams left open on purpose
 
