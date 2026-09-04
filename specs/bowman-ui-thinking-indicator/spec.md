@@ -24,7 +24,7 @@ without a default fails the build, pinned from outside by an
 `@ts-expect-error` fixture
 ([validated by](../../tests/types/thinking-indicator-type-assertions.tsx#L19),
 compiled by
-[thinking-indicator-dist](../../tests/thinking-indicator-dist.test.ts#L63)).
+[thinking-indicator-dist](../../tests/thinking-indicator-dist.test.ts#L26)).
 
 `ThinkingDots` is deliberately not exported: an `@ts-expect-error` import in
 the same fixture pins it out of the public type surface
@@ -108,13 +108,13 @@ at `tests/labelled-exports.test.tsx`, not the issue text's
 `tests/ThinkingIndicator.test.tsx`, not `tests/components/` - the repo's
 shipped layout since 022
 ([validated by](../../tests/ThinkingIndicator.test.tsx#L37),
-[L59](../../tests/ThinkingIndicator.test.tsx#L61)).
+[L61](../../tests/ThinkingIndicator.test.tsx#L61)).
 
 ## Carried across mechanically
 
 - `ThinkingIndicator` joins the `labelsProp` partition bucket with a sentinel
   harness ([validated by](../../tests/labelled-exports.test.tsx#L67),
-  [L361](../../tests/labelled-exports.test.tsx#L364)).
+  [L364](../../tests/labelled-exports.test.tsx#L364)).
   - The partition test still asserts the full barrel, which `ThinkingDots`
     never enters.
   - The `thinkingRegion` sentinel lands in `aria-label`, one of the seven
@@ -126,12 +126,12 @@ shipped layout since 022
 - Both new files carry `"use client"` as the first statement of their `dist/`
   output, per 018 decision 1's positional check and
   `scripts/check-client-directives.mjs`
-  ([validated by](../../tests/thinking-indicator-dist.test.ts#L40)).
+  ([validated by](../../tests/thinking-indicator-dist.test.ts#L8)).
 - Neither file references a client-only API today; docs/design-notes.md decision 1's
   recorded exception ([docs/design-notes.md](../../docs/design-notes.md#L31), amended in this
   issue) covers the chat surface's presentational components and the private
   subcomponents they compose, extending 023's shipped `InlineThinkingIndicator`
-  precedent ([validated by](../../tests/thinking-indicator-dist.test.ts#L40)).
+  precedent ([validated by](../../tests/thinking-indicator-dist.test.ts#L8)).
 - **GDPR.** The component renders only its own labels - no customer data
   reaches it.
   - Neither file references `console.`, `localStorage`, `sessionStorage`,
@@ -141,7 +141,7 @@ shipped layout since 022
     test that writes to the console
     ([validated by](../../tests/ThinkingIndicator.test.tsx#L136)).
 - `npm pack --dry-run` ships both built files with their `d.ts` counterparts
-  ([validated by](../../tests/thinking-indicator-dist.test.ts#L49)).
+  ([validated by](../../tests/thinking-indicator-dist.test.ts#L17)).
 
 ## Amended by 078
 

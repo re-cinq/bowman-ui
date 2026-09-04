@@ -15,12 +15,12 @@ component imports none of them and renders whatever `renderSidebar` returns
 `mainContentId` renames both the `<main>` and the skip link's `href` in the
 same file, so the two can no longer drift apart
 ([validated by](../../tests/AppShell.test.tsx#L22),
-[L33](../../tests/AppShell.test.tsx#L34)). The skip link is the
+[L34](../../tests/AppShell.test.tsx#L34)). The skip link is the
 first focusable element in the rendered tree and carries the resolved
 `skipToMainContent` label; `skipLink={false}` opts
 out for a consumer with its own
 ([validated by](../../tests/AppShell.test.tsx#L48),
-[L58](../../tests/AppShell.test.tsx#L60)).
+[L60](../../tests/AppShell.test.tsx#L60)).
 
 `AppShellLabels` has four defaulted keys - `openSidebar`, `closeSidebar`,
 `skipToMainContent`, and `sidebarDialog` (the open drawer dialog's accessible
@@ -36,7 +36,7 @@ drawer so the dialog-name sentinel renders
 per position, `"desktop"` rail and `"mobile"` drawer - and both returned
 trees are in the document; omitting it still
 renders the frame ([validated by](../../tests/AppShell.test.tsx#L72),
-[L83](../../tests/AppShell.test.tsx#L86)). The
+[L86](../../tests/AppShell.test.tsx#L86)). The
 mobile copy needs `close` so tapping a nav item closes the drawer - the same
 slot idiom as `ConversationList`'s `renderLink`
 ([validated by](../../tests/AppShell.test.tsx#L129)). `close` is handed to
@@ -47,8 +47,8 @@ either position.
 `brand` renders inside the mobile header row with the centring spacer;
 omitted, the header shows the hamburger and no spacer, and the component
 imports no logo ([validated by](../../tests/AppShell.test.tsx#L425),
-[L412](../../tests/AppShell.test.tsx#L434),
-[L419](../../tests/AppShell.test.tsx#L442)).
+[L434](../../tests/AppShell.test.tsx#L434),
+[L442](../../tests/AppShell.test.tsx#L442)).
 
 ## Open state
 
@@ -56,15 +56,15 @@ Uncontrolled by default: the hamburger opens the drawer
 (`translate-x-0`, no `inert`), and the close button, `Escape`, the backdrop,
 and the `"mobile"` slot's `close()` each return it to closed
 ([validated by](../../tests/AppShell.test.tsx#L94),
-[L107](../../tests/AppShell.test.tsx#L111),
-[L116](../../tests/AppShell.test.tsx#L120),
-[L125](../../tests/AppShell.test.tsx#L129)).
+[L111](../../tests/AppShell.test.tsx#L111),
+[L120](../../tests/AppShell.test.tsx#L120),
+[L129](../../tests/AppShell.test.tsx#L129)).
 
 Controlled: with `mobileSidebarOpen={false}`, clicking the hamburger calls
 `onMobileSidebarOpenChange` once with `true` and the drawer stays closed;
 `mobileSidebarOpen={true}` renders it open with no interaction
 ([validated by](../../tests/AppShell.test.tsx#L150),
-[L162](../../tests/AppShell.test.tsx#L167)). A controlling consumer owns
+[L167](../../tests/AppShell.test.tsx#L167)). A controlling consumer owns
 closing on navigation - recorded in docs/design-notes.md § AppShell, because
 closing on a route change is router-specific behaviour that cannot ship here
 ([validated by](../../tests/AppShell.test.tsx#L167)).
@@ -75,7 +75,7 @@ The open drawer is a modal dialog: it carries `role="dialog"`,
 `aria-modal="true"`, and an `aria-label` resolved from the `sidebarDialog`
 label - `"Menu"` by default, overridable per instance
 ([validated by](../../tests/AppShell.test.tsx#L189),
-[L201](../../tests/AppShell.test.tsx#L210)). The closed drawer carries none of
+[L210](../../tests/AppShell.test.tsx#L210)). The closed drawer carries none of
 the three ([validated by](../../tests/AppShell.test.tsx#L200)). The hamburger
 names the drawer through `aria-controls` but deliberately carries no
 `aria-expanded` - it only opens, so an expanded state would promise a collapse
@@ -92,14 +92,14 @@ the button cannot perform ([validated by](../../tests/AppShell.test.tsx#L220)).
    and the string `aria-hidden` appears nowhere in the source file. The rail
    and drawer stay two DOM nodes because `inert` cannot be conditioned on a
    CSS breakpoint ([validated by](../../tests/AppShell.test.tsx#L232),
-   [L234](../../tests/AppShell.test.tsx#L245)).
+   [L245](../../tests/AppShell.test.tsx#L245)).
 2. **The scroll lock restores the prior overflow value.** Resetting
    `document.body.style.overflow` to `""` on close
    would clobber any other lock on the page.
    With overflow pre-set to `"scroll"`, opening sets `"hidden"`, closing
    restores `"scroll"`, and unmounting while open restores it too
    ([validated by](../../tests/AppShell.test.tsx#L333),
-   [L365](../../tests/AppShell.test.tsx#L385)). A
+   [L385](../../tests/AppShell.test.tsx#L385)). A
    `matchMedia("(min-width: 768px)")` listener lifts the lock while the
    viewport sits at the desktop breakpoint - where `md:hidden` hides the
    drawer but the open state persists - and re-locks on the way back; the
@@ -119,8 +119,8 @@ Opening moves focus to the close button - shell chrome, top-right,
 `h-10 w-10`, `CloseIcon` from 020 - `Tab` from the last focusable inside
 wraps to the first, and closing returns focus to the hamburger
 ([validated by](../../tests/AppShell.test.tsx#L281),
-[L277](../../tests/AppShell.test.tsx#L289),
-[L297](../../tests/AppShell.test.tsx#L310)). Escape and tab-cycling come from
+[L289](../../tests/AppShell.test.tsx#L289),
+[L310](../../tests/AppShell.test.tsx#L310)). Escape and tab-cycling come from
 021's shared `useFocusTrap`, never a bespoke listener: the source contains no
 `"Escape"` string and adds no `document.addEventListener`
 ([validated by](../../tests/AppShell.test.tsx#L321)).
@@ -129,7 +129,7 @@ wraps to the first, and closing returns focus to the hamburger
 from the drawer and backdrop; omitted, 021's `useReducedMotion` tracks
 `prefers-reduced-motion` and a non-matching `matchMedia` keeps both classes
 ([validated by](../../tests/AppShell.test.tsx#L398),
-[L384](../../tests/AppShell.test.tsx#L405)).
+[L405](../../tests/AppShell.test.tsx#L405)).
 
 ## The characterization suite
 
@@ -139,10 +139,10 @@ DOM, and the deliberate decisions below are each pinned by a test.
 | #   | Decision                                                                                                                                                                             | Reason                                                                                    |
 | --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------- |
 | a   | Children render in `<main id="main-content">`, and `mainContentId` makes the id a prop ([L22](../../tests/AppShell.test.tsx#L22))                                                    | The landing region stays addressable for skip links without hardcoding the id             |
-| b   | The `renderSidebar` slot is called twice (rail and drawer) while the shell owns the header and drawer chrome ([L70](../../tests/AppShell.test.tsx#L72))                              | The slot is the dependency boundary; the shell ships without auth, i18n or router imports |
-| c   | The drawer's open/close cycle is asserted on observable DOM state (`translate-x-0`/`inert`) through the menu-click / close-click sequence ([L91](../../tests/AppShell.test.tsx#L94)) | Real DOM state, not a stub attribute, is what a consumer's user experiences               |
-| d   | The closed drawer carries `inert` ([L222](../../tests/AppShell.test.tsx#L232))                                                                                                       | `aria-hidden` over still-tabbable content is the defect `inert` exists to prevent         |
-| e   | The scroll lock restores the prior `document.body.style.overflow` value ([L320](../../tests/AppShell.test.tsx#L333))                                                                 | Clobbering the value to `""` breaks a consumer that manages body overflow itself          |
+| b   | The `renderSidebar` slot is called twice (rail and drawer) while the shell owns the header and drawer chrome ([L72](../../tests/AppShell.test.tsx#L72))                              | The slot is the dependency boundary; the shell ships without auth, i18n or router imports |
+| c   | The drawer's open/close cycle is asserted on observable DOM state (`translate-x-0`/`inert`) through the menu-click / close-click sequence ([L94](../../tests/AppShell.test.tsx#L94)) | Real DOM state, not a stub attribute, is what a consumer's user experiences               |
+| d   | The closed drawer carries `inert` ([L232](../../tests/AppShell.test.tsx#L232))                                                                                                       | `aria-hidden` over still-tabbable content is the defect `inert` exists to prevent         |
+| e   | The scroll lock restores the prior `document.body.style.overflow` value ([L333](../../tests/AppShell.test.tsx#L333))                                                                 | Clobbering the value to `""` breaks a consumer that manages body overflow itself          |
 
 ## Mechanical invariants
 
@@ -161,8 +161,8 @@ DOM, and the deliberate decisions below are each pinned by a test.
 - `dist/components/AppShell.js` opens with `"use client";` as its first
   statement per 018's positional check, and `npm pack`
   ships exactly the built pair
-  ([validated by](../../tests/app-shell-dist.test.ts#L40),
-  [L36](../../tests/app-shell-dist.test.ts#L47)).
+  ([validated by](../../tests/app-shell-dist.test.ts#L7),
+  [L14](../../tests/app-shell-dist.test.ts#L14)).
 
 ## Recorded deviations
 

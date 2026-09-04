@@ -32,9 +32,9 @@ declared in `src/components/ChatMessageList.tsx`, beside the prop that
 consumes it (the same placement as `ConversationListItem` and
 `SidebarNavItem`), and re-exported as a type from `src/index.ts`, so the
 public-API snapshot records it. The built shape is asserted member by member
-([validated by](../../tests/chat-message-list-dist.test.ts#L67)), the barrel's
+([validated by](../../tests/chat-message-list-dist.test.ts#L35)), the barrel's
 type export by name
-([validated by](../../tests/chat-message-list-dist.test.ts#L58)), and a fourth
+([validated by](../../tests/chat-message-list-dist.test.ts#L26)), and a fourth
 member is a compile error from outside the package
 ([validated by](../../tests/types/chat-message-list-type-assertions.tsx#L39)).
 
@@ -47,12 +47,12 @@ in this package - so the member list is read from
 `dist/index.d.ts` is asserted separately to export the name. The criterion's
 other half, that `dist/index.d.ts` carries no `describeAssistant`,
 `renderAttribution` or `renderEntry`, is asserted literally on both files
-([validated by](../../tests/chat-message-list-dist.test.ts#L91)).
+([validated by](../../tests/chat-message-list-dist.test.ts#L59)).
 
 `ChatMessageListProps` gains `attribution?: Readonly<Record<string, ChatAttribution>>`
 and nothing else; the built member list is pinned in full order, so a second
 prop smuggled in with it fails
-([validated by](../../tests/chat-message-list-dist.test.ts#L71)). `ChatMessage`
+([validated by](../../tests/chat-message-list-dist.test.ts#L39)). `ChatMessage`
 gains exactly one prop, `assistantName?: string`.
 
 ## The decisions
@@ -69,7 +69,7 @@ gains exactly one prop, `assistantName?: string`.
    ([validated by](../../tests/types/chat-message-list-type-assertions.tsx#L35),
    [the prop](../../tests/types/chat-message-list-type-assertions.tsx#L97),
    compiled by
-   [chat-message-list-dist](../../tests/chat-message-list-dist.test.ts#L124)).
+   [chat-message-list-dist](../../tests/chat-message-list-dist.test.ts#L87)).
 2. **The list resolves, the message renders.** `ChatMessageList` performs the
    lookup per entry - `entry.persona ? attribution?.[entry.persona] : undefined`,
    written as a pure `attributionFor` helper outside the component because a

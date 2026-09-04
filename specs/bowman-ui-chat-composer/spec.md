@@ -19,7 +19,7 @@ through `ChatComposerHandle` (`focus()`, `setValue()`) via
 `forwardRef` + `useImperativeHandle`, covering the only two outside
 writes a consumer needs: clear-on-send and a text-injection helper
 ([validated by](../../tests/ChatComposer.test.tsx#L183),
-[L205](../../tests/ChatComposer.test.tsx#L216)).
+[L216](../../tests/ChatComposer.test.tsx#L216)).
 
 **Note - first `useImperativeHandle` in the repo.** 018 Decision 4's idiom is
 `forwardRef` (preserved here); `useImperativeHandle` itself has no prior use
@@ -35,16 +35,16 @@ issue is cited for it.
   3-character floor;
   `"   "` leaves send disabled and `onSubmit` uncalled, also under `Enter`
   ([validated by](../../tests/ChatComposer.test.tsx#L44),
-  [L55](../../tests/ChatComposer.test.tsx#L56),
-  [L87](../../tests/ChatComposer.test.tsx#L90)).
+  [L56](../../tests/ChatComposer.test.tsx#L56),
+  [L90](../../tests/ChatComposer.test.tsx#L90)).
 
 ## The keyboard
 
 - `Enter` submits and preventDefaults;
   `Shift+Enter` inserts a newline and leaves the draft
   ([validated by](../../tests/ChatComposer.test.tsx#L78),
-  [L120](../../tests/ChatComposer.test.tsx#L126),
-  [L97](../../tests/ChatComposer.test.tsx#L101)).
+  [L126](../../tests/ChatComposer.test.tsx#L126),
+  [L101](../../tests/ChatComposer.test.tsx#L101)).
 - **The IME guard is the fix this component adds.** `Enter` with
   `nativeEvent.isComposing` neither submits nor preventDefaults. None of the
   three inline copies checks it. Verified by mutation: removing the
@@ -60,11 +60,11 @@ issue is cited for it.
 Separate props because they are different states - busy is a pulse the
 reader should see, disabled is merely inert;
 [validated by](../../tests/ChatComposer.test.tsx#L149),
-[L165](../../tests/ChatComposer.test.tsx#L173)). `busy`
+[L173](../../tests/ChatComposer.test.tsx#L173)). `busy`
 disables both controls, swallows `Enter`, and pulses the wrapper; `disabled`
 disables without the pulse
 ([validated by](../../tests/ChatComposer.test.tsx#L149),
-[L165](../../tests/ChatComposer.test.tsx#L173)).
+[L173](../../tests/ChatComposer.test.tsx#L173)).
 
 **Note - pulse class.** The wrapper carries `bowman-pulse-subtle`, not the
 issue text's `animate-pulse-subtle`: 019 renamed every package animation
@@ -78,12 +78,12 @@ class under the `bowman-` prefix, the same recorded deviation as
 blank write keeps send disabled; a
 handle retained past unmount is a no-op
 ([validated by](../../tests/ChatComposer.test.tsx#L183),
-[L187](../../tests/ChatComposer.test.tsx#L196),
-[L196](../../tests/ChatComposer.test.tsx#L206)). `focus()` makes the
+[L196](../../tests/ChatComposer.test.tsx#L196),
+[L206](../../tests/ChatComposer.test.tsx#L206)). `focus()` makes the
 textarea `document.activeElement`; `autoFocus` does
 the same on mount and defaults to false
 ([validated by](../../tests/ChatComposer.test.tsx#L216),
-[L214](../../tests/ChatComposer.test.tsx#L226)).
+[L226](../../tests/ChatComposer.test.tsx#L226)).
 
 ## Auto-resize
 
@@ -94,7 +94,7 @@ the property (`Object.defineProperty(textarea, "scrollHeight", { value: 320,
 configurable: true })`) and note it: a stubbed 320 caps at `200px` by default
 and reaches `320px` with `maxHeightPx={400}`
 ([validated by](../../tests/ChatComposer.test.tsx#L238),
-[L234](../../tests/ChatComposer.test.tsx#L247)). A passing test here
+[L247](../../tests/ChatComposer.test.tsx#L247)). A passing test here
 proves the arithmetic, never real browser layout.
 
 ## The attachment slot
@@ -105,12 +105,12 @@ so no button ships without a slot to fill it) ([validated by](../../tests/ChatCo
 With no `attachSlot`, send is the only button; a supplied slot
 renders left of send
 ([validated by](../../tests/ChatComposer.test.tsx#L258),
-[L251](../../tests/ChatComposer.test.tsx#L264)). The wrapper is a
+[L264](../../tests/ChatComposer.test.tsx#L264)). The wrapper is a
 `div`, not a `<form>`, and every self-rendered button carries
 `type="button"`, so
 a consumer's own wrapping form never receives a submit from the composer
 ([validated by](../../tests/ChatComposer.test.tsx#L278),
-[L272](../../tests/ChatComposer.test.tsx#L286)).
+[L286](../../tests/ChatComposer.test.tsx#L286)).
 
 ## Labels and accessible names
 
@@ -122,14 +122,14 @@ Three flat keys per 022 Decision 2: `composerInput` (the textarea's
 accessible name is the resolved `send` label with its `SendIcon`
 `aria-hidden` per 020's `getAccessibleIconProps` contract
 ([validated by](../../tests/ChatComposer.test.tsx#L304), defaults
-[L302](../../tests/ChatComposer.test.tsx#L317),
-[L311](../../tests/ChatComposer.test.tsx#L326)).
+[L317](../../tests/ChatComposer.test.tsx#L317),
+[L326](../../tests/ChatComposer.test.tsx#L326)).
 
 `defaultChatComposerLabels` is `Readonly<Required<ChatComposerLabels>>`; a
 key added without a default fails `npm run typecheck`, pinned by the
 `@ts-expect-error` fixture in `tests/types/chat-composer-type-assertions.tsx`
 compiled against `dist/`
-([validated by](../../tests/chat-composer-dist.test.ts#L59), fixture at
+([validated by](../../tests/chat-composer-dist.test.ts#L22), fixture at
 [chat-composer-type-assertions](../../tests/types/chat-composer-type-assertions.tsx)).
 `ChatComposer` joins the `labelsProp` partition and the sentinel render
 covers it ([validated by](../../tests/labelled-exports.test.tsx#L493)).
@@ -160,7 +160,7 @@ No `@clerk`, `swr`, `next-intl`, `next/`, `@/` or
 `dist/components/ChatComposer.js` opens with `"use client";` as its first
 statement per 018 Decision 1's positional check, and `npm pack` ships it
 with its `.d.ts`
-([validated by](../../tests/chat-composer-dist.test.ts#L40)).
+([validated by](../../tests/chat-composer-dist.test.ts#L8)).
 
 ## Recorded deviations from the issue text
 

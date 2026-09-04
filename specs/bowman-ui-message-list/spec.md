@@ -63,7 +63,7 @@ defaults object cannot satisfy `Readonly<Required<ChatMessageListLabels>>`
 ([validated by](../../tests/types/chat-message-list-type-assertions.tsx#L90),
 [no-default](../../tests/types/chat-message-list-type-assertions.tsx#L53),
 compiled by
-[chat-message-list-dist](../../tests/chat-message-list-dist.test.ts#L124)).
+[chat-message-list-dist](../../tests/chat-message-list-dist.test.ts#L87)).
 Passing only `aiDisclosure` resolves every other label to its English
 default ([validated by](../../tests/ChatMessageList.test.tsx#L190)).
 
@@ -79,7 +79,7 @@ default ([validated by](../../tests/ChatMessageList.test.tsx#L190)).
    states, and no prop in `ChatMessageListProps` removes it - pinned by a
    render with every optional prop `false` or `undefined`
    ([validated by](../../tests/ChatMessageList.test.tsx#L150),
-   [L143](../../tests/ChatMessageList.test.tsx#L167)). The type enforces
+   [L167](../../tests/ChatMessageList.test.tsx#L167)). The type enforces
    presence, not substance: an empty string renders an empty band, and per
    docs/design-notes.md § Labels decision 5 the package adds no runtime guard - a
    consumer that supplies `""` owns that compliance failure.
@@ -88,7 +88,7 @@ default ([validated by](../../tests/ChatMessageList.test.tsx#L190)).
    `scrollHeight - scrollTop - clientHeight <= 32`; scrolling away opts out
    until a scroll event returns the reader to the bottom
    ([validated by](../../tests/ChatMessageList.test.tsx#L630),
-   [L353](../../tests/ChatMessageList.test.tsx#L648),
+   [L648](../../tests/ChatMessageList.test.tsx#L648),
    [append while pinned](../../tests/ChatMessageList.test.tsx#L613)), and
    the 32px threshold is pinned at both sides of the boundary
    ([validated by](../../tests/ChatMessageList.test.tsx#L757)). One
@@ -105,7 +105,7 @@ default ([validated by](../../tests/ChatMessageList.test.tsx#L190)).
    only content changed, and `useReducedMotion(reducedMotion)` (021's hook)
    forces `"auto"` always
    ([validated by](../../tests/ChatMessageList.test.tsx#L668),
-   [L391](../../tests/ChatMessageList.test.tsx#L688)). A delta must arrive
+   [L688](../../tests/ChatMessageList.test.tsx#L688)). A delta must arrive
    as a **new `entries` array**: the scroll effect keys on the prop's
    identity, so a reducer that mutates in place never scrolls - the shape
    every React state update produces anyway - and the inverse holds too: a
@@ -126,7 +126,7 @@ default ([validated by](../../tests/ChatMessageList.test.tsx#L190)).
    change follows again - the primitive for a consumer's own "jump to
    latest" control - and respects reduced motion
    ([validated by](../../tests/ChatMessageList.test.tsx#L846),
-   [L574](../../tests/ChatMessageList.test.tsx#L878)).
+   [L878](../../tests/ChatMessageList.test.tsx#L878)).
    `isPinnedToBottom()` measures the live geometry rather than replaying
    the last scroll event
    ([validated by](../../tests/ChatMessageList.test.tsx#L824)) - which
@@ -156,7 +156,7 @@ default ([validated by](../../tests/ChatMessageList.test.tsx#L190)).
    centred `greeting` and `prompts` slots render in place of the message
    column and no `ChatMessage` mounts; with entries, the slots never render
    ([validated by](../../tests/ChatMessageList.test.tsx#L101),
-   [L95](../../tests/ChatMessageList.test.tsx#L117)). An empty transcript
+   [L117](../../tests/ChatMessageList.test.tsx#L117)). An empty transcript
    with `busy` shows the indicator, not the slots
    ([validated by](../../tests/ChatMessageList.test.tsx#L133)). The library
    computes neither slot: a greeting typically reads the clock and the
@@ -167,8 +167,8 @@ default ([validated by](../../tests/ChatMessageList.test.tsx#L190)).
    entry**, forwarding `assistantAvatar` and the `thinking`/`thinkingRegion`
    slices; `busy` false renders none
    ([validated by](../../tests/ChatMessageList.test.tsx#L438),
-   [L298](../../tests/ChatMessageList.test.tsx#L454),
-   [L304](../../tests/ChatMessageList.test.tsx#L460)). When to set `busy`
+   [L454](../../tests/ChatMessageList.test.tsx#L454),
+   [L460](../../tests/ChatMessageList.test.tsx#L460)). When to set `busy`
    is data-layer state the consumer computes.
 9. **The container does not own the composer.** A `composer` slot was
    considered and rejected: it would make this a two-deliverable
@@ -198,8 +198,8 @@ list.
   of this component to zero calls.
 - `dist/components/ChatMessageList.js` opens with `"use client";` as its
   first statement per 018 decision 1, and ships with its `.d.ts` in the
-  pack ([validated by](../../tests/chat-message-list-dist.test.ts#L98),
-  [pack](../../tests/chat-message-list-dist.test.ts#L104)).
+  pack ([validated by](../../tests/chat-message-list-dist.test.ts#L66),
+  [pack](../../tests/chat-message-list-dist.test.ts#L72)).
 - `ChatMessageList` sits in the `labelsProp` partition bucket with a
   sentinel harness that renders a user entry, a thinking entry with
   `showThinking` on, a linked assistant entry and the busy indicator, then

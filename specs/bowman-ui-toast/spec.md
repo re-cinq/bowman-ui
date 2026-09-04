@@ -22,7 +22,7 @@ corrected justification.
 `ToastProps` is exactly `message: string`, `onClose: () => void`,
 `duration?: number | null` (default `2000`; `null` disables auto-dismiss)
 ([validated by](../../tests/Toast.test.tsx#L50),
-[L135](../../tests/Toast.test.tsx#L137)).
+[L137](../../tests/Toast.test.tsx#L137)).
 No `labels` prop and no `className`: the fixed positioning
 (`fixed bottom-8 left-1/2 z-50 -translate-x-1/2`) and the fade animation's
 restated `-50%` translate are one decision that stays together
@@ -34,7 +34,7 @@ aria-hidden pill shows the message from the first render, and the separate
 inline-visually-hidden status region receives it in the mount effect, so the
 live region exists before its text and screen readers announce it
 ([validated by](../../tests/Toast.test.tsx#L32),
-[L43](../../tests/Toast.test.tsx#L41)).
+[L41](../../tests/Toast.test.tsx#L41)).
 
 ## The timer fix
 
@@ -68,7 +68,7 @@ once at 2000ms;
 `duration={500}` fires at 500ms; unmounting before the
 deadline never calls it ([validated by](../../tests/Toast.test.tsx#L50),
 [L62](../../tests/Toast.test.tsx#L62),
-[L73](../../tests/Toast.test.tsx#L74)).
+[L74](../../tests/Toast.test.tsx#L74)).
 
 ## The characterization suite
 
@@ -76,19 +76,19 @@ The core assertions in
 `tests/Toast.test.tsx` pin role/aria-live, the 1999/2000ms edge,
 `duration={500}` and unmount cleanup
 ([validated by](../../tests/Toast.test.tsx#L23),
-[L51](../../tests/Toast.test.tsx#L50),
+[L50](../../tests/Toast.test.tsx#L50),
 [L62](../../tests/Toast.test.tsx#L62),
-[L73](../../tests/Toast.test.tsx#L74)). One deliberate naming decision:
+[L74](../../tests/Toast.test.tsx#L74)). One deliberate naming decision:
 
 | #   | Decision                                                                                                                                                                                                       | Reason                                                                                                                                              |
 | --- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
-| a   | The class assertion pins `bowman-toast-fade-in` plus the positioning classes, asserted on the visible pill since the 2026-08-26 review split it from the status region ([L87](../../tests/Toast.test.tsx#L88)) | 019's CSS naming rule - every package animation class ships under the `bowman-` prefix so it cannot collide with a consumer's `animate-*` utilities |
+| a   | The class assertion pins `bowman-toast-fade-in` plus the positioning classes, asserted on the visible pill since the 2026-08-26 review split it from the status region ([L88](../../tests/Toast.test.tsx#L88)) | 019's CSS naming rule - every package animation class ships under the `bowman-` prefix so it cannot collide with a consumer's `animate-*` utilities |
 
 The divergence, message-restart and duration-null tests pin the
 re-render-proof timer behaviour
 ([validated by](../../tests/Toast.test.tsx#L107),
-[L121](../../tests/Toast.test.tsx#L123),
-[L135](../../tests/Toast.test.tsx#L137)).
+[L123](../../tests/Toast.test.tsx#L123),
+[L137](../../tests/Toast.test.tsx#L137)).
 
 ## The stylesheet
 
@@ -98,14 +98,14 @@ the animated `transform` would otherwise overwrite the element's static
 `translateX`-free while
 the new `bowman-toast-fade-in` keyframe restates `translateX(-50%)` in
 both stops ([validated by](../../tests/styles.test.ts#L63),
-[L64](../../tests/styles.test.ts#L71)). The keyframe count grows to
+[L71](../../tests/styles.test.ts#L71)). The keyframe count grows to
 four with a paired utility rule; the
 `prefers-reduced-motion: reduce` block from 019 Decision 5 covers
 `.bowman-toast-fade-in` and touches no `transform`, so the element stays
 positioned when animation is off
 ([validated by](../../tests/styles.test.ts#L31),
-[L38](../../tests/styles.test.ts#L42),
-[L72](../../tests/styles.test.ts#L80)).
+[L42](../../tests/styles.test.ts#L42),
+[L80](../../tests/styles.test.ts#L80)).
 `grep -rn "animate-fade-in" src/` returns nothing
 ([validated by](../../tests/Toast.test.tsx#L170)).
 
@@ -123,15 +123,15 @@ that an addition requires exactly this kind of same-PR contract amendment.
 `tests/labelled-exports.test.tsx` classifies `Toast` under `stringPropOnly`
 and the partition still asserts the full barrel
 ([validated by](../../tests/labelled-exports.test.tsx#L101),
-[L127](../../tests/labelled-exports.test.tsx#L136)).
+[L136](../../tests/labelled-exports.test.tsx#L136)).
 
 ## Mechanical invariants
 
 - `"use client"` as the first statement of `dist/components/Toast.js`, per
   docs/design-notes.md decision 1's positional check and
   `scripts/check-client-directives.mjs`; `npm pack` ships the built file
-  with its `d.ts` ([validated by](../../tests/toast-dist.test.ts#L40),
-  [L36](../../tests/toast-dist.test.ts#L47)).
+  with its `d.ts` ([validated by](../../tests/toast-dist.test.ts#L7),
+  [L14](../../tests/toast-dist.test.ts#L14)).
 - No `@clerk`, `swr`, `next-intl`, `next/` or `@/` import,
   and every relative import ends in `.js`
   ([validated by](../../tests/Toast.test.tsx#L158)).

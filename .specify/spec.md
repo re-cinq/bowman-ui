@@ -56,9 +56,9 @@ Other public data shapes are consumer-supplied and rendered as-is: `Conversation
 
 ### Component Design Principles
 
-1. **Presentational Only** — No side effects, API calls, or complex state logic. All behavior is props-driven. ([validated by](../tests/ChatMessage.test.tsx#L728), [L403](../tests/ConversationList.test.tsx#L420))
+1. **Presentational Only** — No side effects, API calls, or complex state logic. All behavior is props-driven. ([validated by](../tests/ChatMessage.test.tsx#L728), [L420](../tests/ConversationList.test.tsx#L420))
 2. **Composability** — Components combine into larger layouts (e.g., `ChatMessage` + `ChatMessageList` + `ChatComposer` form a chat surface; `AppShell` + `AppSidebar` frame it).
-3. **Controlled by Default** — Components prefer controlled props; the five shipped hooks are `useDebounce`, `useFocusTrap`, `useFocusGroups`, `useReducedMotion`, and `useSidebarState`. ([validated by](../tests/hooks-dist.test.ts#L56))
+3. **Controlled by Default** — Components prefer controlled props; the five shipped hooks are `useDebounce`, `useFocusTrap`, `useFocusGroups`, `useReducedMotion`, and `useSidebarState`. ([validated by](../tests/hooks-dist.test.ts#L57))
 4. **Stylesheet Ships With the Package** — Components carry Tailwind utility class names; `./styles.css` supplies the four keyframes and markdown/sr-only rules Tailwind cannot generate, and the consumer's Tailwind v4 build scans `dist`. ([validated by](../tests/styles.test.ts#L93), [source](../tests/tailwind-build.test.ts#L79))
 5. **Minimal Runtime Dependencies** — Only `react-markdown` (`^10.1.0`) and `remark-gfm` (`^4.0.1`) are runtime dependencies; React and React-DOM are peers. ([validated by](../tests/system-contract.test.ts#L22), [L39](../tests/system-contract.test.ts#L39))
 
@@ -73,7 +73,7 @@ Other public data shapes are consumer-supplied and rendered as-is: `Conversation
 
 1. **TypeScript Strict Mode** — `tsconfig.json` enforces `strict: true`; all files compile without implicit `any`. ([validated by](../tests/system-contract.test.ts#L53))
 2. **No Console Logs in Production** — Development aids removed before distribution. ([validated by](../tests/system-contract.test.ts#L76))
-3. **Accessibility Baseline** — ARIA attributes, semantic HTML, keyboard support, and 4.5:1 color contrast minimum for text. ([validated by](../tests/icons.test.tsx#L182), [L72](../tests/useFocusTrap.test.tsx#L73))
+3. **Accessibility Baseline** — ARIA attributes, semantic HTML, keyboard support, and 4.5:1 color contrast minimum for text. ([validated by](../tests/icons.test.tsx#L182), [L73](../tests/useFocusTrap.test.tsx#L73))
 4. **Test Coverage ≥80%** — Props, prop combinations, and user interactions covered by React Testing Library tests. ([validated by](../tests/system-contract.test.ts#L61))
 5. **ESLint & Prettier Enforcement** — Consistent formatting and linting; CI blocks merge on violations.
 
@@ -81,7 +81,7 @@ Other public data shapes are consumer-supplied and rendered as-is: `Conversation
 
 1. **ESM-Only Distribution** — A single ESM build is published; the `.` export resolves to `dist/index.js` with no `require` condition, so consumers need native ESM or an ESM-aware bundler. ([validated by](../tests/system-contract.test.ts#L30))
 2. **Stylesheet Subpath Export** — `./styles.css` is a published export and `sideEffects` lists `*.css` so bundlers keep it. ([validated by](../tests/styles.test.ts#L93), [side-effects](../tests/styles.test.ts#L100))
-3. **Type Definitions Included** — `.d.ts` files are bundled for full TypeScript IDE support. ([validated by](../tests/hooks-dist.test.ts#L56))
+3. **Type Definitions Included** — `.d.ts` files are bundled for full TypeScript IDE support. ([validated by](../tests/hooks-dist.test.ts#L57))
 4. **Tree-Shakeable** — Named exports prioritized; unused components can be eliminated by bundlers. ([validated by](../tests/public-api.test.ts#L40))
 5. **No Internal Implementation Details Exposed** — Private modules and helpers are not exported; only public contracts are. ([validated by](../tests/types/chat.test.ts#L237), [L40](../tests/public-api.test.ts#L40))
 

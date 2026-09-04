@@ -5,7 +5,7 @@ Issue: re-cinq/Otto#70 (`020-bowman-ui-icon-set`)
 The local SVG icon set lives in `src/icons/Icon.tsx` and `src/icons/index.tsx`,
 re-exported from the root
 barrel `src/index.ts` - no `./icons` subpath, since `014` pinned `exports` to a
-single `"."` entry ([validated by](../../tests/icons-dist.test.ts#L51)). `src/icons/index.tsx` exports exactly 23 icon components,
+single `"."` entry ([validated by](../../tests/icons-dist.test.ts#L52)). `src/icons/index.tsx` exports exactly 23 icon components,
 enumerated by name so a dropped icon fails the build rather than the consumer
 ([validated by](../../tests/icons.test.tsx#L60)). Path data is pinned
 byte-for-byte, asserted attribute-by-attribute against a golden-master
@@ -29,17 +29,17 @@ DevTools and ErrorBoundary componentStack frames read component names from
 `<svg>` carries
 `fill="none"`, `viewBox="0 0 24 24"` and, for the 22, `stroke="currentColor"`
 ([validated by](../../tests/icons.test.tsx#L142),
-[L125](../../tests/icons.test.tsx#L152)). `forwardRef` stays exactly as-is per
+[L152](../../tests/icons.test.tsx#L152)). `forwardRef` stays exactly as-is per
 docs/design-notes.md decision 4 - rewriting it away would turn the `^19.0.0` peer range from a
 testing claim into a hard React 19 floor; the icons still take no `ref` prop
-([validated by](../../tests/icons-dist.test.ts#L51)).
+([validated by](../../tests/icons-dist.test.ts#L52)).
 
 `LoadingIcon` is the explicit exception and keeps its own `<svg>`:
 `IconWrapper` hardcodes `stroke="currentColor"` on the root, which would put a
 stroke on the deliberately strokeless spinner path, and `LoadingIcon` composes
 its `className` (`` `animate-spin ${className || ""}` ``) rather than passing
 it through ([validated by](../../tests/icons.test.tsx#L284),
-[L257](../../tests/icons.test.tsx#L296)). The would-be regression is pinned: no root `stroke` attribute,
+[L296](../../tests/icons.test.tsx#L296)). The would-be regression is pinned: no root `stroke` attribute,
 `class` containing `animate-spin`, `<path fill="currentColor">` with no stroke
 ([validated by](../../tests/icons.test.tsx#L277)). `animate-spin` is a Tailwind
 core utility, not one of the three keyframes `019` ships - `src/styles.css`
@@ -49,17 +49,17 @@ the installed `dist` ([validated by](../../tests/icons.test.tsx#L134)).
 is the icon set's only user-visible string, prop-overridable per
 call site; the icon set needs no `labels` prop and the `labels` issue does
 not touch it ([validated by](../../tests/icons.test.tsx#L260),
-[L230](../../tests/icons.test.tsx#L265)).
+[L265](../../tests/icons.test.tsx#L265)).
 
 ## The public props type: `IconProps`
 
 The icons share one public, exported `IconProps = {className?: string;
 ariaLabel?: string;
 strokeWidth?: number}`, and every one of the 23 icons is typed with it
-([validated by](../../tests/icons-dist.test.ts#L51)). A
+([validated by](../../tests/icons-dist.test.ts#L52)). A
 type-level test compiles `const Wrapped = (p: IconProps) => <SendIcon {...p} />`
 against the built `dist` types through the self-referencing package import
-([validated by](../../tests/icons-dist.test.ts#L51), assertions at
+([validated by](../../tests/icons-dist.test.ts#L52), assertions at
 [tests/types/icon-type-assertions.tsx](../../tests/types/icon-type-assertions.tsx#L15)).
 
 No `{name: string}` registry-lookup `IconProps` shape exists in `src/` -
@@ -71,9 +71,9 @@ component
 and `IconSvgProps` as a type - `getAccessibleIconProps` returns a `Pick` of it
 ([validated by](../../tests/icons.test.tsx#L60)).
 All four resolve through the `"."` exports entry
-([validated by](../../tests/icons-dist.test.ts#L51)). `npm pack --dry-run`
+([validated by](../../tests/icons-dist.test.ts#L52)). `npm pack --dry-run`
 ships `dist/icons/Icon.{js,d.ts}` and `dist/icons/index.{js,d.ts}`
-([validated by](../../tests/icons-dist.test.ts#L76)).
+([validated by](../../tests/icons-dist.test.ts#L77)).
 
 ## Accessibility contract
 
@@ -81,14 +81,14 @@ The tested accessibility behaviour holds for every icon: no label →
 `aria-hidden="true"` and no
 `role`; a label → `aria-hidden="false"`, `role="img"`, `aria-label` set
 ([validated by](../../tests/icons.test.tsx#L181),
-[L166](../../tests/icons.test.tsx#L199),
-[L180](../../tests/icons.test.tsx#L215),
-[L191](../../tests/icons.test.tsx#L226),
-[L202](../../tests/icons.test.tsx#L237),
-[L213](../../tests/icons.test.tsx#L248)). The
+[L199](../../tests/icons.test.tsx#L199),
+[L215](../../tests/icons.test.tsx#L215),
+[L226](../../tests/icons.test.tsx#L226),
+[L237](../../tests/icons.test.tsx#L237),
+[L248](../../tests/icons.test.tsx#L248)). The
 `getAttribute`-based class assertions work around `SVGAnimatedString`
 ([validated by](../../tests/icons.test.tsx#L271),
-[L282](../../tests/icons.test.tsx#L325)).
+[L325](../../tests/icons.test.tsx#L325)).
 
 `strokeWidth` defaults to `2` and reaches both the `<svg>` and the `<path>`
 ([validated by](../../tests/icons.test.tsx#L304)).

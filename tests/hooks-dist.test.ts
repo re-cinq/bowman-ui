@@ -1,6 +1,7 @@
-import { execFileSync, spawnSync } from "node:child_process";
+import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
+import { packedPaths } from "./helpers/built-package.js";
 
 const BUILT_FILES = [
   "dist/hooks/useDebounce.js",
@@ -54,12 +55,7 @@ describe("the built hook surface", () => {
   });
 
   it("npm pack --dry-run ships the five hooks and ErrorBoundary with their d.ts files", () => {
-    const output = execFileSync("npm", ["pack", "--dry-run", "--json"], {
-      cwd: process.cwd(),
-      encoding: "utf8",
-    });
-    const [pack] = JSON.parse(output) as [{ files: { path: string }[] }];
-    const paths = pack.files.map((file) => file.path);
+    const paths = packedPaths();
 
     for (const built of BUILT_FILES) {
       expect(paths).toContain(built);

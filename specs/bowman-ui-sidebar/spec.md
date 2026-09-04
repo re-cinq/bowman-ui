@@ -19,7 +19,7 @@ The component renders one `<aside>` whose accessible name is the resolved
 `sidebar` label, containing at most one `<nav>` whose accessible name is the
 resolved `mainNavigation` label
 ([validated by](../../tests/AppSidebar.test.tsx#L15),
-[L24](../../tests/AppSidebar.test.tsx#L26)). `AppSidebarLabels` has exactly
+[L26](../../tests/AppSidebar.test.tsx#L26)). `AppSidebarLabels` has exactly
 those two defaulted keys ("Sidebar", "Main navigation"); no third,
 duplicate landmark name
 ("Mobile navigation") exists - 030's shell wrappers are
@@ -47,34 +47,34 @@ sentinel render with both labels set to sentinels
      announced, not merely background-coloured - and with no
      item marked, none does
      ([validated by](../../tests/AppSidebar.test.tsx#L59),
-     [L68](../../tests/AppSidebar.test.tsx#L71)).
+     [L71](../../tests/AppSidebar.test.tsx#L71)).
    - Rows are keyed by `item.key`: reordering moves the same DOM nodes
      ([validated by](../../tests/AppSidebar.test.tsx#L86)).
    - `navItems` omitted or `[]` renders no `<nav>` element at all
      ([validated by](../../tests/AppSidebar.test.tsx#L99),
-     [L101](../../tests/AppSidebar.test.tsx#L105)).
+     [L105](../../tests/AppSidebar.test.tsx#L105)).
 3. **`renderNavLink(item, props)` is the routing seam; the default is
    `<button type="button" {...props} />`.**
    - A nav item carries its resolved `label`, not a translation key, and no
      `href` - `SidebarNavItem` has no `href` field, pinned by a
      `@ts-expect-error` fixture compiled against the built package
      ([validated by](../../tests/types/app-sidebar-type-assertions.tsx#L26),
-     [compiled by](../../tests/app-sidebar-dist.test.ts#L59)).
+     [compiled by](../../tests/app-sidebar-dist.test.ts#L22)).
    - The consumer's element must spread every prop it is handed -
      docs/design-notes.md § renderNavLink states it, pinned together with the anchor
      round-trip and the dropped-`onClick` failure mode
      ([validated by](../../tests/AppSidebar.test.tsx#L130),
-     [L146](../../tests/AppSidebar.test.tsx#L153),
-     [L163](../../tests/AppSidebar.test.tsx#L172)).
+     [L153](../../tests/AppSidebar.test.tsx#L153),
+     [L172](../../tests/AppSidebar.test.tsx#L172)).
    - Clicking an item calls `onNavigate` once with that item's `key`;
      `onNavigate` omitted, clicking throws nothing
      ([validated by](../../tests/AppSidebar.test.tsx#L111),
-     [L117](../../tests/AppSidebar.test.tsx#L122)).
+     [L122](../../tests/AppSidebar.test.tsx#L122)).
    - `icon` is an optional `ComponentType<{ className?: string }>` rendered at
      `h-5 w-5`; an item without one renders its label and no `<svg>` - the
      component imports no icon itself
      ([validated by](../../tests/AppSidebar.test.tsx#L180),
-     [L181](../../tests/AppSidebar.test.tsx#L190)).
+     [L190](../../tests/AppSidebar.test.tsx#L190)).
 4. **The middle region is `children`, wrapped in
    `flex min-h-0 flex-1 flex-col overflow-y-auto`.** The sidebar supplies
    growth and scrolling regardless of what's passed in - an unsized child is
@@ -85,11 +85,11 @@ sentinel render with both labels set to sentinels
    and sign-in are all consumer-specific; a support customer has none of
    them. `footer` present renders exactly one `border-t` region; omitted,
    no such region ([validated by](../../tests/AppSidebar.test.tsx#L214),
-   [L212](../../tests/AppSidebar.test.tsx#L223)).
+   [L223](../../tests/AppSidebar.test.tsx#L223)).
 6. **The brand is a slot inside the bordered top row; omitted, no row
    renders at all** - no `h-14` row and no `border-b` above the navigation
    ([validated by](../../tests/AppSidebar.test.tsx#L229),
-   [L227](../../tests/AppSidebar.test.tsx#L239)).
+   [L239](../../tests/AppSidebar.test.tsx#L239)).
 
    One consequence carried over from 030 as shipped: in the mobile drawer the
    shell renders its own bordered 56px close-button row as a sibling above
@@ -122,8 +122,8 @@ The file imports nothing from `@clerk`, `swr`, `next-intl`, `next/`,
 ([validated by](../../tests/AppSidebar.test.tsx#L259)).
 `dist/components/AppSidebar.js` carries `"use client"` as its first statement
 and ships with its `.d.ts`
-([validated by](../../tests/app-sidebar-dist.test.ts#L40),
-[L36](../../tests/app-sidebar-dist.test.ts#L47)). A key added to
+([validated by](../../tests/app-sidebar-dist.test.ts#L8),
+[L15](../../tests/app-sidebar-dist.test.ts#L15)). A key added to
 `AppSidebarLabels` without a default cannot satisfy
 `Readonly<Required<AppSidebarLabels>>`
 ([validated by](../../tests/types/app-sidebar-type-assertions.tsx#L19)).

@@ -19,8 +19,8 @@ component reads no clock and no locale: no `Date` constructor,
 `toLocaleDateString` or `Intl` appears in the source, asserted by grep - and
 `badge` is a consumer-computed string rendered verbatim or not at all
 ([validated by](../../tests/ConversationList.test.tsx#L414),
-[L59](../../tests/ConversationList.test.tsx#L62),
-[L68](../../tests/ConversationList.test.tsx#L69)).
+[L62](../../tests/ConversationList.test.tsx#L62),
+[L69](../../tests/ConversationList.test.tsx#L69)).
 
 `ConversationListLabels` has four defaulted keys - `conversations`,
 `noConversations`, `loadingConversations`, and the function-form
@@ -39,16 +39,16 @@ included ([partition](../../tests/labelled-exports.test.tsx#L69),
    `activeId` carries `aria-current="page"` on its interactive element and no
    other row does; `activeId` undefined marks none
    ([validated by](../../tests/ConversationList.test.tsx#L84),
-   [L91](../../tests/ConversationList.test.tsx#L95)).
+   [L95](../../tests/ConversationList.test.tsx#L95)).
 2. **`renderLink(item, props)` is the routing seam; the default is
    `<button type="button" {...props} />`.** A consumer's element must spread
    every prop it is handed - docs/design-notes.md § renderLink states it, pinned
    together with the anchor round-trip and the dropped-`onClick` failure
    mode. `onSelect` fires through the spread `onClick`
    ([validated by](../../tests/ConversationList.test.tsx#L173),
-   [L126](../../tests/ConversationList.test.tsx#L134),
-   [L148](../../tests/ConversationList.test.tsx#L155),
-   [L103](../../tests/ConversationList.test.tsx#L110)).
+   [L134](../../tests/ConversationList.test.tsx#L134),
+   [L155](../../tests/ConversationList.test.tsx#L155),
+   [L110](../../tests/ConversationList.test.tsx#L110)).
 3. **`isPlaceholderTitle` replaces placeholder-literal sniffing.** The
    typewriter fires only when the title changed and the previous render's flag
    was `true`; a conversation
@@ -60,24 +60,24 @@ included ([partition](../../tests/labelled-exports.test.tsx#L69),
    (rows are keyed by `item.id`), never module-scoped - a second list does
    not animate from the first's titles
    ([validated by](../../tests/ConversationList.test.tsx#L241),
-   [L270](../../tests/ConversationList.test.tsx#L284),
-   [L289](../../tests/ConversationList.test.tsx#L303),
-   [L373](../../tests/ConversationList.test.tsx#L389)).
+   [L284](../../tests/ConversationList.test.tsx#L284),
+   [L303](../../tests/ConversationList.test.tsx#L303),
+   [L389](../../tests/ConversationList.test.tsx#L389)).
 4. **Reduced motion switches the typewriter off, it does not shorten it.**
    `useReducedMotion(reducedMotion)` from 021 gates the animation; reduced
    motion takes the same one-pass replacement path a non-placeholder change
    takes. Unmounting mid-animation clears the interval
    ([validated by](../../tests/ConversationList.test.tsx#L314),
-   [L321](../../tests/ConversationList.test.tsx#L335)).
+   [L335](../../tests/ConversationList.test.tsx#L335)).
 
 `onDelete` fires immediately - whether deleting needs confirmation is the
 consumer's product question; omitting the prop renders no button and no
 `TrashIcon` ([validated by](../../tests/ConversationList.test.tsx#L185),
-[L197](../../tests/ConversationList.test.tsx#L210)). `isLoading` wins over a
+[L210](../../tests/ConversationList.test.tsx#L210)). `isLoading` wins over a
 non-empty `items`, rendering a `role="status"` region named by
 `loadingConversations`; loading off with no items renders `noConversations`
 and no `<ul>` ([validated by](../../tests/ConversationList.test.tsx#L219),
-[L219](../../tests/ConversationList.test.tsx#L232)).
+[L232](../../tests/ConversationList.test.tsx#L232)).
 
 ## The characterization suite
 
@@ -86,15 +86,15 @@ The deliberate decisions below are each pinned in
 typewriter's 25ms two-phase stepping and one-pass replacement are pinned
 verbatim, driven by props instead of a data-fetching hook
 ([validated by](../../tests/ConversationList.test.tsx#L241),
-[L270](../../tests/ConversationList.test.tsx#L284)).
+[L284](../../tests/ConversationList.test.tsx#L284)).
 
 | #   | Decision                                                                                                                                                                                                             | Reason                                                                      |
 | --- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
-| a   | The active row carries `aria-current="page"` on its interactive element, never a background class alone ([L78](../../tests/ConversationList.test.tsx#L84))                                                           | Decision 1: a background class announces nothing to assistive tech          |
-| b   | The previous render's `isPlaceholderTitle` flag drives the typewriter, never literal-string sniffing (`"New thread"`/`"New conversation"`/`"Untitled"`) ([L228](../../tests/ConversationList.test.tsx#L241))         | Decision 3: the rule belongs to the title producer, not the UI              |
-| c   | `"Untitled"` → real title with the flag absent animates zero times ([L289](../../tests/ConversationList.test.tsx#L303))                                                                                              | Decision 3: the exact bug literal-string sniffing causes                    |
-| d   | The empty and loading states render the resolved `noConversations` label and a named `role="status"` region ([L206](../../tests/ConversationList.test.tsx#L219), [L219](../../tests/ConversationList.test.tsx#L232)) | 022's labels convention; a spinner region must be named                     |
-| e   | `renderLink` and the spread `onClick` carry routing and selection ([L126](../../tests/ConversationList.test.tsx#L134))                                                                                               | Routing is the consumer's; consumer navigation behaviour hangs on `onClick` |
+| a   | The active row carries `aria-current="page"` on its interactive element, never a background class alone ([L84](../../tests/ConversationList.test.tsx#L84))                                                           | Decision 1: a background class announces nothing to assistive tech          |
+| b   | The previous render's `isPlaceholderTitle` flag drives the typewriter, never literal-string sniffing (`"New thread"`/`"New conversation"`/`"Untitled"`) ([L241](../../tests/ConversationList.test.tsx#L241))         | Decision 3: the rule belongs to the title producer, not the UI              |
+| c   | `"Untitled"` → real title with the flag absent animates zero times ([L303](../../tests/ConversationList.test.tsx#L303))                                                                                              | Decision 3: the exact bug literal-string sniffing causes                    |
+| d   | The empty and loading states render the resolved `noConversations` label and a named `role="status"` region ([L219](../../tests/ConversationList.test.tsx#L219), [L232](../../tests/ConversationList.test.tsx#L232)) | 022's labels convention; a spinner region must be named                     |
+| e   | `renderLink` and the spread `onClick` carry routing and selection ([L134](../../tests/ConversationList.test.tsx#L134))                                                                                               | Routing is the consumer's; consumer navigation behaviour hangs on `onClick` |
 
 Out of scope by design: search (debouncing and client-side filtering over
 `preview`/`org_name` - fields this item type
@@ -122,8 +122,8 @@ consumer-computed `badge` string).
 - `dist/components/ConversationList.js` opens with `"use client";` as its
   first statement per 018's positional check, and
   `npm pack` ships exactly the built pair
-  ([validated by](../../tests/conversation-list-dist.test.ts#L40),
-  [L36](../../tests/conversation-list-dist.test.ts#L47)).
+  ([validated by](../../tests/conversation-list-dist.test.ts#L7),
+  [L14](../../tests/conversation-list-dist.test.ts#L14)).
 
 ## Recorded deviations from the issue text
 
