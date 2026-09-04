@@ -48,12 +48,12 @@ rather than 019's constant (see
    `assistantMessage` is plain `"Assistant response"` and the thumb labels
    drop their shortcut parentheticals
    ([validated by](../../tests/ChatMessage.test.tsx#L224),
-   [L229](../../tests/ChatMessage.test.tsx#L235),
-   [L271](../../tests/ChatMessage.test.tsx#L279),
-   [L124](../../tests/ChatMessage.test.tsx#L127),
-   [L166](../../tests/ChatMessage.test.tsx#L169),
-   [L58](../../tests/ChatMessage.test.tsx#L59),
-   [L64](../../tests/ChatMessage.test.tsx#L65)).
+   [L235](../../tests/ChatMessage.test.tsx#L235),
+   [L279](../../tests/ChatMessage.test.tsx#L279),
+   [L127](../../tests/ChatMessage.test.tsx#L127),
+   [L169](../../tests/ChatMessage.test.tsx#L169),
+   [L59](../../tests/ChatMessage.test.tsx#L59),
+   [L65](../../tests/ChatMessage.test.tsx#L65)).
 3. **`showFeedback` gates the keyboard path too.** Arrow handling fires only
    behind `showFeedback && arrowKeyFeedback`; with `showFeedback={false}` and
    `arrowKeyFeedback`, `ArrowUp` calls nothing and no thumb renders - removing
@@ -64,7 +64,7 @@ rather than 019's constant (see
    rerender with a different id, streaming and empty, shows it again -
    removing the id reset fails the test
    ([validated by](../../tests/ChatMessage.test.tsx#L389),
-   [L394](../../tests/ChatMessage.test.tsx#L410)).
+   [L410](../../tests/ChatMessage.test.tsx#L410)).
 
 ## The characterization suite
 
@@ -74,11 +74,11 @@ and the deliberate decisions below each carry their own test.
 
 | #   | Decision                                                                                                                                                                                                 | Reason                                                                                          |
 | --- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
-| a   | The two arrow-key feedback tests pass `arrowKeyFeedback` and assert the parenthetical-free thumb labels ([L229](../../tests/ChatMessage.test.tsx#L235), [L271](../../tests/ChatMessage.test.tsx#L279))   | Decision 2: the shortcuts are opt-in and the default labels no longer mention them              |
-| b   | New default-off test: `ArrowUp` with default props calls `onFeedback` zero times and does not `preventDefault` (asserted via `fireEvent`'s return value) ([L219](../../tests/ChatMessage.test.tsx#L224)) | Decision 2: the library default must not steal a keyboard user's scroll keys                    |
-| c   | `arrowKeyFeedback` + `showFeedback={false}` fires nothing and renders no thumbs ([L296](../../tests/ChatMessage.test.tsx#L305))                                                                          | Decision 3: the keyboard handler must respect `showFeedback` like the visible thumbs do         |
-| d   | The latch test runs both directions: a new `entry.id`, streaming and empty, shows the indicator again ([L394](../../tests/ChatMessage.test.tsx#L410))                                                    | Decision 4: a module-lifetime latch would mask the bug in any consumer that keys its list by id |
-| e   | The streaming no-key-handling test passes `arrowKeyFeedback` ([L335](../../tests/ChatMessage.test.tsx#L347))                                                                                             | It must still exercise the `isStreaming` gate now that arrows are off by default                |
+| a   | The two arrow-key feedback tests pass `arrowKeyFeedback` and assert the parenthetical-free thumb labels ([L235](../../tests/ChatMessage.test.tsx#L235), [L279](../../tests/ChatMessage.test.tsx#L279))   | Decision 2: the shortcuts are opt-in and the default labels no longer mention them              |
+| b   | New default-off test: `ArrowUp` with default props calls `onFeedback` zero times and does not `preventDefault` (asserted via `fireEvent`'s return value) ([L224](../../tests/ChatMessage.test.tsx#L224)) | Decision 2: the library default must not steal a keyboard user's scroll keys                    |
+| c   | `arrowKeyFeedback` + `showFeedback={false}` fires nothing and renders no thumbs ([L305](../../tests/ChatMessage.test.tsx#L305))                                                                          | Decision 3: the keyboard handler must respect `showFeedback` like the visible thumbs do         |
+| d   | The latch test runs both directions: a new `entry.id`, streaming and empty, shows the indicator again ([L410](../../tests/ChatMessage.test.tsx#L410))                                                    | Decision 4: a module-lifetime latch would mask the bug in any consumer that keys its list by id |
+| e   | The streaming no-key-handling test passes `arrowKeyFeedback` ([L347](../../tests/ChatMessage.test.tsx#L347))                                                                                             | It must still exercise the `isStreaming` gate now that arrows are off by default                |
 
 Out of scope by design: no judge-score or dev-info surface ships -
 `showDevInfo`, `conversationId`, judge-scoring hooks and their harness
@@ -104,23 +104,23 @@ core utility generated by the consumer's build, not a package keyframe
 - Markdown renders through 019's `markdownComponents` map with `remarkGfm`;
   no `prose` class anywhere in `src/`
   ([validated by](../../tests/ChatMessage.test.tsx#L85),
-  [L96](../../tests/ChatMessage.test.tsx#L98),
-  [L634](../../tests/ChatMessage.test.tsx#L734)).
+  [L98](../../tests/ChatMessage.test.tsx#L98),
+  [L734](../../tests/ChatMessage.test.tsx#L734)).
 - Raw HTML in `entry.content` stays escaped text; `rehype-raw` appears in no
   `package.json` field and no `rehypePlugins` prop is passed - the one
   security property this component must never lose (C-18)
   ([validated by](../../tests/ChatMessage.test.tsx#L113),
-  [L622](../../tests/ChatMessage.test.tsx#L722),
+  [L722](../../tests/ChatMessage.test.tsx#L722),
   [manifest](../../tests/chat-message-dist.test.ts#L110)).
 - The avatar circle takes `assistantAvatar` in place of the hardcoded logo and
   renders empty without it - no bundled mark (018 decision 3)
   ([validated by](../../tests/ChatMessage.test.tsx#L483),
-  [L475](../../tests/ChatMessage.test.tsx#L495)).
+  [L495](../../tests/ChatMessage.test.tsx#L495)).
 - `footer` collapses the two dev-harness slots into one `ReactNode` rendered
   last in the message column, streaming or not
   ([validated by](../../tests/ChatMessage.test.tsx#L595),
-  [L513](../../tests/ChatMessage.test.tsx#L606),
-  [L525](../../tests/ChatMessage.test.tsx#L618)).
+  [L606](../../tests/ChatMessage.test.tsx#L606),
+  [L618](../../tests/ChatMessage.test.tsx#L618)).
 - The four icons come from 020's set via relative `.js` imports; no `@clerk`,
   `swr`, `next-intl`, `next/` or `@/` import survives
   ([validated by](../../tests/ChatMessage.test.tsx#L707)).
@@ -133,7 +133,7 @@ core utility generated by the consumer's build, not a package keyframe
   undefined does not throw and still calls `onCopy`. The 2000ms
   `copiedNotice` timeout is pinned under fake timers
   ([validated by](../../tests/ChatMessage.test.tsx#L181),
-  [L124](../../tests/ChatMessage.test.tsx#L127)).
+  [L127](../../tests/ChatMessage.test.tsx#L127)).
 
 ## Recorded decisions
 
@@ -156,7 +156,7 @@ core utility generated by the consumer's build, not a package keyframe
   harness clicks copy and thumbs-up so the interaction-only labels
   (`copied`, `copiedNotice`, `feedbackNotice`) render into the checked DOM
   ([validated by](../../tests/labelled-exports.test.tsx#L502), harness at
-  [L253](../../tests/labelled-exports.test.tsx#L279)).
+  [L279](../../tests/labelled-exports.test.tsx#L279)).
 - **GDPR enforcement is a source grep plus a suite-wide console trap.**
   `entry.content` may carry booking identifiers and names
   (`003-support-conversation-data-flow-record`). Neither component references
