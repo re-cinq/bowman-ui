@@ -1,4 +1,5 @@
 import maxCommentLines from "./rules/max-comment-lines.mjs";
+import noDeadMdLinks from "./rules/no-dead-md-links.mjs";
 import noForwardingClass from "./rules/no-forwarding-class.mjs";
 import noNestedIf from "./rules/no-nested-if.mjs";
 import noNestedLoop from "./rules/no-nested-loop.mjs";
@@ -21,6 +22,7 @@ export default {
   meta: { name: "eslint-plugin-lore-mirror", version: "0.1.0" },
   rules: {
     "max-comment-lines": maxCommentLines,
+    "no-dead-md-links": noDeadMdLinks,
     "no-forwarding-class": noForwardingClass,
     "no-nested-if": noNestedIf,
     "no-nested-loop": noNestedLoop,
