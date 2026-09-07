@@ -16,28 +16,28 @@ prop and a `linkOpensInNewTab` label. `react-markdown`'s own
 
 `defaultMarkdownPolicy` is a frozen `Readonly<Required<MarkdownPolicy>>` equal
 to `{ allowedSchemes: ["https", "mailto", "tel"], allowRelativeUrls: false,
-linkTarget: "_blank", allowImages: false }`
-([validated by](../../tests/markdown/urlPolicy.test.tsx#L33)). `http` is
+linkTarget: "_blank", allowImages: false }`. `http` is
 dropped (a cleartext link to a customer's own booking is an accident),
 `irc`/`ircs`/`xmpp` are dropped (nothing in this product emits them), `tel` is
-added (a depot phone number is a plausible support answer). The three allowed
-schemes render anchors with their exact `href`
-([validated by](../../tests/markdown/urlPolicy.test.tsx#L43)). `http`, `irc`,
+added (a depot phone number is a plausible support answer)
+([validated by](../../tests/markdown/urlPolicy.test.tsx#L33)). The three allowed
+schemes render anchors with their exact `href`. `http`, `irc`,
 `xmpp`, `javascript:`, `data:`, `vbscript:` and every relative form render no
 anchor at all - the link text renders in a `<span>`, and
 `a[href=""]` never appears, since an empty-href anchor reloads the page when
-clicked ([validated by](../../tests/markdown/urlPolicy.test.tsx#L53)). Case
+clicked ([validated by](../../tests/markdown/urlPolicy.test.tsx#L53),
+[L43](../../tests/markdown/urlPolicy.test.tsx#L43)). Case
 and entity encoding do not get past the allowlist, asserted on the DOM
 ([validated by](../../tests/markdown/urlPolicy.test.tsx#L71)).
 
 The allowlist is data, not a hardcoded branch:
-`allowedSchemes: ["https", "http"]` renders the `http` anchor
-([validated by](../../tests/markdown/urlPolicy.test.tsx#L82)). `[]`
-rejects everything
-([validated by](../../tests/markdown/urlPolicy.test.tsx#L90)).
+`allowedSchemes: ["https", "http"]` renders the `http` anchor. `[]`
+rejects everything.
 `allowRelativeUrls: true` renders `<a href="/booking/42">`; the default does
 not ([validated by](../../tests/markdown/urlPolicy.test.tsx#L99),
-[L105](../../tests/markdown/urlPolicy.test.tsx#L105)).
+[L105](../../tests/markdown/urlPolicy.test.tsx#L105),
+[L82](../../tests/markdown/urlPolicy.test.tsx#L82),
+[L90](../../tests/markdown/urlPolicy.test.tsx#L90)).
 
 ## Anchor hardening
 
@@ -79,11 +79,12 @@ exact-`href` guarantee and send the reader somewhere the model did not write.
 An `https` image URL passing the scheme allowlist still means the browser
 requests it at render time - a tracking pixel with no click and no consent.
 The map's `img` renderer renders the `alt` text and no `HTMLImageElement` by
-default ([validated by](../../tests/markdown/urlPolicy.test.tsx#L233)).
+default.
 `allowImages: true` renders one `<img>` with that `src`, still behind the
 scheme allowlist - a `javascript:` source renders none either way
 ([validated by](../../tests/markdown/urlPolicy.test.tsx#L240),
-[L252](../../tests/markdown/urlPolicy.test.tsx#L252)).
+[L252](../../tests/markdown/urlPolicy.test.tsx#L252),
+[L233](../../tests/markdown/urlPolicy.test.tsx#L233)).
 
 **GDPR.** With the default policy a fixture containing an image, an autolinked
 URL and a markdown link renders zero `<img>`, zero `src` attributes and zero
