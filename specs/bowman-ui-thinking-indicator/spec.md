@@ -31,8 +31,8 @@ the same fixture pins it out of the public type surface
 ([validated by](../../tests/types/thinking-indicator-type-assertions.tsx#L10)).
 The runtime export set of `dist/index.js` is pinned separately by the
 `public-api` exact snapshot of 47 values and 31 types after this issue
-([public-api](../../tests/public-api.test.ts#L40),
-[validated by](../../tests/public-api.test.ts#L40)).
+([public-api](../../tests/public-api.test.ts#L43),
+[validated by](../../tests/public-api.test.ts#L43)).
 `dist/components/ThinkingDots.{js,d.ts}` packs
 with the rest of `dist/`, but `package.json`'s `exports` map exposes only `"."`
 and `"./styles.css"`, so no consumer can deep-import the private component
