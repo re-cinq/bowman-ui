@@ -58,8 +58,8 @@ The typecheck script is `typecheck`, not `type-check`.
   tools/eslint-plugin-lore/rules/ against re-cinq/lore main and fails on an upstream rule not
   yet mirrored or recorded as excluded; `-- --write` refreshes mirrors. Exit 2 = fetch
   failure, not drift. See docs/design-notes.md § Lint guardrails decision 9.
-- `node scripts/repoint-spec-anchors.mjs [--check]` — after editing a test file, re-run WITHOUT
-  `--check` or CI reds.
+- `node scripts/repoint-spec-anchors.mjs [--check]` — after editing a cited test, script, README.md
+  or docs/ markdown file (docs/design-notes.md included), re-run WITHOUT `--check` or CI reds.
 - `node scripts/write-public-api.mjs` — only after deliberately deciding a surface change is
   intended (see invariant 3).
 

@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 // Re-points specs' [validated by](../../tests/X.test.tsx#Lnn) anchors after
-// test-file edits (the drift class of issue 36): each anchor's line number is
-// resolved to the content it cited in the base ref's copy of the test file,
+// edits to the cited file (the drift class of issue 36) - a test, a script,
+// README.md or a docs/ markdown file: each anchor's line number is
+// resolved to the content it cited in the base ref's copy of that file,
 // that content is found in the working copy, and the anchor is rewritten to
 // the match whose surrounding lines agree with the baseline's. When the cited
 // content occurs on several working lines, each candidate is scored by how
@@ -48,15 +49,15 @@ import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, normalize } from "node:path";
 import process from "node:process";
 
-const TEST_PATH = String.raw`(?:\.\.\/)+(?:examples\/[^/]+\/)?tests\/[\w./-]+\.(?:tsx|ts)`;
-const ANCHOR = new RegExp(String.raw`(${TEST_PATH})#L(\d+)`, "g");
+const TRACKED_PATH = String.raw`(?:\.\.\/)+(?:(?:examples\/[^/]+\/)?tests\/[\w./-]+\.(?:tsx|ts)|docs\/[\w./-]+\.md|README\.md|scripts\/[\w./-]+)`;
+const ANCHOR = new RegExp(String.raw`(${TRACKED_PATH})#L(\d+)`, "g");
 
 // A short-form [Lnnn](../../tests/X.test.tsx#Lmmm) link: its visible label is a
 // bare line number that must equal the href's #L number. The label has no
 // meaning apart from the href, so it is force-synced to the href even when the
 // href was manually retargeted; descriptive labels ([validated by], ...) never
 // match and are never touched.
-const LABEL_LINK = new RegExp(String.raw`\[L(\d+)\]\((${TEST_PATH})#L(\d+)\)`, "g");
+const LABEL_LINK = new RegExp(String.raw`\[L(\d+)\]\((${TRACKED_PATH})#L(\d+)\)`, "g");
 
 const args = process.argv.slice(2);
 const flags = args.filter((arg) => arg.startsWith("--"));
