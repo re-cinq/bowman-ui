@@ -534,4 +534,62 @@ describe("repoint-spec-anchors", () => {
     expect(rewrite).toMatchObject({ status: 1 });
     expect(read(repo, "specs/foo/spec.md")).toEqual(specBefore);
   });
+
+  it("repoints anchors into docs, README and scripts when the cited line moves", () => {
+    write(repo, "docs/notes.md", asTestFile(["cited note", "other note"]));
+    write(repo, "README.md", asTestFile(["cited readme line", "other line"]));
+    write(repo, "scripts/check.sh", asTestFile(["cited command", "other command"]));
+    write(
+      repo,
+      "specs/bar/spec.md",
+      asSpec("../../docs/notes.md#L1", "../../README.md#L1", "../../scripts/check.sh#L1")
+    );
+    git(repo, "add", "-A");
+    git(repo, "commit", "-q", "-m", "non-test anchors baseline");
+    write(repo, "docs/notes.md", asTestFile(["inserted", "cited note", "other note"]));
+    write(repo, "README.md", asTestFile(["inserted", "cited readme line", "other line"]));
+    write(repo, "scripts/check.sh", asTestFile(["inserted", "cited command", "other command"]));
+
+    const result = run(repo, "main");
+
+    expect(result).toMatchObject({ status: 0 });
+    expect(result.stdout).toContain("repointed: 3");
+    expect(read(repo, "specs/bar/spec.md")).toEqual(
+      asSpec("../../docs/notes.md#L2", "../../README.md#L2", "../../scripts/check.sh#L2")
+    );
+  });
+
+  it("leaves an anchor into a root config file untracked", () => {
+    write(repo, "vitest.config.ts", asTestFile(["cited option", "other option"]));
+    write(repo, "specs/bar/spec.md", asSpec("../../vitest.config.ts#L1"));
+    git(repo, "add", "-A");
+    git(repo, "commit", "-q", "-m", "config anchor baseline");
+    write(repo, "vitest.config.ts", asTestFile(["inserted", "cited option", "other option"]));
+
+    const result = run(repo, "main");
+
+    expect(result).toMatchObject({ status: 0 });
+    expect(result.stdout).toContain("repointed: 0");
+    expect(read(repo, "specs/bar/spec.md")).toEqual(asSpec("../../vitest.config.ts#L1"));
+  });
+
+  it("leaves a link whose fragment is not a line number untouched", () => {
+    write(repo, "docs/notes.md", asTestFile(["cited note", "other note"]));
+    write(
+      repo,
+      "specs/bar/spec.md",
+      asSpec("../../docs/notes.md#A1", "../../docs/accessibility/at-pass-<date>.md#A1")
+    );
+    git(repo, "add", "-A");
+    git(repo, "commit", "-q", "-m", "fragment anchors baseline");
+    write(repo, "docs/notes.md", asTestFile(["inserted", "cited note", "other note"]));
+
+    const result = run(repo, "main");
+
+    expect(result).toMatchObject({ status: 0 });
+    expect(result.stdout).toContain("repointed: 0");
+    expect(read(repo, "specs/bar/spec.md")).toEqual(
+      asSpec("../../docs/notes.md#A1", "../../docs/accessibility/at-pass-<date>.md#A1")
+    );
+  });
 });
