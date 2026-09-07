@@ -32,7 +32,8 @@ narrower check had never seen
 widened it once more to any repo-relative path carrying a file extension, so
 root config files, workflow files, `package.json` files and `examples/`
 sources are repointed and rot-checked like every other cited file
-([validated by](../../tests/repoint-spec-anchors.test.ts#L562)). A file built
+([validated by](../../tests/repoint-spec-anchors.test.ts#L562),
+[L576](../../tests/repoint-spec-anchors.test.ts#L576)). A file built
 of repeated blocks - a workflow whose jobs share an identical setup - has to
 be cited on a line unique to its own step, because the resolver reports a
 context tie as ambiguous rather than guessing
@@ -174,7 +175,7 @@ The assertions run inside the existing `consumer` job in
 `.github/workflows/ci.yml`, against `vite preview` and the packed tarball,
 on every pull request - the job already runs the whole suite via
 `scripts/consumer-app.sh`
-([job](../../.github/workflows/ci.yml#L82)). No new job, no second browser
+([job](../../.github/workflows/ci.yml#L124)). No new job, no second browser
 install, and `scripts/consumer-app.sh` is unchanged in this PR - like the
 `src/` constraint, that is proven by the PR diff, not by an executable
 anchor.
@@ -182,7 +183,7 @@ anchor.
 ## Gates preserved
 
 - `npm run test:coverage` passes at the unchanged 100/100/100/90 thresholds
-  ([validated by](../../vitest.config.ts#L24)); the Playwright suite stays
+  ([validated by](../../vitest.config.ts#L25)); the Playwright suite stays
   excluded from vitest ([validated by](../../vitest.config.ts#L12)).
 - `npm run lint`, `npm run typecheck`, `npm test`, `npm run build` and
   `npm run prettier:check` pass, and `npm run consumer` exits 0 from a clean

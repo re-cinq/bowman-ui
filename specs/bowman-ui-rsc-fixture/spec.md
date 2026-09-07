@@ -11,7 +11,7 @@ compiles it with `next build` under Turbopack. `018`'s directive check is
 static and `032`'s Vite consumer does not share Next's server/client module
 graph, so until this fixture nothing had ever compiled the package inside
 the one consumer shape it is built for. The whole proof is one command,
-`npm run rsc` ([validated by](../../package.json#L33)), documented in the
+`npm run rsc` ([validated by](../../package.json#L53)), documented in the
 README's App Router consumer section ([validated by](../../README.md#L123)).
 
 Anchor caveat (the consumer-app spec's precedent): `scripts/
@@ -67,7 +67,7 @@ carries no `"use client"`
 ([validated by](../../examples/rsc-fixture/app/page.tsx#L2)), and renders
 `023`'s `ChatMessage` - a `"use client"` file in `dist/` - as a child of the
 server page, the legal direction of the boundary
-([validated by](../../examples/rsc-fixture/app/page.tsx#L16)). Neither page
+([validated by](../../examples/rsc-fixture/app/page.tsx#L39)). Neither page
 carries a directive, and no file above them does; the script asserts it
 (`test -f` first, so a moved file cannot pass vacuously) over
 `app/layout.tsx`, `app/page.tsx` and `src/fixtures.ts` on every run rather
@@ -78,7 +78,7 @@ than leaving it to a reviewer reading the diff
 `import * as bowman from "@re-cinq/bowman-ui"` and renders
 `Object.keys(bowman).length`
 ([validated by](../../examples/rsc-fixture/app/page.tsx#L1), the render at
-[L9](../../examples/rsc-fixture/app/page.tsx#L9)), so no bundler can elide
+[L32](../../examples/rsc-fixture/app/page.tsx#L32)), so no bundler can elide
 the namespace; the script asserts the rendered count is present and at
 least 40 (53 measured), which is what proves the whole barrel - `useDebounce`
 included - sat in the server module graph at render time
@@ -243,27 +243,27 @@ The `rsc` job in `ci.yml` runs on every pull request (the workflow's
 unfiltered `pull_request` trigger) beside `032`'s `consumer` job. It pins
 its actions to the same commit SHAs as the existing jobs with
 `persist-credentials: false`
-([validated by](../../.github/workflows/ci.yml#L123)) - the issue text
+([validated by](../../.github/workflows/ci.yml#L152)) - the issue text
 named the older `v6`/`v4` SHAs from before this repo moved to `v7` pins;
 the existing file's style wins and the deviation is recorded here - sets
-`node-version: "22"` ([validated by](../../.github/workflows/ci.yml#L128)),
+`node-version: "22"` ([validated by](../../.github/workflows/ci.yml#L152)),
 runs `npm ci --ignore-scripts`
-([validated by](../../.github/workflows/ci.yml#L122)) and an explicit
+([validated by](../../.github/workflows/ci.yml#L162)) and an explicit
 `npm run build` before packing
-([validated by](../../.github/workflows/ci.yml#L124)), then runs the green
+([validated by](../../.github/workflows/ci.yml#L164)), then runs the green
 case and the `--expect-failure` case as separately named steps
-([validated by](../../.github/workflows/ci.yml#L134),
-[the red step](../../.github/workflows/ci.yml#L136)).
+([validated by](../../.github/workflows/ci.yml#L166),
+[the red step](../../.github/workflows/ci.yml#L168)).
 
 The same job re-runs the three next-absence checks, unmodified:
 `check-forbidden-imports.mjs`
-([validated by](../../.github/workflows/ci.yml#L138)), `018`'s manifest grep
+([validated by](../../.github/workflows/ci.yml#L170)), `018`'s manifest grep
 with the `node_modules/next` probe
-([validated by](../../.github/workflows/ci.yml#L140)), and `032`'s
+([validated by](../../.github/workflows/ci.yml#L172)), and `032`'s
 node_modules `find` - which issue 100 moved into
 `scripts/scan-forbidden-node-modules.sh` so this job and `consumer-app.sh`
 share one copy of the pattern rather than drifting
-([validated by](../../.github/workflows/ci.yml#L149)). One honest caveat,
+([validated by](../../.github/workflows/ci.yml#L180)). One honest caveat,
 recorded instead of dressed up: the `find` cannot run against the fixture's
 own installed tree, which contains `next` by design - the `consumer` job
 remains its executable home for the consumer tree, and here the identical
@@ -274,14 +274,14 @@ the three checks carries a pointer comment at its home naming the
 exemption: `check-forbidden-imports.mjs`
 ([validated by](../../scripts/check-forbidden-imports.mjs#L11)), the
 `next must be absent` step
-([validated by](../../.github/workflows/ci.yml#L71)), and the shared
+([validated by](../../.github/workflows/ci.yml#L115)), and the shared
 node_modules scan
 ([validated by](../../scripts/scan-forbidden-node-modules.sh#L6)).
 
 `publish.yml` runs `scripts/rsc-fixture.sh` after the Build step and before
 `npm publish`, against the tarball packed from the tagged commit - the same
 release-candidate gate `011` and `032` install
-([validated by](../../.github/workflows/publish.yml#L69)). Green mode only:
+([validated by](../../.github/workflows/publish.yml#L132)). Green mode only:
 the `--expect-failure` branch guards the repo's own `dist/` directives,
 which CI already gated on the same commit, and a release run should not
 spend a second `next build` re-proving the guard rather than the release.
@@ -289,14 +289,14 @@ spend a second `next build` re-proving the guard rather than the release.
 `.lore/test-commands.yml` is untouched on purpose: it is generated by the
 Lore onboarding tool and issue 189 owns its contents. The `rsc` command is
 instead reachable the same way `consumer` is, as a `package.json` script
-([validated by](../../package.json#L33)).
+([validated by](../../package.json#L53)).
 
 ## Gates preserved
 
 - `tsconfig.json` still excludes `examples/`
   ([validated by](../../tsconfig.json#L17)).
 - Coverage still scopes to `src/**` at the unchanged 100/100/100/90
-  thresholds ([validated by](../../vitest.config.ts#L24)); vitest's
+  thresholds ([validated by](../../vitest.config.ts#L25)); vitest's
   `exclude` already covered `examples/**`
   ([validated by](../../vitest.config.ts#L12)).
 - `npm pack --dry-run` ships `dist/`, `package.json`, `LICENSE`, `README.md`
@@ -305,8 +305,8 @@ instead reachable the same way `consumer` is, as a `package.json` script
 - Next's build artifacts cannot leak into the gates: `.next/`,
   `next-env.d.ts` and `tsconfig.tsbuildinfo` are git-ignored
   ([validated by](../../.gitignore#L6), through
-  [L8](../../.gitignore#L8)), the generated paths are
-  eslint-ignored ([validated by](../../eslint.config.mjs#L101)), and the tar
+  [L8](../../.gitignore#L8)), `.next/` and `next-env.d.ts` are also
+  eslint-ignored ([validated by](../../eslint.config.mjs#L332)), and the tar
   copy excludes them ([validated by](../../scripts/pack-to-temp.sh#L25)).
 - docs/design-notes.md decision 4's "not a dependency anywhere" bullet names
   the one exception in place, so the decision does not contradict the

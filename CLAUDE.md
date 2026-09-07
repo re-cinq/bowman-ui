@@ -131,7 +131,7 @@ The typecheck script is `typecheck`, not `type-check`.
    relative import ends in `.js` (NodeNext). The compiler is the enforcement.
 7. **Forbidden imports in `src/`** (scripts/check-forbidden-imports.mjs): `next`, `next-intl`,
    `swr`, `lucide-react`, `@clerk/*`, `@/*`.
-8. **Coverage floor** (vitest.config.ts:24): 100 lines / 100 functions / 100 statements + 90
+8. **Coverage floor** (vitest.config.ts:25): 100 lines / 100 functions / 100 statements + 90
    branches over `src/**`. Lower it only once, in the PR that needs it, with the number and
    reason recorded — and never again.
 9. **One icon system** (docs/design-notes.md decisions 2-3). The local 23-icon set only, no `lucide-react`.
