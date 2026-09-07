@@ -355,13 +355,12 @@ describe("ConversationList", () => {
       });
     });
 
-    it('the full title "Booking 4711" is plain text for assistive tech, hidden with inline styles so no consumer stylesheet is required, and the per-character spans are aria-hidden', () => {
+    it('the full title "Booking 4711" is plain text for assistive tech, hidden by the bowman-sr-only class, and the per-character spans are aria-hidden', () => {
       render(<ConversationList items={[makeItem()]} />);
 
       const plainTitle = screen.getByText("Booking 4711");
 
-      expect(plainTitle.style).toMatchObject({ position: "absolute", width: "1px" });
-      expect(plainTitle.hasAttribute("class")).toBe(false);
+      expect(plainTitle).toHaveClass("bowman-sr-only");
       expect(titleContainer()).toHaveAttribute("aria-hidden", "true");
     });
 

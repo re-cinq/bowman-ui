@@ -131,24 +131,10 @@ function TypewriterTitle({
     };
   }, [text, isPlaceholder, reducedMotion]);
 
-  // The spans are presentation only - AT reads the plain title; hidden inline so no consumer stylesheet is needed.
+  // The spans are presentation only - AT reads the plain title, hidden by the stylesheet's bowman-sr-only.
   return (
     <>
-      <span
-        style={{
-          position: "absolute",
-          width: "1px",
-          height: "1px",
-          padding: 0,
-          margin: "-1px",
-          overflow: "hidden",
-          clip: "rect(0, 0, 0, 0)",
-          whiteSpace: "nowrap",
-          border: 0,
-        }}
-      >
-        {text}
-      </span>
+      <span className="bowman-sr-only">{text}</span>
       <span
         aria-hidden="true"
         className="block overflow-hidden whitespace-nowrap"

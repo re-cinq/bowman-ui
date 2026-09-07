@@ -38,13 +38,13 @@ describe("Toast", () => {
     expect(serverHtml).toMatch(/role="status"[^>]*><\/div>/);
   });
 
-  it("the status region is a separate visually-hidden element, hidden with inline styles so no consumer stylesheet is required", () => {
+  it("the status region is a separate element hidden by the stylesheet's bowman-sr-only class", () => {
     render(<Toast message="Booking 4711 guardado" onClose={() => {}} />);
 
     const status = screen.getByRole("status");
 
     expect(status).not.toHaveClass("bowman-toast-fade-in");
-    expect(status.style).toMatchObject({ position: "absolute", width: "1px", height: "1px" });
+    expect(status).toHaveClass("bowman-sr-only");
   });
 
   it("with no duration prop, onClose is uncalled at 1999ms and called once at 2000ms", () => {
