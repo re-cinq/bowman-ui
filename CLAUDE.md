@@ -59,6 +59,11 @@ The typecheck script is `typecheck`, not `type-check`.
   fails on an upstream rule not yet mirrored or recorded as excluded; `-- --write` refreshes
   mirrors. Exit 2 = fetch failure, not drift. See docs/design-notes.md § Lint guardrails
   decisions 9 and 10.
+- `npm run check:spec-links [-- <spec paths>] [-- --json]` — reports every `[validated by]` test
+  link that sits outside its statement's trailing parenthetical (lore counts only trailing ones);
+  exit 1 on any finding, exit 2 on a bad flag or unreadable spec. Runs the
+  tools/lore-spec-domain/ mirrors under `--experimental-strip-types`, so it needs Node 22.6+.
+  See docs/design-notes.md § Lint guardrails decision 10.
 - `node scripts/repoint-spec-anchors.mjs [--check]` — after editing a cited test, script, README.md
   or docs/ markdown file (docs/design-notes.md included), re-run WITHOUT `--check` or CI reds.
 - `node scripts/write-public-api.mjs` — only after deliberately deciding a surface change is
@@ -187,7 +192,7 @@ wrong; the correct fact is on the right.
 - Never import `next` (or the other forbidden specifiers) outside `examples/rsc-fixture`.
 - Never add a `no-restricted-syntax` overlay without re-listing every shared selector (labels,
   focusable-literal, svg, default-export) — arrays replace, they never merge.
-- Never edit a file under `tools/eslint-plugin-lore/rules/`; refresh with
-  `npm run check:lore-plugin-sync -- --write`. Never write a multi-line comment in `src/`.
+- Never edit a file under `tools/eslint-plugin-lore/rules/` or `tools/lore-spec-domain/`; refresh
+  with `npm run check:lore-plugin-sync -- --write`. Never write a multi-line comment in `src/`.
 - Never remove the `rm -rf dist` from the build script.
 - Never `npm publish` by hand and never push to `main`.
