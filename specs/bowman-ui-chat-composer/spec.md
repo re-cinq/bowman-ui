@@ -126,8 +126,7 @@ accessible name is the resolved `send` label with its `SendIcon`
 `defaultChatComposerLabels` is `Readonly<Required<ChatComposerLabels>>`; a
 key added without a default fails `npm run typecheck`, pinned by the
 `@ts-expect-error` fixture in `tests/types/chat-composer-type-assertions.tsx`
-compiled against `dist/`
-(fixture at
+compiled against `dist/` (fixture at
 [chat-composer-type-assertions](../../tests/types/chat-composer-type-assertions.tsx)).
 `ChatComposer` joins the `labelsProp` partition and the sentinel render
 covers it ([validated by](../../tests/labelled-exports.test.tsx#L493),
