@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { act, fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import { AppShell, type SidebarSlotContext } from "../src/index.js";
 
 const source = readFileSync(resolve(process.cwd(), "src/components/AppShell.tsx"), "utf8");
@@ -487,8 +487,14 @@ describe("AppShell", () => {
           <AppShell renderSidebar={() => null}>content</AppShell>
         );
 
-        const spacers = (root: HTMLElement) => root.querySelectorAll("header > div").length;
+        const spacers = (root: HTMLElement) => {
+          const headerRow = within(root).getByRole("button", { name: "Open menu" })
+            .parentElement as HTMLElement;
 
+          return headerRow.querySelectorAll("div.h-10.w-10").length;
+        };
+
+        expect(spacers(withNull)).toBe(0);
         expect(spacers(withNull)).toBe(spacers(omitted));
       });
     });
