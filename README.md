@@ -6,7 +6,7 @@ Presentational React components for AI chat interfaces.
 
 The name follows the pairing the org chose: HAL Engine is the engine that thinks, Bowman is the face that talks to you.
 
-<img alt="A full chat application composed from bowman-ui exports: a sidebar with a new chat button and a conversation list beside a transcript where an assistant answers a caching-strategy question with a markdown list, a code block and a table, a thinking indicator, and the composer." src="https://raw.githubusercontent.com/re-cinq/bowman-ui/main/docs/assets/hero-split.png" />
+<img alt="A full chat application composed from bowman-ui exports: a sidebar with a new chat button and a conversation list beside a transcript where an assistant answers a caching-strategy question with a markdown list, a code block and a table, a thinking indicator, and the composer." src="docs/assets/hero-split.png" />
 
 _One surface, every piece: sidebar, transcript, and composer, rendered through the library's own components._
 
@@ -193,7 +193,7 @@ import { createMarkdownComponents, createUrlTransform } from "@re-cinq/bowman-ui
 
 Every piece on screen is one export:
 
-![Annotated screenshot labeling AppShell's renderSidebar slot, ConversationList, ChatMessage with createMarkdownComponents, InlineThinkingIndicator, and ChatComposer on a rendered chat surface.](https://raw.githubusercontent.com/re-cinq/bowman-ui/main/docs/assets/anatomy.png)
+![Annotated screenshot labeling AppShell's renderSidebar slot, ConversationList, ChatMessage with createMarkdownComponents, InlineThinkingIndicator, and ChatComposer on a rendered chat surface.](docs/assets/anatomy.png)
 
 Data flows one way in and one way out - the package never talks to a backend, it only renders what it is handed and reports what the user did:
 
@@ -204,7 +204,7 @@ an engine that thinks  <--(messages)--------  your adapter  <--(onSubmit, onCopy
 
 On a phone the sidebar becomes a focus-trapped drawer behind the hamburger. It opens on request - every time, without argument:
 
-<img src="https://raw.githubusercontent.com/re-cinq/bowman-ui/main/docs/assets/mobile-drawer.png" alt="The mobile drawer open over the chat surface: conversation list and new-chat button over a dimmed backdrop." width="300" />
+<img src="docs/assets/mobile-drawer.png" alt="The mobile drawer open over the chat surface: conversation list and new-chat button over a dimmed backdrop." width="300" />
 
 ## Labels and translations
 
