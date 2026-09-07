@@ -102,22 +102,14 @@ export function useFocusGroups(options: FocusGroupsOptions = {}): void {
   }, [getFocusGroups, focusFirstElement, announce]);
 }
 
-/** Announces to screen readers through a live region hidden with inline styles, so no consumer stylesheet is needed. */
+/** Announces to screen readers through a live region hidden by the stylesheet's bowman-sr-only class. */
 function announceToScreenReader(message: string): void {
   const announcement = document.createElement("div");
 
   announcement.setAttribute("role", "status");
   announcement.setAttribute("aria-live", "polite");
   announcement.setAttribute("aria-atomic", "true");
-  announcement.style.position = "absolute";
-  announcement.style.width = "1px";
-  announcement.style.height = "1px";
-  announcement.style.padding = "0";
-  announcement.style.margin = "-1px";
-  announcement.style.overflow = "hidden";
-  announcement.style.clip = "rect(0, 0, 0, 0)";
-  announcement.style.whiteSpace = "nowrap";
-  announcement.style.border = "0";
+  announcement.className = "bowman-sr-only";
 
   // Mount empty, fill next frame: a born-with-text region is unreliably announced, and a keydown implies frames run.
   document.body.appendChild(announcement);

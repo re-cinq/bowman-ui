@@ -123,4 +123,19 @@ describe("the typography-plugin replacement", () => {
 
     expect(hits).toEqual([]);
   });
+
+  it("no src file hand-writes a visually-hidden clip; bowman-sr-only is the one definition", () => {
+    const handWrittenClip = /rect\(\s*0\s*,\s*0\s*,\s*0\s*,\s*0\s*\)|\.style\.clip\b|clipPath/;
+    const hits = sourceFiles(resolve(process.cwd(), "src")).filter((file) =>
+      handWrittenClip.test(readFileSync(file, "utf8"))
+    );
+
+    expect(hits).toEqual([]);
+  });
+
+  it("styles.css declares the bowman-sr-only rule the markdown notice, Toast, ConversationList and useFocusGroups depend on", () => {
+    expect(readFileSync(resolve(process.cwd(), "src/styles.css"), "utf8")).toMatch(
+      /\.bowman-sr-only \{/
+    );
+  });
 });
