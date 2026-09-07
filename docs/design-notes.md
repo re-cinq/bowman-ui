@@ -353,12 +353,12 @@ the stacking order never depends on DOM order.
 
 The open drawer is a modal dialog to assistive tech - `role="dialog"`,
 `aria-modal="true"`, named by the `sidebarDialog` label ("Menu") - and the
-hamburger carries `aria-expanded`/`aria-controls`. This does not revisit the
-landmark ruling: `dialog` is not a landmark role, so the sidebar's own
-`aside`/`nav` still supply the only rotor entries. The body scroll lock is
-scoped to the mobile breakpoint: at `min-width: 768px`, where `md:hidden`
-hides the drawer, the lock lifts and re-applies if the viewport narrows
-again.
+hamburger names the drawer through `aria-controls` but deliberately carries no
+`aria-expanded`: it only opens, and the open drawer covers it. This does not
+revisit the landmark ruling: `dialog` is not a landmark role, so the sidebar's
+own `aside`/`nav` still supply the only rotor entries. The body scroll lock is
+scoped to the mobile breakpoint: at `min-width: 768px`, where `md:hidden` hides
+the drawer, the lock lifts and re-applies if the viewport narrows again.
 
 ## Tool activity
 
