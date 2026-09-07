@@ -110,6 +110,33 @@ copy button on each message writes to the clipboard itself, then shows a two-sec
 confirmation. `onCopy` is a notification, fired whether or not the write succeeded - an insecure
 context has no clipboard - so use it for a toast, not for copying.
 
+The list has no "new conversation" control and no `onNew` prop: that control is yours, which is
+why the minimal app above has none. Put your own control above `ConversationList` inside
+`AppSidebar`'s children, and call the `close` that `renderSidebar` receives so the mobile drawer
+shuts, the same way `onSelect={close}` already does; add `PlusIcon` to the import list:
+
+```tsx
+renderSidebar={({ close }) => (
+  <AppSidebar brand="Your app">
+    <button
+      type="button"
+      onClick={() => {
+        startConversation();
+        close();
+      }}
+    >
+      <PlusIcon className="h-4 w-4" />
+      New chat
+    </button>
+    <ConversationList items={[{ id: "1", title: "Today" }]} activeId="1" onSelect={close} />
+  </AppSidebar>
+)}
+```
+
+`startConversation` is yours as well. `PlusIcon` comes from the package and is decorative beside
+the visible text; styling the control is the consumer's job, as
+`examples/chat-demo/src/docs/HeroPreview.tsx` shows.
+
 ## Worked consumer
 
 `examples/chat-demo` is the worked consumer: a standalone Vite app that installs this package from a freshly packed tarball (never the source tree, never the registry) and composes `AppShell`, `AppSidebar`, `ConversationList`, `ChatMessageList`, `ChatComposer` and `Toast` into a full chat screen, verified by a real-Chromium Playwright suite. One command builds the package, packs it, installs the tarball into a temp copy outside the repo tree and runs the whole proof:
@@ -131,6 +158,8 @@ npm run rsc
 Pass `-- --keep` to retain the temp directory and tarball, and `-- --expect-failure` to prove the guard goes red when a `dist/` file loses its directive.
 
 A React server component cannot pass a function across the client boundary - `AppShell` (`renderSidebar`, `onMobileSidebarOpenChange`), `AppSidebar` (`renderNavLink`, `onNavigate`, a `SidebarNavItem`'s `icon`), `ChatComposer` (`onSubmit`), `ChatMessage` and `ChatMessageList` (`onCopy`, `onFeedback`, the `assistantMessageFrom` label), `ConversationList` (`renderLink`, `onSelect`, `onDelete`, the `deleteConversation` label), `ErrorBoundary` (`onError`) and `Toast` (`onClose`) accept function-valued props, so an App Router consumer supplies those props from a `"use client"` file (measured on Next 16.3.3; the verbatim build error is recorded in docs/design-notes.md § RSC fixture). An object literal crosses fine - `ChatMessageList`'s `attribution` map, element-valued avatars included - which is why per-entry attribution is a lookup table and not a render prop.
+`ConversationList` has no `onNew`; the new-conversation control is the consumer's, as shown under
+[Minimal app](#minimal-app).
 
 ## Rendering entries
 
