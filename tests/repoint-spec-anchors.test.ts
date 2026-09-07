@@ -559,7 +559,7 @@ describe("repoint-spec-anchors", () => {
     );
   });
 
-  it("leaves an anchor into a root config file untracked", () => {
+  it("repoints an anchor into a root config file when the cited line moves", () => {
     write(repo, "vitest.config.ts", asTestFile(["cited option", "other option"]));
     write(repo, "specs/bar/spec.md", asSpec("../../vitest.config.ts#L1"));
     git(repo, "add", "-A");
@@ -569,8 +569,38 @@ describe("repoint-spec-anchors", () => {
     const result = run(repo, "main");
 
     expect(result).toMatchObject({ status: 0 });
-    expect(result.stdout).toContain("repointed: 0");
-    expect(read(repo, "specs/bar/spec.md")).toEqual(asSpec("../../vitest.config.ts#L1"));
+    expect(result.stdout).toContain("repointed: 1");
+    expect(read(repo, "specs/bar/spec.md")).toEqual(asSpec("../../vitest.config.ts#L2"));
+  });
+
+  it("repoints anchors into a workflow file and package.json when their lines move", () => {
+    write(
+      repo,
+      ".github/workflows/x.yml",
+      asTestFile(["      - name: Build", "        run: npm run build"])
+    );
+    write(repo, "package.json", asTestFile(['  "name": "demo",', '  "version": "0.1.0"']));
+    write(
+      repo,
+      "specs/bar/spec.md",
+      asSpec("../../.github/workflows/x.yml#L1", "../../package.json#L1")
+    );
+    git(repo, "add", "-A");
+    git(repo, "commit", "-q", "-m", "workflow and manifest anchor baseline");
+    write(
+      repo,
+      ".github/workflows/x.yml",
+      asTestFile(["name: CI", "      - name: Build", "        run: npm run build"])
+    );
+    write(repo, "package.json", asTestFile(["{", '  "name": "demo",', '  "version": "0.1.0"']));
+
+    const result = run(repo, "main");
+
+    expect(result).toMatchObject({ status: 0 });
+    expect(result.stdout).toContain("repointed: 2");
+    expect(read(repo, "specs/bar/spec.md")).toEqual(
+      asSpec("../../.github/workflows/x.yml#L2", "../../package.json#L2")
+    );
   });
 
   it("leaves a link whose fragment is not a line number untouched", () => {

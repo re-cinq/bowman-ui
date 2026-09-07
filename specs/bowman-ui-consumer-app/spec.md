@@ -14,13 +14,14 @@ README's Worked consumer section ([validated by](../../README.md#L113)).
 
 Anchor caveat: `scripts/repoint-spec-anchors.mjs` tracks
 `(../)+tests/*.ts(x)` anchors, `(../)+examples/*/tests/*.ts(x)` anchors since
-the composer-resize-browser change, and `scripts/`, `README.md` and `docs/`
-markdown anchors since issue 32, so this spec's links into
-`examples/chat-demo/tests/`, `scripts/` and `README.md` are repointed by CI. Its links into
-other `examples/` files, `package.json` files and workflow files remain plain
-GitHub links that CI never repoints - they were authored against this PR's
-tree and drift silently if those files are later edited without updating
-this spec.
+the composer-resize-browser change, `scripts/`, `README.md` and `docs/`
+markdown anchors since issue 32, and since issue 37 any repo-relative path
+carrying a file extension, so this spec's links into `examples/`,
+`package.json` files, workflow files and root config files are repointed and
+rot-checked by CI along with the rest. Anchors into `ci.yml` and
+`publish.yml` cite a line unique to the job they describe, because the
+identical setup blocks those files repeat across jobs are a context tie the
+resolver refuses to guess at.
 
 ## The demo app
 
