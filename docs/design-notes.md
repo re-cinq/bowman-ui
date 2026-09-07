@@ -566,7 +566,8 @@ Decisions:
    since README already requires `./styles.css` of every consumer. The one
    other hiding idiom is `AppShell`'s skip link, which uses Tailwind's
    `sr-only` with `focus:not-sr-only` because it must become visible on
-   focus. `tests/styles.test.ts` fails on any hand-written clip in `src/`.
+   focus. `tests/styles.test.ts` fails on a hand-written clip literal in `src/`
+   and on the stylesheet losing the rule.
 7. **House style is autofixable and repo-wide**: `curly` ("all") plus
    `@stylistic/padding-line-between-statements` (blank line before returns
    and control flow, after the import block and declaration groups).
