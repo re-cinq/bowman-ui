@@ -22,12 +22,22 @@ Books English-only re-theme; the three resize tests also passed a local
 Anchor note: `scripts/repoint-spec-anchors.mjs` originally tracked only
 `(../)+tests/*.ts(x)` anchors; this change widens its regex by one line to
 also track `(../)+examples/*/tests/*.ts(x)` anchors
-([regex](../../scripts/repoint-spec-anchors.mjs#L39)), so this spec's links
-into `examples/chat-demo/tests/chat-demo.spec.ts` are repointed by CI like
+([regex](../../scripts/repoint-spec-anchors.mjs#L52)), so this spec's
+links into `examples/chat-demo/tests/chat-demo.spec.ts` are repointed by CI like
 any `tests/` anchor. The widened check ran clean over the pre-existing
 consumer-app spec (21 newly tracked anchors there; 591 up to date repo-wide,
-0 stale, 0 rotten). Links into `scripts/`, `vitest.config.ts` and workflow
-files remain plain GitHub links CI never repoints.
+0 stale, 0 rotten). Issue 32 widened the same pattern again to `scripts/`,
+`README.md` and `docs/` markdown anchors, which exposed six dead links the
+narrower check had never seen
+([validated by](../../tests/repoint-spec-anchors.test.ts#L538)). Root config
+files, workflow files and `examples/` sources outside `tests/` remain plain
+GitHub links CI never repoints
+([validated by](../../tests/repoint-spec-anchors.test.ts#L562)). The
+assistive-technology spec's placeholder links carry `#A1`-style fragments and
+a `<date>` placeholder, so the tracker never matches them
+([validated by](../../tests/repoint-spec-anchors.test.ts#L576)); a real
+`docs/accessibility/at-pass-*.md` cited with `#L` anchors becomes tracked
+the moment it exists.
 
 ## Baseline
 
