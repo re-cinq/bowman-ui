@@ -3,6 +3,7 @@ import tseslint from "typescript-eslint";
 import reactHooks from "eslint-plugin-react-hooks";
 import sonarjs from "eslint-plugin-sonarjs";
 import stylistic from "@stylistic/eslint-plugin";
+import markdown from "@eslint/markdown";
 import bowman from "./tools/eslint-plugin-bowman/index.mjs";
 import lore from "./tools/eslint-plugin-lore/index.mjs";
 
@@ -92,17 +93,21 @@ const defaultExportBan = {
     "Default export. The public surface is named exports only (`export const`) - see docs/design-notes.md § Lint guardrails.",
 };
 
+// Every script file the linter reaches. The JavaScript presets, parser options
+// and react-hooks rules are scoped to this glob rather than left global: a
+// global config object also applies to the markdown-language block below,
+// where core JavaScript rules crash on a markdown source.
+const scriptFiles = ["**/*.{ts,tsx,mts,cts,mjs,cjs,js}"];
+
 export default [
-  js.configs.recommended,
-  ...tseslint.configs.recommended,
-  {
+  ...tseslint.config({
+    files: scriptFiles,
+    extends: [js.configs.recommended, ...tseslint.configs.recommended],
     languageOptions: {
       parserOptions: {
         tsconfigRootDir: import.meta.dirname,
       },
     },
-  },
-  {
     plugins: {
       "react-hooks": reactHooks,
     },
@@ -114,7 +119,7 @@ export default [
       "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
       "@typescript-eslint/no-explicit-any": "error",
     },
-  },
+  }),
   // Recorded react-hooks exemptions - each a documented, test-asserted render
   // pattern, not drift (see docs/design-notes.md § Lint guardrails decision 8).
   // - ChatMessage: the monotonic entry-id thinking-indicator latch, a ref read
@@ -143,7 +148,7 @@ export default [
   // Prettier neither inserts nor removes single blank lines between
   // statements, so --fix followed by prettier --write reaches a fixed point.
   {
-    files: ["**/*.{ts,tsx,mts,cts,mjs,cjs,js}"],
+    files: scriptFiles,
     plugins: { "@stylistic": stylistic },
     rules: {
       curly: ["error", "all"],
@@ -297,6 +302,17 @@ export default [
       "sonarjs/no-duplicate-string": ["error", { threshold: 3, ignoreStrings: "use client" }],
       "sonarjs/no-identical-functions": "error",
     },
+  },
+  // Every markdown link to a repo file must land (lore/no-dead-md-links,
+  // mirrored - decision 9): a rename sweep rewrites a dead link faithfully
+  // and the reference reads as current. The only markdown rule; the
+  // assistive-technology-pass spec carries a scoped disable for its seven
+  // deliberate links to the not-yet-written at-pass-<date>.md record.
+  {
+    files: ["**/*.md"],
+    language: "markdown/gfm",
+    plugins: { markdown, lore },
+    rules: { "lore/no-dead-md-links": "error" },
   },
   {
     ignores: [
