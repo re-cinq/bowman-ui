@@ -77,42 +77,41 @@ default ([validated by](../../tests/ChatMessageList.test.tsx#L190)).
    enforcement. The band renders outside the scroll region (it cannot
    scroll away) and above it (visible before the customer types), in both
    states, and no prop in `ChatMessageListProps` removes it - pinned by a
-   render with every optional prop `false` or `undefined`
-   ([validated by](../../tests/ChatMessageList.test.tsx#L150),
-   [L167](../../tests/ChatMessageList.test.tsx#L167)). The type enforces
-   presence, not substance: an empty string renders an empty band, and per
-   docs/design-notes.md § Labels decision 5 the package adds no runtime guard - a
-   consumer that supplies `""` owns that compliance failure.
+   render with every optional prop `false` or `undefined`. The type
+   enforces presence, not substance: an empty string renders an empty
+   band, and per docs/design-notes.md § Labels decision 5 the package adds
+   no runtime guard - a consumer that supplies `""` owns that compliance
+   failure ([validated by](../../tests/ChatMessageList.test.tsx#L150),
+   [L167](../../tests/ChatMessageList.test.tsx#L167)).
 2. **Auto-scroll follows the bottom only while the reader is pinned.**
    Pinning is tracked on the region's `scroll` event as
    `scrollHeight - scrollTop - clientHeight <= 32`; scrolling away opts out
-   until a scroll event returns the reader to the bottom
-   ([validated by](../../tests/ChatMessageList.test.tsx#L630),
+   until a scroll event returns the reader to the bottom, and the 32px
+   threshold is pinned at both sides of the boundary. One exception keeps
+   the feature alive in real browsers: a smooth animation this component
+   started fires downward scroll events of its own, and those do not
+   unpin - reaching the bottom, or any upward reader-initiated movement,
+   settles the flight. Mount always scrolls to the latest message
+   unconditionally, instant, before any scroll event
+   ([validated by](../../tests/ChatMessageList.test.tsx#L714),
+   [L630](../../tests/ChatMessageList.test.tsx#L630),
    [L648](../../tests/ChatMessageList.test.tsx#L648),
-   [append while pinned](../../tests/ChatMessageList.test.tsx#L613)), and
-   the 32px threshold is pinned at both sides of the boundary
-   ([validated by](../../tests/ChatMessageList.test.tsx#L757)). One
-   exception keeps the feature alive in real browsers: a smooth animation
-   this component started fires downward scroll events of its own, and
-   those do not unpin - reaching the bottom, or any upward reader-initiated
-   movement, settles the flight
-   ([validated by](../../tests/ChatMessageList.test.tsx#L784)). Mount
-   always scrolls to the latest message unconditionally, instant, before
-   any scroll event
-   ([validated by](../../tests/ChatMessageList.test.tsx#L714)).
+   [append while pinned](../../tests/ChatMessageList.test.tsx#L613),
+   [L757](../../tests/ChatMessageList.test.tsx#L757),
+   [L784](../../tests/ChatMessageList.test.tsx#L784)).
 3. **Smooth on append, instant on delta, always instant under reduced
    motion.** `behavior: "smooth"` when `entries.length` grew, `"auto"` when
    only content changed, and `useReducedMotion(reducedMotion)` (021's hook)
-   forces `"auto"` always
-   ([validated by](../../tests/ChatMessageList.test.tsx#L668),
-   [L688](../../tests/ChatMessageList.test.tsx#L688)). A delta must arrive
-   as a **new `entries` array**: the scroll effect keys on the prop's
-   identity, so a reducer that mutates in place never scrolls - the shape
-   every React state update produces anyway - and the inverse holds too: a
-   parent that rebuilds the array on every render issues a visually-silent
-   instant scroll per render while pinned. `busy` turning on while pinned
-   also scrolls (instant), so the ThinkingIndicator cannot appear below the
-   fold ([validated by](../../tests/ChatMessageList.test.tsx#L725)).
+   forces `"auto"` always. A delta must arrive as a **new `entries`
+   array**: the scroll effect keys on the prop's identity, so a reducer
+   that mutates in place never scrolls - the shape every React state update
+   produces anyway - and the inverse holds too: a parent that rebuilds the
+   array on every render issues a visually-silent instant scroll per render
+   while pinned. `busy` turning on while pinned also scrolls (instant), so
+   the ThinkingIndicator cannot appear below the fold
+   ([validated by](../../tests/ChatMessageList.test.tsx#L725),
+   [L668](../../tests/ChatMessageList.test.tsx#L668),
+   [L688](../../tests/ChatMessageList.test.tsx#L688)).
 4. **`scrollTo` with a `scrollTop` fallback, never `scrollIntoView`.**
    `scrollIntoView` walks to the nearest scrollable ancestor outside this
    package's control. The fallback (`node.scrollTop = node.scrollHeight`
@@ -124,52 +123,49 @@ default ([validated by](../../tests/ChatMessageList.test.tsx#L190)).
 5. **The handle is the consumer's escape hatch.**
    `scrollToBottom()` scrolls even while unpinned and re-pins, so the next
    change follows again - the primitive for a consumer's own "jump to
-   latest" control - and respects reduced motion
-   ([validated by](../../tests/ChatMessageList.test.tsx#L846),
-   [L878](../../tests/ChatMessageList.test.tsx#L878)).
-   `isPinnedToBottom()` measures the live geometry rather than replaying
-   the last scroll event
-   ([validated by](../../tests/ChatMessageList.test.tsx#L824)) - which
-   means it reports the truth at call time and can disagree with the
-   event-tracked gate until the next scroll event (a resize or zoom moves
-   geometry without firing one); the predicate describes the region, not
-   the component's next scheduling decision. A handle retained past
-   unmount is a no-op, not a crash
-   ([validated by](../../tests/ChatMessageList.test.tsx#L899)).
+   latest" control - and respects reduced motion. `isPinnedToBottom()`
+   measures the live geometry rather than replaying the last scroll
+   event - which means it reports the truth at call time and can disagree
+   with the event-tracked gate until the next scroll event (a resize or
+   zoom moves geometry without firing one); the predicate describes the
+   region, not the component's next scheduling decision. A handle retained
+   past unmount is a no-op, not a crash
+   ([validated by](../../tests/ChatMessageList.test.tsx#L899),
+   [L846](../../tests/ChatMessageList.test.tsx#L846),
+   [L878](../../tests/ChatMessageList.test.tsx#L878),
+   [L824](../../tests/ChatMessageList.test.tsx#L824)).
 6. **The transcript is `role="log"` with `aria-live="off"`.** The role's
    implicit `aria-live="polite"` would have a screen reader announce every
    streamed token; the resolved `transcript` label is the region's
-   accessible name
-   ([validated by](../../tests/ChatMessageList.test.tsx#L919)).
-   `ThinkingIndicator`'s own `role="status"` subtree is the one
-   announcement worth making, and it now carries an **explicit**
+   accessible name. `ThinkingIndicator`'s own `role="status"` subtree is
+   the one announcement worth making, and it now carries an **explicit**
    `aria-live="polite"` (a one-attribute amendment to
    `src/components/ThinkingIndicator.tsx`, the ARIA-canonical spelling of
    the role's implicit value) so the override is queryable as an attribute:
    `[aria-live="polite"]` inside the region matches exactly when `busy` is
-   true ([validated by](../../tests/ChatMessageList.test.tsx#L934),
+   true. Nothing announces that a streamed answer has finished; that needs
+   a real assistive-technology check and is tracked as a Phase 3 task, not
+   here ([validated by](../../tests/ChatMessageList.test.tsx#L919),
+   [L934](../../tests/ChatMessageList.test.tsx#L934),
    [pinned in its own suite](../../tests/ThinkingIndicator.test.tsx#L153)).
-   Nothing announces that a streamed answer has finished; that needs a real
-   assistive-technology check and is tracked as a Phase 3 task, not here.
 7. **The scroll region always renders; the empty state replaces the
    transcript column inside it.** With `entries.length === 0 && !busy` the
    centred `greeting` and `prompts` slots render in place of the message
-   column and no `ChatMessage` mounts; with entries, the slots never render
+   column and no `ChatMessage` mounts; with entries, the slots never
+   render. An empty transcript with `busy` shows the indicator, not the
+   slots. The library computes neither slot: a greeting typically reads the
+   clock and the signed-in identity during render, and a prompt catalogue
+   is product-specific - both belong to the consumer
    ([validated by](../../tests/ChatMessageList.test.tsx#L101),
-   [L117](../../tests/ChatMessageList.test.tsx#L117)). An empty transcript
-   with `busy` shows the indicator, not the slots
-   ([validated by](../../tests/ChatMessageList.test.tsx#L133)). The library
-   computes neither slot: a greeting typically reads the clock and the
-   signed-in identity during render, and a prompt catalogue is
-   product-specific - both
-   belong to the consumer.
+   [L117](../../tests/ChatMessageList.test.tsx#L117),
+   [L133](../../tests/ChatMessageList.test.tsx#L133)).
 8. **`busy` renders exactly one `ThinkingIndicator`, after the last
    entry**, forwarding `assistantAvatar` and the `thinking`/`thinkingRegion`
-   slices; `busy` false renders none
+   slices; `busy` false renders none. When to set `busy` is data-layer
+   state the consumer computes
    ([validated by](../../tests/ChatMessageList.test.tsx#L438),
    [L454](../../tests/ChatMessageList.test.tsx#L454),
-   [L460](../../tests/ChatMessageList.test.tsx#L460)). When to set `busy`
-   is data-layer state the consumer computes.
+   [L460](../../tests/ChatMessageList.test.tsx#L460)).
 9. **The container does not own the composer.** A `composer` slot was
    considered and rejected: it would make this a two-deliverable
    `ChatPanel` and hand the library a layout decision the consumer can make
@@ -190,12 +186,11 @@ list.
   `lucide-react` import, and every relative import ends in `.js`
   ([validated by](../../tests/ChatMessageList.test.tsx#L955)).
 - **GDPR.** The rendered entries are customer questions carrying booking
-  identifiers and names. The
-  component references no `console.`, `localStorage`, `sessionStorage`,
-  `fetch`, `sendBeacon` - nor `scrollIntoView`
-  ([validated by](../../tests/ChatMessageList.test.tsx#L965)); the
-  suite-wide console and network traps in `tests/setup.ts` hold every test
-  of this component to zero calls.
+  identifiers and names. The component references no `console.`,
+  `localStorage`, `sessionStorage`, `fetch`, `sendBeacon` - nor
+  `scrollIntoView`; the suite-wide console and network traps in
+  `tests/setup.ts` hold every test of this component to zero calls
+  ([validated by](../../tests/ChatMessageList.test.tsx#L965)).
 - `dist/components/ChatMessageList.js` opens with `"use client";` as its
   first statement per 018 decision 1, and ships with its `.d.ts` in the
   pack ([validated by](../../tests/chat-message-list-dist.test.ts#L66),
@@ -203,13 +198,12 @@ list.
 - `ChatMessageList` sits in the `labelsProp` partition bucket with a
   sentinel harness that renders a user entry, a thinking entry with
   `showThinking` on, a linked assistant entry and the busy indicator, then
-  clicks copy and thumbs-up so the
-  interaction-only labels reach the checked DOM
-  ([validated by](../../tests/labelled-exports.test.tsx#L334)). Its
-  key-coverage check is the package's one asymmetric sentinel test -
-  defaults keys **plus** `aiDisclosure` - because the required label is
-  deliberately absent from `defaultChatMessageListLabels`
-  ([validated by](../../tests/labelled-exports.test.tsx#L508)).
+  clicks copy and thumbs-up so the interaction-only labels reach the
+  checked DOM. Its key-coverage check is the package's one asymmetric
+  sentinel test - defaults keys **plus** `aiDisclosure` - because the
+  required label is deliberately absent from `defaultChatMessageListLabels`
+  ([validated by](../../tests/labelled-exports.test.tsx#L508),
+  [L334](../../tests/labelled-exports.test.tsx#L334)).
 
 ## Recorded decisions
 
