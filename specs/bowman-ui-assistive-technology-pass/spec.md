@@ -85,6 +85,8 @@ hear a screen reader, so the evidence for each is a human's verbatim
 transcription in `docs/accessibility/at-pass-<date>.md`, and this spec says
 plainly that the file is owed rather than pretending otherwise.
 
+<!-- eslint-disable lore/no-dead-md-links -- the seven links below point at the at-pass record a human writes after the pass; the file is owed, not missing -->
+
 1. **A1.** What each stack announces when a streamed answer completes under
    `role="log"` / `aria-live="off"` - transcribed verbatim, including `nothing`
    when nothing is announced
@@ -114,6 +116,8 @@ plainly that the file is owed rather than pretending otherwise.
    and once with two personas in view, against the name line `121` added to
    `ChatMessage`
    ([validated by](../../docs/accessibility/at-pass-<date>.md#A7)).
+
+<!-- eslint-enable lore/no-dead-md-links -->
 
 ## The gate
 

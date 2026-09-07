@@ -582,7 +582,7 @@ Decisions:
    would pass.
 
 9. **The generic subset of lore's lint plugin is mirrored verbatim.**
-   `tools/eslint-plugin-lore/rules/` holds byte-for-byte copies of eight
+   `tools/eslint-plugin-lore/rules/` holds byte-for-byte copies of nine
    re-cinq/lore rules plus their two lib helpers, selected by the LOCAL
    `tools/eslint-plugin-lore/index.mjs` and policed in CI by
    `scripts/check-lore-plugin-sync.mjs`, which fetches each canonical file
@@ -592,17 +592,29 @@ Decisions:
    neither mirrored nor recorded as excluded, with the reason, in that
    script - a new upstream rule is a decision, not drift. Chosen over an
    npm or git-dependency install because lore's plugin is a private,
-   unbuilt package inside a monorepo. All eight run at error over `src/**`:
+   unbuilt package inside a monorepo. Eight run at error over `src/**`:
    `no-forwarding-class`, `no-nested-if`, `no-nested-loop`,
    `no-vague-names`, `prefer-early-return`, `prefer-enforce-true` after an
    18-site sweep, `no-reexport-only-module` (adopted 2026-09-07 at zero
    sites - `index.ts` and `icons/index.tsx` are the exempt barrels; the
-   same lore release also shipped `no-cross-layer-import` and
-   `no-dead-md-links`, recorded as excluded in the sync script with their
-   reasons), and `max-comment-lines` at lore's `max: 1` after an
-   84-site sweep - a comment in `src/` is one line stating the constraint
+   same lore release also shipped `no-cross-layer-import`, recorded as
+   excluded in the sync script: it reads monorepo layering from a
+   layers.yaml and bowman is one flat package), and `max-comment-lines` at
+   lore's `max: 1` after an 84-site sweep - a comment in `src/` is one line stating the constraint
    the code cannot show; rationale essays live in this file or the feature
-   specs, and hook usage examples live in README § Hooks. The mirrors carry
+   specs, and hook usage examples live in README § Hooks. The ninth,
+   `no-dead-md-links`, runs at error over every `*.md` the linter reaches
+   through `@eslint/markdown`'s `markdown/gfm` language (adopted
+   2026-09-07 at zero live sites): a repo-relative markdown link must land
+   on a file, because a rename sweep rewrites a dead link as faithfully as a
+   live one. Its one recorded exception is a scoped disable in
+   `specs/bowman-ui-assistive-technology-pass/spec.md` around the seven
+   links to `docs/accessibility/at-pass-<date>.md`, the record a human
+   writes after the pass - owed, not missing, as that spec says. Adopting a
+   markdown-language block forced the JavaScript presets, parser options and
+   react-hooks rules at the head of `eslint.config.mjs` under a script-file
+   glob: a global config object also reaches the markdown block, where core
+   JavaScript rules crash on a markdown source. The mirrors carry
    no local fixtures (they are tested upstream in lore), the same trade
    recorded for `react-hooks` in decision 8; the rule files are
    `.prettierignore`d and eslint-ignored so lore stays their format
