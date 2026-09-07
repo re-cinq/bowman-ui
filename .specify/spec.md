@@ -6,7 +6,7 @@
 
 **Naming convention**: HAL is the conversational engine; Bowman is the presentational face (the UI).
 
-The public surface ships 57 named value exports from `src/index.ts`: 12 components, 5 hooks, a 23-icon set with two icon helpers, a markdown factory with its URL-policy pair, 11 label-defaults objects, and the `resolveLabels` merge helper, plus 45 type exports including the chat entry types ([validated by](../tests/public-api.test.ts#L40)).
+The public surface ships 57 named value exports from `src/index.ts`: 12 components, 5 hooks, a 23-icon set with two icon helpers, a markdown factory with its URL-policy pair, 11 label-defaults objects, and the `resolveLabels` merge helper, plus 45 type exports including the chat entry types ([validated by](../tests/public-api.test.ts#L43)).
 
 ## Key Capabilities
 
@@ -23,7 +23,7 @@ The public surface ships 57 named value exports from `src/index.ts`: 12 componen
 11. **Labels Convention** — Every user-visible string is an overridable English default merged through `resolveLabels`; no locale catalogue ships ([validated by](../tests/labelled-exports.test.tsx#L142))
 12. **RSC Client-Boundary Guarantee** — `"use client"` is applied per file so a Next.js App Router server component can import from the package ([validated by](../tests/client-directives.test.ts#L90))
 13. **Type-Safe API** — Full TypeScript strict-mode support; no implicit `any` in public interfaces ([validated by](../tests/public-api.test.ts#L47), [system-contract](../tests/system-contract.test.ts#L53), [list-type-assertions](../tests/types/chat-message-list-type-assertions.tsx#L53))
-14. **ESM-Only, Tree-Shakeable Distribution** — Single ESM output with named exports for dead-code elimination ([validated by](../tests/system-contract.test.ts#L30), [tree-shake](../tests/public-api.test.ts#L40))
+14. **ESM-Only, Tree-Shakeable Distribution** — Single ESM output with named exports for dead-code elimination ([validated by](../tests/system-contract.test.ts#L30), [tree-shake](../tests/public-api.test.ts#L43))
 
 ## Core Data Model
 
@@ -82,8 +82,8 @@ Other public data shapes are consumer-supplied and rendered as-is: `Conversation
 1. **ESM-Only Distribution** — A single ESM build is published; the `.` export resolves to `dist/index.js` with no `require` condition, so consumers need native ESM or an ESM-aware bundler. ([validated by](../tests/system-contract.test.ts#L30))
 2. **Stylesheet Subpath Export** — `./styles.css` is a published export and `sideEffects` lists `*.css` so bundlers keep it. ([validated by](../tests/styles.test.ts#L93), [side-effects](../tests/styles.test.ts#L100))
 3. **Type Definitions Included** — `.d.ts` files are bundled for full TypeScript IDE support. ([validated by](../tests/hooks-dist.test.ts#L57))
-4. **Tree-Shakeable** — Named exports prioritized; unused components can be eliminated by bundlers. ([validated by](../tests/public-api.test.ts#L40))
-5. **No Internal Implementation Details Exposed** — Private modules and helpers are not exported; only public contracts are. ([validated by](../tests/types/chat.test.ts#L237), [L40](../tests/public-api.test.ts#L40))
+4. **Tree-Shakeable** — Named exports prioritized; unused components can be eliminated by bundlers. ([validated by](../tests/public-api.test.ts#L43))
+5. **No Internal Implementation Details Exposed** — Private modules and helpers are not exported; only public contracts are. ([validated by](../tests/types/chat.test.ts#L237), [L43](../tests/public-api.test.ts#L43))
 
 ### Dependency Management
 
