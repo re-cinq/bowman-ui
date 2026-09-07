@@ -28,6 +28,7 @@ const PLUGIN_DIR = "tools/eslint-plugin-lore";
 
 const MIRRORED_RULES = [
   "max-comment-lines",
+  "no-dead-md-links",
   "no-forwarding-class",
   "no-nested-if",
   "no-nested-loop",
@@ -68,10 +69,6 @@ const EXCLUDED_RULES = new Map([
   [
     "no-cross-layer-import",
     "lore-specific: monorepo layering read from a layers.yaml (plus a yaml dependency); bowman is one flat package",
-  ],
-  [
-    "no-dead-md-links",
-    "deferred: needs @eslint/markdown over *.md and a decision on the seven deliberate at-pass-<date>.md placeholder links in specs/bowman-ui-assistive-technology-pass",
   ],
 ]);
 
