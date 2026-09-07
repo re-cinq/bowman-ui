@@ -13,13 +13,13 @@ refactored onto it with no behavior change.
 ## The public surface
 
 `ThinkingIndicatorProps` is exactly `assistantAvatar` and `labels` - the
-source's `label?: string` is gone
-([validated by](../../tests/ThinkingIndicator.test.tsx#L109)).
+source's `label?: string` is gone.
 `defaultThinkingIndicatorLabels` is a frozen
 `Readonly<Required<ThinkingIndicatorLabels>>` over `thinking` (`"Thinking"`,
 the key name 023 gave the inline form) and `thinkingRegion`
 (`"Loading response"`, the `aria-label` on the `role="status"` element)
-([validated by](../../tests/ThinkingIndicator.test.tsx#L29)). A key added
+([validated by](../../tests/ThinkingIndicator.test.tsx#L29),
+[L109](../../tests/ThinkingIndicator.test.tsx#L109)). A key added
 without a default fails the build, pinned from outside by an
 `@ts-expect-error` fixture
 ([validated by](../../tests/types/thinking-indicator-type-assertions.tsx#L19),
@@ -30,13 +30,12 @@ compiled by
 the same fixture pins it out of the public type surface
 ([validated by](../../tests/types/thinking-indicator-type-assertions.tsx#L10)).
 The runtime export set of `dist/index.js` is pinned separately by the
-`public-api` exact snapshot of 47 values and 31 types after this issue
-([public-api](../../tests/public-api.test.ts#L43),
-[validated by](../../tests/public-api.test.ts#L43)).
+`public-api` exact snapshot of 47 values and 31 types after this issue.
 `dist/components/ThinkingDots.{js,d.ts}` packs
 with the rest of `dist/`, but `package.json`'s `exports` map exposes only `"."`
 and `"./styles.css"`, so no consumer can deep-import the private component
-([validated by](../../tests/system-contract.test.ts#L30)).
+([validated by](../../tests/system-contract.test.ts#L30),
+[public-api](../../tests/public-api.test.ts#L43)).
 
 ## The decisions
 
