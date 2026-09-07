@@ -582,7 +582,7 @@ Decisions:
    would pass.
 
 9. **The generic subset of lore's lint plugin is mirrored verbatim.**
-   `tools/eslint-plugin-lore/rules/` holds byte-for-byte copies of seven
+   `tools/eslint-plugin-lore/rules/` holds byte-for-byte copies of eight
    re-cinq/lore rules plus their two lib helpers, selected by the LOCAL
    `tools/eslint-plugin-lore/index.mjs` and policed in CI by
    `scripts/check-lore-plugin-sync.mjs`, which fetches each canonical file
@@ -592,10 +592,14 @@ Decisions:
    neither mirrored nor recorded as excluded, with the reason, in that
    script - a new upstream rule is a decision, not drift. Chosen over an
    npm or git-dependency install because lore's plugin is a private,
-   unbuilt package inside a monorepo. All seven run at error over `src/**`:
+   unbuilt package inside a monorepo. All eight run at error over `src/**`:
    `no-forwarding-class`, `no-nested-if`, `no-nested-loop`,
    `no-vague-names`, `prefer-early-return`, `prefer-enforce-true` after an
-   18-site sweep, and `max-comment-lines` at lore's `max: 1` after an
+   18-site sweep, `no-reexport-only-module` (adopted 2026-09-07 at zero
+   sites - `index.ts` and `icons/index.tsx` are the exempt barrels; the
+   same lore release also shipped `no-cross-layer-import` and
+   `no-dead-md-links`, recorded as excluded in the sync script with their
+   reasons), and `max-comment-lines` at lore's `max: 1` after an
    84-site sweep - a comment in `src/` is one line stating the constraint
    the code cannot show; rationale essays live in this file or the feature
    specs, and hook usage examples live in README § Hooks. The mirrors carry
