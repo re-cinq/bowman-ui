@@ -24,13 +24,13 @@ out for a consumer with its own
 
 `AppShellLabels` has four defaulted keys - `openSidebar`, `closeSidebar`,
 `skipToMainContent`, and `sidebarDialog` (the open drawer dialog's accessible
-name, added by the 2026-08-26 review) - per docs/design-notes.md § Labels
-([validated by](../../tests/labelled-exports.test.tsx#L550)). `AppShell`
+name, added by the 2026-08-26 review) - per docs/design-notes.md § Labels. `AppShell`
 sits in the `labelsProp` partition bucket and passes the
 sentinel render with all four labels set to sentinels; the harness opens the
 drawer so the dialog-name sentinel renders
 ([partition](../../tests/labelled-exports.test.tsx#L76),
-[harness](../../tests/labelled-exports.test.tsx#L423)).
+[harness](../../tests/labelled-exports.test.tsx#L423),
+[L550](../../tests/labelled-exports.test.tsx#L550)).
 
 `renderSidebar({ variant, close })` is called exactly twice per render - once
 per position, `"desktop"` rail and `"mobile"` drawer - and both returned
@@ -38,11 +38,10 @@ trees are in the document; omitting it still
 renders the frame ([validated by](../../tests/AppShell.test.tsx#L72),
 [L86](../../tests/AppShell.test.tsx#L86)). The
 mobile copy needs `close` so tapping a nav item closes the drawer - the same
-slot idiom as `ConversationList`'s `renderLink`
-([validated by](../../tests/AppShell.test.tsx#L129)). `close` is handed to
+slot idiom as `ConversationList`'s `renderLink`. `close` is handed to
 both variants, not just the drawer: from the desktop rail it re-reports the
 already-closed state, which keeps one shared `renderSidebar` safe to wire to
-either position.
+either position ([validated by](../../tests/AppShell.test.tsx#L129)).
 
 `brand` renders inside the mobile header row with the centring spacer;
 omitted, the header shows the hamburger and no spacer, and the component
@@ -97,14 +96,14 @@ the button cannot perform ([validated by](../../tests/AppShell.test.tsx#L220)).
    `document.body.style.overflow` to `""` on close
    would clobber any other lock on the page.
    With overflow pre-set to `"scroll"`, opening sets `"hidden"`, closing
-   restores `"scroll"`, and unmounting while open restores it too
-   ([validated by](../../tests/AppShell.test.tsx#L333),
-   [L385](../../tests/AppShell.test.tsx#L385)). A
+   restores `"scroll"`, and unmounting while open restores it too. A
    `matchMedia("(min-width: 768px)")` listener lifts the lock while the
    viewport sits at the desktop breakpoint - where `md:hidden` hides the
    drawer but the open state persists - and re-locks on the way back; the
    `768px` literal mirrors the component's own `md:*` classes
-   ([validated by](../../tests/AppShell.test.tsx#L344)).
+   ([validated by](../../tests/AppShell.test.tsx#L344),
+   [L333](../../tests/AppShell.test.tsx#L333),
+   [L385](../../tests/AppShell.test.tsx#L385)).
 
 **Landmark ruling (recorded decision).** The drawer and rail wrappers are
 non-landmark `div`s: issue 031's `AppSidebar` supplies the only `aside`/`nav`
