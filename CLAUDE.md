@@ -84,7 +84,7 @@ The typecheck script is `typecheck`, not `type-check`.
 - `scripts/` — 12 enforcement scripts.
 - `tools/eslint-plugin-bowman/` — repo-local ESLint rules (no package.json; loaded by relative
   import in eslint.config.mjs). See invariant 11.
-- `tools/eslint-plugin-lore/` — verbatim mirrors of seven re-cinq/lore rules (`rules/**`, never
+- `tools/eslint-plugin-lore/` — verbatim mirrors of eight re-cinq/lore rules (`rules/**`, never
   edited here) behind a local `index.mjs`. See invariant 11.
 
 ## Enforced invariants
@@ -141,10 +141,10 @@ The typecheck script is `typecheck`, not `type-check`.
     `no-restricted-syntax` selector that MUST ride in every overlay (arrays replace, never
     merge). House style is `curly: all` + `@stylistic/padding-line-between-statements`,
     repo-wide and autofixable. All validated by tests/eslint-house-rules.test.ts against
-    committed fixtures. Seven lore rules mirrored verbatim in `tools/eslint-plugin-lore/rules/`
+    committed fixtures. Eight lore rules mirrored verbatim in `tools/eslint-plugin-lore/rules/`
     (decision 9) also run at error over `src/**`: `no-forwarding-class`, `no-nested-if`,
-    `no-nested-loop`, `no-vague-names`, `prefer-early-return`, `prefer-enforce-true`, and
-    `max-comment-lines` at max 1 — a comment in `src/` is ONE line; essays go to
+    `no-nested-loop`, `no-reexport-only-module`, `no-vague-names`, `prefer-early-return`,
+    `prefer-enforce-true`, and `max-comment-lines` at max 1 — a comment in `src/` is ONE line; essays go to
     docs/design-notes.md, the feature spec, or README. They carry no local fixtures (tested
     upstream) and are policed by `npm run check:lore-plugin-sync`.
 12. **Publishing** is tag-triggered CI only, via npm OIDC trusted publishing
