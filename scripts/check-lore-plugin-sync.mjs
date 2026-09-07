@@ -31,6 +31,7 @@ const MIRRORED_RULES = [
   "no-forwarding-class",
   "no-nested-if",
   "no-nested-loop",
+  "no-reexport-only-module",
   "no-vague-names",
   "prefer-early-return",
   "prefer-enforce-true",
@@ -64,6 +65,14 @@ const EXCLUDED_RULES = new Map([
   ["require-statement-links", "lore-specific spec machinery"],
   ["require-intro-paragraph", "lore-specific spec machinery"],
   ["require-status-matches-coverage", "lore-specific spec machinery"],
+  [
+    "no-cross-layer-import",
+    "lore-specific: monorepo layering read from a layers.yaml (plus a yaml dependency); bowman is one flat package",
+  ],
+  [
+    "no-dead-md-links",
+    "deferred: needs @eslint/markdown over *.md and a decision on the seven deliberate at-pass-<date>.md placeholder links in specs/bowman-ui-assistive-technology-pass",
+  ],
 ]);
 
 const MIRRORS = [

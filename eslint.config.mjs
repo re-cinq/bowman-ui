@@ -257,6 +257,7 @@ export default [
       "lore/no-forwarding-class": "error",
       "lore/no-nested-if": "error",
       "lore/no-nested-loop": "error",
+      "lore/no-reexport-only-module": "error",
       "lore/no-vague-names": "error",
       "lore/prefer-early-return": "error",
       "lore/prefer-enforce-true": "error",
