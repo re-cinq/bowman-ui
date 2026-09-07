@@ -32,9 +32,10 @@ narrower check had never seen
 ([validated by](../../tests/repoint-spec-anchors.test.ts#L538)). Root config
 files, workflow files and `examples/` sources outside `tests/` remain plain
 GitHub links CI never repoints
-([validated by](../../tests/repoint-spec-anchors.test.ts#L564)). The
+([validated by](../../tests/repoint-spec-anchors.test.ts#L562)). The
 assistive-technology spec's placeholder links carry `#A1`-style fragments and
-a `<date>` placeholder, so the tracker never matches them; a real
+a `<date>` placeholder, so the tracker never matches them
+([validated by](../../tests/repoint-spec-anchors.test.ts#L576)); a real
 `docs/accessibility/at-pass-*.md` cited with `#L` anchors becomes tracked
 the moment it exists.
 

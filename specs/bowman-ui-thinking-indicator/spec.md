@@ -128,7 +128,7 @@ shipped layout since 022
   `scripts/check-client-directives.mjs`
   ([validated by](../../tests/thinking-indicator-dist.test.ts#L8)).
 - Neither file references a client-only API today; docs/design-notes.md decision 1's
-  recorded exception ([docs/design-notes.md](../../docs/design-notes.md#L31), amended in this
+  recorded exception ([docs/design-notes.md](../../docs/design-notes.md#L83), amended in this
   issue) covers the chat surface's presentational components and the private
   subcomponents they compose, extending 023's shipped `InlineThinkingIndicator`
   precedent ([validated by](../../tests/thinking-indicator-dist.test.ts#L8)).

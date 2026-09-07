@@ -12,7 +12,7 @@ static and `032`'s Vite consumer does not share Next's server/client module
 graph, so until this fixture nothing had ever compiled the package inside
 the one consumer shape it is built for. The whole proof is one command,
 `npm run rsc` ([validated by](../../package.json#L33)), documented in the
-README's App Router consumer section ([validated by](../../README.md#L51)).
+README's App Router consumer section ([validated by](../../README.md#L123)).
 
 Anchor caveat (the consumer-app spec's precedent): `scripts/
 repoint-spec-anchors.mjs` tracks `(../)+tests/*.ts(x)` anchors and, since
