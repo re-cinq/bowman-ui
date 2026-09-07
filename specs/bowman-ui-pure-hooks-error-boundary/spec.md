@@ -50,11 +50,11 @@ exports entry for a consumer ([validated by](../../tests/hooks-dist.test.ts#L66)
   [L133](../../tests/useFocusTrap.test.tsx#L133)).
 - `useFocusGroups({announce})` — the hardcoded English `Moved to ${groupName}` and the Tailwind
   `sr-only` class are both gone from the contract: `announce` maps a group name to the
-  announcement (English default preserved, `null` suppresses), and the live region is visually
-  hidden with
-  inline styles and carries no class attribute. F6 order semantics pinned, including
+  announcement (English default preserved, `null` suppresses), and the live region is hidden
+  by the package's own `bowman-sr-only` class from `./styles.css`, never Tailwind's `sr-only`,
+  so it needs no consumer Tailwind build. F6 order semantics pinned, including
   the fall-back-to-DOM-order quirk where the first F6 lands on the second group
-  ([validated by](../../tests/useFocusGroups.test.tsx#L110),
+  ([validated by](../../tests/useFocusGroups.test.tsx#L120),
   [L144](../../tests/useFocusGroups.test.tsx#L144),
   [L83](../../tests/useFocusGroups.test.tsx#L83),
   [L53](../../tests/useFocusGroups.test.tsx#L53),

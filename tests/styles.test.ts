@@ -123,4 +123,14 @@ describe("the typography-plugin replacement", () => {
 
     expect(hits).toEqual([]);
   });
+
+  it("no src file hand-writes the visually-hidden clip; bowman-sr-only is the one definition", () => {
+    const hits = sourceFiles(resolve(process.cwd(), "src")).filter((file) => {
+      const text = readFileSync(file, "utf8");
+
+      return text.includes("rect(0, 0, 0, 0)") || text.includes(".style.clip");
+    });
+
+    expect(hits).toEqual([]);
+  });
 });
