@@ -12,3 +12,6 @@ examples/rsc-fixture/tsconfig.tsbuildinfo
 # Code while the tracked .claude/settings.json stays formatted.
 .claude/settings.local.json
 .claude/worktrees/
+
+# npm pack output from local consumer trials
+*.tgz
