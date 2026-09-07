@@ -13,8 +13,9 @@ real `specs/<slug>/spec.md`.
 - The beacon idles dark between pulses
   ([validated by](../../../../tests/check-at-pass.test.ts#L30)).
 
-The lamp ([validated by](../../../../tests/check-at-pass.test.ts#L38)) turns clockwise. The
-lens settles within a second ([validated by](../../../../tests/check-at-pass.test.ts#L46)).
+The lamp turns clockwise
+([validated by](../../../../tests/check-at-pass.test.ts#L38)) once every minute. The lens
+settles within a second ([validated by](../../../../tests/check-at-pass.test.ts#L46)).
 
 The legend is repainted ([validated by](../../../../tests/check-at-pass.test.ts)) before the
 frame ends.
