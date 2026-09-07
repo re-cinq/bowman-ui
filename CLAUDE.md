@@ -104,10 +104,9 @@ The typecheck script is `typecheck`, not `type-check`.
    presentational components carry it as a recorded exception. Enforced by
    scripts/check-client-directives.mjs + the rsc-fixture build.
 3. **Closed public API.** tests/public-api.test.ts asserts the built exports exactly equal the
-   committed snapshot tests/fixtures/public-api.json — currently 57 runtime + 45 type names.
-   (Heads-up: that test's own `it()` titles still say "53"/"41" — stale text; the enforced fixture
-   holds 57/45.) NEVER regenerate the snapshot to make the test pass; a removal or rename is a
-   breaking major.
+   committed snapshot tests/fixtures/public-api.json — currently 57 runtime + 45 type names; the
+   two `it()` titles derive their counts from that fixture. NEVER regenerate the snapshot to make
+   the test pass; a removal or rename is a breaking major.
 4. **GDPR no-egress.** `src/` writes nothing to the console and performs no network egress
    (`fetch` / `XMLHttpRequest` / `sendBeacon`). tests/setup.ts installs suite-wide traps that fail
    any test whose render touches `console.error`/`console.warn`, `fetch`, or `XMLHttpRequest`.
