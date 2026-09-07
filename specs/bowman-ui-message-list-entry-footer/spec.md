@@ -33,20 +33,20 @@ unchanged.
    callback body reading `entry.toolName` is a compile error, pinned from
    outside the package by an `@ts-expect-error` fixture that resolves the
    type through `ChatMessageListProps["renderEntryFooter"]`
-   ([validated by](../../tests/types/chat-message-list-type-assertions.tsx#L64),
-   compiled against dist by
-   [chat-message-list-dist](../../tests/chat-message-list-dist.test.ts#L87)).
+   ([validated by](../../tests/types/chat-message-list-type-assertions.tsx#L64)).
    The fixture is what enforces this: `npm run typecheck` compiles `src`
-   only.
+   only (compiled against dist by
+   [chat-message-list-dist](../../tests/chat-message-list-dist.test.ts#L87)).
 2. **The callback runs for every rendered entry, user rows included.**
    No role filter in the library - 023's rule that the caller decides what
    to pass. It is invoked once per rendered `ChatMessage` per render, in
    `entries` order, and the busy `ThinkingIndicator` is not an entry and
-   gets no call ([validated by](../../tests/ChatMessageList.test.tsx#L347)).
+   gets no call.
    `ChatMessage` renders its `footer` under assistant messages only, so a
    node returned for a user entry is dropped rather than displaced - the
    consequence of forwarding into the existing slot instead of editing
-   `ChatMessage` ([validated by](../../tests/ChatMessageList.test.tsx#L365)).
+   `ChatMessage` ([validated by](../../tests/ChatMessageList.test.tsx#L365),
+   [L347](../../tests/ChatMessageList.test.tsx#L347)).
 3. **Omitting the prop and returning `undefined` are the same render.**
    The call site is `footer={renderEntryFooter?.(entry)}`, so a list whose
    callback returns `undefined` for every entry produces `container.innerHTML`
@@ -73,20 +73,21 @@ unchanged.
 - **EU AI Act.** No value of `renderEntryFooter` removes, covers or
   reorders the disclosure band: with a footer returned for every entry the
   band is still the root's first element and still outside the `role="log"`
-  region ([validated by](../../tests/ChatMessageList.test.tsx#L401)), and
+  region, and
   078's render with every optional prop `false`/`undefined` now carries
   `renderEntryFooter={undefined}` and still resolves the disclosure text
-  ([validated by](../../tests/ChatMessageList.test.tsx#L167)).
+  ([validated by](../../tests/ChatMessageList.test.tsx#L167),
+  [L401](../../tests/ChatMessageList.test.tsx#L401)).
 - **GDPR.** A footer may carry customer-derived content (a score computed
   from a booking, a debug block quoting a question). The list neither stores
   nor forwards it: the source names `renderEntryFooter` three times -
   declaration, destructure, `ChatMessage` call position - and writes it to
-  no ref, no state and no serialised value
-  ([validated by](../../tests/ChatMessageList.test.tsx#L971)), and a
-  rerender without the prop leaves no footer behind
-  ([validated by](../../tests/ChatMessageList.test.tsx#L417)). The
+  no ref, no state and no serialised value, and a
+  rerender without the prop leaves no footer behind. The
   suite-wide `console` and network traps in `tests/setup.ts` hold every one
-  of these tests to zero calls.
+  of these tests to zero calls
+  ([validated by](../../tests/ChatMessageList.test.tsx#L971),
+  [L417](../../tests/ChatMessageList.test.tsx#L417)).
 
 ## Not in scope
 
