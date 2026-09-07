@@ -24,53 +24,50 @@ internal `ThinkingDots` component, imported and never re-exported
 `ThinkingTraceProps` carries `entry`, `reducedMotion` and `labels` - and
 nothing else. `ThinkingTraceLabels` is one key, `thinkingTrace` (the
 `<summary>` text, `"Reasoning"`), with `defaultThinkingTraceLabels` frozen over
-the single English string
-([validated by](../../tests/ThinkingTrace.test.tsx#L122)), resolved per key by
-the convention's `resolveLabels`
-([validated by](../../tests/ThinkingTrace.test.tsx#L115)).
+the single English string, resolved per key by the convention's `resolveLabels`
+([validated by](../../tests/ThinkingTrace.test.tsx#L115),
+[L122](../../tests/ThinkingTrace.test.tsx#L122)).
 
 ## The decisions
 
 1. **Collapsed, and it never opens itself.** The content sits behind a native
    `<details>`/`<summary>` closed by default, whose summary is exactly the
-   label ([validated by](../../tests/ThinkingTrace.test.tsx#L31)) and carries
-   no word of the content as a preview
-   ([validated by](../../tests/ThinkingTrace.test.tsx#L40)). Expanding reveals
-   the full content string
-   ([validated by](../../tests/ThinkingTrace.test.tsx#L52)). No prop and no
-   entry state sets `open`: neither `isStreaming` value does
-   ([validated by](../../tests/ThinkingTrace.test.tsx#L81),
-   [resting](../../tests/ThinkingTrace.test.tsx#L91)), and the source assigns
-   the attribute nowhere
-   ([validated by](../../tests/ThinkingTrace.test.tsx#L148)).
+   label and carries no word of the content as a preview. Expanding reveals
+   the full content string. No prop and no entry state sets `open`: neither
+   `isStreaming` value does, and the source assigns the attribute nowhere
+   ([validated by](../../tests/ThinkingTrace.test.tsx#L148),
+   [L31](../../tests/ThinkingTrace.test.tsx#L31),
+   [L40](../../tests/ThinkingTrace.test.tsx#L40),
+   [L52](../../tests/ThinkingTrace.test.tsx#L52),
+   [L81](../../tests/ThinkingTrace.test.tsx#L81),
+   [resting](../../tests/ThinkingTrace.test.tsx#L91)).
 2. **Plain text, never markdown.** The content renders as `whitespace-pre-wrap`
    text, so `"see [here](javascript:alert(1)) <img src=x onerror=alert(1)>"`
    produces no `<a>` and no `<img>` and leaves both literal strings in the
-   document as text
-   ([validated by](../../tests/ThinkingTrace.test.tsx#L62)); the source
-   references no `dangerouslySetInnerHTML`, `react-markdown` or `remark-`
-   ([validated by](../../tests/ThinkingTrace.test.tsx#L131)). HAL's parser
-   escapes nothing and nobody reviews the shape of this text the way an
-   assistant answer is reviewed, so interpreting it would be the library
-   choosing to trust unreviewed model output.
+   document as text; the source references no `dangerouslySetInnerHTML`,
+   `react-markdown` or `remark-`. HAL's parser escapes nothing and nobody
+   reviews the shape of this text the way an assistant answer is reviewed, so
+   interpreting it would be the library choosing to trust unreviewed model
+   output ([validated by](../../tests/ThinkingTrace.test.tsx#L62),
+   [L131](../../tests/ThinkingTrace.test.tsx#L131)).
 3. **The dots mark streaming, inside the summary.** While `entry.isStreaming`
-   is true, `ThinkingDots` renders in the `<summary>` next to the label
-   ([validated by](../../tests/ThinkingTrace.test.tsx#L81)); with it false no
-   dot is in the document
-   ([validated by](../../tests/ThinkingTrace.test.tsx#L91)).
+   is true, `ThinkingDots` renders in the `<summary>` next to the label; with
+   it false no dot is in the document
+   ([validated by](../../tests/ThinkingTrace.test.tsx#L91),
+   [L81](../../tests/ThinkingTrace.test.tsx#L81)).
 4. **`reducedMotion` goes through `021`'s hook.** The prop is forwarded to
-   `useReducedMotion`, never to a `matchMedia` read of the component's own
-   ([validated by](../../tests/ThinkingTrace.test.tsx#L135)); true strips the
-   `bowman-fade-dot` animation class from the three dots
-   ([validated by](../../tests/ThinkingTrace.test.tsx#L100)) and false keeps the
-   class with `024`'s staggered delays
-   ([validated by](../../tests/ThinkingTrace.test.tsx#L107)). `ThinkingDots`
-   gains an optional `reducedMotion` prop for this, defaulting false, so the
-   two indicators' markup is unchanged.
+   `useReducedMotion`, never to a `matchMedia` read of the component's own;
+   true strips the `bowman-fade-dot` animation class from the three dots and
+   false keeps the class with `024`'s staggered delays. `ThinkingDots` gains
+   an optional `reducedMotion` prop for this, defaulting false, so the two
+   indicators' markup is unchanged
+   ([validated by](../../tests/ThinkingTrace.test.tsx#L135),
+   [L100](../../tests/ThinkingTrace.test.tsx#L100),
+   [L107](../../tests/ThinkingTrace.test.tsx#L107)).
 5. **It is not a message.** `ThinkingTraceProps` declares none of `onCopy`,
-   `onFeedback`, `showFeedback` or `assistantAvatar`
-   ([validated by](../../tests/ThinkingTrace.test.tsx#L140)) - internal
-   deliberation is not an answer to copy or rate.
+   `onFeedback`, `showFeedback` or `assistantAvatar` - internal deliberation
+   is not an answer to copy or rate
+   ([validated by](../../tests/ThinkingTrace.test.tsx#L140)).
 
 ## In the message list
 
@@ -83,16 +80,14 @@ compiled by
 
 `showThinking` gates the mount, not the visibility, and defaults `false`: with
 the flag absent, `[user, thinking, assistant]` renders no `<details>` and none
-of the thinking content
-([validated by](../../tests/ChatMessageList.test.tsx#L1108)) while the user and
-assistant entries render unchanged
-([validated by](../../tests/ChatMessageList.test.tsx#L1118)). With it true the
-same array renders exactly one collapsed `ThinkingTrace` between them
-([validated by](../../tests/ChatMessageList.test.tsx#L1130)). `reducedMotion`
-forwards to the trace
-([validated by](../../tests/ChatMessageList.test.tsx#L1161)), as does the
-resolved `thinkingTrace` label
-([validated by](../../tests/ChatMessageList.test.tsx#L1176)).
+of the thinking content while the user and assistant entries render unchanged
+([validated by](../../tests/ChatMessageList.test.tsx#L1118),
+[L1108](../../tests/ChatMessageList.test.tsx#L1108)). With it true the same
+array renders exactly one collapsed `ThinkingTrace` between them.
+`reducedMotion` forwards to the trace, as does the resolved `thinkingTrace`
+label ([validated by](../../tests/ChatMessageList.test.tsx#L1176),
+[L1130](../../tests/ChatMessageList.test.tsx#L1130),
+[L1161](../../tests/ChatMessageList.test.tsx#L1161)).
 
 `ChatMessageListLabels` gains `thinkingTrace` as a defaulted key, colliding
 with no key of `ChatMessageLabels`, `ThinkingIndicatorLabels` (`thinking`,
@@ -115,10 +110,10 @@ checks before turning it on. The reasoning is recorded in docs/design-notes.md
 § Thinking trace.
 
 Zero retention holds as elsewhere: `ThinkingTrace.tsx` makes no `console` call
-and touches no `localStorage`, `sessionStorage` or `IndexedDB`
-([validated by](../../tests/ThinkingTrace.test.tsx#L144)), and rendering the
-fixture entry expanded leaves `localStorage.length` at `0`
-([validated by](../../tests/ThinkingTrace.test.tsx#L154)).
+and touches no `localStorage`, `sessionStorage` or `IndexedDB`, and rendering
+the fixture entry expanded leaves `localStorage.length` at `0`
+([validated by](../../tests/ThinkingTrace.test.tsx#L154),
+[L144](../../tests/ThinkingTrace.test.tsx#L144)).
 
 ## The suppression-path gap (hal-engine, not fixed here)
 
@@ -148,12 +143,11 @@ finding that `processToolUseChunk` ignores suppression outright.
 
 ## The labels partition
 
-`ThinkingTrace` sits in the `labelsProp` bucket
-([validated by](../../tests/labelled-exports.test.tsx#L72)) with its own
-sentinel harness
-([validated by](../../tests/labelled-exports.test.tsx#L384)), and its sentinel
-labels cover every `defaultThinkingTraceLabels` key
-([validated by](../../tests/labelled-exports.test.tsx#L526)).
+`ThinkingTrace` sits in the `labelsProp` bucket with its own sentinel harness,
+and its sentinel labels cover every `defaultThinkingTraceLabels` key
+([validated by](../../tests/labelled-exports.test.tsx#L526),
+[L72](../../tests/labelled-exports.test.tsx#L72),
+[L384](../../tests/labelled-exports.test.tsx#L384)).
 
 ## Out of scope
 
