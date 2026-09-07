@@ -174,10 +174,9 @@ DOM, and the deliberate decisions below are each pinned by a test.
 - **`brand={null}` renders no spacer**, same as omitting the prop - `null` is
   the React idiom for intentionally-nothing, and an empty centring spacer with
   no mark would be a layout surprise. A characterization test pairs the two
-  renders, but its `header > div` selector matches nothing - the mobile header
-  is a `<div>`, not a `<header>` - so it counts zero spacers under either prop
-  and the equivalence is asserted only vacuously
-  ([characterization test](../../tests/AppShell.test.tsx#L480)).
+  renders, finds each mobile header row through its hamburger's parent, and
+  asserts zero spacers in the `null` render and the same count in the omitted
+  one ([validated by](../../tests/AppShell.test.tsx#L480)).
 
 - **Test locations.** The issue names `tests/components/AppShell.test.tsx`;
   this repository keeps every test flat under `tests/`, and the partition
