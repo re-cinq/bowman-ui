@@ -10,6 +10,7 @@ const nodeFlags = ["--experimental-strip-types", "--disable-warning=Experimental
 const trailingSpec = "tests/fixtures/spec-links/trailing/spec.md";
 const misplacedSpec = "tests/fixtures/spec-links/misplaced/spec.md";
 const citedTest = "../../../../tests/check-at-pass.test.ts";
+const trailingZeroSummary = "misplaced: 0 across 0 specs (9 statements scanned)\n";
 
 type RunResult = { status: number | null; stdout: string; stderr: string };
 
@@ -57,36 +58,43 @@ describe("check-spec-links", () => {
       {
         anchorLine: 38,
         statement:
-          "The lamp ([validated by](../../../../tests/check-at-pass.test.ts#L38)) turns clockwise.",
+          "The lamp turns clockwise " +
+          "([validated by](../../../../tests/check-at-pass.test.ts#L38)) once every minute.",
       },
     ]);
   });
 
   it("a citation with no #L anchor is reported with the path alone", () => {
     expect(run(misplacedSpec).stdout).toContain(
-      `${misplacedSpec}:19: ${citedTest} cited outside the statement's trailing parenthetical`
+      `${misplacedSpec}:20: ${citedTest} cited outside the statement's trailing parenthetical`
     );
   });
 
   it("a paragraph sentence whose citation is trailing reports nothing", () => {
-    expect(run(trailingSpec).stdout).not.toContain("#L30");
+    const stdout = run(trailingSpec).stdout;
+
+    expect(stdout).not.toContain("#L30");
+    expect(stdout).toBe(trailingZeroSummary);
   });
 
   it("a mid-sentence link to a script rather than a test reports nothing", () => {
-    expect(run(trailingSpec).stdout).not.toContain("check-spec-links.mjs");
+    const stdout = run(trailingSpec).stdout;
+
+    expect(stdout).not.toContain("check-spec-links.mjs");
+    expect(stdout).toBe(trailingZeroSummary);
   });
 
   it("a citation written inside backticks reports nothing", () => {
-    expect(run(trailingSpec).stdout).not.toContain("#L46");
+    const stdout = run(trailingSpec).stdout;
+
+    expect(stdout).not.toContain("#L46");
+    expect(stdout).toBe(trailingZeroSummary);
   });
 
   it("a spec citing only in trailing parentheticals exits 0 with a zero summary", () => {
     const result = run(trailingSpec);
 
-    expect(result).toMatchObject({
-      status: 0,
-      stdout: "misplaced: 0 across 0 specs (9 statements scanned)\n",
-    });
+    expect(result).toMatchObject({ status: 0, stdout: trailingZeroSummary });
   });
 
   it("a spec with misplaced citations exits 1 and summarises findings, specs and statements", () => {
@@ -113,7 +121,7 @@ describe("check-spec-links", () => {
   it("an unknown flag exits 2 with the usage line", () => {
     const result = run("--frobnicate");
 
-    expect(result).toMatchObject({ status: 2 });
+    expect(result).toMatchObject({ status: 2, stdout: "" });
     expect(result.stderr).toContain("usage: check-spec-links.mjs [--json] [spec-path ...]");
   });
 
@@ -131,11 +139,17 @@ describe("check-spec-links", () => {
   });
 
   it("a relative spec path resolves against the repo root, not the working directory", () => {
-    expect(runFrom(tmpdir(), misplacedSpec).stdout).toBe(run(misplacedSpec).stdout);
+    expect(runFrom(tmpdir(), misplacedSpec)).toMatchObject({
+      status: 1,
+      stdout: run(misplacedSpec).stdout,
+    });
   });
 
   it("an absolute spec path is scanned and reported repo-relative", () => {
-    expect(runFrom(tmpdir(), join(root, misplacedSpec)).stdout).toBe(run(misplacedSpec).stdout);
+    expect(runFrom(tmpdir(), join(root, misplacedSpec))).toMatchObject({
+      status: 1,
+      stdout: run(misplacedSpec).stdout,
+    });
   });
 
   it("no spec paths scans the sorted specs directories plus .specify/spec.md", () => {
