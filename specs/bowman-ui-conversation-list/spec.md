@@ -13,8 +13,7 @@ title generation stay with the consumer.
 
 `ConversationListItem` is the package's own five-field camelCase shape (`id`,
 `title`, `timestamp?`, `badge?`, `isPlaceholderTitle?`), not the nine-field
-snake_case API `Conversation`
-([validated by](../../tests/ConversationList.test.tsx#L62)). `timestamp` arrives display-ready - the
+snake_case API `Conversation`. `timestamp` arrives display-ready - the
 component reads no clock and no locale: no `Date` constructor,
 `toLocaleDateString` or `Intl` appears in the source, asserted by grep - and
 `badge` is a consumer-computed string rendered verbatim or not at all
@@ -24,13 +23,13 @@ component reads no clock and no locale: no `Date` constructor,
 
 `ConversationListLabels` has four defaulted keys - `conversations`,
 `noConversations`, `loadingConversations`, and the function-form
-`deleteConversation: (title) => string` per docs/design-notes.md § Labels decision 4
-([validated by](../../tests/ConversationList.test.tsx#L185),
-[defaults](../../tests/labelled-exports.test.tsx#L544)). `ConversationList` sits
+`deleteConversation: (title) => string` per docs/design-notes.md § Labels decision 4. `ConversationList` sits
 in the `labelsProp` partition bucket and passes the
 sentinel render across its list, empty and loading states, the function label
 included ([partition](../../tests/labelled-exports.test.tsx#L69),
-[harness](../../tests/labelled-exports.test.tsx#L436)).
+[harness](../../tests/labelled-exports.test.tsx#L436),
+[L185](../../tests/ConversationList.test.tsx#L185),
+[defaults](../../tests/labelled-exports.test.tsx#L544)).
 
 ## The four decisions
 
@@ -72,12 +71,13 @@ included ([partition](../../tests/labelled-exports.test.tsx#L69),
 
 `onDelete` fires immediately - whether deleting needs confirmation is the
 consumer's product question; omitting the prop renders no button and no
-`TrashIcon` ([validated by](../../tests/ConversationList.test.tsx#L185),
-[L210](../../tests/ConversationList.test.tsx#L210)). `isLoading` wins over a
+`TrashIcon`. `isLoading` wins over a
 non-empty `items`, rendering a `role="status"` region named by
 `loadingConversations`; loading off with no items renders `noConversations`
 and no `<ul>` ([validated by](../../tests/ConversationList.test.tsx#L219),
-[L232](../../tests/ConversationList.test.tsx#L232)).
+[L232](../../tests/ConversationList.test.tsx#L232),
+[L185](../../tests/ConversationList.test.tsx#L185),
+[L210](../../tests/ConversationList.test.tsx#L210)).
 
 ## The characterization suite
 
