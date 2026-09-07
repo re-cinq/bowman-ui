@@ -18,19 +18,20 @@ inside `ChatMessage`
 `userInitials`, `assistantAvatar`, `showFeedback` (default `true`),
 `arrowKeyFeedback` (default `false`), `footer`, `labels`, `onCopy`,
 `onFeedback` - with `showDevInfo`, `conversationId`, `onRetryJudge` and
-`scores` gone ([validated by](../../tests/ChatMessage.test.tsx#L703)).
+`scores` gone.
 `defaultChatMessageLabels` is a frozen `Readonly<Required<ChatMessageLabels>>`
 over the nine keys `userMessage`, `assistantMessage`, `copy`, `copied`,
 `copiedNotice`, `feedbackPositive`, `feedbackNegative`, `feedbackNotice`,
 `thinking`; a key added without a default fails the build, pinned from outside
 by an `@ts-expect-error` fixture
-([validated by](../../tests/types/chat-message-type-assertions.tsx#L60),
-compiled by [chat-message-dist](../../tests/chat-message-dist.test.ts#L30)).
+([validated by](../../tests/types/chat-message-type-assertions.tsx#L60)).
 **Amended by 076:** `ChatMessageProps` gained a tenth field,
 `markdown?: MarkdownPolicy`, and `ChatMessageLabels` a tenth key,
 `linkOpensInNewTab`; markdown renders through `createMarkdownComponents`
 rather than 019's constant (see
-`specs/bowman-ui-markdown-link-policy/spec.md`).
+`specs/bowman-ui-markdown-link-policy/spec.md`)
+([validated by](../../tests/ChatMessage.test.tsx#L703),
+compiled by [chat-message-dist](../../tests/chat-message-dist.test.ts#L30)).
 
 ## The four decisions
 
