@@ -18,7 +18,7 @@ snake_case API `Conversation`
 component reads no clock and no locale: no `Date` constructor,
 `toLocaleDateString` or `Intl` appears in the source, asserted by grep - and
 `badge` is a consumer-computed string rendered verbatim or not at all
-([validated by](../../tests/ConversationList.test.tsx#L414),
+([validated by](../../tests/ConversationList.test.tsx#L413),
 [L62](../../tests/ConversationList.test.tsx#L62),
 [L69](../../tests/ConversationList.test.tsx#L69)).
 
@@ -62,7 +62,7 @@ included ([partition](../../tests/labelled-exports.test.tsx#L69),
    ([validated by](../../tests/ConversationList.test.tsx#L241),
    [L284](../../tests/ConversationList.test.tsx#L284),
    [L303](../../tests/ConversationList.test.tsx#L303),
-   [L389](../../tests/ConversationList.test.tsx#L389)).
+   [L388](../../tests/ConversationList.test.tsx#L388)).
 4. **Reduced motion switches the typewriter off, it does not shorten it.**
    `useReducedMotion(reducedMotion)` from 021 gates the animation; reduced
    motion takes the same one-pass replacement path a non-placeholder change
@@ -111,14 +111,14 @@ consumer-computed `badge` string).
 - `TrashIcon` comes from 020's set; imports are relative with `.js`
   extensions, and no `@clerk`, `swr`, `next-intl`, `next/`, `@/`
   or `lucide-react` import survives
-  ([validated by](../../tests/ConversationList.test.tsx#L426)).
+  ([validated by](../../tests/ConversationList.test.tsx#L425)).
 - GDPR: conversation titles can carry booking identifiers and names.
   The component references no
   `console.`, `localStorage`, `sessionStorage`, `fetch`, `sendBeacon`,
   `analytics` or `indexedDB`, and the
   suite-wide console trap in `tests/setup.ts` fails any test that triggered a
   console call. Titles live only in React state
-  ([validated by](../../tests/ConversationList.test.tsx#L420)).
+  ([validated by](../../tests/ConversationList.test.tsx#L419)).
 - `dist/components/ConversationList.js` opens with `"use client";` as its
   first statement per 018's positional check, and
   `npm pack` ships exactly the built pair

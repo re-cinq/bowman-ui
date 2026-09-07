@@ -567,12 +567,20 @@ Decisions:
 6. **Styling lives in the stylesheet** (`bowman/no-inline-styles`), with one
    passing shape - an object of nothing but CSS custom properties, because
    the styling rules then still live in the stylesheet reading the variable.
-   Three components are exempted by path in `eslint.config.mjs`, each a
+   Two components are exempted by path in `eslint.config.mjs`, each a
    recorded decision asserted by its tests, not tolerated drift:
-   `ConversationList` (assistive-tech hiding and per-character animation
-   must work with no consumer stylesheet), `Toast` (the same visually-hidden
-   pattern for its live region), and `ThinkingDots` (the per-dot stagger is
-   data, one delay per dot).
+   `ConversationList` (the per-character typewriter animation is data, one
+   opacity per character) and `ThinkingDots` (the per-dot stagger is data,
+   one delay per dot). Visually hidden text is one stylesheet rule,
+   `.bowman-sr-only` in `src/styles.css`, shared by the markdown notice, the
+   `Toast` live region, `ConversationList`'s plain title and
+   `useFocusGroups`' announcement region; issue 5 retired the three inline
+   copies and with them the "works with no consumer stylesheet" argument,
+   since README already requires `./styles.css` of every consumer. The one
+   other hiding idiom is `AppShell`'s skip link, which uses Tailwind's
+   `sr-only` with `focus:not-sr-only` because it must become visible on
+   focus. `tests/styles.test.ts` fails on a hand-written clip literal in `src/`
+   and on the stylesheet losing the rule.
 7. **House style is autofixable and repo-wide**: `curly` ("all") plus
    `@stylistic/padding-line-between-statements` (blank line before returns
    and control flow, after the import block and declaration groups).

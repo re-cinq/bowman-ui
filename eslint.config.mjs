@@ -271,19 +271,13 @@ export default [
   // Recorded no-inline-styles exemptions - deliberate decisions, not
   // tolerated drift, each asserted by its component's tests. The exemptions
   // live here, by path, where they are visible and reviewable:
-  // - ConversationList: the plain full title is hidden for assistive tech and
-  //   the per-character animation is styled inline precisely so the package
-  //   needs no stylesheet or Tailwind config from the consumer.
-  // - Toast: the hidden live region uses the same no-consumer-stylesheet
-  //   visually-hidden pattern (its cross-file duplication is issue #5).
+  // - ConversationList: the per-character typewriter animation is data (one
+  //   opacity per character) and is styled inline; the hidden plain title uses
+  //   the stylesheet's bowman-sr-only class like every other hidden region.
   // - ThinkingDots: the per-dot animation stagger is data (one delay per
   //   dot), asserted as an inline style by tests/helpers/expect-thinking-dots.ts.
   {
-    files: [
-      "src/components/ConversationList.tsx",
-      "src/components/ThinkingDots.tsx",
-      "src/components/Toast.tsx",
-    ],
+    files: ["src/components/ConversationList.tsx", "src/components/ThinkingDots.tsx"],
     rules: {
       "bowman/no-inline-styles": "off",
     },
@@ -293,8 +287,9 @@ export default [
   // duplicate strings, so the plugin must never see tests/ source. The
   // eslint-duplication fixture glob is linted with --no-ignore by the test.
   // sonarjs/no-duplicate-string counts occurrences per file: the `"use client"`
-  // directive and the `rect(0, 0, 0, 0)` visually-hidden clip each appear once
-  // per file, so neither reaches the threshold - see report for the analysis.
+  // directive appears once per file, so it never reaches the threshold - see
+  // report for the analysis. The visually-hidden clip that once sat beside it
+  // is a single stylesheet rule since issue #5.
   {
     files: ["src/**/*.{ts,tsx}", "tests/fixtures/eslint-duplication/**/*.{ts,tsx}"],
     plugins: { sonarjs },
