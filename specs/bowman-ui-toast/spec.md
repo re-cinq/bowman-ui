@@ -25,10 +25,11 @@ corrected justification.
 [L137](../../tests/Toast.test.tsx#L137)).
 No `labels` prop and no `className`: the fixed positioning
 (`fixed bottom-8 left-1/2 z-50 -translate-x-1/2`) and the fade animation's
-restated `-50%` translate are one decision that stays together
-([validated by](../../tests/Toast.test.tsx#L88)). `message` renders inside
+restated `-50%` translate are one decision that stays together.
+`message` renders inside
 an element with `role="status"` and `aria-live="polite"`
-([validated by](../../tests/Toast.test.tsx#L23)). Since the 2026-08-26
+([validated by](../../tests/Toast.test.tsx#L23),
+[L88](../../tests/Toast.test.tsx#L88)). Since the 2026-08-26
 review the positioned pill and the status region are two elements: the
 aria-hidden pill shows the message from the first render, and the separate
 status region, hidden by the stylesheet's `bowman-sr-only` class, receives it
@@ -44,7 +45,7 @@ re-render with a fresh `onClose` identity - which a streaming chat page
 produces constantly - restart the countdown before it could fire. Here the
 latest `onClose` lives in a ref updated in its own effect, the timeout
 effect keys on `[message, duration]`, and the timer calls
-`onCloseRef.current()` ([validated by](../../tests/Toast.test.tsx#L107)):
+`onCloseRef.current()`: ([validated by](../../tests/Toast.test.tsx#L107))
 
 - **The divergence.** A new `onClose` identity at 1000ms does not restart
   the countdown: the latest callback fires exactly once at 2000ms total,
@@ -103,12 +104,12 @@ both stops ([validated by](../../tests/styles.test.ts#L63),
 four with a paired utility rule; the
 `prefers-reduced-motion: reduce` block from 019 Decision 5 covers
 `.bowman-toast-fade-in` and touches no `transform`, so the element stays
-positioned when animation is off
-([validated by](../../tests/styles.test.ts#L31),
+positioned when animation is off.
+`grep -rn "animate-fade-in" src/` returns nothing
+([validated by](../../tests/Toast.test.tsx#L170),
+[L31](../../tests/styles.test.ts#L31),
 [L42](../../tests/styles.test.ts#L42),
 [L80](../../tests/styles.test.ts#L80)).
-`grep -rn "animate-fade-in" src/` returns nothing
-([validated by](../../tests/Toast.test.tsx#L170)).
 
 ## The partition amendment
 
