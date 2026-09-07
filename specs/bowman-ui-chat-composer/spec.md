@@ -58,9 +58,7 @@ issue is cited for it.
 ## busy and disabled
 
 Separate props because they are different states - busy is a pulse the
-reader should see, disabled is merely inert;
-[validated by](../../tests/ChatComposer.test.tsx#L149),
-[L173](../../tests/ChatComposer.test.tsx#L173)). `busy`
+reader should see, disabled is merely inert. `busy`
 disables both controls, swallows `Enter`, and pulses the wrapper; `disabled`
 disables without the pulse
 ([validated by](../../tests/ChatComposer.test.tsx#L149),
@@ -76,20 +74,20 @@ class under the `bowman-` prefix, the same recorded deviation as
 
 `setValue` writes the draft, re-runs the auto-resize and re-enables send; a
 blank write keeps send disabled; a
-handle retained past unmount is a no-op
-([validated by](../../tests/ChatComposer.test.tsx#L183),
-[L196](../../tests/ChatComposer.test.tsx#L196),
-[L206](../../tests/ChatComposer.test.tsx#L206)). `focus()` makes the
+handle retained past unmount is a no-op. `focus()` makes the
 textarea `document.activeElement`; `autoFocus` does
 the same on mount and defaults to false
 ([validated by](../../tests/ChatComposer.test.tsx#L216),
-[L226](../../tests/ChatComposer.test.tsx#L226)).
+[L226](../../tests/ChatComposer.test.tsx#L226),
+[L183](../../tests/ChatComposer.test.tsx#L183),
+[L196](../../tests/ChatComposer.test.tsx#L196),
+[L206](../../tests/ChatComposer.test.tsx#L206)).
 
 ## Auto-resize
 
 `height = auto` then `min(scrollHeight, maxHeightPx)`, with `200` as the
 `maxHeightPx` default, `resize-none` with scroll past the
-cap ([validated by](../../tests/ChatComposer.test.tsx#L238)). jsdom performs no layout and reports `scrollHeight` 0, so the tests stub
+cap. jsdom performs no layout and reports `scrollHeight` 0, so the tests stub
 the property (`Object.defineProperty(textarea, "scrollHeight", { value: 320,
 configurable: true })`) and note it: a stubbed 320 caps at `200px` by default
 and reaches `320px` with `maxHeightPx={400}`
@@ -128,11 +126,11 @@ accessible name is the resolved `send` label with its `SendIcon`
 `defaultChatComposerLabels` is `Readonly<Required<ChatComposerLabels>>`; a
 key added without a default fails `npm run typecheck`, pinned by the
 `@ts-expect-error` fixture in `tests/types/chat-composer-type-assertions.tsx`
-compiled against `dist/`
-([validated by](../../tests/chat-composer-dist.test.ts#L22), fixture at
+compiled against `dist/` (fixture at
 [chat-composer-type-assertions](../../tests/types/chat-composer-type-assertions.tsx)).
 `ChatComposer` joins the `labelsProp` partition and the sentinel render
-covers it ([validated by](../../tests/labelled-exports.test.tsx#L493)).
+covers it ([validated by](../../tests/labelled-exports.test.tsx#L493),
+[L22](../../tests/chat-composer-dist.test.ts#L22)).
 
 **Note - one placeholder default.** The single `composerPlaceholder`
 default (`"Reply..."`) is the mid-conversation reply prompt, the composer's
@@ -155,12 +153,12 @@ customer's device ([validated by](../../tests/ChatComposer.test.tsx#L373)).
 ## Source purity and the build
 
 No `@clerk`, `swr`, `next-intl`, `next/`, `@/` or
-`lucide-react` import, and every relative import ends in `.js`
-([validated by](../../tests/ChatComposer.test.tsx#L381)).
+`lucide-react` import, and every relative import ends in `.js`.
 `dist/components/ChatComposer.js` opens with `"use client";` as its first
 statement per 018 Decision 1's positional check, and `npm pack` ships it
 with its `.d.ts`
-([validated by](../../tests/chat-composer-dist.test.ts#L8)).
+([validated by](../../tests/chat-composer-dist.test.ts#L8),
+[L381](../../tests/ChatComposer.test.tsx#L381)).
 
 ## Recorded deviations from the issue text
 
