@@ -76,8 +76,8 @@ statement (a list item is one statement; a paragraph counts per sentence).
 Anchors must land on the cited test's `it(`/`describe(` line or another
 content-carrying line. CI runs `node scripts/repoint-spec-anchors.mjs --check`
 against `origin/main`: it fails on anchors whose cited content moved (run the
-script without `--check` after editing a cited test, script, README.md or
-docs/ markdown file to re-point them) and on anchors landing on blank or
+script without `--check` after editing any cited repository file - a test, a
+script, a doc, a workflow, a config - to re-point them) and on anchors landing on blank or
 closing-punctuation lines. An anchor whose line
 number a spec edit deliberately changed is accepted as authored and reported
 as `retargeted (not checked)` - reviewers must verify those targets by hand.

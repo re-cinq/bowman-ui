@@ -15,13 +15,14 @@ the one consumer shape it is built for. The whole proof is one command,
 README's App Router consumer section ([validated by](../../README.md#L123)).
 
 Anchor caveat (the consumer-app spec's precedent): `scripts/
-repoint-spec-anchors.mjs` tracks `(../)+tests/*.ts(x)` anchors and, since
-issue 32, anchors into `scripts/`, `README.md` and `docs/` markdown, so this
-spec's links into `docs/design-notes.md`, `README.md` and `scripts/` are
-repointed by CI. Its links into `examples/`, workflow files, `package.json`
-and root config files are plain GitHub links that CI never repoints - they
-were authored against this PR's tree and drift silently if those files are
-later edited without updating this spec.
+repoint-spec-anchors.mjs` tracks `(../)+tests/*.ts(x)` anchors, anchors into
+`scripts/`, `README.md` and `docs/` markdown since issue 32, and since issue
+37 any repo-relative path carrying a file extension, so this spec's links
+into `examples/`, workflow files, `package.json` and root config files are
+repointed and rot-checked by CI along with the rest. Anchors into `ci.yml`
+and `publish.yml` cite a line unique to the job they describe, because the
+identical setup blocks those files repeat across jobs are a context tie the
+resolver refuses to guess at.
 
 ## The fixture app
 
@@ -242,27 +243,27 @@ The `rsc` job in `ci.yml` runs on every pull request (the workflow's
 unfiltered `pull_request` trigger) beside `032`'s `consumer` job. It pins
 its actions to the same commit SHAs as the existing jobs with
 `persist-credentials: false`
-([validated by](../../.github/workflows/ci.yml#L114)) - the issue text
+([validated by](../../.github/workflows/ci.yml#L123)) - the issue text
 named the older `v6`/`v4` SHAs from before this repo moved to `v7` pins;
 the existing file's style wins and the deviation is recorded here - sets
-`node-version: "22"` ([validated by](../../.github/workflows/ci.yml#L119)),
+`node-version: "22"` ([validated by](../../.github/workflows/ci.yml#L128)),
 runs `npm ci --ignore-scripts`
 ([validated by](../../.github/workflows/ci.yml#L122)) and an explicit
 `npm run build` before packing
 ([validated by](../../.github/workflows/ci.yml#L124)), then runs the green
 case and the `--expect-failure` case as separately named steps
-([validated by](../../.github/workflows/ci.yml#L125),
-[the red step](../../.github/workflows/ci.yml#L127)).
+([validated by](../../.github/workflows/ci.yml#L134),
+[the red step](../../.github/workflows/ci.yml#L136)).
 
 The same job re-runs the three next-absence checks, unmodified:
 `check-forbidden-imports.mjs`
-([validated by](../../.github/workflows/ci.yml#L129)), `018`'s manifest grep
+([validated by](../../.github/workflows/ci.yml#L138)), `018`'s manifest grep
 with the `node_modules/next` probe
-([validated by](../../.github/workflows/ci.yml#L131)), and `032`'s
+([validated by](../../.github/workflows/ci.yml#L140)), and `032`'s
 node_modules `find` - which issue 100 moved into
 `scripts/scan-forbidden-node-modules.sh` so this job and `consumer-app.sh`
 share one copy of the pattern rather than drifting
-([validated by](../../.github/workflows/ci.yml#L140)). One honest caveat,
+([validated by](../../.github/workflows/ci.yml#L149)). One honest caveat,
 recorded instead of dressed up: the `find` cannot run against the fixture's
 own installed tree, which contains `next` by design - the `consumer` job
 remains its executable home for the consumer tree, and here the identical
