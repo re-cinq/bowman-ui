@@ -27,11 +27,11 @@ itself, its front matter of real versions, the verbatim transcriptions in
 A1-A7 - are owed by the human runner, not by this change.
 
 The scaffolding is built so that the absence is loud rather than quiet:
-`check-at-pass.mjs --freshness` fails with no record present
-([validated by](../../tests/check-at-pass.test.ts#L151)), so `npm publish` is
-blocked until someone listens, while `--structure` passes with a warning
-([validated by](../../tests/check-at-pass.test.ts#L143)) so no pull request is
-held hostage to a listening session that has not happened yet.
+`check-at-pass.mjs --freshness` fails with no record present, so `npm publish`
+is blocked until someone listens, while `--structure` passes with a warning so
+no pull request is held hostage to a listening session that has not happened
+yet ([validated by](../../tests/check-at-pass.test.ts#L151),
+[L143](../../tests/check-at-pass.test.ts#L143)).
 
 ## The demo's streamed reply
 
@@ -127,58 +127,57 @@ check that a record exists, is complete, and has not been invalidated.
 1. **The record's front matter is the machine-readable part.** Row verdicts
    live in front matter under `rows`, one entry per row per stack, rather than
    in a markdown table in the body, so the gate reads them without parsing
-   prose. A missing required field fails, naming the field
-   ([validated by](../../tests/check-at-pass.test.ts#L168)); a `commit` that is
-   not 40 hex fails
-   ([validated by](../../tests/check-at-pass.test.ts#L180)); a row missing a
-   verdict on either stack fails, naming the row and the stack
-   ([validated by](../../tests/check-at-pass.test.ts#L189)). The front-matter
-   reader is 40 lines of this repository's own, not a YAML dependency: the
-   format is defined by `docs/accessibility/README.md`, and a record that
-   strays from it is a finding rather than a parser upgrade
-   ([validated by](../../tests/check-at-pass.test.ts#L424)).
+   prose. A missing required field fails, naming the field; a `commit` that is
+   not 40 hex fails; a row missing a verdict on either stack fails, naming the
+   row and the stack. The front-matter reader is 40 lines of this repository's
+   own, not a YAML dependency: the format is defined by
+   `docs/accessibility/README.md`, and a record that strays from it is a
+   finding rather than a parser upgrade
+   ([validated by](../../tests/check-at-pass.test.ts#L424),
+   [L168](../../tests/check-at-pass.test.ts#L168),
+   [L180](../../tests/check-at-pass.test.ts#L180),
+   [L189](../../tests/check-at-pass.test.ts#L189)).
 2. **Every `fail` has an owner.** A `fail` row naming neither a `fixing-issue`
-   nor an `accepted-by` fails the gate
-   ([validated by](../../tests/check-at-pass.test.ts#L200)); one naming a
-   fixing issue passes
-   ([validated by](../../tests/check-at-pass.test.ts#L215)). Fixing what a row
-   finds is a separate pull request against the component that shipped the
-   behaviour.
+   nor an `accepted-by` fails the gate; one naming a fixing issue passes.
+   Fixing what a row finds is a separate pull request against the component
+   that shipped the behaviour
+   ([validated by](../../tests/check-at-pass.test.ts#L200),
+   [L215](../../tests/check-at-pass.test.ts#L215)).
 3. **A waiver is temporary by construction.** `waived` without both `waived-by`
-   and `expires` fails
-   ([validated by](../../tests/check-at-pass.test.ts#L267)); an expired waiver
-   fails in both modes, with the same exit code as a stale record
-   ([validated by](../../tests/check-at-pass.test.ts#L280)); an unexpired one
-   passes ([validated by](../../tests/check-at-pass.test.ts#L301)). A first
-   release is not hostage to VM access, and a waiver cannot quietly become
-   permanent.
+   and `expires` fails; an expired waiver fails in both modes, with the same
+   exit code as a stale record; an unexpired one passes. A first release is not
+   hostage to VM access, and a waiver cannot quietly become permanent
+   ([validated by](../../tests/check-at-pass.test.ts#L267),
+   [L280](../../tests/check-at-pass.test.ts#L280),
+   [L301](../../tests/check-at-pass.test.ts#L301)).
 4. **`covers` makes the record perishable.** `--freshness` takes the last
    commit touching each covered path and fails when it is not an ancestor of
-   the record's `commit`, naming the file and both commits
-   ([validated by](../../tests/check-at-pass.test.ts#L329)); a covered path no
-   commit touches fails too
-   ([validated by](../../tests/check-at-pass.test.ts#L348)). Editing
-   `ChatMessageList.tsx` mechanically invalidates the pass that certified it.
-   `publish.yml`'s checkout gained `fetch-depth: 0` for this: a shallow
-   checkout has no history to walk and would read every record as stale.
+   the record's `commit`, naming the file and both commits; a covered path no
+   commit touches fails too. Editing `ChatMessageList.tsx` mechanically
+   invalidates the pass that certified it. `publish.yml`'s checkout gained
+   `fetch-depth: 0` for this: a shallow checkout has no history to walk and
+   would read every record as stale
+   ([validated by](../../tests/check-at-pass.test.ts#L329),
+   [L348](../../tests/check-at-pass.test.ts#L348)).
 5. **No record blocks the release, not the pull request.** `--structure`
-   passes with a warning when no record exists
-   ([validated by](../../tests/check-at-pass.test.ts#L143)) and `--freshness`
-   fails ([validated by](../../tests/check-at-pass.test.ts#L151)). The
+   passes with a warning when no record exists and `--freshness` fails. The
    asymmetry is the whole design: a pull request cannot be blocked by a
    listening session nobody has scheduled, and a publish cannot proceed
-   without one.
+   without one
+   ([validated by](../../tests/check-at-pass.test.ts#L143),
+   [L151](../../tests/check-at-pass.test.ts#L151)).
 6. **No placeholder survives.** `TBD`, `TODO`, `FIXME`, `XXX` and
-   angle-bracket markers anywhere in the front matter fail the structure check
-   ([validated by](../../tests/check-at-pass.test.ts#L317)), which is what
-   turns "no placeholder left in the file" from an instruction into a gate.
-7. **The newest record by filename is the one validated**
-   ([validated by](../../tests/check-at-pass.test.ts#L363)). ISO dates sort
-   lexically, so the newest file name is the newest pass.
+   angle-bracket markers anywhere in the front matter fail the structure
+   check, which is what turns "no placeholder left in the file" from an
+   instruction into a gate
+   ([validated by](../../tests/check-at-pass.test.ts#L317)).
+7. **The newest record by filename is the one validated**. ISO dates sort
+   lexically, so the newest file name is the newest pass
+   ([validated by](../../tests/check-at-pass.test.ts#L363)).
 8. **Exit codes follow the house.** 1 lists every violation on stderr; 2 is a
-   usage or environment error - no mode flag
-   ([validated by](../../tests/check-at-pass.test.ts#L433)) or an unknown one
-   ([validated by](../../tests/check-at-pass.test.ts#L440)).
+   usage or environment error - no mode flag or an unknown one
+   ([validated by](../../tests/check-at-pass.test.ts#L440),
+   [L433](../../tests/check-at-pass.test.ts#L433)).
 
 `npm run check:at-pass -- --structure` runs in `ci.yml`'s `build-test` job;
 `npm run check:at-pass -- --freshness` runs in `publish.yml` after the build
@@ -214,10 +213,9 @@ articles' accessible names and breaks the demo's Playwright counts).
   re-cinq/Otto#97 **proposes** Vaclav Vondruska as the accountable runner; that
   proposal is recorded here, not settled here, and nothing in this change
   asserts it. The consequence is structural rather than rhetorical: the
-  record's `runner` field is required by the gate
-  ([validated by](../../tests/check-at-pass.test.ts#L168)), so whoever runs the
-  pass names themselves in it and no name is asserted on this issue's own
-  authority.
+  record's `runner` field is required by the gate, so whoever runs the pass
+  names themselves in it and no name is asserted on this issue's own authority
+  ([validated by](../../tests/check-at-pass.test.ts#L168)).
 - **KU-22, which accessibility standard applies.** None has been named. This is
   seven checks against three named promises, not a WCAG or EN 301 549
   conformance audit, and `docs/accessibility/README.md` claims neither. Naming
