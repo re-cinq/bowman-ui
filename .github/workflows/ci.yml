@@ -88,8 +88,8 @@ jobs:
       # half of the gate is --freshness in publish.yml.
       - name: AT-pass structure check
         run: npm run check:at-pass -- --structure
-      # specs' [validated by](...#Lnn) anchors drift silently when a cited test,
-      # script, README.md or docs file gains or loses lines (issue 36). Fails
+      # specs' [validated by](...#Lnn) anchors drift silently when any cited
+      # repository file gains or loses lines (issues 36 and 37). Fails
       # when an anchor no longer points at the line content it cited on main; a
       # red check is fixed with
       # `node scripts/repoint-spec-anchors.mjs`.

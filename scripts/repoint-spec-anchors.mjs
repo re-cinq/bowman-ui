@@ -1,14 +1,17 @@
 #!/usr/bin/env node
 // Re-points specs' [validated by](../../tests/X.test.tsx#Lnn) anchors after
-// edits to the cited file (the drift class of issue 36) - a test, a script,
-// README.md or a docs/ markdown file: each anchor's line number is
+// edits to the cited file (the drift class of issue 36) - any cited
+// repository file, whatever its kind: each anchor's line number is
 // resolved to the content it cited in the base ref's copy of that file,
 // that content is found in the working copy, and the anchor is rewritten to
 // the match whose surrounding lines agree with the baseline's. When the cited
 // content occurs on several working lines, each candidate is scored by how
 // many of the baseline's neighbouring lines it reproduces at the same offsets;
 // a candidate whose context uniquely wins is chosen, and a tie is reported as
-// ambiguous for manual fix (exit 1 in both modes) instead of guessing.
+// ambiguous for manual fix (exit 1 in both modes) instead of guessing. An
+// anchor into a file built of repeated blocks - a workflow whose jobs share an
+// identical setup - must therefore cite a line unique to its own step, because
+// the resolver refuses to guess between indistinguishable candidates.
 //
 // Usage:
 //   node scripts/repoint-spec-anchors.mjs [--check] [base-ref]
@@ -49,7 +52,7 @@ import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, normalize } from "node:path";
 import process from "node:process";
 
-const TRACKED_PATH = String.raw`(?:\.\.\/)+(?:(?:examples\/[^/]+\/)?tests\/[\w./-]+\.(?:tsx|ts)|docs\/[\w./-]+\.md|README\.md|scripts\/[\w./-]+)`;
+const TRACKED_PATH = String.raw`(?:\.\.\/)+(?:scripts\/[\w./-]+|[\w./-]+\.[A-Za-z]+)`;
 const ANCHOR = new RegExp(String.raw`(${TRACKED_PATH})#L(\d+)`, "g");
 
 // A short-form [Lnnn](../../tests/X.test.tsx#Lmmm) link: its visible label is a
