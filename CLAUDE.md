@@ -55,9 +55,15 @@ The typecheck script is `typecheck`, not `type-check`.
 - `npm run check:duplication` — jscpd copy-paste gate over `src` + `tests` (config in
   .jscpd.json): fails above 4% duplicated lines at min-tokens 50; `tests/fixtures/**` is exempt.
 - `npm run check:lore-plugin-sync` — byte-compares every file under
-  tools/eslint-plugin-lore/rules/ against re-cinq/lore main and fails on an upstream rule not
-  yet mirrored or recorded as excluded; `-- --write` refreshes mirrors. Exit 2 = fetch
-  failure, not drift. See docs/design-notes.md § Lint guardrails decision 9.
+  tools/eslint-plugin-lore/rules/ and tools/lore-spec-domain/ against re-cinq/lore main and
+  fails on an upstream rule not yet mirrored or recorded as excluded; `-- --write` refreshes
+  mirrors. Exit 2 = fetch failure, not drift. See docs/design-notes.md § Lint guardrails
+  decisions 9 and 10.
+- `npm run check:spec-links [-- <spec paths>] [-- --json]` — reports every `[validated by]` test
+  link that sits outside its statement's trailing parenthetical (lore counts only trailing ones);
+  exit 1 on any finding, exit 2 on a bad flag or unreadable spec. Runs the
+  tools/lore-spec-domain/ mirrors under `--experimental-strip-types`, so it needs Node 22.6+.
+  See docs/design-notes.md § Lint guardrails decision 10.
 - `node scripts/repoint-spec-anchors.mjs [--check]` — after editing a cited test, script, README.md
   or docs/ markdown file (docs/design-notes.md included), re-run WITHOUT `--check` or CI reds.
 - `node scripts/write-public-api.mjs` — only after deliberately deciding a surface change is
@@ -81,11 +87,13 @@ The typecheck script is `typecheck`, not `type-check`.
   package; `tests/security/`; `tests/setup.ts` = suite-wide console + network traps.
 - `examples/chat-demo` (Vite + Playwright); `examples/rsc-fixture` (Next.js — the ONLY place
   `next` may appear).
-- `scripts/` — 12 enforcement scripts.
+- `scripts/` — 16 enforcement scripts.
 - `tools/eslint-plugin-bowman/` — repo-local ESLint rules (no package.json; loaded by relative
   import in eslint.config.mjs). See invariant 11.
 - `tools/eslint-plugin-lore/` — verbatim mirrors of nine re-cinq/lore rules (`rules/**`, never
   edited here) behind a local `index.mjs`. See invariant 11.
+- `tools/lore-spec-domain/` — verbatim mirrors of lore's four spec-segmentation domain files
+  (never edited here; they keep lore's `.js` relative imports). See invariant 11.
 
 ## Enforced invariants
 
@@ -147,7 +155,11 @@ The typecheck script is `typecheck`, not `type-check`.
     docs/design-notes.md, the feature spec, or README — and `no-dead-md-links` over every
     `*.md` through `@eslint/markdown` (a repo-relative link must land; the assistive-technology
     spec carries the one scoped disable). They carry no local fixtures (tested upstream) and are
-    policed by `npm run check:lore-plugin-sync`.
+    policed by `npm run check:lore-plugin-sync`. The same gate polices the four
+    spec-segmentation domain mirrors in `tools/lore-spec-domain/` (`spec-segment.ts`,
+    `spec-sentence-split.ts`, `spec-link-parser.ts`, `test-paths.ts`), which are lint- and
+    prettier-ignored on the same terms and are what `npm run check:spec-links` runs — see
+    docs/design-notes.md § Lint guardrails decision 10.
 12. **Publishing** is tag-triggered CI only, via npm OIDC trusted publishing
     (.github/workflows/publish.yml: `tags: ["v*"]`, `id-token: write`, no `NPM_TOKEN`). Never
     `npm publish` by hand. Never push to `main` — guard-main-pushes.yml opens a security issue,
@@ -184,7 +196,7 @@ wrong; the correct fact is on the right.
 - Never import `next` (or the other forbidden specifiers) outside `examples/rsc-fixture`.
 - Never add a `no-restricted-syntax` overlay without re-listing every shared selector (labels,
   focusable-literal, svg, default-export) — arrays replace, they never merge.
-- Never edit a file under `tools/eslint-plugin-lore/rules/`; refresh with
-  `npm run check:lore-plugin-sync -- --write`. Never write a multi-line comment in `src/`.
+- Never edit a file under `tools/eslint-plugin-lore/rules/` or `tools/lore-spec-domain/`; refresh
+  with `npm run check:lore-plugin-sync -- --write`. Never write a multi-line comment in `src/`.
 - Never remove the `rm -rf dist` from the build script.
 - Never `npm publish` by hand and never push to `main`.

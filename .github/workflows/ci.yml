@@ -69,9 +69,11 @@ jobs:
       - name: Duplication check
         run: npm run check:duplication
       # tools/eslint-plugin-lore/rules/** are verbatim mirrors of the generic
-      # subset of re-cinq/lore's eslint plugin. This byte-compares them against
-      # lore's main and fails when lore ships a rule this repo has neither
-      # mirrored nor recorded as excluded. A red check is fixed by
+      # subset of re-cinq/lore's eslint plugin, and tools/lore-spec-domain/**
+      # verbatim mirrors of lore's spec-segmentation domain library. This
+      # byte-compares both against lore's main and fails when lore ships a rule
+      # this repo has neither mirrored nor recorded as excluded. A red check is
+      # fixed by
       # `npm run check:lore-plugin-sync -- --write` (drift) or by deciding the
       # new rule in scripts/check-lore-plugin-sync.mjs. Exit 2 is a fetch
       # failure, not drift.
@@ -93,6 +95,13 @@ jobs:
       # `node scripts/repoint-spec-anchors.mjs`.
       - name: Spec anchor check
         run: node scripts/repoint-spec-anchors.mjs --check origin/main
+      # Issue 2, the other half of the anchor check above: a `[validated by]`
+      # link counts as coverage only in its statement's TRAILING parenthetical,
+      # so one written mid-statement is dropped upstream in silence and the spec
+      # reads as cited while nothing is. A red check is fixed by moving the link
+      # to the end of its statement, never by deleting it.
+      - name: Spec link placement
+        run: npm run check:spec-links
       # The Lore test-command interface must not drift from the scripts it
       # wraps: the committed list command has to keep emitting a parseable
       # JSON array (issue 189).

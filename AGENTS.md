@@ -81,6 +81,9 @@ docs/ markdown file to re-point them) and on anchors landing on blank or
 closing-punctuation lines. An anchor whose line
 number a spec edit deliberately changed is accepted as authored and reported
 as `retargeted (not checked)` - reviewers must verify those targets by hand.
+A link only counts where it is trailing, so `npm run check:spec-links` is the
+local check for placement: it segments each spec with Lore's own mirrored
+segmentation and reports every test link sitting anywhere else.
 
 ## Commit Conventions
 
