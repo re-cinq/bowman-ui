@@ -2,6 +2,7 @@ import maxCommentLines from "./rules/max-comment-lines.mjs";
 import noForwardingClass from "./rules/no-forwarding-class.mjs";
 import noNestedIf from "./rules/no-nested-if.mjs";
 import noNestedLoop from "./rules/no-nested-loop.mjs";
+import noReexportOnlyModule from "./rules/no-reexport-only-module.mjs";
 import noVagueNames from "./rules/no-vague-names.mjs";
 import preferEarlyReturn from "./rules/prefer-early-return.mjs";
 import preferEnforceTrue from "./rules/prefer-enforce-true.mjs";
@@ -23,6 +24,7 @@ export default {
     "no-forwarding-class": noForwardingClass,
     "no-nested-if": noNestedIf,
     "no-nested-loop": noNestedLoop,
+    "no-reexport-only-module": noReexportOnlyModule,
     "no-vague-names": noVagueNames,
     "prefer-early-return": preferEarlyReturn,
     "prefer-enforce-true": preferEnforceTrue,
