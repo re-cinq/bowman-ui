@@ -6,7 +6,7 @@
 
 import { readFileSync, readdirSync } from "node:fs";
 import { register } from "node:module";
-import { join, relative } from "node:path";
+import { join, relative, resolve } from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
 
@@ -18,7 +18,9 @@ const { segmentStatements } = await import("../tools/lore-spec-domain/spec-segme
 const { findMisplacedCoverageLinks } =
   await import("../tools/lore-spec-domain/spec-link-parser.ts");
 
-const USAGE = "usage: check-spec-links.mjs [--json] [spec-path ...]";
+const USAGE =
+  "usage: check-spec-links.mjs [--json] [spec-path ...]\n" +
+  "spec paths resolve against the repo root, not the working directory; an absolute path is taken as given";
 
 const args = process.argv.slice(2);
 const flags = args.filter((arg) => arg.startsWith("--"));
@@ -45,7 +47,9 @@ const discoverSpecs = () => {
 };
 
 const specPaths =
-  specArgs.length > 0 ? specArgs.map((path) => relative(root, join(root, path))) : discoverSpecs();
+  specArgs.length > 0
+    ? specArgs.map((path) => relative(root, resolve(root, path)))
+    : discoverSpecs();
 
 const readSpec = (specPath) => {
   try {
