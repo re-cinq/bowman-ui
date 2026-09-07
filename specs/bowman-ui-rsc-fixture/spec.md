@@ -12,7 +12,7 @@ static and `032`'s Vite consumer does not share Next's server/client module
 graph, so until this fixture nothing had ever compiled the package inside
 the one consumer shape it is built for. The whole proof is one command,
 `npm run rsc` ([validated by](../../package.json#L33)), documented in the
-README's App Router consumer section ([validated by](../../README.md#L123)).
+README's App Router consumer section ([validated by](../../README.md#L150)).
 
 Anchor caveat (the consumer-app spec's precedent): `scripts/
 repoint-spec-anchors.mjs` tracks `(../)+tests/*.ts(x)` anchors and, since
@@ -122,7 +122,7 @@ mechanically with
 `AppSidebar`, `ChatComposer`, `ChatMessage`, `ChatMessageList`,
 `ConversationList`, `ErrorBoundary`, `Toast`
 ([validated by](../../docs/design-notes.md#L465)), and the same sentence appears in
-the README ([validated by](../../README.md#L133)). `app/client/page.tsx` is
+the README ([validated by](../../README.md#L160)). `app/client/page.tsx` is
 the control: the same composition under `"use client"`, building green, so
 the rejection is attributable to the boundary and not to the components
 ([validated by](../../examples/rsc-fixture/app/client/page.tsx#L1)). The two

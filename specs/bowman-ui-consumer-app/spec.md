@@ -10,7 +10,7 @@ chat screen in a real Chromium. It proves what no jsdom test can: the
 package's eight major components in one document, compiled by a real Tailwind v4
 build, laid out by a real browser. The whole proof is one command,
 `npm run consumer` ([validated by](../../package.json#L32)), documented in the
-README's Worked consumer section ([validated by](../../README.md#L113)).
+README's Worked consumer section ([validated by](../../README.md#L140)).
 
 Anchor caveat: `scripts/repoint-spec-anchors.mjs` tracks
 `(../)+tests/*.ts(x)` anchors, `(../)+examples/*/tests/*.ts(x)` anchors since
