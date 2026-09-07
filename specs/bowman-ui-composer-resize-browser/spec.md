@@ -6,13 +6,12 @@ The chat composer's auto-resize was measured nowhere real: the unit suite
 stubs `scrollHeight` because jsdom performs no layout, and the browser suite
 typed into the composer without asserting that it grows, caps, scrolls or
 shrinks back. This change adds a `composer auto-resize` describe block to the
-existing consumer suite
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L254)),
-measuring the really rendered box via `getBoundingClientRect().height`
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L259)) -
-never the inline `style.height` string. No file under `src/` and no file
-under `examples/chat-demo/src/` changes in this PR - the proof is the PR
-diff itself, reviewable but not re-runnable.
+existing consumer suite, measuring the really rendered box via
+`getBoundingClientRect().height` - never the inline `style.height` string
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L254),
+[L259](../../examples/chat-demo/tests/chat-demo.spec.ts#L259)). No file under
+`src/` and no file under `examples/chat-demo/src/` changes in this PR - the
+proof is the PR diff itself, reviewable but not re-runnable.
 
 All statements below executed green on 2026-09-01 against the packed tarball
 via `scripts/consumer-app.sh` (22 passed, exit 0), re-run for the Marginalia
@@ -34,10 +33,10 @@ files, workflow files and `examples/` sources outside `tests/` remain plain
 GitHub links CI never repoints
 ([validated by](../../tests/repoint-spec-anchors.test.ts#L562)). The
 assistive-technology spec's placeholder links carry `#A1`-style fragments and
-a `<date>` placeholder, so the tracker never matches them
-([validated by](../../tests/repoint-spec-anchors.test.ts#L576)); a real
-`docs/accessibility/at-pass-*.md` cited with `#L` anchors becomes tracked
-the moment it exists.
+a `<date>` placeholder, so the tracker never matches them; a real
+`docs/accessibility/at-pass-*.md` cited with `#L` anchors becomes tracked the
+moment it exists
+([validated by](../../tests/repoint-spec-anchors.test.ts#L576)).
 
 ## Baseline
 
@@ -49,37 +48,34 @@ as the baseline and asserts it is greater than `0` and less than `200`
 ([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L273)).
 
 Each of the three tests opens a fresh page and measures its own baseline in
-the same run
+the same run rather than sharing one through `beforeAll`: the suite runs
+`fullyParallel` with two CI retries, so cross-test state would either
+serialize the suite or leak between a retry and a fresh worker
 ([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L283),
-[L306](../../examples/chat-demo/tests/chat-demo.spec.ts#L306)) rather than
-sharing one through `beforeAll`: the suite runs `fullyParallel` with two CI
-retries, so cross-test state would either serialize the suite or leak between
-a retry and a fresh worker. A font or line-height change moves the baseline
-and the grown heights together, so growth and shrink assertions cannot go red
-for the wrong reason.
+[L306](../../examples/chat-demo/tests/chat-demo.spec.ts#L306)). A font or
+line-height change moves the baseline and the grown heights together, so
+growth and shrink assertions cannot go red for the wrong reason.
 
 ## Growth by Shift+Enter
 
-Three `Shift+Enter` presses on a one-line invented draft
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L289)) leave
-the draft in the box - the surviving value `draft + "\n\n\n"` is the
-load-bearing no-send assertion, because `submit()` clears the value on any
-send ([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L293)).
-The user-entry count staying at four corroborates it
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L296)), and
-the measured height ends strictly greater than the baseline
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L297)) - the
-first exercise of the newline branch that produces real layout rather than a
-jsdom string.
+Three `Shift+Enter` presses on a one-line invented draft leave the draft in
+the box - the surviving value `draft + "\n\n\n"` is the load-bearing no-send
+assertion, because `submit()` clears the value on any send
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L293),
+[L289](../../examples/chat-demo/tests/chat-demo.spec.ts#L289)). The
+user-entry count staying at four corroborates it, and the measured height
+ends strictly greater than the baseline - the first exercise of the newline
+branch that produces real layout rather than a jsdom string
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L296),
+[L297](../../examples/chat-demo/tests/chat-demo.spec.ts#L297)).
 
 ## The 200px cap
 
 After `fill()` with a twelve-line invented string, the measured height is
-exactly `200`
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L310)) -
-`027`'s `maxHeightPx` default - and filling twenty-four lines instead leaves
-it at exactly `200`
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L314)). The
+exactly `200` - `027`'s `maxHeightPx` default - and filling twenty-four lines
+instead leaves it at exactly `200`
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L314),
+[L310](../../examples/chat-demo/tests/chat-demo.spec.ts#L310)). The
 exactness doubles as a `border-box` regression test: the component writes the
 literal inline string `200px`, the textarea carries no border of its own
 (the border sits on the wrapper), and Tailwind's preflight `border-box`
@@ -87,38 +83,38 @@ sizing means any future border or sizing change on the textarea would break
 the equality. `getBoundingClientRect()` returns CSS pixels, so the device
 scale factor cannot introduce fractions.
 
-After every `fill()` the send button is asserted enabled
+After every `fill()` the send button is asserted enabled: the button only
+enables through the same `onChange` that runs the resize, so this proves the
+programmatic fill actually drove React's change path rather than only writing
+the DOM value
 ([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L309),
 [L313](../../examples/chat-demo/tests/chat-demo.spec.ts#L313),
-[L288](../../examples/chat-demo/tests/chat-demo.spec.ts#L288)): the button
-only enables through the same `onChange` that runs the resize, so this proves
-the programmatic fill actually drove React's change path rather than only
-writing the DOM value.
+[L288](../../examples/chat-demo/tests/chat-demo.spec.ts#L288)).
 
-At the cap, one further real `Shift+Enter` keystroke is pressed by design
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L316)) - a
+At the cap, one further real `Shift+Enter` keystroke is pressed by design - a
 keyboard insertion is guaranteed to scroll the caret into view, where a
 programmatic value set is not - and the suite then asserts behaviourally that
-`scrollHeight > clientHeight`
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L324)) and
-`scrollTop > 0`
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L325)).
-`scrollTop` is never written from the test. No assertion is made on computed
-`overflow-y` or any other user-agent-stylesheet value: the scrollbar comes
-from the browser's own stylesheet, not from anything the library sets.
+`scrollHeight > clientHeight` and `scrollTop > 0`. `scrollTop` is never
+written from the test
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L316),
+[L324](../../examples/chat-demo/tests/chat-demo.spec.ts#L324),
+[L325](../../examples/chat-demo/tests/chat-demo.spec.ts#L325)). No assertion
+is made on computed `overflow-y` or any other user-agent-stylesheet value:
+the scrollbar comes from the browser's own stylesheet, not from anything the
+library sets.
 
 ## Send and shrink
 
 Pressing `Enter` on the capped draft sends it - the user-entry count rises to
-five ([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L330)),
-the sent entry contains the unique final line `Invented line 24 of 24`
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L331)) (a
-line-number sentinel is avoided as a prefix trap: `Line 1` would also match
-`Line 10`), the composer's value is `""`
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L332)) so
-the shrink cannot be a layout coincidence - and the measured height returns
-to the recorded baseline, polled to absorb the clearing re-render
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L333)).
+five, the sent entry contains the unique final line `Invented line 24 of 24`
+(a line-number sentinel is avoided as a prefix trap: `Line 1` would also
+match `Line 10`), the composer's value is `""` so the shrink cannot be a
+layout coincidence - and the measured height returns to the recorded
+baseline, polled to absorb the clearing re-render
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L333),
+[L330](../../examples/chat-demo/tests/chat-demo.spec.ts#L330),
+[L331](../../examples/chat-demo/tests/chat-demo.spec.ts#L331),
+[L332](../../examples/chat-demo/tests/chat-demo.spec.ts#L332)).
 
 ### Reconciling 027's "inline height back to auto" criterion
 
@@ -147,25 +143,25 @@ the customer-visible fact, and asserting the string here would only duplicate
 ### What stays unproven in a browser
 
 The `maxHeightPx` override is proven only by `027`'s stubbed unit test - a
-stubbed `scrollHeight` of 320 capping at `200px` under the default
-([validated by](../../tests/ChatComposer.test.tsx#L244)) and reaching `320px`
-with `maxHeightPx={400}`
-([validated by](../../tests/ChatComposer.test.tsx#L253)) - and by no browser.
-The demo pins its composition and threads no URL parameter to a second
-`maxHeightPx`, per the issue's tech note: that would turn the worked consumer
-into a fixture for its own test suite.
+stubbed `scrollHeight` of 320 capping at `200px` under the default and
+reaching `320px` with `maxHeightPx={400}` - and by no browser
+([validated by](../../tests/ChatComposer.test.tsx#L244),
+[L253](../../tests/ChatComposer.test.tsx#L253)). The demo pins its
+composition and threads no URL parameter to a second `maxHeightPx`, per the
+issue's tech note: that would turn the worked consumer into a fixture for its
+own test suite.
 
 ## GDPR
 
 Every string these assertions type or fill is invented text: the one-line
-draft `An invented draft about a delivery change`
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L285)) and
-generated numbered lines `Invented line N of M`
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L261)) - no
-real support question, booking identifier, or personal data, because the repo
-is public and a Playwright failure dump in a CI log is a publication. The
-generated pattern is deterministic and obviously synthetic, which is a
-stronger posture than invented prose.
+draft `An invented draft about a delivery change` and generated numbered
+lines `Invented line N of M` - no real support question, booking identifier,
+or personal data, because the repo is public and a Playwright failure dump in
+a CI log is a publication
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L285),
+[L261](../../examples/chat-demo/tests/chat-demo.spec.ts#L261)). The generated
+pattern is deterministic and obviously synthetic, which is a stronger posture
+than invented prose.
 
 ## CI wiring
 
