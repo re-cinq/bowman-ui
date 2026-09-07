@@ -15,11 +15,13 @@ the one consumer shape it is built for. The whole proof is one command,
 README's App Router consumer section ([validated by](../../README.md#L51)).
 
 Anchor caveat (the consumer-app spec's precedent): `scripts/
-repoint-spec-anchors.mjs` tracks only `(../)+tests/*.ts(x)` anchors, so this
-spec's links into `examples/`, `scripts/`, workflow files, `docs/design-notes.md` and
-`README.md` are plain GitHub links that CI never repoints - they were
-authored against this PR's tree and drift silently if those files are later
-edited without updating this spec.
+repoint-spec-anchors.mjs` tracks `(../)+tests/*.ts(x)` anchors and, since
+issue 32, anchors into `scripts/`, `README.md` and `docs/` markdown, so this
+spec's links into `docs/design-notes.md`, `README.md` and `scripts/` are
+repointed by CI. Its links into `examples/`, workflow files, `package.json`
+and root config files are plain GitHub links that CI never repoints - they
+were authored against this PR's tree and drift silently if those files are
+later edited without updating this spec.
 
 ## The fixture app
 
@@ -120,7 +122,7 @@ mechanically with
 `AppSidebar`, `ChatComposer`, `ChatMessage`, `ChatMessageList`,
 `ConversationList`, `ErrorBoundary`, `Toast`
 ([validated by](../../docs/design-notes.md#L465)), and the same sentence appears in
-the README ([validated by](../../README.md#L61)). `app/client/page.tsx` is
+the README ([validated by](../../README.md#L133)). `app/client/page.tsx` is
 the control: the same composition under `"use client"`, building green, so
 the rejection is attributable to the boundary and not to the components
 ([validated by](../../examples/rsc-fixture/app/client/page.tsx#L1)). The two
@@ -230,8 +232,9 @@ own cleanup trap, and because a child process could not hand
 `TARBALL_PATH`/`APP_DIR` back to its caller. `npm run consumer` was rerun
 after the refactor and stayed green (8 Playwright tests passed).
 `specs/bowman-ui-consumer-app/spec.md`'s anchors into the moved lines were
-re-pointed by hand in this PR - the anchor checker tracks only `tests/`
-anchors and would have stayed silent.
+re-pointed by hand in this PR - the anchor checker then tracked only
+`tests/` anchors and stayed silent; `scripts/` anchors are tracked since
+issue 32.
 
 ## CI and publish wiring
 
