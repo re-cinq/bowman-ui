@@ -17,18 +17,18 @@ only what's inside.
 
 The component renders one `<aside>` whose accessible name is the resolved
 `sidebar` label, containing at most one `<nav>` whose accessible name is the
-resolved `mainNavigation` label
-([validated by](../../tests/AppSidebar.test.tsx#L15),
-[L26](../../tests/AppSidebar.test.tsx#L26)). `AppSidebarLabels` has exactly
+resolved `mainNavigation` label. `AppSidebarLabels` has exactly
 those two defaulted keys ("Sidebar", "Main navigation"); no third,
 duplicate landmark name
 ("Mobile navigation") exists - 030's shell wrappers are
 non-landmark `div`s (docs/design-notes.md § AppShell), and although the shell mounts
 the sidebar twice, `hidden`/`md:hidden` on the positions and `inert` on the
 closed drawer keep one exposed at a time; a bare render contains exactly one
-`<nav>` ([validated by](../../tests/AppSidebar.test.tsx#L15)). `AppSidebar`
+`<nav>`. `AppSidebar`
 sits in the `labelsProp` partition bucket
-([partition](../../tests/labelled-exports.test.tsx#L55)). It passes the
+([partition](../../tests/labelled-exports.test.tsx#L55),
+[L15](../../tests/AppSidebar.test.tsx#L15),
+[L26](../../tests/AppSidebar.test.tsx#L26)). It passes the
 sentinel render with both labels set to sentinels
 ([harness](../../tests/labelled-exports.test.tsx#L302),
 [coverage](../../tests/labelled-exports.test.tsx#L446)).
@@ -118,12 +118,12 @@ console spy stays at zero calls ([spy](../../tests/setup.ts#L29)).
 ## Build contract
 
 The file imports nothing from `@clerk`, `swr`, `next-intl`, `next/`,
-`@/` or `lucide-react`, and every relative import ends in `.js`
-([validated by](../../tests/AppSidebar.test.tsx#L259)).
+`@/` or `lucide-react`, and every relative import ends in `.js`.
 `dist/components/AppSidebar.js` carries `"use client"` as its first statement
 and ships with its `.d.ts`
 ([validated by](../../tests/app-sidebar-dist.test.ts#L8),
-[L15](../../tests/app-sidebar-dist.test.ts#L15)). A key added to
+[L15](../../tests/app-sidebar-dist.test.ts#L15),
+[L259](../../tests/AppSidebar.test.tsx#L259)). A key added to
 `AppSidebarLabels` without a default cannot satisfy
 `Readonly<Required<AppSidebarLabels>>`
 ([validated by](../../tests/types/app-sidebar-type-assertions.tsx#L19)).

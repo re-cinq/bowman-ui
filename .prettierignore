@@ -14,3 +14,10 @@
 # here would break byte identity - lore is the format authority. The local
 # tools/eslint-plugin-lore/index.mjs is this repo's own and stays formatted.
 tools/eslint-plugin-lore/rules/
+
+# Verbatim mirrors of re-cinq/lore's spec-segmentation domain library, byte-
+# compared against lore main by the same script (decision 10). Formatting them
+# here would break byte identity - lore is the format authority. They keep
+# lore's `.js` relative imports; scripts/lib/lore-domain-resolve.mjs maps those
+# to the .ts files at load time.
+tools/lore-spec-domain/

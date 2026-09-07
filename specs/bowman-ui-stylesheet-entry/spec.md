@@ -8,12 +8,12 @@ Tailwind v4 build cannot generate from a class name, and nothing else
 `"./styles.css"` export resolves to `dist/styles.css`, which the build script
 copies verbatim (`tsc` emits no assets, so `build` is
 `tsc -p tsconfig.json && cp src/styles.css dist/styles.css` - `cp` was chosen
-over a node script because CI and development both run on POSIX shells)
-([validated by](../../tests/styles.test.ts#L93)).
+over a node script because CI and development both run on POSIX shells).
 `dist/styles.css` ships in the tarball under the `sideEffects:
 ["*.css"]` seam `018` left open - already present, not re-added
 ([validated by](../../tests/styles.test.ts#L108),
-[L100](../../tests/styles.test.ts#L100)).
+[L100](../../tests/styles.test.ts#L100),
+[L93](../../tests/styles.test.ts#L93)).
 
 ## What ships
 

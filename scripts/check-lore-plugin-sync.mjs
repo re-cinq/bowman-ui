@@ -5,6 +5,13 @@
 // authority and equality really is byte equality. The local index.mjs is this
 // repo's own subset selector and is not compared.
 //
+// It also polices tools/lore-spec-domain/**: verbatim mirrors of lore's
+// spec-segmentation domain library, which scripts/check-spec-links.mjs runs so
+// this repo's verdict on trailing-parenthetical test links is lore's own
+// verdict by construction (docs/design-notes.md § Lint guardrails decision 10).
+// Those files live under a different canonical path than the rules, so each
+// carries its own { canonical, local } pair.
+//
 // The gate also fetches lore's canonical plugin index and fails when lore
 // publishes a rule this repo has neither mirrored nor recorded in
 // EXCLUDED_RULES below - a new upstream rule is a decision, not drift.
@@ -72,10 +79,36 @@ const EXCLUDED_RULES = new Map([
   ],
 ]);
 
+// Lore's pure spec-segmentation domain, mirrored so check-spec-links.mjs
+// segments and parses exactly as lore's spec-coverage jobs do. The
+// require-spec-link rule family that wraps it stays in EXCLUDED_RULES: those
+// rules load the unpublished shared package at runtime, which is not published.
+const MIRRORED_DOMAIN_FILES = [
+  {
+    canonical: "libs/shared/src/domain/spec-segment.ts",
+    local: "tools/lore-spec-domain/spec-segment.ts",
+  },
+  {
+    canonical: "libs/shared/src/domain/spec-sentence-split.ts",
+    local: "tools/lore-spec-domain/spec-sentence-split.ts",
+  },
+  {
+    canonical: "libs/shared/src/domain/spec-link-parser.ts",
+    local: "tools/lore-spec-domain/spec-link-parser.ts",
+  },
+  {
+    canonical: "libs/shared/src/domain/test-paths.ts",
+    local: "tools/lore-spec-domain/test-paths.ts",
+  },
+];
+
+const pluginMirror = (path) => ({ canonical: path, local: path });
+
 const MIRRORS = [
-  `${PLUGIN_DIR}/rules/lib/error-shape.mjs`,
-  `${PLUGIN_DIR}/rules/lib/guard-shape.mjs`,
-  ...MIRRORED_RULES.map((rule) => `${PLUGIN_DIR}/rules/${rule}.mjs`),
+  pluginMirror(`${PLUGIN_DIR}/rules/lib/error-shape.mjs`),
+  pluginMirror(`${PLUGIN_DIR}/rules/lib/guard-shape.mjs`),
+  ...MIRRORED_RULES.map((rule) => pluginMirror(`${PLUGIN_DIR}/rules/${rule}.mjs`)),
+  ...MIRRORED_DOMAIN_FILES,
 ];
 
 const writeMode = process.argv.includes("--write");
@@ -103,23 +136,23 @@ const fetchCanonical = async (url) => {
 let failed = 0;
 
 for (const mirror of MIRRORS) {
-  const url = `${CANONICAL_BASE}/${mirror}`;
+  const url = `${CANONICAL_BASE}/${mirror.canonical}`;
   const canonical = await fetchCanonical(url);
-  const local = readFileSync(join(root, mirror), "utf8");
+  const local = readFileSync(join(root, mirror.local), "utf8");
 
   if (local === canonical) {
-    process.stdout.write(`in sync: ${mirror}\n`);
+    process.stdout.write(`in sync: ${mirror.local}\n`);
     continue;
   }
 
   if (writeMode) {
-    writeFileSync(join(root, mirror), canonical);
-    process.stdout.write(`refreshed: ${mirror}\n`);
+    writeFileSync(join(root, mirror.local), canonical);
+    process.stdout.write(`refreshed: ${mirror.local}\n`);
     continue;
   }
   failed += 1;
   process.stderr.write(
-    `drifted: ${mirror} no longer matches ${url} - run with --write to refresh\n`
+    `drifted: ${mirror.local} no longer matches ${url} - run with --write to refresh\n`
   );
 }
 

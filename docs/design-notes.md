@@ -641,6 +641,33 @@ Decisions:
    `.prettierignore`d and eslint-ignored so lore stays their format
    authority. Never edit a file under `tools/eslint-plugin-lore/rules/`.
 
+10. **Lore's spec-segmentation domain is mirrored verbatim too, and
+    `check:spec-links` runs it.** A statement's `([validated by](...))` link
+    counts as coverage only when it sits in that statement's TRAILING
+    parenthetical; lore's spec-coverage job reports every other test link as
+    `non-trailing-link`, and with no local check the defect kept regenerating
+    (issues 2 and 7). Rather than reimplement the segmentation and guess at
+    agreement, `tools/lore-spec-domain/` holds byte-for-byte copies of the
+    four pure domain files behind that verdict - `spec-segment.ts`,
+    `spec-sentence-split.ts`, `spec-link-parser.ts`, `test-paths.ts` - policed
+    by the same `scripts/check-lore-plugin-sync.mjs` on the same terms as the
+    rule mirrors (exit 2 on fetch failure, `--write` refreshes), and
+    `.prettierignore`d and eslint-ignored for the same reason. The domain
+    library, not lore's `require-spec-link` rule family that wraps it: those
+    rules import `the unpublished shared package` at runtime, an unpublished package
+    inside lore's monorepo, so they stay recorded as excluded in the sync
+    script while the pure part they wrap is mirrored here. The mirrors keep
+    lore's `.js` relative imports untouched - editing them to `.ts` would
+    break byte identity, which is the whole point - so
+    `scripts/lib/lore-domain-resolve.mjs` maps those specifiers at load time,
+    registered as a module-customization hook and scoped to parents inside
+    the mirror directory; `npm run check:spec-links` runs the mirror under
+    `--experimental-strip-types` (Node 22.6+) and Vitest resolves `.js` to
+    `.ts` on its own, so a test needs no hook. It is the local counterpart of
+    lore's spec-coverage-validate job: one line per misplaced citation, a
+    `misplaced: N across M specs` summary, exit 1 on any finding. Never edit
+    a file under `tools/lore-spec-domain/`.
+
 Considered and rejected:
 
 - **Type-aware rules** (`no-floating-promises`, `no-misused-promises`,

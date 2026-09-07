@@ -40,11 +40,11 @@ report is measured against the controls already in `src/markdown/urlPolicy.ts` a
 - **The scheme allowlist rejects everything outside `https`, `mailto`, `tel`, and every relative
   form, without decoding first.** `http`, `irc`, `xmpp`, `javascript:`, `data:`, `vbscript:`,
   `/api/logout`, `../admin` and `#anchor` all render their link text in a `<span>`, never an
-  anchor, and no `a[href=""]` appears
-  ([validated by](../../tests/markdown/urlPolicy.test.tsx#L53)). Case variation and entity
+  anchor, and no `a[href=""]` appears. Case variation and entity
   encoding do not get past the allowlist either - `java&#x09;script:` arrives already
   percent-encoded as `java%09script:`, and the comparison never decodes it
-  ([validated by](../../tests/markdown/urlPolicy.test.tsx#L71)).
+  ([validated by](../../tests/markdown/urlPolicy.test.tsx#L71),
+  [L53](../../tests/markdown/urlPolicy.test.tsx#L53)).
 - **Every rendered anchor carries `rel="noopener noreferrer"`, hardening that survives a
   `linkTarget` change** ([validated by](../../tests/markdown/urlPolicy.test.tsx#L121)).
 - **Raw HTML in model-authored content renders as escaped text, never as an element.** An
