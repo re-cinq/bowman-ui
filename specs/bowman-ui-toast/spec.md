@@ -31,10 +31,11 @@ an element with `role="status"` and `aria-live="polite"`
 ([validated by](../../tests/Toast.test.tsx#L23)). Since the 2026-08-26
 review the positioned pill and the status region are two elements: the
 aria-hidden pill shows the message from the first render, and the separate
-inline-visually-hidden status region receives it in the mount effect, so the
+status region, hidden by the stylesheet's `bowman-sr-only` class, receives it
+in the mount effect, so the
 live region exists before its text and screen readers announce it
 ([validated by](../../tests/Toast.test.tsx#L32),
-[L41](../../tests/Toast.test.tsx#L41)).
+[L47](../../tests/Toast.test.tsx#L47)).
 
 ## The timer fix
 

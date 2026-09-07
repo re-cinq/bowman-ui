@@ -56,7 +56,7 @@ Other public data shapes are consumer-supplied and rendered as-is: `Conversation
 
 ### Component Design Principles
 
-1. **Presentational Only** — No side effects, API calls, or complex state logic. All behavior is props-driven. ([validated by](../tests/ChatMessage.test.tsx#L728), [L420](../tests/ConversationList.test.tsx#L420))
+1. **Presentational Only** — No side effects, API calls, or complex state logic. All behavior is props-driven. ([validated by](../tests/ChatMessage.test.tsx#L728), [L419](../tests/ConversationList.test.tsx#L419))
 2. **Composability** — Components combine into larger layouts (e.g., `ChatMessage` + `ChatMessageList` + `ChatComposer` form a chat surface; `AppShell` + `AppSidebar` frame it).
 3. **Controlled by Default** — Components prefer controlled props; the five shipped hooks are `useDebounce`, `useFocusTrap`, `useFocusGroups`, `useReducedMotion`, and `useSidebarState`. ([validated by](../tests/hooks-dist.test.ts#L57))
 4. **Stylesheet Ships With the Package** — Components carry Tailwind utility class names; `./styles.css` supplies the four keyframes and markdown/sr-only rules Tailwind cannot generate, and the consumer's Tailwind v4 build scans `dist`. ([validated by](../tests/styles.test.ts#L93), [source](../tests/tailwind-build.test.ts#L79))
@@ -109,7 +109,7 @@ Other public data shapes are consumer-supplied and rendered as-is: `Conversation
 
 ## Compliance
 
-1. **GDPR — No Telemetry** — Components call no `console.*`, `localStorage`, `sessionStorage`, `fetch`, or `sendBeacon`, and persist no user content. ([validated by](../tests/ChatMessage.test.tsx#L728), [composer](../tests/ChatComposer.test.tsx#L373), [list](../tests/ConversationList.test.tsx#L420))
+1. **GDPR — No Telemetry** — Components call no `console.*`, `localStorage`, `sessionStorage`, `fetch`, or `sendBeacon`, and persist no user content. ([validated by](../tests/ChatMessage.test.tsx#L728), [composer](../tests/ChatComposer.test.tsx#L373), [list](../tests/ConversationList.test.tsx#L419))
 2. **EU AI Act — AI Disclosure** — `ChatMessageList`'s `aiDisclosure` label is required with no default and renders in every state, so no consumer can render the chat surface without it. ([validated by](../tests/ChatMessageList.test.tsx#L150), [type](../tests/types/chat-message-list-type-assertions.tsx#L53))
 3. **Markdown URL Policy** — `defaultMarkdownPolicy` allows only `https`/`mailto`/`tel`; `createUrlTransform` drops every other scheme, and dangerous schemes on a link render a hrefless span. ([validated by](../tests/markdown/urlPolicy.test.tsx#L33), [xss](../tests/security/markdown-xss.test.tsx#L85))
 4. **Markdown HTML Is Inert** — No `rehype-raw` is wired in, so model-authored HTML in markdown renders as literal text rather than live nodes. ([validated by](../tests/security/markdown-xss.test.tsx#L56))

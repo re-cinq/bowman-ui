@@ -107,7 +107,7 @@ describe("useFocusGroups", () => {
     expect(visited).toEqual([...names.slice(1), names[0]]);
   });
 
-  it('announces "Moved to main" in a role=status live region with inline clip styles and no class', () => {
+  it('announces "Moved to main" in a role=status live region hidden by the bowman-sr-only class', () => {
     render(<Harness />);
 
     pressF6();
@@ -117,8 +117,8 @@ describe("useFocusGroups", () => {
     expect(region).toHaveTextContent("Moved to main");
     expect(region).toHaveAttribute("aria-live", "polite");
     expect(region).toHaveAttribute("aria-atomic", "true");
-    expect(region.hasAttribute("class")).toBe(false);
-    expect(region.style).toMatchObject({ position: "absolute", width: "1px", height: "1px" });
+    expect(region).toHaveClass("bowman-sr-only");
+    expect(region).not.toHaveClass("sr-only");
   });
 
   it("the announcement element is removed after 1000ms", () => {
