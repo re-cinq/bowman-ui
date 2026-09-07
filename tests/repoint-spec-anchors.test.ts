@@ -536,8 +536,6 @@ describe("repoint-spec-anchors", () => {
   });
 
   it("repoints anchors into docs, README and scripts when the cited line moves", () => {
-    const repo = makeRepo();
-
     write(repo, "docs/notes.md", asTestFile(["cited note", "other note"]));
     write(repo, "README.md", asTestFile(["cited readme line", "other line"]));
     write(repo, "scripts/check.sh", asTestFile(["cited command", "other command"]));
@@ -562,8 +560,6 @@ describe("repoint-spec-anchors", () => {
   });
 
   it("leaves an anchor into a root config file untracked", () => {
-    const repo = makeRepo();
-
     write(repo, "vitest.config.ts", asTestFile(["cited option", "other option"]));
     write(repo, "specs/bar/spec.md", asSpec("../../vitest.config.ts#L1"));
     git(repo, "add", "-A");
@@ -575,5 +571,25 @@ describe("repoint-spec-anchors", () => {
     expect(result).toMatchObject({ status: 0 });
     expect(result.stdout).toContain("repointed: 0");
     expect(read(repo, "specs/bar/spec.md")).toEqual(asSpec("../../vitest.config.ts#L1"));
+  });
+
+  it("leaves a link whose fragment is not a line number untouched", () => {
+    write(repo, "docs/notes.md", asTestFile(["cited note", "other note"]));
+    write(
+      repo,
+      "specs/bar/spec.md",
+      asSpec("../../docs/notes.md#A1", "../../docs/accessibility/at-pass-<date>.md#A1")
+    );
+    git(repo, "add", "-A");
+    git(repo, "commit", "-q", "-m", "fragment anchors baseline");
+    write(repo, "docs/notes.md", asTestFile(["inserted", "cited note", "other note"]));
+
+    const result = run(repo, "main");
+
+    expect(result).toMatchObject({ status: 0 });
+    expect(result.stdout).toContain("repointed: 0");
+    expect(read(repo, "specs/bar/spec.md")).toEqual(
+      asSpec("../../docs/notes.md#A1", "../../docs/accessibility/at-pass-<date>.md#A1")
+    );
   });
 });
