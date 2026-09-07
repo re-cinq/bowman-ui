@@ -13,12 +13,14 @@ build, laid out by a real browser. The whole proof is one command,
 README's Worked consumer section ([validated by](../../README.md#L41)).
 
 Anchor caveat: `scripts/repoint-spec-anchors.mjs` tracks
-`(../)+tests/*.ts(x)` anchors and - since the composer-resize-browser change
-widened its regex - `(../)+examples/*/tests/*.ts(x)` anchors, so this spec's
-links into `examples/chat-demo/tests/` are repointed by CI. Its links into
-other `examples/` files, `scripts/` and workflow files remain plain GitHub
-links that CI never repoints - they were authored against this PR's tree and
-drift silently if those files are later edited without updating this spec.
+`(../)+tests/*.ts(x)` anchors, `(../)+examples/*/tests/*.ts(x)` anchors since
+the composer-resize-browser change, and `scripts/`, `README.md` and `docs/`
+markdown anchors since issue 32, so this spec's links into
+`examples/chat-demo/tests/` and `scripts/` are repointed by CI. Its links into
+other `examples/` files, `package.json` files and workflow files remain plain
+GitHub links that CI never repoints - they were authored against this PR's
+tree and drift silently if those files are later edited without updating
+this spec.
 
 ## The demo app
 
@@ -132,15 +134,15 @@ see `specs/bowman-ui-rsc-fixture/spec.md`):
   ([validated by](../../scripts/scan-forbidden-node-modules.sh#L14))
 - runs `tsc --noEmit` in the temp copy under `"strict": true` and
   `"moduleResolution": "bundler"`
-  ([validated by](../../scripts/consumer-app.sh#L115),
+  ([validated by](../../scripts/consumer-app.sh#L100),
   [tsconfig](../../examples/chat-demo/tsconfig.json#L5))
-- runs `vite build` ([validated by](../../scripts/consumer-app.sh#L118)),
+- runs `vite build` ([validated by](../../scripts/consumer-app.sh#L103)),
   installs the Chromium build matching the demo's pinned `@playwright/test`
   with `--with-deps` so a Linux runner gets its system libraries from the
-  same pinned version ([validated by](../../scripts/consumer-app.sh#L121)),
+  same pinned version ([validated by](../../scripts/consumer-app.sh#L106)),
   and runs the suite against `vite preview` (started by Playwright's
   `webServer`), never `vite dev`
-  ([validated by](../../scripts/consumer-app.sh#L124),
+  ([validated by](../../scripts/consumer-app.sh#L109),
   [webServer](../../examples/chat-demo/playwright.config.ts#L14))
 - removes its temp directory and tarball on exit including failure, and
   `--keep` retains both and prints their paths
@@ -243,7 +245,7 @@ a package declared in `package.json`
 allowlist is read at runtime from `dependencies` plus `peerDependencies`
 ([validated by](../../scripts/check-forbidden-imports.mjs#L30)), and a
 subpath of a declared package counts as the package
-([validated by](../../scripts/check-forbidden-imports.mjs#L42)). This
+([validated by](../../scripts/check-forbidden-imports.mjs#L40)). This
 inverts the issue's name blocklist (`@clerk/*`, `swr`, `next-intl`,
 `next`/`next/*`, plus `lucide-react` per docs/design-notes.md decision 2, the `@/`
 path alias per docs/design-notes.md decision 5, and any internal source-app
