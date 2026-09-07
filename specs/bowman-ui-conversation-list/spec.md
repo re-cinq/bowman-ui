@@ -23,7 +23,8 @@ component reads no clock and no locale: no `Date` constructor,
 
 `ConversationListLabels` has four defaulted keys - `conversations`,
 `noConversations`, `loadingConversations`, and the function-form
-`deleteConversation: (title) => string` per docs/design-notes.md § Labels decision 4. `ConversationList` sits
+`deleteConversation: (title) => string` per docs/design-notes.md § Labels decision 4.
+`ConversationList` sits
 in the `labelsProp` partition bucket and passes the
 sentinel render across its list, empty and loading states, the function label
 included ([partition](../../tests/labelled-exports.test.tsx#L69),

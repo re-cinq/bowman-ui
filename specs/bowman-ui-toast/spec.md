@@ -25,7 +25,8 @@ corrected justification.
 [L137](../../tests/Toast.test.tsx#L137)).
 No `labels` prop and no `className`: the fixed positioning
 (`fixed bottom-8 left-1/2 z-50 -translate-x-1/2`) and the fade animation's
-restated `-50%` translate are one decision that stays together. `message` renders inside
+restated `-50%` translate are one decision that stays together.
+`message` renders inside
 an element with `role="status"` and `aria-live="polite"`
 ([validated by](../../tests/Toast.test.tsx#L23),
 [L88](../../tests/Toast.test.tsx#L88)). Since the 2026-08-26

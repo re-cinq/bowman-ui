@@ -27,7 +27,8 @@ typecheck, and an `AssistantChatEntry` without `isStreaming` does not compile
 `scores`, `tenantId`, `organizationId`, `timestamp` or an index signature.
 `AssistantChatEntry.toolStatus?: string` is caller-supplied and has no HAL
 protocol counterpart ([validated by](../../tests/types/chat.test.ts#L100),
-[L120](../../tests/types/chat.test.ts#L120)). The module ships types only: `dist/types/chat.js` is a
+[L120](../../tests/types/chat.test.ts#L120)). The module ships types only:
+`dist/types/chat.js` is a
 bare `export {};`, so nothing in it can log, serialize or persist the customer
 data the types describe - the GDPR zero-retention constraint from
 `003-support-conversation-data-flow-record`

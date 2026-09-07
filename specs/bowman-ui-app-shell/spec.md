@@ -24,8 +24,8 @@ out for a consumer with its own
 
 `AppShellLabels` has four defaulted keys - `openSidebar`, `closeSidebar`,
 `skipToMainContent`, and `sidebarDialog` (the open drawer dialog's accessible
-name, added by the 2026-08-26 review) - per docs/design-notes.md § Labels. `AppShell`
-sits in the `labelsProp` partition bucket and passes the
+name, added by the 2026-08-26 review) - per docs/design-notes.md § Labels.
+`AppShell` sits in the `labelsProp` partition bucket and passes the
 sentinel render with all four labels set to sentinels; the harness opens the
 drawer so the dialog-name sentinel renders
 ([partition](../../tests/labelled-exports.test.tsx#L76),
