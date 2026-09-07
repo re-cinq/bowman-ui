@@ -503,6 +503,19 @@ necessary, not less. `ChatMessageList`'s required `aiDisclosure` band renders
 in every state and no prop removes it, `attribution` included; the
 disclosure's wording belongs to the consumer's reviewed catalogue.
 
+## README screenshots
+
+The three README screenshots are referenced by repository-relative path
+(`docs/assets/*.png`), never by absolute `raw.githubusercontent.com` URL.
+The repository is private, so anonymous fetches of raw content return 404
+and GitHub's own renderer, which proxies absolute image URLs anonymously,
+shows broken images; relative paths render through signed private-image
+links. npm cannot show the images either way until the repository is public
+(`docs/assets` is not in the package `files`), so the absolute form buys
+nothing today. `tests/readme-images.test.ts` pins the list of sources and
+that each file exists; when the repository goes public, that test is where
+the switch to absolute URLs is decided deliberately (issue 36).
+
 ## Lint guardrails
 
 Codified house conventions, enforced by two repo-local plugins loaded by
