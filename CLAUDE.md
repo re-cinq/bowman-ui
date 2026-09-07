@@ -87,7 +87,7 @@ The typecheck script is `typecheck`, not `type-check`.
   package; `tests/security/`; `tests/setup.ts` = suite-wide console + network traps.
 - `examples/chat-demo` (Vite + Playwright); `examples/rsc-fixture` (Next.js — the ONLY place
   `next` may appear).
-- `scripts/` — 12 enforcement scripts.
+- `scripts/` — 16 enforcement scripts.
 - `tools/eslint-plugin-bowman/` — repo-local ESLint rules (no package.json; loaded by relative
   import in eslint.config.mjs). See invariant 11.
 - `tools/eslint-plugin-lore/` — verbatim mirrors of nine re-cinq/lore rules (`rules/**`, never
@@ -155,7 +155,11 @@ The typecheck script is `typecheck`, not `type-check`.
     docs/design-notes.md, the feature spec, or README — and `no-dead-md-links` over every
     `*.md` through `@eslint/markdown` (a repo-relative link must land; the assistive-technology
     spec carries the one scoped disable). They carry no local fixtures (tested upstream) and are
-    policed by `npm run check:lore-plugin-sync`.
+    policed by `npm run check:lore-plugin-sync`. The same gate polices the four
+    spec-segmentation domain mirrors in `tools/lore-spec-domain/` (`spec-segment.ts`,
+    `spec-sentence-split.ts`, `spec-link-parser.ts`, `test-paths.ts`), which are lint- and
+    prettier-ignored on the same terms and are what `npm run check:spec-links` runs — see
+    docs/design-notes.md § Lint guardrails decision 10.
 12. **Publishing** is tag-triggered CI only, via npm OIDC trusted publishing
     (.github/workflows/publish.yml: `tags: ["v*"]`, `id-token: write`, no `NPM_TOKEN`). Never
     `npm publish` by hand. Never push to `main` — guard-main-pushes.yml opens a security issue,

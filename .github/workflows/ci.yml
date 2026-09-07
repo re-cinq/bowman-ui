@@ -95,6 +95,13 @@ jobs:
       # `node scripts/repoint-spec-anchors.mjs`.
       - name: Spec anchor check
         run: node scripts/repoint-spec-anchors.mjs --check origin/main
+      # Issue 2, the other half of the anchor check above: a `[validated by]`
+      # link counts as coverage only in its statement's TRAILING parenthetical,
+      # so one written mid-statement is dropped upstream in silence and the spec
+      # reads as cited while nothing is. A red check is fixed by moving the link
+      # to the end of its statement, never by deleting it.
+      - name: Spec link placement
+        run: npm run check:spec-links
       # The Lore test-command interface must not drift from the scripts it
       # wraps: the committed list command has to keep emitting a parseable
       # JSON array (issue 189).
