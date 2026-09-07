@@ -31,13 +31,13 @@ re-exports.
 1. **The parameter is additive, not a break.** TypeScript's contravariance on
    parameter counts keeps a one-parameter callback assignable, so no consumer
    is forced to change: `const describe = (entry: ToolChatEntry) => entry.toolName`
-   still satisfies the prop and still renders when `pending` is true
-   ([validated by](../../tests/ToolActivity.test.tsx#L114)), and
+   still satisfies the prop and still renders when `pending` is true, and
    `tests/types/tool-activity-type-assertions.tsx` compiles against the built
-   package suppressing no error
-   ([validated by](../../tests/ToolActivity.test.tsx#L240)). The same
+   package suppressing no error. The same
    one-parameter shape stays pinned through `ChatMessageList`'s own assertions
    ([validated by](../../tests/types/chat-message-list-type-assertions.tsx#L73),
+   [L114](../../tests/ToolActivity.test.tsx#L114),
+   [L240](../../tests/ToolActivity.test.tsx#L240),
    compiled by
    [chat-message-list-dist](../../tests/chat-message-list-dist.test.ts#L27)).
 2. **One source of truth for the flag.** The value passed is the prop
@@ -47,14 +47,14 @@ re-exports.
    `busy === true && index === entries.length - 1` per entry and forwards
    `describeTool` unchanged, so with `busy` true and `[user, tool, tool]` the
    first tool entry renders the callback's past-tense string and the trailing
-   one its present-tense string, and with `busy` false both read past tense
-   ([validated by](../../tests/ChatMessageList.test.tsx#L791)). Its prop type
-   restates the signature inline and is kept identical to `ToolActivity`'s.
+   one its present-tense string, and with `busy` false both read past tense. Its prop type
+   restates the signature inline and is kept identical to `ToolActivity`'s
+   ([validated by](../../tests/ChatMessageList.test.tsx#L791)).
 3. **Replacement semantics are untouched.** A supplied `describeTool` still
    replaces the tensed labels entirely and suppresses nothing else - with
-   `showToolName` also set, the fixture's tool name is still in the document
-   ([validated by](../../tests/ToolActivity.test.tsx#L79)). This issue changes
-   what the callback knows, not what it controls.
+   `showToolName` also set, the fixture's tool name is still in the document. This issue changes
+   what the callback knows, not what it controls
+   ([validated by](../../tests/ToolActivity.test.tsx#L79)).
 4. **The component stays off the client-directive trigger list.**
    `ToolActivity.tsx` gains no state: its source still holds no `useState`,
    `useEffect` or `useId`
