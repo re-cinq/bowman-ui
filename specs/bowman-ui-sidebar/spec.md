@@ -1,6 +1,9 @@
 # bowman-ui sidebar
 
-Issue: re-cinq/Otto#81 (`031-bowman-ui-sidebar`)
+| Field  | Value                                     |
+| ------ | ----------------------------------------- |
+| Issue  | re-cinq/Otto#81 (`031-bowman-ui-sidebar`) |
+| Status | In Progress                               |
 
 `AppSidebar` is the package's one presentational sidebar - brand row,
 navigation map, chat history, language row, user-controls row - written
