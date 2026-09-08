@@ -21,10 +21,10 @@ into the `Issue` row. ADRs declare their status as YAML frontmatter `status:` in
 - A doc's status is read from the `| Status |` cell for a spec and the frontmatter `status:`
   key for an ADR, and buckets into one of five values: every label in a bucket's row means that
   bucket, the two terminal buckets skip the check whatever the coverage, and a cell no parser
-  reads buckets to nothing ([validated by](../../tests/check-spec-status.test.ts#L68),
-  [L75](../../tests/check-spec-status.test.ts#L75),
-  [L83](../../tests/check-spec-status.test.ts#L83),
-  [L90](../../tests/check-spec-status.test.ts#L90)).
+  reads buckets to nothing ([validated by](../../tests/check-spec-status.test.ts#L69),
+  [L76](../../tests/check-spec-status.test.ts#L76),
+  [L84](../../tests/check-spec-status.test.ts#L84),
+  [L91](../../tests/check-spec-status.test.ts#L91)).
 
 | Written into the doc                                             | Bucket                       |
 | ---------------------------------------------------------------- | ---------------------------- |
@@ -35,7 +35,7 @@ into the `Issue` row. ADRs declare their status as YAML frontmatter `status:` in
 | `Rejected`, `Abandoned`                                          | `rejected` - skips the check |
 
 - The bucket every non-terminal doc is entitled to claim is its own link coverage, counted over
-  its testable statements alone ([validated by](../../tests/check-spec-status.test.ts#L53)).
+  its testable statements alone ([validated by](../../tests/check-spec-status.test.ts#L54)).
 
 | Testable statements linked | Tier      | Entitled to claim |
 | -------------------------- | --------- | ----------------- |
@@ -45,52 +45,55 @@ into the `Issue` row. ADRs declare their status as YAML frontmatter `status:` in
 | all                        | `full`    | `Shipped`         |
 
 - A spec whose status matches its coverage tier reports nothing
-  ([validated by](../../tests/check-spec-status.test.ts#L53)).
+  ([validated by](../../tests/check-spec-status.test.ts#L54)).
 - A spec claiming a tier above its coverage is reported against its status row, naming the
   linked count, the testable count and the status the coverage entitles it to
-  ([validated by](../../tests/check-spec-status.test.ts#L60)).
-- A doc whose status no parser can read is reported as untagged against line 1
-  ([validated by](../../tests/check-spec-status.test.ts#L90)).
+  ([validated by](../../tests/check-spec-status.test.ts#L61)).
+- A doc whose status no parser can read is reported as untagged against its status row when it
+  has one — a `| Status | Banana |` row is reported at that row's line — and against line 1 only
+  when the doc carries no status row at all
+  ([validated by](../../tests/check-spec-status.test.ts#L102), and
+  [L91](../../tests/check-spec-status.test.ts#L91)).
 - A doc that opens straight into a section, with no lead paragraph before the first `##`, is
-  reported against line 1 ([validated by](../../tests/check-spec-status.test.ts#L101)).
+  reported against line 1 ([validated by](../../tests/check-spec-status.test.ts#L113)).
 - An ADR's lead-paragraph finding is reported against the first line after its frontmatter,
   which is the first line a lead paragraph could occupy
-  ([validated by](../../tests/check-spec-status.test.ts#L119)).
+  ([validated by](../../tests/check-spec-status.test.ts#L131)).
 
 ## The ADR exception
 
 - An ADR with `status: accepted`, a lead paragraph and no test links reports nothing, because
   the coverage tier is a spec-only verdict
-  ([validated by](../../tests/check-spec-status.test.ts#L112)).
+  ([validated by](../../tests/check-spec-status.test.ts#L124)).
 
 ## The script's contract
 
 - With no path arguments it scans every `specs/<slug>/spec.md` in sorted slug order followed by
   every `adrs/*.md` in sorted name order, which is exactly the list an explicit invocation of
-  those paths produces ([validated by](../../tests/check-spec-status.test.ts#L231)).
+  those paths produces ([validated by](../../tests/check-spec-status.test.ts#L243)).
 - Each finding prints one line carrying the doc, the line a human has to edit, and the finding
   itself; the run closes with `spec-status: <N> findings across <M> docs (<D> scanned)` and
-  exits 1 when `N` is above zero ([validated by](../../tests/check-spec-status.test.ts#L130)).
+  exits 1 when `N` is above zero ([validated by](../../tests/check-spec-status.test.ts#L142)).
 - `--coverage` replaces the report with one line per unlinked testable statement under a
   `spec-coverage: <U> unlinked testable statements across <M> docs (<D> scanned)` summary
-  ([validated by](../../tests/check-spec-status.test.ts#L151)).
+  ([validated by](../../tests/check-spec-status.test.ts#L163)).
 - `--coverage` exits 0 even on a doc the default run fails
-  ([validated by](../../tests/check-spec-status.test.ts#L164)).
+  ([validated by](../../tests/check-spec-status.test.ts#L176)).
 - `--json` replaces the report with an array alone, each entry carrying `doc`, `line`, `kind`
-  and `message` ([validated by](../../tests/check-spec-status.test.ts#L169)).
+  and `message` ([validated by](../../tests/check-spec-status.test.ts#L181)).
 - Under `--coverage` every entry's `kind` is `unlinked`
-  ([validated by](../../tests/check-spec-status.test.ts#L183)).
+  ([validated by](../../tests/check-spec-status.test.ts#L195)).
 - An unrecognised flag exits 2 with the usage line rather than scanning anything
-  ([validated by](../../tests/check-spec-status.test.ts#L194)).
+  ([validated by](../../tests/check-spec-status.test.ts#L206)).
 - A doc path that cannot be read exits 2 naming that path, so a typo is never reported as a
-  clean run ([validated by](../../tests/check-spec-status.test.ts#L203)).
+  clean run ([validated by](../../tests/check-spec-status.test.ts#L215)).
 - A doc path under neither `specs/` nor `adrs/` exits 2 naming that path rather than being
   scanned with no corpus to judge it by
-  ([validated by](../../tests/check-spec-status.test.ts#L210)).
+  ([validated by](../../tests/check-spec-status.test.ts#L222)).
 - A relative path means the same doc from any working directory
-  ([validated by](../../tests/check-spec-status.test.ts#L217)).
+  ([validated by](../../tests/check-spec-status.test.ts#L229)).
 - An absolute path is accepted and reported root-relative
-  ([validated by](../../tests/check-spec-status.test.ts#L224)).
+  ([validated by](../../tests/check-spec-status.test.ts#L236)).
 
 ## Rationale
 

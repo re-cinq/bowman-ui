@@ -308,7 +308,7 @@ instead reachable the same way `consumer` is, as a `package.json` script
   `next-env.d.ts` and `tsconfig.tsbuildinfo` are git-ignored
   ([validated by](../../.gitignore#L6), through
   [L8](../../.gitignore#L8)), `.next/` and `next-env.d.ts` are also
-  eslint-ignored ([validated by](../../eslint.config.mjs#L333)), and the tar
+  eslint-ignored ([validated by](../../eslint.config.mjs#L337)), and the tar
   copy excludes them ([validated by](../../scripts/pack-to-temp.sh#L25)).
 - docs/design-notes.md decision 4's "not a dependency anywhere" bullet names
   the one exception in place, so the decision does not contradict the
