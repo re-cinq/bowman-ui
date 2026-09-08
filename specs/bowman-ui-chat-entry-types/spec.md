@@ -1,6 +1,9 @@
 # bowman-ui chat entry types
 
-Issue: re-cinq/Otto#67 (`017-bowman-ui-chat-entry-types`)
+| Field  | Value                                              |
+| ------ | -------------------------------------------------- |
+| Issue  | re-cinq/Otto#67 (`017-bowman-ui-chat-entry-types`) |
+| Status | In Progress                                        |
 
 `src/types/chat.ts` gives every conversation-rendering bowman-ui component one
 message type: the `ChatEntry` discriminated union (`role: "user" | "assistant"

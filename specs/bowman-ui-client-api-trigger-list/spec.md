@@ -1,6 +1,10 @@
 # bowman-ui client-API trigger list
 
-Issue: re-cinq/Otto#137 (widen `scripts/check-client-directives.mjs` to every client-only API).
+| Field  | Value                                                                                   |
+| ------ | --------------------------------------------------------------------------------------- |
+| Issue  | re-cinq/Otto#137 (widen `scripts/check-client-directives.mjs` to every client-only API) |
+| Status | In Progress                                                                             |
+
 The check's old shape was a ten-hook regex plus a textual `on[A-Z]=` pattern; this spec records
 the AST rewrite, the measured browser-global table, and the re-run false-negative sweep. The
 enforcement prose lives in docs/design-notes.md decision 1; this file carries the measurements and the
