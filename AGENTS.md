@@ -74,8 +74,10 @@ Every `specs/*/spec.md` must open with its title, then a two-column header
 table, then a lead paragraph before the first `##` section. This is the
 requirement, not a description of the tree: `npm run check:spec-status` fails a
 spec whose `Status` row no parser can read, and one that opens straight into a
-section with no lead paragraph. The table replaces the old free-text `Issue:`
-line, which folds into its `Issue` row:
+section with no lead paragraph. That lead paragraph must carry at least 40
+characters of prose, or the check reports "no lead paragraph" all the same. The
+table replaces the old free-text `Issue:` line, which folds into its `Issue`
+row:
 
 ```markdown
 # <spec title>

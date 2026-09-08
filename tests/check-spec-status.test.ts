@@ -15,6 +15,7 @@ const acceptedSpec = `${fixtures}/specs/accepted-partial/spec.md`;
 const retiredSpec = `${fixtures}/specs/retired/spec.md`;
 const rejectedSpec = `${fixtures}/specs/rejected/spec.md`;
 const untaggedSpec = `${fixtures}/specs/untagged/spec.md`;
+const unreadableStatusSpec = `${fixtures}/specs/unreadable-status/spec.md`;
 const noLeadSpec = `${fixtures}/specs/no-lead/spec.md`;
 const acceptedAdr = `${fixtures}/adrs/ADR-042-tide-ledger.md`;
 const noLeadAdr = `${fixtures}/adrs/ADR-043-lamp-oil.md`;
@@ -92,6 +93,17 @@ describe("check-spec-status", () => {
       {
         doc: untaggedSpec,
         line: 1,
+        kind: "untagged",
+        message: "no lifecycle status the parsers can read",
+      },
+    ]);
+  });
+
+  it('a spec whose status row reads "Banana" reports untagged at that row\'s line', () => {
+    expect(findings(unreadableStatusSpec)).toEqual([
+      {
+        doc: unreadableStatusSpec,
+        line: 6,
         kind: "untagged",
         message: "no lifecycle status the parsers can read",
       },
