@@ -1,6 +1,9 @@
 # bowman-ui consumer app
 
-Issue: issue 82 (`082-bowman-ui-consumer-app`)
+| Field  | Value                                          |
+| ------ | ---------------------------------------------- |
+| Issue  | issue 82 (`082-bowman-ui-consumer-app`) |
+| Status | In Progress                                    |
 
 `examples/chat-demo` is the worked consumer: a standalone Vite + React app
 that installs `@re-cinq/bowman-ui` from a freshly packed tarball - never the
