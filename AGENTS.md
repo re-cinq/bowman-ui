@@ -72,9 +72,9 @@ Pre-publish checklist:
 
 Every `specs/*/spec.md` must open with its title, then a two-column header
 table, then a lead paragraph before the first `##` section. This is the
-requirement, not a description of the tree: `npm run check:spec-status` fails a
-spec whose `Status` row no parser can read, and one that opens straight into a
-section with no lead paragraph. That lead paragraph must carry at least 40
+requirement, not a description of the tree: `npm run lint` fails a spec whose
+`Status` row no parser can read, and one that opens straight into a section
+with no lead paragraph. That lead paragraph must carry at least 40
 characters of prose, or the check reports "no lead paragraph" all the same. The
 table replaces the old free-text `Issue:` line, which folds into its `Issue`
 row:
@@ -101,9 +101,12 @@ Three local checks run over the spec and ADR corpora:
 
 - `npm run check:spec-links` - every `[validated by]` link must sit in its
   statement's trailing parenthetical. Exit 1 on any finding.
-- `npm run check:spec-status` - every doc must open with a lead paragraph and
-  declare a status the parsers can read, and a spec's status must match its
-  coverage. Exit 1 on any finding.
+- `npm run lint` - every doc must open with a lead paragraph
+  (`re-lint/require-intro-paragraph`) and a spec's status must parse and match
+  its coverage (`re-lint/require-status-matches-coverage`).
+- `npm run check:spec-status` - every ADR must declare a frontmatter status the
+  parsers can read; ADRs are exempt from the coverage tier. Exit 1 on any
+  finding.
 - `npm run check:spec-status -- --coverage` - lists every testable statement
   carrying no link. A report: it always exits 0.
 
@@ -121,8 +124,9 @@ closing-punctuation lines. An anchor whose line
 number a spec edit deliberately changed is accepted as authored and reported
 as `retargeted (not checked)` - reviewers must verify those targets by hand.
 A link only counts where it is trailing, so `npm run check:spec-links` is the
-local check for placement: it segments each spec with Lore's own mirrored
-segmentation and reports every test link sitting anywhere else.
+local check for placement: it segments each spec with Lore's own segmentation,
+published in `@re-cinq/eslint-plugin-re-lint`, and reports every test link
+sitting anywhere else.
 
 ## Commit Conventions
 

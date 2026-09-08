@@ -4,15 +4,8 @@ import { dirname, join } from "node:path";
 
 export type RunResult = { status: number | null; stdout: string; stderr: string };
 
-export const runScript = (
-  script: string,
-  args: string[],
-  { cwd, nodeFlags = [] }: { cwd: string; nodeFlags?: string[] }
-): RunResult => {
-  const result = spawnSync(process.execPath, [...nodeFlags, script, ...args], {
-    cwd,
-    encoding: "utf8",
-  });
+export const runScript = (script: string, args: string[], { cwd }: { cwd: string }): RunResult => {
+  const result = spawnSync(process.execPath, [script, ...args], { cwd, encoding: "utf8" });
 
   return { status: result.status, stdout: result.stdout, stderr: result.stderr };
 };
@@ -34,12 +27,8 @@ export const expectUsageError = (result: RunResult): void => {
   expect(result.stderr).toContain("usage:");
 };
 
-const stripTypesFlags = ["--experimental-strip-types", "--disable-warning=ExperimentalWarning"];
-
-// The spec-check scripts load the lore mirrors as .ts, so they need Node's type stripping.
-export const stripTypesRunner = (script: string) => {
-  const runFrom = (cwd: string, ...args: string[]): RunResult =>
-    runScript(script, args, { cwd, nodeFlags: stripTypesFlags });
+export const scriptRunner = (script: string) => {
+  const runFrom = (cwd: string, ...args: string[]): RunResult => runScript(script, args, { cwd });
 
   return { runFrom, run: (...args: string[]): RunResult => runFrom(process.cwd(), ...args) };
 };
