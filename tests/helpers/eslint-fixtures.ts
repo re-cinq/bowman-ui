@@ -4,6 +4,7 @@ import { resolve, sep } from "node:path";
 export interface LintMessage {
   ruleId: string | null;
   message: string;
+  line: number;
 }
 
 export interface LintResult {

@@ -1,22 +1,16 @@
-// Local counterpart of lore's require-intro-paragraph and
-// require-status-matches-coverage rules: a spec or ADR must open with a lead
-// paragraph and declare a lifecycle status its own test links entitle it to
-// claim. The statement-link half is a report, not a gate, and lives behind
-// --coverage. Lead-paragraph, status and coverage verdicts come from the lore
-// mirrors in tools/eslint-plugin-lore/rules/lib/ and tools/lore-shared/
-// (docs/design-notes.md § Lint guardrails decision 11).
+// Local counterpart of the ADR half of lore's require-status-matches-coverage:
+// an ADR must declare a lifecycle status the parsers can read, while staying
+// exempt from the coverage tier that rule would also demand of it. Specs are
+// gated in eslint.config.mjs by re-lint/require-intro-paragraph and
+// re-lint/require-status-matches-coverage; the statement-link report behind
+// --coverage is never a gate (docs/design-notes.md § Lint guardrails decision 11).
 
 import { readFileSync, readdirSync } from "node:fs";
 import { join, relative, resolve } from "node:path";
 import process from "node:process";
-import { root } from "./lib/lore-domain.mjs";
-
-const RULE_LIB = "../tools/eslint-plugin-lore/rules/lib";
-
-const { docKind } = await import(`${RULE_LIB}/doc-kind.mjs`);
-const { hasLeadParagraph } = await import(`${RULE_LIB}/intro-paragraph.mjs`);
-const { statusMismatch } = await import(`${RULE_LIB}/status-coverage.mjs`);
-const { unlinkedTestableStatements } = await import(`${RULE_LIB}/lore-shared.mjs`);
+import { parseDocStatus } from "@re-cinq/eslint-plugin-re-lint/spec/spec-status.js";
+import { unlinkedTestableStatements } from "@re-cinq/eslint-plugin-re-lint/spec/spec-status-coverage.js";
+import { root } from "./lib/repo-root.mjs";
 
 const USAGE =
   "usage: check-spec-status.mjs [--coverage] [--json] [doc-path ...]\n" +
@@ -67,64 +61,35 @@ const readDoc = (docPath) => {
   }
 };
 
-// An ADR's finding anchors on the first line after its frontmatter, as lore's own region does.
-const leadParagraphLine = (content, kind) => {
-  const lines = content.split(/\r?\n/);
-
-  if (kind !== "adr" || lines[0]?.trim() !== "---") {
-    return 1;
+// The corpus folders lore's rules assume by default, matched at any depth so fixtures qualify.
+const docKind = (docPath) => {
+  if (/(^|\/)specs\//.test(docPath)) {
+    return "spec";
   }
-  const closing = lines.findIndex((line, index) => index > 0 && line.trim() === "---");
 
-  return closing === -1 ? 1 : closing + 2;
+  return /(^|\/)adrs\//.test(docPath) ? "adr" : null;
 };
 
-const statusFinding = (docPath, content, kind) => {
-  const mismatch = statusMismatch(content, kind);
+// The frontmatter line a human has to edit, or the top of the file when there is none.
+const frontmatterStatusLine = (content) => {
+  const index = content.split(/\r?\n/).findIndex((line) => /^status\s*:/i.test(line));
 
-  if (mismatch === null) {
-    return null;
+  return index === -1 ? 1 : index + 1;
+};
+
+const adrStatusFindings = (docPath, content) => {
+  if (parseDocStatus(content, "adr").status !== null) {
+    return [];
   }
 
-  if (mismatch.reason === "untagged") {
-    return {
+  return [
+    {
       doc: docPath,
-      line: mismatch.line,
+      line: frontmatterStatusLine(content),
       kind: "untagged",
       message: "no lifecycle status the parsers can read",
-    };
-  }
-
-  // ADRs are exempt from the tier verdict: lore folds `accepted` into `shipped`.
-  if (kind === "adr") {
-    return null;
-  }
-
-  return {
-    doc: docPath,
-    line: mismatch.line,
-    kind: "tier",
-    message:
-      `status "${mismatch.actual}" does not match coverage: ` +
-      `${mismatch.linked} of ${mismatch.testable} testable statements linked, ` +
-      `expected "${mismatch.expected}"`,
-  };
-};
-
-const statusFindings = (docPath, content, kind) => {
-  const found = [];
-
-  if (!hasLeadParagraph(content, kind)) {
-    found.push({
-      doc: docPath,
-      line: leadParagraphLine(content, kind),
-      kind: "lead-paragraph",
-      message: "no lead paragraph before the first section",
-    });
-  }
-  const status = statusFinding(docPath, content, kind);
-
-  return status === null ? found : [...found, status];
+    },
+  ];
 };
 
 const EXCERPT = 80;
@@ -140,6 +105,14 @@ const coverageFindings = (docPath, content) =>
       .slice(0, EXCERPT)}`,
   }));
 
+const findingsFor = (docPath, content, kind) => {
+  if (asCoverage) {
+    return coverageFindings(docPath, content);
+  }
+
+  return kind === "adr" ? adrStatusFindings(docPath, content) : [];
+};
+
 const findings = [];
 const docsWithFindings = new Set();
 
@@ -151,9 +124,7 @@ for (const docPath of docPaths) {
     process.stderr.write(`check-spec-status.mjs: ${docPath} is neither a spec nor an ADR\n`);
     process.exit(2);
   }
-  const found = asCoverage
-    ? coverageFindings(docPath, content)
-    : statusFindings(docPath, content, kind);
+  const found = findingsFor(docPath, content, kind);
 
   findings.push(...found);
 

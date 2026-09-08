@@ -1,6 +1,5 @@
 import maxBooleanOperators from "./rules/max-boolean-operators.mjs";
 import noCatchAsControlFlow from "./rules/no-catch-as-control-flow.mjs";
-import noInlineStyles from "./rules/no-inline-styles.mjs";
 import noNetworkEgress from "./rules/no-network-egress.mjs";
 import noPropMutation from "./rules/no-prop-mutation.mjs";
 
@@ -15,7 +14,6 @@ export default {
   rules: {
     "max-boolean-operators": maxBooleanOperators,
     "no-catch-as-control-flow": noCatchAsControlFlow,
-    "no-inline-styles": noInlineStyles,
     "no-network-egress": noNetworkEgress,
     "no-prop-mutation": noPropMutation,
   },

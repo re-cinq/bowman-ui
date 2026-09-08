@@ -5,7 +5,7 @@ import sonarjs from "eslint-plugin-sonarjs";
 import stylistic from "@stylistic/eslint-plugin";
 import markdown from "@eslint/markdown";
 import bowman from "./tools/eslint-plugin-bowman/index.mjs";
-import lore from "./tools/eslint-plugin-lore/index.mjs";
+import reLint from "@re-cinq/eslint-plugin-re-lint";
 
 // docs/design-notes.md § Labels: the shared no-restricted-syntax selector set. Hoisted
 // into a const so the src/** overlays below (raw-<svg> ban, inline
@@ -243,30 +243,39 @@ export default [
     rules: {
       "bowman/max-boolean-operators": ["error", { max: 2 }],
       "bowman/no-catch-as-control-flow": "error",
-      "bowman/no-inline-styles": "error",
       "bowman/no-network-egress": "error",
       "bowman/no-prop-mutation": "error",
     },
   },
-  // Mirrored lore craftsmanship rules: tools/eslint-plugin-lore/rules/** are
-  // verbatim mirrors of the generic subset of re-cinq/lore's plugin, policed
-  // against lore's main by scripts/check-lore-plugin-sync.mjs (which also
-  // fails on an upstream rule this repo has neither mirrored nor excluded).
-  // Scoped to src/** like the bowman house rules; max-comment-lines carries
-  // lore's own limit. See docs/design-notes.md § Lint guardrails decision 9.
+  // The generic craftsmanship rules come from @re-cinq/eslint-plugin-re-lint,
+  // the published home of lore's plugin, wired by hand rather than through its
+  // preset so an upstream addition never switches itself on. Scoped to src/**
+  // like the bowman house rules; max-comment-lines carries lore's own limit.
+  // prefer-enforce-true is absent on purpose (vacuous here) and
+  // no-forwarding-class is inert without type information - both recorded in
+  // docs/design-notes.md § Lint guardrails decision 9.
   {
     files: ["src/**/*.{ts,tsx}"],
-    plugins: { lore },
+    plugins: { "re-lint": reLint },
     rules: {
-      "lore/max-comment-lines": ["error", { max: 1 }],
-      "lore/no-forwarding-class": "error",
-      "lore/no-nested-if": "error",
-      "lore/no-nested-loop": "error",
-      "lore/no-reexport-only-module": "error",
-      "lore/no-vague-names": "error",
-      "lore/prefer-early-return": "error",
-      "lore/prefer-enforce-true": "error",
+      "re-lint/max-comment-lines": ["error", { max: 1 }],
+      "re-lint/no-forwarding-class": "error",
+      "re-lint/no-nested-if": "error",
+      "re-lint/no-nested-loop": "error",
+      "re-lint/no-reexport-only-module": "error",
+      "re-lint/no-vague-names": "error",
+      "re-lint/prefer-early-return": "error",
     },
+  },
+  // docs/design-notes.md § Lint guardrails decision 6: styling lives in the
+  // stylesheet. The package's rule replaced bowman's port on 2026-09-08 once
+  // the committed fixtures proved it honours the same shapes, the
+  // custom-properties-only style object included. The fixture glob exists so
+  // the red fixture is judged by this exact rule under --no-ignore.
+  {
+    files: ["src/**/*.{ts,tsx}", "tests/fixtures/eslint-house-rules/**/*.{ts,tsx}"],
+    plugins: { "re-lint": reLint },
+    rules: { "re-lint/no-inline-styles": "error" },
   },
   // Recorded no-inline-styles exemptions - deliberate decisions, not
   // tolerated drift, each asserted by its component's tests. The exemptions
@@ -279,7 +288,7 @@ export default [
   {
     files: ["src/components/ConversationList.tsx", "src/components/ThinkingDots.tsx"],
     rules: {
-      "bowman/no-inline-styles": "off",
+      "re-lint/no-inline-styles": "off",
     },
   },
   // Issue #60 guardrail: duplication limits, scoped to src/** only. tests/ is
@@ -298,16 +307,37 @@ export default [
       "sonarjs/no-identical-functions": "error",
     },
   },
-  // Every markdown link to a repo file must land (lore/no-dead-md-links,
-  // mirrored - decision 9): a rename sweep rewrites a dead link faithfully
-  // and the reference reads as current. The only markdown rule; the
-  // assistive-technology-pass spec carries a scoped disable for its seven
-  // deliberate links to the not-yet-written at-pass-<date>.md record.
+  // Every markdown link to a repo file must land (re-lint/no-dead-md-links,
+  // decision 9): a rename sweep rewrites a dead link faithfully and the
+  // reference reads as current. The assistive-technology-pass spec carries a
+  // scoped disable for its seven deliberate links to the not-yet-written
+  // at-pass-<date>.md record.
   {
     files: ["**/*.md"],
     language: "markdown/gfm",
-    plugins: { markdown, lore },
-    rules: { "lore/no-dead-md-links": "error" },
+    plugins: { markdown, "re-lint": reLint },
+    rules: { "re-lint/no-dead-md-links": "error" },
+  },
+  // docs/design-notes.md § Lint guardrails decision 11: every spec and ADR
+  // opens with a lead paragraph, and a spec's `| Status |` row must match its
+  // test-link coverage. ADRs are exempt from the coverage tier (lore folds
+  // `accepted` into `shipped`, which would demand a link on every statement a
+  // decision record makes), so the second rule is scoped to specs alone; an
+  // ADR's status is still required to parse, by scripts/check-spec-status.mjs.
+  // The spec-status fixture globs exist so the red fixtures (globally ignored
+  // below, linted with --no-ignore by tests/eslint-spec-docs.test.ts) are
+  // checked against these exact rules, not a copy of them.
+  {
+    files: ["specs/**/spec.md", "adrs/*.md", "tests/fixtures/spec-status/**/*.md"],
+    language: "markdown/gfm",
+    plugins: { markdown, "re-lint": reLint },
+    rules: { "re-lint/require-intro-paragraph": "error" },
+  },
+  {
+    files: ["specs/**/spec.md", "tests/fixtures/spec-status/specs/**/spec.md"],
+    language: "markdown/gfm",
+    plugins: { markdown, "re-lint": reLint },
+    rules: { "re-lint/require-status-matches-coverage": "error" },
   },
   {
     ignores: [
@@ -315,22 +345,11 @@ export default [
       "dist/**",
       "coverage/**",
       "node_modules/**",
-      // Verbatim lore mirrors (rule files only - the local index.mjs subset
-      // selector is linted): lore does not house-style-lint its own plugin,
-      // so its bytes cannot be expected to pass this config.
-      // Spelled `**/*.mjs`, not `**`: ESLint prunes an ignored directory, and a
-      // directory-matching pattern would make the negation below unreachable.
-      "tools/eslint-plugin-lore/rules/**/*.mjs",
-      // lore-shared.mjs is this repo's own shim, not a mirror, so it is linted.
-      "!tools/eslint-plugin-lore/rules/lib/lore-shared.mjs",
-      // Verbatim lore mirrors of the spec-segmentation and spec-status domain
-      // libraries (decisions 10 and 11), on the same terms as the rule files
-      // above.
-      "tools/lore-shared/**",
       "tests/fixtures/eslint-labels/**",
       "tests/fixtures/eslint-duplication/**",
       "tests/fixtures/eslint-house-rules/**",
       "tests/fixtures/forbidden-imports/**",
+      "tests/fixtures/spec-status/**",
       "examples/chat-demo/dist/**",
       "examples/chat-demo/test-results/**",
       "examples/chat-demo/playwright-report/**",
