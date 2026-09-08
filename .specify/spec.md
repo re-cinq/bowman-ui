@@ -6,7 +6,7 @@
 
 **Naming convention**: HAL is the conversational engine; Bowman is the presentational face (the UI).
 
-The public surface ships 57 named value exports from `src/index.ts`: 12 components, 5 hooks, a 23-icon set with two icon helpers, a markdown factory with its URL-policy pair, 11 label-defaults objects, and the `resolveLabels` merge helper, plus 45 type exports including the chat entry types ([validated by](../tests/public-api.test.ts#L43)).
+The public surface ships 63 named value exports from `src/index.ts`: 16 components, 5 hooks, a 23-icon set with two icon helpers, a markdown factory with its URL-policy pair, 13 label-defaults objects, and the `resolveLabels` merge helper, plus 54 type exports including the chat entry types ([validated by](../tests/public-api.test.ts#L40), [types](../tests/public-api.test.ts#L46)).
 
 ## Key Capabilities
 
@@ -20,7 +20,7 @@ The public surface ships 57 named value exports from `src/index.ts`: 12 componen
 8. **Transient & Error Surfaces** — `Toast` renders a live-region notice and `ErrorBoundary` catches render errors into an overridable fallback ([validated by](../tests/Toast.test.tsx#L23), [error](../tests/ErrorBoundary.test.tsx#L46))
 9. **Icon Set** — 23 SVG icons plus `IconWrapper` and `getAccessibleIconProps`, with a tested WCAG accessibility contract ([validated by](../tests/icons.test.tsx#L60), [accessible-props](../tests/icons.test.tsx#L182))
 10. **Markdown Rendering** — `createMarkdownComponents` renders assistant markdown through react-markdown + remark-gfm under a strict URL policy ([validated by](../tests/markdown-components.test.tsx#L59))
-11. **Labels Convention** — User-visible strings are overridable English defaults merged through `resolveLabels`, except the required `aiDisclosure` (no default) and three strings taken through a dedicated prop rather than a labels object (the icons' `ariaLabel`, `useFocusGroups`' `announce`, `Toast`'s `message`); no locale catalogue ships ([validated by](../tests/labelled-exports.test.tsx#L158), [ai-disclosure](../tests/ChatMessageList.test.tsx#L150))
+11. **Labels Convention** — User-visible strings are overridable English defaults merged through `resolveLabels`, except the two required labels with no default - `ChatMessageList`'s `aiDisclosure` and `IconButton`'s `accessibleName`, for which `IconButton` ships no defaults object - and three strings taken through a dedicated prop rather than a labels object (the icons' `ariaLabel`, `useFocusGroups`' `announce`, `Toast`'s `message`); no locale catalogue ships ([validated by](../tests/labelled-exports.test.tsx#L158), [ai-disclosure](../tests/ChatMessageList.test.tsx#L150), [accessible-name](../tests/labelled-exports.test.tsx#L617))
 12. **RSC Client-Boundary Guarantee** — `"use client"` is applied per file so a Next.js App Router server component can import from the package ([validated by](../tests/client-directives.test.ts#L90))
 13. **Type-Safe API** — Full TypeScript strict-mode support; no implicit `any` in public interfaces ([validated by](../tests/public-api.test.ts#L47), [system-contract](../tests/system-contract.test.ts#L53), [list-type-assertions](../tests/types/chat-message-list-type-assertions.tsx#L53))
 14. **ESM-Only, Tree-Shakeable Distribution** — Single ESM output with named exports for dead-code elimination ([validated by](../tests/system-contract.test.ts#L30), [tree-shake](../tests/public-api.test.ts#L43))
@@ -102,7 +102,7 @@ Other public data shapes are consumer-supplied and rendered as-is: `Conversation
 
 ## Rendering & Runtime Boundaries
 
-1. **`"use client"` Is Per-File** — The directive is added only to files triggering a client-only rule (a hook-shaped import, `createContext`, a `Component` subclass, a browser global, or an `on[A-Z]` JSX handler); 18 source files carry it and `src/index.ts` carries none. ([validated by](../tests/client-directives.test.ts#L90))
+1. **`"use client"` Is Per-File** — The directive is added only to files triggering a client-only rule (a hook-shaped import, `createContext`, a `Component` subclass, a browser global, or an `on[A-Z]` JSX handler); 22 source files carry it and `src/index.ts` carries none. ([validated by](../tests/client-directives.test.ts#L90))
 2. **Icons Are Server-Renderable** — The 23 icons are pure SVG and carry no directive, so they push no JS into consumer bundles. ([validated by](../tests/icons.test.tsx#L128))
 3. **Next.js App Router Guarantee** — Because the boundary is per-file, a server component can import the package. ([validated by](../tests/client-directives.test.ts#L90))
 4. **Function-Valued Props Cross From `"use client"`** — The package accepts function props (`onSubmit`, `renderSidebar`, `renderLink`, and the rest); React's serialization boundary rejects passing them from a server component, so an App Router consumer supplies them from a `"use client"` file. The RSC fixture build is the executable proof (see docs/design-notes.md § RSC fixture).
