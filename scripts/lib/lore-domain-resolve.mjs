@@ -1,8 +1,8 @@
-// Module-customization hook letting tools/lore-spec-domain/ keep lore's `.js`
-// relative imports untouched: inside that directory only, a relative `.js`
+// Module-customization hook letting tools/lore-shared/ keep lore's `.js`
+// relative imports untouched: inside that tree only, a relative `.js`
 // specifier resolves to the mirrored `.ts` file.
 
-const MIRROR_DIR = new URL("../../tools/lore-spec-domain/", import.meta.url).href;
+const MIRROR_DIR = new URL("../../tools/lore-shared/", import.meta.url).href;
 
 const isMirroredRelativeImport = (specifier, parentURL) =>
   Boolean(parentURL) && parentURL.startsWith(MIRROR_DIR) && /^\.{1,2}\/.+\.js$/.test(specifier);
