@@ -31,7 +31,8 @@ it — doc prose and the code have drifted in places.
 ESM-only (`"type": "module"`, no CJS). `exports`: `"."` → `dist/index.js`, `"./styles.css"` →
 `dist/styles.css`; `sideEffects: ["*.css"]`. Peers `react`/`react-dom` `^19.0.0` **only** — a
 testing claim, not a technical floor (docs/design-notes.md decision 4). Runtime deps: only `react-markdown` +
-`remark-gfm`. Node `>=22`. Vitest 4 + jsdom + Testing Library. Consumers require Tailwind v4.
+`remark-gfm`. Node `>=18.18` published floor (the shipped `dist/` is browser code with no
+`node:` builtins); dev/CI pin 22 via `.nvmrc`. Vitest 4 + jsdom + Testing Library. Consumers require Tailwind v4.
 Prettier: `printWidth` 100, double quotes, semicolons (.prettierrc).
 
 **Two-TypeScript landmine:** `typescript` (`~6.0.2`) feeds the lint stack because

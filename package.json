@@ -78,7 +78,7 @@
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-sonarjs": "^4.2.0",
     "jscpd": "^5.1.2",
-    "jsdom": "^30.0.1",
+    "jsdom": "^26.1.0",
     "prettier": "^3.4.2",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
@@ -90,7 +90,7 @@
     "vitest": "^5.0.0"
   },
   "engines": {
-    "node": ">=22"
+    "node": ">=18.18.0"
   },
   "publishConfig": {
     "access": "public"
