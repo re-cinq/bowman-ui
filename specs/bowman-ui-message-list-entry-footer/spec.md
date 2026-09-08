@@ -1,6 +1,9 @@
 # bowman-ui message list entry footer
 
-Issue: issue 133 (`133-bowman-ui-message-list-entry-footer`)
+| Field  | Value                                                        |
+| ------ | ------------------------------------------------------------ |
+| Issue  | issue 133 (`133-bowman-ui-message-list-entry-footer`) |
+| Status | In Progress                                                  |
 
 `ChatMessage` (023) has a `footer?: ReactNode` slot; `ChatMessageList` (078)
 renders `ChatMessage` internally and made it unreachable - a consumer holding
