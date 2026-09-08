@@ -51,6 +51,7 @@ import { execFileSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, normalize } from "node:path";
 import process from "node:process";
+import { splitArgs } from "./lib/cli-args.mjs";
 
 const TRACKED_PATH = String.raw`(?:\.\.\/)+(?:scripts\/[\w./-]+|[\w./-]+\.[A-Za-z]+)`;
 const ANCHOR = new RegExp(String.raw`(${TRACKED_PATH})#L(\d+)`, "g");
@@ -62,9 +63,7 @@ const ANCHOR = new RegExp(String.raw`(${TRACKED_PATH})#L(\d+)`, "g");
 // match and are never touched.
 const LABEL_LINK = new RegExp(String.raw`\[L(\d+)\]\((${TRACKED_PATH})#L(\d+)\)`, "g");
 
-const args = process.argv.slice(2);
-const flags = args.filter((arg) => arg.startsWith("--"));
-const positional = args.filter((arg) => !arg.startsWith("--"));
+const { flags, positional } = splitArgs(process.argv.slice(2));
 
 if (flags.some((flag) => flag !== "--check") || positional.length > 1) {
   process.stderr.write("usage: repoint-spec-anchors.mjs [--check] [base-ref]\n");
