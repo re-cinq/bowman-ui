@@ -1,0 +1,230 @@
+# bowman-ui styled primitives
+
+Issue: re-cinq/bowman-ui#43, "Ship styled primitives for the controls every consumer rebuilds
+in the slots". Every slot the package exposes (`prompts`, `attachSlot`, `AppSidebar`'s children
+and `footer`, the avatar slots) is unstyled, so a consumer integrating the package by hand
+rebuilds the same handful of controls with hand-written utility class strings;
+`examples/chat-demo/src/docs/HeroPreview.tsx` and `examples/chat-demo/src/App.tsx` carry the
+same strings. This issue ships a small, closed set of styled primitives that cover the
+hand-styled cases, following the labels convention and the `forwardRef` policy. The decision
+record lives in docs/design-notes.md § Styled primitives; this file pins the signatures and the
+per-behaviour tests.
+
+"Styled" means what it means for every other component in the package: the primitive ships
+Tailwind v4 utility class names in its built file, light and `dark:` variants included, and the
+consumer's own Tailwind build generates their CSS by scanning the installed `dist` through the
+`@source` line README § Styles prescribes. `src/styles.css` gains nothing - the primitives need
+no keyframe and no rule Tailwind cannot generate - so `dist/styles.css` still declares exactly
+the four keyframes and the stylesheet tests are unchanged.
+
+## What ships
+
+Four components, two defaults objects and nine types, all from the package root. Every value
+export lands in one bucket of `tests/labelled-exports.test.tsx`: `IconButton`, `PromptChips`
+and `SearchField` in `labelsProp` with a sentinel harness each; `Button`,
+`defaultPromptChipsLabels` and `defaultSearchFieldLabels` in `noStrings`. The `stringPropOnly`
+list stays at its three closed members.
+
+### `Button`
+
+```ts
+export type ButtonVariant = "primary" | "secondary" | "ghost";
+export type ButtonSize = "sm" | "md";
+
+export interface ButtonProps {
+  variant: ButtonVariant;
+  /** Default "md". */
+  size?: ButtonSize;
+  /** Leading icon, sized by the button; decorative beside the visible text. */
+  icon?: ComponentType<{ className?: string }>;
+  /** The visible text - consumer content, never a label. */
+  children: ReactNode;
+  /** Default "button", so a Button inside a form never submits it by accident. */
+  type?: "button" | "submit";
+  disabled?: boolean;
+  onClick?: (event: MouseEvent<HTMLButtonElement>) => void;
+}
+
+export const Button: ForwardRefExoticComponent<ButtonProps & RefAttributes<HTMLButtonElement>>;
+```
+
+- Renders one `<button>` with `type` defaulting to `"button"`, the `children` as its accessible
+  name, and the `ref` forwarded to that element.
+- `variant` picks the look: `primary` is the composer send button's blue fill
+  (`bg-blue-500 text-white`), `secondary` is the chat-demo's "new chat" look (a `border-slate-200`
+  border on `bg-white` with `text-slate-700`), `ghost` is borderless text with a hover surface
+  (`text-slate-600 hover:bg-slate-50`), each with its `dark:` counterpart. Every variant carries
+  the package's focus ring (`focus:ring-2 focus:ring-blue-500`) and the
+  `disabled:cursor-not-allowed disabled:opacity-50` pair.
+- `size` picks the padding and type scale: `md` is `px-4 py-2.5 text-sm`, `sm` is
+  `px-3 py-1.5 text-xs`.
+- `icon`, when given, renders before the text with `h-4 w-4` at `md` and `h-3.5 w-3.5` at `sm`;
+  a package icon rendered this way carries `aria-hidden="true"` because it receives no
+  `ariaLabel`.
+- `onClick` receives the click event; `disabled` renders the native attribute and the click never
+  fires.
+- `Button` renders no string of its own - its text is `children` - so it sits in `noStrings` and
+  takes no `labels` prop.
+
+### `IconButton`
+
+```ts
+export interface IconButtonLabels {
+  /** The button's accessible name. Required: no plausible English default exists. */
+  accessibleName: string;
+}
+
+export interface IconButtonProps {
+  icon: ComponentType<{ className?: string }>;
+  /** Required, no defaults object: an icon-only button without a name is the defect. */
+  labels: IconButtonLabels;
+  /** Default "secondary". */
+  variant?: ButtonVariant;
+  /** Default "md". */
+  size?: ButtonSize;
+  type?: "button" | "submit";
+  disabled?: boolean;
+  onClick?: (event: MouseEvent<HTMLButtonElement>) => void;
+}
+
+export const IconButton: ForwardRefExoticComponent<
+  IconButtonProps & RefAttributes<HTMLButtonElement>
+>;
+```
+
+- Renders one `<button>` named by `labels.accessibleName` through `aria-label`, containing only
+  the icon (`h-4 w-4` at `md`, `h-3.5 w-3.5` at `sm`, `aria-hidden`), with square padding
+  (`p-2` at `md`, `p-1.5` at `sm`) and the same variant looks, focus ring and disabled pair as
+  `Button`.
+- `labels` is required and `IconButtonLabels` has no defaults object: the accessible name is the
+  component's only string and no English default may stand in for it, the same reasoning as
+  `aiDisclosure` (docs/design-notes.md § Labels decision 5). Omitting `labels` is a compile
+  error against the built package.
+- The accessible name goes through `labels`, never a string prop, so `IconButton` is a
+  `labelsProp` member and the closed `stringPropOnly` list is untouched.
+
+### `PromptChips`
+
+```ts
+export interface PromptChipsLabels {
+  /** The chip group's accessible name. */
+  suggestedPrompts: string;
+}
+
+export const defaultPromptChipsLabels: Readonly<Required<PromptChipsLabels>>; // "Suggested prompts"
+
+export interface PromptChipsProps {
+  prompts: ReadonlyArray<string>;
+  /** Receives the picked prompt's text; pairs with ChatComposerHandle.setValue. */
+  onPick: (text: string) => void;
+  labels?: Partial<PromptChipsLabels>;
+}
+
+export function PromptChips(props: PromptChipsProps): ReactElement | null;
+```
+
+- Renders a `<ul role="list">` named by `suggestedPrompts`, one `<li>` per prompt holding a
+  `<button type="button">` whose accessible name is the prompt text, laid out as a wrapping,
+  centred row of rounded chips (`flex flex-wrap justify-center gap-2`; chip:
+  `rounded-full border border-slate-200 bg-white px-4 py-2 text-sm`).
+- Clicking a chip calls `onPick` once with exactly that prompt's text.
+- An empty `prompts` array renders nothing at all - no list, no accessible name.
+- Two identical prompt strings render two chips; keys are index-qualified so React never
+  collapses them.
+- `PromptChips` is the intended content of `ChatMessageList`'s `prompts` slot, which stays typed
+  `ReactNode`: the consumer renders `prompts={<PromptChips prompts={...} onPick={pick} />}` and
+  wires `onPick` to `ChatComposerHandle.setValue` itself. The slot contract does not change.
+
+### `SearchField`
+
+```ts
+export interface SearchFieldLabels {
+  /** The input's accessible name - a real label, never the placeholder. */
+  searchInput: string;
+  searchPlaceholder: string;
+}
+
+export const defaultSearchFieldLabels: Readonly<Required<SearchFieldLabels>>; // "Search", "Search..."
+
+export interface SearchFieldProps {
+  value: string;
+  /** Receives the input's new value verbatim - untrimmed, a controlled input's contract. */
+  onChange: (value: string) => void;
+  disabled?: boolean;
+  labels?: Partial<SearchFieldLabels>;
+}
+
+export const SearchField: ForwardRefExoticComponent<
+  SearchFieldProps & RefAttributes<HTMLInputElement>
+>;
+```
+
+- Renders a wrapper `<div class="relative">` holding a decorative `SearchIcon` (absolutely
+  positioned at the left, `pointer-events-none`, `aria-hidden`) and one `<input type="search">`
+  named by `searchInput` through `aria-label`, with `searchPlaceholder` as its placeholder and
+  the `ref` forwarded to the input.
+- The input is controlled: it renders `value`, and every change calls `onChange` with the
+  input's new value verbatim.
+- `disabled` renders the native attribute.
+- No clear button, no submit, no debounce: filtering as the user types is the consumer's, and
+  `useDebounce` already ships for it.
+
+## Conventions every primitive follows
+
+- All four component files open with `"use client"` as their first statement: each takes a
+  handler prop, which the trigger list (docs/design-notes.md decision 1, rule 5) measures off
+  the AST, and the built `dist/components/*.js` files open with the directive.
+- `Button`, `IconButton` and `SearchField` are `forwardRef` components (decision 4: no cleanup
+  rewrites `forwardRef` away), so a consumer can focus the control - a "jump to latest" button,
+  a search box behind a keyboard shortcut - without reaching into the DOM.
+- No primitive takes `className`, `style` or a render prop. Layout is the wrapper's: a `Button`
+  in a `flex flex-col` sidebar column stretches to the column's width on its own, and a floating
+  "jump to latest" `IconButton` is positioned by the element the consumer wraps it in. The
+  stance is `Toast`'s (docs/design-notes.md § Toast): a consumer needing a different shape
+  renders its own element.
+- No icon is added: `PlusIcon`, `SearchIcon`, `ChevronDownIcon` and `RefreshIcon` cover the
+  issue's six cases, and `SearchField` is the first shipped component to render `SearchIcon`.
+- `Button` and `IconButton` share their variant and size class maps through a private
+  `src/components/buttonStyles.ts` that the barrel does not export.
+
+## The published surface
+
+`tests/fixtures/public-api.json` grows by six runtime names (`Button`, `IconButton`,
+`PromptChips`, `SearchField`, `defaultPromptChipsLabels`, `defaultSearchFieldLabels`) and nine
+type names (`ButtonProps`, `ButtonSize`, `ButtonVariant`, `IconButtonLabels`,
+`IconButtonProps`, `PromptChipsLabels`, `PromptChipsProps`, `SearchFieldLabels`,
+`SearchFieldProps`), written by `node scripts/write-public-api.mjs` after the surface was
+decided here, never regenerated to make the test pass. Nothing is removed or renamed.
+
+## Recorded decisions
+
+1. **A third variant, `ghost`.** The issue proposes `primary | secondary`. The six hand-styled
+   cases need a borderless look twice - the attach control inside the composer's dashed footer
+   row, and the chat-demo's sign-out footer button - and a bordered `secondary` there reads as
+   chrome. One `ButtonVariant` union serves both components so a consumer never learns two
+   vocabularies.
+2. **`IconButton` ships no `defaultIconButtonLabels`.** Its one key is required, so the defaults
+   object would be an empty frozen object exported for ceremony. `IconButton` therefore joins
+   `ChatMessageList` as a component whose `labels` prop is itself required; docs/design-notes.md
+   § Labels records both.
+3. **The `prompts` slot stays `ReactNode`.** Folding the chips into `ChatMessageList` (a
+   `prompts: string[]` plus an `onPromptPick`) would break the slot's type for every consumer
+   and still could not reach the composer, which is a sibling. The list renders what it is
+   handed; the consumer wires the pick to `setValue`.
+4. **No `className` on any primitive.** A class-name escape hatch reintroduces the hand-written
+   utility strings the issue exists to retire, and Tailwind's generated order - not attribute
+   order - decides which of two conflicting utilities wins, so appended classes fail silently.
+5. **`SearchField` reports the raw value.** A controlled input that trimmed on the way out would
+   fight the caret; `ChatComposer` trims because it clears, `SearchField` does not because it
+   reflects.
+6. **`Text` and layout primitives are refused**, as the issue says: the greeting and the sidebar
+   footer are consumer prose, and a layout primitive would decide spacing the consumer's page
+   already decides.
+
+## Out of scope
+
+README § Minimal app keeps its hand-written "new chat" button and `examples/chat-demo` keeps its
+hand-styled controls: both are the follow-ups the issue names for after this lands (the README
+one also closes re-cinq/bowman-ui#42). README's App Router paragraph and docs/design-notes.md
+§ RSC fixture gain the four components in their list of function-valued props, because that
+list is a claim about every export; nothing else in README changes.
