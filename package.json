@@ -48,7 +48,7 @@
     "check:lore-plugin-sync": "node scripts/check-lore-plugin-sync.mjs",
     "check:markdown-safety": "node scripts/check-markdown-safety.mjs",
     "check:spec-links": "node scripts/check-spec-links.mjs",
-    "check:spec-status": "node --experimental-strip-types --disable-warning=ExperimentalWarning scripts/check-spec-status.mjs",
+    "check:spec-status": "node scripts/check-spec-status.mjs",
     "check:at-pass": "node scripts/check-at-pass.mjs",
     "consumer": "scripts/consumer-app.sh",
     "rsc": "scripts/rsc-fixture.sh",
