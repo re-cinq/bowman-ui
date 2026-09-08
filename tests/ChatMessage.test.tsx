@@ -637,7 +637,7 @@ describe("ChatMessage", () => {
       expect(sources[0].content).not.toMatch(/showDevInfo|conversationId|onRetryJudge|scores/);
     });
 
-    it("neither file imports @clerk, swr, next-intl, next/ or @/ and every relative import ends in .js", () => {
+    it("neither file imports @clerk, swr, next-intl, next/, @/ or lucide-react and every relative import ends in .js", () => {
       for (const { content } of sources) {
         expectImportHygiene(content);
       }

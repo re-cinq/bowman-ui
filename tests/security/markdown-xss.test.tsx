@@ -53,8 +53,8 @@ const renderThroughChatMessage = (
   );
 };
 
-const expectLinkTextOnly = (markdown: string, policy?: MarkdownPolicy) => {
-  const { container } = renderThroughComponents(markdown, policy);
+const expectLinkTextOnly = (markdown: string) => {
+  const { container } = renderThroughComponents(markdown);
 
   expect(container.querySelector("a")).toBeNull();
   expect(screen.getByText("x").tagName).toBe("SPAN");
