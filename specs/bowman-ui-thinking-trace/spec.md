@@ -1,6 +1,9 @@
 # bowman-ui thinking trace
 
-Issue: issue 109 (`087-bowman-ui-thinking-trace`), part of issue 57.
+| Field  | Value                                                                      |
+| ------ | -------------------------------------------------------------------------- |
+| Issue  | issue 109 (`087-bowman-ui-thinking-trace`), part of issue 57 |
+| Status | In Progress                                                                |
 
 `ThinkingTrace` renders a `ThinkingChatEntry` - the model's own internal
 reasoning - shipped as `src/components/ThinkingTrace.tsx` (`ThinkingTrace`,

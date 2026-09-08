@@ -1,6 +1,9 @@
 # bowman-ui markdown link policy
 
-Issue: issue 76 (`bowman-ui-markdown-link-policy`)
+| Field  | Value                                              |
+| ------ | -------------------------------------------------- |
+| Issue  | issue 76 (`bowman-ui-markdown-link-policy`) |
+| Status | In Progress                                        |
 
 Assistant content is model-authored with third-party TMS data in context, so
 which URLs become clickable is the library's decision, not the model's.

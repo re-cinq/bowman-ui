@@ -1,6 +1,9 @@
 # bowman-ui tool activity
 
-Issue: issue 108 (`108-bowman-ui-tool-activity`), part of issue 57.
+| Field  | Value                                                                     |
+| ------ | ------------------------------------------------------------------------- |
+| Issue  | issue 108 (`108-bowman-ui-tool-activity`), part of issue 57 |
+| Status | Shipped                                                                   |
 
 `ToolActivity` renders a `ToolChatEntry` - a tool call the model requested on
 the customer's behalf - shipped as `src/components/ToolActivity.tsx`

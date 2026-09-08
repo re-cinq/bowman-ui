@@ -1,7 +1,11 @@
 # bowman-ui pure hooks and ErrorBoundary
 
-Issue: issue 71 (`021-bowman-ui-pure-hooks-error-boundary`). Every test here is written
-fresh against the shipped code.
+| Field  | Value                                                       |
+| ------ | ----------------------------------------------------------- |
+| Issue  | issue 71 (`021-bowman-ui-pure-hooks-error-boundary`) |
+| Status | In Progress                                                 |
+
+Every test here is written fresh against the shipped code.
 
 ## What ships
 

@@ -1,6 +1,9 @@
 # bowman-ui composer resize in a real browser
 
-Issue: issue 132 (`132-composer-resize-browser`)
+| Field  | Value                                            |
+| ------ | ------------------------------------------------ |
+| Issue  | issue 132 (`132-composer-resize-browser`) |
+| Status | In Progress                                      |
 
 The chat composer's auto-resize was measured nowhere real: the unit suite
 stubs `scrollHeight` because jsdom performs no layout, and the browser suite
@@ -175,7 +178,7 @@ The assertions run inside the existing `consumer` job in
 `.github/workflows/ci.yml`, against `vite preview` and the packed tarball,
 on every pull request - the job already runs the whole suite via
 `scripts/consumer-app.sh`
-([job](../../.github/workflows/ci.yml#L124)). No new job, no second browser
+([job](../../.github/workflows/ci.yml#L132)). No new job, no second browser
 install, and `scripts/consumer-app.sh` is unchanged in this PR - like the
 `src/` constraint, that is proven by the PR diff, not by an executable
 anchor.

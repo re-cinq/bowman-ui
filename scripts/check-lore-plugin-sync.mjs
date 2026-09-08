@@ -5,12 +5,14 @@
 // authority and equality really is byte equality. The local index.mjs is this
 // repo's own subset selector and is not compared.
 //
-// It also polices tools/lore-spec-domain/**: verbatim mirrors of lore's
-// spec-segmentation domain library, which scripts/check-spec-links.mjs runs so
-// this repo's verdict on trailing-parenthetical test links is lore's own
-// verdict by construction (docs/design-notes.md § Lint guardrails decision 10).
-// Those files live under a different canonical path than the rules, so each
-// carries its own { canonical, local } pair.
+// It also polices tools/lore-shared/**: verbatim mirrors of lore's
+// spec-segmentation and spec-status domain libraries, which
+// scripts/check-spec-links.mjs and scripts/check-spec-status.mjs run so this
+// repo's verdicts on trailing-parenthetical test links, lead paragraphs and
+// lifecycle status are lore's own verdicts by construction
+// (docs/design-notes.md § Lint guardrails decisions 10 and 11). Those files
+// live under a different canonical path than the rules, so each carries its
+// own { canonical, local } pair.
 //
 // The gate also fetches lore's canonical plugin index and fails when lore
 // publishes a rule this repo has neither mirrored nor recorded in
@@ -79,34 +81,52 @@ const EXCLUDED_RULES = new Map([
   ],
 ]);
 
-// Lore's pure spec-segmentation domain, mirrored so check-spec-links.mjs
-// segments and parses exactly as lore's spec-coverage jobs do. The
-// require-spec-link rule family that wraps it stays in EXCLUDED_RULES: those
-// rules load the unpublished shared package at runtime, which is not published.
+// Lore's pure spec-segmentation and spec-status domain, mirrored so
+// check-spec-links.mjs and check-spec-status.mjs segment, parse and bucket
+// exactly as lore's spec-coverage jobs do. The mirror keeps lore's
+// libs/shared/src layout under tools/lore-shared/ because the coverage module
+// imports its siblings by relative path. The require-spec-link rule family
+// that wraps it stays in EXCLUDED_RULES: those rules load the unpublished shared package
+// at runtime, which is not published.
 const MIRRORED_DOMAIN_FILES = [
   {
     canonical: "libs/shared/src/domain/spec-segment.ts",
-    local: "tools/lore-spec-domain/spec-segment.ts",
+    local: "tools/lore-shared/domain/spec-segment.ts",
   },
   {
     canonical: "libs/shared/src/domain/spec-sentence-split.ts",
-    local: "tools/lore-spec-domain/spec-sentence-split.ts",
+    local: "tools/lore-shared/domain/spec-sentence-split.ts",
   },
   {
     canonical: "libs/shared/src/domain/spec-link-parser.ts",
-    local: "tools/lore-spec-domain/spec-link-parser.ts",
+    local: "tools/lore-shared/domain/spec-link-parser.ts",
   },
   {
     canonical: "libs/shared/src/domain/test-paths.ts",
-    local: "tools/lore-spec-domain/test-paths.ts",
+    local: "tools/lore-shared/domain/test-paths.ts",
+  },
+  {
+    canonical: "libs/shared/src/domain/spec-status.ts",
+    local: "tools/lore-shared/domain/spec-status.ts",
+  },
+  {
+    canonical: "libs/shared/src/work/spec-status-coverage.ts",
+    local: "tools/lore-shared/work/spec-status-coverage.ts",
+  },
+  {
+    canonical: "libs/shared/src/lib/enforce.ts",
+    local: "tools/lore-shared/lib/enforce.ts",
   },
 ];
 
 const pluginMirror = (path) => ({ canonical: path, local: path });
 
 const MIRRORS = [
+  pluginMirror(`${PLUGIN_DIR}/rules/lib/doc-kind.mjs`),
   pluginMirror(`${PLUGIN_DIR}/rules/lib/error-shape.mjs`),
   pluginMirror(`${PLUGIN_DIR}/rules/lib/guard-shape.mjs`),
+  pluginMirror(`${PLUGIN_DIR}/rules/lib/intro-paragraph.mjs`),
+  pluginMirror(`${PLUGIN_DIR}/rules/lib/status-coverage.mjs`),
   ...MIRRORED_RULES.map((rule) => pluginMirror(`${PLUGIN_DIR}/rules/${rule}.mjs`)),
   ...MIRRORED_DOMAIN_FILES,
 ];
