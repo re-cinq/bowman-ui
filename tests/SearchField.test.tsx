@@ -69,7 +69,9 @@ describe("SearchField", () => {
       expect(icon).toHaveAttribute("aria-hidden", "true");
       expect(icon).toHaveClass("pointer-events-none", "absolute");
     });
+  });
 
+  describe("the closed surface", () => {
     it("renders no button - no clear control and no submit", () => {
       const { container } = render(<SearchField value="" onChange={vi.fn()} />);
 
