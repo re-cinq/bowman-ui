@@ -75,9 +75,11 @@ The typecheck script is `typecheck`, not `type-check`.
 - `src/index.ts` — the ONLY public surface (barrel).
 - `src/labels.ts` — `resolveLabels`.
 - `src/styles.css`.
-- `src/components/` — 13 `.tsx` (AppShell, AppSidebar, ChatComposer, ChatMessage,
-  ChatMessageList, ConversationList, ErrorBoundary, InlineThinkingIndicator, ThinkingDots,
-  ThinkingIndicator, ThinkingTrace, Toast, ToolActivity).
+- `src/components/` — 17 `.tsx` (AppShell, AppSidebar, Button, ChatComposer, ChatMessage,
+  ChatMessageList, ConversationList, ErrorBoundary, IconButton, InlineThinkingIndicator,
+  PromptChips, SearchField, ThinkingDots, ThinkingIndicator, ThinkingTrace, Toast, ToolActivity)
+  plus `buttonStyles.ts`, the one private, non-exported class-map module (shared by Button and
+  IconButton; no `"use client"`).
 - `src/hooks/` — `focusableSelector` + 5 hooks (useDebounce, useFocusGroups, useFocusTrap,
   useReducedMotion, useSidebarState).
 - `src/icons/` — `Icon.tsx` primitive + `index.tsx` (23 icons; see invariant 9).
@@ -101,7 +103,8 @@ The typecheck script is `typecheck`, not `type-check`.
 1. **Labels convention** (docs/design-notes.md § Labels). User-visible/assistive strings are
    `labels?: Partial<XLabels>` merged over `Readonly<Required<XLabels>>` defaults via
    `resolveLabels`; interpolating labels are functions, never placeholder strings.
-   `ChatMessageList.labels` is REQUIRED — `aiDisclosure` has no default (EU AI Act). The
+   `ChatMessageList.labels` is REQUIRED — `aiDisclosure` has no default (EU AI Act) — and so is
+   `IconButton.labels` (`accessibleName`, no defaults object). The
    `stringPropOnly` set is a CLOSED list of exactly three (the icons' `ariaLabel`,
    `useFocusGroups`' `announce`, `Toast`'s `message`); a fourth requires amending docs/design-notes.md in
    the same PR. Enforced by tests/labelled-exports.test.tsx (three-way partition equal to
@@ -113,7 +116,7 @@ The typecheck script is `typecheck`, not `type-check`.
    presentational components carry it as a recorded exception. Enforced by
    scripts/check-client-directives.mjs + the rsc-fixture build.
 3. **Closed public API.** tests/public-api.test.ts asserts the built exports exactly equal the
-   committed snapshot tests/fixtures/public-api.json — currently 57 runtime + 45 type names; the
+   committed snapshot tests/fixtures/public-api.json — currently 63 runtime + 54 type names; the
    two `it()` titles derive their counts from that fixture. NEVER regenerate the snapshot to make
    the test pass; a removal or rename is a breaking major.
 4. **GDPR no-egress.** `src/` writes nothing to the console and performs no network egress
