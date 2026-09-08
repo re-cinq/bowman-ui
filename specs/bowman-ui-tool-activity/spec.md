@@ -104,4 +104,4 @@ stays its only required key
 
 `ToolActivity` sits in the `labelsProp` bucket with its own sentinel harness,
 and its sentinel labels cover every `defaultToolActivityLabels` key
-([validated by](../../tests/labelled-exports.test.tsx#L532)).
+([validated by](../../tests/labelled-exports.test.tsx#L581)).

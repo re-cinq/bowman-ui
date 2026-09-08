@@ -120,15 +120,15 @@ positioned when animation is off.
 caller-supplied content with nothing to default, so a one-key labels
 wrapper would add ceremony without adding safety - the same shape as the
 icons' `ariaLabel` and `useFocusGroups`' `announce`
-([validated by](../../tests/labelled-exports.test.tsx#L101)). Per the closed-list
+([validated by](../../tests/labelled-exports.test.tsx#L114)). Per the closed-list
 rule, this PR carries the amendment itself: `docs/design-notes.md § Labels` now
 documents three exceptions with the reason above, and
 `specs/bowman-ui-labels-convention/spec.md`'s closed-list bullet now states
 that an addition requires exactly this kind of same-PR contract amendment.
 `tests/labelled-exports.test.tsx` classifies `Toast` under `stringPropOnly`
 and the partition still asserts the full barrel
-([validated by](../../tests/labelled-exports.test.tsx#L101),
-[L136](../../tests/labelled-exports.test.tsx#L136)).
+([validated by](../../tests/labelled-exports.test.tsx#L114),
+[L152](../../tests/labelled-exports.test.tsx#L152)).
 
 ## Mechanical invariants
 

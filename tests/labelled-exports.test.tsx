@@ -11,7 +11,11 @@ import {
   ChatMessageList,
   ConversationList,
   ErrorBoundary,
+  IconButton,
   InlineThinkingIndicator,
+  PlusIcon,
+  PromptChips,
+  SearchField,
   ThinkingIndicator,
   ThinkingTrace,
   ToolActivity,
@@ -25,6 +29,8 @@ import {
   defaultConversationListLabels,
   defaultErrorBoundaryLabels,
   defaultInlineThinkingIndicatorLabels,
+  defaultPromptChipsLabels,
+  defaultSearchFieldLabels,
   defaultThinkingIndicatorLabels,
   defaultThinkingTraceLabels,
   defaultToolActivityLabels,
@@ -37,7 +43,10 @@ import type {
   ChatMessageListLabels,
   ConversationListLabels,
   ErrorBoundaryLabels,
+  IconButtonLabels,
   InlineThinkingIndicatorLabels,
+  PromptChipsLabels,
+  SearchFieldLabels,
   ThinkingChatEntry,
   ThinkingIndicatorLabels,
   ThinkingTraceLabels,
@@ -54,8 +63,9 @@ import {
 // exports carry no strings and are excluded by design. A new export lands in
 // exactly one bucket:
 //   labelsProp     - takes labels?: Partial<XLabels> over English defaults
-//                    (ChatMessageList's labels prop is required - aiDisclosure
-//                    has no default - but the shape is the same)
+//                    (ChatMessageList's and IconButton's labels props are
+//                    required - aiDisclosure and accessibleName have no
+//                    default - but the shape is the same)
 //   stringPropOnly - takes its strings through a dedicated prop (the three
 //                    grandfathered shapes: icons' ariaLabel, useFocusGroups'
 //                    announce, Toast's message)
@@ -75,6 +85,9 @@ const labelsProp = [
   "ConversationList",
   "AppShell",
   "AppSidebar",
+  "IconButton",
+  "PromptChips",
+  "SearchField",
   "createMarkdownComponents",
 ];
 
@@ -116,6 +129,7 @@ const noStrings = [
   "useReducedMotion",
   "useSidebarState",
   "resolveLabels",
+  "Button",
   "defaultErrorBoundaryLabels",
   "defaultChatMessageLabels",
   "defaultChatMessageListLabels",
@@ -127,6 +141,8 @@ const noStrings = [
   "defaultAppShellLabels",
   "defaultAppSidebarLabels",
   "defaultToolActivityLabels",
+  "defaultPromptChipsLabels",
+  "defaultSearchFieldLabels",
 ];
 
 // `export type { ... }` never matches: "type" sits between "export" and "{".
@@ -261,6 +277,21 @@ const appSidebarSentinels = {
   sidebar: "⟦sidebar⟧",
   mainNavigation: "⟦mainNavigation⟧",
 } satisfies Required<AppSidebarLabels>;
+
+// accessibleName is required with no defaults object (spec decision 2), so
+// IconButton's coverage check pins the key list itself, not a defaults object.
+const iconButtonSentinels = {
+  accessibleName: "⟦accessibleName⟧",
+} satisfies Required<IconButtonLabels>;
+
+const promptChipsSentinels = {
+  suggestedPrompts: "⟦suggestedPrompts⟧",
+} satisfies Required<PromptChipsLabels>;
+
+const searchFieldSentinels = {
+  searchInput: "⟦searchInput⟧",
+  searchPlaceholder: "⟦searchPlaceholder⟧",
+} satisfies Required<SearchFieldLabels>;
 
 // The fixture content carries no run of three Latin letters, so everything
 // user-shaped the harness renders (content, "LM" initials) passes the
@@ -487,6 +518,24 @@ const sentinelHarnesses: Record<
         </>
       ).container,
   },
+  IconButton: {
+    sentinels: Object.values(iconButtonSentinels),
+    renderContainer: () =>
+      render(<IconButton icon={PlusIcon} labels={iconButtonSentinels} />).container,
+  },
+  PromptChips: {
+    sentinels: Object.values(promptChipsSentinels),
+    renderContainer: () =>
+      render(
+        <PromptChips prompts={["4711", "4712"]} onPick={() => {}} labels={promptChipsSentinels} />
+      ).container,
+  },
+  SearchField: {
+    sentinels: Object.values(searchFieldSentinels),
+    renderContainer: () =>
+      render(<SearchField value="4711" onChange={() => {}} labels={searchFieldSentinels} />)
+        .container,
+  },
 };
 
 const stripSentinels = (text: string, sentinels: string[]): string =>
@@ -562,6 +611,22 @@ describe("the sentinel render check", () => {
   it("createMarkdownComponents' sentinel labels cover every defaultMarkdownComponentsLabels key", () => {
     expect(Object.keys(markdownComponentsSentinels).sort()).toEqual(
       Object.keys(defaultMarkdownComponentsLabels).sort()
+    );
+  });
+
+  it("IconButton's sentinel labels are exactly the one required key accessibleName", () => {
+    expect(Object.keys(iconButtonSentinels)).toEqual(["accessibleName"]);
+  });
+
+  it("PromptChips' sentinel labels cover every defaultPromptChipsLabels key", () => {
+    expect(Object.keys(promptChipsSentinels).sort()).toEqual(
+      Object.keys(defaultPromptChipsLabels).sort()
+    );
+  });
+
+  it("SearchField's sentinel labels cover every defaultSearchFieldLabels key", () => {
+    expect(Object.keys(searchFieldSentinels).sort()).toEqual(
+      Object.keys(defaultSearchFieldLabels).sort()
     );
   });
 
