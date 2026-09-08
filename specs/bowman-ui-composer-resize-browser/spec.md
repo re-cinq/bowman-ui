@@ -21,22 +21,28 @@ Books English-only re-theme; the three resize tests also passed a local
 Anchor note: `scripts/repoint-spec-anchors.mjs` originally tracked only
 `(../)+tests/*.ts(x)` anchors; this change widens its regex by one line to
 also track `(../)+examples/*/tests/*.ts(x)` anchors
-([regex](../../scripts/repoint-spec-anchors.mjs#L52)), so this spec's
+([regex](../../scripts/repoint-spec-anchors.mjs#L55)), so this spec's
 links into `examples/chat-demo/tests/chat-demo.spec.ts` are repointed by CI like
 any `tests/` anchor. The widened check ran clean over the pre-existing
 consumer-app spec (21 newly tracked anchors there; 591 up to date repo-wide,
 0 stale, 0 rotten). Issue 32 widened the same pattern again to `scripts/`,
 `README.md` and `docs/` markdown anchors, which exposed six dead links the
 narrower check had never seen
-([validated by](../../tests/repoint-spec-anchors.test.ts#L538)). Root config
-files, workflow files and `examples/` sources outside `tests/` remain plain
-GitHub links CI never repoints
-([validated by](../../tests/repoint-spec-anchors.test.ts#L562)). The
+([validated by](../../tests/repoint-spec-anchors.test.ts#L538)). Issue 37
+widened it once more to any repo-relative path carrying a file extension, so
+root config files, workflow files, `package.json` files and `examples/`
+sources are repointed and rot-checked like every other cited file
+([validated by](../../tests/repoint-spec-anchors.test.ts#L562),
+[L576](../../tests/repoint-spec-anchors.test.ts#L576)). A file built
+of repeated blocks - a workflow whose jobs share an identical setup - has to
+be cited on a line unique to its own step, because the resolver reports a
+context tie as ambiguous rather than guessing
+([validated by](../../tests/repoint-spec-anchors.test.ts#L197)). The
 assistive-technology spec's placeholder links carry `#A1`-style fragments and
 a `<date>` placeholder, so the tracker never matches them; a real
 `docs/accessibility/at-pass-*.md` cited with `#L` anchors becomes tracked the
 moment it exists
-([validated by](../../tests/repoint-spec-anchors.test.ts#L576)).
+([validated by](../../tests/repoint-spec-anchors.test.ts#L606)).
 
 ## Baseline
 
@@ -169,7 +175,7 @@ The assertions run inside the existing `consumer` job in
 `.github/workflows/ci.yml`, against `vite preview` and the packed tarball,
 on every pull request - the job already runs the whole suite via
 `scripts/consumer-app.sh`
-([job](../../.github/workflows/ci.yml#L80)). No new job, no second browser
+([job](../../.github/workflows/ci.yml#L124)). No new job, no second browser
 install, and `scripts/consumer-app.sh` is unchanged in this PR - like the
 `src/` constraint, that is proven by the PR diff, not by an executable
 anchor.
@@ -177,7 +183,7 @@ anchor.
 ## Gates preserved
 
 - `npm run test:coverage` passes at the unchanged 100/100/100/90 thresholds
-  ([validated by](../../vitest.config.ts#L24)); the Playwright suite stays
+  ([validated by](../../vitest.config.ts#L25)); the Playwright suite stays
   excluded from vitest ([validated by](../../vitest.config.ts#L12)).
 - `npm run lint`, `npm run typecheck`, `npm test`, `npm run build` and
   `npm run prettier:check` pass, and `npm run consumer` exits 0 from a clean

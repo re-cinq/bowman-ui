@@ -64,8 +64,9 @@ The typecheck script is `typecheck`, not `type-check`.
   exit 1 on any finding, exit 2 on a bad flag or unreadable spec. Runs the
   tools/lore-spec-domain/ mirrors under `--experimental-strip-types`, so it needs Node 22.6+.
   See docs/design-notes.md § Lint guardrails decision 10.
-- `node scripts/repoint-spec-anchors.mjs [--check]` — after editing a cited test, script, README.md
-  or docs/ markdown file (docs/design-notes.md included), re-run WITHOUT `--check` or CI reds.
+- `node scripts/repoint-spec-anchors.mjs [--check]` — after editing any cited repository file (a
+  test, a script, README.md, a docs/ markdown file, a workflow, a config), re-run WITHOUT
+  `--check` or CI reds.
 - `node scripts/write-public-api.mjs` — only after deliberately deciding a surface change is
   intended (see invariant 3).
 
@@ -130,7 +131,7 @@ The typecheck script is `typecheck`, not `type-check`.
    relative import ends in `.js` (NodeNext). The compiler is the enforcement.
 7. **Forbidden imports in `src/`** (scripts/check-forbidden-imports.mjs): `next`, `next-intl`,
    `swr`, `lucide-react`, `@clerk/*`, `@/*`.
-8. **Coverage floor** (vitest.config.ts:24): 100 lines / 100 functions / 100 statements + 90
+8. **Coverage floor** (vitest.config.ts:25): 100 lines / 100 functions / 100 statements + 90
    branches over `src/**`. Lower it only once, in the PR that needs it, with the number and
    reason recorded — and never again.
 9. **One icon system** (docs/design-notes.md decisions 2-3). The local 23-icon set only, no `lucide-react`.
