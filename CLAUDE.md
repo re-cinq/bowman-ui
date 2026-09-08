@@ -55,15 +55,22 @@ The typecheck script is `typecheck`, not `type-check`.
 - `npm run check:duplication` — jscpd copy-paste gate over `src` + `tests` (config in
   .jscpd.json): fails above 4% duplicated lines at min-tokens 50; `tests/fixtures/**` is exempt.
 - `npm run check:lore-plugin-sync` — byte-compares every file under
-  tools/eslint-plugin-lore/rules/ and tools/lore-spec-domain/ against re-cinq/lore main and
+  tools/eslint-plugin-lore/rules/ and tools/lore-shared/ against re-cinq/lore main and
   fails on an upstream rule not yet mirrored or recorded as excluded; `-- --write` refreshes
   mirrors. Exit 2 = fetch failure, not drift. See docs/design-notes.md § Lint guardrails
-  decisions 9 and 10.
+  decisions 9, 10 and 11.
 - `npm run check:spec-links [-- <spec paths>] [-- --json]` — reports every `[validated by]` test
   link that sits outside its statement's trailing parenthetical (lore counts only trailing ones);
   exit 1 on any finding, exit 2 on a bad flag or unreadable spec. Runs the
-  tools/lore-spec-domain/ mirrors under `--experimental-strip-types`, so it needs Node 22.6+.
+  tools/lore-shared/ mirrors under `--experimental-strip-types`, so it needs Node 22.6+.
   See docs/design-notes.md § Lint guardrails decision 10.
+- `npm run check:spec-status [-- <doc paths>] [-- --coverage] [-- --json]` — over
+  `specs/*/spec.md` then `adrs/*.md`: reports a doc with no lead paragraph, a doc whose
+  lifecycle status the parsers cannot read, and a spec whose `| Status |` row disagrees with
+  its link coverage (ADRs are exempt from that last one). Exit 1 on any finding, exit 2 on a
+  bad flag or unreadable doc. `--coverage` instead lists every unlinked testable statement and
+  ALWAYS exits 0 — a report, not a gate. See docs/design-notes.md § Lint guardrails
+  decision 11.
 - `node scripts/repoint-spec-anchors.mjs [--check]` — after editing any cited repository file (a
   test, a script, README.md, a docs/ markdown file, a workflow, a config), re-run WITHOUT
   `--check` or CI reds.
@@ -93,8 +100,10 @@ The typecheck script is `typecheck`, not `type-check`.
   import in eslint.config.mjs). See invariant 11.
 - `tools/eslint-plugin-lore/` — verbatim mirrors of nine re-cinq/lore rules (`rules/**`, never
   edited here) behind a local `index.mjs`. See invariant 11.
-- `tools/lore-spec-domain/` — verbatim mirrors of lore's four spec-segmentation domain files
-  (never edited here; they keep lore's `.js` relative imports). See invariant 11.
+- `tools/lore-shared/` — verbatim mirrors of lore's spec domain library, kept in lore's own
+  `libs/shared/src` layout (`domain/`, `work/`, `lib/`) because the coverage module imports its
+  siblings by relative path (never edited here; they keep lore's `.js` relative imports). See
+  invariant 11.
 
 ## Enforced invariants
 
@@ -156,11 +165,18 @@ The typecheck script is `typecheck`, not `type-check`.
     docs/design-notes.md, the feature spec, or README — and `no-dead-md-links` over every
     `*.md` through `@eslint/markdown` (a repo-relative link must land; the assistive-technology
     spec carries the one scoped disable). They carry no local fixtures (tested upstream) and are
-    policed by `npm run check:lore-plugin-sync`. The same gate polices the four
-    spec-segmentation domain mirrors in `tools/lore-spec-domain/` (`spec-segment.ts`,
-    `spec-sentence-split.ts`, `spec-link-parser.ts`, `test-paths.ts`), which are lint- and
-    prettier-ignored on the same terms and are what `npm run check:spec-links` runs — see
-    docs/design-notes.md § Lint guardrails decision 10.
+    policed by `npm run check:lore-plugin-sync`. The same gate polices the seven domain mirrors
+    in `tools/lore-shared/` (`domain/spec-segment.ts`, `domain/spec-sentence-split.ts`,
+    `domain/spec-link-parser.ts`, `domain/test-paths.ts`, `domain/spec-status.ts`,
+    `work/spec-status-coverage.ts`, `lib/enforce.ts`) and the five mirrored rule libs under
+    `tools/eslint-plugin-lore/rules/lib/`, which are lint- and prettier-ignored on the same
+    terms and are what `npm run check:spec-links` and `npm run check:spec-status` run — see
+    docs/design-notes.md § Lint guardrails decisions 10 and 11. The one local file in that
+    mirrored tree is `tools/eslint-plugin-lore/rules/lib/lore-shared.mjs`, the stand-in for the
+    unpublished `@re-cinq/lore-shared` package; it says so in its header and is not
+    byte-compared. Being local, it is also linted and formatted like any repo-owned file —
+    negate-ignored out of both the eslint.config.mjs ignores and .prettierignore, which spell
+    the mirrored tree as a `**/*.mjs` glob so that negation is reachable.
 12. **Publishing** is tag-triggered CI only, via npm OIDC trusted publishing
     (.github/workflows/publish.yml: `tags: ["v*"]`, `id-token: write`, no `NPM_TOKEN`). Never
     `npm publish` by hand. Never push to `main` — guard-main-pushes.yml opens a security issue,
@@ -197,7 +213,8 @@ wrong; the correct fact is on the right.
 - Never import `next` (or the other forbidden specifiers) outside `examples/rsc-fixture`.
 - Never add a `no-restricted-syntax` overlay without re-listing every shared selector (labels,
   focusable-literal, svg, default-export) — arrays replace, they never merge.
-- Never edit a file under `tools/eslint-plugin-lore/rules/` or `tools/lore-spec-domain/`; refresh
-  with `npm run check:lore-plugin-sync -- --write`. Never write a multi-line comment in `src/`.
+- Never edit a mirrored file under `tools/eslint-plugin-lore/rules/` or `tools/lore-shared/`;
+  refresh with `npm run check:lore-plugin-sync -- --write`. The lone exception is the local
+  `rules/lib/lore-shared.mjs` shim. Never write a multi-line comment in `src/`.
 - Never remove the `rm -rf dist` from the build script.
 - Never `npm publish` by hand and never push to `main`.

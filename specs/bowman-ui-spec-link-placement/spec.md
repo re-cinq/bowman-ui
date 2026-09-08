@@ -1,8 +1,11 @@
 # bowman-ui spec link placement
 
-Issue: re-cinq/bowman-ui#2, "Non-trailing spec test links in 10 newer specs; commit the
-placement validator and gate it in CI", which subsumes re-cinq/bowman-ui#7 on broken test links
-in spec.md. The enforcement decision lives in docs/design-notes.md § Lint guardrails decision 10;
+| Field  | Value                                                                                                                                                                                       |
+| ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Issue  | re-cinq/bowman-ui#2, "Non-trailing spec test links in 10 newer specs; commit the placement validator and gate it in CI", which subsumes re-cinq/bowman-ui#7 on broken test links in spec.md |
+| Status | In Progress                                                                                                                                                                                 |
+
+The enforcement decision lives in docs/design-notes.md § Lint guardrails decision 10;
 this file carries the placement rule, the script's contract, and the per-behaviour pins.
 
 A `([validated by](../../tests/X.test.tsx#Lnn))` link counts as coverage only when it sits in
@@ -34,18 +37,20 @@ parenthetical closing the statement counts.
 
 ## What is mirrored, and why
 
-Segmentation is not reimplemented here. `tools/lore-spec-domain/` holds byte-for-byte copies of
-the four pure domain files behind lore's verdict - `spec-segment.ts`, `spec-sentence-split.ts`,
-`spec-link-parser.ts`, `test-paths.ts` - so a local pass and an upstream pass cannot disagree
-about where a statement begins or which parenthetical is the trailing one. A reimplementation
-would have had to guess at that agreement, and the guess is the whole failure mode the gate
-exists to close.
+Segmentation is not reimplemented here. `tools/lore-shared/domain/` holds byte-for-byte copies
+of the four pure domain files behind lore's verdict - `spec-segment.ts`,
+`spec-sentence-split.ts`, `spec-link-parser.ts`, `test-paths.ts` - so a local pass and an
+upstream pass cannot disagree about where a statement begins or which parenthetical is the
+trailing one. A reimplementation would have had to guess at that agreement, and the guess is the
+whole failure mode the gate exists to close. The mirror tree keeps lore's own `libs/shared/src`
+layout, because the spec-status modules added beside it in decision 11 import these files by
+relative path.
 
 The mirrors keep lore's `.js` relative import specifiers untouched, because editing them to
 `.ts` would break the byte identity `npm run check:lore-plugin-sync` polices.
 `scripts/lib/lore-domain-resolve.mjs` maps those specifiers to the mirrored `.ts` files at load
-time as a module-customization hook scoped to that directory; Vitest resolves them on its own,
-so a test needs no hook. Never edit a file under `tools/lore-spec-domain/`.
+time as a module-customization hook scoped to that tree; Vitest resolves them on its own,
+so a test needs no hook. Never edit a file under `tools/lore-shared/`.
 
 ## The script's contract
 

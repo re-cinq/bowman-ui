@@ -1,6 +1,9 @@
 # bowman-ui conversation list
 
-Issue: re-cinq/Otto#79 (`029-bowman-ui-conversation-list`)
+| Field  | Value                                               |
+| ------ | --------------------------------------------------- |
+| Issue  | re-cinq/Otto#79 (`029-bowman-ui-conversation-list`) |
+| Status | In Progress                                         |
 
 `ConversationList` is the presentational list of conversations, shipped as
 `src/components/ConversationList.tsx` (`ConversationList`,

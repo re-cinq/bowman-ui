@@ -1,6 +1,9 @@
 # bowman-ui consumer app
 
-Issue: re-cinq/Otto#82 (`082-bowman-ui-consumer-app`)
+| Field  | Value                                          |
+| ------ | ---------------------------------------------- |
+| Issue  | re-cinq/Otto#82 (`082-bowman-ui-consumer-app`) |
+| Status | In Progress                                    |
 
 `examples/chat-demo` is the worked consumer: a standalone Vite + React app
 that installs `@re-cinq/bowman-ui` from a freshly packed tarball - never the
@@ -9,7 +12,7 @@ source tree, never the registry
 chat screen in a real Chromium. It proves what no jsdom test can: the
 package's eight major components in one document, compiled by a real Tailwind v4
 build, laid out by a real browser. The whole proof is one command,
-`npm run consumer` ([validated by](../../package.json#L52)), documented in the
+`npm run consumer` ([validated by](../../package.json#L53)), documented in the
 README's Worked consumer section ([validated by](../../README.md#L140)).
 
 Anchor caveat: `scripts/repoint-spec-anchors.mjs` tracks
@@ -263,14 +266,14 @@ source import a bundler tree-shakes away.
 The `consumer` job in `ci.yml` runs on every pull request (the workflow's
 unfiltered `pull_request` trigger), pins its actions to the same commit SHAs
 as the existing job with `persist-credentials: false`
-([validated by](../../.github/workflows/ci.yml#L124)), sets
-`node-version: "22"` ([validated by](../../.github/workflows/ci.yml#L124)),
+([validated by](../../.github/workflows/ci.yml#L132)), sets
+`node-version: "22"` ([validated by](../../.github/workflows/ci.yml#L132)),
 runs `npm ci --ignore-scripts`
-([validated by](../../.github/workflows/ci.yml#L134)) and an explicit
+([validated by](../../.github/workflows/ci.yml#L142)) and an explicit
 `npm run build` before packing
-([validated by](../../.github/workflows/ci.yml#L136)), and installs Chromium
+([validated by](../../.github/workflows/ci.yml#L144)), and installs Chromium
 with `npx playwright install --with-deps chromium`
-([validated by](../../.github/workflows/ci.yml#L140)). It omits
+([validated by](../../.github/workflows/ci.yml#L148)). It omits
 `fetch-depth: 0` on purpose: that exists for the spec anchor check, which
 this job does not run.
 

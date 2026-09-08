@@ -1,6 +1,9 @@
 # bowman-ui tool activity
 
-Issue: re-cinq/Otto#108 (`108-bowman-ui-tool-activity`), part of re-cinq/Otto#57.
+| Field  | Value                                                                     |
+| ------ | ------------------------------------------------------------------------- |
+| Issue  | re-cinq/Otto#108 (`108-bowman-ui-tool-activity`), part of re-cinq/Otto#57 |
+| Status | Shipped                                                                   |
 
 `ToolActivity` renders a `ToolChatEntry` - a tool call the model requested on
 the customer's behalf - shipped as `src/components/ToolActivity.tsx`

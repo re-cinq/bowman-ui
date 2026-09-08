@@ -1,6 +1,9 @@
 # bowman-ui stylesheet entry
 
-Issue: re-cinq/Otto#69 (`019-bowman-ui-stylesheet-entry`)
+| Field  | Value                                              |
+| ------ | -------------------------------------------------- |
+| Issue  | re-cinq/Otto#69 (`019-bowman-ui-stylesheet-entry`) |
+| Status | In Progress                                        |
 
 `src/styles.css` is the package's only stylesheet: it ships what a consumer's
 Tailwind v4 build cannot generate from a class name, and nothing else

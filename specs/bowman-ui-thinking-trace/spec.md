@@ -1,6 +1,9 @@
 # bowman-ui thinking trace
 
-Issue: re-cinq/Otto#109 (`087-bowman-ui-thinking-trace`), part of re-cinq/Otto#57.
+| Field  | Value                                                                      |
+| ------ | -------------------------------------------------------------------------- |
+| Issue  | re-cinq/Otto#109 (`087-bowman-ui-thinking-trace`), part of re-cinq/Otto#57 |
+| Status | In Progress                                                                |
 
 `ThinkingTrace` renders a `ThinkingChatEntry` - the model's own internal
 reasoning - shipped as `src/components/ThinkingTrace.tsx` (`ThinkingTrace`,
