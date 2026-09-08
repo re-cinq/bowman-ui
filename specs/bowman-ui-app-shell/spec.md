@@ -1,6 +1,9 @@
 # bowman-ui app shell
 
-Issue: re-cinq/Otto#80 (`030-bowman-ui-app-shell`)
+| Field  | Value                                       |
+| ------ | ------------------------------------------- |
+| Issue  | re-cinq/Otto#80 (`030-bowman-ui-app-shell`) |
+| Status | In Progress                                 |
 
 `AppShell` is the application frame - desktop rail, mobile slide-in
 drawer, mobile header, `<main>` - shipped as `src/components/AppShell.tsx`
