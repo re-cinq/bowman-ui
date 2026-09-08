@@ -647,7 +647,7 @@ Decisions:
     parenthetical; lore's spec-coverage job reports every other test link as
     `non-trailing-link`, and with no local check the defect kept regenerating
     (issues 2 and 7). Rather than reimplement the segmentation and guess at
-    agreement, `tools/lore-spec-domain/` holds byte-for-byte copies of the
+    agreement, `tools/lore-shared/domain/` holds byte-for-byte copies of the
     four pure domain files behind that verdict - `spec-segment.ts`,
     `spec-sentence-split.ts`, `spec-link-parser.ts`, `test-paths.ts` - policed
     by the same `scripts/check-lore-plugin-sync.mjs` on the same terms as the
@@ -665,8 +665,47 @@ Decisions:
     `--experimental-strip-types` (Node 22.6+) and Vitest resolves `.js` to
     `.ts` on its own, so a test needs no hook. It is the local counterpart of
     lore's spec-coverage-validate job: one line per misplaced citation, a
-    `misplaced: N across M specs` summary, exit 1 on any finding. Never edit
-    a file under `tools/lore-spec-domain/`.
+    `misplaced: N across M specs` summary, exit 1 on any finding. The mirror
+    keeps lore's own `libs/shared/src` layout - `domain/`, and the `work/` and
+    `lib/` siblings decision 11 adds - because lore's coverage module imports
+    those files by relative path, and a flatter local shape would have forced
+    an edit that breaks byte identity. Never edit a file under
+    `tools/lore-shared/`.
+
+11. **Lore's spec-status domain is mirrored on the same terms, and
+    `check:spec-status` gates the lead paragraph and the status row while
+    reporting the statement links.** Issue 17 asks for three lint-time checks
+    over `specs/**/spec.md` and `adrs/**`: every testable statement carries a
+    trailing `([validated by](...))` link, every doc opens with a lead
+    paragraph, and every doc declares a lifecycle status its own link coverage
+    entitles it to claim. Lore implements all three as ESLint rules
+    (`require-statement-links`, `require-intro-paragraph`,
+    `require-status-matches-coverage`), and all three stay recorded as excluded
+    in the sync script for decision 10's reason - they load the unpublished
+    `the unpublished shared package`. So the pure parts are mirrored instead:
+    `domain/spec-status.ts`, `work/spec-status-coverage.ts` and `lib/enforce.ts`
+    under `tools/lore-shared/`, plus the three rule libraries
+    `rules/lib/doc-kind.mjs`, `rules/lib/intro-paragraph.mjs` and
+    `rules/lib/status-coverage.mjs` under `tools/eslint-plugin-lore/`. One
+    local file joins them, `rules/lib/lore-shared.mjs`: upstream it is the shim
+    onto the unpublished package, here it re-exports the same names from the
+    mirrors so `status-coverage.mjs` stays byte-identical while resolving its
+    `./lore-shared.mjs` import. It says so in its header, is not byte-compared,
+    and ESLint never loads it - only `scripts/check-spec-status.mjs` does, under
+    `--experimental-strip-types` with the same resolve hook.
+
+    Two decisions shape what the script gates:
+
+    - **Statement links are a report, not a gate.** 421 testable statements
+      across the corpus carry no link today, and the repo lints at zero
+      warnings. The count lives behind `--coverage`, which lists every unlinked
+      statement and always exits 0; the backfill is the sweep tasks' work, and
+      turning it red on day one would only mean disabling it.
+    - **ADRs are exempt from the coverage tier, not from the other two.** Lore
+      folds `accepted` into `shipped`, so an ADR carrying `status: accepted` and
+      no test links would be demanded to link every statement it makes - the
+      wrong ask of a decision record. ADRs keep `status: accepted` and are still
+      required to parse a status and to open with a lead paragraph.
 
 Considered and rejected:
 
