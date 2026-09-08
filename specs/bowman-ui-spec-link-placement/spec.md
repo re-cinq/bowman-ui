@@ -50,8 +50,8 @@ decision 10).
 
 ## The script's contract
 
-`npm run check:spec-links` runs `scripts/check-spec-links.mjs` on plain Node, within
-`package.json`'s `engines.node` of `>=22`.
+`npm run check:spec-links` runs `scripts/check-spec-links.mjs` on plain Node — the Node 22 that
+`.nvmrc` and CI pin for development, above the package's `>=20.9.0` published floor.
 
 - With no path arguments it scans every `specs/<slug>/spec.md` in sorted slug order followed by
   `.specify/spec.md`, which is exactly the list an explicit invocation of those paths produces

@@ -21,7 +21,7 @@ No version has been published yet; the install line above starts working with th
 ## Requirements
 
 - React and React DOM `^19.0.0` as peer dependencies. That range is what the components are tested against (React 19.2) - it is not a claim of React 18 support.
-- Node.js `>=22` for development.
+- Node.js `>=20.9.0` to consume the package (its published `engines` floor). Developing this repo needs `>=22`, pinned in `.nvmrc` and CI.
 
 ## Styles
 
