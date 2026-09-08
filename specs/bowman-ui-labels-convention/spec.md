@@ -1,8 +1,12 @@
 # bowman-ui labels convention
 
-Issue: re-cinq/Otto#72 (`022-bowman-ui-labels-convention`). This issue ships the
-convention, the helper, the enforcement, and the retrofit of the one string-carrying component
-already in the repo - it adds no new component.
+| Field  | Value                                               |
+| ------ | --------------------------------------------------- |
+| Issue  | re-cinq/Otto#72 (`022-bowman-ui-labels-convention`) |
+| Status | In Progress                                         |
+
+This issue ships the convention, the helper, the enforcement, and the retrofit of the one
+string-carrying component already in the repo - it adds no new component.
 
 ## What ships
 
