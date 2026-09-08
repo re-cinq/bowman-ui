@@ -10,6 +10,10 @@ const nodeFlags = ["--experimental-strip-types", "--disable-warning=Experimental
 const fixtures = "tests/fixtures/spec-status";
 const inProgressSpec = `${fixtures}/specs/in-progress/spec.md`;
 const shippedSpec = `${fixtures}/specs/shipped-partial/spec.md`;
+const inReviewSpec = `${fixtures}/specs/in-review-partial/spec.md`;
+const acceptedSpec = `${fixtures}/specs/accepted-partial/spec.md`;
+const retiredSpec = `${fixtures}/specs/retired/spec.md`;
+const rejectedSpec = `${fixtures}/specs/rejected/spec.md`;
 const untaggedSpec = `${fixtures}/specs/untagged/spec.md`;
 const noLeadSpec = `${fixtures}/specs/no-lead/spec.md`;
 const acceptedAdr = `${fixtures}/adrs/ADR-042-tide-ledger.md`;
@@ -54,10 +58,33 @@ describe("check-spec-status", () => {
   });
 
   it('a spec tagged Shipped with one unlinked statement reports the expected "in-progress"', () => {
-    expect(run(shippedSpec).stdout).toContain(
+    expect(run(shippedSpec).stdout).toBe(
       `${shippedSpec}:6: status "shipped" does not match coverage: ` +
-        '1 of 2 testable statements linked, expected "in-progress"'
+        '1 of 2 testable statements linked, expected "in-progress"\n' +
+        "spec-status: 1 findings across 1 docs (1 scanned)\n"
     );
+  });
+
+  it('a spec tagged "In Review" with partial coverage buckets in-progress and reports nothing', () => {
+    expect(run(inReviewSpec)).toMatchObject({
+      status: 0,
+      stdout: "spec-status: 0 findings across 0 docs (1 scanned)\n",
+    });
+  });
+
+  it('a spec tagged Accepted with partial coverage buckets shipped and reports "in-progress"', () => {
+    expect(run(acceptedSpec).stdout).toBe(
+      `${acceptedSpec}:6: status "shipped" does not match coverage: ` +
+        '1 of 2 testable statements linked, expected "in-progress"\n' +
+        "spec-status: 1 findings across 1 docs (1 scanned)\n"
+    );
+  });
+
+  it("a spec tagged Retired or Rejected reports nothing with no statement linked", () => {
+    expect(run(retiredSpec, rejectedSpec)).toMatchObject({
+      status: 0,
+      stdout: "spec-status: 0 findings across 0 docs (2 scanned)\n",
+    });
   });
 
   it("a spec with no status row reports untagged at line 1", () => {
@@ -111,19 +138,26 @@ describe("check-spec-status", () => {
     );
 
     expect(result).toMatchObject({ status: 1 });
-    expect(result.stdout).toContain("spec-status: 4 findings across 4 docs (6 scanned)");
+    expect(result.stdout).toBe(
+      `${shippedSpec}:6: status "shipped" does not match coverage: ` +
+        '1 of 2 testable statements linked, expected "in-progress"\n' +
+        `${untaggedSpec}:1: no lifecycle status the parsers can read\n` +
+        `${noLeadSpec}:1: no lead paragraph before the first section\n` +
+        `${noLeadAdr}:7: no lead paragraph before the first section\n` +
+        "spec-status: 4 findings across 4 docs (6 scanned)\n"
+    );
   });
 
   it("--coverage lists each unlinked statement and exits 0 under its own summary", () => {
     const result = run("--coverage", inProgressSpec, shippedSpec);
 
     expect(result).toMatchObject({ status: 0 });
-    expect(result.stdout).toContain(
+    expect(result.stdout).toBe(
       `${inProgressSpec}:15: unlinked testable statement: ` +
-        "A kite is sold whole, so a broken spar is replaced rather than sold on its own."
-    );
-    expect(result.stdout).toContain(
-      "spec-coverage: 2 unlinked testable statements across 2 docs (2 scanned)"
+        "A kite is sold whole, so a broken spar is replaced rather than sold on its own.\n" +
+        `${shippedSpec}:15: unlinked testable statement: ` +
+        "The spare lamp is lit before the return leg and never during the crossing.\n" +
+        "spec-coverage: 2 unlinked testable statements across 2 docs (2 scanned)\n"
     );
   });
 
@@ -171,6 +205,13 @@ describe("check-spec-status", () => {
 
     expect(result).toMatchObject({ status: 2 });
     expect(result.stderr).toContain(`cannot read doc ${fixtures}/specs/absent/spec.md`);
+  });
+
+  it("a doc path under neither specs nor adrs exits 2 rather than scanning it", () => {
+    const result = run("README.md");
+
+    expect(result).toMatchObject({ status: 2, stdout: "" });
+    expect(result.stderr).toBe("check-spec-status.mjs: README.md is neither a spec nor an ADR\n");
   });
 
   it("a relative doc path resolves against the repo root, not the working directory", () => {
