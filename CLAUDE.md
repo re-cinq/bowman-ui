@@ -174,7 +174,9 @@ The typecheck script is `typecheck`, not `type-check`.
     docs/design-notes.md § Lint guardrails decisions 10 and 11. The one local file in that
     mirrored tree is `tools/eslint-plugin-lore/rules/lib/lore-shared.mjs`, the stand-in for the
     unpublished shared package; it says so in its header and is not
-    byte-compared.
+    byte-compared. Being local, it is also linted and formatted like any repo-owned file —
+    negate-ignored out of both the eslint.config.mjs ignores and .prettierignore, which spell
+    the mirrored tree as a `**/*.mjs` glob so that negation is reachable.
 12. **Publishing** is tag-triggered CI only, via npm OIDC trusted publishing
     (.github/workflows/publish.yml: `tags: ["v*"]`, `id-token: write`, no `NPM_TOKEN`). Never
     `npm publish` by hand. Never push to `main` — guard-main-pushes.yml opens a security issue,

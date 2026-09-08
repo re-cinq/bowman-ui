@@ -70,9 +70,12 @@ Pre-publish checklist:
 
 ## Spec Header Table
 
-Every `specs/*/spec.md` opens with its title, then a two-column header table,
-then a lead paragraph before the first `##` section. The table replaces the old
-free-text `Issue:` line, which folds into its `Issue` row:
+Every `specs/*/spec.md` must open with its title, then a two-column header
+table, then a lead paragraph before the first `##` section. This is the
+requirement, not a description of the tree: `npm run check:spec-status` fails a
+spec whose `Status` row no parser can read, and one that opens straight into a
+section with no lead paragraph. The table replaces the old free-text `Issue:`
+line, which folds into its `Issue` row:
 
 ```markdown
 # <spec title>
