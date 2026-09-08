@@ -77,6 +77,14 @@ export type {
   ChatComposerLabels,
   ChatComposerProps,
 } from "./components/ChatComposer.js";
+export { Button } from "./components/Button.js";
+export type { ButtonProps, ButtonSize, ButtonVariant } from "./components/Button.js";
+export { IconButton } from "./components/IconButton.js";
+export type { IconButtonLabels, IconButtonProps } from "./components/IconButton.js";
+export { PromptChips, defaultPromptChipsLabels } from "./components/PromptChips.js";
+export type { PromptChipsLabels, PromptChipsProps } from "./components/PromptChips.js";
+export { SearchField, defaultSearchFieldLabels } from "./components/SearchField.js";
+export type { SearchFieldLabels, SearchFieldProps } from "./components/SearchField.js";
 export { Toast } from "./components/Toast.js";
 export type { ToastProps } from "./components/Toast.js";
 export { ConversationList, defaultConversationListLabels } from "./components/ConversationList.js";
