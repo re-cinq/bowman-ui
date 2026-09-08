@@ -1,6 +1,9 @@
 # bowman-ui icon set
 
-Issue: issue 70 (`020-bowman-ui-icon-set`)
+| Field  | Value                                      |
+| ------ | ------------------------------------------ |
+| Issue  | issue 70 (`020-bowman-ui-icon-set`) |
+| Status | In Progress                                |
 
 The local SVG icon set lives in `src/icons/Icon.tsx` and `src/icons/index.tsx`,
 re-exported from the root
