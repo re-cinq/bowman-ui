@@ -2,7 +2,7 @@
 
 ## Overview
 
-**bowman-ui** is a presentational React component library providing UI building blocks for AI chat interfaces. It is published as `@re-cinq/bowman-ui` on npm ([validated by](../tests/system-contract.test.ts#L14)). The library delivers props-driven, composable React components with no built-in authentication, data-fetching, routing, or internationalization (i18n) dependencies ([validated by](../tests/ChatMessage.test.tsx#L709), [system-contract](../tests/system-contract.test.ts#L39)). Consumers are responsible for supplying data and labels; the components render them according to received props ([validated by](../tests/labelled-exports.test.tsx#L633)).
+**bowman-ui** is a presentational React component library providing UI building blocks for AI chat interfaces. It is published as `@re-cinq/bowman-ui` on npm ([validated by](../tests/system-contract.test.ts#L14)). The library delivers props-driven, composable React components with no built-in authentication, data-fetching, routing, or internationalization (i18n) dependencies ([validated by](../tests/ChatMessage.test.tsx#L640), [system-contract](../tests/system-contract.test.ts#L39)). Consumers are responsible for supplying data and labels; the components render them according to received props ([validated by](../tests/labelled-exports.test.tsx#L633)).
 
 **Naming convention**: HAL is the conversational engine; Bowman is the presentational face (the UI).
 
@@ -10,17 +10,17 @@ The public surface ships 63 named value exports from `src/index.ts`: 16 componen
 
 ## Key Capabilities
 
-1. **Message Rendering** — `ChatMessage` renders one chat entry as an avatared message with copy and feedback affordances ([validated by](../tests/ChatMessage.test.tsx#L49))
-2. **Message List** — `ChatMessageList` renders a scroll-managed transcript, forwards each entry to `ChatMessage`, and always renders the AI-disclosure band ([validated by](../tests/ChatMessageList.test.tsx#L150))
-3. **Composer** — `ChatComposer` is a text-input and submission surface that owns its own draft ([validated by](../tests/ChatComposer.test.tsx#L30))
-4. **Conversation List** — `ConversationList` renders conversation rows with selection, an active row, and a consumer routing seam ([validated by](../tests/ConversationList.test.tsx#L32))
-5. **App Shell** — `AppShell` is the top-level layout frame; `AppSidebar` supplies the `aside`/`nav` landmarks and navigation map ([validated by](../tests/AppShell.test.tsx#L22), [AppSidebar](../tests/AppSidebar.test.tsx#L15))
-6. **Thinking Family** — `ThinkingIndicator`, `InlineThinkingIndicator`, `ThinkingTrace`, and the shared `ThinkingDots` render in-flight reasoning states ([validated by](../tests/ThinkingIndicator.test.tsx#L12), [inline](../tests/InlineThinkingIndicator.test.tsx#L6), [trace](../tests/ThinkingTrace.test.tsx#L31), [dots](../tests/ThinkingIndicator.test.tsx#L37))
+1. **Message Rendering** — `ChatMessage` renders one chat entry as an avatared message with copy and feedback affordances ([validated by](../tests/ChatMessage.test.tsx#L70))
+2. **Message List** — `ChatMessageList` renders a scroll-managed transcript, forwards each entry to `ChatMessage`, and always renders the AI-disclosure band ([validated by](../tests/ChatMessageList.test.tsx#L173))
+3. **Composer** — `ChatComposer` is a text-input and submission surface that owns its own draft ([validated by](../tests/ChatComposer.test.tsx#L31))
+4. **Conversation List** — `ConversationList` renders conversation rows with selection, an active row, and a consumer routing seam ([validated by](../tests/ConversationList.test.tsx#L51))
+5. **App Shell** — `AppShell` is the top-level layout frame; `AppSidebar` supplies the `aside`/`nav` landmarks and navigation map ([validated by](../tests/AppShell.test.tsx#L23), [AppSidebar](../tests/AppSidebar.test.tsx#L16))
+6. **Thinking Family** — `ThinkingIndicator`, `InlineThinkingIndicator`, `ThinkingTrace`, and the shared `ThinkingDots` render in-flight reasoning states ([validated by](../tests/ThinkingIndicator.test.tsx#L13), [inline](../tests/InlineThinkingIndicator.test.tsx#L6), [trace](../tests/ThinkingTrace.test.tsx#L31), [dots](../tests/ThinkingIndicator.test.tsx#L38))
 7. **Tool Activity** — `ToolActivity` renders a tool call safely by default, with the tool name and arguments out of the DOM ([validated by](../tests/ToolActivity.test.tsx#L18))
-8. **Transient & Error Surfaces** — `Toast` renders a live-region notice and `ErrorBoundary` catches render errors into an overridable fallback ([validated by](../tests/Toast.test.tsx#L23), [error](../tests/ErrorBoundary.test.tsx#L46))
-9. **Icon Set** — 23 SVG icons plus `IconWrapper` and `getAccessibleIconProps`, with a tested WCAG accessibility contract ([validated by](../tests/icons.test.tsx#L60), [accessible-props](../tests/icons.test.tsx#L182))
+8. **Transient & Error Surfaces** — `Toast` renders a live-region notice and `ErrorBoundary` catches render errors into an overridable fallback ([validated by](../tests/Toast.test.tsx#L24), [error](../tests/ErrorBoundary.test.tsx#L46))
+9. **Icon Set** — 23 SVG icons plus `IconWrapper` and `getAccessibleIconProps`, with a tested WCAG accessibility contract ([validated by](../tests/icons.test.tsx#L56), [accessible-props](../tests/icons.test.tsx#L178))
 10. **Markdown Rendering** — `createMarkdownComponents` renders assistant markdown through react-markdown + remark-gfm under a strict URL policy ([validated by](../tests/markdown-components.test.tsx#L59))
-11. **Labels Convention** — User-visible strings are overridable English defaults merged through `resolveLabels`, except the two required labels with no default - `ChatMessageList`'s `aiDisclosure` and `IconButton`'s `accessibleName`, for which `IconButton` ships no defaults object - and three strings taken through a dedicated prop rather than a labels object (the icons' `ariaLabel`, `useFocusGroups`' `announce`, `Toast`'s `message`); no locale catalogue ships ([validated by](../tests/labelled-exports.test.tsx#L158), [ai-disclosure](../tests/ChatMessageList.test.tsx#L150), [accessible-name](../tests/labelled-exports.test.tsx#L617))
+11. **Labels Convention** — User-visible strings are overridable English defaults merged through `resolveLabels`, except the two required labels with no default - `ChatMessageList`'s `aiDisclosure` and `IconButton`'s `accessibleName`, for which `IconButton` ships no defaults object - and three strings taken through a dedicated prop rather than a labels object (the icons' `ariaLabel`, `useFocusGroups`' `announce`, `Toast`'s `message`); no locale catalogue ships ([validated by](../tests/labelled-exports.test.tsx#L158), [ai-disclosure](../tests/ChatMessageList.test.tsx#L173), [accessible-name](../tests/labelled-exports.test.tsx#L617))
 12. **RSC Client-Boundary Guarantee** — `"use client"` is applied per file so a Next.js App Router server component can import from the package ([validated by](../tests/client-directives.test.ts#L90))
 13. **Type-Safe API** — Full TypeScript strict-mode support; no implicit `any` in public interfaces ([validated by](../tests/public-api.test.ts#L47), [system-contract](../tests/system-contract.test.ts#L53), [list-type-assertions](../tests/types/chat-message-list-type-assertions.tsx#L53))
 14. **ESM-Only, Tree-Shakeable Distribution** — Single ESM output with named exports for dead-code elimination ([validated by](../tests/system-contract.test.ts#L30), [tree-shake](../tests/public-api.test.ts#L43))
@@ -29,19 +29,19 @@ The public surface ships 63 named value exports from `src/index.ts`: 16 componen
 
 The library defines one entry shape. `ChatEntry` is a discriminated union over four role-tagged variants — `UserChatEntry`, `AssistantChatEntry`, `ThinkingChatEntry`, `ToolChatEntry` — exported alongside `ChatStreamState` and `ChatErrorInfo` as exactly eight chat type names ([validated by](../tests/types/chat.test.ts#L124)). A fifth role or a streamless assistant entry fails to typecheck ([validated by](../tests/types/chat.test.ts#L75)). No generic `metadata` bag is allowed: the entry types declare no `index`, `devMetadata`, `correlationId`, `timestamp`, or similar property ([validated by](../tests/types/chat.test.ts#L100)). There is no `User`/`Participant` type and no `Composer State` type.
 
-Other public data shapes are consumer-supplied and rendered as-is: `ConversationListItem` for list rows and `ChatAttribution` for the per-persona display name and avatar resolved by `ChatMessageList`. `ChatComposer` owns its draft internally — the textarea is uncontrolled with no `value`/`onValueChange` prop — and exposes imperative control through a `ChatComposerHandle` ref (`setValue`, `focus`) ([validated by](../tests/ChatComposer.test.tsx#L183), [L32](../tests/ConversationList.test.tsx#L32), [L486](../tests/ChatMessageList.test.tsx#L486), [L356](../tests/ChatComposer.test.tsx#L356)).
+Other public data shapes are consumer-supplied and rendered as-is: `ConversationListItem` for list rows and `ChatAttribution` for the per-persona display name and avatar resolved by `ChatMessageList`. `ChatComposer` owns its draft internally — the textarea is uncontrolled with no `value`/`onValueChange` prop — and exposes imperative control through a `ChatComposerHandle` ref (`setValue`, `focus`) ([validated by](../tests/ChatComposer.test.tsx#L184), [L51](../tests/ConversationList.test.tsx#L51), [L509](../tests/ChatMessageList.test.tsx#L509), [L341](../tests/ChatComposer.test.tsx#L341)).
 
 ### Responsibility Boundary
 
 | Aspect              | Owner                                                                                                                                                                  |
 | ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Data fetching       | Consumer ([validated by](../tests/ChatMessage.test.tsx#L709))                                                                                                          |
+| Data fetching       | Consumer ([validated by](../tests/ChatMessage.test.tsx#L640))                                                                                                          |
 | Authentication      | Consumer                                                                                                                                                               |
-| State management    | Consumer ([validated by](../tests/ChatMessage.test.tsx#L728))                                                                                                          |
+| State management    | Consumer ([validated by](../tests/ChatMessage.test.tsx#L652))                                                                                                          |
 | Routing             | Consumer                                                                                                                                                               |
 | i18n/localization   | Consumer ([validated by](../tests/labelled-exports.test.tsx#L633))                                                                                                     |
-| AI disclosure       | Consumer supplies the string; library forces the required `aiDisclosure` prop ([validated by](../tests/ChatMessageList.test.tsx#L150))                                 |
-| Telemetry           | None — the package emits none ([validated by](../tests/ChatComposer.test.tsx#L373))                                                                                    |
+| AI disclosure       | Consumer supplies the string; library forces the required `aiDisclosure` prop ([validated by](../tests/ChatMessageList.test.tsx#L173))                                 |
+| Telemetry           | None — the package emits none ([validated by](../tests/ChatComposer.test.tsx#L358))                                                                                    |
 | Component rendering | bowman-ui                                                                                                                                                              |
 | Event callbacks     | bowman-ui (via props)                                                                                                                                                  |
 | Styling             | bowman-ui ships `./styles.css`; consumer's Tailwind v4 build scans `dist` ([validated by](../tests/styles.test.ts#L93), [source](../tests/tailwind-build.test.ts#L79)) |
@@ -56,7 +56,7 @@ Other public data shapes are consumer-supplied and rendered as-is: `Conversation
 
 ### Component Design Principles
 
-1. **Presentational Only** — No side effects, API calls, or complex state logic. All behavior is props-driven. ([validated by](../tests/ChatMessage.test.tsx#L728), [L419](../tests/ConversationList.test.tsx#L419))
+1. **Presentational Only** — No side effects, API calls, or complex state logic. All behavior is props-driven. ([validated by](../tests/ChatMessage.test.tsx#L652), [L415](../tests/ConversationList.test.tsx#L415))
 2. **Composability** — Components combine into larger layouts (e.g., `ChatMessage` + `ChatMessageList` + `ChatComposer` form a chat surface; `AppShell` + `AppSidebar` frame it).
 3. **Controlled by Default** — Components prefer controlled props; the five shipped hooks are `useDebounce`, `useFocusTrap`, `useFocusGroups`, `useReducedMotion`, and `useSidebarState`. ([validated by](../tests/hooks-dist.test.ts#L57))
 4. **Stylesheet Ships With the Package** — Components carry Tailwind utility class names; `./styles.css` supplies the four keyframes and markdown/sr-only rules Tailwind cannot generate, and the consumer's Tailwind v4 build scans `dist`. ([validated by](../tests/styles.test.ts#L93), [source](../tests/tailwind-build.test.ts#L79))
@@ -73,7 +73,7 @@ Other public data shapes are consumer-supplied and rendered as-is: `Conversation
 
 1. **TypeScript Strict Mode** — `tsconfig.json` enforces `strict: true`; all files compile without implicit `any`. ([validated by](../tests/system-contract.test.ts#L53))
 2. **No Console Logs in Production** — Development aids removed before distribution. ([validated by](../tests/system-contract.test.ts#L76))
-3. **Accessibility Baseline** — ARIA attributes, semantic HTML, keyboard support, and 4.5:1 color contrast minimum for text. ([validated by](../tests/icons.test.tsx#L182), [L73](../tests/useFocusTrap.test.tsx#L73))
+3. **Accessibility Baseline** — ARIA attributes, semantic HTML, keyboard support, and 4.5:1 color contrast minimum for text. ([validated by](../tests/icons.test.tsx#L178), [L57](../tests/useFocusTrap.test.tsx#L57))
 4. **Test Coverage Floor** — `vitest.config.ts` commits 100 lines/functions/statements and 90 branches over `src/**`, and the contract test guards that no threshold ever drops below 80; props, prop combinations, and user interactions are covered by React Testing Library tests. ([validated by](../tests/system-contract.test.ts#L61))
 5. **ESLint & Prettier Enforcement** — Consistent formatting and linting; CI blocks merge on violations.
 
@@ -103,16 +103,16 @@ Other public data shapes are consumer-supplied and rendered as-is: `Conversation
 ## Rendering & Runtime Boundaries
 
 1. **`"use client"` Is Per-File** — The directive is added only to files triggering a client-only rule (a hook-shaped import, `createContext`, a `Component` subclass, a browser global, or an `on[A-Z]` JSX handler); 22 source files carry it and `src/index.ts` carries none. ([validated by](../tests/client-directives.test.ts#L90))
-2. **Icons Are Server-Renderable** — The 23 icons are pure SVG and carry no directive, so they push no JS into consumer bundles. ([validated by](../tests/icons.test.tsx#L128))
+2. **Icons Are Server-Renderable** — The 23 icons are pure SVG and carry no directive, so they push no JS into consumer bundles. ([validated by](../tests/icons.test.tsx#L124))
 3. **Next.js App Router Guarantee** — Because the boundary is per-file, a server component can import the package. ([validated by](../tests/client-directives.test.ts#L90))
 4. **Function-Valued Props Cross From `"use client"`** — The package accepts function props (`onSubmit`, `renderSidebar`, `renderLink`, and the rest); React's serialization boundary rejects passing them from a server component, so an App Router consumer supplies them from a `"use client"` file. The RSC fixture build is the executable proof (see docs/design-notes.md § RSC fixture).
 
 ## Compliance
 
-1. **GDPR — No Telemetry** — Components call no `console.*`, `localStorage`, `sessionStorage`, `fetch`, or `sendBeacon`, and persist no user content; the package's one storage access is the opt-in `useSidebarState` hook, which persists only the sidebar-open flag in `localStorage` under a consumer-supplied `storagePrefix`. ([validated by](../tests/ChatMessage.test.tsx#L728), [composer](../tests/ChatComposer.test.tsx#L373), [list](../tests/ConversationList.test.tsx#L419), [sidebar-state](../tests/useSidebarState.test.tsx#L34))
-2. **EU AI Act — AI Disclosure** — `ChatMessageList`'s `aiDisclosure` label is required with no default and renders in every state, so no consumer can render the chat surface without it. ([validated by](../tests/ChatMessageList.test.tsx#L150), [type](../tests/types/chat-message-list-type-assertions.tsx#L53))
-3. **Markdown URL Policy** — `defaultMarkdownPolicy` allows only `https`/`mailto`/`tel`; `createUrlTransform` drops every other scheme, and dangerous schemes on a link render a hrefless span. ([validated by](../tests/markdown/urlPolicy.test.tsx#L33), [xss](../tests/security/markdown-xss.test.tsx#L85))
-4. **Markdown HTML Is Inert** — No `rehype-raw` is wired in, so model-authored HTML in markdown renders as literal text rather than live nodes. ([validated by](../tests/security/markdown-xss.test.tsx#L56))
+1. **GDPR — No Telemetry** — Components call no `console.*`, `localStorage`, `sessionStorage`, `fetch`, or `sendBeacon`, and persist no user content; the package's one storage access is the opt-in `useSidebarState` hook, which persists only the sidebar-open flag in `localStorage` under a consumer-supplied `storagePrefix`. ([validated by](../tests/ChatMessage.test.tsx#L652), [composer](../tests/ChatComposer.test.tsx#L358), [list](../tests/ConversationList.test.tsx#L415), [sidebar-state](../tests/useSidebarState.test.tsx#L37))
+2. **EU AI Act — AI Disclosure** — `ChatMessageList`'s `aiDisclosure` label is required with no default and renders in every state, so no consumer can render the chat surface without it. ([validated by](../tests/ChatMessageList.test.tsx#L173), [type](../tests/types/chat-message-list-type-assertions.tsx#L53))
+3. **Markdown URL Policy** — `defaultMarkdownPolicy` allows only `https`/`mailto`/`tel`; `createUrlTransform` drops every other scheme, and dangerous schemes on a link render a hrefless span. ([validated by](../tests/markdown/urlPolicy.test.tsx#L33), [xss](../tests/security/markdown-xss.test.tsx#L92))
+4. **Markdown HTML Is Inert** — No `rehype-raw` is wired in, so model-authored HTML in markdown renders as literal text rather than live nodes. ([validated by](../tests/security/markdown-xss.test.tsx#L63))
 
 ### Model-Authored Content Defaults
 

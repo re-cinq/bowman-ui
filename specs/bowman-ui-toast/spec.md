@@ -24,22 +24,22 @@ corrected justification.
 
 `ToastProps` is exactly `message: string`, `onClose: () => void`,
 `duration?: number | null` (default `2000`; `null` disables auto-dismiss)
-([validated by](../../tests/Toast.test.tsx#L50),
-[L137](../../tests/Toast.test.tsx#L137)).
+([validated by](../../tests/Toast.test.tsx#L51),
+[L138](../../tests/Toast.test.tsx#L138)).
 No `labels` prop and no `className`: the fixed positioning
 (`fixed bottom-8 left-1/2 z-50 -translate-x-1/2`) and the fade animation's
 restated `-50%` translate are one decision that stays together.
 `message` renders inside
 an element with `role="status"` and `aria-live="polite"`
-([validated by](../../tests/Toast.test.tsx#L23),
-[L88](../../tests/Toast.test.tsx#L88)). Since the 2026-08-26
+([validated by](../../tests/Toast.test.tsx#L24),
+[L89](../../tests/Toast.test.tsx#L89)). Since the 2026-08-26
 review the positioned pill and the status region are two elements: the
 aria-hidden pill shows the message from the first render, and the separate
 status region, hidden by the stylesheet's `bowman-sr-only` class, receives it
 in the mount effect, so the
 live region exists before its text and screen readers announce it
-([validated by](../../tests/Toast.test.tsx#L32),
-[L47](../../tests/Toast.test.tsx#L47)).
+([validated by](../../tests/Toast.test.tsx#L33),
+[L48](../../tests/Toast.test.tsx#L48)).
 
 ## The timer fix
 
@@ -48,7 +48,7 @@ re-render with a fresh `onClose` identity - which a streaming chat page
 produces constantly - restart the countdown before it could fire. Here the
 latest `onClose` lives in a ref updated in its own effect, the timeout
 effect keys on `[message, duration]`, and the timer calls
-`onCloseRef.current()`: ([validated by](../../tests/Toast.test.tsx#L107))
+`onCloseRef.current()`: ([validated by](../../tests/Toast.test.tsx#L108))
 
 - **The divergence.** A new `onClose` identity at 1000ms does not restart
   the countdown: the latest callback fires exactly once at 2000ms total,
@@ -56,44 +56,44 @@ effect keys on `[message, duration]`, and the timer calls
   Verified by mutation: rewriting the timer as a naive
   `[onClose, duration]`-keyed `setTimeout(onClose, duration)` effect makes
   this test fail (2 failed, 9 passed in the mutant run;
-  [validated by](../../tests/Toast.test.tsx#L107)).
+  [validated by](../../tests/Toast.test.tsx#L108)).
 - A different `message` on the same instance restarts the countdown:
   `onClose` fires 2000ms after the new message - this also fails
   against that naive mutant, which never keys on `message`
-  ([validated by](../../tests/Toast.test.tsx#L123)).
+  ([validated by](../../tests/Toast.test.tsx#L124)).
 - `duration={null}` calls `onClose` zero times after 60000ms of fake-timer
   advance and `setTimeout` is never invoked, asserted on a spy. The library
   ships no close button, so in that mode dismissal is entirely the
   consumer's - 044's connection notices are conditions that persist for as
   long as they hold and must not vanish on their own
-  ([validated by](../../tests/Toast.test.tsx#L137)).
+  ([validated by](../../tests/Toast.test.tsx#L138)).
 
 The baseline timer assertions hold: uncalled at 1999ms, called
 once at 2000ms;
 `duration={500}` fires at 500ms; unmounting before the
-deadline never calls it ([validated by](../../tests/Toast.test.tsx#L50),
-[L62](../../tests/Toast.test.tsx#L62),
-[L74](../../tests/Toast.test.tsx#L74)).
+deadline never calls it ([validated by](../../tests/Toast.test.tsx#L51),
+[L63](../../tests/Toast.test.tsx#L63),
+[L75](../../tests/Toast.test.tsx#L75)).
 
 ## The characterization suite
 
 The core assertions in
 `tests/Toast.test.tsx` pin role/aria-live, the 1999/2000ms edge,
 `duration={500}` and unmount cleanup
-([validated by](../../tests/Toast.test.tsx#L23),
-[L50](../../tests/Toast.test.tsx#L50),
-[L62](../../tests/Toast.test.tsx#L62),
-[L74](../../tests/Toast.test.tsx#L74)). One deliberate naming decision:
+([validated by](../../tests/Toast.test.tsx#L24),
+[L51](../../tests/Toast.test.tsx#L51),
+[L63](../../tests/Toast.test.tsx#L63),
+[L75](../../tests/Toast.test.tsx#L75)). One deliberate naming decision:
 
 | #   | Decision                                                                                                                                                                                                       | Reason                                                                                                                                              |
 | --- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
-| a   | The class assertion pins `bowman-toast-fade-in` plus the positioning classes, asserted on the visible pill since the 2026-08-26 review split it from the status region ([L88](../../tests/Toast.test.tsx#L88)) | 019's CSS naming rule - every package animation class ships under the `bowman-` prefix so it cannot collide with a consumer's `animate-*` utilities |
+| a   | The class assertion pins `bowman-toast-fade-in` plus the positioning classes, asserted on the visible pill since the 2026-08-26 review split it from the status region ([L89](../../tests/Toast.test.tsx#L89)) | 019's CSS naming rule - every package animation class ships under the `bowman-` prefix so it cannot collide with a consumer's `animate-*` utilities |
 
 The divergence, message-restart and duration-null tests pin the
 re-render-proof timer behaviour
-([validated by](../../tests/Toast.test.tsx#L107),
-[L123](../../tests/Toast.test.tsx#L123),
-[L137](../../tests/Toast.test.tsx#L137)).
+([validated by](../../tests/Toast.test.tsx#L108),
+[L124](../../tests/Toast.test.tsx#L124),
+[L138](../../tests/Toast.test.tsx#L138)).
 
 ## The stylesheet
 
@@ -109,7 +109,7 @@ four with a paired utility rule; the
 `.bowman-toast-fade-in` and touches no `transform`, so the element stays
 positioned when animation is off.
 `grep -rn "animate-fade-in" src/` returns nothing
-([validated by](../../tests/Toast.test.tsx#L170),
+([validated by](../../tests/Toast.test.tsx#L166),
 [L31](../../tests/styles.test.ts#L31),
 [L42](../../tests/styles.test.ts#L42),
 [L80](../../tests/styles.test.ts#L80)).
@@ -135,11 +135,11 @@ and the partition still asserts the full barrel
 - `"use client"` as the first statement of `dist/components/Toast.js`, per
   docs/design-notes.md decision 1's positional check and
   `scripts/check-client-directives.mjs`; `npm pack` ships the built file
-  with its `d.ts` ([validated by](../../tests/toast-dist.test.ts#L7),
-  [L14](../../tests/toast-dist.test.ts#L14)).
+  with its `d.ts` ([validated by](../../tests/toast-dist.test.ts#L6),
+  [L10](../../tests/toast-dist.test.ts#L10)).
 - No `@clerk`, `swr`, `next-intl`, `next/` or `@/` import,
   and every relative import ends in `.js`
-  ([validated by](../../tests/Toast.test.tsx#L158)).
+  ([validated by](../../tests/Toast.test.tsx#L154)).
 - **GDPR.** `message` is caller-supplied and in the support agent may quote
   a booking reference or a customer name
   (`003-support-conversation-data-flow-record`). The component renders it
@@ -147,7 +147,7 @@ and the partition still asserts the full barrel
   `sessionStorage`, `fetch`, `sendBeacon` or clipboard access, asserted by
   a source grep and the
   suite-wide console trap 023 installed in `tests/setup.ts`
-  ([validated by](../../tests/Toast.test.tsx#L166)).
+  ([validated by](../../tests/Toast.test.tsx#L162)).
 
 ## Recorded decisions, interpretations and deviations
 
@@ -159,7 +159,7 @@ and the partition still asserts the full barrel
   `src/` contains `translateX`; the toast keyframe now legitimately carries
   it in `src/styles.css`, so that assertion exempts `styles.css` alone -
   component sources remain banned from restating centring transforms
-  ([validated by](../../tests/ChatMessage.test.tsx#L735)).
+  ([validated by](../../tests/ChatMessage.test.tsx#L659)).
 - **Precedent citation.** The issue cites "021 Decision 0" for shipping on
   thin call-site evidence; 021's spec has no such numbered decision - the
   precedent lives in its Why section, and is cited as such here and in

@@ -38,10 +38,10 @@ string-carrying component already in the repo - it adds no new component.
   assistive attributes, and
   `strings`/`texts`/`i18n`/`translations`/`messages` property keys, plus
   `no-restricted-imports` on
-  `next-intl` ([validated by](../../tests/eslint-labels.test.ts#L65),
-  [L131](../../tests/eslint-labels.test.ts#L131),
-  [L140](../../tests/eslint-labels.test.ts#L140),
-  [L158](../../tests/eslint-labels.test.ts#L158)).
+  `next-intl` ([validated by](../../tests/eslint-labels.test.ts#L31),
+  [L97](../../tests/eslint-labels.test.ts#L97),
+  [L106](../../tests/eslint-labels.test.ts#L106),
+  [L124](../../tests/eslint-labels.test.ts#L124)).
 - The red fixtures live
   in `tests/fixtures/eslint-labels/`, globally ignored so the committed tree stays green - the
   original four plus the 2026-08-26 review's bypass set (expression-container and template
@@ -68,7 +68,7 @@ string-carrying component already in the repo - it adds no new component.
 - Re-pinned prior behaviour (AC 39): `<LoadingIcon ariaLabel="Cargando" />` renders
   `aria-label="Cargando"` with `"Loading"` nowhere in the output; the translated `announce`
   assertion already existed and is referenced, not duplicated
-  ([validated by](../../tests/icons.test.tsx#L267),
+  ([validated by](../../tests/icons.test.tsx#L263),
   [announce](../../tests/useFocusGroups.test.tsx#L136)).
 
 ## Recorded decisions, interpretations and deviations
@@ -91,7 +91,7 @@ string-carrying component already in the repo - it adds no new component.
   `tests/fixtures/eslint-labels/**` alongside `src/**`, and the fixture directory sits in the
   global `ignores`. `npm run lint` therefore never sees the fixtures, while the red-fixture test
   lints them with `--no-ignore` against the exact committed rules rather than a copy of them
-  ([validated by](../../tests/eslint-labels.test.ts#L20)).
+  ([validated by](../../tests/eslint-labels.test.ts#L9)).
 - **Placeholder deleted.** `src/Placeholder.tsx`, `tests/Placeholder.test.tsx` and the barrel
   export are gone, sanctioned by 014's own design (the placeholder existed only until real components did):
   six real `"use client"` files now exist, and Placeholder's hardcoded English text can neither

@@ -53,6 +53,13 @@ const renderThroughChatMessage = (
   );
 };
 
+const expectLinkTextOnly = (markdown: string, policy?: MarkdownPolicy) => {
+  const { container } = renderThroughComponents(markdown, policy);
+
+  expect(container.querySelector("a")).toBeNull();
+  expect(screen.getByText("x").tagName).toBe("SPAN");
+};
+
 describe("raw HTML passthrough (no rehype-raw: model-authored HTML is inert text)", () => {
   const rawHtmlRows = [
     "<script>alert(1)</script>",
@@ -95,10 +102,7 @@ describe("dangerous schemes on a markdown link render a hrefless span", () => {
   it.each(dangerousSchemeRows)(
     "[x](%s) renders no anchor and shows the link text",
     (destination) => {
-      const { container } = renderThroughComponents(`[x](${destination})`);
-
-      expect(container.querySelector("a")).toBeNull();
-      expect(screen.getByText("x").tagName).toBe("SPAN");
+      expectLinkTextOnly(`[x](${destination})`);
     }
   );
 
@@ -129,10 +133,7 @@ describe("protocol-relative and mixed-slash destinations drop the href", () => {
   it.each(["//evil.com", "\\\\evil.com", "/\\evil.com", "\\/evil.com"])(
     "[x](%s) renders no anchor under the default policy",
     (destination) => {
-      const { container } = renderThroughComponents(`[x](${destination})`);
-
-      expect(container.querySelector("a")).toBeNull();
-      expect(screen.getByText("x").tagName).toBe("SPAN");
+      expectLinkTextOnly(`[x](${destination})`);
     }
   );
 

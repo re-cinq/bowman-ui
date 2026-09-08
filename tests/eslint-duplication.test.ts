@@ -1,5 +1,4 @@
-import { spawnSync } from "node:child_process";
-import { resolve, sep } from "node:path";
+import { lintFixtures, messagesFor, type LintResult } from "./helpers/eslint-fixtures.js";
 
 // The duplication fixtures live outside src/ and are globally ignored, so
 // `npm run lint` stays green. --no-ignore lifts the ignore, and each fixture
@@ -11,48 +10,15 @@ import { resolve, sep } from "node:path";
 const duplicationDir = "tests/fixtures/eslint-duplication";
 const labelsDir = "tests/fixtures/eslint-labels";
 
-interface LintMessage {
-  ruleId: string | null;
-  message: string;
-}
-
-interface LintResult {
-  filePath: string;
-  messages: LintMessage[];
-}
-
-const lint = (): LintResult[] => {
-  const result = spawnSync(
-    "node",
-    [
-      resolve(process.cwd(), "node_modules/eslint/bin/eslint.js"),
-      "--no-ignore",
-      "--format",
-      "json",
-      `${duplicationDir}/raw-svg/component.tsx`,
-      `${duplicationDir}/focusable-literal/inline.ts`,
-      `${duplicationDir}/duplicate-string/dupes.ts`,
-      `${duplicationDir}/identical-functions/funcs.ts`,
-      `${duplicationDir}/clean/clean.ts`,
-      `${labelsDir}/jsx-text.tsx`,
-    ],
-    { cwd: process.cwd(), encoding: "utf8" }
-  );
-
-  expect(result.status).toBe(1);
-
-  return JSON.parse(result.stdout) as LintResult[];
-};
-
-const messagesFor = (results: LintResult[], fixture: string): LintMessage[] => {
-  const match = results.find((entry) => entry.filePath.endsWith(`${sep}${fixture}`));
-
-  if (!match) {
-    throw new Error(`eslint reported nothing for ${fixture}`);
-  }
-
-  return match.messages;
-};
+const lint = (): LintResult[] =>
+  lintFixtures([
+    `${duplicationDir}/raw-svg/component.tsx`,
+    `${duplicationDir}/focusable-literal/inline.ts`,
+    `${duplicationDir}/duplicate-string/dupes.ts`,
+    `${duplicationDir}/identical-functions/funcs.ts`,
+    `${duplicationDir}/clean/clean.ts`,
+    `${labelsDir}/jsx-text.tsx`,
+  ]);
 
 describe("the duplication lint guardrails", () => {
   let results: LintResult[];

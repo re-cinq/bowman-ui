@@ -24,28 +24,28 @@ Books English-only re-theme; the three resize tests also passed a local
 Anchor note: `scripts/repoint-spec-anchors.mjs` originally tracked only
 `(../)+tests/*.ts(x)` anchors; this change widens its regex by one line to
 also track `(../)+examples/*/tests/*.ts(x)` anchors
-([regex](../../scripts/repoint-spec-anchors.mjs#L55)), so this spec's
+([regex](../../scripts/repoint-spec-anchors.mjs#L56)), so this spec's
 links into `examples/chat-demo/tests/chat-demo.spec.ts` are repointed by CI like
 any `tests/` anchor. The widened check ran clean over the pre-existing
 consumer-app spec (21 newly tracked anchors there; 591 up to date repo-wide,
 0 stale, 0 rotten). Issue 32 widened the same pattern again to `scripts/`,
 `README.md` and `docs/` markdown anchors, which exposed six dead links the
 narrower check had never seen
-([validated by](../../tests/repoint-spec-anchors.test.ts#L538)). Issue 37
+([validated by](../../tests/repoint-spec-anchors.test.ts#L528)). Issue 37
 widened it once more to any repo-relative path carrying a file extension, so
 root config files, workflow files, `package.json` files and `examples/`
 sources are repointed and rot-checked like every other cited file
-([validated by](../../tests/repoint-spec-anchors.test.ts#L562),
-[L576](../../tests/repoint-spec-anchors.test.ts#L576)). A file built
+([validated by](../../tests/repoint-spec-anchors.test.ts#L552),
+[L566](../../tests/repoint-spec-anchors.test.ts#L566)). A file built
 of repeated blocks - a workflow whose jobs share an identical setup - has to
 be cited on a line unique to its own step, because the resolver reports a
 context tie as ambiguous rather than guessing
-([validated by](../../tests/repoint-spec-anchors.test.ts#L197)). The
+([validated by](../../tests/repoint-spec-anchors.test.ts#L198)). The
 assistive-technology spec's placeholder links carry `#A1`-style fragments and
 a `<date>` placeholder, so the tracker never matches them; a real
 `docs/accessibility/at-pass-*.md` cited with `#L` anchors becomes tracked the
 moment it exists
-([validated by](../../tests/repoint-spec-anchors.test.ts#L606)).
+([validated by](../../tests/repoint-spec-anchors.test.ts#L596)).
 
 ## Baseline
 
@@ -139,7 +139,7 @@ handler and the ref handle's `setValue`, the textarea is uncontrolled, and
 the demo passes no ref, so nothing re-runs the resize after `submit()` writes
 `auto`. `027`'s string criterion therefore still holds in a real browser,
 exactly as its unit test asserts
-([validated by](../../tests/ChatComposer.test.tsx#L41)).
+([validated by](../../tests/ChatComposer.test.tsx#L42)).
 
 What this suite adds is the half no jsdom test could reach: the browser
 resolves that `auto` back to a real rendered height equal to the recorded
@@ -154,8 +154,8 @@ the customer-visible fact, and asserting the string here would only duplicate
 The `maxHeightPx` override is proven only by `027`'s stubbed unit test - a
 stubbed `scrollHeight` of 320 capping at `200px` under the default and
 reaching `320px` with `maxHeightPx={400}` - and by no browser
-([validated by](../../tests/ChatComposer.test.tsx#L244),
-[L253](../../tests/ChatComposer.test.tsx#L253)). The demo pins its
+([validated by](../../tests/ChatComposer.test.tsx#L245),
+[L254](../../tests/ChatComposer.test.tsx#L254)). The demo pins its
 composition and threads no URL parameter to a second `maxHeightPx`, per the
 issue's tech note: that would turn the worked consumer into a fixture for its
 own test suite.
@@ -178,7 +178,7 @@ The assertions run inside the existing `consumer` job in
 `.github/workflows/ci.yml`, against `vite preview` and the packed tarball,
 on every pull request - the job already runs the whole suite via
 `scripts/consumer-app.sh`
-([job](../../.github/workflows/ci.yml#L132)). No new job, no second browser
+([job](../../.github/workflows/ci.yml#L129)). No new job, no second browser
 install, and `scripts/consumer-app.sh` is unchanged in this PR - like the
 `src/` constraint, that is proven by the PR diff, not by an executable
 anchor.

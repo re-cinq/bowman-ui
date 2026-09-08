@@ -5,11 +5,12 @@
  * a real accessible name instead of a placeholder.
  */
 import { act, fireEvent, render, screen } from "@testing-library/react";
-import { readFileSync, readdirSync, statSync } from "node:fs";
-import { join, resolve } from "node:path";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { createRef } from "react";
 import { ChatComposer } from "../src/index.js";
 import type { ChatComposerHandle } from "../src/index.js";
+import { expectImportHygiene, expectNoEgress, listFiles } from "./helpers/source-hygiene.js";
 
 const textareaOf = (): HTMLTextAreaElement => screen.getByRole("textbox");
 const sendButtonOf = (): HTMLButtonElement => screen.getByRole("button", { name: "Send message" });
@@ -337,33 +338,17 @@ describe("the authored source (grep acceptance criteria)", () => {
   const componentPath = "src/components/ChatComposer.tsx";
   const content = readFileSync(resolve(process.cwd(), componentPath), "utf8");
 
-  const walk = (dir: string): string[] => {
-    const files: string[] = [];
-
-    for (const entry of readdirSync(dir)) {
-      const fullPath = join(dir, entry);
-
-      if (statSync(fullPath).isDirectory()) {
-        files.push(...walk(fullPath));
-        continue;
-      }
-      files.push(fullPath);
-    }
-
-    return files;
-  };
-
   it("the textarea is uncontrolled: onChange= is its own binding and no value= or onValueChange prop exists", () => {
     expect(content).not.toMatch(/value=|onValueChange/);
     expect(content.match(/onChange=/g)).toHaveLength(1);
   });
 
   it("no paperclip glyph appears anywhere in src/ or dist/", () => {
-    for (const file of walk(resolve(process.cwd(), "src"))) {
+    for (const file of listFiles(resolve(process.cwd(), "src"))) {
       expect(readFileSync(file, "utf8")).not.toMatch(/paperclip/i);
     }
 
-    for (const file of walk(resolve(process.cwd(), "dist")).filter(
+    for (const file of listFiles(resolve(process.cwd(), "dist")).filter(
       (file) => file.endsWith(".js") || file.endsWith(".d.ts") || file.endsWith(".css")
     )) {
       expect(readFileSync(file, "utf8")).not.toMatch(/paperclip/i);
@@ -371,19 +356,10 @@ describe("the authored source (grep acceptance criteria)", () => {
   });
 
   it("GDPR: the file calls no console.*, localStorage, sessionStorage, fetch, sendBeacon or analytics, and holds no draft persistence", () => {
-    expect(content).not.toMatch(
-      /console\.|localStorage|sessionStorage|fetch|sendBeacon|analytics|indexedDB/i
-    );
+    expectNoEgress(content);
   });
 
   it("no @clerk, swr, next-intl, next/, @/ or lucide-react import, and every relative import ends in .js", () => {
-    expect(content).not.toMatch(/@clerk|swr|next-intl|next\/|@\/|lucide-react/);
-    const relativeImports = [...content.matchAll(/from\s+"(\.[^"]+)"/g)].map(([, spec]) => spec);
-
-    expect(relativeImports.length).toBeGreaterThan(0);
-
-    for (const spec of relativeImports) {
-      expect(spec).toMatch(/\.js$/);
-    }
+    expectImportHygiene(content);
   });
 });

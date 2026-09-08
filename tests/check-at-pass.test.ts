@@ -1,14 +1,19 @@
-import { execFileSync, spawnSync } from "node:child_process";
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { dirname, join } from "node:path";
+import { join } from "node:path";
+import {
+  expectUsageError,
+  git,
+  gitOut,
+  runScript,
+  writeInRepo as write,
+  type RunResult,
+} from "./helpers/script-runner.js";
 
 const script = join(process.cwd(), "scripts", "check-at-pass.mjs");
 
 const coveredPaths = ["src/components/ChatMessage.tsx", "src/components/ChatMessageList.tsx"];
 const rowIds = ["A1", "A2", "A3", "A4", "A5", "A6", "A7"];
-
-type RunResult = { status: number | null; stdout: string; stderr: string };
 
 type Row = {
   id: string;
@@ -17,23 +22,7 @@ type Row = {
   extra?: Readonly<Record<string, string>>;
 };
 
-const run = (repo: string, ...args: string[]): RunResult => {
-  const result = spawnSync(process.execPath, [script, ...args], { cwd: repo, encoding: "utf8" });
-
-  return { status: result.status, stdout: result.stdout, stderr: result.stderr };
-};
-
-const git = (repo: string, ...args: string[]) => {
-  execFileSync("git", args, { cwd: repo, stdio: "ignore" });
-};
-
-const gitOut = (repo: string, ...args: string[]): string =>
-  execFileSync("git", args, { cwd: repo, encoding: "utf8" }).trim();
-
-const write = (repo: string, path: string, content: string) => {
-  mkdirSync(join(repo, dirname(path)), { recursive: true });
-  writeFileSync(join(repo, path), content);
-};
+const run = (repo: string, ...args: string[]): RunResult => runScript(script, args, { cwd: repo });
 
 const defaultFields = (commit: string): Record<string, string> => ({
   date: "2026-08-31",
@@ -140,6 +129,18 @@ describe("check-at-pass", () => {
     rmSync(repo, { recursive: true, force: true });
   });
 
+  const withRow = (id: string, stack: string, patch: Partial<Row>): Row[] =>
+    defaultRows().map((row) => (row.id === id && row.stack === stack ? { ...row, ...patch } : row));
+
+  const structureStderr = (rows: Row[]): string => {
+    commitRecord(repo, renderRecord(defaultFields(componentsCommit(repo)), rows));
+    const result = run(repo, "--structure");
+
+    expect(result).toMatchObject({ status: 1 });
+
+    return result.stderr;
+  };
+
   it("--structure passes with a warning when no record exists", () => {
     const result = run(repo, "--structure");
 
@@ -187,27 +188,15 @@ describe("check-at-pass", () => {
   });
 
   it("a missing row verdict exits 1 naming the row and the stack", () => {
-    const rows = defaultRows().filter((row) => !(row.id === "A4" && row.stack === "voiceover"));
-
-    commitRecord(repo, renderRecord(defaultFields(componentsCommit(repo)), rows));
-
-    const result = run(repo, "--structure");
-
-    expect(result).toMatchObject({ status: 1 });
-    expect(result.stderr).toContain("row A4 carries no verdict on stack voiceover");
+    expect(
+      structureStderr(
+        defaultRows().filter((row) => !(row.id === "A4" && row.stack === "voiceover"))
+      )
+    ).toContain("row A4 carries no verdict on stack voiceover");
   });
 
   it("a fail row naming neither a fixing issue nor an accepting person exits 1", () => {
-    const rows = defaultRows().map((row) =>
-      row.id === "A2" && row.stack === "nvda" ? { ...row, verdict: "fail" } : row
-    );
-
-    commitRecord(repo, renderRecord(defaultFields(componentsCommit(repo)), rows));
-
-    const result = run(repo, "--structure");
-
-    expect(result).toMatchObject({ status: 1 });
-    expect(result.stderr).toContain(
+    expect(structureStderr(withRow("A2", "nvda", { verdict: "fail" }))).toContain(
       "row A2 on stack nvda is `fail` without a `fixing-issue` or an `accepted-by`"
     );
   });
@@ -240,16 +229,9 @@ describe("check-at-pass", () => {
   });
 
   it("not-run on the voiceover row without a reason exits 1", () => {
-    const rows = defaultRows().map((row) =>
-      row.id === "A1" && row.stack === "voiceover" ? { ...row, verdict: "not-run" } : row
+    expect(structureStderr(withRow("A1", "voiceover", { verdict: "not-run" }))).toContain(
+      "is `not-run` without a `reason`"
     );
-
-    commitRecord(repo, renderRecord(defaultFields(componentsCommit(repo)), rows));
-
-    const result = run(repo, "--structure");
-
-    expect(result).toMatchObject({ status: 1 });
-    expect(result.stderr).toContain("is `not-run` without a `reason`");
   });
 
   it("not-run on the voiceover row with a reason passes", () => {
@@ -265,16 +247,9 @@ describe("check-at-pass", () => {
   });
 
   it("a waiver without waived-by and expires exits 1", () => {
-    const rows = defaultRows().map((row) =>
-      row.id === "A6" && row.stack === "nvda" ? { ...row, verdict: "waived" } : row
+    expect(structureStderr(withRow("A6", "nvda", { verdict: "waived" }))).toContain(
+      "is `waived` without both `waived-by` and `expires`"
     );
-
-    commitRecord(repo, renderRecord(defaultFields(componentsCommit(repo)), rows));
-
-    const result = run(repo, "--structure");
-
-    expect(result).toMatchObject({ status: 1 });
-    expect(result.stderr).toContain("is `waived` without both `waived-by` and `expires`");
   });
 
   it("an expired waiver exits 1 in both modes", () => {
@@ -431,37 +406,21 @@ describe("check-at-pass", () => {
   });
 
   it("no mode flag exits 2 with usage", () => {
-    const result = run(repo);
-
-    expect(result).toMatchObject({ status: 2 });
-    expect(result.stderr).toContain("usage:");
+    expectUsageError(run(repo));
   });
 
   it("an unknown flag exits 2 with usage", () => {
-    const result = run(repo, "--frobnicate");
-
-    expect(result).toMatchObject({ status: 2 });
-    expect(result.stderr).toContain("usage:");
+    expectUsageError(run(repo, "--frobnicate"));
   });
 
   it('a waiver with an expires of "never" exits 1', () => {
-    const rows = defaultRows().map((row) =>
-      row.id === "A6" && row.stack === "nvda"
-        ? {
-            ...row,
-            verdict: "waived",
-            extra: { "waived-by": "Test Runner", expires: "never" },
-          }
-        : row
-    );
-
-    commitRecord(repo, renderRecord(defaultFields(componentsCommit(repo)), rows));
-
-    const result = run(repo, "--structure");
-
-    expect(result).toMatchObject({ status: 1 });
-    expect(result.stderr).toContain(
-      'is `waived` with an `expires` of "never", which is not YYYY-MM-DD'
-    );
+    expect(
+      structureStderr(
+        withRow("A6", "nvda", {
+          verdict: "waived",
+          extra: { "waived-by": "Test Runner", expires: "never" },
+        })
+      )
+    ).toContain('is `waived` with an `expires` of "never", which is not YYYY-MM-DD');
   });
 });

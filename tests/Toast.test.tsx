@@ -6,9 +6,10 @@
  */
 import { render, screen } from "@testing-library/react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { readFileSync, readdirSync } from "node:fs";
-import { join, resolve } from "node:path";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { Toast } from "../src/index.js";
+import { listFiles } from "./helpers/source-hygiene.js";
 
 describe("Toast", () => {
   beforeEach(() => {
@@ -147,11 +148,6 @@ describe("Toast", () => {
   });
 });
 
-const sourceFiles = (dir: string): string[] =>
-  readdirSync(dir, { withFileTypes: true }).flatMap((entry) =>
-    entry.isDirectory() ? sourceFiles(join(dir, entry.name)) : [join(dir, entry.name)]
-  );
-
 describe("the Toast source", () => {
   const source = readFileSync(resolve(process.cwd(), "src/components/Toast.tsx"), "utf8");
 
@@ -168,7 +164,7 @@ describe("the Toast source", () => {
   });
 
   it('grep for "animate-fade-in" in src/ returns nothing', () => {
-    const hits = sourceFiles(resolve(process.cwd(), "src")).filter((file) =>
+    const hits = listFiles(resolve(process.cwd(), "src")).filter((file) =>
       readFileSync(file, "utf8").includes("animate-fade-in")
     );
 

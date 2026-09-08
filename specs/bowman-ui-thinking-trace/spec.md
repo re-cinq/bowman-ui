@@ -79,18 +79,18 @@ roles - and `086`'s `@ts-expect-error` is replaced by a positive assertion that
 a `ThinkingChatEntry` array now compiles
 ([validated by](../../tests/types/chat-message-list-type-assertions.tsx#L49),
 compiled by
-[chat-message-list-dist](../../tests/chat-message-list-dist.test.ts#L87)).
+[chat-message-list-dist](../../tests/chat-message-list-dist.test.ts#L81)).
 
 `showThinking` gates the mount, not the visibility, and defaults `false`: with
 the flag absent, `[user, thinking, assistant]` renders no `<details>` and none
 of the thinking content while the user and assistant entries render unchanged
-([validated by](../../tests/ChatMessageList.test.tsx#L1118),
-[L1108](../../tests/ChatMessageList.test.tsx#L1108)). With it true the same
+([validated by](../../tests/ChatMessageList.test.tsx#L1081),
+[L1071](../../tests/ChatMessageList.test.tsx#L1071)). With it true the same
 array renders exactly one collapsed `ThinkingTrace` between them.
 `reducedMotion` forwards to the trace, as does the resolved `thinkingTrace`
-label ([validated by](../../tests/ChatMessageList.test.tsx#L1176),
-[L1130](../../tests/ChatMessageList.test.tsx#L1130),
-[L1161](../../tests/ChatMessageList.test.tsx#L1161)).
+label ([validated by](../../tests/ChatMessageList.test.tsx#L1139),
+[L1093](../../tests/ChatMessageList.test.tsx#L1093),
+[L1124](../../tests/ChatMessageList.test.tsx#L1124)).
 
 `ChatMessageListLabels` gains `thinkingTrace` as a defaulted key, colliding
 with no key of `ChatMessageLabels`, `ThinkingIndicatorLabels` (`thinking`,
@@ -102,7 +102,7 @@ with no key of `ChatMessageLabels`, `ThinkingIndicatorLabels` (`thinking`,
 A reasoning trace is not a disclosure and does not substitute for one: a list
 holding a single thinking entry with `showThinking` true still renders the
 `aiDisclosure` band
-([validated by](../../tests/ChatMessageList.test.tsx#L1148)).
+([validated by](../../tests/ChatMessageList.test.tsx#L1111)).
 
 ## GDPR
 

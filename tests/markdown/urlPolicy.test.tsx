@@ -39,6 +39,14 @@ it("defaultMarkdownPolicy is the https/mailto/tel, no-relative, new-tab, no-imag
   });
 });
 
+const expectLinkTextOnly = (destination: string) => {
+  const { container } = renderMarkdown(`[4711](${destination})`);
+
+  expect(container.querySelector("a")).toBeNull();
+  expect(screen.getByText("4711").tagName).toBe("SPAN");
+  expect(document.querySelectorAll('a[href=""]')).toHaveLength(0);
+};
+
 describe("the scheme allowlist", () => {
   it.each([
     "https://tms.example/booking/42",
@@ -61,21 +69,13 @@ describe("the scheme allowlist", () => {
     "../admin",
     "#anchor",
   ])("renders no anchor for %s and shows the link text in a <span>", (destination) => {
-    const { container } = renderMarkdown(`[4711](${destination})`);
-
-    expect(container.querySelector("a")).toBeNull();
-    expect(screen.getByText("4711").tagName).toBe("SPAN");
-    expect(document.querySelectorAll('a[href=""]')).toHaveLength(0);
+    expectLinkTextOnly(destination);
   });
 
   it.each(["JAVASCRIPT:alert(1)", "JaVaScRiPt:alert(1)", "java&#x09;script:alert(1)"])(
     "case and entity encoding do not get %s past the allowlist",
     (destination) => {
-      const { container } = renderMarkdown(`[4711](${destination})`);
-
-      expect(container.querySelector("a")).toBeNull();
-      expect(screen.getByText("4711").tagName).toBe("SPAN");
-      expect(document.querySelectorAll('a[href=""]')).toHaveLength(0);
+      expectLinkTextOnly(destination);
     }
   );
 

@@ -1,3 +1,4 @@
+import { existsSync, readFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 
 // docs/design-notes.md decision 1 requires "use client" as the first *statement*, so
@@ -41,4 +42,20 @@ export const packedPaths = (): string[] => {
   const [pack] = JSON.parse(output) as [{ files: { path: string }[] }];
 
   return pack.files.map((file) => file.path);
+};
+
+export const expectClientDirectiveFirst = (builtFile: string): void => {
+  expect(existsSync(builtFile)).toBe(true);
+  const firstStatement = stripLeadingTrivia(readFileSync(builtFile, "utf8"));
+
+  expect(firstStatement.startsWith('"use client";')).toBe(true);
+};
+
+export const expectPackedWithTypes = (builtFiles: string[]): void => {
+  const paths = packedPaths();
+
+  for (const built of builtFiles) {
+    expect(paths).toContain(built);
+    expect(paths).toContain(built.replace(/\.js$/, ".d.ts"));
+  }
 };

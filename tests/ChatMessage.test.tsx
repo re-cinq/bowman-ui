@@ -6,10 +6,11 @@
  * specs/bowman-ui-chat-message/spec.md.
  */
 import { act, fireEvent, render, screen, within } from "@testing-library/react";
-import { readFileSync, readdirSync, statSync } from "node:fs";
-import { join, resolve } from "node:path";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { ChatMessage, defaultChatMessageLabels } from "../src/index.js";
 import type { AssistantChatEntry, UserChatEntry } from "../src/index.js";
+import { expectImportHygiene, listFiles } from "./helpers/source-hygiene.js";
 
 const writeTextMock = vi.fn();
 
@@ -27,6 +28,26 @@ const makeUserEntry = (overrides?: Partial<UserChatEntry>): UserChatEntry => ({
   content: "Ver pedido 4711",
   ...overrides,
 });
+
+const renderArrowKeyFeedback = (entry: UserChatEntry | AssistantChatEntry = makeEntry()) => {
+  const onFeedback = vi.fn();
+
+  render(<ChatMessage entry={entry} userInitials="LM" arrowKeyFeedback onFeedback={onFeedback} />);
+
+  return onFeedback;
+};
+
+const expectThumbPressed = (pressed: string, released: string) => {
+  expect(screen.getByRole("button", { name: pressed })).toHaveAttribute("aria-pressed", "true");
+  expect(screen.getByRole("button", { name: released })).toHaveAttribute("aria-pressed", "false");
+};
+
+const pressCopyChordAndArrowUp = () => {
+  const article = screen.getByRole("article");
+
+  fireEvent.keyDown(article, { key: "c", metaKey: true });
+  fireEvent.keyDown(article, { key: "ArrowUp" });
+};
 
 describe("ChatMessage", () => {
   beforeEach(() => {
@@ -233,42 +254,17 @@ describe("ChatMessage", () => {
     });
 
     it('with arrowKeyFeedback, ArrowUp calls onFeedback("entry-1", "up"), renders "Thanks!", and sets aria-pressed true on thumbs-up, false on thumbs-down (adaptation a)', () => {
-      const onFeedback = vi.fn();
-
-      render(
-        <ChatMessage
-          entry={makeEntry()}
-          userInitials="LM"
-          arrowKeyFeedback
-          onFeedback={onFeedback}
-        />
-      );
+      const onFeedback = renderArrowKeyFeedback();
 
       fireEvent.keyDown(screen.getByRole("article"), { key: "ArrowUp" });
 
       expect(onFeedback).toHaveBeenCalledWith("entry-1", "up");
       expect(screen.getByText("Thanks!")).toBeInTheDocument();
-      expect(screen.getByRole("button", { name: "Good response" })).toHaveAttribute(
-        "aria-pressed",
-        "true"
-      );
-      expect(screen.getByRole("button", { name: "Bad response" })).toHaveAttribute(
-        "aria-pressed",
-        "false"
-      );
+      expectThumbPressed("Good response", "Bad response");
     });
 
     it("with arrowKeyFeedback, Alt+ArrowUp calls onFeedback zero times - modified arrows stay the browser's", () => {
-      const onFeedback = vi.fn();
-
-      render(
-        <ChatMessage
-          entry={makeEntry()}
-          userInitials="LM"
-          arrowKeyFeedback
-          onFeedback={onFeedback}
-        />
-      );
+      const onFeedback = renderArrowKeyFeedback();
 
       fireEvent.keyDown(screen.getByRole("article"), { key: "ArrowUp", altKey: true });
       fireEvent.keyDown(screen.getByRole("article"), { key: "ArrowDown", altKey: true });
@@ -277,29 +273,13 @@ describe("ChatMessage", () => {
     });
 
     it('with arrowKeyFeedback, ArrowDown calls onFeedback("entry-1", "down") and sets aria-pressed true on thumbs-down, false on thumbs-up (adaptation a)', () => {
-      const onFeedback = vi.fn();
-
-      render(
-        <ChatMessage
-          entry={makeEntry()}
-          userInitials="LM"
-          arrowKeyFeedback
-          onFeedback={onFeedback}
-        />
-      );
+      const onFeedback = renderArrowKeyFeedback();
 
       fireEvent.keyDown(screen.getByRole("article"), { key: "ArrowDown" });
 
       expect(onFeedback).toHaveBeenCalledWith("entry-1", "down");
       expect(screen.getByText("Thanks!")).toBeInTheDocument();
-      expect(screen.getByRole("button", { name: "Bad response" })).toHaveAttribute(
-        "aria-pressed",
-        "true"
-      );
-      expect(screen.getByRole("button", { name: "Good response" })).toHaveAttribute(
-        "aria-pressed",
-        "false"
-      );
+      expectThumbPressed("Bad response", "Good response");
     });
 
     it("with arrowKeyFeedback and showFeedback={false}, ArrowUp calls onFeedback zero times and neither thumb button is in the document (adaptation c)", () => {
@@ -323,43 +303,19 @@ describe("ChatMessage", () => {
     });
 
     it("no key handling fires for a user entry", () => {
-      const onFeedback = vi.fn();
+      const onFeedback = renderArrowKeyFeedback(makeUserEntry());
 
-      render(
-        <ChatMessage
-          entry={makeUserEntry()}
-          userInitials="LM"
-          arrowKeyFeedback
-          onFeedback={onFeedback}
-        />
-      );
-
-      const article = screen.getByRole("article");
-
-      fireEvent.keyDown(article, { key: "c", metaKey: true });
-      fireEvent.keyDown(article, { key: "ArrowUp" });
-      fireEvent.keyDown(article, { key: "ArrowDown" });
+      pressCopyChordAndArrowUp();
+      fireEvent.keyDown(screen.getByRole("article"), { key: "ArrowDown" });
 
       expect(writeTextMock).not.toHaveBeenCalled();
       expect(onFeedback).not.toHaveBeenCalled();
     });
 
     it("no key handling fires while isStreaming is true, even with arrowKeyFeedback (adaptation e)", () => {
-      const onFeedback = vi.fn();
+      const onFeedback = renderArrowKeyFeedback(makeEntry({ isStreaming: true }));
 
-      render(
-        <ChatMessage
-          entry={makeEntry({ isStreaming: true })}
-          userInitials="LM"
-          arrowKeyFeedback
-          onFeedback={onFeedback}
-        />
-      );
-
-      const article = screen.getByRole("article");
-
-      fireEvent.keyDown(article, { key: "c", metaKey: true });
-      fireEvent.keyDown(article, { key: "ArrowUp" });
+      pressCopyChordAndArrowUp();
 
       expect(writeTextMock).not.toHaveBeenCalled();
       expect(onFeedback).not.toHaveBeenCalled();
@@ -450,14 +406,7 @@ describe("ChatMessage", () => {
 
       fireEvent.click(screen.getByRole("button", { name: "Bad response" }));
       expect(onFeedback).toHaveBeenCalledWith("entry-1", "down");
-      expect(screen.getByRole("button", { name: "Bad response" })).toHaveAttribute(
-        "aria-pressed",
-        "true"
-      );
-      expect(screen.getByRole("button", { name: "Good response" })).toHaveAttribute(
-        "aria-pressed",
-        "false"
-      );
+      expectThumbPressed("Bad response", "Good response");
     });
 
     it("showFeedback={false} removes both thumb buttons while leaving copy in place", () => {
@@ -684,38 +633,13 @@ describe("ChatMessage", () => {
       content: readFileSync(resolve(process.cwd(), path), "utf8"),
     }));
 
-    const walk = (dir: string): string[] => {
-      const files: string[] = [];
-
-      for (const entry of readdirSync(dir)) {
-        const fullPath = join(dir, entry);
-
-        if (statSync(fullPath).isDirectory()) {
-          files.push(...walk(fullPath));
-          continue;
-        }
-        files.push(fullPath);
-      }
-
-      return files;
-    };
-
     it("ChatMessage.tsx carries no showDevInfo, conversationId, onRetryJudge or scores", () => {
       expect(sources[0].content).not.toMatch(/showDevInfo|conversationId|onRetryJudge|scores/);
     });
 
     it("neither file imports @clerk, swr, next-intl, next/ or @/ and every relative import ends in .js", () => {
       for (const { content } of sources) {
-        expect(content).not.toMatch(/@clerk|swr|next-intl|next\/|@\//);
-        const relativeImports = [...content.matchAll(/from\s+"(\.[^"]+)"/g)].map(
-          ([, spec]) => spec
-        );
-
-        expect(relativeImports.length).toBeGreaterThan(0);
-
-        for (const spec of relativeImports) {
-          expect(spec).toMatch(/\.js$/);
-        }
+        expectImportHygiene(content);
       }
     });
 
@@ -734,7 +658,7 @@ describe("ChatMessage", () => {
     it('no file under src/ contains "prose", and "translateX" lives only in styles.css (the toast keyframe)', () => {
       const stylesheet = resolve(process.cwd(), "src/styles.css");
 
-      for (const file of walk(resolve(process.cwd(), "src"))) {
+      for (const file of listFiles(resolve(process.cwd(), "src"))) {
         const content = readFileSync(file, "utf8");
 
         expect(content).not.toMatch(/\bprose\b/);

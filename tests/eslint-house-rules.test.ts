@@ -1,5 +1,5 @@
-import { spawnSync } from "node:child_process";
-import { resolve, sep } from "node:path";
+import { sep } from "node:path";
+import { lintFixtures, messagesFor, type LintResult } from "./helpers/eslint-fixtures.js";
 
 // The house-rule fixtures live outside src/ and are globally ignored, so
 // `npm run lint` stays green. --no-ignore lifts the ignore, and each fixture
@@ -7,53 +7,20 @@ import { resolve, sep } from "node:path";
 // fixture is judged by the exact committed rules - not a copy of them.
 const fixtureDir = "tests/fixtures/eslint-house-rules";
 
-interface LintMessage {
-  ruleId: string | null;
-  message: string;
-}
-
-interface LintResult {
-  filePath: string;
-  messages: LintMessage[];
-}
-
-const lint = (): LintResult[] => {
-  const result = spawnSync(
-    "node",
-    [
-      resolve(process.cwd(), "node_modules/eslint/bin/eslint.js"),
-      "--no-ignore",
-      "--format",
-      "json",
-      `${fixtureDir}/max-boolean-operators/violation.ts`,
-      `${fixtureDir}/max-boolean-operators/violation-jsx.tsx`,
-      `${fixtureDir}/no-catch-as-control-flow/violation.ts`,
-      `${fixtureDir}/no-catch-as-control-flow/violation-property.ts`,
-      `${fixtureDir}/no-network-egress/violation.ts`,
-      `${fixtureDir}/no-prop-mutation/violation.tsx`,
-      `${fixtureDir}/no-prop-mutation/violation-memo.tsx`,
-      `${fixtureDir}/no-inline-styles/violation.tsx`,
-      `${fixtureDir}/default-export/component.tsx`,
-      `${fixtureDir}/house-style/violation.ts`,
-      `${fixtureDir}/clean/clean.tsx`,
-    ],
-    { cwd: process.cwd(), encoding: "utf8" }
-  );
-
-  expect(result.status).toBe(1);
-
-  return JSON.parse(result.stdout) as LintResult[];
-};
-
-const messagesFor = (results: LintResult[], fixture: string): LintMessage[] => {
-  const match = results.find((entry) => entry.filePath.endsWith(`${sep}${fixture}`));
-
-  if (!match) {
-    throw new Error(`eslint reported nothing for ${fixture}`);
-  }
-
-  return match.messages;
-};
+const lint = (): LintResult[] =>
+  lintFixtures([
+    `${fixtureDir}/max-boolean-operators/violation.ts`,
+    `${fixtureDir}/max-boolean-operators/violation-jsx.tsx`,
+    `${fixtureDir}/no-catch-as-control-flow/violation.ts`,
+    `${fixtureDir}/no-catch-as-control-flow/violation-property.ts`,
+    `${fixtureDir}/no-network-egress/violation.ts`,
+    `${fixtureDir}/no-prop-mutation/violation.tsx`,
+    `${fixtureDir}/no-prop-mutation/violation-memo.tsx`,
+    `${fixtureDir}/no-inline-styles/violation.tsx`,
+    `${fixtureDir}/default-export/component.tsx`,
+    `${fixtureDir}/house-style/violation.ts`,
+    `${fixtureDir}/clean/clean.tsx`,
+  ]);
 
 describe("the house-rule lint guardrails", () => {
   let results: LintResult[];
