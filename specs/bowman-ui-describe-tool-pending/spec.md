@@ -1,7 +1,9 @@
 # bowman-ui describeTool pending
 
-Issue: issue 190 (`190-bowman-ui-describe-tool-pending`), part of
-issue 57.
+| Field  | Value                                                                             |
+| ------ | --------------------------------------------------------------------------------- |
+| Issue  | issue 190 (`190-bowman-ui-describe-tool-pending`), part of issue 57 |
+| Status | In Progress                                                                       |
 
 `describeTool` arrived with `108-bowman-ui-tool-activity` as
 `(entry: ToolChatEntry) => ReactNode`, while `ToolActivity` kept a `pending`
@@ -50,7 +52,7 @@ re-exports.
    one its present-tense string, and with `busy` false both read past tense.
    Its prop type
    restates the signature inline and is kept identical to `ToolActivity`'s
-   ([validated by](../../tests/ChatMessageList.test.tsx#L791)).
+   ([validated by](../../tests/ChatMessageList.test.tsx#L690)).
 3. **Replacement semantics are untouched.** A supplied `describeTool` still
    replaces the tensed labels entirely and suppresses nothing else - with
    `showToolName` also set, the fixture's tool name is still in the document.

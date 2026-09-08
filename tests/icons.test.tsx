@@ -1,12 +1,13 @@
 import { render, screen } from "@testing-library/react";
-import { readFileSync, readdirSync } from "node:fs";
-import { join, resolve } from "node:path";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import type { ComponentType } from "react";
 
 import * as icons from "../src/icons/index.js";
 import type { IconProps } from "../src/icons/index.js";
 import { getAccessibleIconProps } from "../src/icons/index.js";
 import * as golden from "./fixtures/golden-icons.js";
+import { listFiles } from "./helpers/source-hygiene.js";
 
 const uniformIconNames = [
   "ArtifactsIcon",
@@ -51,11 +52,6 @@ const renderRootSvg = (Icon: ComponentType<IconProps>, props: IconProps = {}): S
 const attributeMap = (element: Element): Record<string, string> =>
   Object.fromEntries([...element.attributes].map((attr) => [attr.name, attr.value]));
 
-const sourceFiles = (dir: string): string[] =>
-  readdirSync(dir, { withFileTypes: true }).flatMap((entry) =>
-    entry.isDirectory() ? sourceFiles(join(dir, entry.name)) : [join(dir, entry.name)]
-  );
-
 describe("the icon set inventory", () => {
   it("exports exactly the 23 icon components plus IconWrapper and getAccessibleIconProps", () => {
     expect(Object.keys(icons).sort()).toEqual(
@@ -72,7 +68,7 @@ describe("the icon set inventory", () => {
   });
 
   it('grep for "LogoIcon" in src/ returns nothing', () => {
-    const hits = sourceFiles(resolve(process.cwd(), "src")).filter((file) =>
+    const hits = listFiles(resolve(process.cwd(), "src")).filter((file) =>
       readFileSync(file, "utf8").includes("LogoIcon")
     );
 
@@ -81,7 +77,7 @@ describe("the icon set inventory", () => {
 
   it("the registry-lookup {name: string} IconProps shape is absent from src/", () => {
     const declaresIconNameLookup = /Icon\w*Props\b[^}]*\bname\??:\s*string/;
-    const hits = sourceFiles(resolve(process.cwd(), "src")).filter((file) =>
+    const hits = listFiles(resolve(process.cwd(), "src")).filter((file) =>
       declaresIconNameLookup.test(readFileSync(file, "utf8"))
     );
 
@@ -95,7 +91,7 @@ describe("the icon set inventory", () => {
       resolve(process.cwd(), "src/components/ChatMessage.tsx"),
       resolve(process.cwd(), "src/components/ChatMessageList.tsx"),
     ].sort();
-    const hits = sourceFiles(resolve(process.cwd(), "src"))
+    const hits = listFiles(resolve(process.cwd(), "src"))
       .filter((file) => {
         const source = readFileSync(file, "utf8");
 
@@ -114,7 +110,7 @@ describe("the icon set inventory", () => {
   });
 
   it('every relative import under src/icons ends in .js and no file contains "@/', () => {
-    for (const file of sourceFiles(resolve(process.cwd(), "src/icons"))) {
+    for (const file of listFiles(resolve(process.cwd(), "src/icons"))) {
       const source = readFileSync(file, "utf8");
       const relativeImports = [...source.matchAll(/from "(\.[^"]*)"/g)].map((match) => match[1]);
 
@@ -126,7 +122,7 @@ describe("the icon set inventory", () => {
   });
 
   it('no file under src/icons carries "use client"', () => {
-    for (const file of sourceFiles(resolve(process.cwd(), "src/icons"))) {
+    for (const file of listFiles(resolve(process.cwd(), "src/icons"))) {
       expect(readFileSync(file, "utf8")).not.toContain("use client");
     }
   });

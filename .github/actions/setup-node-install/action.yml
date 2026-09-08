@@ -1,0 +1,26 @@
+name: Set up Node and install
+description: >-
+  The setup every job shares: Node 22 from the pinned setup-node with the npm
+  cache, then `npm ci --ignore-scripts`, then optionally the build. Checkout
+  stays in each job - a local action can only run once the tree is present.
+
+inputs:
+  build:
+    description: Run `npm run build` after the install.
+    required: false
+    default: "false"
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+      with:
+        node-version: "22"
+        cache: npm
+    - name: Install
+      shell: bash
+      run: npm ci --ignore-scripts
+    - name: Build
+      if: ${{ inputs.build == 'true' }}
+      shell: bash
+      run: npm run build

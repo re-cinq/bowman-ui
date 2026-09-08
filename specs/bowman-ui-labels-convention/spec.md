@@ -1,8 +1,12 @@
 # bowman-ui labels convention
 
-Issue: issue 72 (`022-bowman-ui-labels-convention`). This issue ships the
-convention, the helper, the enforcement, and the retrofit of the one string-carrying component
-already in the repo - it adds no new component.
+| Field  | Value                                               |
+| ------ | --------------------------------------------------- |
+| Issue  | issue 72 (`022-bowman-ui-labels-convention`) |
+| Status | In Progress                                         |
+
+This issue ships the convention, the helper, the enforcement, and the retrofit of the one
+string-carrying component already in the repo - it adds no new component.
 
 ## What ships
 
@@ -34,10 +38,10 @@ already in the repo - it adds no new component.
   assistive attributes, and
   `strings`/`texts`/`i18n`/`translations`/`messages` property keys, plus
   `no-restricted-imports` on
-  `next-intl` ([validated by](../../tests/eslint-labels.test.ts#L65),
-  [L131](../../tests/eslint-labels.test.ts#L131),
-  [L140](../../tests/eslint-labels.test.ts#L140),
-  [L158](../../tests/eslint-labels.test.ts#L158)).
+  `next-intl` ([validated by](../../tests/eslint-labels.test.ts#L31),
+  [L97](../../tests/eslint-labels.test.ts#L97),
+  [L106](../../tests/eslint-labels.test.ts#L106),
+  [L124](../../tests/eslint-labels.test.ts#L124)).
 - The red fixtures live
   in `tests/fixtures/eslint-labels/`, globally ignored so the committed tree stays green - the
   original four plus the 2026-08-26 review's bypass set (expression-container and template
@@ -47,24 +51,24 @@ already in the repo - it adds no new component.
 - `tests/labelled-exports.test.tsx` - the export-partition test: every value export of
   `src/index.ts` is classified into `labelsProp` / `stringPropOnly` / `noStrings`, and the sorted
   union must equal the sorted parsed export names; an unclassified export fails by name with a
-  pointer at `docs/design-notes.md § Labels` ([validated by](../../tests/labelled-exports.test.tsx#L136)).
+  pointer at `docs/design-notes.md § Labels` ([validated by](../../tests/labelled-exports.test.tsx#L152)).
 - The sentinel test renders every `labelsProp` member (today: `ErrorBoundary`, error state) with
   every label a unique `⟦sentinel⟧` and asserts no run of three or more Latin letters survives in
   `textContent` or in `aria-label`/`aria-placeholder`/`aria-roledescription`/`aria-valuetext`/
   `title`/`placeholder`/`alt` outside the sentinels, with the sentinel set pinned to
-  the default-labels keys ([validated by](../../tests/labelled-exports.test.tsx#L568),
-  [L463](../../tests/labelled-exports.test.tsx#L463)).
+  the default-labels keys ([validated by](../../tests/labelled-exports.test.tsx#L633),
+  [L494](../../tests/labelled-exports.test.tsx#L494)).
 - **The check's own proof:** reverting 021's `labels` prop to a hardcoded
   `"Something went wrong"` makes the sentinel test fail - the stray English survives sentinel
   stripping and matches the Latin-run regex
-  ([validated by](../../tests/labelled-exports.test.tsx#L568)).
+  ([validated by](../../tests/labelled-exports.test.tsx#L633)).
 - `docs/design-notes.md § Labels` - Decisions 1-5, the flat-union key-naming rule, the function form for
   interpolation, the two `stringPropOnly` exceptions with reasons, and `aiDisclosure` documented
   as required-with-no-default under the EU AI Act.
 - Re-pinned prior behaviour (AC 39): `<LoadingIcon ariaLabel="Cargando" />` renders
   `aria-label="Cargando"` with `"Loading"` nowhere in the output; the translated `announce`
   assertion already existed and is referenced, not duplicated
-  ([validated by](../../tests/icons.test.tsx#L267),
+  ([validated by](../../tests/icons.test.tsx#L263),
   [announce](../../tests/useFocusGroups.test.tsx#L136)).
 
 ## Recorded decisions, interpretations and deviations
@@ -78,7 +82,7 @@ already in the repo - it adds no new component.
 - **Partition is over value exports.** The partition test statically parses `export { ... }`
   blocks of `src/index.ts`; `export type { ... }` names are excluded by design - a type carries
   no renderable string. Interfaces like `ErrorBoundaryLabels` are therefore not partition
-  members ([validated by](../../tests/labelled-exports.test.tsx#L136)).
+  members ([validated by](../../tests/labelled-exports.test.tsx#L152)).
 - **Test path deviation.** The issue names `src/__tests__/labelled-exports.tsx`; this repo keeps
   every test under `tests/` with a `.test.tsx` suffix (vitest's include pattern requires the
   suffix), so the file is `tests/labelled-exports.test.tsx`. Same content, repo-conventional
@@ -87,7 +91,7 @@ already in the repo - it adds no new component.
   `tests/fixtures/eslint-labels/**` alongside `src/**`, and the fixture directory sits in the
   global `ignores`. `npm run lint` therefore never sees the fixtures, while the red-fixture test
   lints them with `--no-ignore` against the exact committed rules rather than a copy of them
-  ([validated by](../../tests/eslint-labels.test.ts#L20)).
+  ([validated by](../../tests/eslint-labels.test.ts#L9)).
 - **Placeholder deleted.** `src/Placeholder.tsx`, `tests/Placeholder.test.tsx` and the barrel
   export are gone, sanctioned by 014's own design (the placeholder existed only until real components did):
   six real `"use client"` files now exist, and Placeholder's hardcoded English text can neither
@@ -103,7 +107,7 @@ already in the repo - it adds no new component.
   `useFocusGroups`' `announce` are grandfathered per `docs/design-notes.md § Labels`; everything else with
   strings takes `labels`. Closed means an addition requires a `docs/design-notes.md § Labels` amendment
   in the PR that adds it - Toast's `message` (issue 025) did exactly this
-  ([validated by](../../tests/labelled-exports.test.tsx#L101)).
+  ([validated by](../../tests/labelled-exports.test.tsx#L114)).
 - **`aiDisclosure` is declared, not rendered.** The required label and its EU AI Act rationale
   live in `docs/design-notes.md § Labels`; the component that renders it and its reviewed wording belong to
   the message-list issue and the consumer's catalogue.

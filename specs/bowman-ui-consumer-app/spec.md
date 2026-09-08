@@ -1,6 +1,9 @@
 # bowman-ui consumer app
 
-Issue: issue 82 (`082-bowman-ui-consumer-app`)
+| Field  | Value                                          |
+| ------ | ---------------------------------------------- |
+| Issue  | issue 82 (`082-bowman-ui-consumer-app`) |
+| Status | In Progress                                    |
 
 `examples/chat-demo` is the worked consumer: a standalone Vite + React app
 that installs `@re-cinq/bowman-ui` from a freshly packed tarball - never the
@@ -235,11 +238,11 @@ trap where `offsetParent` is a real value rather than the jsdom shim
 `ts.createSourceFile` and exits non-zero on any import, re-export, dynamic
 `import()` or `require()` whose non-relative specifier does not resolve to
 a package declared in `package.json`
-([validated by](../../scripts/check-forbidden-imports.mjs#L118)). The
+([validated by](../../scripts/check-forbidden-imports.mjs#L100)). The
 allowlist is read at runtime from `dependencies` plus `peerDependencies`
-([validated by](../../scripts/check-forbidden-imports.mjs#L30)), and a
+([validated by](../../scripts/check-forbidden-imports.mjs#L31)), and a
 subpath of a declared package counts as the package
-([validated by](../../scripts/check-forbidden-imports.mjs#L40)). This
+([validated by](../../scripts/check-forbidden-imports.mjs#L41)). This
 inverts the issue's name blocklist (`@clerk/*`, `swr`, `next-intl`,
 `next`/`next/*`, plus `lucide-react` per docs/design-notes.md decision 2, the `@/`
 path alias per docs/design-notes.md decision 5, and any internal source-app
@@ -251,9 +254,9 @@ The red fixture `tests/fixtures/forbidden-imports/red.tsx` carries only
 specifiers outside the allowlist, and the script's built-in self-test fails
 unless every specifier the fixture carries trips - one allowed specifier
 sneaking in would rot the fixture's proof
-([validated by](../../scripts/check-forbidden-imports.mjs#L106)). The check
+([validated by](../../scripts/check-forbidden-imports.mjs#L88)). The check
 runs as the named `ci.yml` step "Forbidden import check"
-([validated by](../../.github/workflows/ci.yml#L56)). It is static on top of,
+([validated by](../../.github/workflows/ci.yml#L51)). It is static on top of,
 not instead of, the dynamic `node_modules` scan in `consumer-app.sh`: a grep
 misses a transitively pulled-in package, and a `node_modules` scan misses a
 source import a bundler tree-shakes away.
@@ -263,20 +266,23 @@ source import a bundler tree-shakes away.
 The `consumer` job in `ci.yml` runs on every pull request (the workflow's
 unfiltered `pull_request` trigger), pins its actions to the same commit SHAs
 as the existing job with `persist-credentials: false`
-([validated by](../../.github/workflows/ci.yml#L124)), sets
-`node-version: "22"` ([validated by](../../.github/workflows/ci.yml#L124)),
+([validated by](../../.github/workflows/ci.yml#L117)), takes its setup from
+the shared `setup-node-install` composite action, which sets
+`node-version: "22"` ([validated by](../../.github/actions/setup-node-install/action.yml#L18)),
 runs `npm ci --ignore-scripts`
-([validated by](../../.github/workflows/ci.yml#L134)) and an explicit
+([validated by](../../.github/actions/setup-node-install/action.yml#L22)) and, because the job asks for it with
+`build: "true"` ([validated by](../../.github/workflows/ci.yml#L125)), an explicit
 `npm run build` before packing
-([validated by](../../.github/workflows/ci.yml#L136)), and installs Chromium
+([validated by](../../.github/actions/setup-node-install/action.yml#L26)), and installs Chromium
 with `npx playwright install --with-deps chromium`
-([validated by](../../.github/workflows/ci.yml#L140)). It omits
+([validated by](../../.github/workflows/ci.yml#L128)). It omits
 `fetch-depth: 0` on purpose: that exists for the spec anchor check, which
 this job does not run.
 
-`publish.yml` runs `scripts/consumer-app.sh` after the Build step and before
-`npm publish`, against the tarball the script packs from the tagged commit
-([validated by](../../.github/workflows/publish.yml#L80)).
+`publish.yml` runs `scripts/consumer-app.sh` in its credential-free `verify`
+job, after `test:coverage` has built `dist/`; the `publish` job holds the
+OIDC credential, runs no example-app code, and only `needs:` that green
+result ([validated by](../../.github/workflows/publish.yml#L66)).
 
 ## Gates preserved
 

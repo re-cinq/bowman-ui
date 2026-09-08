@@ -1,7 +1,9 @@
 # bowman-ui RSC fixture
 
-Issue: issue 100 (the RSC fixture build docs/design-notes.md decision 1 calls
-"078's RSC fixture build")
+| Field  | Value                                                                                                    |
+| ------ | -------------------------------------------------------------------------------------------------------- |
+| Issue  | issue 100 (the RSC fixture build docs/design-notes.md decision 1 calls "078's RSC fixture build") |
+| Status | Draft                                                                                                    |
 
 `examples/rsc-fixture` is the executable proof of the `"use client"`
 boundary: a standalone Next.js App Router app that installs
@@ -120,10 +122,11 @@ design-notes rule lists every export with a function-valued prop, derived
 mechanically with
 `grep -rlE '^ +[A-Za-z"-]+\??: [^;]*=>' dist/components/*.d.ts`
 (re-run it against a fresh build to audit the list): `AppShell`,
-`AppSidebar`, `ChatComposer`, `ChatMessage`, `ChatMessageList`,
-`ConversationList`, `ErrorBoundary`, `Toast`
-([validated by](../../docs/design-notes.md#L465)), and the same sentence appears in
-the README ([validated by](../../README.md#L160)). `app/client/page.tsx` is
+`AppSidebar`, `Button`, `ChatComposer`, `ChatMessage`, `ChatMessageList`,
+`ConversationList`, `ErrorBoundary`, `IconButton`, `PromptChips`,
+`SearchField`, `Toast`, `ToolActivity`
+([validated by](../../docs/design-notes.md#L541)), and the same sentence appears in
+the README ([validated by](../../README.md#L162)). `app/client/page.tsx` is
 the control: the same composition under `"use client"`, building green, so
 the rejection is attributable to the boundary and not to the components
 ([validated by](../../examples/rsc-fixture/app/client/page.tsx#L1)). The two
@@ -145,7 +148,7 @@ regression here would surface the day a consumer tries the server idiom, not
 in this fixture.
 
 No `"react-server"` condition is added to `exports`; docs/design-notes.md records the
-refusal and its reason ([validated by](../../docs/design-notes.md#L445)).
+refusal and its reason ([validated by](../../docs/design-notes.md#L521)).
 
 ## The script
 
@@ -243,27 +246,29 @@ The `rsc` job in `ci.yml` runs on every pull request (the workflow's
 unfiltered `pull_request` trigger) beside `032`'s `consumer` job. It pins
 its actions to the same commit SHAs as the existing jobs with
 `persist-credentials: false`
-([validated by](../../.github/workflows/ci.yml#L152)) - the issue text
+([validated by](../../.github/workflows/ci.yml#L140)) - the issue text
 named the older `v6`/`v4` SHAs from before this repo moved to `v7` pins;
-the existing file's style wins and the deviation is recorded here - sets
-`node-version: "22"` ([validated by](../../.github/workflows/ci.yml#L152)),
+the existing file's style wins and the deviation is recorded here - and
+takes its setup from the shared `setup-node-install` composite action, which
+sets `node-version: "22"` ([validated by](../../.github/actions/setup-node-install/action.yml#L18)),
 runs `npm ci --ignore-scripts`
-([validated by](../../.github/workflows/ci.yml#L162)) and an explicit
+([validated by](../../.github/actions/setup-node-install/action.yml#L22)) and, because the job asks for it with
+`build: "true"` ([validated by](../../.github/workflows/ci.yml#L148)), an explicit
 `npm run build` before packing
-([validated by](../../.github/workflows/ci.yml#L164)), then runs the green
+([validated by](../../.github/actions/setup-node-install/action.yml#L26)), then runs the green
 case and the `--expect-failure` case as separately named steps
-([validated by](../../.github/workflows/ci.yml#L166),
-[the red step](../../.github/workflows/ci.yml#L168)).
+([validated by](../../.github/workflows/ci.yml#L149),
+[the red step](../../.github/workflows/ci.yml#L151)).
 
 The same job re-runs the three next-absence checks, unmodified:
 `check-forbidden-imports.mjs`
-([validated by](../../.github/workflows/ci.yml#L170)), `018`'s manifest grep
+([validated by](../../.github/workflows/ci.yml#L153)), `018`'s manifest grep
 with the `node_modules/next` probe
-([validated by](../../.github/workflows/ci.yml#L172)), and `032`'s
+([validated by](../../.github/workflows/ci.yml#L155)), and `032`'s
 node_modules `find` - which issue 100 moved into
 `scripts/scan-forbidden-node-modules.sh` so this job and `consumer-app.sh`
 share one copy of the pattern rather than drifting
-([validated by](../../.github/workflows/ci.yml#L180)). One honest caveat,
+([validated by](../../.github/workflows/ci.yml#L163)). One honest caveat,
 recorded instead of dressed up: the `find` cannot run against the fixture's
 own installed tree, which contains `next` by design - the `consumer` job
 remains its executable home for the consumer tree, and here the identical
@@ -274,14 +279,15 @@ the three checks carries a pointer comment at its home naming the
 exemption: `check-forbidden-imports.mjs`
 ([validated by](../../scripts/check-forbidden-imports.mjs#L11)), the
 `next must be absent` step
-([validated by](../../.github/workflows/ci.yml#L115)), and the shared
+([validated by](../../.github/workflows/ci.yml#L108)), and the shared
 node_modules scan
 ([validated by](../../scripts/scan-forbidden-node-modules.sh#L6)).
 
-`publish.yml` runs `scripts/rsc-fixture.sh` after the Build step and before
-`npm publish`, against the tarball packed from the tagged commit - the same
-release-candidate gate `011` and `032` install
-([validated by](../../.github/workflows/publish.yml#L139)). Green mode only:
+`publish.yml` runs `scripts/rsc-fixture.sh` in its credential-free `verify`
+job, after `test:coverage` has built `dist/` and before the `publish` job
+that `needs:` its green result may start, against the tarball packed from the
+tagged commit - the same release-candidate gate `011` and `032` install
+([validated by](../../.github/workflows/publish.yml#L72)). Green mode only:
 the `--expect-failure` branch guards the repo's own `dist/` directives,
 which CI already gated on the same commit, and a release run should not
 spend a second `next build` re-proving the guard rather than the release.
@@ -306,13 +312,13 @@ instead reachable the same way `consumer` is, as a `package.json` script
   `next-env.d.ts` and `tsconfig.tsbuildinfo` are git-ignored
   ([validated by](../../.gitignore#L6), through
   [L8](../../.gitignore#L8)), `.next/` and `next-env.d.ts` are also
-  eslint-ignored ([validated by](../../eslint.config.mjs#L332)), and the tar
+  eslint-ignored ([validated by](../../eslint.config.mjs#L356)), and the tar
   copy excludes them ([validated by](../../scripts/pack-to-temp.sh#L25)).
 - docs/design-notes.md decision 4's "not a dependency anywhere" bullet names
   the one exception in place, so the decision does not contradict the
   § RSC fixture section ([validated by](../../docs/design-notes.md#L156)); that
   section names `examples/rsc-fixture` as the only path in the repo
-  where `next` may appear ([validated by](../../docs/design-notes.md#L435)).
+  where `next` may appear ([validated by](../../docs/design-notes.md#L511)).
 - Observation, not a test-linked statement (no test can assert a property of
   the PR's own diff): no file under the library's `src/` changed in this PR -
   the fixture's own `examples/rsc-fixture/src/` is the issue's named path for

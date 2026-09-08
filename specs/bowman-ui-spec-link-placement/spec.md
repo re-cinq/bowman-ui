@@ -1,8 +1,11 @@
 # bowman-ui spec link placement
 
-Issue: re-cinq/bowman-ui#2, "Non-trailing spec test links in 10 newer specs; commit the
-placement validator and gate it in CI", which subsumes re-cinq/bowman-ui#7 on broken test links
-in spec.md. The enforcement decision lives in docs/design-notes.md § Lint guardrails decision 10;
+| Field  | Value                                                                                                                                                                                       |
+| ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Issue  | re-cinq/bowman-ui#2, "Non-trailing spec test links in 10 newer specs; commit the placement validator and gate it in CI", which subsumes re-cinq/bowman-ui#7 on broken test links in spec.md |
+| Status | In Progress                                                                                                                                                                                 |
+
+The enforcement decision lives in docs/design-notes.md § Lint guardrails decision 10;
 this file carries the placement rule, the script's contract, and the per-behaviour pins.
 
 A `([validated by](../../tests/X.test.tsx#Lnn))` link counts as coverage only when it sits in
@@ -20,67 +23,64 @@ parenthetical closing the statement counts.
 
 - A citation mid-way through a list item is misplaced, and each one is reported separately
   against the item's own first line
-  ([validated by](../../tests/check-spec-links.test.ts#L49)).
+  ([validated by](../../tests/check-spec-links.test.ts#L37)).
 - A citation mid-way through a paragraph sentence is misplaced, and is reported against the
   line the paragraph starts on, not the line the link sits on
-  ([validated by](../../tests/check-spec-links.test.ts#L56)).
+  ([validated by](../../tests/check-spec-links.test.ts#L44)).
 - A citation closing its sentence is where the rule wants it and is never reported
-  ([validated by](../../tests/check-spec-links.test.ts#L73)).
+  ([validated by](../../tests/check-spec-links.test.ts#L61)).
 - A mid-sentence link to something other than a test file - a script, a doc - is prose, not a
   miscited test, and is never reported
-  ([validated by](../../tests/check-spec-links.test.ts#L80)).
+  ([validated by](../../tests/check-spec-links.test.ts#L68)).
 - A citation written inside backticks is documentation of the convention rather than a use of
-  it, and is never reported ([validated by](../../tests/check-spec-links.test.ts#L87)).
+  it, and is never reported ([validated by](../../tests/check-spec-links.test.ts#L75)).
 
-## What is mirrored, and why
+## Where the segmentation comes from
 
-Segmentation is not reimplemented here. `tools/lore-spec-domain/` holds byte-for-byte copies of
-the four pure domain files behind lore's verdict - `spec-segment.ts`, `spec-sentence-split.ts`,
-`spec-link-parser.ts`, `test-paths.ts` - so a local pass and an upstream pass cannot disagree
-about where a statement begins or which parenthetical is the trailing one. A reimplementation
-would have had to guess at that agreement, and the guess is the whole failure mode the gate
-exists to close.
-
-The mirrors keep lore's `.js` relative import specifiers untouched, because editing them to
-`.ts` would break the byte identity `npm run check:lore-plugin-sync` polices.
-`scripts/lib/lore-domain-resolve.mjs` maps those specifiers to the mirrored `.ts` files at load
-time as a module-customization hook scoped to that directory; Vitest resolves them on its own,
-so a test needs no hook. Never edit a file under `tools/lore-spec-domain/`.
+Segmentation is not reimplemented here. `scripts/check-spec-links.mjs` imports
+`segmentStatements` and `findMisplacedCoverageLinks` from
+`@re-cinq/eslint-plugin-re-lint/spec/*.js`, the package's vendored copy of the pure domain
+behind lore's verdict, so a local pass and an upstream pass cannot disagree about where a
+statement begins or which parenthetical is the trailing one. A reimplementation would have had
+to guess at that agreement, and the guess is the whole failure mode the gate exists to close.
+Until 2026-09-08 the same files were byte-exact mirrors of lore's TypeScript under
+`tools/lore-shared/`, loaded under `--experimental-strip-types` behind a resolve hook; the
+package ships built JavaScript, so both are gone (docs/design-notes.md § Lint guardrails
+decision 10).
 
 ## The script's contract
 
-`npm run check:spec-links` runs `scripts/check-spec-links.mjs` under
-`--experimental-strip-types`, so it needs Node 22.6 or newer - above `package.json`'s
-`engines.node` of `>=22`, which stays as it is, and satisfied by CI's `node-version: "22"`.
+`npm run check:spec-links` runs `scripts/check-spec-links.mjs` on plain Node, within
+`package.json`'s `engines.node` of `>=22`.
 
 - With no path arguments it scans every `specs/<slug>/spec.md` in sorted slug order followed by
   `.specify/spec.md`, which is exactly the list an explicit invocation of those paths produces
-  ([validated by](../../tests/check-spec-links.test.ts#L155)).
+  ([validated by](../../tests/check-spec-links.test.ts#L143)).
 - Each finding prints one line carrying the spec, the statement's line, the cited path with its
   `#L` anchor, and the words `cited outside the statement's trailing parenthetical`. A citation
   written with no `#L` anchor prints the path alone
-  ([validated by](../../tests/check-spec-links.test.ts#L67)).
+  ([validated by](../../tests/check-spec-links.test.ts#L55)).
 - The run closes with `misplaced: <N> across <M> specs (<S> statements scanned)` and exits 1
-  when `N` is above zero ([validated by](../../tests/check-spec-links.test.ts#L100)).
+  when `N` is above zero ([validated by](../../tests/check-spec-links.test.ts#L88)).
 - A spec whose citations all sit in trailing parentheticals exits 0 under the same summary line
-  ([validated by](../../tests/check-spec-links.test.ts#L94)).
+  ([validated by](../../tests/check-spec-links.test.ts#L82)).
 - `--json` replaces the report with an array alone, each entry carrying `spec`, `line`, `path`,
   `anchorLine`, `label` and `statement`
-  ([validated by](../../tests/check-spec-links.test.ts#L107)).
+  ([validated by](../../tests/check-spec-links.test.ts#L95)).
 - An unrecognised flag exits 2 with the usage line rather than scanning anything
-  ([validated by](../../tests/check-spec-links.test.ts#L121)).
+  ([validated by](../../tests/check-spec-links.test.ts#L109)).
 - A spec path that cannot be read exits 2 naming that path, so a typo is never reported as a
-  clean run ([validated by](../../tests/check-spec-links.test.ts#L134)).
+  clean run ([validated by](../../tests/check-spec-links.test.ts#L122)).
 
 Paths are resolved against the repo root, not the working directory, because the script locates
 the root from its own module URL and every reported path is printed root-relative.
 
 - A relative path means the same spec from any working directory
-  ([validated by](../../tests/check-spec-links.test.ts#L141)).
+  ([validated by](../../tests/check-spec-links.test.ts#L129)).
 - An absolute path is accepted and reported root-relative
-  ([validated by](../../tests/check-spec-links.test.ts#L148)).
+  ([validated by](../../tests/check-spec-links.test.ts#L136)).
 - The usage line states both facts
-  ([validated by](../../tests/check-spec-links.test.ts#L128)).
+  ([validated by](../../tests/check-spec-links.test.ts#L116)).
 
 ## CI
 
@@ -97,7 +97,7 @@ end of its statement, never by deleting it.
   citation cannot turn a pin red. The one test that does read `specs/` asserts an equality
   between two runs rather than a count, so it survives every sweep too.
 - **The test drives the script as a subprocess.** `tests/check-spec-links.test.ts` spawns
-  `scripts/check-spec-links.mjs` with the same two Node flags the npm script passes, following
+  `scripts/check-spec-links.mjs` exactly as the npm script does, following
   `tests/check-at-pass.test.ts`: exit codes and the exact stdout are the contract, and importing
   the module would test neither.
 - **No autofix.** Moving a citation changes the sentence it belongs to, and choosing which

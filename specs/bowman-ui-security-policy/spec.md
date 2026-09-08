@@ -1,12 +1,16 @@
 # bowman-ui security policy
 
-Issue: issue 125 (`125-bowman-ui-security-disclosure`), part of issue 57. This spec
-records the decisions behind `SECURITY.md`, the README `## Security` section, `package.json`'s
-`bugs` field, and `.github/ISSUE_TEMPLATE/config.yml`'s security `contact_links` entry - a policy
-document, not a shipped API. A statement about a human commitment (a response-time target) or
-about another repository's code (a consuming application's own authorization logic) carries no
-validated-by link: nothing in this repository's test suite can assert either one, so each such
-section says so once and moves on.
+| Field  | Value                                                                           |
+| ------ | ------------------------------------------------------------------------------- |
+| Issue  | issue 125 (`125-bowman-ui-security-disclosure`), part of issue 57 |
+| Status | In Progress                                                                     |
+
+This spec records the decisions behind `SECURITY.md`, the README `## Security` section,
+`package.json`'s `bugs` field, and `.github/ISSUE_TEMPLATE/config.yml`'s security
+`contact_links` entry - a policy document, not a shipped API. A statement about a human
+commitment (a response-time target) or about another repository's code (a consuming
+application's own authorization logic) carries no validated-by link: nothing in this
+repository's test suite can assert either one, so each such section says so once and moves on.
 
 ## Reporting route
 
@@ -43,13 +47,13 @@ report is measured against the controls already in `src/markdown/urlPolicy.ts` a
   anchor, and no `a[href=""]` appears. Case variation and entity
   encoding do not get past the allowlist either - `java&#x09;script:` arrives already
   percent-encoded as `java%09script:`, and the comparison never decodes it
-  ([validated by](../../tests/markdown/urlPolicy.test.tsx#L71),
-  [L53](../../tests/markdown/urlPolicy.test.tsx#L53)).
+  ([validated by](../../tests/markdown/urlPolicy.test.tsx#L75),
+  [L61](../../tests/markdown/urlPolicy.test.tsx#L61)).
 - **Every rendered anchor carries `rel="noopener noreferrer"`, hardening that survives a
   `linkTarget` change** ([validated by](../../tests/markdown/urlPolicy.test.tsx#L121)).
 - **Raw HTML in model-authored content renders as escaped text, never as an element.** An
   `onerror`-carrying `<img>` string stays a string; no `<img>` element is created
-  ([validated by](../../tests/ChatMessage.test.tsx#L113)).
+  ([validated by](../../tests/ChatMessage.test.tsx#L134)).
 - **The component map leaks no internal prop onto the DOM.** `react-markdown`'s own `node` prop
   never reaches a rendered element, closing off attribute injection through a prop the policy does
   not otherwise control ([validated by](../../tests/markdown-components.test.tsx#L88)).
@@ -61,7 +65,7 @@ through the controls above. A component's `labels` prop is the exception: it is 
 consumer-supplied string that the library renders directly, so a `labels` value that escaped text
 rendering would be a real vulnerability. The `linkOpensInNewTab` override is the worked example -
 an overridden label reaches the rendered notice element verbatim, as text
-([validated by](../../tests/ChatMessage.test.tsx#L807)).
+([validated by](../../tests/ChatMessage.test.tsx#L731)).
 
 ## Out of scope
 

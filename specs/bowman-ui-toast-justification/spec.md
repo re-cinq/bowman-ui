@@ -1,6 +1,9 @@
 # bowman-ui toast justification
 
-Issue: issue 118 (`097-bowman-ui-toast-justification`)
+| Field  | Value                                                  |
+| ------ | ------------------------------------------------------ |
+| Issue  | issue 118 (`097-bowman-ui-toast-justification`) |
+| Status | In Progress                                            |
 
 A documentation-only correction: no file under `src/` changes, `Toast.tsx`
 ships exactly as 025 specifies it, and no test changes. 025 shipped `Toast`
@@ -50,8 +53,8 @@ consequence is documented instead: with `duration={null}` and no close
 button, dismissal is entirely the consumer unmounting the element, and a
 toast a consumer forgets to unmount occupies the
 `fixed bottom-8 left-1/2 z-50` overlay for the life of the page
-([validated by](../../tests/Toast.test.tsx#L137),
-[L88](../../tests/Toast.test.tsx#L88)).
+([validated by](../../tests/Toast.test.tsx#L138),
+[L89](../../tests/Toast.test.tsx#L89)).
 
 ## What deliberately did not change
 
@@ -59,10 +62,10 @@ toast a consumer forgets to unmount occupies the
   acceptance criteria assert the PR's `git diff --stat` touches no file
   there. `ToastProps` remains `message`, `onClose`, `duration`; `Toast`
   remains in the `stringPropOnly` list; the partition test passes
-  unchanged ([validated by](../../tests/labelled-exports.test.tsx#L136)).
+  unchanged ([validated by](../../tests/labelled-exports.test.tsx#L152)).
 - The 2000ms default: 015's characterization suite pins it (uncalled at
   1999ms, called once at 2000ms) and removing it is not this issue's call
-  ([validated by](../../tests/Toast.test.tsx#L50)).
+  ([validated by](../../tests/Toast.test.tsx#L51)).
 - 044's two call sites still omit `duration`: making them actually pass
   `duration={null}` is 098's work, in the support agent repo.
 

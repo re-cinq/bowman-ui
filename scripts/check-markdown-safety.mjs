@@ -22,9 +22,10 @@
 // stays green on the clean tree. Exits 1 listing every violation on stderr,
 // 2 when the tree it is pointed at has no package.json or policy file.
 
-import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join, relative, resolve } from "node:path";
 import process from "node:process";
+import { listSourceFiles } from "./lib/list-source-files.mjs";
 
 const SRC_TOKENS = [
   { pattern: /rehype/, reason: "src/ mentions rehype (raw-HTML rendering is forbidden)" },
@@ -40,25 +41,6 @@ const SRC_TOKENS = [
 ];
 
 const BANNED_SCHEMES = ["javascript", "data", "vbscript", "file"];
-
-const listSourceFiles = (directory) => {
-  const files = [];
-
-  for (const entry of readdirSync(directory, { withFileTypes: true })) {
-    const fullPath = join(directory, entry.name);
-
-    if (entry.isDirectory()) {
-      files.push(...listSourceFiles(fullPath));
-      continue;
-    }
-
-    if (/\.(ts|tsx|mts|cts)$/.test(entry.name)) {
-      files.push(fullPath);
-    }
-  }
-
-  return files;
-};
 
 const scanSource = (root) => {
   const srcDir = join(root, "src");

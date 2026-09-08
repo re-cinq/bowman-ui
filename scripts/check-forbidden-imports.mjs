@@ -21,10 +21,11 @@
 // stops tripping the allowlist, this script fails. An optional directory
 // argument replaces src/ as the scan target (used by the tests).
 
-import { readFileSync, readdirSync } from "node:fs";
-import { join, relative } from "node:path";
+import { readFileSync } from "node:fs";
+import { relative } from "node:path";
 import process from "node:process";
 import ts from "typescript";
+import { listSourceFiles } from "./lib/list-source-files.mjs";
 
 const packageJson = JSON.parse(readFileSync("package.json", "utf8"));
 const allowedPackages = new Set([
@@ -69,25 +70,6 @@ const collectSpecifiers = (sourceFile) => {
   visit(sourceFile);
 
   return specifiers;
-};
-
-const listSourceFiles = (directory) => {
-  const files = [];
-
-  for (const entry of readdirSync(directory, { withFileTypes: true })) {
-    const fullPath = join(directory, entry.name);
-
-    if (entry.isDirectory()) {
-      files.push(...listSourceFiles(fullPath));
-      continue;
-    }
-
-    if (/\.(ts|tsx|mts|cts)$/.test(entry.name)) {
-      files.push(fullPath);
-    }
-  }
-
-  return files;
 };
 
 const listImports = (directory) => {

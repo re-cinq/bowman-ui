@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { ErrorBoundary } from "@re-cinq/bowman-ui";
 
-function BreakOnDemand({ broken, onBreak }: { broken: boolean; onBreak: () => void }) {
+export function BreakOnDemand({ broken, onBreak }: { broken: boolean; onBreak: () => void }) {
   if (broken) {
     throw new Error("A render failed");
   }

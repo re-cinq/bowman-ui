@@ -45,7 +45,7 @@ import { ChatMessageListExample } from "./examples/ChatMessageListExample";
 import chatMessageListSource from "./examples/ChatMessageListExample.tsx?raw";
 import { ConversationListExample } from "./examples/ConversationListExample";
 import conversationListSource from "./examples/ConversationListExample.tsx?raw";
-import { ErrorBoundaryExample } from "./examples/ErrorBoundaryExample";
+import { BreakOnDemand, ErrorBoundaryExample } from "./examples/ErrorBoundaryExample";
 import errorBoundarySource from "./examples/ErrorBoundaryExample.tsx?raw";
 import { IconsExample } from "./examples/IconsExample";
 import iconsSource from "./examples/IconsExample.tsx?raw";
@@ -163,24 +163,8 @@ function CustomFallbackBoundary() {
         </p>
       }
     >
-      <FallbackTrigger broken={broken} onBreak={() => setBroken(true)} />
+      <BreakOnDemand broken={broken} onBreak={() => setBroken(true)} />
     </ErrorBoundary>
-  );
-}
-
-function FallbackTrigger({ broken, onBreak }: { broken: boolean; onBreak: () => void }) {
-  if (broken) {
-    throw new Error("A render failed");
-  }
-
-  return (
-    <button
-      type="button"
-      className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm dark:border-slate-700"
-      onClick={onBreak}
-    >
-      Throw during render
-    </button>
   );
 }
 

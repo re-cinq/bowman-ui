@@ -32,6 +32,7 @@ import { execFileSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import process from "node:process";
+import { splitArgs } from "./lib/cli-args.mjs";
 
 const ROWS = ["A1", "A2", "A3", "A4", "A5", "A6", "A7"];
 const STACKS = ["nvda", "voiceover"];
@@ -380,9 +381,7 @@ const fail = (violations) => {
   process.exit(1);
 };
 
-const args = process.argv.slice(2);
-const flags = args.filter((arg) => arg.startsWith("--"));
-const positional = args.filter((arg) => !arg.startsWith("--"));
+const { flags, positional } = splitArgs(process.argv.slice(2));
 const mode = flags[0];
 
 if (flags.length !== 1 || !["--structure", "--freshness"].includes(mode) || positional.length > 1) {

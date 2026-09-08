@@ -52,18 +52,22 @@ The typecheck script is `typecheck`, not `type-check`.
 - `npm run lint` — `eslint . --max-warnings 0`.
 - `npm run prettier` / `npm run prettier:check`.
 - `npm run check:markdown-safety`; `npm run consumer`; `npm run rsc`.
-- `npm run check:duplication` — jscpd copy-paste gate over `src` + `tests` (config in
-  .jscpd.json): fails above 4% duplicated lines at min-tokens 50; `tests/fixtures/**` is exempt.
-- `npm run check:lore-plugin-sync` — byte-compares every file under
-  tools/eslint-plugin-lore/rules/ and tools/lore-spec-domain/ against re-cinq/lore main and
-  fails on an upstream rule not yet mirrored or recorded as excluded; `-- --write` refreshes
-  mirrors. Exit 2 = fetch failure, not drift. See docs/design-notes.md § Lint guardrails
-  decisions 9 and 10.
+- `npm run check:duplication` — jscpd copy-paste gate over the whole tree (config in
+  .jscpd.json): zero clones at min-tokens 50. Ignored as non-code: lockfiles, `**/*.md` and
+  `tests/fixtures/**`. Never raise the threshold; extract a helper (docs/design-notes.md § Lint
+  guardrails decision 12).
 - `npm run check:spec-links [-- <spec paths>] [-- --json]` — reports every `[validated by]` test
   link that sits outside its statement's trailing parenthetical (lore counts only trailing ones);
-  exit 1 on any finding, exit 2 on a bad flag or unreadable spec. Runs the
-  tools/lore-spec-domain/ mirrors under `--experimental-strip-types`, so it needs Node 22.6+.
-  See docs/design-notes.md § Lint guardrails decision 10.
+  exit 1 on any finding, exit 2 on a bad flag or unreadable spec. Segmentation comes from
+  `@re-cinq/eslint-plugin-re-lint/spec/*.js`. See docs/design-notes.md § Lint guardrails
+  decision 10.
+- `npm run check:spec-status [-- <doc paths>] [-- --coverage] [-- --json]` — over
+  `specs/*/spec.md` then `adrs/*.md`: reports an ADR whose frontmatter `status:` the parsers
+  cannot read (specs' status rows and every doc's lead paragraph are `npm run lint`'s job, via
+  `re-lint/require-status-matches-coverage` and `re-lint/require-intro-paragraph`). Exit 1 on
+  any finding, exit 2 on a bad flag or unreadable doc. `--coverage` instead lists every unlinked
+  testable statement and ALWAYS exits 0 — a report, not a gate. See docs/design-notes.md § Lint
+  guardrails decision 11.
 - `node scripts/repoint-spec-anchors.mjs [--check]` — after editing any cited repository file (a
   test, a script, README.md, a docs/ markdown file, a workflow, a config), re-run WITHOUT
   `--check` or CI reds.
@@ -75,9 +79,11 @@ The typecheck script is `typecheck`, not `type-check`.
 - `src/index.ts` — the ONLY public surface (barrel).
 - `src/labels.ts` — `resolveLabels`.
 - `src/styles.css`.
-- `src/components/` — 13 `.tsx` (AppShell, AppSidebar, ChatComposer, ChatMessage,
-  ChatMessageList, ConversationList, ErrorBoundary, InlineThinkingIndicator, ThinkingDots,
-  ThinkingIndicator, ThinkingTrace, Toast, ToolActivity).
+- `src/components/` — 17 `.tsx` (AppShell, AppSidebar, Button, ChatComposer, ChatMessage,
+  ChatMessageList, ConversationList, ErrorBoundary, IconButton, InlineThinkingIndicator,
+  PromptChips, SearchField, ThinkingDots, ThinkingIndicator, ThinkingTrace, Toast, ToolActivity)
+  plus `buttonStyles.ts`, the one private, non-exported class-map module (shared by Button and
+  IconButton; no `"use client"`).
 - `src/hooks/` — `focusableSelector` + 5 hooks (useDebounce, useFocusGroups, useFocusTrap,
   useReducedMotion, useSidebarState).
 - `src/icons/` — `Icon.tsx` primitive + `index.tsx` (23 icons; see invariant 9).
@@ -91,17 +97,17 @@ The typecheck script is `typecheck`, not `type-check`.
 - `scripts/` — 16 enforcement scripts.
 - `tools/eslint-plugin-bowman/` — repo-local ESLint rules (no package.json; loaded by relative
   import in eslint.config.mjs). See invariant 11.
-- `tools/eslint-plugin-lore/` — verbatim mirrors of nine re-cinq/lore rules (`rules/**`, never
-  edited here) behind a local `index.mjs`. See invariant 11.
-- `tools/lore-spec-domain/` — verbatim mirrors of lore's four spec-segmentation domain files
-  (never edited here; they keep lore's `.js` relative imports). See invariant 11.
+- `@re-cinq/eslint-plugin-re-lint` (devDependency, plugin key `re-lint`) — re-cinq's generic
+  rules and the vendored spec domain (`/spec/*.js`), replacing the mirror trees that lived under
+  `tools/` until 2026-09-08. See invariant 11.
 
 ## Enforced invariants
 
 1. **Labels convention** (docs/design-notes.md § Labels). User-visible/assistive strings are
    `labels?: Partial<XLabels>` merged over `Readonly<Required<XLabels>>` defaults via
    `resolveLabels`; interpolating labels are functions, never placeholder strings.
-   `ChatMessageList.labels` is REQUIRED — `aiDisclosure` has no default (EU AI Act). The
+   `ChatMessageList.labels` is REQUIRED — `aiDisclosure` has no default (EU AI Act) — and so is
+   `IconButton.labels` (`accessibleName`, no defaults object). The
    `stringPropOnly` set is a CLOSED list of exactly three (the icons' `ariaLabel`,
    `useFocusGroups`' `announce`, `Toast`'s `message`); a fourth requires amending docs/design-notes.md in
    the same PR. Enforced by tests/labelled-exports.test.tsx (three-way partition equal to
@@ -113,7 +119,7 @@ The typecheck script is `typecheck`, not `type-check`.
    presentational components carry it as a recorded exception. Enforced by
    scripts/check-client-directives.mjs + the rsc-fixture build.
 3. **Closed public API.** tests/public-api.test.ts asserts the built exports exactly equal the
-   committed snapshot tests/fixtures/public-api.json — currently 57 runtime + 45 type names; the
+   committed snapshot tests/fixtures/public-api.json — currently 63 runtime + 54 type names; the
    two `it()` titles derive their counts from that fixture. NEVER regenerate the snapshot to make
    the test pass; a removal or rename is a breaking major.
 4. **GDPR no-egress.** `src/` writes nothing to the console and performs no network egress
@@ -139,28 +145,32 @@ The typecheck script is `typecheck`, not `type-check`.
    mark ships.
 10. **Never rewrite `forwardRef` away** (docs/design-notes.md decision 4) — that would turn the React-19 testing
     claim into a hard floor.
-11. **Lint guardrails** (docs/design-notes.md § Lint guardrails). Five repo-local rules from
+11. **Lint guardrails** (docs/design-notes.md § Lint guardrails). Four repo-local rules from
     `tools/eslint-plugin-bowman/` run over `src/**`: `max-boolean-operators` (max 2 at inline
     condition sites; returns and arrow bodies are exempt BY DESIGN - they are where the named
     predicate lives), `no-catch-as-control-flow`, `no-network-egress` (the
-    review-time backstop for invariant 4), `no-prop-mutation`, and `no-inline-styles` (objects of
-    only CSS custom properties pass; ConversationList and ThinkingDots are exempted by path in
-    eslint.config.mjs as recorded decisions; hidden text uses the stylesheet's `bowman-sr-only`). Default exports are banned in `src/` via a
+    review-time backstop for invariant 4) and `no-prop-mutation`; the package's
+    `re-lint/no-inline-styles` replaced bowman's port (objects of only CSS custom properties
+    pass; ConversationList and ThinkingDots are exempted by path in eslint.config.mjs as
+    recorded decisions; hidden text uses the stylesheet's `bowman-sr-only`). Default exports are banned in `src/` via a
     `no-restricted-syntax` selector that MUST ride in every overlay (arrays replace, never
     merge). House style is `curly: all` + `@stylistic/padding-line-between-statements`,
     repo-wide and autofixable. All validated by tests/eslint-house-rules.test.ts against
-    committed fixtures. Nine lore rules mirrored verbatim in `tools/eslint-plugin-lore/rules/`
-    (decision 9) also run at error: eight over `src/**` — `no-forwarding-class`, `no-nested-if`,
-    `no-nested-loop`, `no-reexport-only-module`, `no-vague-names`, `prefer-early-return`,
-    `prefer-enforce-true`, and `max-comment-lines` at max 1 — a comment in `src/` is ONE line; essays go to
-    docs/design-notes.md, the feature spec, or README — and `no-dead-md-links` over every
-    `*.md` through `@eslint/markdown` (a repo-relative link must land; the assistive-technology
-    spec carries the one scoped disable). They carry no local fixtures (tested upstream) and are
-    policed by `npm run check:lore-plugin-sync`. The same gate polices the four
-    spec-segmentation domain mirrors in `tools/lore-spec-domain/` (`spec-segment.ts`,
-    `spec-sentence-split.ts`, `spec-link-parser.ts`, `test-paths.ts`), which are lint- and
-    prettier-ignored on the same terms and are what `npm run check:spec-links` runs — see
-    docs/design-notes.md § Lint guardrails decision 10.
+    committed fixtures. Ten rules from `@re-cinq/eslint-plugin-re-lint` (decision 9; wired by
+    hand under the `re-lint` key, NEVER through its `recommended` preset) also run at error:
+    seven over `src/**` — `no-nested-if`, `no-nested-loop`, `no-reexport-only-module`,
+    `no-vague-names`, `prefer-early-return`, `max-comment-lines` at max 1 — a comment in `src/`
+    is ONE line; essays go to docs/design-notes.md, the feature spec, or README — and
+    `no-forwarding-class`, inert without type information and recorded as such
+    (`prefer-enforce-true` is deliberately absent: vacuous here, decision 9); `no-dead-md-links`
+    over every `*.md` through `@eslint/markdown` (a repo-relative link must land; the
+    assistive-technology spec carries the one scoped disable); and, over the spec and ADR
+    corpus, `require-intro-paragraph` (specs + ADRs) and `require-status-matches-coverage`
+    (specs only — ADRs are exempt from the coverage tier, decision 11), pinned by
+    tests/eslint-spec-docs.test.ts against `tests/fixtures/spec-status/`. The package's
+    `/spec/*.js` exports are lore's vendored spec domain and are what `npm run check:spec-links`
+    and `npm run check:spec-status` import — see docs/design-notes.md § Lint guardrails
+    decisions 10 and 11.
 12. **Publishing** is release-triggered CI only, via npm OIDC trusted publishing
     (.github/workflows/publish.yml: `release: types: [published]`, `id-token: write`, no
     `NPM_TOKEN`). Never `npm publish` by hand. Never push to `main` — guard-main-pushes.yml opens a security issue,
@@ -197,7 +207,8 @@ wrong; the correct fact is on the right.
 - Never import `next` (or the other forbidden specifiers) outside `examples/rsc-fixture`.
 - Never add a `no-restricted-syntax` overlay without re-listing every shared selector (labels,
   focusable-literal, svg, default-export) — arrays replace, they never merge.
-- Never edit a file under `tools/eslint-plugin-lore/rules/` or `tools/lore-spec-domain/`; refresh
-  with `npm run check:lore-plugin-sync -- --write`. Never write a multi-line comment in `src/`.
+- Never spread `reLint.configs.recommended` into eslint.config.mjs; every `re-lint/*` rule is
+  listed by hand so an upstream addition is a decision, not a surprise (decision 9). Never write
+  a multi-line comment in `src/`.
 - Never remove the `rm -rf dist` from the build script.
 - Never `npm publish` by hand and never push to `main`.

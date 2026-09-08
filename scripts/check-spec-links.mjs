@@ -1,22 +1,16 @@
 // Local counterpart of lore's spec-coverage-validate job: a `([validated by](...))`
 // link only counts when it sits in its statement's trailing parenthetical, so a
 // link anywhere else is reported here rather than silently dropped upstream.
-// Segmentation and link parsing come from the lore mirrors in
-// tools/lore-spec-domain/ (docs/design-notes.md § Lint guardrails decision 10).
+// Segmentation and link parsing are lore's own, published as the spec domain
+// of @re-cinq/eslint-plugin-re-lint (docs/design-notes.md § Lint guardrails
+// decision 10).
 
 import { readFileSync, readdirSync } from "node:fs";
-import { register } from "node:module";
 import { join, relative, resolve } from "node:path";
 import process from "node:process";
-import { fileURLToPath } from "node:url";
-
-const root = join(fileURLToPath(import.meta.url), "..", "..");
-
-register(new URL("./lib/lore-domain-resolve.mjs", import.meta.url));
-
-const { segmentStatements } = await import("../tools/lore-spec-domain/spec-segment.ts");
-const { findMisplacedCoverageLinks } =
-  await import("../tools/lore-spec-domain/spec-link-parser.ts");
+import { findMisplacedCoverageLinks } from "@re-cinq/eslint-plugin-re-lint/spec/spec-link-parser.js";
+import { segmentStatements } from "@re-cinq/eslint-plugin-re-lint/spec/spec-segment.js";
+import { root } from "./lib/repo-root.mjs";
 
 const USAGE =
   "usage: check-spec-links.mjs [--json] [spec-path ...]\n" +

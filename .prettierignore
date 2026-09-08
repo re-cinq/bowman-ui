@@ -8,16 +8,3 @@
 # interface; either way the directory's contents belong to that tool, not to
 # this repo's formatter.
 .lore/
-
-# Verbatim mirrors of re-cinq/lore's eslint plugin rules, byte-compared
-# against lore main by scripts/check-lore-plugin-sync.mjs. Formatting them
-# here would break byte identity - lore is the format authority. The local
-# tools/eslint-plugin-lore/index.mjs is this repo's own and stays formatted.
-tools/eslint-plugin-lore/rules/
-
-# Verbatim mirrors of re-cinq/lore's spec-segmentation domain library, byte-
-# compared against lore main by the same script (decision 10). Formatting them
-# here would break byte identity - lore is the format authority. They keep
-# lore's `.js` relative imports; scripts/lib/lore-domain-resolve.mjs maps those
-# to the .ts files at load time.
-tools/lore-spec-domain/

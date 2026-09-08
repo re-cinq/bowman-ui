@@ -1,8 +1,8 @@
 {
-  "path": ["src", "tests"],
+  "path": ["."],
   "minTokens": 50,
-  "threshold": 4,
-  "ignore": ["**/tests/fixtures/**"],
+  "threshold": 0,
+  "ignore": ["**/tests/fixtures/**", "**/package-lock.json", "**/*.md"],
   "reporters": ["console"],
   "gitignore": true
 }
