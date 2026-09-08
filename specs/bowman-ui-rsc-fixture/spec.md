@@ -281,7 +281,7 @@ node_modules scan
 `publish.yml` runs `scripts/rsc-fixture.sh` after the Build step and before
 `npm publish`, against the tarball packed from the tagged commit - the same
 release-candidate gate `011` and `032` install
-([validated by](../../.github/workflows/publish.yml#L132)). Green mode only:
+([validated by](../../.github/workflows/publish.yml#L139)). Green mode only:
 the `--expect-failure` branch guards the repo's own `dist/` directives,
 which CI already gated on the same commit, and a release run should not
 spend a second `next build` re-proving the guard rather than the release.
