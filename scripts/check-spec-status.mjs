@@ -72,15 +72,14 @@ const readDoc = (docPath) => {
   }
 };
 
-// Lore's lead-paragraph check reads the region after the frontmatter, so an
-// ADR's finding anchors on the first line a lead paragraph could occupy.
+// An ADR's finding anchors on the first line after its frontmatter, as lore's own region does.
 const leadParagraphLine = (content, kind) => {
   const lines = content.split(/\r?\n/);
 
   if (kind !== "adr" || lines[0]?.trim() !== "---") {
     return 1;
   }
-  const closing = lines.indexOf("---", 1);
+  const closing = lines.findIndex((line, index) => index > 0 && line.trim() === "---");
 
   return closing === -1 ? 1 : closing + 2;
 };
@@ -101,8 +100,7 @@ const statusFinding = (docPath, content, kind) => {
     };
   }
 
-  // ADRs are exempt from the tier verdict: lore folds `accepted` into
-  // `shipped`, which would demand a test link on every ADR statement.
+  // ADRs are exempt from the tier verdict: lore folds `accepted` into `shipped`.
   if (kind === "adr") {
     return null;
   }
@@ -153,6 +151,11 @@ const docsWithFindings = new Set();
 for (const docPath of docPaths) {
   const content = readDoc(docPath);
   const kind = docKind(docPath);
+
+  if (kind === null) {
+    process.stderr.write(`check-spec-status.mjs: ${docPath} is neither a spec nor an ADR\n`);
+    process.exit(2);
+  }
   const found = asCoverage
     ? coverageFindings(docPath, content)
     : statusFindings(docPath, content, kind);
@@ -178,8 +181,7 @@ const reportLines = () => [
   summary(),
 ];
 
-// process.exitCode, not process.exit: exiting truncates a large stdout write
-// to a pipe.
+// process.exitCode, not process.exit: exiting truncates a large piped write.
 process.exitCode = asCoverage || findings.length === 0 ? 0 : 1;
 process.stdout.write(
   asJson ? `${JSON.stringify(findings, null, 2)}\n` : `${reportLines().join("\n")}\n`

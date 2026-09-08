@@ -318,7 +318,11 @@ export default [
       // Verbatim lore mirrors (rule files only - the local index.mjs subset
       // selector is linted): lore does not house-style-lint its own plugin,
       // so its bytes cannot be expected to pass this config.
-      "tools/eslint-plugin-lore/rules/**",
+      // Spelled `**/*.mjs`, not `**`: ESLint prunes an ignored directory, and a
+      // directory-matching pattern would make the negation below unreachable.
+      "tools/eslint-plugin-lore/rules/**/*.mjs",
+      // lore-shared.mjs is this repo's own shim, not a mirror, so it is linted.
+      "!tools/eslint-plugin-lore/rules/lib/lore-shared.mjs",
       // Verbatim lore mirrors of the spec-segmentation and spec-status domain
       // libraries (decisions 10 and 11), on the same terms as the rule files
       // above.
