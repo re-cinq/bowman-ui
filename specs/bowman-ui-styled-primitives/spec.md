@@ -1,5 +1,10 @@
 # bowman-ui styled primitives
 
+| Field  | Value                |
+| ------ | -------------------- |
+| Issue  | re-cinq/bowman-ui#43 |
+| Status | In Progress          |
+
 Issue: re-cinq/bowman-ui#43, "Ship styled primitives for the controls every consumer rebuilds
 in the slots". Every slot the package exposes (`prompts`, `attachSlot`, `AppSidebar`'s children
 and `footer`, the avatar slots) is unstyled, so a consumer integrating the package by hand
