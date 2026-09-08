@@ -5,7 +5,7 @@
  * specs/bowman-ui-styled-primitives/spec.md.
  */
 import { fireEvent, render, screen } from "@testing-library/react";
-import { createRef } from "react";
+import { createRef, type MouseEvent as ReactMouseEvent } from "react";
 import { IconButton, PlusIcon } from "../src/index.js";
 
 const labels = { accessibleName: "Tilføj 4711" };
@@ -48,7 +48,7 @@ describe("IconButton", () => {
 
   describe("clicking", () => {
     it('clicking "Tilføj 4711" calls onClick once with the click event', () => {
-      const onClick = vi.fn();
+      const onClick = vi.fn<(event: ReactMouseEvent<HTMLButtonElement>) => void>();
 
       render(<IconButton icon={PlusIcon} labels={labels} onClick={onClick} />);
 

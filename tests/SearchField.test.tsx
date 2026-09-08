@@ -60,14 +60,20 @@ describe("SearchField", () => {
   });
 
   describe("the decorative icon", () => {
-    it('the SearchIcon is an aria-hidden, pointer-events-none <svg> and the input carries "pl-9" to clear it', () => {
+    it("the SearchIcon is an aria-hidden, pointer-events-none absolute <svg> inside a relative wrapper", () => {
       const { container } = render(<SearchField value="" onChange={vi.fn()} />);
 
       const icon = container.querySelector("svg");
 
+      expect(container.firstElementChild).toHaveClass("relative");
       expect(icon).toHaveAttribute("aria-hidden", "true");
-      expect(icon).toHaveClass("pointer-events-none");
-      expect(searchboxOf()).toHaveClass("pl-9");
+      expect(icon).toHaveClass("pointer-events-none", "absolute");
+    });
+
+    it("renders no button - no clear control and no submit", () => {
+      const { container } = render(<SearchField value="" onChange={vi.fn()} />);
+
+      expect(container.querySelectorAll("button")).toHaveLength(0);
     });
   });
 
