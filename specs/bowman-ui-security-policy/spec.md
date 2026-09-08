@@ -1,12 +1,16 @@
 # bowman-ui security policy
 
-Issue: re-cinq/Otto#125 (`125-bowman-ui-security-disclosure`), part of re-cinq/Otto#57. This spec
-records the decisions behind `SECURITY.md`, the README `## Security` section, `package.json`'s
-`bugs` field, and `.github/ISSUE_TEMPLATE/config.yml`'s security `contact_links` entry - a policy
-document, not a shipped API. A statement about a human commitment (a response-time target) or
-about another repository's code (a consuming application's own authorization logic) carries no
-validated-by link: nothing in this repository's test suite can assert either one, so each such
-section says so once and moves on.
+| Field  | Value                                                                           |
+| ------ | ------------------------------------------------------------------------------- |
+| Issue  | re-cinq/Otto#125 (`125-bowman-ui-security-disclosure`), part of re-cinq/Otto#57 |
+| Status | In Progress                                                                     |
+
+This spec records the decisions behind `SECURITY.md`, the README `## Security` section,
+`package.json`'s `bugs` field, and `.github/ISSUE_TEMPLATE/config.yml`'s security
+`contact_links` entry - a policy document, not a shipped API. A statement about a human
+commitment (a response-time target) or about another repository's code (a consuming
+application's own authorization logic) carries no validated-by link: nothing in this
+repository's test suite can assert either one, so each such section says so once and moves on.
 
 ## Reporting route
 

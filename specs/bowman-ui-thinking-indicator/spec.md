@@ -1,6 +1,9 @@
 # bowman-ui thinking indicator
 
-Issue: re-cinq/Otto#74 (`024-bowman-ui-thinking-indicator`)
+| Field  | Value                                                |
+| ------ | ---------------------------------------------------- |
+| Issue  | re-cinq/Otto#74 (`024-bowman-ui-thinking-indicator`) |
+| Status | In Progress                                          |
 
 `ThinkingIndicator` is the block loading indicator shown while waiting for a
 response - a pulsing avatar circle, the word "Thinking", three fading

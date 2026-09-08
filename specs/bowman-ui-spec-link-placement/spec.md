@@ -1,8 +1,11 @@
 # bowman-ui spec link placement
 
-Issue: re-cinq/bowman-ui#2, "Non-trailing spec test links in 10 newer specs; commit the
-placement validator and gate it in CI", which subsumes re-cinq/bowman-ui#7 on broken test links
-in spec.md. The enforcement decision lives in docs/design-notes.md § Lint guardrails decision 10;
+| Field  | Value                                                                                                                                                                                       |
+| ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Issue  | re-cinq/bowman-ui#2, "Non-trailing spec test links in 10 newer specs; commit the placement validator and gate it in CI", which subsumes re-cinq/bowman-ui#7 on broken test links in spec.md |
+| Status | In Progress                                                                                                                                                                                 |
+
+The enforcement decision lives in docs/design-notes.md § Lint guardrails decision 10;
 this file carries the placement rule, the script's contract, and the per-behaviour pins.
 
 A `([validated by](../../tests/X.test.tsx#Lnn))` link counts as coverage only when it sits in
