@@ -78,7 +78,7 @@ union and replaced this issue's `@ts-expect-error` with a positive assertion
 over the same thinking-entry array
 ([validated by](../../tests/types/chat-message-list-type-assertions.tsx#L28),
 compiled by
-[chat-message-list-dist](../../tests/chat-message-list-dist.test.ts#L87)). The
+[chat-message-list-dist](../../tests/chat-message-list-dist.test.ts#L81)). The
 map dispatches on `role`: a tool entry renders `ToolActivity`, everything else
 `ChatMessage`, array order preserved. `busy` makes only a trailing tool entry
 pending; a non-trailing one stays done. `describeTool`, `showToolName`,
@@ -86,11 +86,11 @@ pending; a non-trailing one stays done. `describeTool`, `showToolName`,
 entry still shows the `aiDisclosure` band. `ChatMessageListLabels` gains
 `activity`, `activityDone` and `details` as defaulted keys, so `aiDisclosure`
 stays its only required key
-([validated by](../../tests/ChatMessageList.test.tsx#L979),
-[L1001](../../tests/ChatMessageList.test.tsx#L1001),
-[L1014](../../tests/ChatMessageList.test.tsx#L1014),
-[L1036](../../tests/ChatMessageList.test.tsx#L1036),
-[L1028](../../tests/ChatMessageList.test.tsx#L1028)).
+([validated by](../../tests/ChatMessageList.test.tsx#L942),
+[L964](../../tests/ChatMessageList.test.tsx#L964),
+[L977](../../tests/ChatMessageList.test.tsx#L977),
+[L999](../../tests/ChatMessageList.test.tsx#L999),
+[L991](../../tests/ChatMessageList.test.tsx#L991)).
 
 ## GDPR zero retention
 

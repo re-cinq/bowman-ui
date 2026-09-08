@@ -6,13 +6,20 @@ import { join, resolve } from "node:path";
 const workflow = readFileSync(resolve(process.cwd(), ".github/workflows/lore-ingest.yml"), "utf8");
 const scriptPath = resolve(process.cwd(), "scripts/lore-post.sh");
 
-const extractRunBlock = (stepName: string): string => {
-  const lines = workflow.split("\n");
+const lines = workflow.split("\n");
+
+const stepIndexOf = (stepName: string): number => {
   const stepIndex = lines.findIndex((line) => line.trim() === `- name: ${stepName}`);
 
   if (stepIndex === -1) {
     throw new Error(`step not found in workflow: ${stepName}`);
   }
+
+  return stepIndex;
+};
+
+const extractRunBlock = (stepName: string): string => {
+  const stepIndex = stepIndexOf(stepName);
   const runIndex = lines.findIndex((line, index) => index > stepIndex && line.trim() === "run: |");
   const body: string[] = [];
 
@@ -27,12 +34,7 @@ const extractRunBlock = (stepName: string): string => {
 };
 
 const extractStepEnv = (stepName: string): string => {
-  const lines = workflow.split("\n");
-  const stepIndex = lines.findIndex((line) => line.trim() === `- name: ${stepName}`);
-
-  if (stepIndex === -1) {
-    throw new Error(`step not found in workflow: ${stepName}`);
-  }
+  const stepIndex = stepIndexOf(stepName);
   const envIndex = lines.findIndex((line, index) => index > stepIndex && line.trim() === "env:");
   const runIndex = lines.findIndex((line, index) => index > stepIndex && line.trim() === "run: |");
 

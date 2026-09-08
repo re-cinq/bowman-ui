@@ -1,7 +1,7 @@
 import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
-import { packedPaths } from "./helpers/built-package.js";
+import { expectPackedWithTypes } from "./helpers/built-package.js";
 
 const BUILT_FILES = [
   "dist/hooks/useDebounce.js",
@@ -55,12 +55,7 @@ describe("the built hook surface", () => {
   });
 
   it("npm pack --dry-run ships the five hooks and ErrorBoundary with their d.ts files", () => {
-    const paths = packedPaths();
-
-    for (const built of BUILT_FILES) {
-      expect(paths).toContain(built);
-      expect(paths).toContain(built.replace(/\.js$/, ".d.ts"));
-    }
+    expectPackedWithTypes(BUILT_FILES);
   });
 
   it('each built hook and ErrorBoundary opens with "use client"; as its first statement', () => {

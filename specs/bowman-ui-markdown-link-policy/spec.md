@@ -28,10 +28,10 @@ schemes render anchors with their exact `href`. `http`, `irc`,
 `xmpp`, `javascript:`, `data:`, `vbscript:` and every relative form render no
 anchor at all - the link text renders in a `<span>`, and
 `a[href=""]` never appears, since an empty-href anchor reloads the page when
-clicked ([validated by](../../tests/markdown/urlPolicy.test.tsx#L53),
-[L43](../../tests/markdown/urlPolicy.test.tsx#L43)). Case
+clicked ([validated by](../../tests/markdown/urlPolicy.test.tsx#L61),
+[L51](../../tests/markdown/urlPolicy.test.tsx#L51)). Case
 and entity encoding do not get past the allowlist, asserted on the DOM
-([validated by](../../tests/markdown/urlPolicy.test.tsx#L71)).
+([validated by](../../tests/markdown/urlPolicy.test.tsx#L75)).
 
 The allowlist is data, not a hardcoded branch:
 `allowedSchemes: ["https", "http"]` renders the `http` anchor. `[]`
@@ -117,14 +117,14 @@ result stays assignable to `react-markdown`'s `Components`
 `ChatMessage` merges its `markdown` prop over `defaultMarkdownPolicy` (via
 `resolveLabels`, so an explicit `undefined` field cannot clobber a default)
 and passes the factory's map plus `createUrlTransform`'s result to
-`ReactMarkdown` ([validated by](../../tests/ChatMessage.test.tsx#L753),
-[L782](../../tests/ChatMessage.test.tsx#L782),
-[L794](../../tests/ChatMessage.test.tsx#L794)). A rejected link renders as a
-span ([validated by](../../tests/ChatMessage.test.tsx#L769)). An image
+`ReactMarkdown` ([validated by](../../tests/ChatMessage.test.tsx#L677),
+[L706](../../tests/ChatMessage.test.tsx#L706),
+[L718](../../tests/ChatMessage.test.tsx#L718)). A rejected link renders as a
+span ([validated by](../../tests/ChatMessage.test.tsx#L693)). An image
 renders as alt text
-([validated by](../../tests/ChatMessage.test.tsx#L819)). The
+([validated by](../../tests/ChatMessage.test.tsx#L743)). The
 `linkOpensInNewTab` override reaches the notice
-([validated by](../../tests/ChatMessage.test.tsx#L807)).
+([validated by](../../tests/ChatMessage.test.tsx#L731)).
 
 ## Recorded decisions, interpretations and deviations
 
@@ -133,11 +133,11 @@ renders as alt text
   criterion, the "merged over `defaultMarkdownPolicy`" wording and the
   one-line `http` opt-in all require field-level merging - so the fields
   carry `?` and the prop stays the issue's literal `markdown?: MarkdownPolicy`
-  ([validated by](../../tests/ChatMessage.test.tsx#L782)).
+  ([validated by](../../tests/ChatMessage.test.tsx#L706)).
 - **The transform never decodes.** `java&#x09;script:` reaches the transform
   percent-encoded as `java%09script:`; comparing the raw scheme keeps the
   bypass closed, and a later `decodeURIComponent` "cleanup" would reopen it
-  ([validated by](../../tests/markdown/urlPolicy.test.tsx#L71)).
+  ([validated by](../../tests/markdown/urlPolicy.test.tsx#L75)).
 - **Protocol-relative URLs never count as relative.** `//host`, `\\host` and
   `/\host` resolve to a model-chosen origin, so they are rejected even under
   `allowRelativeUrls: true` - a hole in the issue's relative/absolute split,

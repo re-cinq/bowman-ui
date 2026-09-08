@@ -23,17 +23,17 @@ parenthetical closing the statement counts.
 
 - A citation mid-way through a list item is misplaced, and each one is reported separately
   against the item's own first line
-  ([validated by](../../tests/check-spec-links.test.ts#L49)).
+  ([validated by](../../tests/check-spec-links.test.ts#L37)).
 - A citation mid-way through a paragraph sentence is misplaced, and is reported against the
   line the paragraph starts on, not the line the link sits on
-  ([validated by](../../tests/check-spec-links.test.ts#L56)).
+  ([validated by](../../tests/check-spec-links.test.ts#L44)).
 - A citation closing its sentence is where the rule wants it and is never reported
-  ([validated by](../../tests/check-spec-links.test.ts#L73)).
+  ([validated by](../../tests/check-spec-links.test.ts#L61)).
 - A mid-sentence link to something other than a test file - a script, a doc - is prose, not a
   miscited test, and is never reported
-  ([validated by](../../tests/check-spec-links.test.ts#L80)).
+  ([validated by](../../tests/check-spec-links.test.ts#L68)).
 - A citation written inside backticks is documentation of the convention rather than a use of
-  it, and is never reported ([validated by](../../tests/check-spec-links.test.ts#L87)).
+  it, and is never reported ([validated by](../../tests/check-spec-links.test.ts#L75)).
 
 ## What is mirrored, and why
 
@@ -60,32 +60,32 @@ so a test needs no hook. Never edit a file under `tools/lore-shared/`.
 
 - With no path arguments it scans every `specs/<slug>/spec.md` in sorted slug order followed by
   `.specify/spec.md`, which is exactly the list an explicit invocation of those paths produces
-  ([validated by](../../tests/check-spec-links.test.ts#L155)).
+  ([validated by](../../tests/check-spec-links.test.ts#L143)).
 - Each finding prints one line carrying the spec, the statement's line, the cited path with its
   `#L` anchor, and the words `cited outside the statement's trailing parenthetical`. A citation
   written with no `#L` anchor prints the path alone
-  ([validated by](../../tests/check-spec-links.test.ts#L67)).
+  ([validated by](../../tests/check-spec-links.test.ts#L55)).
 - The run closes with `misplaced: <N> across <M> specs (<S> statements scanned)` and exits 1
-  when `N` is above zero ([validated by](../../tests/check-spec-links.test.ts#L100)).
+  when `N` is above zero ([validated by](../../tests/check-spec-links.test.ts#L88)).
 - A spec whose citations all sit in trailing parentheticals exits 0 under the same summary line
-  ([validated by](../../tests/check-spec-links.test.ts#L94)).
+  ([validated by](../../tests/check-spec-links.test.ts#L82)).
 - `--json` replaces the report with an array alone, each entry carrying `spec`, `line`, `path`,
   `anchorLine`, `label` and `statement`
-  ([validated by](../../tests/check-spec-links.test.ts#L107)).
+  ([validated by](../../tests/check-spec-links.test.ts#L95)).
 - An unrecognised flag exits 2 with the usage line rather than scanning anything
-  ([validated by](../../tests/check-spec-links.test.ts#L121)).
+  ([validated by](../../tests/check-spec-links.test.ts#L109)).
 - A spec path that cannot be read exits 2 naming that path, so a typo is never reported as a
-  clean run ([validated by](../../tests/check-spec-links.test.ts#L134)).
+  clean run ([validated by](../../tests/check-spec-links.test.ts#L122)).
 
 Paths are resolved against the repo root, not the working directory, because the script locates
 the root from its own module URL and every reported path is printed root-relative.
 
 - A relative path means the same spec from any working directory
-  ([validated by](../../tests/check-spec-links.test.ts#L141)).
+  ([validated by](../../tests/check-spec-links.test.ts#L129)).
 - An absolute path is accepted and reported root-relative
-  ([validated by](../../tests/check-spec-links.test.ts#L148)).
+  ([validated by](../../tests/check-spec-links.test.ts#L136)).
 - The usage line states both facts
-  ([validated by](../../tests/check-spec-links.test.ts#L128)).
+  ([validated by](../../tests/check-spec-links.test.ts#L116)).
 
 ## CI
 

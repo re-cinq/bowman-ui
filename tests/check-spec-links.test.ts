@@ -1,18 +1,15 @@
-import { spawnSync } from "node:child_process";
 import { readdirSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { stripTypesRunner } from "./helpers/script-runner.js";
 
 const root = process.cwd();
 const script = join(root, "scripts", "check-spec-links.mjs");
-const nodeFlags = ["--experimental-strip-types", "--disable-warning=ExperimentalWarning"];
 
 const trailingSpec = "tests/fixtures/spec-links/trailing/spec.md";
 const misplacedSpec = "tests/fixtures/spec-links/misplaced/spec.md";
 const citedTest = "../../../../tests/check-at-pass.test.ts";
 const trailingZeroSummary = "misplaced: 0 across 0 specs (9 statements scanned)\n";
-
-type RunResult = { status: number | null; stdout: string; stderr: string };
 
 type Finding = {
   spec: string;
@@ -23,16 +20,7 @@ type Finding = {
   statement: string;
 };
 
-const runFrom = (cwd: string, ...args: string[]): RunResult => {
-  const result = spawnSync(process.execPath, [...nodeFlags, script, ...args], {
-    cwd,
-    encoding: "utf8",
-  });
-
-  return { status: result.status, stdout: result.stdout, stderr: result.stderr };
-};
-
-const run = (...args: string[]): RunResult => runFrom(root, ...args);
+const { run, runFrom } = stripTypesRunner(script);
 
 const findings = (...args: string[]): Finding[] => JSON.parse(run("--json", ...args).stdout);
 

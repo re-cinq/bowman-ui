@@ -1,12 +1,13 @@
 import { render, screen } from "@testing-library/react";
-import { readFileSync, readdirSync, statSync } from "node:fs";
-import { join, resolve } from "node:path";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import {
   InlineThinkingIndicator,
   ThinkingIndicator,
   defaultThinkingIndicatorLabels,
 } from "../src/index.js";
 import { expectThinkingDots } from "./helpers/expect-thinking-dots.js";
+import { listFiles } from "./helpers/source-hygiene.js";
 
 describe("ThinkingIndicator", () => {
   it('renders "Thinking" and a role="status" element with aria-label "Loading response" by default', () => {
@@ -90,22 +91,6 @@ describe("ThinkingIndicator", () => {
       content: readFileSync(resolve(process.cwd(), path), "utf8"),
     }));
 
-    const walk = (dir: string): string[] => {
-      const files: string[] = [];
-
-      for (const entry of readdirSync(dir)) {
-        const fullPath = join(dir, entry);
-
-        if (statSync(fullPath).isDirectory()) {
-          files.push(...walk(fullPath));
-          continue;
-        }
-        files.push(fullPath);
-      }
-
-      return files;
-    };
-
     it("ThinkingIndicator.tsx carries no label?: prop - the labels object replaced it", () => {
       expect(sources[0].content).not.toMatch(/label\?:/);
     });
@@ -141,7 +126,7 @@ describe("ThinkingIndicator", () => {
 
     it("LogoIcon appears nowhere in src/ or dist/ - the avatar slot replaced the bundled mark", () => {
       for (const dir of ["src", "dist"]) {
-        for (const file of walk(resolve(process.cwd(), dir))) {
+        for (const file of listFiles(resolve(process.cwd(), dir))) {
           expect(readFileSync(file, "utf8")).not.toMatch(/LogoIcon/);
         }
       }
