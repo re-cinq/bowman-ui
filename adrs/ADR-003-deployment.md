@@ -18,6 +18,8 @@ consulted:
 
 # ADR-003: Deployment Strategy and Container Architecture
 
+This ADR records a hybrid, container-first deployment model for `bowman-ui`: the npm registry is the primary distribution channel, with an optional lightweight Docker image serving demo and documentation environments. Publishing runs on GitHub Actions, where semver `v*` tags trigger the build and publish phases after the test phase passes on every pull request and commit to main. Kubernetes is optional and scoped to the documentation deployment, and serverless distribution is out of scope, because the library has no runtime backend. The costs accepted are an optional container that can drift out of sync with the package, and two artifact registries to monitor and prune.
+
 ## Context
 
 `bowman-ui` is a published NPM package (`@re-cinq/bowman-ui`) providing React UI components for AI chat interfaces. The repository requires a deployment and distribution strategy covering:

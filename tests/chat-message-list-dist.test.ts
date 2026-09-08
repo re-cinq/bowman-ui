@@ -1,6 +1,6 @@
 import { spawnSync } from "node:child_process";
-import { existsSync, readFileSync } from "node:fs";
-import { packedPaths, stripLeadingTrivia } from "./helpers/built-package.js";
+import { readFileSync } from "node:fs";
+import { expectClientDirectiveFirst, expectPackedWithTypes } from "./helpers/built-package.js";
 
 const BUILT_FILE = "dist/components/ChatMessageList.js";
 
@@ -71,17 +71,11 @@ describe("ChatAttribution's built shape", () => {
 
 describe("the built chat message list", () => {
   it('dist/components/ChatMessageList.js opens with "use client"; as its first statement', () => {
-    expect(existsSync(BUILT_FILE)).toBe(true);
-    const firstStatement = stripLeadingTrivia(readFileSync(BUILT_FILE, "utf8"));
-
-    expect(firstStatement.startsWith('"use client";')).toBe(true);
+    expectClientDirectiveFirst(BUILT_FILE);
   });
 
   it("npm pack --dry-run ships the component with its d.ts file", () => {
-    const paths = packedPaths();
-
-    expect(paths).toContain(BUILT_FILE);
-    expect(paths).toContain(BUILT_FILE.replace(/\.js$/, ".d.ts"));
+    expectPackedWithTypes([BUILT_FILE]);
   });
 
   it("tsc accepts chat-message-list-type-assertions.tsx against dist via the '.' exports entry, pinning both @ts-expect-error fixtures", () => {

@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import { AppShell, type SidebarSlotContext } from "../src/index.js";
+import { stubFocusEnvironment } from "./helpers/focus-environment.js";
 
 const source = readFileSync(resolve(process.cwd(), "src/components/AppShell.tsx"), "utf8");
 
@@ -248,35 +249,8 @@ describe("AppShell", () => {
   });
 
   describe("focus management", () => {
-    // jsdom performs no layout and reports offsetParent as null everywhere,
-    // which would make the shared focus trap see every element as hidden.
-    // The shim is local, exactly as in tests/useFocusTrap.test.tsx - removing
-    // it makes the three assertions below fail.
-    const offsetParentDescriptor = Object.getOwnPropertyDescriptor(
-      HTMLElement.prototype,
-      "offsetParent"
-    );
-
-    beforeEach(() => {
-      Object.defineProperty(HTMLElement.prototype, "offsetParent", {
-        configurable: true,
-        get() {
-          return (this as HTMLElement).parentElement;
-        },
-      });
-      vi.stubGlobal("requestAnimationFrame", (callback: FrameRequestCallback) => {
-        callback(0);
-
-        return 0;
-      });
-    });
-
-    afterEach(() => {
-      if (offsetParentDescriptor) {
-        Object.defineProperty(HTMLElement.prototype, "offsetParent", offsetParentDescriptor);
-      }
-      vi.unstubAllGlobals();
-    });
+    // Shared with tests/useFocusTrap.test.tsx - removing it makes the three assertions below fail.
+    stubFocusEnvironment();
 
     it("opening the drawer moves focus to the close button", () => {
       render(<AppShell renderSidebar={sidebarWithLink}>content</AppShell>);

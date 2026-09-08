@@ -1,7 +1,11 @@
 # bowman-ui pure hooks and ErrorBoundary
 
-Issue: re-cinq/Otto#71 (`021-bowman-ui-pure-hooks-error-boundary`). Every test here is written
-fresh against the shipped code.
+| Field  | Value                                                       |
+| ------ | ----------------------------------------------------------- |
+| Issue  | re-cinq/Otto#71 (`021-bowman-ui-pure-hooks-error-boundary`) |
+| Status | In Progress                                                 |
+
+Every test here is written fresh against the shipped code.
 
 ## What ships
 
@@ -9,7 +13,7 @@ Five hooks under `src/hooks/` and `src/components/ErrorBoundary.tsx`, all export
 barrel with their option types (`FocusGroupsOptions`, `SidebarStateOptions`,
 `ErrorBoundaryLabels`). Every file carries `"use client"` as its first statement, verified on the
 built output, ships in the tarball with its `.d.ts` and resolves through the `"."`
-exports entry for a consumer ([validated by](../../tests/hooks-dist.test.ts#L66),
+exports entry for a consumer ([validated by](../../tests/hooks-dist.test.ts#L61),
 [L57](../../tests/hooks-dist.test.ts#L57),
 [L32](../../tests/hooks-dist.test.ts#L32)).
 
@@ -17,8 +21,8 @@ exports entry for a consumer ([validated by](../../tests/hooks-dist.test.ts#L66)
   importers (the directive-inheritance failure docs/design-notes.md decision 1 records). Timing
   pinned at the 299/301ms edges
   with restart-on-change
-  ([validated by](../../tests/useDebounce.test.tsx#L19),
-  [L36](../../tests/useDebounce.test.tsx#L36)).
+  ([validated by](../../tests/useDebounce.test.tsx#L22),
+  [L37](../../tests/useDebounce.test.tsx#L37)).
 - `useReducedMotion(override?: boolean)` — reads no `process.env`
   flag; a boolean override returns as-is without consulting `matchMedia`, and with no override
   the hook tracks `prefers-reduced-motion: reduce` including change events and listener cleanup
@@ -31,23 +35,23 @@ exports entry for a consumer ([validated by](../../tests/hooks-dist.test.ts#L66)
   value wins over `defaultOpen`, and storage access
   that throws degrades to in-memory state instead of crashing. Omitting `storagePrefix` does not
   compile, via `tests/types/hooks-type-assertions.tsx`
-  ([validated by](../../tests/useSidebarState.test.tsx#L34),
-  [L58](../../tests/useSidebarState.test.tsx#L58),
-  [L66](../../tests/useSidebarState.test.tsx#L66),
+  ([validated by](../../tests/useSidebarState.test.tsx#L37),
+  [L61](../../tests/useSidebarState.test.tsx#L61),
+  [L69](../../tests/useSidebarState.test.tsx#L69),
   [types](../../tests/hooks-dist.test.ts#L32)).
 - `useFocusTrap` — verbatim: first-element focus on open, Tab/Shift+Tab wrap at the ends while
   focus is inside, and pull focus back to an end when it sits outside the open trap (the
   2026-08-26 review's modal-only hardening), Escape closes, and focus returns to the trigger ref
   or the previously active element
-  ([validated by](../../tests/useFocusTrap.test.tsx#L73),
-  [L79](../../tests/useFocusTrap.test.tsx#L79),
-  [L88](../../tests/useFocusTrap.test.tsx#L88), [L97](../../tests/useFocusTrap.test.tsx#L97),
-  [L146](../../tests/useFocusTrap.test.tsx#L146),
-  [L221](../../tests/useFocusTrap.test.tsx#L221),
-  [L231](../../tests/useFocusTrap.test.tsx#L231),
-  [L115](../../tests/useFocusTrap.test.tsx#L115),
-  [L125](../../tests/useFocusTrap.test.tsx#L125),
-  [L133](../../tests/useFocusTrap.test.tsx#L133)).
+  ([validated by](../../tests/useFocusTrap.test.tsx#L57),
+  [L63](../../tests/useFocusTrap.test.tsx#L63),
+  [L72](../../tests/useFocusTrap.test.tsx#L72), [L81](../../tests/useFocusTrap.test.tsx#L81),
+  [L130](../../tests/useFocusTrap.test.tsx#L130),
+  [L203](../../tests/useFocusTrap.test.tsx#L203),
+  [L211](../../tests/useFocusTrap.test.tsx#L211),
+  [L99](../../tests/useFocusTrap.test.tsx#L99),
+  [L109](../../tests/useFocusTrap.test.tsx#L109),
+  [L117](../../tests/useFocusTrap.test.tsx#L117)).
 - `useFocusGroups({announce})` — the hardcoded English `Moved to ${groupName}` and the Tailwind
   `sr-only` class are both gone from the contract: `announce` maps a group name to the
   announcement (English default preserved, `null` suppresses), and the live region is hidden
@@ -73,7 +77,7 @@ exports entry for a consumer ([validated by](../../tests/hooks-dist.test.ts#L66)
 
 No built file reads `process.env`, and no `NEXT_PUBLIC_FLAG_ANIMATIONS`
 string survives in `src/`
-([validated by](../../tests/hooks-dist.test.ts#L76)).
+([validated by](../../tests/hooks-dist.test.ts#L71)).
 
 ## Recorded decisions and limitations
 

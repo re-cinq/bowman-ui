@@ -1,6 +1,9 @@
 # bowman-ui message list entry footer
 
-Issue: re-cinq/Otto#133 (`133-bowman-ui-message-list-entry-footer`)
+| Field  | Value                                                        |
+| ------ | ------------------------------------------------------------ |
+| Issue  | re-cinq/Otto#133 (`133-bowman-ui-message-list-entry-footer`) |
+| Status | In Progress                                                  |
 
 `ChatMessage` (023) has a `footer?: ReactNode` slot; `ChatMessageList` (078)
 renders `ChatMessage` internally and made it unreachable - a consumer holding
@@ -20,7 +23,7 @@ later) and no `props` object (unlike `renderLink`/`renderNavLink`, a footer
 is neither styled nor wired by the component). A returned node lands last in
 that message's column, after the action row, carrying whatever identity the
 consumer put on it
-([validated by](../../tests/ChatMessageList.test.tsx#L323)). Because the
+([validated by](../../tests/ChatMessageList.test.tsx#L346)). Because the
 public surface gains no export, `tests/fixtures/public-api.json` is
 unchanged.
 
@@ -36,7 +39,7 @@ unchanged.
    ([validated by](../../tests/types/chat-message-list-type-assertions.tsx#L64)).
    The fixture is what enforces this: `npm run typecheck` compiles `src`
    only (compiled against dist by
-   [chat-message-list-dist](../../tests/chat-message-list-dist.test.ts#L87)).
+   [chat-message-list-dist](../../tests/chat-message-list-dist.test.ts#L81)).
 2. **The callback runs for every rendered entry, user rows included.**
    No role filter in the library - 023's rule that the caller decides what
    to pass. It is invoked once per rendered `ChatMessage` per render, in
@@ -45,14 +48,14 @@ unchanged.
    `ChatMessage` renders its `footer` under assistant messages only, so a
    node returned for a user entry is dropped rather than displaced - the
    consequence of forwarding into the existing slot instead of editing
-   `ChatMessage` ([validated by](../../tests/ChatMessageList.test.tsx#L365),
-   [L347](../../tests/ChatMessageList.test.tsx#L347)).
+   `ChatMessage` ([validated by](../../tests/ChatMessageList.test.tsx#L388),
+   [L370](../../tests/ChatMessageList.test.tsx#L370)).
 3. **Omitting the prop and returning `undefined` are the same render.**
    The call site is `footer={renderEntryFooter?.(entry)}`, so a list whose
    callback returns `undefined` for every entry produces `container.innerHTML`
    byte-identical to the same list without the prop - no wrapper element, no
    empty node, nothing for a consumer's CSS to catch
-   ([validated by](../../tests/ChatMessageList.test.tsx#L381)).
+   ([validated by](../../tests/ChatMessageList.test.tsx#L404)).
 4. **Nothing in a footer is announced, and a growing footer does not
    re-scroll.** The node lands inside the transcript's `role="log"` /
    `aria-live="off"` region, so a screen reader reaches it only by walking
@@ -76,8 +79,8 @@ unchanged.
   region, and
   078's render with every optional prop `false`/`undefined` now carries
   `renderEntryFooter={undefined}` and still resolves the disclosure text
-  ([validated by](../../tests/ChatMessageList.test.tsx#L167),
-  [L401](../../tests/ChatMessageList.test.tsx#L401)).
+  ([validated by](../../tests/ChatMessageList.test.tsx#L190),
+  [L424](../../tests/ChatMessageList.test.tsx#L424)).
 - **GDPR.** A footer may carry customer-derived content (a score computed
   from a booking, a debug block quoting a question). The list neither stores
   nor forwards it: the source names `renderEntryFooter` three times -
@@ -86,8 +89,8 @@ unchanged.
   rerender without the prop leaves no footer behind. The
   suite-wide `console` and network traps in `tests/setup.ts` hold every one
   of these tests to zero calls
-  ([validated by](../../tests/ChatMessageList.test.tsx#L971),
-  [L417](../../tests/ChatMessageList.test.tsx#L417)).
+  ([validated by](../../tests/ChatMessageList.test.tsx#L934),
+  [L440](../../tests/ChatMessageList.test.tsx#L440)).
 
 ## Not in scope
 

@@ -11,6 +11,8 @@ domains:
 
 # ADR-001: Language and Framework Selection
 
+This ADR records the choice of TypeScript as the primary language and React as the UI framework for `bowman-ui`, built and distributed through Node.js and npm. React was chosen because a props-driven presentational component library plays to its core strength, and TypeScript because a library's primary contract is its API surface, which compile-time types both verify and document. Vue, Svelte, backend frameworks such as FastAPI or Spring, and plain JavaScript were considered and rejected. The accepted trade-off is an audience of primarily React and Node.js developers; other frameworks must consume the components as compiled JavaScript and type definitions.
+
 ## Context
 
 `bowman-ui` is a component library project providing reusable presentational React components for AI chat interfaces. The project needed to select a primary language and framework to establish the technical foundation for development, build, and distribution.

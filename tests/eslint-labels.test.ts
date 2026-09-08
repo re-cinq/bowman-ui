@@ -1,5 +1,4 @@
-import { spawnSync } from "node:child_process";
-import { resolve, sep } from "node:path";
+import { lintFixtures, messagesFor, type LintResult } from "./helpers/eslint-fixtures.js";
 
 // The four red fixtures live outside src/ and are globally ignored, so
 // `npm run lint` stays green. --no-ignore lifts the ignore, and the
@@ -7,53 +6,20 @@ import { resolve, sep } from "node:path";
 // fixture is judged by the exact committed rules - not a copy of them.
 const fixtureDir = "tests/fixtures/eslint-labels";
 
-interface LintMessage {
-  ruleId: string | null;
-  message: string;
-}
-
-interface LintResult {
-  filePath: string;
-  messages: LintMessage[];
-}
-
-const lint = (): LintResult[] => {
-  const result = spawnSync(
-    "node",
-    [
-      resolve(process.cwd(), "node_modules/eslint/bin/eslint.js"),
-      "--no-ignore",
-      "--format",
-      "json",
-      `${fixtureDir}/jsx-text.tsx`,
-      `${fixtureDir}/jsx-expression-text.tsx`,
-      `${fixtureDir}/jsx-template-text.tsx`,
-      `${fixtureDir}/jsx-logical-text.tsx`,
-      `${fixtureDir}/attribute-conditional.tsx`,
-      `${fixtureDir}/attribute-literal.tsx`,
-      `${fixtureDir}/attribute-expression-literal.tsx`,
-      `${fixtureDir}/attribute-template.tsx`,
-      `${fixtureDir}/strings-prop.ts`,
-      `${fixtureDir}/t-prop.ts`,
-      `${fixtureDir}/next-intl-import.tsx`,
-    ],
-    { cwd: process.cwd(), encoding: "utf8" }
-  );
-
-  expect(result.status).toBe(1);
-
-  return JSON.parse(result.stdout) as LintResult[];
-};
-
-const messagesFor = (results: LintResult[], fixture: string): LintMessage[] => {
-  const match = results.find((entry) => entry.filePath.endsWith(`${sep}${fixture}`));
-
-  if (!match) {
-    throw new Error(`eslint reported nothing for ${fixture}`);
-  }
-
-  return match.messages;
-};
+const lint = (): LintResult[] =>
+  lintFixtures([
+    `${fixtureDir}/jsx-text.tsx`,
+    `${fixtureDir}/jsx-expression-text.tsx`,
+    `${fixtureDir}/jsx-template-text.tsx`,
+    `${fixtureDir}/jsx-logical-text.tsx`,
+    `${fixtureDir}/attribute-conditional.tsx`,
+    `${fixtureDir}/attribute-literal.tsx`,
+    `${fixtureDir}/attribute-expression-literal.tsx`,
+    `${fixtureDir}/attribute-template.tsx`,
+    `${fixtureDir}/strings-prop.ts`,
+    `${fixtureDir}/t-prop.ts`,
+    `${fixtureDir}/next-intl-import.tsx`,
+  ]);
 
 describe("the labels lint rules", () => {
   let results: LintResult[];

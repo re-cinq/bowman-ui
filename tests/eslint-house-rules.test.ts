@@ -1,59 +1,27 @@
-import { spawnSync } from "node:child_process";
-import { resolve, sep } from "node:path";
+import { sep } from "node:path";
+import { lintFixtures, messagesFor, type LintResult } from "./helpers/eslint-fixtures.js";
 
 // The house-rule fixtures live outside src/ and are globally ignored, so
 // `npm run lint` stays green. --no-ignore lifts the ignore, and each fixture
 // glob is listed in the matching eslint.config.mjs `files` entry, so every
 // fixture is judged by the exact committed rules - not a copy of them.
 const fixtureDir = "tests/fixtures/eslint-house-rules";
+const houseRuleIds = new Set(["no-restricted-syntax", "re-lint/no-inline-styles"]);
 
-interface LintMessage {
-  ruleId: string | null;
-  message: string;
-}
-
-interface LintResult {
-  filePath: string;
-  messages: LintMessage[];
-}
-
-const lint = (): LintResult[] => {
-  const result = spawnSync(
-    "node",
-    [
-      resolve(process.cwd(), "node_modules/eslint/bin/eslint.js"),
-      "--no-ignore",
-      "--format",
-      "json",
-      `${fixtureDir}/max-boolean-operators/violation.ts`,
-      `${fixtureDir}/max-boolean-operators/violation-jsx.tsx`,
-      `${fixtureDir}/no-catch-as-control-flow/violation.ts`,
-      `${fixtureDir}/no-catch-as-control-flow/violation-property.ts`,
-      `${fixtureDir}/no-network-egress/violation.ts`,
-      `${fixtureDir}/no-prop-mutation/violation.tsx`,
-      `${fixtureDir}/no-prop-mutation/violation-memo.tsx`,
-      `${fixtureDir}/no-inline-styles/violation.tsx`,
-      `${fixtureDir}/default-export/component.tsx`,
-      `${fixtureDir}/house-style/violation.ts`,
-      `${fixtureDir}/clean/clean.tsx`,
-    ],
-    { cwd: process.cwd(), encoding: "utf8" }
-  );
-
-  expect(result.status).toBe(1);
-
-  return JSON.parse(result.stdout) as LintResult[];
-};
-
-const messagesFor = (results: LintResult[], fixture: string): LintMessage[] => {
-  const match = results.find((entry) => entry.filePath.endsWith(`${sep}${fixture}`));
-
-  if (!match) {
-    throw new Error(`eslint reported nothing for ${fixture}`);
-  }
-
-  return match.messages;
-};
+const lint = (): LintResult[] =>
+  lintFixtures([
+    `${fixtureDir}/max-boolean-operators/violation.ts`,
+    `${fixtureDir}/max-boolean-operators/violation-jsx.tsx`,
+    `${fixtureDir}/no-catch-as-control-flow/violation.ts`,
+    `${fixtureDir}/no-catch-as-control-flow/violation-property.ts`,
+    `${fixtureDir}/no-network-egress/violation.ts`,
+    `${fixtureDir}/no-prop-mutation/violation.tsx`,
+    `${fixtureDir}/no-prop-mutation/violation-memo.tsx`,
+    `${fixtureDir}/no-inline-styles/violation.tsx`,
+    `${fixtureDir}/default-export/component.tsx`,
+    `${fixtureDir}/house-style/violation.ts`,
+    `${fixtureDir}/clean/clean.tsx`,
+  ]);
 
 describe("the house-rule lint guardrails", () => {
   let results: LintResult[];
@@ -113,10 +81,10 @@ describe("the house-rule lint guardrails", () => {
     ).toContain("bowman/no-prop-mutation");
   });
 
-  it("a computed width in a style prop fails with bowman/no-inline-styles", () => {
+  it("a computed width in a style prop fails with re-lint/no-inline-styles", () => {
     expect(
       messagesFor(results, `no-inline-styles${sep}violation.tsx`).map((m) => m.ruleId)
-    ).toContain("bowman/no-inline-styles");
+    ).toContain("re-lint/no-inline-styles");
   });
 
   it("a default export in the component-overlay glob fails with the no-default-export message", () => {
@@ -128,7 +96,7 @@ describe("the house-rule lint guardrails", () => {
 
   it("boundary shapes pass every house rule - a two-operator condition, a sentinel catch, a local (non-prop) mutation, and a custom-properties-only style object", () => {
     const flagged = messagesFor(results, `clean${sep}clean.tsx`).filter(
-      (m) => m.ruleId?.startsWith("bowman/") || m.ruleId === "no-restricted-syntax"
+      (m) => m.ruleId?.startsWith("bowman/") || houseRuleIds.has(m.ruleId ?? "")
     );
 
     expect(flagged).toEqual([]);

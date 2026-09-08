@@ -1,6 +1,9 @@
 # bowman-ui stylesheet entry
 
-Issue: re-cinq/Otto#69 (`019-bowman-ui-stylesheet-entry`)
+| Field  | Value                                              |
+| ------ | -------------------------------------------------- |
+| Issue  | re-cinq/Otto#69 (`019-bowman-ui-stylesheet-entry`) |
+| Status | In Progress                                        |
 
 `src/styles.css` is the package's only stylesheet: it ships what a consumer's
 Tailwind v4 build cannot generate from a class name, and nothing else
@@ -51,7 +54,7 @@ only; `Toast` keeps its centring in its own dedicated rule
 utility classes, with no `data-animations` attribute in any selector
 ([validated by](../../tests/styles.test.ts#L80)). No
 `NEXT_PUBLIC_FLAG_ANIMATIONS` escape hatch exists: flag plumbing belongs to
-a consumer ([validated by](../../tests/hooks-dist.test.ts#L76)).
+a consumer ([validated by](../../tests/hooks-dist.test.ts#L71)).
 
 ## The typography-plugin replacement
 
