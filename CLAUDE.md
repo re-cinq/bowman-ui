@@ -145,13 +145,14 @@ The typecheck script is `typecheck`, not `type-check`.
    mark ships.
 10. **Never rewrite `forwardRef` away** (docs/design-notes.md decision 4) — that would turn the React-19 testing
     claim into a hard floor.
-11. **Lint guardrails** (docs/design-notes.md § Lint guardrails). Five repo-local rules from
+11. **Lint guardrails** (docs/design-notes.md § Lint guardrails). Four repo-local rules from
     `tools/eslint-plugin-bowman/` run over `src/**`: `max-boolean-operators` (max 2 at inline
     condition sites; returns and arrow bodies are exempt BY DESIGN - they are where the named
     predicate lives), `no-catch-as-control-flow`, `no-network-egress` (the
-    review-time backstop for invariant 4), `no-prop-mutation`, and `no-inline-styles` (objects of
-    only CSS custom properties pass; ConversationList and ThinkingDots are exempted by path in
-    eslint.config.mjs as recorded decisions; hidden text uses the stylesheet's `bowman-sr-only`). Default exports are banned in `src/` via a
+    review-time backstop for invariant 4) and `no-prop-mutation`; the package's
+    `re-lint/no-inline-styles` replaced bowman's port (objects of only CSS custom properties
+    pass; ConversationList and ThinkingDots are exempted by path in eslint.config.mjs as
+    recorded decisions; hidden text uses the stylesheet's `bowman-sr-only`). Default exports are banned in `src/` via a
     `no-restricted-syntax` selector that MUST ride in every overlay (arrays replace, never
     merge). House style is `curly: all` + `@stylistic/padding-line-between-statements`,
     repo-wide and autofixable. All validated by tests/eslint-house-rules.test.ts against
