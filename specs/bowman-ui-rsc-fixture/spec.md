@@ -253,7 +253,7 @@ takes its setup from the shared `setup-node-install` composite action, which
 sets `node-version: "22"` ([validated by](../../.github/actions/setup-node-install/action.yml#L18)),
 runs `npm ci --ignore-scripts`
 ([validated by](../../.github/actions/setup-node-install/action.yml#L22)) and, because the job asks for it with
-`build: "true"` ([validated by](../../.github/workflows/ci.yml#L152)), an explicit
+`build: "true"` ([validated by](../../.github/workflows/ci.yml#L160)), an explicit
 `npm run build` before packing
 ([validated by](../../.github/actions/setup-node-install/action.yml#L26)), then runs the green
 case and the `--expect-failure` case as separately named steps
@@ -287,7 +287,7 @@ node_modules scan
 job, after `test:coverage` has built `dist/` and before the `publish` job
 that `needs:` its green result may start, against the tarball packed from the
 tagged commit - the same release-candidate gate `011` and `032` install
-([validated by](../../.github/workflows/publish.yml#L63)). Green mode only:
+([validated by](../../.github/workflows/publish.yml#L67)). Green mode only:
 the `--expect-failure` branch guards the repo's own `dist/` directives,
 which CI already gated on the same commit, and a release run should not
 spend a second `next build` re-proving the guard rather than the release.
