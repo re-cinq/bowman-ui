@@ -9,18 +9,19 @@ source tree, never the registry
 chat screen in a real Chromium. It proves what no jsdom test can: the
 package's eight major components in one document, compiled by a real Tailwind v4
 build, laid out by a real browser. The whole proof is one command,
-`npm run consumer` ([validated by](../../package.json#L32)), documented in the
+`npm run consumer` ([validated by](../../package.json#L52)), documented in the
 README's Worked consumer section ([validated by](../../README.md#L140)).
 
 Anchor caveat: `scripts/repoint-spec-anchors.mjs` tracks
 `(../)+tests/*.ts(x)` anchors, `(../)+examples/*/tests/*.ts(x)` anchors since
-the composer-resize-browser change, and `scripts/`, `README.md` and `docs/`
-markdown anchors since issue 32, so this spec's links into
-`examples/chat-demo/tests/`, `scripts/` and `README.md` are repointed by CI. Its links into
-other `examples/` files, `package.json` files and workflow files remain plain
-GitHub links that CI never repoints - they were authored against this PR's
-tree and drift silently if those files are later edited without updating
-this spec.
+the composer-resize-browser change, `scripts/`, `README.md` and `docs/`
+markdown anchors since issue 32, and since issue 37 any repo-relative path
+carrying a file extension, so this spec's links into `examples/`,
+`package.json` files, workflow files and root config files are repointed and
+rot-checked by CI along with the rest. Anchors into `ci.yml` and
+`publish.yml` cite a line unique to the job they describe, because the
+identical setup blocks those files repeat across jobs are a context tie the
+resolver refuses to guess at.
 
 ## The demo app
 
@@ -63,18 +64,18 @@ amendment.
 specifier `@re-cinq/bowman-ui`
 ([validated by](../../examples/chat-demo/src/App.tsx#L2)). All state lives in
 `App.tsx` `useState` hooks
-([validated by](../../examples/chat-demo/src/App.tsx#L32)); the assistant
+([validated by](../../examples/chat-demo/src/App.tsx#L55)); the assistant
 reply is a `setTimeout` appending a fixture entry - no fetch, no WebSocket, no
-engine ([validated by](../../examples/chat-demo/src/App.tsx#L56)).
+engine ([validated by](../../examples/chat-demo/src/App.tsx#L118)).
 
 `renderSidebar` returns `AppSidebar` with the brand passed as a plain text
 node, two nav items, `ConversationList` as `children` and a button in `footer`
-([validated by](../../examples/chat-demo/src/App.tsx#L63)).
+([validated by](../../examples/chat-demo/src/App.tsx#L144)).
 `ChatMessageList` sits above `ChatComposer` inside the shell's `children`,
 wrapped in the bounded flex column (`flex h-full min-h-0 flex-col`) that
 docs/design-notes.md § Layout requires of consumers
-([validated by](../../examples/chat-demo/src/App.tsx#L97)), and copy shows a
-`Toast` ([validated by](../../examples/chat-demo/src/App.tsx#L109)).
+([validated by](../../examples/chat-demo/src/App.tsx#L180)), and copy shows a
+`Toast` ([validated by](../../examples/chat-demo/src/App.tsx#L201)).
 
 ### Fixtures (GDPR)
 
@@ -262,27 +263,27 @@ source import a bundler tree-shakes away.
 The `consumer` job in `ci.yml` runs on every pull request (the workflow's
 unfiltered `pull_request` trigger), pins its actions to the same commit SHAs
 as the existing job with `persist-credentials: false`
-([validated by](../../.github/workflows/ci.yml#L86)), sets
-`node-version: "22"` ([validated by](../../.github/workflows/ci.yml#L91)),
+([validated by](../../.github/workflows/ci.yml#L124)), sets
+`node-version: "22"` ([validated by](../../.github/workflows/ci.yml#L124)),
 runs `npm ci --ignore-scripts`
-([validated by](../../.github/workflows/ci.yml#L94)) and an explicit
+([validated by](../../.github/workflows/ci.yml#L134)) and an explicit
 `npm run build` before packing
-([validated by](../../.github/workflows/ci.yml#L96)), and installs Chromium
+([validated by](../../.github/workflows/ci.yml#L136)), and installs Chromium
 with `npx playwright install --with-deps chromium`
-([validated by](../../.github/workflows/ci.yml#L100)). It omits
+([validated by](../../.github/workflows/ci.yml#L140)). It omits
 `fetch-depth: 0` on purpose: that exists for the spec anchor check, which
 this job does not run.
 
 `publish.yml` runs `scripts/consumer-app.sh` after the Build step and before
 `npm publish`, against the tarball the script packs from the tagged commit
-([validated by](../../.github/workflows/publish.yml#L63)).
+([validated by](../../.github/workflows/publish.yml#L75)).
 
 ## Gates preserved
 
 - `tsconfig.json` excludes `examples/`
   ([validated by](../../tsconfig.json#L17)).
 - The coverage `include` still scopes to `src/**` at the unchanged
-  100/100/100/90 thresholds ([validated by](../../vitest.config.ts#L24));
+  100/100/100/90 thresholds ([validated by](../../vitest.config.ts#L25));
   vitest's `exclude` gains `examples/**` so the Playwright suite - which
   matches the default spec glob - never runs under vitest
   ([validated by](../../vitest.config.ts#L12)).
