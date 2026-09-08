@@ -309,6 +309,27 @@ export default [
     plugins: { markdown, "re-lint": reLint },
     rules: { "re-lint/no-dead-md-links": "error" },
   },
+  // docs/design-notes.md § Lint guardrails decision 11: every spec and ADR
+  // opens with a lead paragraph, and a spec's `| Status |` row must match its
+  // test-link coverage. ADRs are exempt from the coverage tier (lore folds
+  // `accepted` into `shipped`, which would demand a link on every statement a
+  // decision record makes), so the second rule is scoped to specs alone; an
+  // ADR's status is still required to parse, by scripts/check-spec-status.mjs.
+  // The spec-status fixture globs exist so the red fixtures (globally ignored
+  // below, linted with --no-ignore by tests/eslint-spec-docs.test.ts) are
+  // checked against these exact rules, not a copy of them.
+  {
+    files: ["specs/**/spec.md", "adrs/*.md", "tests/fixtures/spec-status/**/*.md"],
+    language: "markdown/gfm",
+    plugins: { markdown, "re-lint": reLint },
+    rules: { "re-lint/require-intro-paragraph": "error" },
+  },
+  {
+    files: ["specs/**/spec.md", "tests/fixtures/spec-status/specs/**/spec.md"],
+    language: "markdown/gfm",
+    plugins: { markdown, "re-lint": reLint },
+    rules: { "re-lint/require-status-matches-coverage": "error" },
+  },
   {
     ignores: [
       ".claude/**",
@@ -331,6 +352,7 @@ export default [
       "tests/fixtures/eslint-duplication/**",
       "tests/fixtures/eslint-house-rules/**",
       "tests/fixtures/forbidden-imports/**",
+      "tests/fixtures/spec-status/**",
       "examples/chat-demo/dist/**",
       "examples/chat-demo/test-results/**",
       "examples/chat-demo/playwright-report/**",

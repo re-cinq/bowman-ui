@@ -9,15 +9,10 @@ const script = join(root, "scripts", "check-spec-status.mjs");
 const fixtures = "tests/fixtures/spec-status";
 const inProgressSpec = `${fixtures}/specs/in-progress/spec.md`;
 const shippedSpec = `${fixtures}/specs/shipped-partial/spec.md`;
-const inReviewSpec = `${fixtures}/specs/in-review-partial/spec.md`;
-const acceptedSpec = `${fixtures}/specs/accepted-partial/spec.md`;
-const retiredSpec = `${fixtures}/specs/retired/spec.md`;
-const rejectedSpec = `${fixtures}/specs/rejected/spec.md`;
 const untaggedSpec = `${fixtures}/specs/untagged/spec.md`;
-const unreadableStatusSpec = `${fixtures}/specs/unreadable-status/spec.md`;
-const noLeadSpec = `${fixtures}/specs/no-lead/spec.md`;
 const acceptedAdr = `${fixtures}/adrs/ADR-042-tide-ledger.md`;
 const noLeadAdr = `${fixtures}/adrs/ADR-043-lamp-oil.md`;
+const unreadableStatusAdr = `${fixtures}/adrs/ADR-044-buoy-paint.md`;
 
 type Finding = { doc: string; line: number; kind: string; message: string };
 
@@ -39,112 +34,42 @@ const discoveredDocs = (): string[] => {
 };
 
 describe("check-spec-status", () => {
-  it('a spec tagged "In Progress" with partial coverage reports nothing and exits 0', () => {
-    expect(run(inProgressSpec)).toMatchObject({
-      status: 0,
-      stdout: "spec-status: 0 findings across 0 docs (1 scanned)\n",
-    });
-  });
-
-  it('a spec tagged Shipped with one unlinked statement reports the expected "in-progress"', () => {
-    expect(run(shippedSpec).stdout).toBe(
-      `${shippedSpec}:6: status "shipped" does not match coverage: ` +
-        '1 of 2 testable statements linked, expected "in-progress"\n' +
-        "spec-status: 1 findings across 1 docs (1 scanned)\n"
-    );
-  });
-
-  it('a spec tagged "In Review" with partial coverage buckets in-progress and reports nothing', () => {
-    expect(run(inReviewSpec)).toMatchObject({
-      status: 0,
-      stdout: "spec-status: 0 findings across 0 docs (1 scanned)\n",
-    });
-  });
-
-  it('a spec tagged Accepted with partial coverage buckets shipped and reports "in-progress"', () => {
-    expect(run(acceptedSpec).stdout).toBe(
-      `${acceptedSpec}:6: status "shipped" does not match coverage: ` +
-        '1 of 2 testable statements linked, expected "in-progress"\n' +
-        "spec-status: 1 findings across 1 docs (1 scanned)\n"
-    );
-  });
-
-  it("a spec tagged Retired or Rejected reports nothing with no statement linked", () => {
-    expect(run(retiredSpec, rejectedSpec)).toMatchObject({
-      status: 0,
-      stdout: "spec-status: 0 findings across 0 docs (2 scanned)\n",
-    });
-  });
-
-  it("a spec with no status row reports untagged at line 1", () => {
-    expect(findings(untaggedSpec)).toEqual([
-      {
-        doc: untaggedSpec,
-        line: 1,
-        kind: "untagged",
-        message: "no lifecycle status the parsers can read",
-      },
-    ]);
-  });
-
-  it('a spec whose status row reads "Banana" reports untagged at that row\'s line', () => {
-    expect(findings(unreadableStatusSpec)).toEqual([
-      {
-        doc: unreadableStatusSpec,
-        line: 6,
-        kind: "untagged",
-        message: "no lifecycle status the parsers can read",
-      },
-    ]);
-  });
-
-  it("a spec opening straight into a section reports a lead paragraph at line 1", () => {
-    expect(findings(noLeadSpec)).toEqual([
-      {
-        doc: noLeadSpec,
-        line: 1,
-        kind: "lead-paragraph",
-        message: "no lead paragraph before the first section",
-      },
-    ]);
-  });
-
-  it("an accepted ADR with a lead paragraph and no test links reports nothing", () => {
+  it("an accepted ADR with no test links reports nothing and exits 0: the coverage tier never applies to an ADR", () => {
     expect(run(acceptedAdr)).toMatchObject({
       status: 0,
       stdout: "spec-status: 0 findings across 0 docs (1 scanned)\n",
     });
   });
 
-  it("an ADR with no lead paragraph reports one on the line after the frontmatter", () => {
-    expect(findings(noLeadAdr)).toEqual([
+  it('an ADR whose frontmatter status reads "banana" reports untagged at that line', () => {
+    expect(findings(unreadableStatusAdr)).toEqual([
       {
-        doc: noLeadAdr,
-        line: 7,
-        kind: "lead-paragraph",
-        message: "no lead paragraph before the first section",
+        doc: unreadableStatusAdr,
+        line: 4,
+        kind: "untagged",
+        message: "no lifecycle status the parsers can read",
       },
     ]);
   });
 
-  it("six fixture docs report four findings across four docs and exit 1", () => {
-    const result = run(
-      inProgressSpec,
-      shippedSpec,
-      untaggedSpec,
-      noLeadSpec,
-      acceptedAdr,
-      noLeadAdr
-    );
+  it("a spec reports nothing here whatever its status row: specs are gated by eslint", () => {
+    expect(run(untaggedSpec, shippedSpec)).toMatchObject({
+      status: 0,
+      stdout: "spec-status: 0 findings across 0 docs (2 scanned)\n",
+    });
+  });
+
+  it("an ADR with no lead paragraph reports nothing here: lead paragraphs are gated by eslint", () => {
+    expect(run(noLeadAdr)).toMatchObject({ status: 0 });
+  });
+
+  it("three ADRs report one finding across one doc and exit 1", () => {
+    const result = run(acceptedAdr, noLeadAdr, unreadableStatusAdr);
 
     expect(result).toMatchObject({ status: 1 });
     expect(result.stdout).toBe(
-      `${shippedSpec}:6: status "shipped" does not match coverage: ` +
-        '1 of 2 testable statements linked, expected "in-progress"\n' +
-        `${untaggedSpec}:1: no lifecycle status the parsers can read\n` +
-        `${noLeadSpec}:1: no lead paragraph before the first section\n` +
-        `${noLeadAdr}:7: no lead paragraph before the first section\n` +
-        "spec-status: 4 findings across 4 docs (6 scanned)\n"
+      `${unreadableStatusAdr}:4: no lifecycle status the parsers can read\n` +
+        "spec-status: 1 findings across 1 docs (3 scanned)\n"
     );
   });
 
@@ -162,20 +87,20 @@ describe("check-spec-status", () => {
   });
 
   it("--coverage exits 0 on a doc the default run fails", () => {
-    expect(run("--coverage", untaggedSpec)).toMatchObject({ status: 0 });
-    expect(run(untaggedSpec)).toMatchObject({ status: 1 });
+    expect(run("--coverage", unreadableStatusAdr)).toMatchObject({ status: 0 });
+    expect(run(unreadableStatusAdr)).toMatchObject({ status: 1 });
   });
 
   it("--json prints only an array of findings carrying doc, line, kind and message", () => {
-    const result = run("--json", shippedSpec);
+    const result = run("--json", unreadableStatusAdr);
 
     expect(result.stdout).not.toContain("spec-status:");
     expect(JSON.parse(result.stdout)).toEqual([
       {
-        doc: shippedSpec,
-        line: 6,
-        kind: "tier",
-        message: expect.stringContaining('expected "in-progress"'),
+        doc: unreadableStatusAdr,
+        line: 4,
+        kind: "untagged",
+        message: "no lifecycle status the parsers can read",
       },
     ]);
   });
@@ -215,16 +140,16 @@ describe("check-spec-status", () => {
   });
 
   it("a relative doc path resolves against the repo root, not the working directory", () => {
-    expect(runFrom(tmpdir(), shippedSpec)).toMatchObject({
+    expect(runFrom(tmpdir(), unreadableStatusAdr)).toMatchObject({
       status: 1,
-      stdout: run(shippedSpec).stdout,
+      stdout: run(unreadableStatusAdr).stdout,
     });
   });
 
   it("an absolute doc path is scanned and reported repo-relative", () => {
-    expect(runFrom(tmpdir(), join(root, shippedSpec))).toMatchObject({
+    expect(runFrom(tmpdir(), join(root, unreadableStatusAdr))).toMatchObject({
       status: 1,
-      stdout: run(shippedSpec).stdout,
+      stdout: run(unreadableStatusAdr).stdout,
     });
   });
 
