@@ -642,9 +642,15 @@ Decisions:
    arguments; changes flow up via callback props. Scope-based, so a local
    sharing a prop's name never trips it; only the first parameter is props,
    leaving a `forwardRef` second argument and its `.current` writes alone.
-6. **Styling lives in the stylesheet** (`bowman/no-inline-styles`), with one
+6. **Styling lives in the stylesheet** (`re-lint/no-inline-styles`), with one
    passing shape - an object of nothing but CSS custom properties, because
    the styling rules then still live in the stylesheet reading the variable.
+   The rule is the package's since 2026-09-08: bowman's own port existed only
+   because lore's fired under a hardcoded `/apps/web-ui/` path marker, and
+   re-lint 1.0 replaced that with a `files` scope; the committed fixtures
+   then proved the package's copy catches the computed-width violation,
+   passes the custom-properties-only object, and over `src/` fires on nothing
+   but the two exempt components, so the port was deleted.
    Two components are exempted by path in `eslint.config.mjs`, each a
    recorded decision asserted by its tests, not tolerated drift:
    `ConversationList` (the per-character typewriter animation is data, one
@@ -820,18 +826,16 @@ Considered and rejected:
 - **A "test must import its subject" rule.** The `*-dist.test.ts` suites
   import nothing from `src/` by design - they read `dist/` - so the rule
   contradicts the test architecture.
-- **Replacing bowman's four overlapping ports with re-lint's originals**
-  (`max-boolean-operators`, `no-catch-as-control-flow`, `no-inline-styles`,
-  `no-prop-mutation`). Re-lint 1.0's `max-boolean-operators` and
-  `no-catch-as-control-flow` still miss the JSX-chain and property-name
-  detections the committed fixtures pin. Its `no-inline-styles` and
-  `no-prop-mutation` traded lore's hardcoded `/apps/web-ui/` path marker
-  for a `files` scope, so they could fire here now, but the committed
-  fixtures pin bowman's shapes (the custom-properties-only style object,
-  the memo-wrapped component, the array mutators) and proving the package's
-  copies honour every one is its own change. The four stay bowman's own;
-  upstreaming the two extensions and then retiring all four ports is the
-  eventual fix.
+- **Replacing bowman's remaining three ports with re-lint's originals**
+  (`max-boolean-operators`, `no-catch-as-control-flow`, `no-prop-mutation`).
+  Linting the committed fixtures with re-lint 1.0's copies showed each one
+  missing a shape the fixtures pin: `max-boolean-operators` the JSX
+  conditional chain, `no-catch-as-control-flow` the property-name
+  reference, and `no-prop-mutation` the memo-wrapped anonymous component
+  (it does catch the plain prop push). The three stay bowman's own;
+  upstreaming those three detections and then retiring the ports is the
+  eventual fix. `no-inline-styles` passed the same probe and moved
+  (decision 6).
 
 ## Seams left open on purpose
 
