@@ -14,6 +14,10 @@ const lint = (): LintResult[] =>
     `${fixtureDir}/specs/unreadable-status/spec.md`,
     `${fixtureDir}/specs/shipped-partial/spec.md`,
     `${fixtureDir}/specs/in-progress/spec.md`,
+    `${fixtureDir}/specs/in-review-partial/spec.md`,
+    `${fixtureDir}/specs/accepted-partial/spec.md`,
+    `${fixtureDir}/specs/retired/spec.md`,
+    `${fixtureDir}/specs/rejected/spec.md`,
     `${fixtureDir}/adrs/ADR-042-tide-ledger.md`,
     `${fixtureDir}/adrs/ADR-043-lamp-oil.md`,
   ]);
@@ -71,5 +75,23 @@ describe("the spec and ADR document lint guardrails", () => {
 
   it("an accepted ADR with a lead paragraph and no test links passes: ADRs are exempt from the coverage tier", () => {
     expect(reLintMessages(results, "ADR-042-tide-ledger.md")).toEqual([]);
+  });
+
+  it('a spec tagged "In Review" with partial coverage buckets in-progress and passes', () => {
+    expect(reLintMessages(results, `in-review-partial${sep}spec.md`)).toEqual([]);
+  });
+
+  it('a spec tagged Accepted with partial coverage buckets shipped and is told to set "In Progress"', () => {
+    expect(reLintMessages(results, `accepted-partial${sep}spec.md`)).toMatchObject([
+      {
+        ruleId: "re-lint/require-status-matches-coverage",
+        message: expect.stringContaining('set the status to "In Progress"'),
+      },
+    ]);
+  });
+
+  it("a spec tagged Retired or Rejected passes with no statement linked: terminal buckets skip the tier", () => {
+    expect(reLintMessages(results, `retired${sep}spec.md`)).toEqual([]);
+    expect(reLintMessages(results, `rejected${sep}spec.md`)).toEqual([]);
   });
 });
