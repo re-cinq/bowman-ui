@@ -15,15 +15,29 @@ Tailwind v4 utility class names in its built file, light and `dark:` variants in
 consumer's own Tailwind build generates their CSS by scanning the installed `dist` through the
 `@source` line README § Styles prescribes. `src/styles.css` gains nothing - the primitives need
 no keyframe and no rule Tailwind cannot generate - so `dist/styles.css` still declares exactly
-the four keyframes and the stylesheet tests are unchanged.
+the four keyframes and the stylesheet tests are unchanged
+([validated by](../../tests/styles.test.ts#L31)).
 
 ## What ships
 
-Four components, two defaults objects and nine types, all from the package root. Every value
-export lands in one bucket of `tests/labelled-exports.test.tsx`: `IconButton`, `PromptChips`
-and `SearchField` in `labelsProp` with a sentinel harness each; `Button`,
-`defaultPromptChipsLabels` and `defaultSearchFieldLabels` in `noStrings`. The `stringPropOnly`
-list stays at its three closed members.
+Four components, two defaults objects and nine types, all from the package root
+([validated by](../../tests/public-api.test.ts#L40), [L46](../../tests/public-api.test.ts#L46),
+[L117](../../tests/PromptChips.test.tsx#L117), [L105](../../tests/SearchField.test.tsx#L105)).
+Every value export lands in one bucket of `tests/labelled-exports.test.tsx`
+([validated by](../../tests/labelled-exports.test.tsx#L158)). The `labelsProp` bucket holds
+`IconButton`, `PromptChips` and `SearchField`, with a sentinel harness each
+([validated by](../../tests/labelled-exports.test.tsx#L88),
+[L89](../../tests/labelled-exports.test.tsx#L89),
+[L90](../../tests/labelled-exports.test.tsx#L90),
+[L617](../../tests/labelled-exports.test.tsx#L617),
+[L621](../../tests/labelled-exports.test.tsx#L621),
+[L627](../../tests/labelled-exports.test.tsx#L627),
+[L633](../../tests/labelled-exports.test.tsx#L633)). The `noStrings` bucket holds `Button`,
+`defaultPromptChipsLabels` and `defaultSearchFieldLabels`
+([validated by](../../tests/labelled-exports.test.tsx#L132),
+[L144](../../tests/labelled-exports.test.tsx#L144),
+[L145](../../tests/labelled-exports.test.tsx#L145)). The `stringPropOnly` list stays at its three
+closed members ([validated by](../../tests/labelled-exports.test.tsx#L158)).
 
 ### `Button`
 
@@ -49,22 +63,30 @@ export const Button: ForwardRefExoticComponent<ButtonProps & RefAttributes<HTMLB
 ```
 
 - Renders one `<button>` with `type` defaulting to `"button"`, the `children` as its accessible
-  name, and the `ref` forwarded to that element.
+  name, and the `ref` forwarded to that element ([validated by](../../tests/Button.test.tsx#L14),
+  [L21](../../tests/Button.test.tsx#L21), [L31](../../tests/Button.test.tsx#L31)).
 - `variant` picks the look: `primary` is the composer send button's blue fill
   (`bg-blue-500 text-white`), `secondary` is the chat-demo's "new chat" look (a `border-slate-200`
   border on `bg-white` with `text-slate-700`), `ghost` is borderless text with a hover surface
   (`text-slate-600 hover:bg-slate-50`), each with its `dark:` counterpart. Every variant carries
   the package's focus ring (`focus:ring-2 focus:ring-blue-500`) and the
-  `disabled:cursor-not-allowed disabled:opacity-50` pair.
+  `disabled:cursor-not-allowed disabled:opacity-50` pair ([validated
+  by](../../tests/Button.test.tsx#L85),
+  [L92](../../tests/Button.test.tsx#L92), [L105](../../tests/Button.test.tsx#L105),
+  [L113](../../tests/Button.test.tsx#L113)).
 - `size` picks the padding and type scale: `md` is `px-4 py-2.5 text-sm`, `sm` is
-  `px-3 py-1.5 text-xs`.
+  `px-3 py-1.5 text-xs` ([validated by](../../tests/Button.test.tsx#L136),
+  [L143](../../tests/Button.test.tsx#L143)).
 - `icon`, when given, renders before the text with `h-4 w-4` at `md` and `h-3.5 w-3.5` at `sm`;
   a package icon rendered this way carries `aria-hidden="true"` because it receives no
-  `ariaLabel`.
+  `ariaLabel` ([validated by](../../tests/Button.test.tsx#L156),
+  [L176](../../tests/Button.test.tsx#L176),
+  [L186](../../tests/Button.test.tsx#L186)).
 - `onClick` receives the click event; `disabled` renders the native attribute and the click never
-  fires.
+  fires ([validated by](../../tests/Button.test.tsx#L45), [L61](../../tests/Button.test.tsx#L61)).
 - `Button` renders no string of its own - its text is `children` - so it sits in `noStrings` and
-  takes no `labels` prop.
+  takes no `labels` prop ([validated by](../../tests/labelled-exports.test.tsx#L132),
+  [L158](../../tests/labelled-exports.test.tsx#L158)).
 
 ### `IconButton`
 
@@ -95,13 +117,21 @@ export const IconButton: ForwardRefExoticComponent<
 - Renders one `<button>` named by `labels.accessibleName` through `aria-label`, containing only
   the icon (`h-4 w-4` at `md`, `h-3.5 w-3.5` at `sm`, `aria-hidden`), with square padding
   (`p-2` at `md`, `p-1.5` at `sm`) and the same variant looks, focus ring and disabled pair as
-  `Button`.
+  `Button` ([validated by](../../tests/IconButton.test.tsx#L16),
+  [L39](../../tests/IconButton.test.tsx#L39),
+  [L114](../../tests/IconButton.test.tsx#L114), [L123](../../tests/IconButton.test.tsx#L123),
+  [L76](../../tests/IconButton.test.tsx#L76), [L83](../../tests/IconButton.test.tsx#L83),
+  [L90](../../tests/IconButton.test.tsx#L90), [L99](../../tests/IconButton.test.tsx#L99)).
 - `labels` is required and `IconButtonLabels` has no defaults object: the accessible name is the
   component's only string and no English default may stand in for it, the same reasoning as
   `aiDisclosure` (docs/design-notes.md § Labels decision 5). Omitting `labels` is a compile
-  error against the built package.
+  error against the built package ([validated by](../../tests/labelled-exports.test.tsx#L617),
+  [L55](../../tests/types/primitives-type-assertions.tsx#L55),
+  [L39](../../tests/primitives-dist.test.ts#L39)).
 - The accessible name goes through `labels`, never a string prop, so `IconButton` is a
-  `labelsProp` member and the closed `stringPropOnly` list is untouched.
+  `labelsProp` member and the closed `stringPropOnly` list is untouched
+  ([validated by](../../tests/labelled-exports.test.tsx#L88),
+  [L633](../../tests/labelled-exports.test.tsx#L633)).
 
 ### `PromptChips`
 
@@ -126,11 +156,18 @@ export function PromptChips(props: PromptChipsProps): ReactElement | null;
 - Renders a `<ul role="list">` named by `suggestedPrompts`, one `<li>` per prompt holding a
   `<button type="button">` whose accessible name is the prompt text, laid out as a wrapping,
   centred row of rounded chips (`flex flex-wrap justify-center gap-2`; chip:
-  `rounded-full border border-slate-200 bg-white px-4 py-2 text-sm`).
-- Clicking a chip calls `onPick` once with exactly that prompt's text.
-- An empty `prompts` array renders nothing at all - no list, no accessible name.
+  `rounded-full border border-slate-200 bg-white px-4 py-2 text-sm`)
+  ([validated by](../../tests/PromptChips.test.tsx#L13),
+  [L23](../../tests/PromptChips.test.tsx#L23),
+  [L36](../../tests/PromptChips.test.tsx#L36), [L57](../../tests/PromptChips.test.tsx#L57),
+  [L101](../../tests/PromptChips.test.tsx#L101)).
+- Clicking a chip calls `onPick` once with exactly that prompt's text
+  ([validated by](../../tests/PromptChips.test.tsx#L74),
+  [L85](../../tests/PromptChips.test.tsx#L85)).
+- An empty `prompts` array renders nothing at all - no list, no accessible name
+  ([validated by](../../tests/PromptChips.test.tsx#L48)).
 - Two identical prompt strings render two chips; keys are index-qualified so React never
-  collapses them.
+  collapses them ([validated by](../../tests/PromptChips.test.tsx#L95)).
 - `PromptChips` is the intended content of `ChatMessageList`'s `prompts` slot, which stays typed
   `ReactNode`: the consumer renders `prompts={<PromptChips prompts={...} onPick={pick} />}` and
   wires `onPick` to `ChatComposerHandle.setValue` itself. The slot contract does not change.
@@ -162,30 +199,45 @@ export const SearchField: ForwardRefExoticComponent<
 - Renders a wrapper `<div class="relative">` holding a decorative `SearchIcon` (absolutely
   positioned at the left, `pointer-events-none`, `aria-hidden`) and one `<input type="search">`
   named by `searchInput` through `aria-label`, with `searchPlaceholder` as its placeholder and
-  the `ref` forwarded to the input.
+  the `ref` forwarded to the input ([validated by](../../tests/SearchField.test.tsx#L15),
+  [L63](../../tests/SearchField.test.tsx#L63), [L53](../../tests/SearchField.test.tsx#L53),
+  [L83](../../tests/SearchField.test.tsx#L83), [L99](../../tests/SearchField.test.tsx#L99)).
 - The input is controlled: it renders `value`, and every change calls `onChange` with the
-  input's new value verbatim.
-- `disabled` renders the native attribute.
+  input's new value verbatim ([validated by](../../tests/SearchField.test.tsx#L24),
+  [L30](../../tests/SearchField.test.tsx#L30)).
+- `disabled` renders the native attribute ([validated by](../../tests/SearchField.test.tsx#L41),
+  [L47](../../tests/SearchField.test.tsx#L47)).
 - No clear button, no submit, no debounce: filtering as the user types is the consumer's, and
-  `useDebounce` already ships for it.
+  `useDebounce` already ships for it ([validated by](../../tests/SearchField.test.tsx#L75)).
 
 ## Conventions every primitive follows
 
 - All four component files open with `"use client"` as their first statement: each takes a
   handler prop, which the trigger list (docs/design-notes.md decision 1, rule 5) measures off
-  the AST, and the built `dist/components/*.js` files open with the directive.
+  the AST, and the built `dist/components/*.js` files open with the directive
+  ([validated by](../../tests/primitives-dist.test.ts#L20)).
 - `Button`, `IconButton` and `SearchField` are `forwardRef` components (decision 4: no cleanup
   rewrites `forwardRef` away), so a consumer can focus the control - a "jump to latest" button,
-  a search box behind a keyboard shortcut - without reaching into the DOM.
+  a search box behind a keyboard shortcut - without reaching into the DOM
+  ([validated by](../../tests/Button.test.tsx#L31), [L31](../../tests/IconButton.test.tsx#L31),
+  [L53](../../tests/SearchField.test.tsx#L53)).
 - No primitive takes `className`, `style` or a render prop. Layout is the wrapper's: a `Button`
   in a `flex flex-col` sidebar column stretches to the column's width on its own, and a floating
   "jump to latest" `IconButton` is positioned by the element the consumer wraps it in. The
   stance is `Toast`'s (docs/design-notes.md § Toast): a consumer needing a different shape
-  renders its own element.
+  renders its own element ([validated by](../../tests/types/primitives-type-assertions.tsx#L50),
+  [L57](../../tests/types/primitives-type-assertions.tsx#L57),
+  [L60](../../tests/types/primitives-type-assertions.tsx#L60),
+  [L63](../../tests/types/primitives-type-assertions.tsx#L63),
+  [L39](../../tests/primitives-dist.test.ts#L39)).
 - No icon is added: `PlusIcon`, `SearchIcon`, `ChevronDownIcon` and `RefreshIcon` cover the
-  issue's six cases, and `SearchField` is the first shipped component to render `SearchIcon`.
+  issue's six cases, and `SearchField` is the first shipped component to render `SearchIcon`
+  ([validated by](../../tests/icons.test.tsx#L60), [L63](../../tests/SearchField.test.tsx#L63)).
 - `Button` and `IconButton` share their variant and size class maps through a private
-  `src/components/buttonStyles.ts` that the barrel does not export.
+  `src/components/buttonStyles.ts` that the barrel does not export
+  ([validated by](../../tests/primitives-dist.test.ts#L25),
+  [L30](../../tests/primitives-dist.test.ts#L30),
+  [L40](../../tests/public-api.test.ts#L40)).
 
 ## The published surface
 
@@ -194,7 +246,9 @@ export const SearchField: ForwardRefExoticComponent<
 type names (`ButtonProps`, `ButtonSize`, `ButtonVariant`, `IconButtonLabels`,
 `IconButtonProps`, `PromptChipsLabels`, `PromptChipsProps`, `SearchFieldLabels`,
 `SearchFieldProps`), written by `node scripts/write-public-api.mjs` after the surface was
-decided here, never regenerated to make the test pass. Nothing is removed or renamed.
+decided here, never regenerated to make the test pass ([validated
+by](../../tests/public-api.test.ts#L40),
+[L46](../../tests/public-api.test.ts#L46)). Nothing is removed or renamed.
 
 ## Recorded decisions
 
@@ -202,21 +256,29 @@ decided here, never regenerated to make the test pass. Nothing is removed or ren
    cases need a borderless look twice - the attach control inside the composer's dashed footer
    row, and the chat-demo's sign-out footer button - and a bordered `secondary` there reads as
    chrome. One `ButtonVariant` union serves both components so a consumer never learns two
-   vocabularies.
+   vocabularies ([validated by](../../tests/Button.test.tsx#L105),
+   [L90](../../tests/IconButton.test.tsx#L90),
+   [L48](../../tests/types/primitives-type-assertions.tsx#L48)).
 2. **`IconButton` ships no `defaultIconButtonLabels`.** Its one key is required, so the defaults
    object would be an empty frozen object exported for ceremony. `IconButton` therefore joins
    `ChatMessageList` as a component whose `labels` prop is itself required; docs/design-notes.md
-   § Labels records both.
+   § Labels records both ([validated by](../../tests/labelled-exports.test.tsx#L617),
+   [L55](../../tests/types/primitives-type-assertions.tsx#L55),
+   [L39](../../tests/primitives-dist.test.ts#L39)).
 3. **The `prompts` slot stays `ReactNode`.** Folding the chips into `ChatMessageList` (a
    `prompts: string[]` plus an `onPromptPick`) would break the slot's type for every consumer
    and still could not reach the composer, which is a sibling. The list renders what it is
    handed; the consumer wires the pick to `setValue`.
 4. **No `className` on any primitive.** A class-name escape hatch reintroduces the hand-written
    utility strings the issue exists to retire, and Tailwind's generated order - not attribute
-   order - decides which of two conflicting utilities wins, so appended classes fail silently.
+   order - decides which of two conflicting utilities wins, so appended classes fail silently
+   ([validated by](../../tests/types/primitives-type-assertions.tsx#L50),
+   [L57](../../tests/types/primitives-type-assertions.tsx#L57),
+   [L60](../../tests/types/primitives-type-assertions.tsx#L60),
+   [L63](../../tests/types/primitives-type-assertions.tsx#L63)).
 5. **`SearchField` reports the raw value.** A controlled input that trimmed on the way out would
    fight the caret; `ChatComposer` trims because it clears, `SearchField` does not because it
-   reflects.
+   reflects ([validated by](../../tests/SearchField.test.tsx#L30)).
 6. **`Text` and layout primitives are refused**, as the issue says: the greeting and the sidebar
    footer are consumer prose, and a layout primitive would decide spacing the consumer's page
    already decides.
