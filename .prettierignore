@@ -15,9 +15,10 @@
 # tools/eslint-plugin-lore/index.mjs is this repo's own and stays formatted.
 tools/eslint-plugin-lore/rules/
 
-# Verbatim mirrors of re-cinq/lore's spec-segmentation domain library, byte-
-# compared against lore main by the same script (decision 10). Formatting them
-# here would break byte identity - lore is the format authority. They keep
-# lore's `.js` relative imports; scripts/lib/lore-domain-resolve.mjs maps those
-# to the .ts files at load time.
-tools/lore-spec-domain/
+# Verbatim mirrors of re-cinq/lore's spec-segmentation and spec-status domain
+# libraries, byte-compared against lore main by the same script (decisions 10
+# and 11) and kept in lore's own libs/shared/src layout. Formatting them here
+# would break byte identity - lore is the format authority. They keep lore's
+# `.js` relative imports; scripts/lib/lore-domain-resolve.mjs maps those to the
+# .ts files at load time.
+tools/lore-shared/

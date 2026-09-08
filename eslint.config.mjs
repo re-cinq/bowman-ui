@@ -319,9 +319,10 @@ export default [
       // selector is linted): lore does not house-style-lint its own plugin,
       // so its bytes cannot be expected to pass this config.
       "tools/eslint-plugin-lore/rules/**",
-      // Verbatim lore mirrors of the spec-segmentation domain library
-      // (decision 10), on the same terms as the rule files above.
-      "tools/lore-spec-domain/**",
+      // Verbatim lore mirrors of the spec-segmentation and spec-status domain
+      // libraries (decisions 10 and 11), on the same terms as the rule files
+      // above.
+      "tools/lore-shared/**",
       "tests/fixtures/eslint-labels/**",
       "tests/fixtures/eslint-duplication/**",
       "tests/fixtures/eslint-house-rules/**",
