@@ -276,7 +276,7 @@ this job does not run.
 
 `publish.yml` runs `scripts/consumer-app.sh` after the Build step and before
 `npm publish`, against the tarball the script packs from the tagged commit
-([validated by](../../.github/workflows/publish.yml#L75)).
+([validated by](../../.github/workflows/publish.yml#L80)).
 
 ## Gates preserved
 

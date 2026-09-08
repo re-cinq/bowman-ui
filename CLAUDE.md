@@ -161,9 +161,9 @@ The typecheck script is `typecheck`, not `type-check`.
     `spec-sentence-split.ts`, `spec-link-parser.ts`, `test-paths.ts`), which are lint- and
     prettier-ignored on the same terms and are what `npm run check:spec-links` runs — see
     docs/design-notes.md § Lint guardrails decision 10.
-12. **Publishing** is tag-triggered CI only, via npm OIDC trusted publishing
-    (.github/workflows/publish.yml: `tags: ["v*"]`, `id-token: write`, no `NPM_TOKEN`). Never
-    `npm publish` by hand. Never push to `main` — guard-main-pushes.yml opens a security issue,
+12. **Publishing** is release-triggered CI only, via npm OIDC trusted publishing
+    (.github/workflows/publish.yml: `release: types: [published]`, `id-token: write`, no
+    `NPM_TOKEN`). Never `npm publish` by hand. Never push to `main` — guard-main-pushes.yml opens a security issue,
     because push access to `main` is transitively npm-publish access.
 
 ## Where AGENTS.md is stale
@@ -178,7 +178,7 @@ wrong; the correct fact is on the right.
 | React peers 16.8+ / 17.x / 18.x (:231)                | `react`/`react-dom` `^19.0.0` only                   |
 | "Jest or Vitest, default assumption" (:30)            | Vitest 4 (+ jsdom, Testing Library)                  |
 | Coverage minimum 80% (:240)                           | 100 lines/functions/statements + 90 branches         |
-| `npm publish` by hand (:59-62)                        | Tag `v*` + OIDC trusted publishing only              |
+| `npm publish` by hand (:59-62)                        | Publish a `v*` GitHub release + OIDC publishing only |
 | `.eslintrc` / `eslint.config.js` (:10)                | eslint.config.mjs                                    |
 | CHANGELOG.md migration note (:259)                    | No CHANGELOG.md exists in the repo                   |
 | "No console warnings", deprecation warns (:169, :260) | Runtime warnings are impossible — console is trapped |
