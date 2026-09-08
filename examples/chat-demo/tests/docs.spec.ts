@@ -36,6 +36,14 @@ const sectionTitles = async (page: Page): Promise<string[]> => {
   return titles.map((title) => title.toLowerCase());
 };
 
+const expectIndexRendered = async (page: Page): Promise<void> => {
+  await expect(page.getByRole("heading", { name: docsLabels.title, level: 1 })).toBeVisible();
+
+  for (const componentId of componentIds) {
+    await expect(page.locator(`[data-doc-index-entry="${componentId}"]`)).toHaveCount(1);
+  }
+};
+
 test.describe("documentation index", () => {
   test("bare / renders the index with the hero image and every component link", async ({
     page,
@@ -53,11 +61,7 @@ test.describe("documentation index", () => {
       "the hero src must be the Vite-hashed asset, proving it was imported not hardcoded"
     ).toMatch(/\/assets\/chat-hero[.-][\w-]+\.png$/);
 
-    await expect(page.getByRole("heading", { name: docsLabels.title, level: 1 })).toBeVisible();
-
-    for (const componentId of componentIds) {
-      await expect(page.locator(`[data-doc-index-entry="${componentId}"]`)).toHaveCount(1);
-    }
+    await expectIndexRendered(page);
 
     await expect(page.locator("[data-static-demo-note]")).toContainText(staticDemoNote);
   });
@@ -67,11 +71,7 @@ test.describe("documentation index", () => {
   }) => {
     await page.goto("/?view=docs");
 
-    await expect(page.getByRole("heading", { name: docsLabels.title, level: 1 })).toBeVisible();
-
-    for (const componentId of componentIds) {
-      await expect(page.locator(`[data-doc-index-entry="${componentId}"]`)).toHaveCount(1);
-    }
+    await expectIndexRendered(page);
 
     await page.locator('[data-doc-index-entry="tool-activity"]').click();
     await expect(page).toHaveURL(/component=tool-activity/);
