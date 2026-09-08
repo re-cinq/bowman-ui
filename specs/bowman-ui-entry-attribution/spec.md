@@ -1,6 +1,9 @@
 # bowman-ui entry attribution
 
-Issue: issue 121 (`121-bowman-ui-entry-attribution`)
+| Field  | Value                                                |
+| ------ | ---------------------------------------------------- |
+| Issue  | issue 121 (`121-bowman-ui-entry-attribution`) |
+| Status | In Progress                                          |
 
 Two assistant answers in one conversation can now show two different faces
 and two different names, the way a group chat shows a changing speaker.
