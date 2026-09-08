@@ -66,6 +66,7 @@
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@eslint/markdown": "8.0.3",
+    "@re-cinq/eslint-plugin-re-lint": "^1.0.0",
     "@stylistic/eslint-plugin": "^5.10.0",
     "@tailwindcss/cli": "^4.3.3",
     "@testing-library/jest-dom": "^7.0.1",
