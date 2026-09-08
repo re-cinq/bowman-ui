@@ -102,6 +102,13 @@ jobs:
       # to the end of its statement, never by deleting it.
       - name: Spec link placement
         run: npm run check:spec-links
+      # Every spec declares a lifecycle status in its header table that must match
+      # its test-link coverage: none linked is Draft, some In Progress, all Shipped.
+      # ADRs keep `accepted` and need only a lead paragraph. Fix a red check in the
+      # status row or the missing lead paragraph, never in the links;
+      # `check:spec-status -- --coverage` lists unlinked statements and never gates.
+      - name: Spec status
+        run: npm run check:spec-status
       # The Lore test-command interface must not drift from the scripts it
       # wraps: the committed list command has to keep emitting a parseable
       # JSON array (issue 189).
