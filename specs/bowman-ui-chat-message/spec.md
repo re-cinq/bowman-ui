@@ -1,6 +1,9 @@
 # bowman-ui chat message
 
-Issue: issue 73 (`023-bowman-ui-chat-message`)
+| Field  | Value                                          |
+| ------ | ---------------------------------------------- |
+| Issue  | issue 73 (`023-bowman-ui-chat-message`) |
+| Status | In Progress                                    |
 
 `ChatMessage` renders one turn of a conversation - streaming or finished,
 markdown, a tool-status row, a copy button, thumbs, an avatar - as
