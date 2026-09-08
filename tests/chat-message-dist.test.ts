@@ -1,7 +1,7 @@
 import { spawnSync } from "node:child_process";
-import { existsSync, readFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { packedPaths, stripLeadingTrivia } from "./helpers/built-package.js";
+import { expectClientDirectiveFirst, expectPackedWithTypes } from "./helpers/built-package.js";
 
 const BUILT_FILES = [
   "dist/components/ChatMessage.js",
@@ -11,20 +11,12 @@ const BUILT_FILES = [
 describe("the built chat message surface", () => {
   it('each built chat message component opens with "use client"; as its first statement', () => {
     for (const built of BUILT_FILES) {
-      expect(existsSync(built)).toBe(true);
-      const firstStatement = stripLeadingTrivia(readFileSync(built, "utf8"));
-
-      expect(firstStatement.startsWith('"use client";')).toBe(true);
+      expectClientDirectiveFirst(built);
     }
   });
 
   it("npm pack --dry-run ships both components with their d.ts files and react-markdown as a runtime dependency", () => {
-    const paths = packedPaths();
-
-    for (const built of BUILT_FILES) {
-      expect(paths).toContain(built);
-      expect(paths).toContain(built.replace(/\.js$/, ".d.ts"));
-    }
+    expectPackedWithTypes(BUILT_FILES);
   });
 
   it("tsc accepts chat-message-type-assertions.tsx against dist via the '.' exports entry, pinning both @ts-expect-error fixtures", () => {

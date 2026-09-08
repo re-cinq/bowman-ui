@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { AppSidebar, ChatIcon } from "../src/index.js";
 import type { SidebarNavItem } from "../src/index.js";
+import { expectImportHygiene, expectNoEgress } from "./helpers/source-hygiene.js";
 
 const threeItems: SidebarNavItem[] = [
   { key: "dashboard", label: "Dashboard" },
@@ -250,19 +251,10 @@ describe("the source files (grep acceptance criteria)", () => {
   const content = readFileSync(resolve(process.cwd(), componentPath), "utf8");
 
   it("GDPR: the file calls no console.*, localStorage, sessionStorage, fetch, sendBeacon or analytics", () => {
-    expect(content).not.toMatch(
-      /console\.|localStorage|sessionStorage|fetch|sendBeacon|analytics|indexedDB/i
-    );
+    expectNoEgress(content);
   });
 
   it("no @clerk, swr, next-intl, next/, @/ or lucide-react import, and every relative import ends in .js", () => {
-    expect(content).not.toMatch(/@clerk|swr|next-intl|next\/|@\/|lucide-react/);
-    const relativeImports = [...content.matchAll(/from\s+"(\.[^"]+)"/g)].map(([, spec]) => spec);
-
-    expect(relativeImports.length).toBeGreaterThan(0);
-
-    for (const spec of relativeImports) {
-      expect(spec).toMatch(/\.js$/);
-    }
+    expectImportHygiene(content);
   });
 });

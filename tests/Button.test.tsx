@@ -6,6 +6,7 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { createRef, type MouseEvent as ReactMouseEvent } from "react";
 import { Button, PlusIcon } from "../src/index.js";
+import { expectClickEventDelivered } from "./helpers/click-event.js";
 
 const buttonOf = (): HTMLButtonElement => screen.getByRole("button", { name: "Ny samtale" });
 
@@ -51,11 +52,7 @@ describe("Button", () => {
         </Button>
       );
 
-      fireEvent.click(buttonOf());
-
-      expect(onClick).toHaveBeenCalledTimes(1);
-      expect(onClick.mock.calls[0][0]).toMatchObject({ type: "click", target: buttonOf() });
-      expect(onClick.mock.calls[0][0].nativeEvent).toBeInstanceOf(MouseEvent);
+      expectClickEventDelivered(onClick, buttonOf());
     });
 
     it("disabled renders the native attribute and the click never reaches onClick", () => {

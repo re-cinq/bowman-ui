@@ -1,30 +1,35 @@
-import { execFileSync, spawnSync } from "node:child_process";
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+import { mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { dirname, join } from "node:path";
+import { join } from "node:path";
+import {
+  expectUsageError,
+  git,
+  runScript,
+  writeInRepo as write,
+  type RunResult,
+} from "./helpers/script-runner.js";
 
 const script = join(process.cwd(), "scripts", "repoint-spec-anchors.mjs");
 
-type RunResult = { status: number | null; stdout: string; stderr: string };
-
-const run = (repo: string, ...args: string[]): RunResult => {
-  const result = spawnSync(process.execPath, [script, ...args], { cwd: repo, encoding: "utf8" });
-
-  return { status: result.status, stdout: result.stdout, stderr: result.stderr };
-};
-
-const git = (repo: string, ...args: string[]) => {
-  execFileSync("git", args, { cwd: repo, stdio: "ignore" });
-};
-
-const write = (repo: string, path: string, content: string) => {
-  mkdirSync(join(repo, dirname(path)), { recursive: true });
-  writeFileSync(join(repo, path), content);
-};
+const run = (repo: string, ...args: string[]): RunResult => runScript(script, args, { cwd: repo });
 
 const read = (repo: string, path: string) => readFileSync(join(repo, path), "utf8");
 
 const asTestFile = (lines: string[]) => `${lines.join("\n")}\n`;
+
+const prependTwoLines = (repo: string) => {
+  write(
+    repo,
+    "tests/Foo.test.tsx",
+    asTestFile(["intro", "intro2", "alpha", "beta", "gamma", "delta"])
+  );
+};
+
+const runBothModes = (repo: string) => ({
+  check: run(repo, "--check", "main"),
+  rewrite: run(repo, "main"),
+});
 
 const asSpec = (...anchors: string[]) =>
   `${anchors.map((anchor, i) => `Statement ${i + 1}. ([validated by](${anchor}))`).join("\n\n")}\n`;
@@ -64,11 +69,7 @@ describe("repoint-spec-anchors", () => {
   });
 
   it("repoints anchors to where the base ref's line content moved", () => {
-    write(
-      repo,
-      "tests/Foo.test.tsx",
-      asTestFile(["intro", "intro2", "alpha", "beta", "gamma", "delta"])
-    );
+    prependTwoLines(repo);
 
     const result = run(repo, "main");
 
@@ -313,8 +314,7 @@ describe("repoint-spec-anchors", () => {
     );
     const specBefore = read(repo, "specs/foo/spec.md");
 
-    const check = run(repo, "--check", "main");
-    const rewrite = run(repo, "main");
+    const { check, rewrite } = runBothModes(repo);
 
     expect(check).toMatchObject({ status: 0 });
     expect(check.stdout).toContain("retargeted (not checked): 2");
@@ -328,8 +328,7 @@ describe("repoint-spec-anchors", () => {
     git(repo, "commit", "-q", "-m", "blank line at L2");
     const specBefore = read(repo, "specs/foo/spec.md");
 
-    const check = run(repo, "--check", "main");
-    const rewrite = run(repo, "main");
+    const { check, rewrite } = runBothModes(repo);
 
     expect(check).toMatchObject({ status: 1 });
     expect(check.stderr).toContain(
@@ -392,10 +391,7 @@ describe("repoint-spec-anchors", () => {
   });
 
   it("an unknown flag exits 2 with usage", () => {
-    const result = run(repo, "--frobnicate");
-
-    expect(result).toMatchObject({ status: 2 });
-    expect(result.stderr).toContain("usage:");
+    expectUsageError(run(repo, "--frobnicate"));
   });
 
   it("re-syncs a short-form label to its href line", () => {
@@ -416,11 +412,7 @@ describe("repoint-spec-anchors", () => {
     write(repo, "specs/foo/spec.md", asShortSpec([2, "../../tests/Foo.test.tsx#L2"]));
     git(repo, "add", "-A");
     git(repo, "commit", "-q", "-m", "short-form label in sync");
-    write(
-      repo,
-      "tests/Foo.test.tsx",
-      asTestFile(["intro", "intro2", "alpha", "beta", "gamma", "delta"])
-    );
+    prependTwoLines(repo);
 
     const result = run(repo, "main");
 
@@ -480,8 +472,7 @@ describe("repoint-spec-anchors", () => {
       )
     );
 
-    const check = run(repo, "--check", "main");
-    const rewrite = run(repo, "main");
+    const { check, rewrite } = runBothModes(repo);
 
     expect(check).toMatchObject({ status: 1 });
     expect(check.stdout).toContain("mislabelled: 1");
@@ -523,8 +514,7 @@ describe("repoint-spec-anchors", () => {
     git(repo, "commit", "-q", "-m", "short-form label href on a blank line");
     const specBefore = read(repo, "specs/foo/spec.md");
 
-    const check = run(repo, "--check", "main");
-    const rewrite = run(repo, "main");
+    const { check, rewrite } = runBothModes(repo);
 
     expect(check).toMatchObject({ status: 1 });
     expect(check.stdout).toContain("mislabelled: 0");

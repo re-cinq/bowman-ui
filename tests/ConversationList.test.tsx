@@ -10,6 +10,7 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { ConversationList } from "../src/index.js";
 import type { ConversationListItem } from "../src/index.js";
+import { expectImportHygiene, expectNoEgress } from "./helpers/source-hygiene.js";
 
 const makeItem = (overrides?: Partial<ConversationListItem>): ConversationListItem => ({
   id: "conv-1",
@@ -26,6 +27,24 @@ const charOpacities = () =>
 afterEach(() => {
   vi.useRealTimers();
 });
+
+const expectSettledTitle = (title: string) => {
+  expect(titleContainer().textContent).toBe(title);
+  expect(charOpacities().every((o) => o === "1")).toBe(true);
+  expect(vi.getTimerCount()).toBe(0);
+};
+
+const renderPlaceholderThenReal = () => {
+  const rendered = render(
+    <ConversationList items={[makeItem({ title: "New thread", isPlaceholderTitle: true })]} />
+  );
+
+  rendered.rerender(
+    <ConversationList items={[makeItem({ title: "Booking 4711", isPlaceholderTitle: false })]} />
+  );
+
+  return rendered;
+};
 
 describe("ConversationList", () => {
   describe("the list", () => {
@@ -276,9 +295,7 @@ describe("ConversationList", () => {
       act(() => {
         vi.advanceTimersByTime(11 * 25);
       });
-      expect(titleContainer().textContent).toBe("Booking 4711");
-      expect(charOpacities().every((o) => o === "1")).toBe(true);
-      expect(vi.getTimerCount()).toBe(0);
+      expectSettledTitle("Booking 4711");
     });
 
     it('a rerender from "Booking 4711" to "Booking 4712", neither a placeholder, replaces the text in one pass with zero timer ticks', () => {
@@ -295,9 +312,7 @@ describe("ConversationList", () => {
         />
       );
 
-      expect(titleContainer().textContent).toBe("Booking 4712");
-      expect(charOpacities().every((o) => o === "1")).toBe(true);
-      expect(vi.getTimerCount()).toBe(0);
+      expectSettledTitle("Booking 4712");
     });
 
     it('a rerender from "Untitled" to "Booking 4711" with isPlaceholderTitle absent on both animates zero times - the case literal-title sniffing would animate', () => {
@@ -306,9 +321,7 @@ describe("ConversationList", () => {
 
       rerender(<ConversationList items={[makeItem({ title: "Booking 4711" })]} />);
 
-      expect(titleContainer().textContent).toBe("Booking 4711");
-      expect(charOpacities().every((o) => o === "1")).toBe(true);
-      expect(vi.getTimerCount()).toBe(0);
+      expectSettledTitle("Booking 4711");
     });
 
     it("reducedMotion={true} makes the placeholder-to-real transition a one-pass replacement with zero timer ticks", () => {
@@ -327,22 +340,13 @@ describe("ConversationList", () => {
         />
       );
 
-      expect(titleContainer().textContent).toBe("Booking 4711");
-      expect(charOpacities().every((o) => o === "1")).toBe(true);
-      expect(vi.getTimerCount()).toBe(0);
+      expectSettledTitle("Booking 4711");
     });
 
     it("unmounting mid-animation clears the interval - advancing past the full run afterwards produces no state update and no act warning", () => {
       vi.useFakeTimers();
-      const { rerender, unmount } = render(
-        <ConversationList items={[makeItem({ title: "New thread", isPlaceholderTitle: true })]} />
-      );
+      const { unmount } = renderPlaceholderThenReal();
 
-      rerender(
-        <ConversationList
-          items={[makeItem({ title: "Booking 4711", isPlaceholderTitle: false })]}
-        />
-      );
       act(() => {
         vi.advanceTimersByTime(50);
       });
@@ -366,15 +370,7 @@ describe("ConversationList", () => {
 
     it("mid-animation, assistive tech already reads the new title while the characters still show the old one", () => {
       vi.useFakeTimers();
-      const { rerender } = render(
-        <ConversationList items={[makeItem({ title: "New thread", isPlaceholderTitle: true })]} />
-      );
-
-      rerender(
-        <ConversationList
-          items={[makeItem({ title: "Booking 4711", isPlaceholderTitle: false })]}
-        />
-      );
+      renderPlaceholderThenReal();
 
       expect(screen.getByText("Booking 4711")).toBeInTheDocument();
       expect(titleContainer().textContent).toBe("New thread");
@@ -417,19 +413,10 @@ describe("the source files (grep acceptance criteria)", () => {
   });
 
   it("GDPR: the file calls no console.*, localStorage, sessionStorage, fetch, sendBeacon or analytics", () => {
-    expect(content).not.toMatch(
-      /console\.|localStorage|sessionStorage|fetch|sendBeacon|analytics|indexedDB/i
-    );
+    expectNoEgress(content);
   });
 
   it("no @clerk, swr, next-intl, next/, @/ or lucide-react import, and every relative import ends in .js", () => {
-    expect(content).not.toMatch(/@clerk|swr|next-intl|next\/|@\/|lucide-react/);
-    const relativeImports = [...content.matchAll(/from\s+"(\.[^"]+)"/g)].map(([, spec]) => spec);
-
-    expect(relativeImports.length).toBeGreaterThan(0);
-
-    for (const spec of relativeImports) {
-      expect(spec).toMatch(/\.js$/);
-    }
+    expectImportHygiene(content);
   });
 });

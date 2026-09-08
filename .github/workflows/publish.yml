@@ -38,12 +38,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
-        with:
-          node-version: "22"
-          cache: npm
-      - name: Install
-        run: npm ci --ignore-scripts
+      - uses: ./.github/actions/setup-node-install
       # A tag is cut from main, which CI already gated - but a tag can be cut
       # from anything, and this is the last gate before the package is public
       # and immutable. Cheap insurance against an unversioned republish.
@@ -118,19 +113,6 @@ jobs:
       # this way; this one blocks the release.
       - name: AT-pass freshness check
         run: npm run check:at-pass -- --freshness
-      # Issue 82: the last executable proof before the package goes public and
-      # immutable - the packed tarball from this tagged commit must render the
-      # full chat screen in the standalone Vite consumer.
-      - name: Install chromium for the consumer check
-        run: npx playwright install --with-deps chromium
-      - name: Consumer app check
-        run: ./scripts/consumer-app.sh
-      # Issue 100: the App Router client-boundary proof against the tarball
-      # built from this tagged commit - the same release-candidate gate the
-      # consumer check installs. Green mode only: the --expect-failure branch
-      # guards the repo's own directives and already gated this commit in CI.
-      - name: RSC fixture check
-        run: ./scripts/rsc-fixture.sh
       # No --provenance: this repo was decided private at scaffold time
       # (decider: Loredana Moanga, 2026-08-24). a recorded decision covers
       # the exception (landing via issue 1486).

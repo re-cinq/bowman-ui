@@ -96,18 +96,49 @@ const stubGeometry = (
 
 const regionOf = () => screen.getByRole("log");
 
+const renderTwoEntriesWithGeometry = () => {
+  installScrollTo();
+  const { rerender } = render(
+    <ChatMessageList entries={twoEntries} userInitials="LM" labels={{ aiDisclosure }} />
+  );
+
+  stubGeometry(regionOf());
+
+  return rerender;
+};
+
+const scrollRegionTo = (scrollTop: number) => {
+  regionOf().scrollTop = scrollTop;
+  fireEvent.scroll(regionOf());
+};
+
+const appendThirdEntry = (rerender: ReturnType<typeof render>["rerender"]) => {
+  scrollToMock.mockClear();
+  rerender(<ChatMessageList entries={threeEntries} userInitials="LM" labels={{ aiDisclosure }} />);
+};
+
+const expectSmoothScrollToBottom = () => {
+  expect(scrollToMock).toHaveBeenCalledExactlyOnceWith({ top: 1200, behavior: "smooth" });
+};
+
+const renderWithSlots = (entries: typeof twoEntries) =>
+  render(
+    <ChatMessageList
+      entries={entries}
+      userInitials="LM"
+      labels={{ aiDisclosure }}
+      greeting={<div data-testid="greeting">God morgen</div>}
+      prompts={<div data-testid="prompts">Se min booking</div>}
+    />
+  );
+
+const transcriptChildren = (container: HTMLElement) =>
+  Array.from(container.querySelector(".max-w-3xl")?.children ?? []);
+
 describe("ChatMessageList", () => {
   describe("the empty state", () => {
     it("entries [] with busy false renders greeting and prompts and no ChatMessage", () => {
-      render(
-        <ChatMessageList
-          entries={[]}
-          userInitials="LM"
-          labels={{ aiDisclosure }}
-          greeting={<div data-testid="greeting">God morgen</div>}
-          prompts={<div data-testid="prompts">Se min booking</div>}
-        />
-      );
+      renderWithSlots([]);
 
       expect(screen.getByTestId("greeting")).toBeInTheDocument();
       expect(screen.getByTestId("prompts")).toBeInTheDocument();
@@ -115,15 +146,7 @@ describe("ChatMessageList", () => {
     });
 
     it("one entry renders the transcript and neither slot", () => {
-      render(
-        <ChatMessageList
-          entries={[userEntry("u1", "Ver pedido 4711")]}
-          userInitials="LM"
-          labels={{ aiDisclosure }}
-          greeting={<div data-testid="greeting">God morgen</div>}
-          prompts={<div data-testid="prompts">Se min booking</div>}
-        />
-      );
+      renderWithSlots([userEntry("u1", "Ver pedido 4711")]);
 
       expect(screen.getByRole("article")).toBeInTheDocument();
       expect(screen.queryByTestId("greeting")).not.toBeInTheDocument();
@@ -611,69 +634,37 @@ describe("ChatMessageList", () => {
 
   describe("auto-scroll", () => {
     it("pinned at 1200/400/800, appending an entry calls scrollTo with top 1200 and behavior smooth", () => {
-      installScrollTo();
-      const { rerender } = render(
-        <ChatMessageList entries={twoEntries} userInitials="LM" labels={{ aiDisclosure }} />
-      );
+      const rerender = renderTwoEntriesWithGeometry();
 
-      stubGeometry(regionOf());
       regionOf().scrollTop = 800;
-      scrollToMock.mockClear();
+      appendThirdEntry(rerender);
 
-      rerender(
-        <ChatMessageList entries={threeEntries} userInitials="LM" labels={{ aiDisclosure }} />
-      );
-
-      expect(scrollToMock).toHaveBeenCalledExactlyOnceWith({ top: 1200, behavior: "smooth" });
+      expectSmoothScrollToBottom();
     });
 
     it("unpinned after a scroll event at scrollTop 100, appending an entry calls scrollTo zero times", () => {
-      installScrollTo();
-      const { rerender } = render(
-        <ChatMessageList entries={twoEntries} userInitials="LM" labels={{ aiDisclosure }} />
-      );
+      const rerender = renderTwoEntriesWithGeometry();
 
-      stubGeometry(regionOf());
-      regionOf().scrollTop = 100;
-      fireEvent.scroll(regionOf());
-      scrollToMock.mockClear();
-
-      rerender(
-        <ChatMessageList entries={threeEntries} userInitials="LM" labels={{ aiDisclosure }} />
-      );
+      scrollRegionTo(100);
+      appendThirdEntry(rerender);
 
       expect(scrollToMock).toHaveBeenCalledTimes(0);
     });
 
     it("a scroll event back to the bottom re-pins and the next append scrolls smooth again", () => {
-      installScrollTo();
-      const { rerender } = render(
-        <ChatMessageList entries={twoEntries} userInitials="LM" labels={{ aiDisclosure }} />
-      );
+      const rerender = renderTwoEntriesWithGeometry();
 
-      stubGeometry(regionOf());
-      regionOf().scrollTop = 100;
-      fireEvent.scroll(regionOf());
-      regionOf().scrollTop = 800;
-      fireEvent.scroll(regionOf());
-      scrollToMock.mockClear();
+      scrollRegionTo(100);
+      scrollRegionTo(800);
+      appendThirdEntry(rerender);
 
-      rerender(
-        <ChatMessageList entries={threeEntries} userInitials="LM" labels={{ aiDisclosure }} />
-      );
-
-      expect(scrollToMock).toHaveBeenCalledExactlyOnceWith({ top: 1200, behavior: "smooth" });
+      expectSmoothScrollToBottom();
     });
 
     it("growing the last entry's content without changing entries.length scrolls with behavior auto", () => {
-      installScrollTo();
-      const { rerender } = render(
-        <ChatMessageList entries={twoEntries} userInitials="LM" labels={{ aiDisclosure }} />
-      );
+      const rerender = renderTwoEntriesWithGeometry();
 
-      stubGeometry(regionOf());
       scrollToMock.mockClear();
-
       rerender(
         <ChatMessageList
           entries={[twoEntries[0], assistantEntry("a1", "Pedido 4711 encontrado y confirmado")]}
@@ -723,14 +714,9 @@ describe("ChatMessageList", () => {
     });
 
     it("busy turning on while pinned scrolls with behavior auto so the indicator stays visible", () => {
-      installScrollTo();
-      const { rerender } = render(
-        <ChatMessageList entries={twoEntries} userInitials="LM" labels={{ aiDisclosure }} />
-      );
+      const rerender = renderTwoEntriesWithGeometry();
 
-      stubGeometry(regionOf());
       scrollToMock.mockClear();
-
       rerender(
         <ChatMessageList entries={twoEntries} userInitials="LM" busy labels={{ aiDisclosure }} />
       );
@@ -755,26 +741,15 @@ describe("ChatMessageList", () => {
     });
 
     it("a scroll event at 32px from the bottom stays pinned; one at 33px unpins", () => {
-      installScrollTo();
+      const rerender = renderTwoEntriesWithGeometry();
       const fourEntries = [...threeEntries, assistantEntry("a3", "Tercera respuesta")];
-      const { rerender } = render(
-        <ChatMessageList entries={twoEntries} userInitials="LM" labels={{ aiDisclosure }} />
-      );
 
-      stubGeometry(regionOf());
-      regionOf().scrollTop = 768;
-      fireEvent.scroll(regionOf());
+      scrollRegionTo(768);
+      appendThirdEntry(rerender);
+      expectSmoothScrollToBottom();
+
+      scrollRegionTo(767);
       scrollToMock.mockClear();
-
-      rerender(
-        <ChatMessageList entries={threeEntries} userInitials="LM" labels={{ aiDisclosure }} />
-      );
-      expect(scrollToMock).toHaveBeenCalledExactlyOnceWith({ top: 1200, behavior: "smooth" });
-
-      regionOf().scrollTop = 767;
-      fireEvent.scroll(regionOf());
-      scrollToMock.mockClear();
-
       rerender(
         <ChatMessageList entries={fourEntries} userInitials="LM" labels={{ aiDisclosure }} />
       );
@@ -782,33 +757,21 @@ describe("ChatMessageList", () => {
     });
 
     it("downward scroll events fired by an in-flight smooth scroll do not unpin; an upward one does", () => {
-      installScrollTo();
+      const rerender = renderTwoEntriesWithGeometry();
       const fourEntries = [...threeEntries, assistantEntry("a3", "Tercera respuesta")];
-      const { rerender } = render(
-        <ChatMessageList entries={twoEntries} userInitials="LM" labels={{ aiDisclosure }} />
-      );
 
-      stubGeometry(regionOf());
+      appendThirdEntry(rerender);
+      expectSmoothScrollToBottom();
+
+      scrollRegionTo(600);
       scrollToMock.mockClear();
-
-      rerender(
-        <ChatMessageList entries={threeEntries} userInitials="LM" labels={{ aiDisclosure }} />
-      );
-      expect(scrollToMock).toHaveBeenCalledExactlyOnceWith({ top: 1200, behavior: "smooth" });
-
-      regionOf().scrollTop = 600;
-      fireEvent.scroll(regionOf());
-      scrollToMock.mockClear();
-
       rerender(
         <ChatMessageList entries={fourEntries} userInitials="LM" labels={{ aiDisclosure }} />
       );
-      expect(scrollToMock).toHaveBeenCalledExactlyOnceWith({ top: 1200, behavior: "smooth" });
+      expectSmoothScrollToBottom();
 
-      regionOf().scrollTop = 300;
-      fireEvent.scroll(regionOf());
+      scrollRegionTo(300);
       scrollToMock.mockClear();
-
       rerender(
         <ChatMessageList
           entries={[...threeEntries, assistantEntry("a3", "Tercera respuesta, completada")]}
@@ -1120,7 +1083,7 @@ describe("ChatMessageList", () => {
         <ChatMessageList entries={conversation} userInitials="LM" labels={{ aiDisclosure }} />
       );
 
-      const children = Array.from(container.querySelector(".max-w-3xl")?.children ?? []);
+      const children = transcriptChildren(container);
 
       expect(children.map((child) => child.tagName)).toEqual(["ARTICLE", "ARTICLE"]);
       expect(children[0]).toHaveTextContent("Ver pedido 4711");
@@ -1137,7 +1100,7 @@ describe("ChatMessageList", () => {
         />
       );
 
-      const children = Array.from(container.querySelector(".max-w-3xl")?.children ?? []);
+      const children = transcriptChildren(container);
 
       expect(children.map((child) => child.tagName)).toEqual(["ARTICLE", "DETAILS", "ARTICLE"]);
       expect(container.querySelectorAll("details")).toHaveLength(1);

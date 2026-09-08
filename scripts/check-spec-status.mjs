@@ -7,14 +7,9 @@
 // (docs/design-notes.md § Lint guardrails decision 11).
 
 import { readFileSync, readdirSync } from "node:fs";
-import { register } from "node:module";
 import { join, relative, resolve } from "node:path";
 import process from "node:process";
-import { fileURLToPath } from "node:url";
-
-const root = join(fileURLToPath(import.meta.url), "..", "..");
-
-register(new URL("./lib/lore-domain-resolve.mjs", import.meta.url));
+import { root } from "./lib/lore-domain.mjs";
 
 const RULE_LIB = "../tools/eslint-plugin-lore/rules/lib";
 

@@ -29,12 +29,7 @@ jobs:
           # The spec anchor check resolves origin/main content; the repo is
           # private, so a later unauthenticated fetch cannot bring it in.
           fetch-depth: 0
-      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
-        with:
-          node-version: "22"
-          cache: npm
-      - name: Install
-        run: npm ci --ignore-scripts
+      - uses: ./.github/actions/setup-node-install
       - name: Lint (--max-warnings 0)
         run: npm run lint
       # Checked, never auto-committed: writing formatting back would need
@@ -61,11 +56,13 @@ jobs:
       # scheme (javascript/data/vbscript/file) admitted to the default allowlist.
       - name: Markdown safety check
         run: npm run check:markdown-safety
-      # jscpd copy-paste gate over src and tests (config in .jscpd.json):
-      # duplicated lines stay below 4% at min-tokens 50. tests/fixtures/** is
-      # exempt - golden fixtures duplicate by design. A red check is fixed by
-      # extracting a shared helper, or by raising the threshold in the same PR
-      # with the reason recorded.
+      # jscpd copy-paste gate over the whole tree (config in .jscpd.json): zero
+      # clones at min-tokens 50. Ignored, all non-code: lockfiles, markdown
+      # (jscpd double-counts fenced blocks and the spec header tables are
+      # mandated), the verbatim lore mirrors under tools/, and tests/fixtures/**
+      # (golden fixtures duplicate by design). A red check is fixed by
+      # extracting a shared helper, never by raising the threshold
+      # (docs/design-notes.md § Lint guardrails decision 12).
       - name: Duplication check
         run: npm run check:duplication
       # tools/eslint-plugin-lore/rules/** are verbatim mirrors of the generic
@@ -135,14 +132,9 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+      - uses: ./.github/actions/setup-node-install
         with:
-          node-version: "22"
-          cache: npm
-      - name: Install
-        run: npm ci --ignore-scripts
-      - name: Build
-        run: npm run build
+          build: "true"
       # OS-level browser dependencies for the runner; the script installs the
       # Chromium build matching the demo's pinned @playwright/test itself.
       - name: Install chromium
@@ -163,14 +155,9 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+      - uses: ./.github/actions/setup-node-install
         with:
-          node-version: "22"
-          cache: npm
-      - name: Install
-        run: npm ci --ignore-scripts
-      - name: Build
-        run: npm run build
+          build: "true"
       - name: RSC fixture check
         run: ./scripts/rsc-fixture.sh
       - name: RSC fixture check (--expect-failure)
