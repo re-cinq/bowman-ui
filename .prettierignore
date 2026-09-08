@@ -8,22 +8,3 @@
 # interface; either way the directory's contents belong to that tool, not to
 # this repo's formatter.
 .lore/
-
-# Verbatim mirrors of re-cinq/lore's eslint plugin rules, byte-compared
-# against lore main by scripts/check-lore-plugin-sync.mjs. Formatting them
-# here would break byte identity - lore is the format authority. The local
-# tools/eslint-plugin-lore/index.mjs is this repo's own and stays formatted.
-# Spelled as a file glob, not as the directory: an excluded directory cannot be
-# re-included, which would make the negation below unreachable.
-tools/eslint-plugin-lore/rules/**/*.mjs
-
-# lore-shared.mjs is this repo's own shim, not a mirror, so it stays formatted.
-!tools/eslint-plugin-lore/rules/lib/lore-shared.mjs
-
-# Verbatim mirrors of re-cinq/lore's spec-segmentation and spec-status domain
-# libraries, byte-compared against lore main by the same script (decisions 10
-# and 11) and kept in lore's own libs/shared/src layout. Formatting them here
-# would break byte identity - lore is the format authority. They keep lore's
-# `.js` relative imports; scripts/lib/lore-domain-resolve.mjs maps those to the
-# .ts files at load time.
-tools/lore-shared/

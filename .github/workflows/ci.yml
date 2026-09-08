@@ -59,23 +59,11 @@ jobs:
       # jscpd copy-paste gate over the whole tree (config in .jscpd.json): zero
       # clones at min-tokens 50. Ignored, all non-code: lockfiles, markdown
       # (jscpd double-counts fenced blocks and the spec header tables are
-      # mandated), the verbatim lore mirrors under tools/, and tests/fixtures/**
-      # (golden fixtures duplicate by design). A red check is fixed by
+      # mandated) and tests/fixtures/** (golden fixtures duplicate by design). A red check is fixed by
       # extracting a shared helper, never by raising the threshold
       # (docs/design-notes.md § Lint guardrails decision 12).
       - name: Duplication check
         run: npm run check:duplication
-      # tools/eslint-plugin-lore/rules/** are verbatim mirrors of the generic
-      # subset of re-cinq/lore's eslint plugin, and tools/lore-shared/**
-      # verbatim mirrors of lore's spec domain library. This
-      # byte-compares both against lore's main and fails when lore ships a rule
-      # this repo has neither mirrored nor recorded as excluded. A red check is
-      # fixed by
-      # `npm run check:lore-plugin-sync -- --write` (drift) or by deciding the
-      # new rule in scripts/check-lore-plugin-sync.mjs. Exit 2 is a fetch
-      # failure, not drift.
-      - name: Lore plugin sync check
-        run: npm run check:lore-plugin-sync
       # Issue 97: the assistive-technology pass's structure gate. Validates the
       # newest docs/accessibility/at-pass-*.md when one exists - required
       # fields, a verdict per row per stack, no unexplained not-run, no fail

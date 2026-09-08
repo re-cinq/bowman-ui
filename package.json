@@ -45,7 +45,6 @@
     "test:coverage": "npm run build && vitest run --coverage",
     "lint": "eslint . --max-warnings 0",
     "check:duplication": "jscpd",
-    "check:lore-plugin-sync": "node scripts/check-lore-plugin-sync.mjs",
     "check:markdown-safety": "node scripts/check-markdown-safety.mjs",
     "check:spec-links": "node scripts/check-spec-links.mjs",
     "check:spec-status": "node scripts/check-spec-status.mjs",
