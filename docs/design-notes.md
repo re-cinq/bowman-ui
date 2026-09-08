@@ -596,10 +596,10 @@ the switch to absolute URLs is decided deliberately (issue 36).
 
 ## Lint guardrails
 
-Codified house conventions, enforced by two repo-local plugins loaded by
+Codified house conventions, enforced by one repo-local plugin loaded by
 relative import in `eslint.config.mjs` (no package.json, no build, no
-publish): `tools/eslint-plugin-bowman/` for this repo's own rules and
-`tools/eslint-plugin-lore/` for verbatim mirrors of re-cinq/lore's generic
+publish), `tools/eslint-plugin-bowman/` for this repo's own rules, by the
+published `@re-cinq/eslint-plugin-re-lint` package for re-cinq's generic
 rules (decision 9), plus a handful of core-ESLint entries (decisions 1-7). Those are validated against committed
 fixtures by `tests/eslint-house-rules.test.ts`, judged by the exact committed
 config via `--no-ignore` (the same mechanism the Labels and duplication
@@ -680,110 +680,109 @@ Decisions:
    genuinely unsafe ref or effect later added to one of these three files
    would pass.
 
-9. **The generic subset of lore's lint plugin is mirrored verbatim.**
-   `tools/eslint-plugin-lore/rules/` holds byte-for-byte copies of nine
-   re-cinq/lore rules plus their two lib helpers, selected by the LOCAL
-   `tools/eslint-plugin-lore/index.mjs` and policed in CI by
-   `scripts/check-lore-plugin-sync.mjs`, which fetches each canonical file
-   from lore's public main branch and fails on any byte difference (exit 2,
-   not 1, on fetch failure - a network problem is not drift; `--write`
-   refreshes). The gate also fails when lore ships a rule this repo has
-   neither mirrored nor recorded as excluded, with the reason, in that
-   script - a new upstream rule is a decision, not drift. Chosen over an
-   npm or git-dependency install because lore's plugin is a private,
-   unbuilt package inside a monorepo. Eight run at error over `src/**`:
-   `no-forwarding-class`, `no-nested-if`, `no-nested-loop`,
-   `no-vague-names`, `prefer-early-return`, `prefer-enforce-true` after an
-   18-site sweep, `no-reexport-only-module` (adopted 2026-09-07 at zero
-   sites - `index.ts` and `icons/index.tsx` are the exempt barrels; the
-   same lore release also shipped `no-cross-layer-import`, recorded as
-   excluded in the sync script: it reads monorepo layering from a
-   layers.yaml and bowman is one flat package), and `max-comment-lines` at
-   lore's `max: 1` after an 84-site sweep - a comment in `src/` is one line stating the constraint
-   the code cannot show; rationale essays live in this file or the feature
-   specs, and hook usage examples live in README § Hooks. The ninth,
-   `no-dead-md-links`, runs at error over every `*.md` the linter reaches
-   through `@eslint/markdown`'s `markdown/gfm` language (adopted
-   2026-09-07 at zero live sites): a repo-relative markdown link must land
-   on a file, because a rename sweep rewrites a dead link as faithfully as a
-   live one. Its one recorded exception is a scoped disable in
+9. **The generic subset of re-cinq's lint rules comes from the published
+   `@re-cinq/eslint-plugin-re-lint` package.** It is the home lore's plugin
+   was extracted into on 2026-09-08 (re-cinq/re-lint, Apache-2.0, built and
+   versioned), so the rules run from `node_modules` under the `re-lint`
+   plugin key, wired by hand in `eslint.config.mjs` rather than through the
+   package's `recommended` preset: an upstream addition is a decision here,
+   never a rule that switches itself on, and an upstream change arrives as a
+   lockfile bump reviewed like any dependency. Seven run at error over
+   `src/**`: `no-nested-if`, `no-nested-loop`, `no-vague-names`,
+   `prefer-early-return`, `no-reexport-only-module` (adopted 2026-09-07 at
+   zero sites - `index.ts` and `icons/index.tsx` are the exempt barrels),
+   `max-comment-lines` at the package's `max: 1` after an 84-site sweep - a
+   comment in `src/` is one line stating the constraint the code cannot show;
+   rationale essays live in this file or the feature specs, and hook usage
+   examples live in README § Hooks - and `no-forwarding-class`, which is
+   inert by construction: it needs type information and the config gives it
+   none (see "Type-aware rules" below), so it is a placeholder for the day
+   that decision flips, not a guardrail. `prefer-enforce-true` was dropped
+   with the switch: the package's rule reports nothing without an
+   `enforceModule` option naming the helper its fix would import, this
+   library ships no such helper, and `src/` carries no `throw` at all after
+   the 18-site sweep that adopted it, so it is vacuous here on the same terms
+   as `require-fetch-timeout`. The eighth, `no-dead-md-links`, runs at error
+   over every `*.md` the linter reaches through `@eslint/markdown`'s
+   `markdown/gfm` language (adopted 2026-09-07 at zero live sites): a
+   repo-relative markdown link must land on a file, because a rename sweep
+   rewrites a dead link as faithfully as a live one. Its one recorded
+   exception is a scoped disable in
    `specs/bowman-ui-assistive-technology-pass/spec.md` around the seven
    links to `docs/accessibility/at-pass-<date>.md`, the record a human
    writes after the pass - owed, not missing, as that spec says. Adopting a
    markdown-language block forced the JavaScript presets, parser options and
    react-hooks rules at the head of `eslint.config.mjs` under a script-file
    glob: a global config object also reaches the markdown block, where core
-   JavaScript rules crash on a markdown source. The mirrors carry
-   no local fixtures (they are tested upstream in lore), the same trade
-   recorded for `react-hooks` in decision 8; the rule files are
-   `.prettierignore`d and eslint-ignored so lore stays their format
-   authority. Never edit a file under `tools/eslint-plugin-lore/rules/`.
+   JavaScript rules crash on a markdown source. The rules carry no local
+   fixtures (they are tested upstream), the same trade recorded for
+   `react-hooks` in decision 8.
 
-10. **Lore's spec-segmentation domain is mirrored verbatim too, and
+   Until the package existed the same rules were byte-for-byte mirrors under
+   `tools/eslint-plugin-lore/`, policed in CI by a sync script that fetched
+   each file from lore's main and failed on drift or on an undecided upstream
+   rule - chosen over an npm or git install because lore's plugin was a
+   private, unbuilt package inside a monorepo. Publication voided every
+   reason for the mirror. Bowman's four overlapping ports stay bowman's for
+   the reason the rejected list below gives.
+
+10. **Lore's spec-segmentation domain comes from the same package, and
     `check:spec-links` runs it.** A statement's `([validated by](...))` link
     counts as coverage only when it sits in that statement's TRAILING
     parenthetical; lore's spec-coverage job reports every other test link as
     `non-trailing-link`, and with no local check the defect kept regenerating
     (issues 2 and 7). Rather than reimplement the segmentation and guess at
-    agreement, `tools/lore-shared/domain/` holds byte-for-byte copies of the
-    four pure domain files behind that verdict - `spec-segment.ts`,
-    `spec-sentence-split.ts`, `spec-link-parser.ts`, `test-paths.ts` - policed
-    by the same `scripts/check-lore-plugin-sync.mjs` on the same terms as the
-    rule mirrors (exit 2 on fetch failure, `--write` refreshes), and
-    `.prettierignore`d and eslint-ignored for the same reason. The domain
-    library, not lore's `require-spec-link` rule family that wraps it: those
-    rules import `the unpublished shared package` at runtime, an unpublished package
-    inside lore's monorepo, so they stay recorded as excluded in the sync
-    script while the pure part they wrap is mirrored here. The mirrors keep
-    lore's `.js` relative imports untouched - editing them to `.ts` would
-    break byte identity, which is the whole point - so
-    `scripts/lib/lore-domain-resolve.mjs` maps those specifiers at load time,
-    registered as a module-customization hook and scoped to parents inside
-    the mirror directory; `npm run check:spec-links` runs the mirror under
-    `--experimental-strip-types` (Node 22.6+) and Vitest resolves `.js` to
-    `.ts` on its own, so a test needs no hook. It is the local counterpart of
-    lore's spec-coverage-validate job: one line per misplaced citation, a
-    `misplaced: N across M specs` summary, exit 1 on any finding. The mirror
-    keeps lore's own `libs/shared/src` layout - `domain/`, and the `work/` and
-    `lib/` siblings decision 11 adds - because lore's coverage module imports
-    those files by relative path, and a flatter local shape would have forced
-    an edit that breaks byte identity. Never edit a file under
-    `tools/lore-shared/`.
+    agreement, `scripts/check-spec-links.mjs` imports `segmentStatements` and
+    `findMisplacedCoverageLinks` from
+    `@re-cinq/eslint-plugin-re-lint/spec/*.js`, the package's vendored copy
+    of lore's `libs/shared/src` domain, so the local verdict is lore's own by
+    construction. It is the local counterpart of lore's spec-coverage-validate
+    job: one line per misplaced citation, a `misplaced: N across M specs`
+    summary, exit 1 on any finding. Until 2026-09-08 the domain was a
+    byte-exact mirror of lore's TypeScript under `tools/lore-shared/`, run
+    under `--experimental-strip-types` behind a module-resolve hook that
+    mapped lore's `.js` specifiers onto the `.ts` files; the package ships
+    built JavaScript, so the hook, the flag and the Node 22.6 floor it
+    implied are gone.
 
-11. **Lore's spec-status domain is mirrored on the same terms, and
-    `check:spec-status` gates the lead paragraph and the status row while
-    reporting the statement links.** Issue 17 asks for three lint-time checks
-    over `specs/**/spec.md` and `adrs/**`: every testable statement carries a
-    trailing `([validated by](...))` link, every doc opens with a lead
-    paragraph, and every doc declares a lifecycle status its own link coverage
-    entitles it to claim. Lore implements all three as ESLint rules
-    (`require-statement-links`, `require-intro-paragraph`,
-    `require-status-matches-coverage`), and all three stay recorded as excluded
-    in the sync script for decision 10's reason - they load the unpublished
-    `the unpublished shared package`. So the pure parts are mirrored instead:
-    `domain/spec-status.ts`, `work/spec-status-coverage.ts` and `lib/enforce.ts`
-    under `tools/lore-shared/`, plus the three rule libraries
-    `rules/lib/doc-kind.mjs`, `rules/lib/intro-paragraph.mjs` and
-    `rules/lib/status-coverage.mjs` under `tools/eslint-plugin-lore/`. One
-    local file joins them, `rules/lib/lore-shared.mjs`: upstream it is the shim
-    onto the unpublished package, here it re-exports the same names from the
-    mirrors so `status-coverage.mjs` stays byte-identical while resolving its
-    `./lore-shared.mjs` import. It says so in its header, is not byte-compared,
-    and ESLint never loads it - only `scripts/check-spec-status.mjs` does, under
-    `--experimental-strip-types` with the same resolve hook.
+11. **Spec status and lead paragraphs are ESLint rules; `check:spec-status`
+    keeps what a rule cannot express.** Issue 17 asks for three lint-time
+    checks over `specs/**/spec.md` and `adrs/**`: every testable statement
+    carries a trailing `([validated by](...))` link, every doc opens with a
+    lead paragraph, and every doc declares a lifecycle status its own link
+    coverage entitles it to claim. The package ships all three as rules.
+    `re-lint/require-intro-paragraph` runs at error over `specs/**/spec.md`
+    and `adrs/*.md`, and `re-lint/require-status-matches-coverage` over
+    `specs/**/spec.md` alone, both pinned against the invented docs under
+    `tests/fixtures/spec-status/` by `tests/eslint-spec-docs.test.ts` through
+    the same `--no-ignore` mechanism as the house rules.
+    `scripts/check-spec-status.mjs` keeps two jobs, reading `parseDocStatus`
+    and `unlinkedTestableStatements` from the package's `spec/*.js` exports:
+    its default run requires every ADR's frontmatter `status:` to parse, and
+    `--coverage` reports the unlinked statements.
 
-    Two decisions shape what the script gates:
+    Two decisions shape the split:
 
     - **Statement links are a report, not a gate.** 421 testable statements
-      across the corpus carry no link today, and the repo lints at zero
-      warnings. The count lives behind `--coverage`, which lists every unlinked
-      statement and always exits 0; the backfill is the sweep tasks' work, and
-      turning it red on day one would only mean disabling it.
+      across the corpus carried no link when this landed, and the repo lints
+      at zero warnings, so `require-statement-links` stays off (a `warn`
+      would be red under `--max-warnings 0`). The count lives behind
+      `--coverage`, which lists every unlinked statement and always exits 0;
+      the backfill is the sweep tasks' work, and turning it red on day one
+      would only mean disabling it.
     - **ADRs are exempt from the coverage tier, not from the other two.** Lore
-      folds `accepted` into `shipped`, so an ADR carrying `status: accepted` and
-      no test links would be demanded to link every statement it makes - the
-      wrong ask of a decision record. ADRs keep `status: accepted` and are still
-      required to parse a status and to open with a lead paragraph.
+      folds `accepted` into `shipped`, so an ADR carrying `status: accepted`
+      and no test links would be demanded to link every statement it makes -
+      the wrong ask of a decision record. The tier rule is therefore scoped
+      to specs by its `files` glob, and the script carries the ADR half the
+      rule would otherwise have given for free: a parseable status.
+
+    Until the package, the three rules were recorded as excluded because
+    they imported an unpublished shared package, their pure parts
+    were mirrored under `tools/lore-shared/` and
+    `tools/eslint-plugin-lore/rules/lib/` behind a local shim, and the script
+    held all three verdicts. The package vendors that domain, so the rules
+    run as rules.
 
 12. **The jscpd gate covers the whole tree at zero clones.** It began as a
     4% ceiling over `src` and `tests`, which a bare `npx jscpd .` showed to be
@@ -795,13 +794,13 @@ Decisions:
     copies now live once, in `tests/helpers/`, `scripts/lib/` and the
     `setup-node-install` composite action, and the gate holds the tree there:
     `path` is the repo, `threshold` is 0, and a red check is fixed only by
-    extracting a helper. Four inputs are ignored because they are not code
+    extracting a helper. Three inputs are ignored because they are not code
     and cannot be deduplicated: `**/package-lock.json` (generated, the same
     packages resolved in three trees), `**/*.md` (jscpd's markdown tokenizer
     reports AGENTS.md as a clone of itself at identical lines, the spec header
     tables are mandated by decision 11, and THIRD-PARTY-NOTICES.md must quote
-    licenses verbatim), the lore mirrors under `tools/` (never edited here,
-    decision 9), and `tests/fixtures/**` (golden fixtures duplicate by design).
+    licenses verbatim), and `tests/fixtures/**` (golden fixtures duplicate by
+    design).
     A jscpd baseline file was rejected: with zero clones an empty baseline
     equals threshold 0, and a baseline exists to grandfather clones, which is
     the opposite of the gate's purpose.
@@ -821,15 +820,18 @@ Considered and rejected:
 - **A "test must import its subject" rule.** The `*-dist.test.ts` suites
   import nothing from `src/` by design - they read `dist/` - so the rule
   contradicts the test architecture.
-- **Replacing bowman's four overlapping ports with lore's originals**
+- **Replacing bowman's four overlapping ports with re-lint's originals**
   (`max-boolean-operators`, `no-catch-as-control-flow`, `no-inline-styles`,
-  `no-prop-mutation`). Lore's `no-inline-styles` and `no-prop-mutation` fire
-  only under a hardcoded `/apps/web-ui/` path marker, so mirrored here they
-  would never fire - a silent loss of two guardrails - and lore's other two
-  miss the JSX-chain and property-name detections the committed fixtures
-  pin. The four stay bowman's own and are recorded as excluded in the sync
-  gate; upstreaming the extensions to lore, with `files:` scoping instead
-  of path markers, is the eventual fix.
+  `no-prop-mutation`). Re-lint 1.0's `max-boolean-operators` and
+  `no-catch-as-control-flow` still miss the JSX-chain and property-name
+  detections the committed fixtures pin. Its `no-inline-styles` and
+  `no-prop-mutation` traded lore's hardcoded `/apps/web-ui/` path marker
+  for a `files` scope, so they could fire here now, but the committed
+  fixtures pin bowman's shapes (the custom-properties-only style object,
+  the memo-wrapped component, the array mutators) and proving the package's
+  copies honour every one is its own change. The four stay bowman's own;
+  upstreaming the two extensions and then retiring all four ports is the
+  eventual fix.
 
 ## Seams left open on purpose
 
