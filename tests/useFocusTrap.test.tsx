@@ -1,13 +1,7 @@
 import { useRef } from "react";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { useFocusTrap } from "../src/hooks/useFocusTrap.js";
-
-// jsdom always reports offsetParent as null, which would make the trap see
-// every element as hidden; give attached elements a real-looking offsetParent.
-const offsetParentDescriptor = Object.getOwnPropertyDescriptor(
-  HTMLElement.prototype,
-  "offsetParent"
-);
+import { stubFocusEnvironment } from "./helpers/focus-environment.js";
 
 const Harness = ({
   isOpen,
@@ -47,27 +41,17 @@ const Harness = ({
   );
 };
 
-describe("useFocusTrap", () => {
-  beforeEach(() => {
-    Object.defineProperty(HTMLElement.prototype, "offsetParent", {
-      configurable: true,
-      get() {
-        return (this as HTMLElement).parentElement;
-      },
-    });
-    vi.stubGlobal("requestAnimationFrame", (callback: FrameRequestCallback) => {
-      callback(0);
+const focusOutsideAnOpenTrap = () => {
+  render(<button>outside</button>);
+  render(<Harness isOpen onClose={vi.fn()} />);
+  screen.getByRole("button", { name: "outside" }).focus();
+};
 
-      return 0;
-    });
-  });
+describe("useFocusTrap", () => {
+  const { restoreOffsetParent } = stubFocusEnvironment();
 
   afterEach(() => {
-    if (offsetParentDescriptor) {
-      Object.defineProperty(HTMLElement.prototype, "offsetParent", offsetParentDescriptor);
-    }
     Reflect.deleteProperty(HTMLElement.prototype, "checkVisibility");
-    vi.unstubAllGlobals();
   });
 
   it("focuses the first focusable element when opened", () => {
@@ -205,9 +189,7 @@ describe("useFocusTrap", () => {
   });
 
   it("checkVisibility wins over offsetParent, so a fixed-position container's children are not treated as hidden", () => {
-    if (offsetParentDescriptor) {
-      Object.defineProperty(HTMLElement.prototype, "offsetParent", offsetParentDescriptor);
-    }
+    restoreOffsetParent();
     Object.defineProperty(HTMLElement.prototype, "checkVisibility", {
       configurable: true,
       value: () => true,
@@ -219,9 +201,7 @@ describe("useFocusTrap", () => {
   });
 
   it("Tab while focus sits outside the open trap pulls it to the first element", () => {
-    render(<button>outside</button>);
-    render(<Harness isOpen onClose={vi.fn()} />);
-    screen.getByRole("button", { name: "outside" }).focus();
+    focusOutsideAnOpenTrap();
 
     fireEvent.keyDown(document, { key: "Tab" });
 
@@ -229,9 +209,7 @@ describe("useFocusTrap", () => {
   });
 
   it("Shift+Tab while focus sits outside the open trap pulls it to the last element", () => {
-    render(<button>outside</button>);
-    render(<Harness isOpen onClose={vi.fn()} />);
-    screen.getByRole("button", { name: "outside" }).focus();
+    focusOutsideAnOpenTrap();
 
     fireEvent.keyDown(document, { key: "Tab", shiftKey: true });
 

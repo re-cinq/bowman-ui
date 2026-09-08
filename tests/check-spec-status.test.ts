@@ -1,11 +1,10 @@
-import { spawnSync } from "node:child_process";
 import { readdirSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { stripTypesRunner } from "./helpers/script-runner.js";
 
 const root = process.cwd();
 const script = join(root, "scripts", "check-spec-status.mjs");
-const nodeFlags = ["--experimental-strip-types", "--disable-warning=ExperimentalWarning"];
 
 const fixtures = "tests/fixtures/spec-status";
 const inProgressSpec = `${fixtures}/specs/in-progress/spec.md`;
@@ -20,20 +19,9 @@ const noLeadSpec = `${fixtures}/specs/no-lead/spec.md`;
 const acceptedAdr = `${fixtures}/adrs/ADR-042-tide-ledger.md`;
 const noLeadAdr = `${fixtures}/adrs/ADR-043-lamp-oil.md`;
 
-type RunResult = { status: number | null; stdout: string; stderr: string };
-
 type Finding = { doc: string; line: number; kind: string; message: string };
 
-const runFrom = (cwd: string, ...args: string[]): RunResult => {
-  const result = spawnSync(process.execPath, [...nodeFlags, script, ...args], {
-    cwd,
-    encoding: "utf8",
-  });
-
-  return { status: result.status, stdout: result.stdout, stderr: result.stderr };
-};
-
-const run = (...args: string[]): RunResult => runFrom(root, ...args);
+const { run, runFrom } = stripTypesRunner(script);
 
 const findings = (...args: string[]): Finding[] => JSON.parse(run("--json", ...args).stdout);
 

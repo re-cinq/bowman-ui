@@ -785,6 +785,27 @@ Decisions:
       wrong ask of a decision record. ADRs keep `status: accepted` and are still
       required to parse a status and to open with a lead paragraph.
 
+12. **The jscpd gate covers the whole tree at zero clones.** It began as a
+    4% ceiling over `src` and `tests`, which a bare `npx jscpd .` showed to be
+    a gate over the wrong scope: `src/` had no clones at all, while the same
+    six routines were hand-copied across the test suites (source-hygiene
+    assertions, built-file directive and pack checks, script runners, ESLint
+    fixture linting, focus-environment stubs), two scripts each carried their
+    own `listSourceFiles`, and the workflow jobs repeated one setup block. The
+    copies now live once, in `tests/helpers/`, `scripts/lib/` and the
+    `setup-node-install` composite action, and the gate holds the tree there:
+    `path` is the repo, `threshold` is 0, and a red check is fixed only by
+    extracting a helper. Four inputs are ignored because they are not code
+    and cannot be deduplicated: `**/package-lock.json` (generated, the same
+    packages resolved in three trees), `**/*.md` (jscpd's markdown tokenizer
+    reports AGENTS.md as a clone of itself at identical lines, the spec header
+    tables are mandated by decision 11, and THIRD-PARTY-NOTICES.md must quote
+    licenses verbatim), the lore mirrors under `tools/` (never edited here,
+    decision 9), and `tests/fixtures/**` (golden fixtures duplicate by design).
+    A jscpd baseline file was rejected: with zero clones an empty baseline
+    equals threshold 0, and a baseline exists to grandfather clones, which is
+    the opposite of the gate's purpose.
+
 Considered and rejected:
 
 - **Type-aware rules** (`no-floating-promises`, `no-misused-promises`,

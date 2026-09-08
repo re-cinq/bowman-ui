@@ -14,6 +14,17 @@ updates:
     labels:
       - "dependencies"
 
+  # The composite action lives outside .github/workflows, which the "/" entry
+  # alone does not scan; its setup-node pin ages like any other without this.
+  - package-ecosystem: "github-actions"
+    directory: "/.github/actions/setup-node-install"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "chore"
+    labels:
+      - "dependencies"
+
   - package-ecosystem: "npm"
     directory: "/"
     schedule:

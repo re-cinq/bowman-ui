@@ -1,6 +1,9 @@
 import { act, renderHook } from "@testing-library/react";
 import { useDebounce } from "../src/hooks/useDebounce.js";
 
+const renderDebouncedA = () =>
+  renderHook(({ value }) => useDebounce(value, 300), { initialProps: { value: "a" } });
+
 describe("useDebounce", () => {
   beforeEach(() => {
     vi.useFakeTimers();
@@ -17,9 +20,7 @@ describe("useDebounce", () => {
   });
 
   it("still returns the previous value 299ms after a change and the new one at 301ms", () => {
-    const { result, rerender } = renderHook(({ value }) => useDebounce(value, 300), {
-      initialProps: { value: "a" },
-    });
+    const { result, rerender } = renderDebouncedA();
 
     rerender({ value: "b" });
     act(() => {
@@ -34,9 +35,7 @@ describe("useDebounce", () => {
   });
 
   it("a change before the deadline restarts the delay instead of firing the stale value", () => {
-    const { result, rerender } = renderHook(({ value }) => useDebounce(value, 300), {
-      initialProps: { value: "a" },
-    });
+    const { result, rerender } = renderDebouncedA();
 
     rerender({ value: "b" });
     act(() => {
