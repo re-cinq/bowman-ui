@@ -6,6 +6,7 @@ import { lintFixtures, messagesFor, type LintResult } from "./helpers/eslint-fix
 // glob is listed in the matching eslint.config.mjs `files` entry, so every
 // fixture is judged by the exact committed rules - not a copy of them.
 const fixtureDir = "tests/fixtures/eslint-house-rules";
+const houseRuleIds = new Set(["no-restricted-syntax", "re-lint/no-inline-styles"]);
 
 const lint = (): LintResult[] =>
   lintFixtures([
@@ -80,10 +81,10 @@ describe("the house-rule lint guardrails", () => {
     ).toContain("bowman/no-prop-mutation");
   });
 
-  it("a computed width in a style prop fails with bowman/no-inline-styles", () => {
+  it("a computed width in a style prop fails with re-lint/no-inline-styles", () => {
     expect(
       messagesFor(results, `no-inline-styles${sep}violation.tsx`).map((m) => m.ruleId)
-    ).toContain("bowman/no-inline-styles");
+    ).toContain("re-lint/no-inline-styles");
   });
 
   it("a default export in the component-overlay glob fails with the no-default-export message", () => {
@@ -95,7 +96,7 @@ describe("the house-rule lint guardrails", () => {
 
   it("boundary shapes pass every house rule - a two-operator condition, a sentinel catch, a local (non-prop) mutation, and a custom-properties-only style object", () => {
     const flagged = messagesFor(results, `clean${sep}clean.tsx`).filter(
-      (m) => m.ruleId?.startsWith("bowman/") || m.ruleId === "no-restricted-syntax"
+      (m) => m.ruleId?.startsWith("bowman/") || houseRuleIds.has(m.ruleId ?? "")
     );
 
     expect(flagged).toEqual([]);

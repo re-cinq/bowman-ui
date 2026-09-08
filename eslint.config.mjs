@@ -243,7 +243,6 @@ export default [
     rules: {
       "bowman/max-boolean-operators": ["error", { max: 2 }],
       "bowman/no-catch-as-control-flow": "error",
-      "bowman/no-inline-styles": "error",
       "bowman/no-network-egress": "error",
       "bowman/no-prop-mutation": "error",
     },
@@ -268,6 +267,16 @@ export default [
       "re-lint/prefer-early-return": "error",
     },
   },
+  // docs/design-notes.md § Lint guardrails decision 6: styling lives in the
+  // stylesheet. The package's rule replaced bowman's port on 2026-09-08 once
+  // the committed fixtures proved it honours the same shapes, the
+  // custom-properties-only style object included. The fixture glob exists so
+  // the red fixture is judged by this exact rule under --no-ignore.
+  {
+    files: ["src/**/*.{ts,tsx}", "tests/fixtures/eslint-house-rules/**/*.{ts,tsx}"],
+    plugins: { "re-lint": reLint },
+    rules: { "re-lint/no-inline-styles": "error" },
+  },
   // Recorded no-inline-styles exemptions - deliberate decisions, not
   // tolerated drift, each asserted by its component's tests. The exemptions
   // live here, by path, where they are visible and reviewable:
@@ -279,7 +288,7 @@ export default [
   {
     files: ["src/components/ConversationList.tsx", "src/components/ThinkingDots.tsx"],
     rules: {
-      "bowman/no-inline-styles": "off",
+      "re-lint/no-inline-styles": "off",
     },
   },
   // Issue #60 guardrail: duplication limits, scoped to src/** only. tests/ is
