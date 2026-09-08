@@ -271,7 +271,7 @@ the shared `setup-node-install` composite action, which sets
 `node-version: "22"` ([validated by](../../.github/actions/setup-node-install/action.yml#L18)),
 runs `npm ci --ignore-scripts`
 ([validated by](../../.github/actions/setup-node-install/action.yml#L22)) and, because the job asks for it with
-`build: "true"` ([validated by](../../.github/workflows/ci.yml#L134)), an explicit
+`build: "true"` ([validated by](../../.github/workflows/ci.yml#L137)), an explicit
 `npm run build` before packing
 ([validated by](../../.github/actions/setup-node-install/action.yml#L26)), and installs Chromium
 with `npx playwright install --with-deps chromium`
@@ -282,7 +282,7 @@ this job does not run.
 `publish.yml` runs `scripts/consumer-app.sh` in its credential-free `verify`
 job, after `test:coverage` has built `dist/`; the `publish` job holds the
 OIDC credential, runs no example-app code, and only `needs:` that green
-result ([validated by](../../.github/workflows/publish.yml#L57)).
+result ([validated by](../../.github/workflows/publish.yml#L61)).
 
 ## Gates preserved
 
