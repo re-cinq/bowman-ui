@@ -145,9 +145,9 @@ finding that `processToolUseChunk` ignores suppression outright.
 
 `ThinkingTrace` sits in the `labelsProp` bucket with its own sentinel harness,
 and its sentinel labels cover every `defaultThinkingTraceLabels` key
-([validated by](../../tests/labelled-exports.test.tsx#L526),
-[L72](../../tests/labelled-exports.test.tsx#L72),
-[L384](../../tests/labelled-exports.test.tsx#L384)).
+([validated by](../../tests/labelled-exports.test.tsx#L575),
+[L82](../../tests/labelled-exports.test.tsx#L82),
+[L415](../../tests/labelled-exports.test.tsx#L415)).
 
 ## Out of scope
 

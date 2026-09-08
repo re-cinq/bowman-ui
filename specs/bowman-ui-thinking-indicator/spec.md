@@ -112,13 +112,13 @@ shipped layout since 022
 ## Carried across mechanically
 
 - `ThinkingIndicator` joins the `labelsProp` partition bucket with a sentinel
-  harness ([validated by](../../tests/labelled-exports.test.tsx#L67),
-  [L364](../../tests/labelled-exports.test.tsx#L364)).
+  harness ([validated by](../../tests/labelled-exports.test.tsx#L77),
+  [L395](../../tests/labelled-exports.test.tsx#L395)).
   - The partition test still asserts the full barrel, which `ThinkingDots`
     never enters.
   - The `thinkingRegion` sentinel lands in `aria-label`, one of the seven
     checked attributes
-    ([validated by](../../tests/labelled-exports.test.tsx#L438)).
+    ([validated by](../../tests/labelled-exports.test.tsx#L469)).
 - No `@clerk`, `swr`, `next-intl`, `next/` or `@/` import in
   either new file, and every relative import ends in `.js`
   ([validated by](../../tests/ThinkingIndicator.test.tsx#L115)).

@@ -4,7 +4,7 @@
  * specs/bowman-ui-styled-primitives/spec.md.
  */
 import { fireEvent, render, screen } from "@testing-library/react";
-import { createRef } from "react";
+import { createRef, type MouseEvent as ReactMouseEvent } from "react";
 import { Button, PlusIcon } from "../src/index.js";
 
 const buttonOf = (): HTMLButtonElement => screen.getByRole("button", { name: "Ny samtale" });
@@ -43,7 +43,7 @@ describe("Button", () => {
 
   describe("clicking", () => {
     it('clicking "Ny samtale" calls onClick once with the click event', () => {
-      const onClick = vi.fn();
+      const onClick = vi.fn<(event: ReactMouseEvent<HTMLButtonElement>) => void>();
 
       render(
         <Button variant="primary" onClick={onClick}>
@@ -82,24 +82,30 @@ describe("Button", () => {
   });
 
   describe("the variants", () => {
-    it('variant="primary" carries bg-blue-500 text-white and no border-slate-200', () => {
+    it('variant="primary" carries bg-blue-500 text-white dark:bg-blue-600 and no border-slate-200', () => {
       render(<Button variant="primary">Ny samtale</Button>);
 
-      expect(buttonOf()).toHaveClass("bg-blue-500", "text-white", "hover:bg-blue-600");
+      expect(buttonOf()).toHaveClass("bg-blue-500", "text-white", "dark:bg-blue-600");
       expect(buttonOf()).not.toHaveClass("border-slate-200");
     });
 
-    it('variant="secondary" carries border border-slate-200 bg-white text-slate-700 and no bg-blue-500', () => {
+    it('variant="secondary" carries border border-slate-200 bg-white text-slate-700 dark:border-slate-800 and no bg-blue-500', () => {
       render(<Button variant="secondary">Ny samtale</Button>);
 
-      expect(buttonOf()).toHaveClass("border", "border-slate-200", "bg-white", "text-slate-700");
+      expect(buttonOf()).toHaveClass(
+        "border",
+        "border-slate-200",
+        "bg-white",
+        "text-slate-700",
+        "dark:border-slate-800"
+      );
       expect(buttonOf()).not.toHaveClass("bg-blue-500");
     });
 
-    it('variant="ghost" carries text-slate-600 hover:bg-slate-50 and neither border-slate-200 nor bg-blue-500', () => {
+    it('variant="ghost" carries text-slate-600 hover:bg-slate-50 dark:text-slate-400 and neither border-slate-200 nor bg-blue-500', () => {
       render(<Button variant="ghost">Ny samtale</Button>);
 
-      expect(buttonOf()).toHaveClass("text-slate-600", "hover:bg-slate-50", "hover:text-slate-900");
+      expect(buttonOf()).toHaveClass("text-slate-600", "hover:bg-slate-50", "dark:text-slate-400");
       expect(buttonOf()).not.toHaveClass("border-slate-200");
       expect(buttonOf()).not.toHaveClass("bg-blue-500");
     });
