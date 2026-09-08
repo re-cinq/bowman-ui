@@ -5,7 +5,7 @@ import sonarjs from "eslint-plugin-sonarjs";
 import stylistic from "@stylistic/eslint-plugin";
 import markdown from "@eslint/markdown";
 import bowman from "./tools/eslint-plugin-bowman/index.mjs";
-import lore from "./tools/eslint-plugin-lore/index.mjs";
+import reLint from "@re-cinq/eslint-plugin-re-lint";
 
 // docs/design-notes.md § Labels: the shared no-restricted-syntax selector set. Hoisted
 // into a const so the src/** overlays below (raw-<svg> ban, inline
@@ -248,24 +248,24 @@ export default [
       "bowman/no-prop-mutation": "error",
     },
   },
-  // Mirrored lore craftsmanship rules: tools/eslint-plugin-lore/rules/** are
-  // verbatim mirrors of the generic subset of re-cinq/lore's plugin, policed
-  // against lore's main by scripts/check-lore-plugin-sync.mjs (which also
-  // fails on an upstream rule this repo has neither mirrored nor excluded).
-  // Scoped to src/** like the bowman house rules; max-comment-lines carries
-  // lore's own limit. See docs/design-notes.md § Lint guardrails decision 9.
+  // The generic craftsmanship rules come from @re-cinq/eslint-plugin-re-lint,
+  // the published home of lore's plugin, wired by hand rather than through its
+  // preset so an upstream addition never switches itself on. Scoped to src/**
+  // like the bowman house rules; max-comment-lines carries lore's own limit.
+  // prefer-enforce-true is absent on purpose (vacuous here) and
+  // no-forwarding-class is inert without type information - both recorded in
+  // docs/design-notes.md § Lint guardrails decision 9.
   {
     files: ["src/**/*.{ts,tsx}"],
-    plugins: { lore },
+    plugins: { "re-lint": reLint },
     rules: {
-      "lore/max-comment-lines": ["error", { max: 1 }],
-      "lore/no-forwarding-class": "error",
-      "lore/no-nested-if": "error",
-      "lore/no-nested-loop": "error",
-      "lore/no-reexport-only-module": "error",
-      "lore/no-vague-names": "error",
-      "lore/prefer-early-return": "error",
-      "lore/prefer-enforce-true": "error",
+      "re-lint/max-comment-lines": ["error", { max: 1 }],
+      "re-lint/no-forwarding-class": "error",
+      "re-lint/no-nested-if": "error",
+      "re-lint/no-nested-loop": "error",
+      "re-lint/no-reexport-only-module": "error",
+      "re-lint/no-vague-names": "error",
+      "re-lint/prefer-early-return": "error",
     },
   },
   // Recorded no-inline-styles exemptions - deliberate decisions, not
@@ -298,16 +298,16 @@ export default [
       "sonarjs/no-identical-functions": "error",
     },
   },
-  // Every markdown link to a repo file must land (lore/no-dead-md-links,
-  // mirrored - decision 9): a rename sweep rewrites a dead link faithfully
-  // and the reference reads as current. The only markdown rule; the
-  // assistive-technology-pass spec carries a scoped disable for its seven
-  // deliberate links to the not-yet-written at-pass-<date>.md record.
+  // Every markdown link to a repo file must land (re-lint/no-dead-md-links,
+  // decision 9): a rename sweep rewrites a dead link faithfully and the
+  // reference reads as current. The assistive-technology-pass spec carries a
+  // scoped disable for its seven deliberate links to the not-yet-written
+  // at-pass-<date>.md record.
   {
     files: ["**/*.md"],
     language: "markdown/gfm",
-    plugins: { markdown, lore },
-    rules: { "lore/no-dead-md-links": "error" },
+    plugins: { markdown, "re-lint": reLint },
+    rules: { "re-lint/no-dead-md-links": "error" },
   },
   {
     ignores: [
