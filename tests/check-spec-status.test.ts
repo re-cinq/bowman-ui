@@ -127,7 +127,7 @@ describe("check-spec-status", () => {
     ]);
   });
 
-  it("four fixture docs report four findings across four docs and exit 1", () => {
+  it("six fixture docs report four findings across four docs and exit 1", () => {
     const result = run(
       inProgressSpec,
       shippedSpec,
