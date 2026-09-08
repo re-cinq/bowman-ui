@@ -543,11 +543,11 @@ cannot pass a function across the client boundary - `AppShell`
 `assistantMessageFrom` label),
 `ConversationList` (`renderLink`, `onSelect`, `onDelete`, the
 `deleteConversation` label), `ErrorBoundary` (`onError`), `PromptChips`
-(`onPick`), `SearchField` (`onChange`) and `Toast`
-(`onClose`) accept function-valued props, so an App Router consumer supplies
-those props from a `"use client"` file. Functions are the case the fixture
-exercises; the constraint is React's serialization boundary, which rejects
-any non-serializable prop the same way. The fixture's
+(`onPick`), `SearchField` (`onChange`), `Toast` (`onClose`) and
+`ToolActivity` (`describeTool`) accept function-valued props, so an App Router
+consumer supplies those props from a `"use client"` file. Functions are the
+case the fixture exercises; the constraint is React's serialization boundary,
+which rejects any non-serializable prop the same way. The fixture's
 `app/compose/page.tsx` ships under `"use client"` for exactly this reason,
 and `app/client/page.tsx` is the control proving the composition itself is
 sound.

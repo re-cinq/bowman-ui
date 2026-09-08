@@ -120,10 +120,11 @@ design-notes rule lists every export with a function-valued prop, derived
 mechanically with
 `grep -rlE '^ +[A-Za-z"-]+\??: [^;]*=>' dist/components/*.d.ts`
 (re-run it against a fresh build to audit the list): `AppShell`,
-`AppSidebar`, `ChatComposer`, `ChatMessage`, `ChatMessageList`,
-`ConversationList`, `ErrorBoundary`, `Toast`
+`AppSidebar`, `Button`, `ChatComposer`, `ChatMessage`, `ChatMessageList`,
+`ConversationList`, `ErrorBoundary`, `IconButton`, `PromptChips`,
+`SearchField`, `Toast`, `ToolActivity`
 ([validated by](../../docs/design-notes.md#L537)), and the same sentence appears in
-the README ([validated by](../../README.md#L161)). `app/client/page.tsx` is
+the README ([validated by](../../README.md#L162)). `app/client/page.tsx` is
 the control: the same composition under `"use client"`, building green, so
 the rejection is attributable to the boundary and not to the components
 ([validated by](../../examples/rsc-fixture/app/client/page.tsx#L1)). The two

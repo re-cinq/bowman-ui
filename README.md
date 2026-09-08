@@ -157,7 +157,17 @@ npm run rsc
 
 Pass `-- --keep` to retain the temp directory and tarball, and `-- --expect-failure` to prove the guard goes red when a `dist/` file loses its directive.
 
-A React server component cannot pass a function across the client boundary - `AppShell` (`renderSidebar`, `onMobileSidebarOpenChange`), `AppSidebar` (`renderNavLink`, `onNavigate`, a `SidebarNavItem`'s `icon`), `Button` and `IconButton` (`onClick`, and the `icon` component), `ChatComposer` (`onSubmit`), `ChatMessage` and `ChatMessageList` (`onCopy`, `onFeedback`, the `assistantMessageFrom` label), `ConversationList` (`renderLink`, `onSelect`, `onDelete`, the `deleteConversation` label), `ErrorBoundary` (`onError`), `PromptChips` (`onPick`), `SearchField` (`onChange`) and `Toast` (`onClose`) accept function-valued props, so an App Router consumer supplies those props from a `"use client"` file (measured on Next 16.3.3; the verbatim build error is recorded in docs/design-notes.md § RSC fixture). An object literal crosses fine - `ChatMessageList`'s `attribution` map, element-valued avatars included - which is why per-entry attribution is a lookup table and not a render prop.
+A React server component cannot pass a function across the client boundary - `AppShell`
+(`renderSidebar`, `onMobileSidebarOpenChange`), `AppSidebar` (`renderNavLink`, `onNavigate`, a
+`SidebarNavItem`'s `icon`), `Button` and `IconButton` (`onClick`, and the `icon` component),
+`ChatComposer` (`onSubmit`), `ChatMessage` and `ChatMessageList` (`onCopy`, `onFeedback`, the
+`assistantMessageFrom` label), `ConversationList` (`renderLink`, `onSelect`, `onDelete`, the
+`deleteConversation` label), `ErrorBoundary` (`onError`), `PromptChips` (`onPick`), `SearchField`
+(`onChange`), `Toast` (`onClose`) and `ToolActivity` (`describeTool`) accept function-valued props,
+so an App Router consumer supplies those props from a `"use client"` file (measured on Next 16.3.3;
+the verbatim build error is recorded in docs/design-notes.md § RSC fixture). An object literal
+crosses fine - `ChatMessageList`'s `attribution` map, element-valued avatars included - which is why
+per-entry attribution is a lookup table and not a render prop.
 `ConversationList` has no `onNew`; the new-conversation control is the consumer's, as shown under
 [Minimal app](#minimal-app).
 

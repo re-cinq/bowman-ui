@@ -122,6 +122,9 @@ export const IconButton: ForwardRefExoticComponent<
   [L114](../../tests/IconButton.test.tsx#L114), [L123](../../tests/IconButton.test.tsx#L123),
   [L76](../../tests/IconButton.test.tsx#L76), [L83](../../tests/IconButton.test.tsx#L83),
   [L90](../../tests/IconButton.test.tsx#L90), [L99](../../tests/IconButton.test.tsx#L99)).
+- `IconButton` shares `Button`'s `type` default and `"submit"` option, its `onClick` event and its
+  `disabled` behaviour ([validated by](../../tests/IconButton.test.tsx#L25),
+  [L50](../../tests/IconButton.test.tsx#L50), [L62](../../tests/IconButton.test.tsx#L62)).
 - `labels` is required and `IconButtonLabels` has no defaults object: the accessible name is the
   component's only string and no English default may stand in for it, the same reasoning as
   `aiDisclosure` (docs/design-notes.md § Labels decision 5). Omitting `labels` is a compile
@@ -234,10 +237,13 @@ export const SearchField: ForwardRefExoticComponent<
   issue's six cases, and `SearchField` is the first shipped component to render `SearchIcon`
   ([validated by](../../tests/icons.test.tsx#L60), [L63](../../tests/SearchField.test.tsx#L63)).
 - `Button` and `IconButton` share their variant and size class maps through a private
-  `src/components/buttonStyles.ts` that the barrel does not export
+  `src/components/buttonStyles.ts` that the barrel does not export: the built runtime and type
+  export lists equal the committed snapshot, which carries none of its names
+  ([validated by](../../tests/public-api.test.ts#L40), [L46](../../tests/public-api.test.ts#L46)).
+- The built `dist/components/buttonStyles.js` ships in the pack beside the four primitives and does
+  not open with `"use client"`: it has no handler and no hook (decision 1)
   ([validated by](../../tests/primitives-dist.test.ts#L25),
-  [L30](../../tests/primitives-dist.test.ts#L30),
-  [L40](../../tests/public-api.test.ts#L40)).
+  [L30](../../tests/primitives-dist.test.ts#L30)).
 
 ## The published surface
 
