@@ -35,28 +35,23 @@ parenthetical closing the statement counts.
 - A citation written inside backticks is documentation of the convention rather than a use of
   it, and is never reported ([validated by](../../tests/check-spec-links.test.ts#L75)).
 
-## What is mirrored, and why
+## Where the segmentation comes from
 
-Segmentation is not reimplemented here. `tools/lore-shared/domain/` holds byte-for-byte copies
-of the four pure domain files behind lore's verdict - `spec-segment.ts`,
-`spec-sentence-split.ts`, `spec-link-parser.ts`, `test-paths.ts` - so a local pass and an
-upstream pass cannot disagree about where a statement begins or which parenthetical is the
-trailing one. A reimplementation would have had to guess at that agreement, and the guess is the
-whole failure mode the gate exists to close. The mirror tree keeps lore's own `libs/shared/src`
-layout, because the spec-status modules added beside it in decision 11 import these files by
-relative path.
-
-The mirrors keep lore's `.js` relative import specifiers untouched, because editing them to
-`.ts` would break the byte identity `npm run check:lore-plugin-sync` polices.
-`scripts/lib/lore-domain-resolve.mjs` maps those specifiers to the mirrored `.ts` files at load
-time as a module-customization hook scoped to that tree; Vitest resolves them on its own,
-so a test needs no hook. Never edit a file under `tools/lore-shared/`.
+Segmentation is not reimplemented here. `scripts/check-spec-links.mjs` imports
+`segmentStatements` and `findMisplacedCoverageLinks` from
+`@re-cinq/eslint-plugin-re-lint/spec/*.js`, the package's vendored copy of the pure domain
+behind lore's verdict, so a local pass and an upstream pass cannot disagree about where a
+statement begins or which parenthetical is the trailing one. A reimplementation would have had
+to guess at that agreement, and the guess is the whole failure mode the gate exists to close.
+Until 2026-09-08 the same files were byte-exact mirrors of lore's TypeScript under
+`tools/lore-shared/`, loaded under `--experimental-strip-types` behind a resolve hook; the
+package ships built JavaScript, so both are gone (docs/design-notes.md § Lint guardrails
+decision 10).
 
 ## The script's contract
 
-`npm run check:spec-links` runs `scripts/check-spec-links.mjs` under
-`--experimental-strip-types`, so it needs Node 22.6 or newer - above `package.json`'s
-`engines.node` of `>=22`, which stays as it is, and satisfied by CI's `node-version: "22"`.
+`npm run check:spec-links` runs `scripts/check-spec-links.mjs` on plain Node, within
+`package.json`'s `engines.node` of `>=22`.
 
 - With no path arguments it scans every `specs/<slug>/spec.md` in sorted slug order followed by
   `.specify/spec.md`, which is exactly the list an explicit invocation of those paths produces
@@ -102,7 +97,7 @@ end of its statement, never by deleting it.
   citation cannot turn a pin red. The one test that does read `specs/` asserts an equality
   between two runs rather than a count, so it survives every sweep too.
 - **The test drives the script as a subprocess.** `tests/check-spec-links.test.ts` spawns
-  `scripts/check-spec-links.mjs` with the same two Node flags the npm script passes, following
+  `scripts/check-spec-links.mjs` exactly as the npm script does, following
   `tests/check-at-pass.test.ts`: exit codes and the exact stdout are the contract, and importing
   the module would test neither.
 - **No autofix.** Moving a citation changes the sentence it belongs to, and choosing which

@@ -266,16 +266,16 @@ source import a bundler tree-shakes away.
 The `consumer` job in `ci.yml` runs on every pull request (the workflow's
 unfiltered `pull_request` trigger), pins its actions to the same commit SHAs
 as the existing job with `persist-credentials: false`
-([validated by](../../.github/workflows/ci.yml#L129)), takes its setup from
+([validated by](../../.github/workflows/ci.yml#L117)), takes its setup from
 the shared `setup-node-install` composite action, which sets
 `node-version: "22"` ([validated by](../../.github/actions/setup-node-install/action.yml#L18)),
 runs `npm ci --ignore-scripts`
 ([validated by](../../.github/actions/setup-node-install/action.yml#L22)) and, because the job asks for it with
-`build: "true"` ([validated by](../../.github/workflows/ci.yml#L137)), an explicit
+`build: "true"` ([validated by](../../.github/workflows/ci.yml#L125)), an explicit
 `npm run build` before packing
 ([validated by](../../.github/actions/setup-node-install/action.yml#L26)), and installs Chromium
 with `npx playwright install --with-deps chromium`
-([validated by](../../.github/workflows/ci.yml#L140)). It omits
+([validated by](../../.github/workflows/ci.yml#L128)). It omits
 `fetch-depth: 0` on purpose: that exists for the spec anchor check, which
 this job does not run.
 
