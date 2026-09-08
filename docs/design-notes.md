@@ -225,11 +225,15 @@ users they are talking to an AI, and the Act applies because a chat surface
 built with this package can serve EU users regardless of where it is hosted -
 so a consumer cannot render the chat surface without supplying the sentence,
 and no plausible English default may paper over the omission. Because the
-label is required, `ChatMessageList` is the one component whose `labels`
-prop is itself required, typed
+label is required, `ChatMessageList`'s `labels` prop is itself required,
+typed
 `Partial<ChatMessageListLabels> & Required<Pick<ChatMessageListLabels, "aiDisclosure">>`.
-Decision 2's optional `labels?` shape reads subject to that single
-exception; every other key still defaults per key.
+`IconButton` (§ Styled primitives) is the second component whose `labels`
+prop is required, typed `labels: IconButtonLabels`: its single key
+`accessibleName` is required, so it ships no `defaultIconButtonLabels` - an
+empty frozen object exported for ceremony. Decision 2's optional `labels?`
+shape reads subject to these two exceptions; every other key still defaults
+per key.
 
 **The three `stringPropOnly` exceptions** (every other string-carrying export
 takes `labels`):
@@ -427,6 +431,78 @@ below its content, the region never overflows, and the page scrolls instead
 of the transcript. The library does not set the outer height; that is the
 consumer's layout decision.
 
+## Styled primitives
+
+`Button`, `IconButton`, `PromptChips` and `SearchField` are a closed set of
+styled controls for the slots every consumer otherwise fills by hand - the
+`prompts` slot, the composer's `attachSlot`, `AppSidebar`'s children and
+`footer` (issue 43). `specs/bowman-ui-styled-primitives/spec.md` pins the
+signatures and the tests; this section records the decisions, so no cleanup
+PR reverses them.
+
+- **"Styled" means Tailwind utility class names in the built file**, exactly
+  as for every other component: the consumer's own Tailwind v4 build
+  generates the CSS by scanning the installed `dist` through the `@source`
+  line README § Styles prescribes, `dark:` variants included. `src/styles.css`
+  gains nothing for them - no keyframe, no rule Tailwind cannot generate - so
+  `dist/styles.css` still declares exactly the four keyframes
+  `tests/styles.test.ts` pins. A primitive needing its own stylesheet rule is
+  a stylesheet decision recorded here first, not a fifth keyframe.
+- **The prop surface is closed: no `className`, no `style`, no render prop on
+  any primitive.** A class-name escape hatch reintroduces the hand-written
+  utility strings the primitives exist to retire, and Tailwind's generated
+  order - not attribute order - decides between two conflicting utilities,
+  so an appended class fails silently. Layout belongs to the consumer's
+  wrapper: a `Button` in a `flex flex-col` sidebar column stretches to the
+  column on its own, and a floating "jump to latest" `IconButton` is
+  positioned by the element wrapped around it. This is § Toast's stance
+  ("takes no `className`") applied to four more components; a consumer
+  needing a different shape renders its own element. The compile-time pin is
+  `tests/types/primitives-type-assertions.tsx`.
+- **One `ButtonVariant` union of three - `primary`, `secondary`, `ghost` -
+  shared by `Button` and `IconButton`.** The issue proposed two. `ghost`
+  exists because two controls need a borderless look - the attach control
+  inside the composer's dashed footer row (the issue's fifth case) and the
+  chat-demo's sign-out footer button, a control the issue did not enumerate -
+  and a bordered `secondary` there reads as chrome. Every variant renders its
+  content centred (`justify-center` sits in the shared base classes), so a
+  left-aligned sidebar control is the consumer's own element: the chat-demo
+  follow-up must not expect `Button` to replace the sign-out button as-is.
+  One union serves both components so a consumer never learns two
+  vocabularies. The variant, size and icon class maps live once, in the
+  private `src/components/buttonStyles.ts`: the barrel does not export it,
+  and it carries no `"use client"` because it has no handler and no hook
+  (decision 1), so the built `buttonStyles.js` stays server-safe while the
+  four component files open with the directive.
+- **`IconButton`'s accessible name is a required label, never a string
+  prop.** `labels: IconButtonLabels`, whose one key `accessibleName` is
+  required, keeps `IconButton` in the `labelsProp` partition and the closed
+  `stringPropOnly` list at three. An icon-only button without a name is the
+  defect, so no English default stands in for it and no
+  `defaultIconButtonLabels` ships - the second required-`labels` exception
+  § Labels records.
+- **`PromptChips` is the intended content of `ChatMessageList`'s `prompts`
+  slot, and the slot stays `ReactNode`.** Folding the chips into the list - a
+  `prompts: string[]` plus an `onPromptPick` - would break the slot's type
+  for every consumer and still could not reach the composer, which is the
+  list's sibling. The list renders what it is handed; the consumer wires
+  `onPick` to `ChatComposerHandle.setValue`. An empty `prompts` array renders
+  nothing, so the slot can be filled unconditionally.
+- **`SearchField` reports the raw value.** A controlled input that trimmed on
+  the way out would fight the caret; `ChatComposer` trims because it clears,
+  `SearchField` reflects. It ships no clear button, no submit and no debounce:
+  filtering as the user types is the consumer's, and `useDebounce` already
+  exists for it. It is the first shipped component to render `SearchIcon`; no
+  icon is added for the primitives and the set stays at 23 (decision 2).
+- **`Button`, `IconButton` and `SearchField` are `forwardRef` components**
+  under decision 4, so a consumer can focus a control - a "jump to latest"
+  button, a search box behind a keyboard shortcut - without reaching into the
+  DOM. `PromptChips` is a plain function component: a chip group has no one
+  element to hand back.
+- **`Text`/`Typography` and layout primitives are refused.** The greeting and
+  the sidebar footer are consumer prose, and a layout primitive would decide
+  spacing the consumer's page already decides.
+
 ## RSC fixture
 
 `examples/rsc-fixture` is the executable proof that the `"use client"`
@@ -465,15 +541,17 @@ call this function rather than return it.
 The rule, recorded in README.md in the same words: a React server component
 cannot pass a function across the client boundary - `AppShell`
 (`renderSidebar`, `onMobileSidebarOpenChange`), `AppSidebar`
-(`renderNavLink`, `onNavigate`, a `SidebarNavItem`'s `icon`), `ChatComposer`
+(`renderNavLink`, `onNavigate`, a `SidebarNavItem`'s `icon`), `Button` and
+`IconButton` (`onClick`, and the `icon` component), `ChatComposer`
 (`onSubmit`), `ChatMessage` and `ChatMessageList` (`onCopy`, `onFeedback`, the
 `assistantMessageFrom` label),
 `ConversationList` (`renderLink`, `onSelect`, `onDelete`, the
-`deleteConversation` label), `ErrorBoundary` (`onError`) and `Toast`
-(`onClose`) accept function-valued props, so an App Router consumer supplies
-those props from a `"use client"` file. Functions are the case the fixture
-exercises; the constraint is React's serialization boundary, which rejects
-any non-serializable prop the same way. The fixture's
+`deleteConversation` label), `ErrorBoundary` (`onError`), `PromptChips`
+(`onPick`), `SearchField` (`onChange`), `Toast` (`onClose`) and
+`ToolActivity` (`describeTool`) accept function-valued props, so an App Router
+consumer supplies those props from a `"use client"` file. Functions are the
+case the fixture exercises; the constraint is React's serialization boundary,
+which rejects any non-serializable prop the same way. The fixture's
 `app/compose/page.tsx` ships under `"use client"` for exactly this reason,
 and `app/client/page.tsx` is the control proving the composition itself is
 sound.

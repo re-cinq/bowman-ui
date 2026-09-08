@@ -31,9 +31,9 @@ name, added by the 2026-08-26 review) - per docs/design-notes.md § Labels.
 `AppShell` sits in the `labelsProp` partition bucket and passes the
 sentinel render with all four labels set to sentinels; the harness opens the
 drawer so the dialog-name sentinel renders
-([partition](../../tests/labelled-exports.test.tsx#L76),
-[harness](../../tests/labelled-exports.test.tsx#L423),
-[L550](../../tests/labelled-exports.test.tsx#L550)).
+([partition](../../tests/labelled-exports.test.tsx#L86),
+[harness](../../tests/labelled-exports.test.tsx#L454),
+[L599](../../tests/labelled-exports.test.tsx#L599)).
 
 `renderSidebar({ variant, close })` is called exactly twice per render - once
 per position, `"desktop"` rail and `"mobile"` drawer - and both returned

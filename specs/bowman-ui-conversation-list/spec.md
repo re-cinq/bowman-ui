@@ -30,10 +30,10 @@ component reads no clock and no locale: no `Date` constructor,
 `ConversationList` sits
 in the `labelsProp` partition bucket and passes the
 sentinel render across its list, empty and loading states, the function label
-included ([partition](../../tests/labelled-exports.test.tsx#L69),
-[harness](../../tests/labelled-exports.test.tsx#L436),
+included ([partition](../../tests/labelled-exports.test.tsx#L79),
+[harness](../../tests/labelled-exports.test.tsx#L467),
 [L185](../../tests/ConversationList.test.tsx#L185),
-[defaults](../../tests/labelled-exports.test.tsx#L544)).
+[defaults](../../tests/labelled-exports.test.tsx#L593)).
 
 ## The four decisions
 
