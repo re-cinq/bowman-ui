@@ -52,8 +52,10 @@ The typecheck script is `typecheck`, not `type-check`.
 - `npm run lint` — `eslint . --max-warnings 0`.
 - `npm run prettier` / `npm run prettier:check`.
 - `npm run check:markdown-safety`; `npm run consumer`; `npm run rsc`.
-- `npm run check:duplication` — jscpd copy-paste gate over `src` + `tests` (config in
-  .jscpd.json): fails above 4% duplicated lines at min-tokens 50; `tests/fixtures/**` is exempt.
+- `npm run check:duplication` — jscpd copy-paste gate over the whole tree (config in
+  .jscpd.json): zero clones at min-tokens 50. Ignored as non-code: lockfiles, `**/*.md`, the
+  lore mirrors under tools/, and `tests/fixtures/**`. Never raise the threshold; extract a
+  helper (docs/design-notes.md § Lint guardrails decision 12).
 - `npm run check:lore-plugin-sync` — byte-compares every file under
   tools/eslint-plugin-lore/rules/ and tools/lore-shared/ against re-cinq/lore main and
   fails on an upstream rule not yet mirrored or recorded as excluded; `-- --write` refreshes

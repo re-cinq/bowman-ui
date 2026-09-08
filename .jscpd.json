@@ -1,8 +1,14 @@
 {
-  "path": ["src", "tests"],
+  "path": ["."],
   "minTokens": 50,
-  "threshold": 4,
-  "ignore": ["**/tests/fixtures/**"],
+  "threshold": 0,
+  "ignore": [
+    "**/tests/fixtures/**",
+    "**/package-lock.json",
+    "**/*.md",
+    "tools/eslint-plugin-lore/rules/**",
+    "tools/lore-shared/**"
+  ],
   "reporters": ["console"],
   "gitignore": true
 }
