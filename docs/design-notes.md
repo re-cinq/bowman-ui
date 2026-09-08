@@ -461,9 +461,13 @@ PR reverses them.
   `tests/types/primitives-type-assertions.tsx`.
 - **One `ButtonVariant` union of three - `primary`, `secondary`, `ghost` -
   shared by `Button` and `IconButton`.** The issue proposed two. `ghost`
-  exists because two of the six hand-styled cases need a borderless look -
-  the attach control inside the composer's dashed footer row and a sidebar
-  footer sign-out button - and a bordered `secondary` there reads as chrome.
+  exists because two controls need a borderless look - the attach control
+  inside the composer's dashed footer row (the issue's fifth case) and the
+  chat-demo's sign-out footer button, a control the issue did not enumerate -
+  and a bordered `secondary` there reads as chrome. Every variant renders its
+  content centred (`justify-center` sits in the shared base classes), so a
+  left-aligned sidebar control is the consumer's own element: the chat-demo
+  follow-up must not expect `Button` to replace the sign-out button as-is.
   One union serves both components so a consumer never learns two
   vocabularies. The variant, size and icon class maps live once, in the
   private `src/components/buttonStyles.ts`: the barrel does not export it,

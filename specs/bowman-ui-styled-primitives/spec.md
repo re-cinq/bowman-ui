@@ -174,7 +174,8 @@ export function PromptChips(props: PromptChipsProps): ReactElement | null;
   collapses them ([validated by](../../tests/PromptChips.test.tsx#L95)).
 - `PromptChips` is the intended content of `ChatMessageList`'s `prompts` slot, which stays typed
   `ReactNode`: the consumer renders `prompts={<PromptChips prompts={...} onPick={pick} />}` and
-  wires `onPick` to `ChatComposerHandle.setValue` itself. The slot contract does not change.
+  wires `onPick` to `ChatComposerHandle.setValue` itself. The slot contract does not change
+  ([validated by](../../tests/ChatMessageList.test.tsx#L101)).
 
 ### `SearchField`
 
@@ -234,8 +235,8 @@ export const SearchField: ForwardRefExoticComponent<
   [L60](../../tests/types/primitives-type-assertions.tsx#L60),
   [L63](../../tests/types/primitives-type-assertions.tsx#L63),
   [L39](../../tests/primitives-dist.test.ts#L39)).
-- No icon is added: `PlusIcon`, `SearchIcon`, `ChevronDownIcon` and `RefreshIcon` cover the
-  issue's six cases, and `SearchField` is the first shipped component to render `SearchIcon`
+- No icon is added: `PlusIcon`, `SearchIcon` and `ChevronDownIcon` cover the issue's six cases,
+  and `SearchField` is the first shipped component to render `SearchIcon`
   ([validated by](../../tests/icons.test.tsx#L60), [L63](../../tests/SearchField.test.tsx#L63)).
 - `Button` and `IconButton` share their variant and size class maps through a private
   `src/components/buttonStyles.ts` that the barrel does not export: the built runtime and type
@@ -260,10 +261,11 @@ by](../../tests/public-api.test.ts#L40),
 
 ## Recorded decisions
 
-1. **A third variant, `ghost`.** The issue proposes `primary | secondary`. The six hand-styled
-   cases need a borderless look twice - the attach control inside the composer's dashed footer
-   row, and the chat-demo's sign-out footer button - and a bordered `secondary` there reads as
-   chrome. One `ButtonVariant` union serves both components so a consumer never learns two
+1. **A third variant, `ghost`.** The issue proposes `primary | secondary`. Two controls need a
+   borderless look - the attach control inside the composer's dashed footer row (the issue's
+   fifth case), and the chat-demo's sign-out footer button, a control the issue did not
+   enumerate - and a bordered `secondary` there reads as chrome. One `ButtonVariant` union
+   serves both components so a consumer never learns two
    vocabularies ([validated by](../../tests/Button.test.tsx#L105),
    [L90](../../tests/IconButton.test.tsx#L90),
    [L48](../../tests/types/primitives-type-assertions.tsx#L48)).
