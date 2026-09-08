@@ -20,7 +20,7 @@ The public surface ships 57 named value exports from `src/index.ts`: 12 componen
 8. **Transient & Error Surfaces** — `Toast` renders a live-region notice and `ErrorBoundary` catches render errors into an overridable fallback ([validated by](../tests/Toast.test.tsx#L23), [error](../tests/ErrorBoundary.test.tsx#L46))
 9. **Icon Set** — 23 SVG icons plus `IconWrapper` and `getAccessibleIconProps`, with a tested WCAG accessibility contract ([validated by](../tests/icons.test.tsx#L60), [accessible-props](../tests/icons.test.tsx#L182))
 10. **Markdown Rendering** — `createMarkdownComponents` renders assistant markdown through react-markdown + remark-gfm under a strict URL policy ([validated by](../tests/markdown-components.test.tsx#L59))
-11. **Labels Convention** — Every user-visible string is an overridable English default merged through `resolveLabels`; no locale catalogue ships ([validated by](../tests/labelled-exports.test.tsx#L142))
+11. **Labels Convention** — User-visible strings are overridable English defaults merged through `resolveLabels`, except the required `aiDisclosure` (no default) and three strings taken through a dedicated prop rather than a labels object (the icons' `ariaLabel`, `useFocusGroups`' `announce`, `Toast`'s `message`); no locale catalogue ships ([validated by](../tests/labelled-exports.test.tsx#L142), [ai-disclosure](../tests/ChatMessageList.test.tsx#L150))
 12. **RSC Client-Boundary Guarantee** — `"use client"` is applied per file so a Next.js App Router server component can import from the package ([validated by](../tests/client-directives.test.ts#L90))
 13. **Type-Safe API** — Full TypeScript strict-mode support; no implicit `any` in public interfaces ([validated by](../tests/public-api.test.ts#L47), [system-contract](../tests/system-contract.test.ts#L53), [list-type-assertions](../tests/types/chat-message-list-type-assertions.tsx#L53))
 14. **ESM-Only, Tree-Shakeable Distribution** — Single ESM output with named exports for dead-code elimination ([validated by](../tests/system-contract.test.ts#L30), [tree-shake](../tests/public-api.test.ts#L43))
@@ -74,7 +74,7 @@ Other public data shapes are consumer-supplied and rendered as-is: `Conversation
 1. **TypeScript Strict Mode** — `tsconfig.json` enforces `strict: true`; all files compile without implicit `any`. ([validated by](../tests/system-contract.test.ts#L53))
 2. **No Console Logs in Production** — Development aids removed before distribution. ([validated by](../tests/system-contract.test.ts#L76))
 3. **Accessibility Baseline** — ARIA attributes, semantic HTML, keyboard support, and 4.5:1 color contrast minimum for text. ([validated by](../tests/icons.test.tsx#L182), [L73](../tests/useFocusTrap.test.tsx#L73))
-4. **Test Coverage ≥80%** — Props, prop combinations, and user interactions covered by React Testing Library tests. ([validated by](../tests/system-contract.test.ts#L61))
+4. **Test Coverage Floor** — `vitest.config.ts` commits 100 lines/functions/statements and 90 branches over `src/**`, and the contract test guards that no threshold ever drops below 80; props, prop combinations, and user interactions are covered by React Testing Library tests. ([validated by](../tests/system-contract.test.ts#L61))
 5. **ESLint & Prettier Enforcement** — Consistent formatting and linting; CI blocks merge on violations.
 
 ### Distribution & Consumption
@@ -109,7 +109,7 @@ Other public data shapes are consumer-supplied and rendered as-is: `Conversation
 
 ## Compliance
 
-1. **GDPR — No Telemetry** — Components call no `console.*`, `localStorage`, `sessionStorage`, `fetch`, or `sendBeacon`, and persist no user content. ([validated by](../tests/ChatMessage.test.tsx#L728), [composer](../tests/ChatComposer.test.tsx#L373), [list](../tests/ConversationList.test.tsx#L419))
+1. **GDPR — No Telemetry** — Components call no `console.*`, `localStorage`, `sessionStorage`, `fetch`, or `sendBeacon`, and persist no user content; the package's one storage access is the opt-in `useSidebarState` hook, which persists only the sidebar-open flag in `localStorage` under a consumer-supplied `storagePrefix`. ([validated by](../tests/ChatMessage.test.tsx#L728), [composer](../tests/ChatComposer.test.tsx#L373), [list](../tests/ConversationList.test.tsx#L419), [sidebar-state](../tests/useSidebarState.test.tsx#L34))
 2. **EU AI Act — AI Disclosure** — `ChatMessageList`'s `aiDisclosure` label is required with no default and renders in every state, so no consumer can render the chat surface without it. ([validated by](../tests/ChatMessageList.test.tsx#L150), [type](../tests/types/chat-message-list-type-assertions.tsx#L53))
 3. **Markdown URL Policy** — `defaultMarkdownPolicy` allows only `https`/`mailto`/`tel`; `createUrlTransform` drops every other scheme, and dangerous schemes on a link render a hrefless span. ([validated by](../tests/markdown/urlPolicy.test.tsx#L33), [xss](../tests/security/markdown-xss.test.tsx#L85))
 4. **Markdown HTML Is Inert** — No `rehype-raw` is wired in, so model-authored HTML in markdown renders as literal text rather than live nodes. ([validated by](../tests/security/markdown-xss.test.tsx#L56))
@@ -125,7 +125,7 @@ Content the model authored renders behind conservative defaults, since it may re
 
 1. **npm Download Rate** — Track `@re-cinq/bowman-ui` weekly/monthly downloads as an adoption indicator.
 2. **Type Coverage** — 100% of public API props typed; zero implicit `any` in strict mode. ([validated by](../tests/public-api.test.ts#L47), [system-contract](../tests/system-contract.test.ts#L53))
-3. **Test Coverage** — Minimum 80% line/branch coverage; trends monitored per release. ([validated by](../tests/system-contract.test.ts#L61))
+3. **Test Coverage** — Floor of 100 lines/functions/statements and 90 branches committed in `vitest.config.ts`, guarded at no less than 80 by the contract test; trends monitored per release. ([validated by](../tests/system-contract.test.ts#L61))
 4. **Accessibility Conformance** — Components pass automated a11y tests; manual QA for keyboard navigation and screen reader compatibility.
 5. **Issue Resolution SLA** — Critical bugs addressed within 2 weeks; minor issues within 30 days.
 6. **Release Cadence** — Stable release every 4–8 weeks; hotfix releases as needed.
