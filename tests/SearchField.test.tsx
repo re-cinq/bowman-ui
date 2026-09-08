@@ -6,7 +6,7 @@
  */
 import { fireEvent, render, screen } from "@testing-library/react";
 import { createRef } from "react";
-import { SearchField, defaultSearchFieldLabels } from "../src/components/SearchField.js";
+import { SearchField, defaultSearchFieldLabels } from "../src/index.js";
 
 const searchboxOf = (): HTMLInputElement => screen.getByRole("searchbox");
 

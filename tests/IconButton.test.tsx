@@ -6,8 +6,7 @@
  */
 import { fireEvent, render, screen } from "@testing-library/react";
 import { createRef } from "react";
-import { IconButton } from "../src/components/IconButton.js";
-import { PlusIcon } from "../src/icons/index.js";
+import { IconButton, PlusIcon } from "../src/index.js";
 
 const labels = { accessibleName: "Tilføj 4711" };
 const buttonOf = (): HTMLButtonElement => screen.getByRole("button", { name: "Tilføj 4711" });

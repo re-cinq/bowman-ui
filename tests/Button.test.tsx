@@ -5,8 +5,7 @@
  */
 import { fireEvent, render, screen } from "@testing-library/react";
 import { createRef } from "react";
-import { Button } from "../src/components/Button.js";
-import { PlusIcon } from "../src/icons/index.js";
+import { Button, PlusIcon } from "../src/index.js";
 
 const buttonOf = (): HTMLButtonElement => screen.getByRole("button", { name: "Ny samtale" });
 

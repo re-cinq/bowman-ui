@@ -4,7 +4,7 @@
  * specs/bowman-ui-styled-primitives/spec.md § PromptChips.
  */
 import { fireEvent, render, screen } from "@testing-library/react";
-import { PromptChips, defaultPromptChipsLabels } from "../src/components/PromptChips.js";
+import { PromptChips, defaultPromptChipsLabels } from "../src/index.js";
 
 const threePrompts = ["Hvor er min booking?", "Send faktura 4711", "Skift afrejsedato"] as const;
 
