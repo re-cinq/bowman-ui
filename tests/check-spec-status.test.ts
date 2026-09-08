@@ -1,7 +1,7 @@
 import { readdirSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { stripTypesRunner } from "./helpers/script-runner.js";
+import { scriptRunner } from "./helpers/script-runner.js";
 
 const root = process.cwd();
 const script = join(root, "scripts", "check-spec-status.mjs");
@@ -21,7 +21,7 @@ const noLeadAdr = `${fixtures}/adrs/ADR-043-lamp-oil.md`;
 
 type Finding = { doc: string; line: number; kind: string; message: string };
 
-const { run, runFrom } = stripTypesRunner(script);
+const { run, runFrom } = scriptRunner(script);
 
 const findings = (...args: string[]): Finding[] => JSON.parse(run("--json", ...args).stdout);
 
