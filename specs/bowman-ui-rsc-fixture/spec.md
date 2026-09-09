@@ -287,7 +287,7 @@ node_modules scan
 job, after `test:coverage` has built `dist/` and before the `publish` job
 that `needs:` its green result may start, against the tarball packed from the
 tagged commit - the same release-candidate gate `011` and `032` install
-([validated by](../../.github/workflows/publish.yml#L72)). Green mode only:
+([validated by](../../.github/workflows/publish.yml#L78)). Green mode only:
 the `--expect-failure` branch guards the repo's own `dist/` directives,
 which CI already gated on the same commit, and a release run should not
 spend a second `next build` re-proving the guard rather than the release.
