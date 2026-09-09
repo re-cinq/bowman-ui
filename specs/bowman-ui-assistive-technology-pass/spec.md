@@ -78,18 +78,18 @@ original NVDA-mandatory rule was dropped on 2026-09-09 with the release gate).
 Live-region behaviour is implementation-specific, so one stack proves one
 stack. At least one stack must actually have been run
 ([validated by](../../tests/check-at-pass.test.ts#L218),
-[one is enough](../../tests/check-at-pass.test.ts#L494),
-[a third needs its rows](../../tests/check-at-pass.test.ts#L373)). Every
+[one is enough](../../tests/check-at-pass.test.ts#L471),
+[a third needs its rows](../../tests/check-at-pass.test.ts#L368)). Every
 stack needs a unique `id`
-([validated by](../../tests/check-at-pass.test.ts#L393),
-[duplicates](../../tests/check-at-pass.test.ts#L411)). On a run stack's row,
+([validated by](../../tests/check-at-pass.test.ts#L385),
+[duplicates](../../tests/check-at-pass.test.ts#L398)). On a run stack's row,
 `not-run` is legal only with a stated reason
-([validated by](../../tests/check-at-pass.test.ts#L235),
-[with one](../../tests/check-at-pass.test.ts#L241)). A stack nobody could run
+([validated by](../../tests/check-at-pass.test.ts#L230),
+[with one](../../tests/check-at-pass.test.ts#L236)). A stack nobody could run
 is declared once, on its `stacks` entry, with no invented versions; every row
 on it is then `not-run` without a reason of its own
-([validated by](../../tests/check-at-pass.test.ts#L464),
-[a pass row on it](../../tests/check-at-pass.test.ts#L477)).
+([validated by](../../tests/check-at-pass.test.ts#L448),
+[a pass row on it](../../tests/check-at-pass.test.ts#L461)).
 
 The pass runs against the demo's English catalogue, and the record names the
 voice actually used. The record transcribes verbatim and judges nothing. The
@@ -153,7 +153,7 @@ check that a record exists, is complete, and has not been invalidated.
    repository's own, not a YAML dependency: the format is defined by
    `docs/accessibility/README.md`, and a record that strays from it is a
    finding rather than a parser upgrade
-   ([validated by](../../tests/check-at-pass.test.ts#L373),
+   ([validated by](../../tests/check-at-pass.test.ts#L368),
    [L171](../../tests/check-at-pass.test.ts#L171),
    [L183](../../tests/check-at-pass.test.ts#L183),
    [L192](../../tests/check-at-pass.test.ts#L192)).
@@ -167,17 +167,17 @@ check that a record exists, is complete, and has not been invalidated.
    and `expires` fails; an expired waiver fails in both modes, with the same
    exit code as a stale record; an unexpired one passes. A first release is not
    hostage to VM access, and a waiver cannot quietly become permanent
-   ([validated by](../../tests/check-at-pass.test.ts#L253),
-   [L259](../../tests/check-at-pass.test.ts#L259),
-   [L280](../../tests/check-at-pass.test.ts#L280)).
+   ([validated by](../../tests/check-at-pass.test.ts#L248),
+   [L254](../../tests/check-at-pass.test.ts#L254),
+   [L275](../../tests/check-at-pass.test.ts#L275)).
 4. **`covers` makes the record perishable.** `--freshness` takes the last
    commit touching each covered path and fails when it is not an ancestor of
    the record's `commit`, naming the file and both commits; a covered path no
    commit touches fails too. Editing `ChatMessageList.tsx` mechanically
    invalidates the pass that certified it. Run it in a full clone: a shallow
    checkout has no history to walk and would read every record as stale
-   ([validated by](../../tests/check-at-pass.test.ts#L308),
-   [L327](../../tests/check-at-pass.test.ts#L327)).
+   ([validated by](../../tests/check-at-pass.test.ts#L303),
+   [L322](../../tests/check-at-pass.test.ts#L322)).
 5. **No record fails `--freshness`, never `--structure`.** `--structure`
    passes with a warning when no record exists and `--freshness` fails. The
    asymmetry outlived the release gate: a pull request cannot be blocked by a
@@ -189,14 +189,14 @@ check that a record exists, is complete, and has not been invalidated.
    angle-bracket markers anywhere in the front matter fail the structure
    check, which is what turns "no placeholder left in the file" from an
    instruction into a gate
-   ([validated by](../../tests/check-at-pass.test.ts#L296)).
+   ([validated by](../../tests/check-at-pass.test.ts#L291)).
 7. **The newest record by filename is the one validated**. ISO dates sort
    lexically, so the newest file name is the newest pass
-   ([validated by](../../tests/check-at-pass.test.ts#L342)).
+   ([validated by](../../tests/check-at-pass.test.ts#L337)).
 8. **Exit codes follow the house.** 1 lists every violation on stderr; 2 is a
    usage or environment error - no mode flag or an unknown one
-   ([validated by](../../tests/check-at-pass.test.ts#L435),
-   [L431](../../tests/check-at-pass.test.ts#L431)).
+   ([validated by](../../tests/check-at-pass.test.ts#L419),
+   [L415](../../tests/check-at-pass.test.ts#L415)).
 
 `npm run check:at-pass -- --structure` runs in `ci.yml`'s `build-test` job.
 `npm run check:at-pass -- --freshness` ran in `publish.yml` between the build
