@@ -3,6 +3,3 @@ contact_links:
   - name: Report a security vulnerability
     url: https://github.com/re-cinq/bowman-ui/security/policy
     about: Do not open a public issue for a vulnerability. Read SECURITY.md and report privately to security@re-cinq.com.
-  - name: Lore Dashboard
-    url: https://LORE_UI_DOMAIN
-    about: Create tasks directly in the Lore UI

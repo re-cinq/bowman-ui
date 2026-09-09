@@ -590,16 +590,17 @@ disclosure's wording belongs to the consumer's reviewed catalogue.
 
 ## README screenshots
 
-The three README screenshots are referenced by repository-relative path
-(`docs/assets/*.png`), never by absolute `raw.githubusercontent.com` URL.
-The repository is private, so anonymous fetches of raw content return 404
-and GitHub's own renderer, which proxies absolute image URLs anonymously,
-shows broken images; relative paths render through signed private-image
-links. npm cannot show the images either way until the repository is public
-(`docs/assets` is not in the package `files`), so the absolute form buys
-nothing today. `tests/readme-images.test.ts` pins the list of sources and
-that each file exists; when the repository goes public, that test is where
-the switch to absolute URLs is decided deliberately (issue 36).
+The three README screenshots are referenced by absolute
+`https://raw.githubusercontent.com/re-cinq/bowman-ui/main/docs/assets/*.png`
+URL, never by repository-relative path. The README travels with the package:
+npm renders it on the package page, where a relative path resolves to nothing
+(`docs/assets` is not in the package `files`), while GitHub's own renderer
+proxies absolute image URLs from a public repository without complaint. The
+form was relative while the repository was private (anonymous raw fetches
+returned 404 then; issue 36) and switched with the repository going public.
+`tests/readme-images.test.ts` pins the three sources, the prefix, and that
+each named file exists in the tree - a renamed screenshot fails the test
+before it fails on npm.
 
 ## Lint guardrails
 
