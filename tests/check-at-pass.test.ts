@@ -134,8 +134,8 @@ describe("check-at-pass", () => {
   const withRow = (id: string, stack: string, patch: Partial<Row>): Row[] =>
     defaultRows().map((row) => (row.id === id && row.stack === stack ? { ...row, ...patch } : row));
 
-  const structureStderr = (rows: Row[]): string => {
-    commitRecord(repo, renderRecord(defaultFields(componentsCommit(repo)), rows));
+  const structureStderr = (rows: Row[], stacks: Stack[] = defaultStacks()): string => {
+    commitRecord(repo, renderRecord(defaultFields(componentsCommit(repo)), rows, stacks));
     const result = run(repo, "--structure");
 
     expect(result).toMatchObject({ status: 1 });
@@ -222,12 +222,7 @@ describe("check-at-pass", () => {
     ];
     const rows = defaultRows().map((row) => ({ ...row, verdict: "not-run" }));
 
-    commitRecord(repo, renderRecord(defaultFields(componentsCommit(repo)), rows, stacks));
-
-    const result = run(repo, "--structure");
-
-    expect(result).toMatchObject({ status: 1 });
-    expect(result.stderr).toContain(
+    expect(structureStderr(rows, stacks)).toContain(
       "`stacks` must declare at least one stack that was actually run"
     );
   });
@@ -382,12 +377,9 @@ describe("check-at-pass", () => {
       },
     ];
 
-    commitRecord(repo, renderRecord(defaultFields(componentsCommit(repo)), defaultRows(), stacks));
-
-    const result = run(repo, "--structure");
-
-    expect(result).toMatchObject({ status: 1 });
-    expect(result.stderr).toContain("row A1 carries no verdict on stack jaws");
+    expect(structureStderr(defaultRows(), stacks)).toContain(
+      "row A1 carries no verdict on stack jaws"
+    );
   });
 
   it("a stack entry without an id slug exits 1", () => {
@@ -400,23 +392,15 @@ describe("check-at-pass", () => {
       },
     ];
 
-    commitRecord(repo, renderRecord(defaultFields(componentsCommit(repo)), defaultRows(), stacks));
-
-    const result = run(repo, "--structure");
-
-    expect(result).toMatchObject({ status: 1 });
-    expect(result.stderr).toContain("stacks[0] needs an `id` slug");
+    expect(structureStderr(defaultRows(), stacks)).toContain("stacks[0] needs an `id` slug");
   });
 
   it("duplicate stack ids exit 1", () => {
     const stacks: Stack[] = [...defaultStacks(), { ...defaultStacks()[1], id: "nvda" }];
 
-    commitRecord(repo, renderRecord(defaultFields(componentsCommit(repo)), defaultRows(), stacks));
-
-    const result = run(repo, "--structure");
-
-    expect(result).toMatchObject({ status: 1 });
-    expect(result.stderr).toContain("`stacks` ids must be unique, found nvda, voiceover, nvda");
+    expect(structureStderr(defaultRows(), stacks)).toContain(
+      "`stacks` ids must be unique, found nvda, voiceover, nvda"
+    );
   });
 
   it("a record with no front matter exits 1", () => {
@@ -479,14 +463,7 @@ describe("check-at-pass", () => {
       row.id === "A3" && row.stack === "voiceover" ? { ...row, verdict: "pass" } : row
     );
 
-    commitRecord(
-      repo,
-      renderRecord(defaultFields(componentsCommit(repo)), rows, voiceoverNotRunStacks())
-    );
-    const result = run(repo, "--structure");
-
-    expect(result).toMatchObject({ status: 1 });
-    expect(result.stderr).toContain(
+    expect(structureStderr(rows, voiceoverNotRunStacks())).toContain(
       "row A3 on stack voiceover must be `not-run`: that stack itself is marked not-run"
     );
   });
