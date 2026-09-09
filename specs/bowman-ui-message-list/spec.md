@@ -1,9 +1,9 @@
 # bowman-ui message list
 
-| Field  | Value                                               |
-| ------ | --------------------------------------------------- |
+| Field  | Value                                        |
+| ------ | -------------------------------------------- |
 | Issue  | issue 78 (`078-bowman-ui-chat-message-list`) |
-| Status | In Progress                                         |
+| Status | In Progress                                  |
 
 `ChatMessageList` is the container that holds a conversation: the transcript
 column, the pinned auto-scroll, the empty state, and the EU AI Act

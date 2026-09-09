@@ -1,9 +1,9 @@
 # bowman-ui conversation list
 
-| Field  | Value                                               |
-| ------ | --------------------------------------------------- |
+| Field  | Value                                        |
+| ------ | -------------------------------------------- |
 | Issue  | issue 79 (`029-bowman-ui-conversation-list`) |
-| Status | In Progress                                         |
+| Status | In Progress                                  |
 
 `ConversationList` is the presentational list of conversations, shipped as
 `src/components/ConversationList.tsx` (`ConversationList`,

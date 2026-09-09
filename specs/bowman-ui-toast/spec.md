@@ -1,9 +1,9 @@
 # bowman-ui toast
 
-| Field  | Value                                   |
-| ------ | --------------------------------------- |
+| Field  | Value                            |
+| ------ | -------------------------------- |
 | Issue  | issue 75 (`025-bowman-ui-toast`) |
-| Status | In Progress                             |
+| Status | In Progress                      |
 
 `Toast` is the transient notification surface, shipped as
 `src/components/Toast.tsx` (`Toast`, `ToastProps`) with a re-render-proof

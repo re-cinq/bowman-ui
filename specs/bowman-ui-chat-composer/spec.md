@@ -1,9 +1,9 @@
 # bowman-ui chat composer
 
-| Field  | Value                                           |
-| ------ | ----------------------------------------------- |
+| Field  | Value                                    |
+| ------ | ---------------------------------------- |
 | Issue  | issue 77 (`027-bowman-ui-chat-composer`) |
-| Status | In Progress                                     |
+| Status | In Progress                              |
 
 `ChatComposer` is the package's chat input surface - the textarea + attach +
 send block shipped once, as a component, instead of being re-written inline

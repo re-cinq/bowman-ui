@@ -1,9 +1,9 @@
 # bowman-ui client-API trigger list
 
-| Field  | Value                                                                                   |
-| ------ | --------------------------------------------------------------------------------------- |
+| Field  | Value                                                                            |
+| ------ | -------------------------------------------------------------------------------- |
 | Issue  | issue 137 (widen `scripts/check-client-directives.mjs` to every client-only API) |
-| Status | In Progress                                                                             |
+| Status | In Progress                                                                      |
 
 The check's old shape was a ten-hook regex plus a textual `on[A-Z]=` pattern; this spec records
 the AST rewrite, the measured browser-global table, and the re-run false-negative sweep. The

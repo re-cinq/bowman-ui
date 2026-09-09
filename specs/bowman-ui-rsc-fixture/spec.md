@@ -1,9 +1,9 @@
 # bowman-ui RSC fixture
 
-| Field  | Value                                                                                                    |
-| ------ | -------------------------------------------------------------------------------------------------------- |
+| Field  | Value                                                                                             |
+| ------ | ------------------------------------------------------------------------------------------------- |
 | Issue  | issue 100 (the RSC fixture build docs/design-notes.md decision 1 calls "078's RSC fixture build") |
-| Status | Draft                                                                                                    |
+| Status | Draft                                                                                             |
 
 `examples/rsc-fixture` is the executable proof of the `"use client"`
 boundary: a standalone Next.js App Router app that installs

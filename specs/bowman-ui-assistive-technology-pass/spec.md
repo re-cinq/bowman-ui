@@ -1,9 +1,9 @@
 # bowman-ui assistive technology pass
 
-| Field  | Value                                                       |
-| ------ | ----------------------------------------------------------- |
+| Field  | Value                                                |
+| ------ | ---------------------------------------------------- |
 | Issue  | issue 97 (`097-bowman-ui-assistive-technology-pass`) |
-| Status | In Progress                                                 |
+| Status | In Progress                                          |
 
 Three shipped components promise something jsdom cannot check: that a screen
 reader speaks `ThinkingIndicator`'s `aria-label` rather than its visible text

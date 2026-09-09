@@ -1,9 +1,9 @@
 # bowman-ui pure hooks and ErrorBoundary
 
-| Field  | Value                                                       |
-| ------ | ----------------------------------------------------------- |
+| Field  | Value                                                |
+| ------ | ---------------------------------------------------- |
 | Issue  | issue 71 (`021-bowman-ui-pure-hooks-error-boundary`) |
-| Status | In Progress                                                 |
+| Status | In Progress                                          |
 
 Every test here is written fresh against the shipped code.
 

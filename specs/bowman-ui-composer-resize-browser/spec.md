@@ -1,9 +1,9 @@
 # bowman-ui composer resize in a real browser
 
-| Field  | Value                                            |
-| ------ | ------------------------------------------------ |
+| Field  | Value                                     |
+| ------ | ----------------------------------------- |
 | Issue  | issue 132 (`132-composer-resize-browser`) |
-| Status | In Progress                                      |
+| Status | In Progress                               |
 
 The chat composer's auto-resize was measured nowhere real: the unit suite
 stubs `scrollHeight` because jsdom performs no layout, and the browser suite

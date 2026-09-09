@@ -1,9 +1,9 @@
 # bowman-ui security policy
 
-| Field  | Value                                                                           |
-| ------ | ------------------------------------------------------------------------------- |
+| Field  | Value                                                             |
+| ------ | ----------------------------------------------------------------- |
 | Issue  | issue 125 (`125-bowman-ui-security-disclosure`), part of issue 57 |
-| Status | In Progress                                                                     |
+| Status | In Progress                                                       |
 
 This spec records the decisions behind `SECURITY.md`, the README `## Security` section,
 `package.json`'s `bugs` field, and `.github/ISSUE_TEMPLATE/config.yml`'s security

@@ -1,9 +1,9 @@
 # bowman-ui toast justification
 
-| Field  | Value                                                  |
-| ------ | ------------------------------------------------------ |
+| Field  | Value                                           |
+| ------ | ----------------------------------------------- |
 | Issue  | issue 118 (`097-bowman-ui-toast-justification`) |
-| Status | In Progress                                            |
+| Status | In Progress                                     |
 
 A documentation-only correction: no file under `src/` changes, `Toast.tsx`
 ships exactly as 025 specifies it, and no test changes. 025 shipped `Toast`

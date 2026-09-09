@@ -1,9 +1,9 @@
 # bowman-ui labels convention
 
-| Field  | Value                                               |
-| ------ | --------------------------------------------------- |
+| Field  | Value                                        |
+| ------ | -------------------------------------------- |
 | Issue  | issue 72 (`022-bowman-ui-labels-convention`) |
-| Status | In Progress                                         |
+| Status | In Progress                                  |
 
 This issue ships the convention, the helper, the enforcement, and the retrofit of the one
 string-carrying component already in the repo - it adds no new component.

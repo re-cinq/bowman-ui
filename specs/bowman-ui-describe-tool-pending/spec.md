@@ -1,9 +1,9 @@
 # bowman-ui describeTool pending
 
-| Field  | Value                                                                             |
-| ------ | --------------------------------------------------------------------------------- |
+| Field  | Value                                                               |
+| ------ | ------------------------------------------------------------------- |
 | Issue  | issue 190 (`190-bowman-ui-describe-tool-pending`), part of issue 57 |
-| Status | In Progress                                                                       |
+| Status | In Progress                                                         |
 
 `describeTool` arrived with `108-bowman-ui-tool-activity` as
 `(entry: ToolChatEntry) => ReactNode`, while `ToolActivity` kept a `pending`

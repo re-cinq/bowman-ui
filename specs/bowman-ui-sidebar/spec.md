@@ -1,9 +1,9 @@
 # bowman-ui sidebar
 
-| Field  | Value                                     |
-| ------ | ----------------------------------------- |
+| Field  | Value                              |
+| ------ | ---------------------------------- |
 | Issue  | issue 81 (`031-bowman-ui-sidebar`) |
-| Status | In Progress                               |
+| Status | In Progress                        |
 
 `AppSidebar` is the package's one presentational sidebar - brand row,
 navigation map, chat history, language row, user-controls row - written

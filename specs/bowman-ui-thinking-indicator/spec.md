@@ -1,9 +1,9 @@
 # bowman-ui thinking indicator
 
-| Field  | Value                                                |
-| ------ | ---------------------------------------------------- |
+| Field  | Value                                         |
+| ------ | --------------------------------------------- |
 | Issue  | issue 74 (`024-bowman-ui-thinking-indicator`) |
-| Status | In Progress                                          |
+| Status | In Progress                                   |
 
 `ThinkingIndicator` is the block loading indicator shown while waiting for a
 response - a pulsing avatar circle, the word "Thinking", three fading
