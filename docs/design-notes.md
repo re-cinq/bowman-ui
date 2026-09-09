@@ -145,14 +145,21 @@ the user-side avatar fallback, is unaffected and stays required.
 
 ## 4. Peers stay at `^19.0.0` - a testing claim, not a technical floor
 
-Nothing in the package requires React 19: it uses `forwardRef`, the pre-19
-idiom, throughout. React 19.2.0 is what CI installs and the only version
-tested - that is what the range claims. Widening to include React 18
-requires a CI matrix that actually installs and runs green against it, not a
-manifest edit.
+With one exception below, nothing in the package requires React 19: it uses
+`forwardRef`, the pre-19 idiom, throughout. React 19.2.0 is what CI installs
+and the only version tested - that is what the range claims. Widening to
+include React 18 requires a CI matrix that actually installs and runs green
+against it, not a manifest edit - and must resolve the `inert` reliance below.
 
 - No cleanup may rewrite `forwardRef` away: that would turn this testing
   claim into a hard React 19 floor.
+- The one genuine React 19 reliance is `AppShell`'s closed drawer, which
+  renders the boolean `inert` prop (`AppShell.tsx`). React 19 applies it as a
+  real boolean attribute; React 18 does not know `inert` and drops the
+  boolean, so under React 18 the closed-drawer accessibility fix would
+  silently not apply. This is the code fact the app-shell spec records as
+  "relies on React 19's boolean `inert` prop"; it narrows the peer range but
+  does not license rewriting `forwardRef` away.
 - `next` is not a dependency, peer, or dev dependency of the published
   package, and the repo's own installed tree stays free of it -
   `"use client"` is the package's entire Next-facing surface. CI proves the
