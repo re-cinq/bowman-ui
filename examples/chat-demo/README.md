@@ -76,21 +76,22 @@ The capture script lives under `scripts/`, not `tests/`, so Playwright's
 ## Publishing
 
 `.github/workflows/pages.yml` builds this demo and deploys it to GitHub Pages
-on every push to `main`, so the documentation at `/` (the published landing)
-and the chat fixture at `?view=chat` are reachable without checking the
-repository out. The demo is English-only, so the published chat and every
-local run render the same catalogue.
+at <https://re-cinq.github.io/bowman-ui/>, so the documentation at `/` (the
+published landing) and the chat fixture at `?view=chat` are reachable without
+checking the repository out. The demo is English-only, so the published chat
+and every local run render the same catalogue.
 
 This is a static build with no backend: the chat's replies are canned fixtures
 grown by `setTimeout` (`src/streaming.ts`), never a model call. A note on the
 index and in the chat view says so plainly, so a visitor does not mistake the
 demonstrated AI-disclosure band for a live model.
 
-Pages is a repository setting, not something a workflow can switch on: until
-this repository is public - or on a plan that allows Pages for private
-repositories - and Pages is set to the "GitHub Actions" source, that workflow
-fails at its configure step. It is committed ready for the day the repository
-opens up.
+The workflow has two triggers and one build. A push to `main` that touches an
+input of the site - the library source, this demo, the package manifests, the
+workflow itself - rebuilds and redeploys; a pull request touching the same
+inputs runs the build job only and asserts the project base path reached the
+bundle, so a broken site is a red check before it is a broken deployment. A
+change outside those paths (a spec, the design notes) redeploys nothing.
 
 A project site is served from `/bowman-ui/`, which the workflow passes to the
 build as `VITE_BASE_PATH`; `vite.config.ts` adds the trailing slash Vite wants
