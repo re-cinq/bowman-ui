@@ -20,10 +20,10 @@ it — doc prose and the code have drifted in places.
 - **.specify/spec.md** — the repo-level spec.
 - **specs/<slug>/spec.md** — 25 feature specs. Statements cite their validating test with a
   trailing `([validated by](../../tests/X.test.tsx#Lnn))` parenthetical (AGENTS.md:71-82).
-- **AGENTS.md** — authoritative only for commit / PR / branch conventions (Conventional Commits,
-  scope = component area, imperative lowercase subject ≤ 50 chars, branch
-  `<type>/<scope>-<description>`). Its command and tooling claims are stale — see the corrections
-  table below.
+- **AGENTS.md** — commit / PR / branch conventions (Conventional Commits, scope = component
+  area, imperative lowercase subject ≤ 50 chars, branch `<type>/<scope>-<description>`) and the
+  command reference. Where it and this file disagree, this file wins; say so in the PR that
+  fixes the drift.
 - **adrs/** — ADR-001 (language choice), ADR-003 (deployment).
 
 ## Stack
@@ -178,23 +178,6 @@ The typecheck script is `typecheck`, not `type-check`.
     (.github/workflows/publish.yml: `release: types: [published]`, `id-token: write`, no
     `NPM_TOKEN`). Never `npm publish` by hand. Never push to `main` — guard-main-pushes.yml opens a security issue,
     because push access to `main` is transitively npm-publish access.
-
-## Where AGENTS.md is stale
-
-AGENTS.md remains correct on commit/PR/branch conventions. These operational claims in it are
-wrong; the correct fact is on the right.
-
-| AGENTS.md says                                        | Correct fact                                         |
-| ----------------------------------------------------- | ---------------------------------------------------- |
-| `npm run type-check` (:51)                            | The script is `typecheck`                            |
-| ESM/CJS dual output (:22, :245)                       | ESM-only; no CJS                                     |
-| React peers 16.8+ / 17.x / 18.x (:231)                | `react`/`react-dom` `^19.0.0` only                   |
-| "Jest or Vitest, default assumption" (:30)            | Vitest 4 (+ jsdom, Testing Library)                  |
-| Coverage minimum 80% (:240)                           | 100 lines/functions/statements + 90 branches         |
-| `npm publish` by hand (:59-62)                        | Publish a `v*` GitHub release + OIDC publishing only |
-| `.eslintrc` / `eslint.config.js` (:10)                | eslint.config.mjs                                    |
-| CHANGELOG.md migration note (:259)                    | No CHANGELOG.md exists in the repo                   |
-| "No console warnings", deprecation warns (:169, :260) | Runtime warnings are impossible — console is trapped |
 
 ## Landmines checklist (never do)
 

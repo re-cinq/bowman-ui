@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "description": "Presentational React components for AI chat interfaces. HAL Engine is the engine, Bowman is the face.",
   "license": "Apache-2.0",
-  "homepage": "https://github.com/re-cinq/bowman-ui#readme",
+  "homepage": "https://re-cinq.github.io/bowman-ui/",
   "keywords": [
     "react",
     "chat",
