@@ -206,7 +206,7 @@ describe("check-at-pass", () => {
   it("a fail row naming a fixing issue passes", () => {
     const rows = defaultRows().map((row) =>
       row.id === "A2" && row.stack === "nvda"
-        ? { ...row, verdict: "fail", extra: { "fixing-issue": "131-thinking-indicator-announced" } }
+        ? { ...row, verdict: "fail", extra: { "fixing-issue": "re-cinq/bowman-ui#131" } }
         : row
     );
 

@@ -1,6 +1,6 @@
-# The assistive-technology pass is run on Windows and its record is parsed by
-# scripts/check-at-pass.mjs, which reads `---\n` front matter; a CRLF checkout
-# would fail that gate and prettier:check alike. Normalise every text file to
-# LF in the repository and on checkout.
+# The assistive-technology pass may be run on Windows and its record is parsed
+# by scripts/check-at-pass.mjs, which reads `---\n` front matter; a CRLF
+# checkout would fail that gate and prettier:check alike. Normalise every text
+# file to LF in the repository and on checkout.
 * text=auto eol=lf
 *.png binary
