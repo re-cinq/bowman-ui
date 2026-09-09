@@ -55,9 +55,9 @@ Two habits the checks will otherwise teach you the slow way:
 Never `npm publish` by hand. Bump `version` in `package.json` through a pull request, then
 publish a GitHub Release whose tag is `v<version>`; `.github/workflows/publish.yml` re-runs
 every gate at that tag and publishes to npm over OIDC trusted publishing with provenance.
-Publishing is also gated on the assistive-technology pass described in
-[docs/accessibility/README.md](./docs/accessibility/README.md): a human listens, commits the
-record, and only then does a release go out.
+The assistive-technology pass in
+[docs/accessibility/README.md](./docs/accessibility/README.md) is a procedure, not a release
+gate: run it when you can, commit the record through a pull request, and CI validates its shape.
 
 ## Security
 

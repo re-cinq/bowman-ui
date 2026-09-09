@@ -69,8 +69,8 @@ jobs:
       # fields, a verdict per row per stack, no unexplained not-run, no fail
       # without an owner, no expired waiver. With no record yet it passes with
       # a warning: the first record is written by the first human screen-reader
-      # pass, and pull requests must not be hostage to it. The release-blocking
-      # half of the gate is --freshness in publish.yml.
+      # pass, and pull requests must not be hostage to it. The other half,
+      # --freshness, is run by hand; the pass is a procedure, not a release gate.
       - name: AT-pass structure check
         run: npm run check:at-pass -- --structure
       # specs' [validated by](...#Lnn) anchors drift silently when any cited

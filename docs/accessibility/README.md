@@ -12,51 +12,61 @@ Running the pass is a human task. Nothing in CI, and no agent, may author a
 record in this directory: a record is a statement that a named person listened
 on a named date, and a fabricated one is a false compliance artifact. Until the
 first record exists, `check-at-pass.mjs --structure` passes with a warning and
-`check-at-pass.mjs --freshness` fails, which blocks `npm publish` and nothing
-else.
+`check-at-pass.mjs --freshness` fails. Neither blocks a pull request, and since
+2026-09-09 neither blocks a release: the pass is a procedure, not a gate, and
+the root README says plainly whether a record exists yet.
 
 ## Before you start
 
 Have these in hand; each is asked for below.
 
-1. A Windows machine with NVDA and Firefox installed, an English voice
-   selected, and NVDA's **Speech Viewer** open (NVDA menu → Tools → Speech
-   Viewer). The Speech Viewer log is the transcript of record: copy from it,
-   never from memory.
-2. The four version strings for the record's `stacks` block: NVDA (NVDA menu →
-   Help → About), Firefox (`about:support`, "Version"), Windows (`winver`),
-   and the voice (NVDA menu → Preferences → Settings → Speech: synthesizer and
-   voice name).
+1. A screen reader, a browser and an operating system - whichever pairing you
+   actually have; see [Stacks](#stacks) for the recommended ones. An English
+   voice selected, and the screen reader's speech log open, because that log is
+   the transcript of record: copy from it, never from memory. NVDA: NVDA menu →
+   Tools → Speech Viewer. VoiceOver: VoiceOver Utility → Visuals → Caption
+   panel, or the built-in Screen Curtain-free text log via VO + Shift + F4.
+   Orca: `orca --debug` writes a speech log next to it.
+2. The four version strings for the record's `stacks` block: the screen reader
+   (its About dialog), the browser (`about:support` in Firefox, About menu
+   elsewhere), the operating system (`winver`, About This Mac,
+   `cat /etc/os-release`), and the voice (the screen reader's speech settings).
 3. The commit the surface was built from, as a lowercase 40-hex sha - see
    [Which commit](#which-commit).
 4. An editor that saves with LF line endings and spaces, never tabs. The
    repository's `.gitattributes` normalises line endings on commit, but the
    gate reads the file you hand it, and a CRLF file fails with "no `---`
    front-matter block".
-5. About two to three hours for a first NVDA run - the seven rows are around 30
+5. About two to three hours for a first run - the seven rows are around 30
    minutes of listening; the rest is setup, fourteen verbatim transcriptions,
    and the optional local-only sub-steps. A repeat run against an unchanged
    surface is about 30 minutes.
 
-## The two stacks
+## Stacks
 
-| Stack                     | Status            | `not-run` allowed  |
-| ------------------------- | ----------------- | ------------------ |
-| NVDA + Firefox, Windows   | Mandatory primary | No                 |
-| VoiceOver + Safari, macOS | Secondary         | Yes, with a reason |
+A stack is a screen reader, a browser and an operating system, run together.
+Any pairing you have is a stack; these are the ones worth reaching for, because
+their live-region behaviour is the most relied on by real users:
 
-NVDA plus Firefox is the primary stack because it is free, needs no licence and
-no purchase approval, and is the pairing whose live-region behaviour is most
-widely relied on. VoiceOver plus Safari is the secondary stack. Live-region
-behaviour is implementation-specific - one stack proves one stack, never both -
-so a row answered only on NVDA is an answer about NVDA.
+| Stack                     | Notes                                           |
+| ------------------------- | ----------------------------------------------- |
+| NVDA + Firefox, Windows   | NVDA is free; the most widely relied-on pairing |
+| VoiceOver + Safari, macOS | Built in - Cmd + F5                             |
+| Orca + Firefox, Linux     | Built into GNOME                                |
+| Narrator + Edge, Windows  | Built in; less relied on for live regions       |
 
-A VoiceOver stack nobody could run is declared once, on its `stacks` entry, as
-`not-run: <why>` in place of the version fields, and then every `voiceover` row
-is `verdict: not-run` with no `reason` of its own. A VoiceOver stack that was
-run carries its four versions, and any single row on it may still be
-`not-run` with its own `reason`. `not-run` is never legal on an `nvda` row or on
-the NVDA stack entry.
+Live-region behaviour is implementation-specific - one stack proves one stack,
+never another - so a row answered only on VoiceOver is an answer about
+VoiceOver, and the record says which stacks it speaks for. Firefox, Safari and
+the rest are recommendations, not requirements: record what you ran.
+
+Each stack has an `id` slug (`nvda`, `voiceover`, `orca`, ...) that its rows
+refer to. At least one stack must actually have been run. A stack you would
+have liked to run but could not is declared once, on its `stacks` entry, as
+`not-run: <why>` in place of the version fields, and then every row on it is
+`verdict: not-run` with no `reason` of its own. A stack that was run carries
+its four versions, and any single row on it may still be `not-run` with its
+own `reason`.
 
 ## Language and voice
 
@@ -64,9 +74,9 @@ The pass runs against the demo's English catalogue
 (`examples/chat-demo/src/labels.ts`), which reuses the library's own English
 defaults plus the demo's `aiDisclosure` and screen copy. Run with an English
 voice and record which voice was actually used in the record's `stacks` block.
-The record transcribes what the Speech Viewer logged, verbatim, and never
+The record transcribes what the speech log captured, verbatim, and never
 judges pronunciation. Where a row asks which of two strings was spoken, quote
-the Speech Viewer line that contains it, with its role word (`edit`,
+the log line that contains it, with its role word (`edit`,
 `article`, `status`), because two different elements on this page share the
 accessible name `Your message`.
 
@@ -164,7 +174,7 @@ Two strings compete in the `role="status"` region: the visible label
 (`thinkingRegion`, `"Loading response"`). A third source shows the same visible
 word: from 400 ms until the first chunk arrives at about 550 ms, the empty
 streaming entry renders `InlineThinkingIndicator`, which has no `role="status"`
-and whose text is also `Thinking`. Attribute by time and by the Speech Viewer's
+and whose text is also `Thinking`. Attribute by time and by the speech log's
 role word: `status` is the region under test; a bare `Thinking` with no role
 after the 400 ms mark is the inline indicator.
 
@@ -272,9 +282,9 @@ Because A7 is answered against `ChatMessage` and `ChatMessageList`, the record's
 ## The record
 
 The pass writes `docs/accessibility/at-pass-<date>.md`, where `<date>` is the
-record's `date` field, `YYYY-MM-DD`, and `date` is the day the NVDA listening
-finished. If VoiceOver was run on another day, say so in the body; the file
-carries one date. The newest file by name is the one `check-at-pass.mjs`
+record's `date` field, `YYYY-MM-DD`, and `date` is the day the listening
+finished. If two stacks were run on different days, `date` is the later one
+and the body says so; the file carries one date. The newest file by name is the one `check-at-pass.mjs`
 validates, so two records never share a date.
 
 ### Front matter
@@ -299,73 +309,76 @@ covers:
   - src/components/ThinkingTrace.tsx
   - src/components/ToolActivity.tsx
 stacks:
-  - screenReader: NVDA 2025.2
-    browser: Firefox 142.0
-    platform: Windows 11 24H2
-    voice: eSpeak NG en-GB
-  - screenReader: VoiceOver
-    not-run: no macOS device was available in this window
+  - id: voiceover
+    screenReader: VoiceOver macOS 26.1
+    browser: Safari 26.1
+    platform: macOS 26.1
+    voice: Daniel en-GB
+  - id: nvda
+    screenReader: NVDA
+    not-run: no Windows machine was available in this window
 rows:
   - id: A1
-    stack: nvda
+    stack: voiceover
     verdict: pass
   - id: A1
-    stack: voiceover
+    stack: nvda
     verdict: not-run
   - id: A2
-    stack: nvda
+    stack: voiceover
     verdict: pass
   - id: A2
-    stack: voiceover
+    stack: nvda
     verdict: not-run
   - id: A3
-    stack: nvda
+    stack: voiceover
     verdict: pass
   - id: A3
-    stack: voiceover
+    stack: nvda
     verdict: not-run
   - id: A4
-    stack: nvda
+    stack: voiceover
     verdict: pass
   - id: A4
-    stack: voiceover
+    stack: nvda
     verdict: not-run
   - id: A5
-    stack: nvda
+    stack: voiceover
     verdict: pass
   - id: A5
-    stack: voiceover
+    stack: nvda
     verdict: not-run
   - id: A6
-    stack: nvda
+    stack: voiceover
     verdict: fail
     fixing-issue: re-cinq/bowman-ui#0
   - id: A6
-    stack: voiceover
+    stack: nvda
     verdict: not-run
   - id: A7
-    stack: nvda
+    stack: voiceover
     verdict: pass
   - id: A7
-    stack: voiceover
+    stack: nvda
     verdict: not-run
 ---
 ```
 
-A VoiceOver stack that was run replaces its `not-run` line with `browser`,
-`platform` and `voice`, and its rows carry real verdicts.
+A stack that was run replaces its `not-run` line with `browser`, `platform`
+and `voice`, and its rows carry real verdicts. One stack, or three, is as
+legal as two: every declared stack needs its seven rows.
 
 Required fields:
 
-| Field     | Rule                                                                                                                                                                                                                      |
-| --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `date`    | `YYYY-MM-DD`; equal to the filename's date                                                                                                                                                                                |
-| `runner`  | The person who listened, as a plain name. No email address and no angle brackets - the placeholder check rejects `<...>`                                                                                                  |
-| `commit`  | Lowercase 40-hex sha of the commit the surface was built from ([Which commit](#which-commit)); `--freshness` also requires it to exist in the repository                                                                  |
-| `package` | The package and version listened to, `@re-cinq/bowman-ui@<version>` from `package.json` at that commit                                                                                                                    |
-| `covers`  | Path list; every component a row exercises - see below                                                                                                                                                                    |
-| `stacks`  | Exactly two entries: one whose `screenReader` starts with `NVDA`, with `browser`, `platform` and `voice` as run; one whose `screenReader` starts with `VoiceOver`, with the same three fields or `not-run: <why>` instead |
-| `rows`    | One entry per row per stack: `id` (`A1`..`A7`), `stack` (`nvda` / `voiceover`), `verdict`                                                                                                                                 |
+| Field     | Rule                                                                                                                                                                                                                               |
+| --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `date`    | `YYYY-MM-DD`; equal to the filename's date                                                                                                                                                                                         |
+| `runner`  | The person who listened, as a plain name. No email address and no angle brackets - the placeholder check rejects `<...>`                                                                                                           |
+| `commit`  | Lowercase 40-hex sha of the commit the surface was built from ([Which commit](#which-commit)); `--freshness` also requires it to exist in the repository                                                                           |
+| `package` | The package and version listened to, `@re-cinq/bowman-ui@<version>` from `package.json` at that commit                                                                                                                             |
+| `covers`  | Path list; every component a row exercises - see below                                                                                                                                                                             |
+| `stacks`  | One or more entries, each with an `id` slug (lowercase letters, digits, dashes; unique) and `screenReader`, plus `browser`, `platform` and `voice` as run - or `not-run: <why>` instead of those three. At least one entry was run |
+| `rows`    | One entry per row per declared stack: `id` (`A1`..`A7`), `stack` (a stack `id`), `verdict`                                                                                                                                         |
 
 No placeholder may survive into the front matter. The gate rejects the words
 `TBD`, `TODO`, `FIXME` and `XXX` - whole words, any case, in any value, a
@@ -376,8 +389,8 @@ No placeholder may survive into the front matter. The gate rejects the words
 `covers` is what makes the record perishable. `check-at-pass.mjs --freshness`
 takes the last commit touching each listed path and fails when it is not an
 ancestor of the record's `commit`: editing `ChatMessageList.tsx` mechanically
-invalidates the pass that certified it, and the next release is blocked until
-someone listens again.
+invalidates the pass that certified it, and the record says so to whoever runs
+the check until someone listens again.
 
 List every component the rows exercise, which today means all seven above -
 `ChatMessage.tsx` and `ChatMessageList.tsx` (A1, A7), `ThinkingIndicator.tsx`
@@ -385,8 +398,7 @@ List every component the rows exercise, which today means all seven above -
 and `ToolActivity.tsx`, which render inside the same transcript the virtual
 cursor walks in A1 and A7. The gate checks the list's shape, not its
 membership; the seven are this document's rule. A path no commit touches - a
-typo - fails `--freshness` on release day, so copy the paths from the block
-above.
+typo - fails `--freshness`, so copy the paths from the block above.
 
 ### Verdicts
 
@@ -400,17 +412,17 @@ Every row A1 to A7 carries a verdict on every stack, from `pass`, `fail`,
   behaviour, never this one.
 - **`waived`** must carry `waived-by` (a maintainer's plain name) and `expires`
   (`YYYY-MM-DD`, a real date later than today; `never` is rejected). An expired
-  waiver fails with the same exit code as a stale record, so a first release is
-  not hostage to VM access but a waiver cannot quietly become permanent.
-- **`not-run`** is legal only on a `voiceover` row. On a VoiceOver stack that
-  was run it must carry its own `reason`; on a VoiceOver stack declared
-  `not-run` it is required on every row and carries no `reason` of its own.
+  waiver fails with the same exit code as a stale record, so a waiver cannot
+  quietly become permanent.
+- **`not-run`** on a row of a stack that was run must carry its own `reason`;
+  on a stack declared `not-run` it is required on every row and carries no
+  `reason` of its own.
 
 ### The body
 
 Below the front matter, one section per row, headed `## A1` to `## A7` (the
 spec links to those anchors), carrying what was actually heard: verbatim
-Speech Viewer lines in quotation marks, the reading order where it matters, the
+speech-log lines in quotation marks, the reading order where it matters, the
 stack that produced each, and a plain sentence for any optional sub-step that
 was not run. The front matter is the gate's input; the body is the evidence a
 human reads.
@@ -423,8 +435,8 @@ booking reference, no email address, no phone number, and no screenshot or
 audio recording carrying any of those. The `runner` field is the one real
 name a record carries, by design. Everything the pass touches is invented
 fixture data from the demo catalogue, and the verbatim transcriptions are of
-that fixture data being read aloud. Before pasting Speech Viewer lines, strip
-anything that is not the page: window titles, the Windows account name, other
+that fixture data being read aloud. Before pasting speech-log lines, strip
+anything that is not the page: window titles, your account name, other
 applications' announcements. If a pass is ever run against a real deployment,
 the record still carries only invented inputs and redacted transcriptions.
 
@@ -432,13 +444,14 @@ the record still carries only invented inputs and redacted transcriptions.
 
 ```
 node scripts/check-at-pass.mjs --structure    # every pull request, via ci.yml
-node scripts/check-at-pass.mjs --freshness    # before npm publish, via publish.yml
+node scripts/check-at-pass.mjs --freshness    # by hand, in a full clone
 ```
 
 `--structure` validates the newest record when one exists and passes with a
 warning when none does. `--freshness` fails when no record exists at all, and
-fails on a stale record or an expired waiver. Both exit 1 on a violation and 2
-on a usage or environment error.
+fails on a stale record or an expired waiver; it is not wired into any
+workflow - whoever wants to know whether the record still describes the tree
+runs it. Both exit 1 on a violation and 2 on a usage or environment error.
 
 Run both locally before opening the pull request - `--freshness` needs the full
 history, so a shallow clone reports every record stale - and then the two

@@ -26,7 +26,7 @@ This ADR records how `bowman-ui` reaches its consumers: the npm registry is the 
 ### Package distribution: npm, from a GitHub Release
 
 - `files` ships `dist/` (ESM only, with type definitions) and `THIRD-PARTY-NOTICES.md`.
-- `.github/workflows/publish.yml` runs when a GitHub Release is published. A credential-free `verify` job re-runs every gate (lint, typecheck, markdown safety, the coverage suite, the consumer and RSC tarball proofs) at the release's tag; only then does the `publish` job, holding `id-token: write` and nothing else, check that the tag equals `package.json`'s version, build, run the assistive-technology freshness gate, and `npm publish --access public --provenance`.
+- `.github/workflows/publish.yml` runs when a GitHub Release is published. A credential-free `verify` job re-runs every gate (lint, typecheck, markdown safety, the coverage suite, the consumer and RSC tarball proofs) at the release's tag; only then does the `publish` job, holding `id-token: write` and nothing else, check that the tag equals `package.json`'s version, build, and `npm publish --access public --provenance`.
 - Authentication is npm trusted publishing: a trusted publisher registered on npmjs.com for this repository and this workflow file. No `NPM_TOKEN` exists in the repository after the first publish, so push access to `main` is not, transitively, publish access - `guard-main-pushes.yml` treats a direct push to `main` as a security event for the same reason.
 - Pre-releases and malformed tags are refused; drafts never fire the workflow.
 
@@ -50,7 +50,7 @@ This ADR records how `bowman-ui` reaches its consumers: the npm registry is the 
 
 ## Consequences
 
-- A release is a human act twice over: someone publishes the Release, and someone must have run the assistive-technology pass since the last change to the covered components, or the freshness gate blocks the publish.
+- A release is a human act: someone publishes the Release. The assistive-technology pass is a documented procedure whose record CI validates, not a release gate (decided 2026-09-09; it had made every release hostage to a listening session).
 - The very first publish of the package cannot use trusted publishing (npm registers a trusted publisher on a package page that does not exist before version one). It is done once through the same workflow with a short-lived granular token and `--provenance`, after which the token is revoked and the trusted publisher registered.
 - Provenance requires a public repository; the package is not published from a private one.
 

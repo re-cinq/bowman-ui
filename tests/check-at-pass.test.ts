@@ -49,12 +49,14 @@ type Stack = Readonly<Record<string, string>>;
 
 const defaultStacks = (): Stack[] => [
   {
+    id: "nvda",
     screenReader: "NVDA 2025.2",
     browser: "Firefox 142.0",
     platform: "Windows 11 24H2",
     voice: "eSpeak NG da",
   },
   {
+    id: "voiceover",
     screenReader: "VoiceOver 26.1",
     browser: "Safari 26.1",
     platform: "macOS 26.1",
@@ -213,28 +215,30 @@ describe("check-at-pass", () => {
     expect(run(repo, "--structure")).toMatchObject({ status: 0 });
   });
 
-  it("not-run outside the voiceover row exits 1", () => {
-    const rows = defaultRows().map((row) =>
-      row.id === "A1" && row.stack === "nvda"
-        ? { ...row, verdict: "not-run", extra: { reason: "no Windows machine" } }
-        : row
-    );
+  it("a record whose every stack is declared not-run exits 1", () => {
+    const stacks: Stack[] = [
+      { id: "nvda", screenReader: "NVDA", "not-run": "no Windows machine" },
+      { id: "voiceover", screenReader: "VoiceOver", "not-run": "no macOS device" },
+    ];
+    const rows = defaultRows().map((row) => ({ ...row, verdict: "not-run" }));
 
-    commitRecord(repo, renderRecord(defaultFields(componentsCommit(repo)), rows));
+    commitRecord(repo, renderRecord(defaultFields(componentsCommit(repo)), rows, stacks));
 
     const result = run(repo, "--structure");
 
     expect(result).toMatchObject({ status: 1 });
-    expect(result.stderr).toContain("legal only on the voiceover stack");
+    expect(result.stderr).toContain(
+      "`stacks` must declare at least one stack that was actually run"
+    );
   });
 
-  it("not-run on the voiceover row without a reason exits 1", () => {
+  it("not-run on a run stack's row without a reason exits 1", () => {
     expect(structureStderr(withRow("A1", "voiceover", { verdict: "not-run" }))).toContain(
       "is `not-run` without a `reason`"
     );
   });
 
-  it("not-run on the voiceover row with a reason passes", () => {
+  it("not-run on a run stack's row with a reason passes", () => {
     const rows = defaultRows().map((row) =>
       row.id === "A1" && row.stack === "voiceover"
         ? { ...row, verdict: "not-run", extra: { reason: "no macOS device with a Danish voice" } }
@@ -366,34 +370,53 @@ describe("check-at-pass", () => {
     expect(freshness).toMatchObject({ status: 1 });
   });
 
-  it("stacks with three entries instead of nvda and voiceover exits 1", () => {
-    const bogusStacks: Stack[] = [
-      { screenReader: "JAWS 2025", browser: "Chrome 128", platform: "Windows 11", voice: "SAPI5" },
+  it("a third stack needs a verdict per row like any other", () => {
+    const stacks: Stack[] = [
+      ...defaultStacks(),
       {
-        screenReader: "Narrator 2025",
-        browser: "Edge 128",
+        id: "jaws",
+        screenReader: "JAWS 2025",
+        browser: "Chrome 128",
         platform: "Windows 11",
-        voice: "Microsoft David",
-      },
-      {
-        screenReader: "TalkBack 14",
-        browser: "Chrome Android",
-        platform: "Android 14",
-        voice: "default",
+        voice: "SAPI5",
       },
     ];
 
-    commitRecord(
-      repo,
-      renderRecord(defaultFields(componentsCommit(repo)), defaultRows(), bogusStacks)
-    );
+    commitRecord(repo, renderRecord(defaultFields(componentsCommit(repo)), defaultRows(), stacks));
 
     const result = run(repo, "--structure");
 
     expect(result).toMatchObject({ status: 1 });
-    expect(result.stderr).toContain(
-      '`stacks` must contain exactly one nvda stack (`screenReader` starting with "NVDA") and one voiceover stack (`screenReader` starting with "VoiceOver"), found 3 entries'
-    );
+    expect(result.stderr).toContain("row A1 carries no verdict on stack jaws");
+  });
+
+  it("a stack entry without an id slug exits 1", () => {
+    const stacks: Stack[] = [
+      {
+        screenReader: "NVDA 2025.2",
+        browser: "Firefox 142.0",
+        platform: "Windows 11",
+        voice: "eSpeak",
+      },
+    ];
+
+    commitRecord(repo, renderRecord(defaultFields(componentsCommit(repo)), defaultRows(), stacks));
+
+    const result = run(repo, "--structure");
+
+    expect(result).toMatchObject({ status: 1 });
+    expect(result.stderr).toContain("stacks[0] needs an `id` slug");
+  });
+
+  it("duplicate stack ids exit 1", () => {
+    const stacks: Stack[] = [...defaultStacks(), { ...defaultStacks()[1], id: "nvda" }];
+
+    commitRecord(repo, renderRecord(defaultFields(componentsCommit(repo)), defaultRows(), stacks));
+
+    const result = run(repo, "--structure");
+
+    expect(result).toMatchObject({ status: 1 });
+    expect(result.stderr).toContain("`stacks` ids must be unique, found nvda, voiceover, nvda");
   });
 
   it("a record with no front matter exits 1", () => {
@@ -425,6 +448,7 @@ describe("check-at-pass", () => {
   });
 
   const nvdaStack: Stack = {
+    id: "nvda",
     screenReader: "NVDA 2025.2",
     browser: "Firefox 142.0",
     platform: "Windows 11 24H2",
@@ -432,12 +456,12 @@ describe("check-at-pass", () => {
   };
   const voiceoverNotRunStacks = (): Stack[] => [
     nvdaStack,
-    { screenReader: "VoiceOver", "not-run": "no macOS device in this window" },
+    { id: "voiceover", screenReader: "VoiceOver", "not-run": "no macOS device in this window" },
   ];
   const voiceoverRowsNotRun = (): Row[] =>
     defaultRows().map((row) => (row.stack === "voiceover" ? { ...row, verdict: "not-run" } : row));
 
-  it("a voiceover stack marked not-run needs no versions when every voiceover row is not-run", () => {
+  it("a stack declared not-run needs no versions when every row on it is not-run", () => {
     commitRecord(
       repo,
       renderRecord(
@@ -450,7 +474,7 @@ describe("check-at-pass", () => {
     expect(run(repo, "--structure")).toMatchObject({ status: 0 });
   });
 
-  it("a voiceover stack marked not-run with a pass row on voiceover exits 1", () => {
+  it("a pass row on a stack declared not-run exits 1", () => {
     const rows = voiceoverRowsNotRun().map((row) =>
       row.id === "A3" && row.stack === "voiceover" ? { ...row, verdict: "pass" } : row
     );
@@ -463,27 +487,24 @@ describe("check-at-pass", () => {
 
     expect(result).toMatchObject({ status: 1 });
     expect(result.stderr).toContain(
-      "row A3 on stack voiceover must be `not-run`: the voiceover stack itself is marked not-run"
+      "row A3 on stack voiceover must be `not-run`: that stack itself is marked not-run"
     );
   });
 
-  it("an nvda stack marked not-run exits 1", () => {
+  it("a single stack that was run is a complete record", () => {
     const stacks: Stack[] = [
-      { screenReader: "NVDA 2025.2", "not-run": "no Windows machine" },
       {
-        screenReader: "VoiceOver 26.1",
-        browser: "Safari 26.1",
-        platform: "macOS 26.1",
-        voice: "Daniel en-GB",
+        id: "orca",
+        screenReader: "Orca 47.1",
+        browser: "Firefox 142.0",
+        platform: "Fedora 42",
+        voice: "espeak-ng en",
       },
     ];
+    const rows = rowIds.map((id) => ({ id, stack: "orca", verdict: "pass" }));
 
-    commitRecord(repo, renderRecord(defaultFields(componentsCommit(repo)), defaultRows(), stacks));
-    const result = run(repo, "--structure");
+    commitRecord(repo, renderRecord(defaultFields(componentsCommit(repo)), rows, stacks));
 
-    expect(result).toMatchObject({ status: 1 });
-    expect(result.stderr).toContain(
-      "stacks[0] is `not-run`, which is legal only on the voiceover stack"
-    );
+    expect(run(repo, "--structure")).toMatchObject({ status: 0 });
   });
 });
