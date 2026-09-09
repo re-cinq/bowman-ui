@@ -1,6 +1,7 @@
 name: Publish
 
-# On a v* tag, build + test @re-cinq/bowman-ui and publish it to npm.
+# When a GitHub release is published, build + test @re-cinq/bowman-ui at the
+# release's tag and publish it to npm.
 #
 # Auth is tokenless via npm Trusted Publishing (OIDC): no NPM_TOKEN secret. It
 # needs `id-token: write` (on the publish job below), npm >= 11.5.1 (upgraded
@@ -9,8 +10,10 @@ name: Publish
 # publish must be done once with a token before the trusted publisher can be
 # registered on npmjs.com.
 #
-# No workflow_dispatch: the version guard below runs unconditionally on every
-# execution, and tag pushes are the only way in.
+# No workflow_dispatch and no tag-push trigger: the version guard below runs
+# unconditionally on every execution, and a published release is the only
+# way in. Draft releases never fire `published`; pre-releases are rejected
+# by the job condition below, so a pre-release cannot reach the registry.
 #
 # The publish job holds the OIDC credential, so it must never run untrusted
 # third-party code. The example-app checks (consumer, rsc) install dependencies
@@ -20,8 +23,8 @@ name: Publish
 # transitive dependency any path to the trusted-publish token.
 
 on:
-  push:
-    tags: ["v*"]
+  release:
+    types: [published]
 
 # Least privilege by default: only the publish job opts into id-token: write.
 permissions:
@@ -31,6 +34,7 @@ jobs:
   # Every gate that runs third-party or example-app code lives here, in a job
   # that never sees the publish credential. The publish job below gates on it.
   verify:
+    if: ${{ !github.event.release.prerelease }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -39,9 +43,10 @@ jobs:
         with:
           persist-credentials: false
       - uses: ./.github/actions/setup-node-install
-      # A tag is cut from main, which CI already gated - but a tag can be cut
-      # from anything, and this is the last gate before the package is public
-      # and immutable. Cheap insurance against an unversioned republish.
+      # A release is cut from main, which CI already gated - but a release's
+      # tag can point at anything, and this is the last gate before the
+      # package is public and immutable. Cheap insurance against an
+      # unversioned republish.
       - name: Lint (--max-warnings 0)
         run: npm run lint
       - name: Typecheck
@@ -95,7 +100,9 @@ jobs:
       # failure. Fail here instead, naming the bump. Prerelease tags fail too:
       # they are not published from this repo.
       - name: Package version matches the release tag
-        run: ./scripts/check-version.sh "$GITHUB_REF_NAME"
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: ./scripts/check-version.sh "$RELEASE_TAG"
       - name: Install
         run: npm ci --ignore-scripts
       # Kept even though verify also builds: jobs share no filesystem, so this
@@ -113,9 +120,10 @@ jobs:
       # this way; this one blocks the release.
       - name: AT-pass freshness check
         run: npm run check:at-pass -- --freshness
-      # No --provenance: this repo was decided private at scaffold time
-      # (decider: Loredana Moanga, 2026-08-24). a recorded decision covers
-      # the exception (landing via issue 1486).
-      # If the repo goes public, restore --provenance in the same PR.
+      # --provenance: the repository is public, so every published version
+      # carries a Sigstore attestation linking it to this workflow run and
+      # the release's commit. It was withheld while the repo was private
+      # (npm does not attest private repositories); the repo must be public
+      # before the first release runs this step.
       - name: Publish to npm
-        run: npm publish --access public
+        run: npm publish --access public --provenance
