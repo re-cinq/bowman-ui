@@ -423,4 +423,67 @@ describe("check-at-pass", () => {
       )
     ).toContain('is `waived` with an `expires` of "never", which is not YYYY-MM-DD');
   });
+
+  const nvdaStack: Stack = {
+    screenReader: "NVDA 2025.2",
+    browser: "Firefox 142.0",
+    platform: "Windows 11 24H2",
+    voice: "eSpeak NG en-GB",
+  };
+  const voiceoverNotRunStacks = (): Stack[] => [
+    nvdaStack,
+    { screenReader: "VoiceOver", "not-run": "no macOS device in this window" },
+  ];
+  const voiceoverRowsNotRun = (): Row[] =>
+    defaultRows().map((row) => (row.stack === "voiceover" ? { ...row, verdict: "not-run" } : row));
+
+  it("a voiceover stack marked not-run needs no versions when every voiceover row is not-run", () => {
+    commitRecord(
+      repo,
+      renderRecord(
+        defaultFields(componentsCommit(repo)),
+        voiceoverRowsNotRun(),
+        voiceoverNotRunStacks()
+      )
+    );
+
+    expect(run(repo, "--structure")).toMatchObject({ status: 0 });
+  });
+
+  it("a voiceover stack marked not-run with a pass row on voiceover exits 1", () => {
+    const rows = voiceoverRowsNotRun().map((row) =>
+      row.id === "A3" && row.stack === "voiceover" ? { ...row, verdict: "pass" } : row
+    );
+
+    commitRecord(
+      repo,
+      renderRecord(defaultFields(componentsCommit(repo)), rows, voiceoverNotRunStacks())
+    );
+    const result = run(repo, "--structure");
+
+    expect(result).toMatchObject({ status: 1 });
+    expect(result.stderr).toContain(
+      "row A3 on stack voiceover must be `not-run`: the voiceover stack itself is marked not-run"
+    );
+  });
+
+  it("an nvda stack marked not-run exits 1", () => {
+    const stacks: Stack[] = [
+      { screenReader: "NVDA 2025.2", "not-run": "no Windows machine" },
+      {
+        screenReader: "VoiceOver 26.1",
+        browser: "Safari 26.1",
+        platform: "macOS 26.1",
+        voice: "Daniel en-GB",
+      },
+    ];
+
+    commitRecord(repo, renderRecord(defaultFields(componentsCommit(repo)), defaultRows(), stacks));
+    const result = run(repo, "--structure");
+
+    expect(result).toMatchObject({ status: 1 });
+    expect(result.stderr).toContain(
+      "stacks[0] is `not-run`, which is legal only on the voiceover stack"
+    );
+  });
 });

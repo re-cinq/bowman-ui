@@ -75,10 +75,19 @@ behaviour is implementation-specific, so one stack proves one stack: `not-run`
 is a legal verdict only on a VoiceOver row and only with a stated reason
 ([validated by](../../tests/check-at-pass.test.ts#L216),
 [without a reason](../../tests/check-at-pass.test.ts#L231),
-[with one](../../tests/check-at-pass.test.ts#L237)).
+[with one](../../tests/check-at-pass.test.ts#L237)). A VoiceOver stack nobody
+could run is declared once, on its `stacks` entry, with no invented versions;
+every VoiceOver row is then `not-run` without a reason of its own, and the
+NVDA stack can never be declared that way
+([validated by](../../tests/check-at-pass.test.ts#L440),
+[a pass row on it](../../tests/check-at-pass.test.ts#L453),
+[the nvda stack](../../tests/check-at-pass.test.ts#L470)).
 
 The pass runs against the demo's English catalogue, and the record names the
-voice actually used. The record transcribes verbatim and judges nothing. Expected runtime is 60 to 90 minutes per stack for a first run.
+voice actually used. The record transcribes verbatim and judges nothing. The
+published site is the default surface; a local build is needed only for the two
+optional local-only sub-steps. Expected runtime is two to three hours for a
+first NVDA run and about 30 minutes for a repeat against an unchanged surface.
 
 ## What the pass will answer
 
