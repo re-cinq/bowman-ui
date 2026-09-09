@@ -24,19 +24,25 @@ Have these in hand; each is asked for below.
    actually have; see [Stacks](#stacks) for the recommended ones. An English
    voice selected, and the screen reader's speech log open, because that log is
    the transcript of record: copy from it, never from memory. NVDA: NVDA menu →
-   Tools → Speech Viewer. VoiceOver: VoiceOver Utility → Visuals → Caption
-   panel, or the built-in Screen Curtain-free text log via VO + Shift + F4.
-   Orca: `orca --debug` writes a speech log next to it.
+   Tools → Speech Viewer, a scrollable, selectable log. VoiceOver has no
+   scrollable log: turn on the caption panel (VoiceOver Utility → Visuals) so
+   each utterance is shown as it is spoken, and copy each phrase you need with
+   VO + Shift + C - "copy last spoken phrase" - immediately after hearing it,
+   pasting it into your notes as you go. Orca: start it as `orca --debug`; the
+   `debug-<timestamp>.out` file it writes in the directory you launched it from
+   carries the spoken text on its `SPEECH OUTPUT` lines.
 2. The four version strings for the record's `stacks` block: the screen reader
    (its About dialog), the browser (`about:support` in Firefox, About menu
    elsewhere), the operating system (`winver`, About This Mac,
    `cat /etc/os-release`), and the voice (the screen reader's speech settings).
 3. The commit the surface was built from, as a lowercase 40-hex sha - see
    [Which commit](#which-commit).
-4. An editor that saves with LF line endings and spaces, never tabs. The
-   repository's `.gitattributes` normalises line endings on commit, but the
-   gate reads the file you hand it, and a CRLF file fails with "no `---`
-   front-matter block".
+4. An editor that saves with LF line endings, no byte-order mark, and spaces,
+   never tabs. The repository's `.gitattributes` normalises line endings on
+   commit, but the gate reads the file you hand it, and a CRLF or BOM-prefixed
+   file fails with "no `---` front-matter block". If that happens, do not
+   trust `git checkout -- <file>` to restore a clean copy - git sees the file
+   as unchanged after normalisation; delete it and check it out again.
 5. About two to three hours for a first run - the seven rows are around 30
    minutes of listening; the rest is setup, fourteen verbatim transcriptions,
    and the optional local-only sub-steps. A repeat run against an unchanged
@@ -97,7 +103,7 @@ there is of the wrong page.
 **A local build**, needed only for the two local-only sub-steps (A6 step 3 and
 A7b). It requires a clone with Node 22, bash, a completed `npm ci` at the root,
 and patience: the script installs Chromium and runs the demo's whole Playwright
-suite before it prints anything.
+suite before it prints the temp directory line.
 
 ```
 scripts/consumer-app.sh --keep     # prints "Keeping temp directory: <dir>"
@@ -127,9 +133,12 @@ the entry's action row (copy button) mounts.
 The record's `commit` is the commit the surface you listened to was built
 from, as a **lowercase** 40-hex sha.
 
-- Published site: the commit of the latest successful `Pages` run on `main`
-  (Actions → Pages → newest green run → the sha under the run title), or
-  `gh run list --workflow Pages --status success --limit 1 --json headSha`.
+- Published site: the commit of the latest successful `Pages` run **on
+  `main`** - the workflow also runs green on pull requests without deploying,
+  so filter by branch:
+  `gh run list --workflow Pages --branch main --status success --limit 1 --json headSha --jq '.[0].headSha'`.
+  In the UI (Actions → Pages → newest green run whose branch is `main`), the
+  sha under the run title is abbreviated; click it to get all 40 characters.
 - Local build: `git rev-parse HEAD` in the clone you ran `consumer-app.sh` in.
 
 Any commit on today's `main` satisfies A7's requirement that the name line
@@ -216,10 +225,12 @@ exists.
 3. Note whether the disclosure band is reached, and at what point in the
    reading order. Its text is
    `"You are talking to an artificial intelligence. Answers can contain mistakes."`
-   The expected order, from the source, is: the skip link, the sidebar (brand,
-   new-chat control, the conversation list), then the main region, whose first
-   content is the disclosure, then the empty `role="log"` transcript, then the
-   composer and the static-demo note.
+   The expected order, from the source, at desktop width (the sidebar is a
+   drawer below the `md` breakpoint and is not in the reading order until
+   opened), is: the skip link, the sidebar (brand, the `Conversations` and
+   `Settings` nav items, the conversation list, the sign-out footer), then the
+   main region, whose first content is the disclosure, then the empty
+   `role="log"` transcript, then the composer and the static-demo note.
 
 Record whether the band was reachable and announced before the first message
 was sent, with the transcript empty, on each stack, and where in the reading
@@ -464,5 +475,5 @@ npm run lint
 
 `npm run lint` includes a dead-link check over every markdown file, so any
 repository-relative link in the body must resolve. Open the pull request from a
-`docs/<description>` branch with a `docs(at-pass): ...` commit, as
+`docs/at-pass-<date>` branch with a `docs(at-pass): ...` commit, as
 [CONTRIBUTING.md](../../CONTRIBUTING.md) describes.
