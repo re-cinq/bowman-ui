@@ -333,6 +333,10 @@ npm run build
 
 Two TypeScript installs exist on purpose: `typescript` (~6.x) feeds the lint stack, because `typescript-eslint` caps its peer range below TypeScript 7, while the `typescript7` alias (`npm:typescript@~7.0.2`) is the actual compiler that `build` and `typecheck` invoke. Do not "clean up" the alias, and do not enable type-aware linting (`recommendedTypeChecked`) without revisiting this split — the linter would type-check with a different compiler major than the build.
 
+## Accessibility
+
+The components carry the roles, names and live regions described above, and the test suite checks that markup. What no test can check is what a screen reader actually says: [docs/accessibility/README.md](./docs/accessibility/README.md) is the procedure for a human to find out, and `docs/accessibility/` is where the dated record goes. No record has been committed yet, so the announced behaviour is documented, not verified by a listener. A record is welcome from anyone who runs the pass; CI validates its shape.
+
 ## Security
 
 The library renders model-authored markdown into a customer-facing chat, so the reports that matter are XSS, sanitizer bypass, and markdown-pipeline dependency advisories - measured against the scheme allowlist and `rel="noopener noreferrer"` policy described in [Links in model output](#links-in-model-output). Do not open a public issue for a vulnerability. Report it privately to **security@re-cinq.com**; we acknowledge within 48 hours. Full intake, scope, and supported-versions detail is in [SECURITY.md](./SECURITY.md).

@@ -9,17 +9,19 @@
 //   node scripts/check-at-pass.mjs --freshness [root]
 //
 // --structure validates the newest docs/accessibility/at-pass-*.md: every
-// required front-matter field present, every row A1-A7 carrying a verdict on
-// both stacks, `not-run` only on the VoiceOver row and only with a reason,
+// required front-matter field present, at least one stack actually run, every
+// row A1-A7 carrying a verdict on every declared stack, `not-run` on a run
+// stack's row only with a reason and on a not-run stack's rows only,
 // every `fail` naming a fixing issue or an accepting person, every `waived`
 // carrying waived-by and an unexpired expires, and no placeholder left behind.
 // With no record at all it passes and says so: the first record is created by
 // the first human pass, and pull requests must not be hostage to a listening
 // session that has not happened yet.
 //
-// --freshness is the release gate and inverts that: no record is a failure,
-// because publishing a package whose chat surface nobody has ever listened to
-// is exactly what this issue exists to prevent. With a record present it fails
+// --freshness is the pre-release check and inverts that: no record is a
+// failure. It is run by hand, in a full clone, by whoever wants the record's
+// answer - it left publish.yml on 2026-09-09, when the pass became a procedure
+// rather than a release gate. With a record present it fails
 // when the last commit touching any path in the record's `covers` list is not
 // an ancestor of the record's `commit` - editing ChatMessageList.tsx
 // mechanically invalidates the pass that certified it - and when a waiver has
@@ -35,8 +37,7 @@ import process from "node:process";
 import { splitArgs } from "./lib/cli-args.mjs";
 
 const ROWS = ["A1", "A2", "A3", "A4", "A5", "A6", "A7"];
-const STACKS = ["nvda", "voiceover"];
-const NOT_RUN_STACK = "voiceover";
+const STACK_ID = /^[a-z][a-z0-9-]*$/;
 const NOT_RUN_STACK_FIELD = "not-run";
 const VERDICTS = ["pass", "fail", "waived", "not-run"];
 const SCALAR_FIELDS = ["date", "runner", "commit", "package"];
@@ -150,46 +151,27 @@ const checkCovers = (data) => {
   return covers.every(isFilledString) ? [] : ["`covers` must be a list of paths"];
 };
 
-const identifyStack = (screenReader) => {
-  const text = typeof screenReader === "string" ? screenReader.trim() : "";
+const isRunStack = (stack) => !isFilledString(stack[NOT_RUN_STACK_FIELD]);
 
-  if (/^nvda\b/i.test(text)) {
-    return "nvda";
-  }
-
-  if (/^voiceover\b/i.test(text)) {
-    return "voiceover";
-  }
-
-  return null;
-};
-
-// A stack nobody could run is declared once, on its `stacks` entry, as
-// `not-run: <why>` with no invented versions. Only the voiceover stack may be
-// declared that way; the nvda stack is mandatory and must carry real versions.
+// A stack is any screen reader + browser + operating system the runner had,
+// named by an `id` slug the rows refer to. One nobody could run is declared
+// once, on its entry, as `not-run: <why>` with no invented versions.
 const checkStackFields = (stack, index) => {
+  if (!isFilledString(stack.id) || !STACK_ID.test(stack.id)) {
+    return [`stacks[${index}] needs an \`id\` slug: lowercase letters, digits and dashes`];
+  }
+
   if (!isFilledString(stack.screenReader)) {
     return [`stacks[${index}] is missing \`screenReader\``];
   }
 
-  if (!isFilledString(stack[NOT_RUN_STACK_FIELD])) {
-    return STACK_FIELDS.filter((field) => !isFilledString(stack[field])).map(
-      (field) => `stacks[${index}] is missing \`${field}\``
-    );
+  if (!isRunStack(stack)) {
+    return [];
   }
 
-  if (identifyStack(stack.screenReader) !== NOT_RUN_STACK) {
-    return [`stacks[${index}] is \`not-run\`, which is legal only on the ${NOT_RUN_STACK} stack`];
-  }
-
-  return [];
-};
-
-const isStackNotRun = (data) => {
-  const stacks = isMapList(data.stacks) ? data.stacks : [];
-  const skipped = stacks.find((stack) => identifyStack(stack.screenReader) === NOT_RUN_STACK);
-
-  return skipped !== undefined && isFilledString(skipped[NOT_RUN_STACK_FIELD]);
+  return STACK_FIELDS.filter((field) => !isFilledString(stack[field])).map(
+    (field) => `stacks[${index}] is missing \`${field}\``
+  );
 };
 
 const checkStacks = (data) => {
@@ -201,36 +183,28 @@ const checkStacks = (data) => {
   if (violations.length > 0) {
     return violations;
   }
-  const identified = data.stacks.map((stack) => identifyStack(stack.screenReader));
-  const identifiesEachStackOnce = STACKS.every(
-    (name) => identified.filter((entry) => entry === name).length === 1
-  );
+  const ids = data.stacks.map((stack) => stack.id);
 
-  if (data.stacks.length !== STACKS.length || !identifiesEachStackOnce) {
-    return [
-      '`stacks` must contain exactly one nvda stack (`screenReader` starting with "NVDA") ' +
-        `and one voiceover stack (\`screenReader\` starting with "VoiceOver"), found ` +
-        `${data.stacks.length} entr${data.stacks.length === 1 ? "y" : "ies"}`,
-    ];
+  if (new Set(ids).size !== ids.length) {
+    return [`\`stacks\` ids must be unique, found ${ids.join(", ")}`];
+  }
+
+  if (!data.stacks.some(isRunStack)) {
+    return ["`stacks` must declare at least one stack that was actually run"];
   }
 
   return [];
 };
 
-const checkRowVerdict = (row, now, stackNotRun) => {
+const checkRowVerdict = (row, now, onSkippedStack) => {
   const where = `row ${row.id} on stack ${row.stack}`;
-  const onSkippedStack = stackNotRun && row.stack === NOT_RUN_STACK;
 
   if (!VERDICTS.includes(row.verdict)) {
     return [`${where} carries no verdict from ${VERDICTS.join(" | ")}`];
   }
 
   if (onSkippedStack && row.verdict !== "not-run") {
-    return [`${where} must be \`not-run\`: the ${NOT_RUN_STACK} stack itself is marked not-run`];
-  }
-
-  if (row.verdict === "not-run" && row.stack !== NOT_RUN_STACK) {
-    return [`${where} is \`not-run\`, which is legal only on the ${NOT_RUN_STACK} stack`];
+    return [`${where} must be \`not-run\`: that stack itself is marked not-run`];
   }
   const needsOwnReason = row.verdict === "not-run" && !onSkippedStack;
 
@@ -272,17 +246,19 @@ const checkRows = (data, now) => {
     return ["front matter is missing the required field `rows` (a non-empty list)"];
   }
   const violations = [];
-  const stackNotRun = isStackNotRun(data);
+  const stacks = isMapList(data.stacks)
+    ? data.stacks.filter((stack) => isFilledString(stack.id))
+    : [];
 
   for (const rowId of ROWS) {
-    for (const stack of STACKS) {
-      const row = data.rows.find((entry) => entry.id === rowId && entry.stack === stack);
+    for (const stack of stacks) {
+      const row = data.rows.find((entry) => entry.id === rowId && entry.stack === stack.id);
 
       if (row === undefined) {
-        violations.push(`row ${rowId} carries no verdict on stack ${stack}`);
+        violations.push(`row ${rowId} carries no verdict on stack ${stack.id}`);
         continue;
       }
-      violations.push(...checkRowVerdict(row, now, stackNotRun));
+      violations.push(...checkRowVerdict(row, now, !isRunStack(stack)));
     }
   }
 
@@ -423,14 +399,14 @@ const record = newestRecord(root);
 if (record === null && mode === "--structure") {
   process.stdout.write(
     `check-at-pass: no ${RECORD_DIRECTORY}/at-pass-*.md record yet - structure check has nothing to validate.\n` +
-      "The first record is written by the first human screen-reader pass (issue 97); until then this check passes and --freshness blocks publishing.\n"
+      "The first record is written by the first human screen-reader pass (issue 97); until then this check passes and --freshness fails.\n"
   );
   process.exit(0);
 }
 
 if (record === null) {
   fail([
-    `no ${RECORD_DIRECTORY}/at-pass-*.md record exists; the package must not be published before a human has run the assistive-technology pass (issue 97)`,
+    `no ${RECORD_DIRECTORY}/at-pass-*.md record exists; no human has run the assistive-technology pass (issue 97) yet`,
   ]);
 }
 
