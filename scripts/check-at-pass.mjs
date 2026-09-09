@@ -37,6 +37,7 @@ import { splitArgs } from "./lib/cli-args.mjs";
 const ROWS = ["A1", "A2", "A3", "A4", "A5", "A6", "A7"];
 const STACKS = ["nvda", "voiceover"];
 const NOT_RUN_STACK = "voiceover";
+const NOT_RUN_STACK_FIELD = "not-run";
 const VERDICTS = ["pass", "fail", "waived", "not-run"];
 const SCALAR_FIELDS = ["date", "runner", "commit", "package"];
 const STACK_FIELDS = ["screenReader", "browser", "platform", "voice"];
@@ -163,19 +164,39 @@ const identifyStack = (screenReader) => {
   return null;
 };
 
+// A stack nobody could run is declared once, on its `stacks` entry, as
+// `not-run: <why>` with no invented versions. Only the voiceover stack may be
+// declared that way; the nvda stack is mandatory and must carry real versions.
+const checkStackFields = (stack, index) => {
+  if (!isFilledString(stack.screenReader)) {
+    return [`stacks[${index}] is missing \`screenReader\``];
+  }
+
+  if (!isFilledString(stack[NOT_RUN_STACK_FIELD])) {
+    return STACK_FIELDS.filter((field) => !isFilledString(stack[field])).map(
+      (field) => `stacks[${index}] is missing \`${field}\``
+    );
+  }
+
+  if (identifyStack(stack.screenReader) !== NOT_RUN_STACK) {
+    return [`stacks[${index}] is \`not-run\`, which is legal only on the ${NOT_RUN_STACK} stack`];
+  }
+
+  return [];
+};
+
+const isStackNotRun = (data) => {
+  const stacks = isMapList(data.stacks) ? data.stacks : [];
+  const skipped = stacks.find((stack) => identifyStack(stack.screenReader) === NOT_RUN_STACK);
+
+  return skipped !== undefined && isFilledString(skipped[NOT_RUN_STACK_FIELD]);
+};
+
 const checkStacks = (data) => {
   if (!isMapList(data.stacks)) {
     return ["front matter is missing the required field `stacks` (a non-empty list)"];
   }
-  const violations = [];
-
-  data.stacks.forEach((stack, index) => {
-    for (const field of STACK_FIELDS) {
-      if (!isFilledString(stack[field])) {
-        violations.push(`stacks[${index}] is missing \`${field}\``);
-      }
-    }
-  });
+  const violations = data.stacks.flatMap(checkStackFields);
 
   if (violations.length > 0) {
     return violations;
@@ -196,18 +217,24 @@ const checkStacks = (data) => {
   return [];
 };
 
-const checkRowVerdict = (row, now) => {
+const checkRowVerdict = (row, now, stackNotRun) => {
   const where = `row ${row.id} on stack ${row.stack}`;
+  const onSkippedStack = stackNotRun && row.stack === NOT_RUN_STACK;
 
   if (!VERDICTS.includes(row.verdict)) {
     return [`${where} carries no verdict from ${VERDICTS.join(" | ")}`];
   }
 
+  if (onSkippedStack && row.verdict !== "not-run") {
+    return [`${where} must be \`not-run\`: the ${NOT_RUN_STACK} stack itself is marked not-run`];
+  }
+
   if (row.verdict === "not-run" && row.stack !== NOT_RUN_STACK) {
     return [`${where} is \`not-run\`, which is legal only on the ${NOT_RUN_STACK} stack`];
   }
+  const needsOwnReason = row.verdict === "not-run" && !onSkippedStack;
 
-  if (row.verdict === "not-run" && !isFilledString(row.reason)) {
+  if (needsOwnReason && !isFilledString(row.reason)) {
     return [`${where} is \`not-run\` without a \`reason\``];
   }
 
@@ -245,6 +272,7 @@ const checkRows = (data, now) => {
     return ["front matter is missing the required field `rows` (a non-empty list)"];
   }
   const violations = [];
+  const stackNotRun = isStackNotRun(data);
 
   for (const rowId of ROWS) {
     for (const stack of STACKS) {
@@ -254,7 +282,7 @@ const checkRows = (data, now) => {
         violations.push(`row ${rowId} carries no verdict on stack ${stack}`);
         continue;
       }
-      violations.push(...checkRowVerdict(row, now));
+      violations.push(...checkRowVerdict(row, now, stackNotRun));
     }
   }
 
