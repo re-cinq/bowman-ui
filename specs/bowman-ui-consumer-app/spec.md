@@ -282,7 +282,7 @@ this job does not run.
 `publish.yml` runs `scripts/consumer-app.sh` in its credential-free `verify`
 job, after `test:coverage` has built `dist/`; the `publish` job holds the
 OIDC credential, runs no example-app code, and only `needs:` that green
-result ([validated by](../../.github/workflows/publish.yml#L61)).
+result ([validated by](../../.github/workflows/publish.yml#L66)).
 
 ## Gates preserved
 
