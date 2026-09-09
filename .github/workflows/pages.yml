@@ -1,9 +1,9 @@
 name: Pages
 
 # Publishes examples/chat-demo - the documentation at "/" (the landing) and the
-# local-test chat fixture at "/?view=chat" - to GitHub Pages on every push to
-# main. The demo is English-only, so the published chat and every local run
-# render the same catalogue.
+# local-test chat fixture at "/?view=chat" - to GitHub Pages. The demo is
+# English-only, so the published chat and every local run render the same
+# catalogue.
 #
 # The demo is built the way scripts/consumer-app.sh builds it: the library is
 # packed and the tarball installed by file path, never the registry, because
@@ -11,21 +11,41 @@ name: Pages
 # dependency (the consumer check asserts that). --no-save keeps the checkout's
 # manifest as committed.
 #
-# Pages is a repo setting, not something a workflow can turn on: until this
-# repository is public (or on a plan that allows Pages for private
-# repositories) and Pages is switched to the "GitHub Actions" source, the
-# configure and deploy steps fail. That is the intended state - the workflow
-# is here so the site publishes itself the day the repo opens up.
+# Two triggers, one build. A push to main that touches an input of the site
+# (the library source, the demo, the manifests, this file) rebuilds and
+# redeploys; a pull request touching the same inputs runs the build job only,
+# so a broken site is a red check before it is a broken deployment. The path
+# filters keep a docs-only or spec-only change from redeploying an identical
+# site. Pages itself is a repository setting (source: GitHub Actions), not
+# something this workflow can switch on.
 
 on:
   push:
     branches: [main]
+    paths:
+      - "src/**"
+      - "examples/chat-demo/**"
+      - "package.json"
+      - "package-lock.json"
+      - "tsconfig.json"
+      - "THIRD-PARTY-NOTICES.md"
+      - ".github/workflows/pages.yml"
+  pull_request:
+    paths:
+      - "src/**"
+      - "examples/chat-demo/**"
+      - "package.json"
+      - "package-lock.json"
+      - "tsconfig.json"
+      - "THIRD-PARTY-NOTICES.md"
+      - ".github/workflows/pages.yml"
   workflow_dispatch:
 
-# One deploy at a time, and never cancel one mid-flight: a half-finished Pages
-# deployment is a broken site, not a superseded check.
+# One deploy at a time on main, and never cancel one mid-flight: a
+# half-finished Pages deployment is a broken site, not a superseded check.
+# Keyed by ref so pull-request builds never queue behind a deployment.
 concurrency:
-  group: pages
+  group: pages-${{ github.ref }}
   cancel-in-progress: false
 
 # Least privilege at the top: unlisted scopes are none for every job.
@@ -51,9 +71,12 @@ jobs:
           cache: npm
       # Reads the repository's Pages settings and reports the path the site is
       # served from - "/bowman-ui" for a project site. Deriving it beats
-      # hardcoding the repository name in the vite config.
+      # hardcoding the repository name in the vite config. Skipped on pull
+      # requests: a check must not depend on the repository's Pages state, so
+      # those fall back to the project-site path derived from the repo name.
       - uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
         id: pages
+        if: github.event_name != 'pull_request'
       - name: Install
         run: npm ci --ignore-scripts
       - name: Build the library
@@ -74,13 +97,22 @@ jobs:
         run: npm run build
         working-directory: examples/chat-demo
         env:
-          VITE_BASE_PATH: ${{ steps.pages.outputs.base_path }}
+          VITE_BASE_PATH: ${{ steps.pages.outputs.base_path || format('/{0}', github.event.repository.name) }}
+      # The one thing a root-path build in ci.yml cannot prove: the base path
+      # reached the bundle, so the site's assets resolve under the project
+      # path instead of 404ing at the domain root.
+      - name: Assets resolve under the project path
+        run: grep -q "\"${BASE_PATH}/assets/" examples/chat-demo/dist/index.html
+        env:
+          BASE_PATH: ${{ steps.pages.outputs.base_path || format('/{0}', github.event.repository.name) }}
       - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        if: github.event_name != 'pull_request'
         with:
           path: examples/chat-demo/dist
 
   deploy:
     needs: build
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     permissions:
       contents: read
