@@ -6,9 +6,11 @@ Presentational React components for AI chat interfaces.
 
 The name follows the pairing the org chose: HAL Engine is the engine that thinks, Bowman is the face that talks to you.
 
-<img alt="A full chat application composed from bowman-ui exports: a sidebar with a new chat button and a conversation list beside a transcript where an assistant answers a caching-strategy question with a markdown list, a code block and a table, a thinking indicator, and the composer." src="docs/assets/hero-split.png" />
+<img alt="A full chat application composed from bowman-ui exports: a sidebar with a new chat button and a conversation list beside a transcript where an assistant answers a caching-strategy question with a markdown list, a code block and a table, a thinking indicator, and the composer." src="https://raw.githubusercontent.com/re-cinq/bowman-ui/main/docs/assets/hero-split.png" />
 
 _One surface, every piece: sidebar, transcript, and composer, rendered through the library's own components._
+
+The component documentation, built from the packed package, is published at <https://re-cinq.github.io/bowman-ui/>; the chat fixture behind the screenshots is at `?view=chat`.
 
 ## Install
 
@@ -232,7 +234,7 @@ import { createMarkdownComponents, createUrlTransform } from "@re-cinq/bowman-ui
 
 Every piece on screen is one export:
 
-![Annotated screenshot labeling AppShell's renderSidebar slot, ConversationList, ChatMessage with createMarkdownComponents, InlineThinkingIndicator, and ChatComposer on a rendered chat surface.](docs/assets/anatomy.png)
+![Annotated screenshot labeling AppShell's renderSidebar slot, ConversationList, ChatMessage with createMarkdownComponents, InlineThinkingIndicator, and ChatComposer on a rendered chat surface.](https://raw.githubusercontent.com/re-cinq/bowman-ui/main/docs/assets/anatomy.png)
 
 Data flows one way in and one way out - the package never talks to a backend, it only renders what it is handed and reports what the user did:
 
@@ -243,7 +245,7 @@ an engine that thinks  <--(messages)--------  your adapter  <--(onSubmit, onCopy
 
 On a phone the sidebar becomes a focus-trapped drawer behind the hamburger. It opens on request - every time, without argument:
 
-<img src="docs/assets/mobile-drawer.png" alt="The mobile drawer open over the chat surface: conversation list and new-chat button over a dimmed backdrop." width="300" />
+<img src="https://raw.githubusercontent.com/re-cinq/bowman-ui/main/docs/assets/mobile-drawer.png" alt="The mobile drawer open over the chat surface: conversation list and new-chat button over a dimmed backdrop." width="300" />
 
 ## Labels and translations
 
@@ -326,6 +328,8 @@ npm run typecheck
 npm test
 npm run build
 ```
+
+[CONTRIBUTING.md](./CONTRIBUTING.md) has the branch, commit and pull-request conventions and the gates a change must pass.
 
 Two TypeScript installs exist on purpose: `typescript` (~6.x) feeds the lint stack, because `typescript-eslint` caps its peer range below TypeScript 7, while the `typescript7` alias (`npm:typescript@~7.0.2`) is the actual compiler that `build` and `typecheck` invoke. Do not "clean up" the alias, and do not enable type-aware linting (`recommendedTypeChecked`) without revisiting this split — the linter would type-check with a different compiler major than the build.
 
