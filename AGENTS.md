@@ -55,7 +55,7 @@ Runs the `typescript7` compiler in check-only mode (no emit).
 
 ### Release
 
-Never `npm publish` by hand. Bump `version` in `package.json` through a pull request, then publish a GitHub Release whose tag is `v<version>`; `.github/workflows/publish.yml` re-runs every gate at that tag, refuses a tag that disagrees with the manifest, and publishes to npm over OIDC trusted publishing with provenance. No token lives in the repository.
+Never `npm publish`, `npm version` or tag by hand. `.github/workflows/release.yml` keeps a release pull request open from the Conventional Commits on `main` (version bump, `CHANGELOG.md`, notes); merging it cuts the tag and the GitHub Release and dispatches `.github/workflows/publish.yml`, which re-runs every gate at that tag, refuses a tag that disagrees with the manifest, and publishes to npm over OIDC trusted publishing with provenance. No token lives in the repository. A `feat` bumps the minor, a `fix` the patch, and a `BREAKING CHANGE:` footer (or `!` after the type) bumps the minor while the package is pre-1.0 - 1.0 is a decision, not a side effect.
 
 ## Spec Header Table
 
