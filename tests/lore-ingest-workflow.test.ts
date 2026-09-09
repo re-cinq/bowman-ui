@@ -183,18 +183,18 @@ describe("workflow wiring", () => {
     expect(runBlock).toContain("${{ github.sha }}");
   });
 
-  it("declares LORE_INGEST_URL, LORE_INGEST_TOKEN, and FILES env on the ingest step", () => {
+  it("declares LORE_INGEST_URL and LORE_INGEST_TOKEN as secrets, and FILES, on the ingest step", () => {
     const env = extractStepEnv("Notify Lore to ingest");
 
     expect(env).toContain("LORE_INGEST_TOKEN: ${{ secrets.LORE_INGEST_TOKEN }}");
-    expect(env).toContain("LORE_INGEST_URL: ${{ vars.LORE_INGEST_URL || vars.LORE_API_URL }}");
+    expect(env).toContain("LORE_INGEST_URL: ${{ secrets.LORE_INGEST_URL }}");
     expect(env).toContain("FILES: ${{ steps.changes.outputs.files }}");
   });
 
-  it("declares LORE_INGEST_URL and LORE_INGEST_TOKEN env on the graph step", () => {
+  it("declares LORE_INGEST_URL and LORE_INGEST_TOKEN as secrets on the graph step", () => {
     const env = extractStepEnv("Project ${{ matrix.kind }} into the graph");
 
     expect(env).toContain("LORE_INGEST_TOKEN: ${{ secrets.LORE_INGEST_TOKEN }}");
-    expect(env).toContain("LORE_INGEST_URL: ${{ vars.LORE_INGEST_URL || vars.LORE_API_URL }}");
+    expect(env).toContain("LORE_INGEST_URL: ${{ secrets.LORE_INGEST_URL }}");
   });
 });

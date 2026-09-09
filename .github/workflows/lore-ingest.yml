@@ -1,6 +1,10 @@
 # lore-ingest-version: 4
 # The curl hardening (auth-file token, status handling, body prefixing) lives in
 # scripts/lore-post.sh, shared by both jobs below. See issue #38.
+# LORE_INGEST_URL is a repository secret, not a variable, although it holds no
+# credential: the runner prints every step's env block in the public log and
+# masks only secrets, and the endpoint's hostname has no business in a public
+# log. The template's `vars.` form is a deliberate per-repo deviation.
 name: Lore Context Ingest
 
 on:
@@ -34,7 +38,7 @@ jobs:
         if: steps.changes.outputs.files != '[]'
         env:
           LORE_INGEST_TOKEN: ${{ secrets.LORE_INGEST_TOKEN }}
-          LORE_INGEST_URL: ${{ vars.LORE_INGEST_URL || vars.LORE_API_URL }}
+          LORE_INGEST_URL: ${{ secrets.LORE_INGEST_URL }}
           FILES: ${{ steps.changes.outputs.files }}
         run: |
           scripts/lore-post.sh /api/ingest "{\"files\": ${FILES}, \"repo\": \"${{ github.repository }}\", \"commit\": \"${{ github.sha }}\"}" "context was NOT ingested"
@@ -53,6 +57,6 @@ jobs:
       - name: Project ${{ matrix.kind }} into the graph
         env:
           LORE_INGEST_TOKEN: ${{ secrets.LORE_INGEST_TOKEN }}
-          LORE_INGEST_URL: ${{ vars.LORE_INGEST_URL || vars.LORE_API_URL }}
+          LORE_INGEST_URL: ${{ secrets.LORE_INGEST_URL }}
         run: |
           scripts/lore-post.sh "/api/repos/${{ github.repository }}/ingest-graph" "{\"kinds\":[\"${{ matrix.kind }}\"],\"commit\":\"${{ github.sha }}\"}" "${{ matrix.kind }} were NOT projected"
