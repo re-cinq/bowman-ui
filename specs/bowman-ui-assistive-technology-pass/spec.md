@@ -213,7 +213,7 @@ articles' accessible names and breaks the demo's Playwright counts).
 ## Known unknowns
 
 - **KU-21, who runs the pass.** No transcript names anyone for this role.
-  issue 97 **proposes** Vaclav Vondruska as the accountable runner; that
+  issue 97 **proposes** a named runner as the accountable runner; that
   proposal is recorded here, not settled here, and nothing in this change
   asserts it. The consequence is structural rather than rhetorical: the
   record's `runner` field is required by the gate, so whoever runs the pass
