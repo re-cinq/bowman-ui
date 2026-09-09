@@ -123,7 +123,7 @@ jobs:
       # --provenance: the repository is public, so every published version
       # carries a Sigstore attestation linking it to this workflow run and
       # the release's commit. It was withheld while the repo was private
-      # (ADR-045 in re-cinq/lore recorded that exception); the repo must be
-      # public before the first release runs this step.
+      # (npm does not attest private repositories); the repo must be public
+      # before the first release runs this step.
       - name: Publish to npm
         run: npm publish --access public --provenance
