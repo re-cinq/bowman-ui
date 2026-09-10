@@ -441,7 +441,7 @@ consumer's layout decision.
 ## Theming
 
 Fifteen `--bowman-*` custom properties are the package's whole theming
-surface (re-cinq/Otto#210). Every brand colour a component paints - the
+surface (issue 210). Every brand colour a component paints - the
 accent fill and its hover, the streaming circle's tint and border, the focus
 ring, the composer's focus glow, the active row's surface, the pulse
 keyframe's two stops - is read through a `var()` whose fallback is the
