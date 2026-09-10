@@ -44,19 +44,25 @@ Tailwind CSS v4 is required: the stylesheet ships only what Tailwind cannot gene
 
 ### Theming
 
-Every brand colour the components paint - the send button and primary `Button` fill, the streaming circle's tint and border, the focus ring and the composer's focus glow, the active row's surface, the pulse animation - is read through one of fifteen `--bowman-*` custom properties, each with today's palette value as its `var()` fallback. Set the ones you want at `:root`, or on any wrapper to scope a brand to part of the page:
+Every brand colour the components paint - the send button and primary `Button` fill, the streaming circle's tint and border, the focus ring and the composer's focus glow, the active row's surface, the pulse animation - is read through one of fifteen brand-colour `--bowman-*` custom properties (of the thirty-three the package exposes), each with today's palette value as its `var()` fallback. Set the ones you want at `:root`, or on any wrapper to scope a brand to part of the page:
 
 ```css
 :root {
   --bowman-accent: #b7410e;
+  --bowman-accent-dark: #c2410c;
   --bowman-accent-hover: #9a3412;
+  --bowman-accent-hover-dark: #ea580c;
   --bowman-focus-ring: #b7410e;
+  --bowman-focus-ring-dark: #fb923c;
 }
 
 .client-brand {
   --bowman-active: #fdebdc;
+  --bowman-active-dark: #3b1a0d;
   --bowman-surface: #fffaf5;
+  --bowman-surface-dark: #2a1a10;
   --bowman-border: #eadbcd;
+  --bowman-border-dark: #4a3020;
 }
 ```
 
