@@ -331,7 +331,7 @@ npm test
 npm run build
 ```
 
-[CONTRIBUTING.md](./CONTRIBUTING.md) has the branch, commit and pull-request conventions and the gates a change must pass. Releases are cut by release-please from the Conventional Commits on `main`, so the commit type is the release decision; nobody bumps a version or tags by hand.
+[CONTRIBUTING.md](./CONTRIBUTING.md) has the branch, commit and pull-request conventions and the gates a change must pass.
 
 Two TypeScript installs exist on purpose: `typescript` (~6.x) feeds the lint stack, because `typescript-eslint` caps its peer range below TypeScript 7, while the `typescript7` alias (`npm:typescript@~7.0.2`) is the actual compiler that `build` and `typecheck` invoke. Do not "clean up" the alias, and do not enable type-aware linting (`recommendedTypeChecked`) without revisiting this split - the linter would type-check with a different compiler major than the build.
 
