@@ -60,11 +60,18 @@ enters the committed manifest or lockfile
 sufficient to render the screen, so the README's Styles section needed no
 amendment.
 
-Since the theming tokens (re-cinq/Otto#210) a second stylesheet,
+<<<<<<< HEAD
+Since the theming tokens (issue 210) a second stylesheet,
 `src/client-brand.css`, sets the library's thirty-three `--bowman-*` tokens under
-the `.client-brand` wrapper - never `:root` - and `main.tsx` imports it after
-`./styles.css`; the three-line entry stylesheet above is unchanged
-([validated by](../../examples/chat-demo/src/main.tsx#L1)).
+=======
+
+Since the theming tokens (issue 210) a second stylesheet,
+`src/client-brand.css`, sets the library's fifteen `--bowman-*` tokens under
+
+> > > > > > > feat/theming-tokens-v2
+> > > > > > > the `.client-brand` wrapper - never `:root` - and `main.tsx` imports it after
+> > > > > > > `./styles.css`; the three-line entry stylesheet above is unchanged
+> > > > > > > ([validated by](../../examples/chat-demo/src/main.tsx#L1)).
 
 ### Composition
 
@@ -331,4 +338,4 @@ engine wiring, the real Danish catalogue and disclosure wording
 
 Branding and theming of the demo were outside this issue too; the
 client-branded variant and the tokens it proves are covered by
-`specs/bowman-ui-theming-tokens/spec.md` (re-cinq/Otto#210).
+`specs/bowman-ui-theming-tokens/spec.md` (issue 210).

@@ -1,4 +1,4 @@
-// The theming tokens (re-cinq/Otto#210), proved in a real Chromium: a consumer
+// The theming tokens (issue 210), proved in a real Chromium: a consumer
 // that sets nothing gets the palette colour the library shipped with - measured
 // against a probe element, never a pinned oklch serialisation - and a consumer
 // that sets the thirty-three --bowman-* properties on a wrapper (src/client-brand.css)

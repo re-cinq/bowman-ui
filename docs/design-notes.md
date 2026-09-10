@@ -440,20 +440,27 @@ consumer's layout decision.
 
 ## Theming
 
+<<<<<<< HEAD
 Thirty-three `--bowman-*` custom properties are the package's whole theming
-surface: fifteen brand tokens (re-cinq/Otto#210) and eighteen neutral chrome
+surface: fifteen brand tokens (issue 210) and eighteen neutral chrome
 roles added under decision 12. Every brand colour a component paints - the
-accent fill and its hover, the streaming circle's tint and border, the focus
-ring, the composer's focus glow, the active row's surface, the pulse
-keyframe's two stops - and every neutral surface, border, ring offset and
-text tier whose light and dark shades form one of the nine recorded role
-pairs is read through a `var()` whose fallback is the
-palette value the component painted before the tokens existed. A consumer
-that sets nothing sees today's look; a consumer that sets one property
-re-brands every site that reads it. `specs/bowman-ui-theming-tokens/spec.md`
-pins the sites and the tests; this section records the table and the
-decisions. `tests/theming-tokens-dist.test.ts` parses the table below, so
-the name and fallback columns are the contract, not an illustration.
+=======
+
+Fifteen `--bowman-*` custom properties are the package's whole theming
+surface (issue 210). Every brand colour a component paints - the
+
+> > > > > > > feat/theming-tokens-v2
+> > > > > > > accent fill and its hover, the streaming circle's tint and border, the focus
+> > > > > > > ring, the composer's focus glow, the active row's surface, the pulse
+> > > > > > > keyframe's two stops - and every neutral surface, border, ring offset and
+> > > > > > > text tier whose light and dark shades form one of the nine recorded role
+> > > > > > > pairs is read through a `var()` whose fallback is the
+> > > > > > > palette value the component painted before the tokens existed. A consumer
+> > > > > > > that sets nothing sees today's look; a consumer that sets one property
+> > > > > > > re-brands every site that reads it. `specs/bowman-ui-theming-tokens/spec.md`
+> > > > > > > pins the sites and the tests; this section records the table and the
+> > > > > > > decisions. `tests/theming-tokens-dist.test.ts` parses the table below, so
+> > > > > > > the name and fallback columns are the contract, not an illustration.
 
 | Token                          | Fallback                 | Read by                                                                                                                         |
 | ------------------------------ | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------- |
@@ -564,7 +571,7 @@ Decisions:
    `--bowman-active-dark` a dark one in dark mode, or the fixed label colour
    loses its contrast.
 6. **Neutral chrome: nine role pairs are tokenised, the long tail stays
-   palette-mapped.** Amended 2026-09-10 (the first PR under Otto#210 tokenised
+   palette-mapped.** Amended 2026-09-10 (the first PR under issue 210 tokenised
    no neutral at all). A neutral site qualifies for a role when its light
    and dark utilities both equal the role pair's fallbacks; a site that
    matches on one side only keeps its palette classes on both, so no site is

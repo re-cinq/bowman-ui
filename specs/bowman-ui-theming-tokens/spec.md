@@ -1,9 +1,9 @@
 # bowman-ui theming tokens
 
-| Field  | Value            |
-| ------ | ---------------- |
-| Issue  | re-cinq/Otto#210 |
-| Status | In Progress      |
+| Field  | Value       |
+| ------ | ----------- |
+| Issue  | issue 210   |
+| Status | In Progress |
 
 Brand blue was hard-wired as Tailwind palette utilities at every accent site - the send
 button, the streaming avatar circle, the focus rings, the composer's focus glow, the thinking
