@@ -11,6 +11,7 @@ import { resolve } from "node:path";
 import { ConversationList } from "../src/index.js";
 import type { ConversationListItem } from "../src/index.js";
 import { expectImportHygiene, expectNoEgress } from "./helpers/source-hygiene.js";
+import { expectActiveRowBackground, expectFocusRing } from "./helpers/expect-theme-tokens.js";
 
 const makeItem = (overrides?: Partial<ConversationListItem>): ConversationListItem => ({
   id: "conv-1",
@@ -122,6 +123,30 @@ describe("ConversationList", () => {
       for (const row of screen.getAllByRole("button")) {
         expect(row).not.toHaveAttribute("aria-current");
       }
+    });
+  });
+
+  describe("theming tokens", () => {
+    it("the active row's <li> alone reads --bowman-active, light and dark", () => {
+      render(
+        <ConversationList
+          items={[makeItem(), makeItem({ id: "conv-2", title: "Factura 9" })]}
+          activeId="conv-1"
+        />
+      );
+
+      const [first, second] = screen.getAllByRole("listitem");
+
+      expectActiveRowBackground(first);
+      expect(second).not.toHaveClass("bg-(--bowman-active,var(--color-slate-100))");
+      expect(first).not.toHaveClass("bg-slate-100");
+    });
+
+    it("the row link and the delete button keep focus:ring-2 beside the --bowman-focus-ring colour", () => {
+      render(<ConversationList items={[makeItem()]} onDelete={vi.fn()} />);
+
+      expectFocusRing(screen.getByRole("button", { name: "Booking 4711" }));
+      expectFocusRing(screen.getByRole("button", { name: "Delete conversation: Booking 4711" }));
     });
   });
 

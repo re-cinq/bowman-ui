@@ -4,6 +4,7 @@ import { resolve } from "node:path";
 import { AppSidebar, ChatIcon } from "../src/index.js";
 import type { SidebarNavItem } from "../src/index.js";
 import { expectImportHygiene, expectNoEgress } from "./helpers/source-hygiene.js";
+import { expectActiveRowBackground, expectFocusRing } from "./helpers/expect-theme-tokens.js";
 
 const threeItems: SidebarNavItem[] = [
   { key: "dashboard", label: "Dashboard" },
@@ -124,6 +125,20 @@ describe("AppSidebar", () => {
       render(<AppSidebar navItems={threeItems} />);
 
       expect(() => fireEvent.click(screen.getByRole("button", { name: "Chat" }))).not.toThrow();
+    });
+  });
+
+  describe("theming tokens", () => {
+    it("the isActive item alone reads --bowman-active while its text stays slate, and every item keeps focus:ring-2 beside the --bowman-focus-ring colour", () => {
+      render(<AppSidebar navItems={threeItems} />);
+
+      const [dashboard, chat] = screen.getAllByRole("button");
+
+      expectActiveRowBackground(chat);
+      expect(chat).toHaveClass("text-slate-900", "dark:text-white");
+      expect(dashboard).not.toHaveClass("bg-(--bowman-active,var(--color-slate-100))");
+      expectFocusRing(dashboard);
+      expectFocusRing(chat);
     });
   });
 

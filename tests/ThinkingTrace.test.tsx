@@ -4,6 +4,7 @@ import { resolve } from "node:path";
 import { ThinkingTrace, defaultThinkingTraceLabels } from "../src/index.js";
 import type { ThinkingChatEntry } from "../src/index.js";
 import { expectThinkingDots } from "./helpers/expect-thinking-dots.js";
+import { ACCENT_DOT_SELECTOR } from "./helpers/expect-theme-tokens.js";
 
 // 017's fixture entry (tests/fixtures/hal-session-entries.json § thinking).
 const reasoningEntry: ThinkingChatEntry = {
@@ -101,7 +102,7 @@ describe("ThinkingTrace", () => {
       const { container } = render(<ThinkingTrace entry={streamingEntry} reducedMotion />);
 
       expect(container.querySelectorAll(".bowman-fade-dot")).toHaveLength(0);
-      expect(container.querySelectorAll("summary .bg-blue-500")).toHaveLength(3);
+      expect(container.querySelectorAll(`summary ${ACCENT_DOT_SELECTOR}`)).toHaveLength(3);
     });
 
     it("false keeps the animation class and the staggered delays", () => {

@@ -8,6 +8,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { createRef, type MouseEvent as ReactMouseEvent } from "react";
 import { IconButton, PlusIcon } from "../src/index.js";
 import { expectClickEventDelivered } from "./helpers/click-event.js";
+import { expectFocusRing, expectPrimaryAccentFill } from "./helpers/expect-theme-tokens.js";
 
 const labels = { accessibleName: "Tilføj 4711" };
 const buttonOf = (): HTMLButtonElement => screen.getByRole("button", { name: "Tilføj 4711" });
@@ -70,18 +71,17 @@ describe("IconButton", () => {
   });
 
   describe("the variants", () => {
-    it("with variant omitted the button is secondary: border border-slate-200 bg-white and no bg-blue-500", () => {
+    it("with variant omitted the button is secondary: border border-slate-200 bg-white and no --bowman-accent background", () => {
       render(<IconButton icon={PlusIcon} labels={labels} />);
 
       expect(buttonOf()).toHaveClass("border", "border-slate-200", "bg-white", "text-slate-700");
-      expect(buttonOf()).not.toHaveClass("bg-blue-500");
+      expect(buttonOf()).not.toHaveClass("bg-(--bowman-accent,var(--color-blue-500))");
     });
 
-    it('variant="primary" carries bg-blue-500 text-white and no border-slate-200', () => {
+    it('variant="primary" carries the --bowman-accent background and hover, text-white and no border-slate-200', () => {
       render(<IconButton icon={PlusIcon} labels={labels} variant="primary" />);
 
-      expect(buttonOf()).toHaveClass("bg-blue-500", "text-white");
-      expect(buttonOf()).not.toHaveClass("border-slate-200");
+      expectPrimaryAccentFill(buttonOf());
     });
 
     it('variant="ghost" carries text-slate-600 hover:bg-slate-50 and no border class at all', () => {
@@ -90,17 +90,18 @@ describe("IconButton", () => {
       expect(buttonOf()).toHaveClass("text-slate-600", "hover:bg-slate-50");
       expect(buttonOf()).not.toHaveClass("border");
       expect(buttonOf()).not.toHaveClass("border-slate-200");
-      expect(buttonOf()).not.toHaveClass("bg-blue-500");
+      expect(buttonOf()).not.toHaveClass("bg-(--bowman-accent,var(--color-blue-500))");
     });
 
-    it("the focus ring and the disabled pair are present", () => {
+    it("focus:ring-2 ring-offset-2 stay beside the --bowman-focus-ring colour and the disabled pair is present", () => {
       render(<IconButton icon={PlusIcon} labels={labels} />);
 
+      expectFocusRing(buttonOf());
       expect(buttonOf()).toHaveClass(
         "focus:outline-none",
-        "focus:ring-2",
-        "focus:ring-blue-500",
         "ring-offset-2",
+        "focus:ring-offset-white",
+        "dark:ring-offset-slate-900",
         "disabled:cursor-not-allowed",
         "disabled:opacity-50"
       );
