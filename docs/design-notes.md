@@ -440,11 +440,14 @@ consumer's layout decision.
 
 ## Theming
 
-Fifteen `--bowman-*` custom properties are the package's whole theming
-surface (issue 210). Every brand colour a component paints - the
+Thirty-three `--bowman-*` custom properties are the package's whole theming
+surface: fifteen brand tokens (issue 210) and eighteen neutral chrome
+roles added under decision 12. Every brand colour a component paints - the
 accent fill and its hover, the streaming circle's tint and border, the focus
 ring, the composer's focus glow, the active row's surface, the pulse
-keyframe's two stops - is read through a `var()` whose fallback is the
+keyframe's two stops - and every neutral surface, border, ring offset and
+text tier whose light and dark shades form one of the nine recorded role
+pairs is read through a `var()` whose fallback is the
 palette value the component painted before the tokens existed. A consumer
 that sets nothing sees today's look; a consumer that sets one property
 re-brands every site that reads it. `specs/bowman-ui-theming-tokens/spec.md`
@@ -452,23 +455,41 @@ pins the sites and the tests; this section records the table and the
 decisions. `tests/theming-tokens-dist.test.ts` parses the table below, so
 the name and fallback columns are the contract, not an illustration.
 
-| Token                         | Fallback                 | Read by                                                                                                         |
-| ----------------------------- | ------------------------ | --------------------------------------------------------------------------------------------------------------- |
-| `--bowman-accent`             | `var(--color-blue-500)`  | send button background (light); thinking dots (both modes); primary `Button`/`IconButton` (light)               |
-| `--bowman-accent-dark`        | `var(--color-blue-600)`  | send button and primary `Button`/`IconButton` background (dark)                                                 |
-| `--bowman-accent-hover`       | `var(--color-blue-600)`  | send button and primary `Button`/`IconButton` hover (light)                                                     |
-| `--bowman-accent-hover-dark`  | `var(--color-blue-500)`  | send button and primary `Button`/`IconButton` hover (dark)                                                      |
-| `--bowman-accent-soft`        | `var(--color-blue-50)`   | streaming avatar circle background (light): `ChatMessage`, `ThinkingIndicator`                                  |
-| `--bowman-accent-soft-dark`   | `var(--color-blue-950)`  | streaming avatar circle background (dark)                                                                       |
-| `--bowman-accent-border`      | `var(--color-blue-200)`  | streaming avatar circle border (light)                                                                          |
-| `--bowman-accent-border-dark` | `var(--color-blue-800)`  | streaming avatar circle border (dark)                                                                           |
-| `--bowman-accent-glow`        | `rgba(59,130,246,0.1)`   | composer `focus-within` shadow (light); `bowman-pulse-subtle` box-shadow (both modes)                           |
-| `--bowman-accent-glow-dark`   | `rgba(96,165,250,0.1)`   | composer `focus-within` shadow (dark)                                                                           |
-| `--bowman-focus-ring`         | `var(--color-blue-500)`  | every `focus:ring`, `ErrorBoundary`'s `focus-visible:ring`, the composer's `focus-within:ring` at `/50` (light) |
-| `--bowman-focus-ring-dark`    | `var(--color-blue-400)`  | the same rings (dark); `ErrorBoundary` has no dark ring today and gains none                                    |
-| `--bowman-active`             | `var(--color-slate-100)` | active conversation row background; active sidebar item background (light)                                      |
-| `--bowman-active-dark`        | `var(--color-slate-800)` | active conversation row and sidebar item background (dark)                                                      |
-| `--bowman-pulse-outline`      | `rgba(59,130,246,0.5)`   | `bowman-pulse-subtle` outline (both modes)                                                                      |
+| Token                          | Fallback                 | Read by                                                                                                                         |
+| ------------------------------ | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------- |
+| `--bowman-accent`              | `var(--color-blue-500)`  | send button background (light); thinking dots (both modes); primary `Button`/`IconButton` (light)                               |
+| `--bowman-accent-dark`         | `var(--color-blue-600)`  | send button and primary `Button`/`IconButton` background (dark)                                                                 |
+| `--bowman-accent-hover`        | `var(--color-blue-600)`  | send button and primary `Button`/`IconButton` hover (light)                                                                     |
+| `--bowman-accent-hover-dark`   | `var(--color-blue-500)`  | send button and primary `Button`/`IconButton` hover (dark)                                                                      |
+| `--bowman-accent-soft`         | `var(--color-blue-50)`   | streaming avatar circle background (light): `ChatMessage`, `ThinkingIndicator`                                                  |
+| `--bowman-accent-soft-dark`    | `var(--color-blue-950)`  | streaming avatar circle background (dark)                                                                                       |
+| `--bowman-accent-border`       | `var(--color-blue-200)`  | streaming avatar circle border (light)                                                                                          |
+| `--bowman-accent-border-dark`  | `var(--color-blue-800)`  | streaming avatar circle border (dark)                                                                                           |
+| `--bowman-accent-glow`         | `rgba(59,130,246,0.1)`   | composer `focus-within` shadow (light); `bowman-pulse-subtle` box-shadow (both modes)                                           |
+| `--bowman-accent-glow-dark`    | `rgba(96,165,250,0.1)`   | composer `focus-within` shadow (dark)                                                                                           |
+| `--bowman-focus-ring`          | `var(--color-blue-500)`  | every `focus:ring`, `ErrorBoundary`'s `focus-visible:ring`, the composer's `focus-within:ring` at `/50` (light)                 |
+| `--bowman-focus-ring-dark`     | `var(--color-blue-400)`  | the same rings (dark); `ErrorBoundary` has no dark ring today and gains none                                                    |
+| `--bowman-active`              | `var(--color-slate-100)` | active conversation row background; active sidebar item background (light)                                                      |
+| `--bowman-active-dark`         | `var(--color-slate-800)` | active conversation row and sidebar item background (dark)                                                                      |
+| `--bowman-pulse-outline`       | `rgba(59,130,246,0.5)`   | `bowman-pulse-subtle` outline (both modes)                                                                                      |
+| `--bowman-surface`             | `var(--color-white)`     | panel, sidebar, drawer, composer, search field, prompt chip and secondary `Button`/`IconButton` background (light)              |
+| `--bowman-surface-dark`        | `var(--color-slate-900)` | the same surfaces (dark)                                                                                                        |
+| `--bowman-surface-hover`       | `var(--color-slate-50)`  | sidebar item, conversation row, prompt chip, secondary and ghost button hover (light)                                           |
+| `--bowman-surface-hover-dark`  | `var(--color-slate-800)` | the same hovers (dark)                                                                                                          |
+| `--bowman-control-hover`       | `var(--color-slate-100)` | `AppShell` drawer and menu buttons, `ChatMessage` copy and feedback controls hover (light)                                      |
+| `--bowman-control-hover-dark`  | `var(--color-slate-800)` | the same control hovers (dark)                                                                                                  |
+| `--bowman-border`              | `var(--color-slate-200)` | panel, sidebar (`md:` edge included), composer, search field, prompt chip, secondary button and disclosure band borders (light) |
+| `--bowman-border-dark`         | `var(--color-slate-800)` | the same borders (dark)                                                                                                         |
+| `--bowman-ring-offset`         | `var(--color-white)`     | every `focus:ring-offset` colour beside `ring-offset-2` (light); `ChatMessage`'s slate-950 offsets stay palette-mapped          |
+| `--bowman-ring-offset-dark`    | `var(--color-slate-900)` | the same offsets (dark)                                                                                                         |
+| `--bowman-text-body`           | `var(--color-slate-700)` | conversation title, prompt chip, secondary button and `ToolActivity` chip text (light)                                          |
+| `--bowman-text-body-dark`      | `var(--color-slate-200)` | the same text (dark)                                                                                                            |
+| `--bowman-text-secondary`      | `var(--color-slate-600)` | `AppShell` drawer buttons, sidebar item, ghost button, `ErrorBoundary` body text (light)                                        |
+| `--bowman-text-secondary-dark` | `var(--color-slate-400)` | the same text (dark)                                                                                                            |
+| `--bowman-text-muted`          | `var(--color-slate-500)` | timestamps, the disclosure band, thinking and tool labels (light)                                                               |
+| `--bowman-text-muted-dark`     | `var(--color-slate-400)` | the same labels (dark)                                                                                                          |
+| `--bowman-text-subtle`         | `var(--color-slate-400)` | faint timestamps, empty-state hints, the search icon, composer and search placeholders (light)                                  |
+| `--bowman-text-subtle-dark`    | `var(--color-slate-500)` | the same hints and placeholders (dark)                                                                                          |
 
 In `src/styles.css` the two `rgba()` fallbacks keep the keyframe's original
 spacing (`rgba(59, 130, 246, 0.1)`); inside a Tailwind class name no space is
@@ -513,7 +534,8 @@ Decisions:
    its own dark selector to get a second - re-deriving the very strategy
    this package refuses to choose. Separate names cost seven extra rows in
    the table and nothing at runtime.
-3. **One token per distinct role-and-shade that existed, fifteen in all.**
+3. **One token per distinct role-and-shade that existed - fifteen brand tokens, thirty-three
+   with the neutral roles of decision 12.**
    Byte-for-byte fallbacks forbid deriving tints: blue-50 is not
    `color-mix(blue-500 10%, white)`, so the circle's tint and border, the
    glow and the pulse outline each need their own name. The issue described
@@ -541,11 +563,34 @@ Decisions:
    to honour: `--bowman-active` must stay a light surface in light mode and
    `--bowman-active-dark` a dark one in dark mode, or the fixed label colour
    loses its contrast.
-6. **Neutral slate chrome stays palette-mapped.** Borders, text, hover
-   surfaces and ring offsets (`ring-offset-white`,
-   `dark:ring-offset-slate-900`) are not brand and gain no token; nor do the
-   ring width, offset and outline classes beside each colour token, which
-   stay at every site untouched.
+6. **Neutral chrome: nine role pairs are tokenised, the long tail stays
+   palette-mapped.** Amended 2026-09-10 (the first PR under issue 210 tokenised
+   no neutral at all). A neutral site qualifies for a role when its light
+   and dark utilities both equal the role pair's fallbacks; a site that
+   matches on one side only keeps its palette classes on both, so no site is
+   ever half-branded. The nine pairs: `--bowman-surface` (`bg-white` /
+   `dark:bg-slate-900`), `--bowman-surface-hover` (`hover:bg-slate-50` /
+   `dark:hover:bg-slate-800`), `--bowman-control-hover` (`hover:bg-slate-100`
+   / `dark:hover:bg-slate-800`), `--bowman-border` (`border-slate-200` /
+   `dark:border-slate-800`), `--bowman-ring-offset` (`focus:ring-offset-white`
+   / `dark:ring-offset-slate-900`) and the four text tiers `--bowman-text-body`
+   (slate-700 / slate-200), `--bowman-text-secondary` (slate-600 / slate-400),
+   `--bowman-text-muted` (slate-500 / slate-400) and `--bowman-text-subtle`
+   (slate-400 / slate-500, the placeholders included). Everything else stays
+   palette-mapped by this rule and is listed so no cleanup PR "finishes" it:
+   the shell ground (`bg-slate-50` / `dark:bg-slate-950`) and main region
+   (`bg-white` / `dark:bg-slate-950`), the avatar circles' rest state
+   (`bg-white` / `dark:bg-black` with `border-slate-200` /
+   `dark:border-slate-700`), the user avatar and code chips (`bg-slate-200` /
+   `dark:bg-slate-700`, `bg-slate-100` / `dark:bg-slate-800`), the inverse
+   surfaces of `Toast` and `ErrorBoundary`'s retry button, the mobile overlay
+   (`bg-black`), the disabled send button, the `border-slate-300` /
+   `dark:border-slate-600` dividers, `ChatMessage`'s `dark:ring-offset-slate-950`,
+   the skip link's focus colours, every strong-text site (`text-slate-900`
+   pairs with `dark:text-white`, `-200` and `-100` at different sites, so no
+   single pair exists), the slate-600 / slate-300 label pair, the hover text
+   colours, and the icon controls' lone `text-slate-400`. Ring width, offset
+   and outline classes beside each colour token stay at every site untouched.
 7. **No `ThemeProvider`, no runtime, no storage, no console, no network.**
    Theming is CSS custom properties and nothing else, so the GDPR no-egress
    rule and the closed public API are untouched by design rather than by
@@ -567,7 +612,7 @@ Decisions:
    inert - the animation from a transparent blue to an opaque copper is the
    same animation as from a transparent copper. Only the 50 % stop reads
    tokens (`--bowman-accent-glow`, `--bowman-pulse-outline`).
-10. **The fifteen-line comment block at the top of `src/styles.css` is the
+10. **The thirty-three-line comment block at the top of `src/styles.css` is the
     in-stylesheet declaration the issue asked for.** One line per token,
     `/* --bowman-accent: var(--color-blue-500) - send button, thinking dots */`,
     at zero runtime cost, because decision 1 forbids a real declaration. It
@@ -576,7 +621,7 @@ Decisions:
     CSS, and the dist test parses the block - the token set it declares must
     equal the set of `var(--bowman-...)` reads across `dist/theme/tokens.js`
     and `dist/styles.css`, and every read must carry a non-empty fallback -
-    so the block cannot drift from the code. A sixteenth token is a table
+    so the block cannot drift from the code. A thirty-fourth token is a table
     row here, a comment line there and a constant in the module, in one PR.
 11. **The styled primitives read the same tokens.** `Button`, `IconButton`,
     `PromptChips` and `SearchField` (§ Styled primitives) landed on `main`
@@ -587,6 +632,26 @@ Decisions:
     primary variant is the send button's fill and every primitive's ring is
     `--bowman-focus-ring`. The dist test's "no bare `blue-` utility survives"
     assertion therefore scans every built component, not a named list.
+
+12. **The neutral roles are named for what a designer overrides, not for a
+    shade.** `surface`, `surface-hover`, `control-hover`, `border`,
+    `ring-offset` and the four text tiers `body`, `secondary`, `muted`,
+    `subtle` each carry one light fallback and one `-dark` fallback under
+    decision 2, so a client sets nine or eighteen values and never learns
+    that slate-800 is both a hover and a dark border. Two roles share a dark
+    fallback (`surface-hover-dark` and `control-hover-dark` are both
+    slate-800) and two share a light one (`surface` and `ring-offset` are
+    both white); they stay separate names because a brand may well want a
+    tinted hover under a white surface. The role constants live in
+    `src/theme/tokens.ts` beside the brand ones; `BORDER_MD` derives the
+    sidebar's `md:` edge from `BORDER` at module load rather than restating
+    the fallback. Three focus sites that carried only the dark offset
+    (`AppShell`'s two drawer buttons, `AppSidebar`'s nav link) gained the
+    light `focus:ring-offset` read too: its fallback is Tailwind's own
+    default offset colour, so the rendered pixels are unchanged and the role
+    is whole. `tests/theming-tokens-dist.test.ts` pins which built component
+    imports which role, so a site drifting back to a palette utility is a
+    test failure, not a silent regression.
 
 ## Styled primitives
 

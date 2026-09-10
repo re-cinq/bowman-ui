@@ -28,6 +28,7 @@ import {
   defaultToolActivityLabels,
   type ToolActivityLabels,
 } from "./ToolActivity.js";
+import { BORDER, TEXT_MUTED } from "../theme/tokens.js";
 
 export interface ChatMessageListLabels
   extends ChatMessageLabels, ThinkingIndicatorLabels, ThinkingTraceLabels, ToolActivityLabels {
@@ -285,7 +286,7 @@ export const ChatMessageList = forwardRef<ChatMessageListHandle, ChatMessageList
 
     return (
       <div className="flex min-h-0 flex-1 flex-col">
-        <p className="border-b border-slate-200 px-4 py-2 text-center text-xs text-slate-500 dark:border-slate-800 dark:text-slate-400">
+        <p className={`border-b ${BORDER} px-4 py-2 text-center text-xs ${TEXT_MUTED}`}>
           {resolved.aiDisclosure}
         </p>
         <div

@@ -17,7 +17,7 @@ existing consumer suite, measuring the really rendered box via
 proof is the PR diff itself, reviewable but not re-runnable.
 
 All statements below executed green on 2026-09-10 against the packed tarball
-via `scripts/consumer-app.sh` (30 passed, exit 0), re-run for the theming
+via `scripts/consumer-app.sh` (32 passed, exit 0), re-run for the theming
 tokens' client-branded variant; the three resize tests also passed a local
 `--repeat-each 10` flake run on 2026-08-27 (30 passed).
 

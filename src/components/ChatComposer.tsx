@@ -11,7 +11,14 @@ import {
 } from "react";
 import { SendIcon } from "../icons/index.js";
 import { resolveLabels } from "../labels.js";
-import { ACCENT_BG, ACCENT_BG_HOVER, FOCUS_WITHIN_RING_COLOR } from "../theme/tokens.js";
+import {
+  ACCENT_BG,
+  ACCENT_BG_HOVER,
+  BORDER,
+  FOCUS_WITHIN_RING_COLOR,
+  PLACEHOLDER_SUBTLE,
+  SURFACE,
+} from "../theme/tokens.js";
 
 export interface ChatComposerLabels {
   /** The textarea's accessible name - a real label, never the placeholder. */
@@ -116,20 +123,22 @@ export function ChatComposer({
   return (
     <div
       aria-busy={busy}
-      className={`relative rounded-2xl border border-slate-200 bg-white shadow-sm transition-all focus-within:ring-2 ${FOCUS_WITHIN_RING_COLOR} dark:border-slate-800 dark:bg-slate-900 ${busy ? "bowman-pulse-subtle" : ""}`}
+      className={`relative rounded-2xl border ${BORDER} ${SURFACE} shadow-sm transition-all focus-within:ring-2 ${FOCUS_WITHIN_RING_COLOR} ${busy ? "bowman-pulse-subtle" : ""}`}
     >
       <textarea
         ref={textareaRef}
         aria-label={resolved.composerInput}
         placeholder={resolved.composerPlaceholder}
         rows={1}
-        className="block w-full resize-none bg-transparent px-4 py-4 text-base text-slate-900 placeholder-slate-400 focus:outline-none dark:text-slate-200 dark:placeholder-slate-500"
+        className={`block w-full resize-none bg-transparent px-4 py-4 text-base text-slate-900 ${PLACEHOLDER_SUBTLE} focus:outline-none dark:text-slate-200`}
         onChange={handleChange}
         onKeyDown={handleKeyDown}
         disabled={inactive}
         autoFocus={autoFocus}
       />
-      <div className="flex items-center justify-between border-t border-dashed border-slate-200 px-2 py-2 dark:border-slate-800">
+      <div
+        className={`flex items-center justify-between border-t border-dashed ${BORDER} px-2 py-2`}
+      >
         <div className="flex items-center gap-2">{attachSlot}</div>
         <button
           type="button"

@@ -1,6 +1,6 @@
 // The Overview page's Theming section: the same three components rendered
 // twice, once with the library's defaults and once inside the wrapper class
-// that overrides the fifteen --bowman-* tokens (src/client-brand.css). One
+// that overrides the thirty-three --bowman-* tokens (src/client-brand.css). One
 // preview component renders both, so the two columns cannot drift apart.
 
 import { ChatComposer, ChatMessage, ConversationList } from "@re-cinq/bowman-ui";
@@ -15,6 +15,8 @@ const clientBrandSnippet = `.client-brand {
   --bowman-accent-hover: #9a3412;
   --bowman-accent-soft: #fff1e6;
   --bowman-active: #fdebdc;
+  --bowman-surface: #fffaf5;
+  --bowman-border: #eadbcd;
 }`;
 
 const ignoreSubmit = () => {};
@@ -54,7 +56,7 @@ export function ThemingSection() {
         />
       </div>
       <p className="text-sm leading-6 text-slate-600 dark:text-slate-400">
-        The library reads fifteen <code>--bowman-*</code> custom properties through{" "}
+        The library reads thirty-three <code>--bowman-*</code> custom properties through{" "}
         <code>var()</code> fallbacks and declares none of them, so a consumer sets any subset in its
         own CSS - at <code>:root</code>, or scoped to a wrapper as the right-hand preview is - and
         inheritance does the rest. The fallbacks name the exact palette variables the components

@@ -30,7 +30,7 @@ consumer's own `animate-*` utilities; the issue prescribed `.bowman-fade-in`
 for the split fade and the other two follow the same convention
 ([validated by](../../tests/styles.test.ts#L31)). All rules are
 unlayered, so they win on plain specificity without depending on a
-consumer's `@layer` order. Since issue 210 the file opens with a fifteen-line comment
+consumer's `@layer` order. Since issue 210 the file opens with a thirty-three-line comment
 block declaring each `--bowman-*` theming token and its default, and the 50 % stop of
 `bowman-pulse-subtle` reads `--bowman-accent-glow` and `--bowman-pulse-outline` with today's
 literals as fallbacks - the zero stop stays literal

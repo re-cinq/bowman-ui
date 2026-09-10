@@ -27,7 +27,7 @@ the four keyframes and the stylesheet tests are unchanged
 
 Four components, two defaults objects and nine types, all from the package root
 ([validated by](../../tests/public-api.test.ts#L40), [L46](../../tests/public-api.test.ts#L46),
-[L118](../../tests/PromptChips.test.tsx#L118), [L106](../../tests/SearchField.test.tsx#L106)).
+[L127](../../tests/PromptChips.test.tsx#L127), [L106](../../tests/SearchField.test.tsx#L106)).
 Every value export lands in one bucket of `tests/labelled-exports.test.tsx`
 ([validated by](../../tests/labelled-exports.test.tsx#L158)). The `labelsProp` bucket holds
 `IconButton`, `PromptChips` and `SearchField`, with a sentinel harness each
@@ -68,8 +68,8 @@ export const Button: ForwardRefExoticComponent<ButtonProps & RefAttributes<HTMLB
 ```
 
 - Renders one `<button>` with `type` defaulting to `"button"`, the `children` as its accessible
-  name, and the `ref` forwarded to that element ([validated by](../../tests/Button.test.tsx#L16),
-  [L23](../../tests/Button.test.tsx#L23), [L33](../../tests/Button.test.tsx#L33)).
+  name, and the `ref` forwarded to that element ([validated by](../../tests/Button.test.tsx#L25),
+  [L32](../../tests/Button.test.tsx#L32), [L42](../../tests/Button.test.tsx#L42)).
 - `variant` picks the look: `primary` is the composer send button's accent fill (the
   `ACCENT_BG` and `ACCENT_BG_HOVER` token strings from `src/theme/tokens.ts`, reading
   `--bowman-accent` and `--bowman-accent-hover`, with `text-white`), `secondary` is the
@@ -78,19 +78,19 @@ export const Button: ForwardRefExoticComponent<ButtonProps & RefAttributes<HTMLB
   its `dark:` counterpart. Every variant carries the package's focus ring (`focus:ring-2` beside
   the `FOCUS_RING_COLOR` token string, reading `--bowman-focus-ring`) and the
   `disabled:cursor-not-allowed disabled:opacity-50` pair ([validated
-  by](../../tests/Button.test.tsx#L83),
-  [L92](../../tests/Button.test.tsx#L92), [L105](../../tests/Button.test.tsx#L105),
-  [L113](../../tests/Button.test.tsx#L113)).
+  by](../../tests/Button.test.tsx#L92),
+  [L92](../../tests/Button.test.tsx#L92), [L112](../../tests/Button.test.tsx#L112),
+  [L121](../../tests/Button.test.tsx#L121)).
 - `size` picks the padding and type scale: `md` is `px-4 py-2.5 text-sm`, `sm` is
-  `px-3 py-1.5 text-xs` ([validated by](../../tests/Button.test.tsx#L134),
-  [L141](../../tests/Button.test.tsx#L141)).
+  `px-3 py-1.5 text-xs` ([validated by](../../tests/Button.test.tsx#L141),
+  [L148](../../tests/Button.test.tsx#L148)).
 - `icon`, when given, renders before the text with `h-4 w-4` at `md` and `h-3.5 w-3.5` at `sm`;
   a package icon rendered this way carries `aria-hidden="true"` because it receives no
-  `ariaLabel` ([validated by](../../tests/Button.test.tsx#L154),
-  [L174](../../tests/Button.test.tsx#L174),
-  [L184](../../tests/Button.test.tsx#L184)).
+  `ariaLabel` ([validated by](../../tests/Button.test.tsx#L161),
+  [L181](../../tests/Button.test.tsx#L181),
+  [L191](../../tests/Button.test.tsx#L191)).
 - `onClick` receives the click event; `disabled` renders the native attribute and the click never
-  fires ([validated by](../../tests/Button.test.tsx#L47), [L59](../../tests/Button.test.tsx#L59)).
+  fires ([validated by](../../tests/Button.test.tsx#L56), [L68](../../tests/Button.test.tsx#L68)).
 - `Button` renders no string of its own - its text is `children` - so it sits in `noStrings` and
   takes no `labels` prop ([validated by](../../tests/labelled-exports.test.tsx#L132),
   [L158](../../tests/labelled-exports.test.tsx#L158)).
@@ -124,15 +124,15 @@ export const IconButton: ForwardRefExoticComponent<
 - Renders one `<button>` named by `labels.accessibleName` through `aria-label`, containing only
   the icon (`h-4 w-4` at `md`, `h-3.5 w-3.5` at `sm`, `aria-hidden`), with square padding
   (`p-2` at `md`, `p-1.5` at `sm`) and the same variant looks, focus ring and disabled pair as
-  `Button` ([validated by](../../tests/IconButton.test.tsx#L18),
-  [L41](../../tests/IconButton.test.tsx#L41),
-  [L112](../../tests/IconButton.test.tsx#L112), [L121](../../tests/IconButton.test.tsx#L121),
-  [L74](../../tests/IconButton.test.tsx#L74), [L81](../../tests/IconButton.test.tsx#L81),
-  [L87](../../tests/IconButton.test.tsx#L87), [L99](../../tests/IconButton.test.tsx#L99)).
+  `Button` ([validated by](../../tests/IconButton.test.tsx#L27),
+  [L50](../../tests/IconButton.test.tsx#L50),
+  [L124](../../tests/IconButton.test.tsx#L124), [L133](../../tests/IconButton.test.tsx#L133),
+  [L83](../../tests/IconButton.test.tsx#L83), [L93](../../tests/IconButton.test.tsx#L93),
+  [L99](../../tests/IconButton.test.tsx#L99), [L112](../../tests/IconButton.test.tsx#L112)).
 - `IconButton` shares `Button`'s `type` default and `"submit"` option, its `onClick` event and its
-  `disabled` behaviour ([validated by](../../tests/IconButton.test.tsx#L27),
-  [L18](../../tests/IconButton.test.tsx#L18), [L52](../../tests/IconButton.test.tsx#L52),
-  [L60](../../tests/IconButton.test.tsx#L60)).
+  `disabled` behaviour ([validated by](../../tests/IconButton.test.tsx#L36),
+  [L27](../../tests/IconButton.test.tsx#L27), [L61](../../tests/IconButton.test.tsx#L61),
+  [L69](../../tests/IconButton.test.tsx#L69)).
 - `labels` is required and `IconButtonLabels` has no defaults object: the accessible name is the
   component's only string and no English default may stand in for it, the same reasoning as
   `aiDisclosure` (docs/design-notes.md § Labels decision 5). Omitting `labels` is a compile
@@ -168,17 +168,17 @@ export function PromptChips(props: PromptChipsProps): ReactElement | null;
   `<button type="button">` whose accessible name is the prompt text, laid out as a wrapping,
   centred row of rounded chips (`flex flex-wrap justify-center gap-2`; chip:
   `rounded-full border border-slate-200 bg-white px-4 py-2 text-sm`)
-  ([validated by](../../tests/PromptChips.test.tsx#L14),
-  [L24](../../tests/PromptChips.test.tsx#L24),
-  [L37](../../tests/PromptChips.test.tsx#L37), [L58](../../tests/PromptChips.test.tsx#L58),
-  [L102](../../tests/PromptChips.test.tsx#L102)).
+  ([validated by](../../tests/PromptChips.test.tsx#L21),
+  [L31](../../tests/PromptChips.test.tsx#L31),
+  [L44](../../tests/PromptChips.test.tsx#L44), [L65](../../tests/PromptChips.test.tsx#L65),
+  [L109](../../tests/PromptChips.test.tsx#L109)).
 - Clicking a chip calls `onPick` once with exactly that prompt's text
-  ([validated by](../../tests/PromptChips.test.tsx#L75),
-  [L86](../../tests/PromptChips.test.tsx#L86)).
+  ([validated by](../../tests/PromptChips.test.tsx#L82),
+  [L93](../../tests/PromptChips.test.tsx#L93)).
 - An empty `prompts` array renders nothing at all - no list, no accessible name
-  ([validated by](../../tests/PromptChips.test.tsx#L49)).
+  ([validated by](../../tests/PromptChips.test.tsx#L56)).
 - Two identical prompt strings render two chips; keys are index-qualified so React never
-  collapses them ([validated by](../../tests/PromptChips.test.tsx#L96)).
+  collapses them ([validated by](../../tests/PromptChips.test.tsx#L103)).
 - `PromptChips` is the intended content of `ChatMessageList`'s `prompts` slot, which stays typed
   `ReactNode`: the consumer renders `prompts={<PromptChips prompts={...} onPick={pick} />}` and
   wires `onPick` to `ChatComposerHandle.setValue` itself. The slot contract does not change
@@ -231,7 +231,7 @@ export const SearchField: ForwardRefExoticComponent<
 - `Button`, `IconButton` and `SearchField` are `forwardRef` components (decision 4: no cleanup
   rewrites `forwardRef` away), so a consumer can focus the control - a "jump to latest" button,
   a search box behind a keyboard shortcut - without reaching into the DOM
-  ([validated by](../../tests/Button.test.tsx#L33), [L33](../../tests/IconButton.test.tsx#L33),
+  ([validated by](../../tests/Button.test.tsx#L42), [L42](../../tests/IconButton.test.tsx#L42),
   [L54](../../tests/SearchField.test.tsx#L54)).
 - No primitive takes `className`, `style` or a render prop. Layout is the wrapper's: a `Button`
   in a `flex flex-col` sidebar column stretches to the column's width on its own, and a floating
@@ -249,7 +249,7 @@ export const SearchField: ForwardRefExoticComponent<
   `src/components/buttonStyles.ts` that the barrel does not export: the built runtime and type
   export lists equal the committed snapshot, which carries none of its names
   ([validated by](../../tests/public-api.test.ts#L40), [L46](../../tests/public-api.test.ts#L46),
-  [L74](../../tests/IconButton.test.tsx#L74)).
+  [L83](../../tests/IconButton.test.tsx#L83)).
 - The built `dist/components/buttonStyles.js` ships in the pack beside the four primitives and does
   not open with `"use client"`: it has no handler and no hook (decision 1)
   ([validated by](../../tests/primitives-dist.test.ts#L25),
@@ -273,8 +273,8 @@ by](../../tests/public-api.test.ts#L40),
    fifth case), and the chat-demo's sign-out footer button, a control the issue did not
    enumerate - and a bordered `secondary` there reads as chrome. One `ButtonVariant` union
    serves both components so a consumer never learns two
-   vocabularies ([validated by](../../tests/Button.test.tsx#L105),
-   [L87](../../tests/IconButton.test.tsx#L87),
+   vocabularies ([validated by](../../tests/Button.test.tsx#L112),
+   [L99](../../tests/IconButton.test.tsx#L99),
    [L48](../../tests/types/primitives-type-assertions.tsx#L48)).
 2. **`IconButton` ships no `defaultIconButtonLabels`.** Its one key is required, so the defaults
    object would be an empty frozen object exported for ceremony. `IconButton` therefore joins

@@ -2,6 +2,7 @@
 
 import { resolveLabels } from "../labels.js";
 import { ThinkingDots } from "./ThinkingDots.js";
+import { TEXT_MUTED } from "../theme/tokens.js";
 
 export interface InlineThinkingIndicatorLabels {
   thinking: string;
@@ -24,7 +25,7 @@ export function InlineThinkingIndicator({ labels }: InlineThinkingIndicatorProps
 
   return (
     <div className="flex items-center gap-2 py-1">
-      <span className="text-sm text-slate-500 dark:text-slate-400">{resolved.thinking}</span>
+      <span className={`text-sm ${TEXT_MUTED}`}>{resolved.thinking}</span>
       <ThinkingDots />
     </div>
   );

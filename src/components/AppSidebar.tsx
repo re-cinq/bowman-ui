@@ -2,7 +2,16 @@
 
 import { Fragment, type ComponentType, type ReactNode } from "react";
 import { resolveLabels } from "../labels.js";
-import { ACTIVE_ROW_BG, FOCUS_RING_COLOR } from "../theme/tokens.js";
+import {
+  ACTIVE_ROW_BG,
+  BORDER,
+  BORDER_MD,
+  FOCUS_RING_COLOR,
+  RING_OFFSET,
+  SURFACE,
+  SURFACE_HOVER,
+  TEXT_SECONDARY,
+} from "../theme/tokens.js";
 
 export interface SidebarNavItem {
   key: string;
@@ -50,15 +59,14 @@ const defaultRenderNavLink = (_item: SidebarNavItem, props: SidebarNavLinkProps)
 );
 
 const navLinkClassName = (isActive: boolean) =>
-  `group flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm font-medium ring-offset-2 transition-colors focus:outline-none focus:ring-2 ${FOCUS_RING_COLOR} dark:ring-offset-slate-900 ${
+  `group flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm font-medium ring-offset-2 transition-colors focus:outline-none focus:ring-2 ${FOCUS_RING_COLOR} ${RING_OFFSET} ${
     isActive
       ? `${ACTIVE_ROW_BG} text-slate-900 dark:text-white`
-      : "text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white"
+      : `${TEXT_SECONDARY} ${SURFACE_HOVER} hover:text-slate-900 dark:hover:text-white`
   }`;
 
 // Drawer below md (flex-1 + min-h-0 fills the height); rail at md+ pins its own width, as flex-1 would collapse it.
-const asideClassName =
-  "flex min-h-0 flex-1 flex-col bg-white dark:bg-slate-900 md:h-full md:w-64 md:flex-none md:border-r md:border-slate-200 md:dark:border-slate-800 lg:w-72";
+const asideClassName = `flex min-h-0 flex-1 flex-col ${SURFACE} md:h-full md:w-64 md:flex-none md:border-r ${BORDER_MD} lg:w-72`;
 
 export function AppSidebar({
   brand,
@@ -74,7 +82,7 @@ export function AppSidebar({
   return (
     <aside aria-label={resolved.sidebar} className={asideClassName}>
       {brand != null && (
-        <div className="flex h-14 flex-shrink-0 items-center border-b border-slate-200 px-4 dark:border-slate-800">
+        <div className={`flex h-14 flex-shrink-0 items-center border-b ${BORDER} px-4`}>
           {brand}
         </div>
       )}
@@ -99,11 +107,7 @@ export function AppSidebar({
         </nav>
       )}
       <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">{children}</div>
-      {footer != null && (
-        <div className="flex-shrink-0 border-t border-slate-200 dark:border-slate-800">
-          {footer}
-        </div>
-      )}
+      {footer != null && <div className={`flex-shrink-0 border-t ${BORDER}`}>{footer}</div>}
     </aside>
   );
 }

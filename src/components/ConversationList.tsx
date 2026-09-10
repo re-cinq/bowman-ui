@@ -4,7 +4,15 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useReducedMotion } from "../hooks/useReducedMotion.js";
 import { TrashIcon } from "../icons/index.js";
 import { resolveLabels } from "../labels.js";
-import { ACTIVE_ROW_BG, FOCUS_RING_COLOR } from "../theme/tokens.js";
+import {
+  ACTIVE_ROW_BG,
+  FOCUS_RING_COLOR,
+  RING_OFFSET,
+  SURFACE_HOVER,
+  TEXT_BODY,
+  TEXT_MUTED,
+  TEXT_SUBTLE,
+} from "../theme/tokens.js";
 
 export interface ConversationListItem {
   id: string;
@@ -184,11 +192,7 @@ export function ConversationList({
   }
 
   if (conversationItems.length === 0) {
-    return (
-      <p className="py-8 text-center text-sm text-slate-400 dark:text-slate-500">
-        {resolved.noConversations}
-      </p>
-    );
+    return <p className={`py-8 text-center text-sm ${TEXT_SUBTLE}`}>{resolved.noConversations}</p>;
   }
 
   return (
@@ -197,10 +201,10 @@ export function ConversationList({
       {conversationItems.map((conversation) => {
         const isActive = conversation.id === activeId;
         const linkProps: ConversationLinkProps = {
-          className: `-m-1 flex min-w-0 flex-1 flex-col gap-0.5 rounded-lg px-3 py-2 text-left ring-offset-2 focus:outline-none focus:ring-2 ${FOCUS_RING_COLOR} focus:ring-offset-white dark:ring-offset-slate-900`,
+          className: `-m-1 flex min-w-0 flex-1 flex-col gap-0.5 rounded-lg px-3 py-2 text-left ring-offset-2 focus:outline-none focus:ring-2 ${FOCUS_RING_COLOR} ${RING_OFFSET}`,
           children: (
             <>
-              <span className="text-sm font-medium text-slate-700 dark:text-slate-200">
+              <span className={`text-sm font-medium ${TEXT_BODY}`}>
                 <TypewriterTitle
                   text={conversation.title}
                   isPlaceholder={conversation.isPlaceholderTitle ?? false}
@@ -210,9 +214,7 @@ export function ConversationList({
               {(conversation.timestamp !== undefined || conversation.badge !== undefined) && (
                 <span className="flex items-center gap-2">
                   {conversation.timestamp !== undefined && (
-                    <span className="text-xs text-slate-500 dark:text-slate-400">
-                      {conversation.timestamp}
-                    </span>
+                    <span className={`text-xs ${TEXT_MUTED}`}>{conversation.timestamp}</span>
                   )}
                   {conversation.badge !== undefined && (
                     <span className="truncate rounded bg-slate-200 px-1.5 py-0.5 text-[10px] font-medium text-slate-600 dark:bg-slate-700 dark:text-slate-300">
@@ -231,7 +233,7 @@ export function ConversationList({
           <li
             key={conversation.id}
             className={`group flex w-full items-center rounded-lg p-1 transition-colors ${
-              isActive ? ACTIVE_ROW_BG : "hover:bg-slate-50 dark:hover:bg-slate-800"
+              isActive ? ACTIVE_ROW_BG : `${SURFACE_HOVER}`
             }`}
           >
             {renderLink(conversation, linkProps)}
@@ -239,7 +241,7 @@ export function ConversationList({
               <button
                 type="button"
                 onClick={() => onDelete(conversation.id)}
-                className={`ml-1 flex-shrink-0 rounded p-1.5 text-slate-400 opacity-0 ring-offset-2 transition-opacity hover:bg-slate-200 hover:text-red-500 focus:opacity-100 focus:outline-none focus:ring-2 ${FOCUS_RING_COLOR} focus:ring-offset-white group-hover:opacity-100 group-focus-within:opacity-100 dark:ring-offset-slate-900 dark:hover:bg-slate-700`}
+                className={`ml-1 flex-shrink-0 rounded p-1.5 text-slate-400 opacity-0 ring-offset-2 transition-opacity hover:bg-slate-200 hover:text-red-500 focus:opacity-100 focus:outline-none focus:ring-2 ${FOCUS_RING_COLOR} ${RING_OFFSET} group-hover:opacity-100 group-focus-within:opacity-100 dark:hover:bg-slate-700`}
                 aria-label={resolved.deleteConversation(conversation.title)}
               >
                 <TrashIcon className="h-4 w-4" aria-hidden="true" />

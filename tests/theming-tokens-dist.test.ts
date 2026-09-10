@@ -1,5 +1,5 @@
 import { readdirSync, readFileSync } from "node:fs";
-import { resolve } from "node:path";
+import { basename, resolve } from "node:path";
 
 // docs/design-notes.md § Theming: every --bowman-* token is read only through a
 // var() fallback, so the built package resolves to today's palette byte for
@@ -31,6 +31,54 @@ const EXPECTED_FALLBACKS: Record<string, string> = {
   "--bowman-active": "var(--color-slate-100)",
   "--bowman-active-dark": "var(--color-slate-800)",
   "--bowman-pulse-outline": "rgba(59,130,246,0.5)",
+  "--bowman-surface": "var(--color-white)",
+  "--bowman-surface-dark": "var(--color-slate-900)",
+  "--bowman-surface-hover": "var(--color-slate-50)",
+  "--bowman-surface-hover-dark": "var(--color-slate-800)",
+  "--bowman-control-hover": "var(--color-slate-100)",
+  "--bowman-control-hover-dark": "var(--color-slate-800)",
+  "--bowman-border": "var(--color-slate-200)",
+  "--bowman-border-dark": "var(--color-slate-800)",
+  "--bowman-ring-offset": "var(--color-white)",
+  "--bowman-ring-offset-dark": "var(--color-slate-900)",
+  "--bowman-text-body": "var(--color-slate-700)",
+  "--bowman-text-body-dark": "var(--color-slate-200)",
+  "--bowman-text-secondary": "var(--color-slate-600)",
+  "--bowman-text-secondary-dark": "var(--color-slate-400)",
+  "--bowman-text-muted": "var(--color-slate-500)",
+  "--bowman-text-muted-dark": "var(--color-slate-400)",
+  "--bowman-text-subtle": "var(--color-slate-400)",
+  "--bowman-text-subtle-dark": "var(--color-slate-500)",
+};
+
+const NEUTRAL_ROLE_READERS: Record<string, string[]> = {
+  SURFACE: ["AppShell", "AppSidebar", "ChatComposer", "PromptChips", "SearchField", "buttonStyles"],
+  SURFACE_HOVER: ["AppSidebar", "ConversationList", "PromptChips", "buttonStyles"],
+  CONTROL_HOVER: ["AppShell", "ChatMessage"],
+  BORDER: [
+    "AppShell",
+    "AppSidebar",
+    "ChatComposer",
+    "ChatMessageList",
+    "PromptChips",
+    "SearchField",
+    "buttonStyles",
+  ],
+  BORDER_MD: ["AppSidebar"],
+  RING_OFFSET: ["AppShell", "AppSidebar", "ConversationList", "PromptChips", "buttonStyles"],
+  TEXT_BODY: ["ConversationList", "PromptChips", "ToolActivity", "buttonStyles"],
+  TEXT_SECONDARY: ["AppShell", "AppSidebar", "ErrorBoundary", "buttonStyles"],
+  TEXT_MUTED: [
+    "ChatMessage",
+    "ChatMessageList",
+    "ConversationList",
+    "InlineThinkingIndicator",
+    "ThinkingIndicator",
+    "ThinkingTrace",
+    "ToolActivity",
+  ],
+  TEXT_SUBTLE: ["ChatMessage", "ConversationList", "SearchField"],
+  PLACEHOLDER_SUBTLE: ["ChatComposer", "SearchField"],
 };
 
 const read = (file: string): string => readFileSync(resolve(process.cwd(), file), "utf8");
@@ -103,14 +151,14 @@ const documentedTokens = (): Record<string, string> =>
   );
 
 describe("the built theming tokens", () => {
-  it("dist/styles.css opens with one comment line per token, fifteen in all, each stating its default", () => {
+  it("dist/styles.css opens with one comment line per token, thirty-three in all, each stating its default", () => {
     const declared = declaredTokens();
 
     expect([...declared.keys()]).toEqual(Object.keys(EXPECTED_FALLBACKS));
     expect(Object.fromEntries(declared)).toEqual(EXPECTED_FALLBACKS);
   });
 
-  it("the tokens read in dist/theme/tokens.js and dist/styles.css are exactly the fifteen declared ones", () => {
+  it("the tokens read in dist/theme/tokens.js and dist/styles.css are exactly the thirty-three declared ones", () => {
     const used = new Set(allUsages().map((usage) => usage.token));
 
     expect([...used].sort()).toEqual([...declaredTokens().keys()].sort());
@@ -159,6 +207,25 @@ describe("the built theming tokens", () => {
     );
   });
 
+  it("each neutral role constant is imported by exactly the built components recorded for it", () => {
+    const readers: Record<string, string[]> = Object.fromEntries(
+      Object.keys(NEUTRAL_ROLE_READERS).map((constant) => [constant, []])
+    );
+
+    for (const file of builtComponents()) {
+      const specifiers =
+        read(file).match(/import \{([^}]*)\} from "\.\.\/theme\/tokens\.js";/)?.[1] ?? "";
+
+      for (const constant of specifiers.split(",").map((name) => name.trim())) {
+        if (constant in readers) {
+          readers[constant].push(basename(file, ".js"));
+        }
+      }
+    }
+
+    expect(readers).toEqual(NEUTRAL_ROLE_READERS);
+  });
+
   it("no bare blue- palette utility survives in any built component, the tokens module or the stylesheet", () => {
     const components = builtComponents();
 
@@ -176,7 +243,7 @@ describe("the built theming tokens", () => {
     expect(read("dist/index.js")).not.toMatch(/theme\/tokens/);
   });
 
-  it("the token table in docs/design-notes.md § Theming lists the same fifteen names and fallbacks, in the declared order", () => {
+  it("the token table in docs/design-notes.md § Theming lists the same thirty-three names and fallbacks, in the declared order", () => {
     expect(Object.entries(documentedTokens())).toEqual(Object.entries(EXPECTED_FALLBACKS));
   });
 
@@ -200,7 +267,7 @@ describe("the built theming tokens", () => {
 
     expect(scripts).toContain(TOKENS_FILE);
 
-    for (const file of scripts) {
+    for (const file of builtComponents()) {
       expect(read(file), file).not.toMatch(assignment);
     }
     expect(stripDeclarationBlock(read(STYLESHEET))).not.toMatch(assignment);

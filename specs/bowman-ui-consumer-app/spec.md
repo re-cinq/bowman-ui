@@ -13,7 +13,7 @@ chat screen in a real Chromium. It proves what no jsdom test can: the
 package's eight major components in one document, compiled by a real Tailwind v4
 build, laid out by a real browser. The whole proof is one command,
 `npm run consumer` ([validated by](../../package.json#L53)), documented in the
-README's Worked consumer section ([validated by](../../README.md#L162)).
+README's Worked consumer section ([validated by](../../README.md#L196)).
 
 Anchor caveat: `scripts/repoint-spec-anchors.mjs` tracks
 `(../)+tests/*.ts(x)` anchors, `(../)+examples/*/tests/*.ts(x)` anchors since
@@ -61,7 +61,7 @@ sufficient to render the screen, so the README's Styles section needed no
 amendment.
 
 Since the theming tokens (issue 210) a second stylesheet,
-`src/client-brand.css`, sets the library's fifteen `--bowman-*` tokens under
+`src/client-brand.css`, sets the library's thirty-three `--bowman-*` tokens under
 the `.client-brand` wrapper - never `:root` - and `main.tsx` imports it after
 `./styles.css`; the three-line entry stylesheet above is unchanged
 ([validated by](../../examples/chat-demo/src/main.tsx#L1)).
@@ -182,7 +182,7 @@ otherwise ([validated by](../../examples/chat-demo/playwright.config.ts#L8)).
 ## The Playwright suite
 
 All statements below executed green on 2026-09-10 against the packed tarball
-(30 passed across the chat, docs and theming suites, exit 0), re-run for the
+(32 passed across the chat, docs and theming suites, exit 0), re-run for the
 theming tokens' client-branded variant. See
 `specs/bowman-ui-theming-tokens/spec.md` § The demo for the theming suite,
 `tests/theming.spec.ts`, which this spec does not restate.

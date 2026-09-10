@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 import { resolveLabels } from "../labels.js";
 import type { ToolChatEntry } from "../types/chat.js";
+import { TEXT_BODY, TEXT_MUTED } from "../theme/tokens.js";
 
 export interface ToolActivityLabels {
   activity: string;
@@ -58,7 +59,7 @@ export function ToolActivity({
   const headline = headlineFor(resolved, entry, pending, describeTool);
 
   return (
-    <div className="flex w-full items-start gap-3 text-sm text-slate-500 dark:text-slate-400">
+    <div className={`flex w-full items-start gap-3 text-sm ${TEXT_MUTED}`}>
       {icon && (
         <span
           aria-hidden="true"
@@ -76,10 +77,10 @@ export function ToolActivity({
         )}
         {showToolInput && (
           <details className="text-xs">
-            <summary className="cursor-pointer text-slate-500 dark:text-slate-400">
-              {resolved.details}
-            </summary>
-            <pre className="mt-1 overflow-x-auto rounded bg-slate-100 p-2 font-mono text-slate-700 dark:bg-slate-800 dark:text-slate-200">
+            <summary className={`cursor-pointer ${TEXT_MUTED}`}>{resolved.details}</summary>
+            <pre
+              className={`mt-1 overflow-x-auto rounded bg-slate-100 p-2 font-mono ${TEXT_BODY} dark:bg-slate-800`}
+            >
               {JSON.stringify(entry.toolInput, null, 2)}
             </pre>
           </details>
