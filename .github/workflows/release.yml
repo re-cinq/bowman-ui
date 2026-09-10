@@ -33,12 +33,15 @@ jobs:
         with:
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
+      # The pr output is JSON; it is parsed in the script, not with fromJSON in
+      # env, because a step's env expressions are evaluated even when its if is
+      # false, and fromJSON('') is a template error that fails the whole job.
       - name: Run CI on the release pull request
         if: steps.rp.outputs.pr != ''
         env:
           GH_TOKEN: ${{ github.token }}
-          HEAD_BRANCH: ${{ fromJSON(steps.rp.outputs.pr).headBranchName }}
-        run: gh workflow run ci.yml --ref "$HEAD_BRANCH"
+          PR_JSON: ${{ steps.rp.outputs.pr }}
+        run: gh workflow run ci.yml --ref "$(jq -r .headBranchName <<<"$PR_JSON")"
       - name: Publish the release
         if: steps.rp.outputs.release_created == 'true'
         env:
