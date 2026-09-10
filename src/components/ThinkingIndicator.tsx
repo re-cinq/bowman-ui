@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 import { resolveLabels } from "../labels.js";
+import { ACCENT_SOFT_SURFACE, TEXT_MUTED } from "../theme/tokens.js";
 import { ThinkingDots } from "./ThinkingDots.js";
 
 export interface ThinkingIndicatorLabels {
@@ -35,12 +36,12 @@ export function ThinkingIndicator({ assistantAvatar, labels }: ThinkingIndicator
     >
       <div
         aria-hidden="true"
-        className="bowman-pulse-subtle flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-950"
+        className={`bowman-pulse-subtle flex h-8 w-8 shrink-0 items-center justify-center rounded-full border ${ACCENT_SOFT_SURFACE}`}
       >
         {assistantAvatar}
       </div>
       <div className="flex items-center gap-2 py-2">
-        <span className="text-sm text-slate-500 dark:text-slate-400">{resolved.thinking}</span>
+        <span className={`text-sm ${TEXT_MUTED}`}>{resolved.thinking}</span>
         <ThinkingDots />
       </div>
     </div>

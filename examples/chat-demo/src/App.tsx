@@ -15,6 +15,7 @@ import {
   initialEntriesByConversation,
   type DemoEntry,
 } from "./fixtures";
+import { resolveBrand, type DemoBrand } from "./brands";
 import { DocsApp } from "./docs/DocsApp";
 import { staticDemoNote } from "./staticDemoNote";
 import { streamAssistantReply } from "./streaming";
@@ -32,7 +33,6 @@ import {
   toastDemoOnlyMessage,
 } from "./labels";
 
-const brandName = "Marginalia Books";
 const toastDurationMs = 4000;
 const conversationsNavKey = "conversations";
 const settingsNavKey = "settings";
@@ -41,17 +41,26 @@ const settingsNavKey = "settings";
 // keeps existing component links resolving) renders the docs, and only
 // "?view=chat" reaches the chat fixture - a local-test-only surface with no
 // on-page link to it. "&component=<slug>" picks a docs page inside the docs
-// view. Read once, at module scope, from the URL the document was loaded with:
-// the demo has no router and needs none.
+// view. "&brand=copperline" - meaningful only with "?view=chat" - renders the
+// same chat fixture as the invented second client: wrapped in the class that
+// overrides the theming tokens, under its own name, with its own avatar mark;
+// an unknown value falls back to the default brand. Read once, at module scope,
+// from the URL the document was loaded with: the demo has no router and needs
+// none.
 const query = new URLSearchParams(window.location.search);
 const chatRequested = query.get("view") === "chat";
 const requestedComponent = query.get("component");
+const requestedBrand = resolveBrand(query.get("brand"));
 
 export function App() {
-  return chatRequested ? <ChatScreen /> : <DocsApp componentId={requestedComponent} />;
+  return chatRequested ? (
+    <ChatScreen brand={requestedBrand} />
+  ) : (
+    <DocsApp componentId={requestedComponent} />
+  );
 }
 
-function ChatScreen() {
+function ChatScreen({ brand }: { brand: DemoBrand }) {
   const [entriesByConversation, setEntriesByConversation] = useState(initialEntriesByConversation);
   const [activeConversationId, setActiveConversationId] = useState(conversations[0].id);
   const [activeNavKey, setActiveNavKey] = useState(conversationsNavKey);
@@ -143,7 +152,7 @@ function ChatScreen() {
 
   const renderSidebar = (context: SidebarSlotContext) => (
     <AppSidebar
-      brand={brandName}
+      brand={brand.name}
       navItems={navItems}
       onNavigate={(key) => navigate(key, context.close)}
       labels={appSidebarLabels}
@@ -174,13 +183,14 @@ function ChatScreen() {
     </AppSidebar>
   );
 
-  return (
+  const screen = (
     <>
-      <AppShell brand={brandName} renderSidebar={renderSidebar} labels={appShellLabels}>
+      <AppShell brand={brand.name} renderSidebar={renderSidebar} labels={appShellLabels}>
         <div className="flex h-full min-h-0 flex-col">
           <ChatMessageList
             entries={activeEntries}
             userInitials={demoUserInitials}
+            assistantAvatar={brand.assistantAvatar}
             labels={chatMessageListLabels}
             busy={busy}
             greeting={<p className="text-lg text-slate-600 dark:text-slate-300">{greetingText}</p>}
@@ -206,4 +216,10 @@ function ChatScreen() {
       )}
     </>
   );
+
+  if (brand.className === undefined) {
+    return screen;
+  }
+
+  return <div className={brand.className}>{screen}</div>;
 }

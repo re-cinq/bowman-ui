@@ -4,6 +4,7 @@ import { useReducedMotion } from "../hooks/useReducedMotion.js";
 import { resolveLabels } from "../labels.js";
 import type { ThinkingChatEntry } from "../types/chat.js";
 import { ThinkingDots } from "./ThinkingDots.js";
+import { TEXT_MUTED } from "../theme/tokens.js";
 
 export interface ThinkingTraceLabels {
   thinkingTrace: string;
@@ -27,7 +28,7 @@ export function ThinkingTrace({ entry, reducedMotion, labels }: ThinkingTracePro
   const prefersReducedMotion = useReducedMotion(reducedMotion);
 
   return (
-    <details className="w-full text-sm text-slate-500 dark:text-slate-400">
+    <details className={`w-full text-sm ${TEXT_MUTED}`}>
       <summary className="flex cursor-pointer items-center gap-2">
         <span>{resolved.thinkingTrace}</span>
         {entry.isStreaming && <ThinkingDots reducedMotion={prefersReducedMotion} />}

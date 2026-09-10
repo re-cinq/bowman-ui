@@ -68,6 +68,15 @@ describe("dist/styles.css", () => {
     expect(fadeIn).toMatch(/translateY/);
   });
 
+  it("reads --bowman-accent-glow and --bowman-pulse-outline in the 50% stop of bowman-pulse-subtle, falling back to rgba(59, 130, 246, 0.1) and rgba(59, 130, 246, 0.5)", () => {
+    const pulse = keyframeBlock(readStyles(), "bowman-pulse-subtle");
+
+    expect(pulse).toMatch(
+      /50% \{\n {4}box-shadow: 0 0 0 4px var\(--bowman-accent-glow, rgba\(59, 130, 246, 0\.1\)\);\n {4}outline: 2px solid var\(--bowman-pulse-outline, rgba\(59, 130, 246, 0\.5\)\);/
+    );
+    expect(pulse).toMatch(/box-shadow: 0 0 0 0 rgba\(59, 130, 246, 0\);/);
+  });
+
   it("restates translateX(-50%) in both stops of bowman-toast-fade-in", () => {
     const toastFadeIn = keyframeBlock(readStyles(), "bowman-toast-fade-in");
     const fromStop = toastFadeIn.match(/from \{[\s\S]*?\}/);
@@ -86,6 +95,10 @@ describe("dist/styles.css", () => {
     );
     expect(media?.[0]).not.toMatch(/transform/);
     expect(css).not.toMatch(/data-animations/);
+  });
+
+  it("declares no :root block - every --bowman-* default lives only in its var() fallback", () => {
+    expect(readStyles()).not.toMatch(/:root/);
   });
 });
 

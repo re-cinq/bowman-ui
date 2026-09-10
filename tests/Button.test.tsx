@@ -7,6 +7,16 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { createRef, type MouseEvent as ReactMouseEvent } from "react";
 import { Button, PlusIcon } from "../src/index.js";
 import { expectClickEventDelivered } from "./helpers/click-event.js";
+import {
+  expectBorder,
+  expectFocusRing,
+  expectPrimaryAccentFill,
+  expectRingOffset,
+  expectSurface,
+  expectSurfaceHover,
+  expectTextBody,
+  expectTextSecondary,
+} from "./helpers/expect-theme-tokens.js";
 
 const buttonOf = (): HTMLButtonElement => screen.getByRole("button", { name: "Ny samtale" });
 
@@ -79,35 +89,33 @@ describe("Button", () => {
   });
 
   describe("the variants", () => {
-    it('variant="primary" carries bg-blue-500 text-white dark:bg-blue-600 and no border-slate-200', () => {
+    it('variant="primary" carries the --bowman-accent background and hover, text-white and no border-slate-200', () => {
       render(<Button variant="primary">Ny samtale</Button>);
 
-      expect(buttonOf()).toHaveClass("bg-blue-500", "text-white", "dark:bg-blue-600");
-      expect(buttonOf()).not.toHaveClass("border-slate-200");
+      expectPrimaryAccentFill(buttonOf());
     });
 
-    it('variant="secondary" carries border border-slate-200 bg-white text-slate-700 dark:border-slate-800 and no bg-blue-500', () => {
+    it('variant="secondary" carries border beside the --bowman-border, --bowman-surface, --bowman-surface-hover and --bowman-text-body tokens and no --bowman-accent background', () => {
       render(<Button variant="secondary">Ny samtale</Button>);
 
-      expect(buttonOf()).toHaveClass(
-        "border",
-        "border-slate-200",
-        "bg-white",
-        "text-slate-700",
-        "dark:border-slate-800"
-      );
-      expect(buttonOf()).not.toHaveClass("bg-blue-500");
+      expect(buttonOf()).toHaveClass("border");
+      expectBorder(buttonOf());
+      expectSurface(buttonOf());
+      expectSurfaceHover(buttonOf());
+      expectTextBody(buttonOf());
+      expect(buttonOf()).not.toHaveClass("bg-(--bowman-accent,var(--color-blue-500))");
     });
 
-    it('variant="ghost" carries text-slate-600 hover:bg-slate-50 dark:text-slate-400 and neither border-slate-200 nor bg-blue-500', () => {
+    it('variant="ghost" reads --bowman-text-secondary and --bowman-surface-hover with neither a border token nor the --bowman-accent background', () => {
       render(<Button variant="ghost">Ny samtale</Button>);
 
-      expect(buttonOf()).toHaveClass("text-slate-600", "hover:bg-slate-50", "dark:text-slate-400");
-      expect(buttonOf()).not.toHaveClass("border-slate-200");
-      expect(buttonOf()).not.toHaveClass("bg-blue-500");
+      expectTextSecondary(buttonOf());
+      expectSurfaceHover(buttonOf());
+      expect(buttonOf()).not.toHaveClass("border-(--bowman-border,var(--color-slate-200))");
+      expect(buttonOf()).not.toHaveClass("bg-(--bowman-accent,var(--color-blue-500))");
     });
 
-    it("every variant carries the focus ring and the disabled pair", () => {
+    it("every variant keeps focus:ring-2 ring-offset-2 beside the --bowman-focus-ring and --bowman-ring-offset colours and carries the disabled pair", () => {
       render(
         <>
           <Button variant="primary">Ny samtale</Button>
@@ -117,10 +125,10 @@ describe("Button", () => {
       );
 
       for (const button of screen.getAllByRole("button")) {
+        expectFocusRing(button);
+        expectRingOffset(button);
         expect(button).toHaveClass(
           "focus:outline-none",
-          "focus:ring-2",
-          "focus:ring-blue-500",
           "ring-offset-2",
           "disabled:cursor-not-allowed",
           "disabled:opacity-50"

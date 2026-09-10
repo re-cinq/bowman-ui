@@ -11,6 +11,7 @@ import { resolve } from "node:path";
 import { ChatMessage, defaultChatMessageLabels } from "../src/index.js";
 import type { AssistantChatEntry, UserChatEntry } from "../src/index.js";
 import { expectImportHygiene, listFiles } from "./helpers/source-hygiene.js";
+import { expectAccentSoftSurface, expectFocusRing } from "./helpers/expect-theme-tokens.js";
 
 const writeTextMock = vi.fn();
 
@@ -459,6 +460,25 @@ describe("ChatMessage", () => {
 
       rerender(<ChatMessage entry={makeEntry()} userInitials="LM" />);
       expect(circleOf(container).classList.contains("bowman-pulse-subtle")).toBe(false);
+    });
+  });
+
+  describe("theming tokens", () => {
+    it("while isStreaming the circle reads --bowman-accent-border and --bowman-accent-soft, light and dark", () => {
+      const { container } = render(
+        <ChatMessage entry={makeEntry({ isStreaming: true, content: "" })} userInitials="LM" />
+      );
+
+      expectAccentSoftSurface(container.querySelector("article > div > div"));
+    });
+
+    it("the article, the copy button and both thumb buttons keep focus:ring-2 beside the --bowman-focus-ring colour", () => {
+      render(<ChatMessage entry={makeEntry()} userInitials="LM" onFeedback={vi.fn()} />);
+
+      expectFocusRing(screen.getByRole("article"));
+      expectFocusRing(screen.getByRole("button", { name: "Copy message" }));
+      expectFocusRing(screen.getByRole("button", { name: "Good response" }));
+      expectFocusRing(screen.getByRole("button", { name: "Bad response" }));
     });
   });
 

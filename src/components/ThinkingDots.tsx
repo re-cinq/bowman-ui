@@ -1,4 +1,5 @@
 "use client";
+import { ACCENT_DOT } from "../theme/tokens.js";
 
 export interface ThinkingDotsProps {
   /** Drops the animation class and the stagger; the three dots stay in place. */
@@ -7,8 +8,8 @@ export interface ThinkingDotsProps {
 
 const DELAYS = ["0s", "0.2s", "0.4s"];
 
-const FADING_DOT = "bowman-fade-dot h-1 w-1 rounded-full bg-blue-500";
-const STILL_DOT = "h-1 w-1 rounded-full bg-blue-500";
+const FADING_DOT = `bowman-fade-dot h-1 w-1 rounded-full ${ACCENT_DOT}`;
+const STILL_DOT = `h-1 w-1 rounded-full ${ACCENT_DOT}`;
 
 // The dots shared by the three indicators so their timing cannot drift (024); internal, not exported from the barrel.
 export function ThinkingDots({ reducedMotion = false }: ThinkingDotsProps) {
