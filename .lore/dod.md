@@ -15,7 +15,7 @@ decision 4 and the demo say `19.2.0`.
 
 ## Done when these pass
 
-- [ ] **the one tested React version > is the same in decision 4, the lockfile
+- [x] **the one tested React version > is the same in decision 4, the lockfile
   and the chat-demo pin** — extracts the version from `docs/design-notes.md`
   decision 4 ("React X.Y.Z is what CI installs"), reads the resolved
   react/react-dom versions from `package-lock.json`, and the react/react-dom

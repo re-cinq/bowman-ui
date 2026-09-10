@@ -33,13 +33,10 @@ resolver refuses to guess at.
 and declares no `@re-cinq/bowman-ui` dependency at all - the version under
 test is always the tarball `npm pack` just produced
 ([validated by](../../scripts/consumer-app.sh#L93)). `react` and `react-dom`
-are pinned at exactly `19.2.0`
+are pinned at exactly `19.2.8`
 ([validated by](../../examples/chat-demo/package.json#L14)), the version
-docs/design-notes.md decision 4 records as the one CI installs and the only one tested.
-Note recorded, not resolved here: the repo's own `package-lock.json` currently
-resolves `^19.2.0` to `19.2.8`, so the recorded version and the lockfile have
-drifted - a docs/design-notes.md staleness, tracked in its own issue, not a reason for
-this pin to chase the lockfile.
+docs/design-notes.md decision 4 records as the one CI installs and the only one tested
+([validated by](../../tests/react-version-consistency.test.ts#L42)).
 
 The Tailwind dependency is `tailwindcss@4.3.3` with the matching
 `@tailwindcss/vite@4.3.3` Vite adapter

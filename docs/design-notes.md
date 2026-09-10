@@ -146,7 +146,7 @@ the user-side avatar fallback, is unaffected and stays required.
 ## 4. Peers stay at `^19.0.0` - a testing claim, not a technical floor
 
 With one exception below, nothing in the package requires React 19: it uses
-`forwardRef`, the pre-19 idiom, throughout. React 19.2.0 is what CI installs
+`forwardRef`, the pre-19 idiom, throughout. React 19.2.8 is what CI installs
 and the only version tested - that is what the range claims. Widening to
 include React 18 requires a CI matrix that actually installs and runs green
 against it, not a manifest edit - and must resolve the `inert` reliance below.
