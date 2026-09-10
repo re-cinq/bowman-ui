@@ -3,6 +3,7 @@
 import { forwardRef } from "react";
 import { SearchIcon } from "../icons/index.js";
 import { resolveLabels } from "../labels.js";
+import { FOCUS_RING_COLOR } from "../theme/tokens.js";
 
 export interface SearchFieldLabels {
   /** The input's accessible name - a real label, never the placeholder. */
@@ -23,8 +24,7 @@ export interface SearchFieldProps {
   labels?: Partial<SearchFieldLabels>;
 }
 
-const inputClassName =
-  "block w-full rounded-lg border border-slate-200 bg-white py-2 pl-9 pr-3 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200 dark:placeholder-slate-500 dark:focus:ring-blue-400";
+const inputClassName = `block w-full rounded-lg border border-slate-200 bg-white py-2 pl-9 pr-3 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 ${FOCUS_RING_COLOR} disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200 dark:placeholder-slate-500`;
 
 export const SearchField = forwardRef<HTMLInputElement, SearchFieldProps>(function SearchField(
   { value, onChange, disabled = false, labels },

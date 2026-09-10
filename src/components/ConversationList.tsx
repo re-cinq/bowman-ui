@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useReducedMotion } from "../hooks/useReducedMotion.js";
 import { TrashIcon } from "../icons/index.js";
 import { resolveLabels } from "../labels.js";
+import { ACTIVE_ROW_BG, FOCUS_RING_COLOR } from "../theme/tokens.js";
 
 export interface ConversationListItem {
   id: string;
@@ -196,8 +197,7 @@ export function ConversationList({
       {conversationItems.map((conversation) => {
         const isActive = conversation.id === activeId;
         const linkProps: ConversationLinkProps = {
-          className:
-            "-m-1 flex min-w-0 flex-1 flex-col gap-0.5 rounded-lg px-3 py-2 text-left ring-offset-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-white dark:ring-offset-slate-900 dark:focus:ring-blue-400",
+          className: `-m-1 flex min-w-0 flex-1 flex-col gap-0.5 rounded-lg px-3 py-2 text-left ring-offset-2 focus:outline-none focus:ring-2 ${FOCUS_RING_COLOR} focus:ring-offset-white dark:ring-offset-slate-900`,
           children: (
             <>
               <span className="text-sm font-medium text-slate-700 dark:text-slate-200">
@@ -231,9 +231,7 @@ export function ConversationList({
           <li
             key={conversation.id}
             className={`group flex w-full items-center rounded-lg p-1 transition-colors ${
-              isActive
-                ? "bg-slate-100 dark:bg-slate-800"
-                : "hover:bg-slate-50 dark:hover:bg-slate-800"
+              isActive ? ACTIVE_ROW_BG : "hover:bg-slate-50 dark:hover:bg-slate-800"
             }`}
           >
             {renderLink(conversation, linkProps)}
@@ -241,7 +239,7 @@ export function ConversationList({
               <button
                 type="button"
                 onClick={() => onDelete(conversation.id)}
-                className="ml-1 flex-shrink-0 rounded p-1.5 text-slate-400 opacity-0 ring-offset-2 transition-opacity hover:bg-slate-200 hover:text-red-500 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-white group-hover:opacity-100 group-focus-within:opacity-100 dark:ring-offset-slate-900 dark:hover:bg-slate-700 dark:focus:ring-blue-400"
+                className={`ml-1 flex-shrink-0 rounded p-1.5 text-slate-400 opacity-0 ring-offset-2 transition-opacity hover:bg-slate-200 hover:text-red-500 focus:opacity-100 focus:outline-none focus:ring-2 ${FOCUS_RING_COLOR} focus:ring-offset-white group-hover:opacity-100 group-focus-within:opacity-100 dark:ring-offset-slate-900 dark:hover:bg-slate-700`}
                 aria-label={resolved.deleteConversation(conversation.title)}
               >
                 <TrashIcon className="h-4 w-4" aria-hidden="true" />

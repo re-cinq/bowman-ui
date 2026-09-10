@@ -3,6 +3,7 @@
 import { Component, type ErrorInfo, type ReactNode } from "react";
 import { WarningIcon } from "../icons/index.js";
 import { resolveLabels } from "../labels.js";
+import { FOCUS_VISIBLE_RING_COLOR } from "../theme/tokens.js";
 
 export interface ErrorBoundaryLabels {
   title: string;
@@ -75,7 +76,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, State> {
         <button
           type="button"
           onClick={this.handleRetry}
-          className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-slate-800 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-200"
+          className={`rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-slate-800 focus-visible:ring-2 ${FOCUS_VISIBLE_RING_COLOR} focus-visible:ring-offset-2 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-200`}
         >
           {labels.retry}
         </button>

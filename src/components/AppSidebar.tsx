@@ -2,6 +2,7 @@
 
 import { Fragment, type ComponentType, type ReactNode } from "react";
 import { resolveLabels } from "../labels.js";
+import { ACTIVE_ROW_BG, FOCUS_RING_COLOR } from "../theme/tokens.js";
 
 export interface SidebarNavItem {
   key: string;
@@ -49,9 +50,9 @@ const defaultRenderNavLink = (_item: SidebarNavItem, props: SidebarNavLinkProps)
 );
 
 const navLinkClassName = (isActive: boolean) =>
-  `group flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm font-medium ring-offset-2 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 dark:ring-offset-slate-900 dark:focus:ring-blue-400 ${
+  `group flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm font-medium ring-offset-2 transition-colors focus:outline-none focus:ring-2 ${FOCUS_RING_COLOR} dark:ring-offset-slate-900 ${
     isActive
-      ? "bg-slate-100 text-slate-900 dark:bg-slate-800 dark:text-white"
+      ? `${ACTIVE_ROW_BG} text-slate-900 dark:text-white`
       : "text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white"
   }`;
 

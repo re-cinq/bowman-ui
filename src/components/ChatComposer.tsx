@@ -11,6 +11,7 @@ import {
 } from "react";
 import { SendIcon } from "../icons/index.js";
 import { resolveLabels } from "../labels.js";
+import { ACCENT_BG, ACCENT_BG_HOVER, FOCUS_WITHIN_RING_COLOR } from "../theme/tokens.js";
 
 export interface ChatComposerLabels {
   /** The textarea's accessible name - a real label, never the placeholder. */
@@ -115,7 +116,7 @@ export function ChatComposer({
   return (
     <div
       aria-busy={busy}
-      className={`relative rounded-2xl border border-slate-200 bg-white shadow-sm transition-all focus-within:shadow-[0_0_0_4px_rgba(59,130,246,0.1)] focus-within:ring-2 focus-within:ring-blue-500/50 dark:border-slate-800 dark:bg-slate-900 dark:focus-within:shadow-[0_0_0_4px_rgba(96,165,250,0.1)] dark:focus-within:ring-blue-400/50 ${busy ? "bowman-pulse-subtle" : ""}`}
+      className={`relative rounded-2xl border border-slate-200 bg-white shadow-sm transition-all focus-within:ring-2 ${FOCUS_WITHIN_RING_COLOR} dark:border-slate-800 dark:bg-slate-900 ${busy ? "bowman-pulse-subtle" : ""}`}
     >
       <textarea
         ref={textareaRef}
@@ -135,7 +136,7 @@ export function ChatComposer({
           onClick={submit}
           disabled={!hasDraft || inactive}
           aria-label={resolved.send}
-          className="cursor-pointer rounded-lg bg-blue-500 p-1.5 text-white hover:bg-blue-600 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400 disabled:opacity-50 dark:bg-blue-600 dark:hover:bg-blue-500 dark:disabled:bg-slate-800 dark:disabled:text-slate-500"
+          className={`cursor-pointer rounded-lg ${ACCENT_BG} p-1.5 text-white ${ACCENT_BG_HOVER} disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400 disabled:opacity-50 dark:disabled:bg-slate-800 dark:disabled:text-slate-500`}
         >
           <SendIcon className="h-4 w-4" />
         </button>
