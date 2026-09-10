@@ -1,6 +1,6 @@
 // The Overview page's Theming section: the same three components rendered
 // twice, once with the library's defaults and once inside the wrapper class
-// that overrides the thirty-three --bowman-* tokens (src/custom-brand.css). One
+// that overrides the thirty-three --bowman-* tokens (src/custom-theme.css). One
 // preview component renders both, so the two columns cannot drift apart.
 
 import { ChatComposer, ChatMessage, ConversationList } from "@re-cinq/bowman-ui";
@@ -10,7 +10,7 @@ import { docsConversationItems, docsStreamingEntry, docsUserInitials } from "./f
 
 const previewItems = docsConversationItems.slice(0, 2);
 
-const customBrandSnippet = `.custom-brand {
+const customThemeSnippet = `.custom-theme {
   --bowman-accent: #b7410e;
   --bowman-accent-hover: #9a3412;
   --bowman-accent-soft: #fff1e6;
@@ -64,7 +64,7 @@ export function ThemingSection() {
         <code>-dark</code> tokens, read by the components&apos; existing <code>dark:</code>{" "}
         variants.
       </p>
-      <CodeBlock code={customBrandSnippet} />
+      <CodeBlock code={customThemeSnippet} />
     </DocSection>
   );
 }
