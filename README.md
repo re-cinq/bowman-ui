@@ -66,9 +66,9 @@ Every brand colour the components paint - the send button and primary `Button` f
 }
 ```
 
-The neutral chrome has its own roles - `--bowman-surface`, `--bowman-surface-hover`, `--bowman-control-hover`, `--bowman-border`, `--bowman-ring-offset` and the text tiers `--bowman-text-body`, `--bowman-text-secondary`, `--bowman-text-muted`, `--bowman-text-subtle`, each with a `-dark` twin - so a client can move the panels off pure white and the borders off slate-200 the same way. docs/design-notes.md § Theming lists all thirty-three with the fallback each ships.
+The neutral chrome has its own roles - `--bowman-surface`, `--bowman-surface-hover`, `--bowman-control-hover`, `--bowman-border`, `--bowman-ring-offset` and the text tiers `--bowman-text-body`, `--bowman-text-secondary`, `--bowman-text-muted`, `--bowman-text-subtle`, each with a `-dark` twin - so you can move the panels off pure white and the borders off slate-200 the same way. docs/design-notes.md § Theming lists all thirty-three with the fallback each ships.
 
-### Rebranding a client, step by step
+### Rebranding, step by step
 
 1. **Pick the scope.** Set the properties on `:root` in your own stylesheet when the whole app
    is one brand, or on a wrapper class (`.client-brand`, `[data-tenant="acme"]`) when one build
