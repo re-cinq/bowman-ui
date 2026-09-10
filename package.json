@@ -40,6 +40,7 @@
   ],
   "scripts": {
     "build": "rm -rf dist && node node_modules/typescript7/bin/tsc -p tsconfig.json && cp src/styles.css dist/styles.css",
+    "prepare": "test -d dist || npm run build",
     "typecheck": "node node_modules/typescript7/bin/tsc --noEmit -p tsconfig.json",
     "test": "npm run test:coverage",
     "test:coverage": "npm run build && vitest run --coverage",
