@@ -51,7 +51,7 @@ The typecheck script is `typecheck`, not `type-check`.
   artifacts otherwise ship via `files: ["dist"]`).
 - `npm run typecheck` — `typescript7` `tsc --noEmit`.
 - Releases: a maintainer drafts a GitHub Release with a `vX.Y.Z` tag, then approves the version
-  npm staged (npmjs.com → Staged Packages → Approve, 2FA). publish.yml stamps the version from
+  npm staged (npmjs.com → package → Versions tab → Approve, 2FA). publish.yml stamps the version from
   the tag (`scripts/set-version-from-tag.sh`), so package.json carries the placeholder `0.0.0`
   on `main` and is never bumped, and runs `npm stage publish` - the trusted publisher allows no
   direct publish. Release notes are GitHub's generated notes. No release-please, no CHANGELOG.md.

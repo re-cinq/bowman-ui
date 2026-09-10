@@ -62,10 +62,12 @@ version to exist.
    previous tag become the notes - keep pull-request titles honest for that reason).
 3. Leave _pre-release_ unticked; the workflow refuses pre-releases. **Publish release**.
 4. When the `Publish` workflow run is green, approve the staged version: npmjs.com → the
-   package → **Staged Packages** → **Approve** (2FA is asked for), or `npm stage list` then
-   `npm stage approve <id>` from a logged-in terminal. Until then the version is on the
-   registry with its provenance but not installable, and `npm stage download <id>` hands you
-   the exact tarball to inspect first.
+   package page → **Versions** tab → the staged version → **Approve** (2FA is asked for). Or
+   from a logged-in terminal with npm 11.15 or newer (`npx -y npm@11 ...` if yours is older):
+   `npm stage list @re-cinq/bowman-ui`, then `npm stage approve <id>`; the id is also in the
+   workflow run's job summary. Until then the version is on the registry with its provenance
+   but not installable, and `npm stage download <id>` hands you the exact tarball to inspect
+   first.
 
 The `published` event runs `.github/workflows/publish.yml`: the `verify` job re-runs every gate
 at the tag; the `publish` job stamps the tag's version into `package.json`

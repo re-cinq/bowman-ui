@@ -125,7 +125,7 @@ jobs:
       # only (npm's recommendation, chosen 2026-09-10). The tarball, its
       # dist-tag and its provenance all reach the registry, but the version is
       # not installable until a maintainer approves the stage with 2FA - on
-      # npmjs.com (the package's Staged Packages tab -> Approve) or with
+      # npmjs.com (the package page's Versions tab -> Approve) or with
       # `npm stage list` then `npm stage approve <id>`. Nothing this job can do
       # makes a version installable on its own. pipefail: a failed stage must
       # not be masked by the tee that feeds the job summary.
@@ -136,7 +136,7 @@ jobs:
           {
             echo "## Staged on npm - a maintainer must approve it before it is installable"
             echo
-            echo "npmjs.com -> @re-cinq/bowman-ui -> Staged Packages -> Approve (2FA), or: npm stage list, then npm stage approve <id>."
+            echo "npmjs.com -> @re-cinq/bowman-ui -> Versions tab -> Approve (2FA), or: npm stage list, then npm stage approve <id>."
             echo
             echo '```'
             cat stage.log
