@@ -1,5 +1,7 @@
 # bowman-ui
 
+[![npm version](https://img.shields.io/npm/v/%40re-cinq%2Fbowman-ui)](https://www.npmjs.com/package/@re-cinq/bowman-ui) [![CI](https://github.com/re-cinq/bowman-ui/actions/workflows/ci.yml/badge.svg)](https://github.com/re-cinq/bowman-ui/actions/workflows/ci.yml) [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue)](./LICENSE)
+
 Presentational React components for AI chat interfaces.
 
 `@re-cinq/bowman-ui` provides props-driven chat UI building blocks - message rendering, composer, conversation list, app shell - with no authentication, data-fetching, routing, or i18n dependencies. Consumers supply data and labels; the components render them.
@@ -18,7 +20,7 @@ The component documentation, built from the packed package, is published at <htt
 npm install @re-cinq/bowman-ui
 ```
 
-No version has been published yet; the install line above starts working with the first `v*` release.
+Every version is published from this repository's CI with npm provenance, so `npm audit signatures` can verify that what you installed was built by `.github/workflows/publish.yml` from the tagged commit.
 
 ## Requirements
 
@@ -316,7 +318,7 @@ const animationDuration = prefersReducedMotion ? 0 : 300;
 
 const debouncedQuery = useDebounce(query, 300);
 
-const { isOpen, toggle, open, close, isHydrated } = useSidebarState("chat", { storagePrefix: "olt-" }); // stored under `${storagePrefix}${key}`
+const { isOpen, setIsOpen, toggle, open, close, isHydrated } = useSidebarState("chat", { storagePrefix: "olt-" }); // stored under `${storagePrefix}${key}`
 ```
 
 ## Development
@@ -329,9 +331,9 @@ npm test
 npm run build
 ```
 
-[CONTRIBUTING.md](./CONTRIBUTING.md) has the branch, commit and pull-request conventions and the gates a change must pass.
+[CONTRIBUTING.md](./CONTRIBUTING.md) has the branch, commit and pull-request conventions and the gates a change must pass. Releases are cut by release-please from the Conventional Commits on `main`, so the commit type is the release decision; nobody bumps a version or tags by hand.
 
-Two TypeScript installs exist on purpose: `typescript` (~6.x) feeds the lint stack, because `typescript-eslint` caps its peer range below TypeScript 7, while the `typescript7` alias (`npm:typescript@~7.0.2`) is the actual compiler that `build` and `typecheck` invoke. Do not "clean up" the alias, and do not enable type-aware linting (`recommendedTypeChecked`) without revisiting this split — the linter would type-check with a different compiler major than the build.
+Two TypeScript installs exist on purpose: `typescript` (~6.x) feeds the lint stack, because `typescript-eslint` caps its peer range below TypeScript 7, while the `typescript7` alias (`npm:typescript@~7.0.2`) is the actual compiler that `build` and `typecheck` invoke. Do not "clean up" the alias, and do not enable type-aware linting (`recommendedTypeChecked`) without revisiting this split - the linter would type-check with a different compiler major than the build.
 
 ## Accessibility
 
