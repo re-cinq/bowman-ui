@@ -5,7 +5,14 @@
  */
 import { fireEvent, render, screen } from "@testing-library/react";
 import { PromptChips, defaultPromptChipsLabels } from "../src/index.js";
-import { expectFocusRing } from "./helpers/expect-theme-tokens.js";
+import {
+  expectBorder,
+  expectFocusRing,
+  expectRingOffset,
+  expectSurface,
+  expectSurfaceHover,
+  expectTextBody,
+} from "./helpers/expect-theme-tokens.js";
 
 const threePrompts = ["Hvor er min booking?", "Send faktura 4711", "Skift afrejsedato"] as const;
 
@@ -99,18 +106,20 @@ describe("PromptChips", () => {
       expect(screen.getAllByRole("button", { name: "Send faktura 4711" })).toHaveLength(2);
     });
 
-    it("a chip carries the rounded-full pill classes with the border-slate-200 border", () => {
+    it("a chip carries the rounded-full pill classes beside the --bowman-border, --bowman-surface, --bowman-surface-hover and --bowman-text-body tokens", () => {
       render(<PromptChips prompts={["Hvor er min booking?"]} onPick={vi.fn()} />);
 
       expect(screen.getByRole("button")).toHaveClass(
         "rounded-full",
         "border",
-        "border-slate-200",
-        "bg-white",
         "px-4",
         "py-2",
         "text-sm"
       );
+      expectBorder(screen.getByRole("button"));
+      expectSurface(screen.getByRole("button"));
+      expectSurfaceHover(screen.getByRole("button"));
+      expectTextBody(screen.getByRole("button"));
     });
   });
 
@@ -122,16 +131,12 @@ describe("PromptChips", () => {
   });
 
   describe("theming tokens", () => {
-    it("a chip keeps focus:ring-2 ring-offset-2 focus:outline-none beside the --bowman-focus-ring colour", () => {
+    it("a chip keeps focus:ring-2 ring-offset-2 focus:outline-none beside the --bowman-focus-ring and --bowman-ring-offset colours", () => {
       render(<PromptChips prompts={["Hvor er min booking?"]} onPick={vi.fn()} />);
 
       expectFocusRing(screen.getByRole("button"));
-      expect(screen.getByRole("button")).toHaveClass(
-        "ring-offset-2",
-        "focus:outline-none",
-        "focus:ring-offset-white",
-        "dark:ring-offset-slate-900"
-      );
+      expectRingOffset(screen.getByRole("button"));
+      expect(screen.getByRole("button")).toHaveClass("ring-offset-2", "focus:outline-none");
     });
   });
 });
