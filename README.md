@@ -335,7 +335,7 @@ npm run build
 
 ### Releasing
 
-A release is a GitHub Release with a `vX.Y.Z` tag, nothing more: publishing it runs `publish.yml`, which re-runs every gate at the tag, stamps the tag's version into `package.json` (the field on `main` is the placeholder `0.0.0`), and publishes to npm with provenance over OIDC trusted publishing. No version is ever bumped by hand and no token is stored anywhere. [CONTRIBUTING.md](./CONTRIBUTING.md#releases) has the three clicks.
+A release is a GitHub Release with a `vX.Y.Z` tag, nothing more: publishing it runs `publish.yml`, which re-runs every gate at the tag, stamps the tag's version into `package.json` (the field on `main` is the placeholder `0.0.0`), and stages it on npm with provenance over OIDC trusted publishing; a maintainer then approves the staged version on npmjs.com with 2FA, and only then is it installable. No version is ever bumped by hand, no token is stored anywhere, and nothing CI does alone can ship. [CONTRIBUTING.md](./CONTRIBUTING.md#releases) has the clicks.
 
 Two TypeScript installs exist on purpose: `typescript` (~6.x) feeds the lint stack, because `typescript-eslint` caps its peer range below TypeScript 7, while the `typescript7` alias (`npm:typescript@~7.0.2`) is the actual compiler that `build` and `typecheck` invoke. Do not "clean up" the alias, and do not enable type-aware linting (`recommendedTypeChecked`) without revisiting this split - the linter would type-check with a different compiler major than the build.
 

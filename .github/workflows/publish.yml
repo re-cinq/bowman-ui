@@ -94,8 +94,9 @@ jobs:
         with:
           node-version: "22"
           registry-url: "https://registry.npmjs.org"
-      - name: Upgrade npm for OIDC trusted publishing
-        run: npm install -g npm@^11.5.1
+      # Trusted publishing needs npm >= 11.5.1; `npm stage` needs >= 11.15.0.
+      - name: Upgrade npm for OIDC trusted publishing and staged publishing
+        run: npm install -g npm@^11.15.0
       # The tag names the version. A malformed or prerelease tag fails here;
       # a tag that repeats a published version fails at the registry, loudly,
       # which is the right place for it.
@@ -120,5 +121,24 @@ jobs:
       # the release's commit. It was withheld while the repo was private
       # (npm does not attest private repositories); the repo must be public
       # before the first release runs this step.
-      - name: Publish to npm
-        run: npm publish --access public --provenance
+      # Staged, not direct: the trusted publisher allows `npm stage publish`
+      # only (npm's recommendation, chosen 2026-09-10). The tarball, its
+      # dist-tag and its provenance all reach the registry, but the version is
+      # not installable until a maintainer approves the stage with 2FA - on
+      # npmjs.com (the package's Staged Packages tab -> Approve) or with
+      # `npm stage list` then `npm stage approve <id>`. Nothing this job can do
+      # makes a version installable on its own. pipefail: a failed stage must
+      # not be masked by the tee that feeds the job summary.
+      - name: Stage the version on npm
+        run: |
+          set -o pipefail
+          npm stage publish --access public --provenance 2>&1 | tee stage.log
+          {
+            echo "## Staged on npm - a maintainer must approve it before it is installable"
+            echo
+            echo 'npmjs.com -> @re-cinq/bowman-ui -> Staged Packages -> Approve (2FA), or `npm stage list` then `npm stage approve <id>`.'
+            echo
+            echo '```'
+            cat stage.log
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"

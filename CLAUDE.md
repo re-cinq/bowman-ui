@@ -50,10 +50,11 @@ The typecheck script is `typecheck`, not `type-check`.
   The `rm -rf` is load-bearing (tests/dist-is-clean.test.ts: `tsc` never cleans, and stale
   artifacts otherwise ship via `files: ["dist"]`).
 - `npm run typecheck` — `typescript7` `tsc --noEmit`.
-- Releases: a maintainer drafts a GitHub Release with a `vX.Y.Z` tag; nothing else. publish.yml
-  stamps the version from the tag (`scripts/set-version-from-tag.sh`), so package.json carries
-  the placeholder `0.0.0` on `main` and is never bumped. Release notes are GitHub's
-  generated notes. No release-please, no CHANGELOG.md.
+- Releases: a maintainer drafts a GitHub Release with a `vX.Y.Z` tag, then approves the version
+  npm staged (npmjs.com → Staged Packages → Approve, 2FA). publish.yml stamps the version from
+  the tag (`scripts/set-version-from-tag.sh`), so package.json carries the placeholder `0.0.0`
+  on `main` and is never bumped, and runs `npm stage publish` - the trusted publisher allows no
+  direct publish. Release notes are GitHub's generated notes. No release-please, no CHANGELOG.md.
 - `npm test` = `npm run test:coverage` = `npm run build && vitest run --coverage`. Always builds
   first: `*-dist.test.ts` read `dist/`, tests/public-api.test.ts imports `dist/index.js`.
 - `npm run lint` — `eslint . --max-warnings 0`.
@@ -180,8 +181,10 @@ The typecheck script is `typecheck`, not `type-check`.
     decisions 10 and 11.
 12. **Publishing** is release-triggered CI only, via npm OIDC trusted publishing
     (.github/workflows/publish.yml: `release: types: [published]`, `id-token: write`, no
-    `NPM_TOKEN`). The tag names the version; `workflow_dispatch` re-runs a failed publish on an
-    existing tag and fails on any other ref. Never `npm publish` or `npm version` by hand. Never push to `main` — guard-main-pushes.yml opens a security issue,
+    `NPM_TOKEN`) and STAGED: `npm stage publish`, approved by a maintainer with 2FA on npmjs.com.
+    The tag names the version; `workflow_dispatch` re-runs a failed stage on an existing tag and
+    fails on any other ref. Never `npm publish`, `npm stage approve` for a run you did not
+    review, or `npm version` by hand. Never push to `main` — guard-main-pushes.yml opens a security issue,
     because push access to `main` is transitively npm-publish access.
 
 ## Landmines checklist (never do)

@@ -55,7 +55,7 @@ Runs the `typescript7` compiler in check-only mode (no emit).
 
 ### Release
 
-Never `npm publish` or `npm version` by hand. A maintainer drafts a GitHub Release with a `vX.Y.Z` tag and publishes it; that is the whole release. `.github/workflows/publish.yml` fires on the `published` event, re-runs every gate at the tag, stamps the tag's version into `package.json` (`scripts/set-version-from-tag.sh` - on `main` the field is the placeholder `0.0.0`), builds, and publishes to npm over OIDC trusted publishing with provenance. No token lives in the repository. The tag decides the number: bump the patch for fixes, the minor for features, and treat 1.0 as a decision.
+Never `npm publish` or `npm version` by hand. A maintainer drafts a GitHub Release with a `vX.Y.Z` tag and publishes it, then approves the version npm staged (npmjs.com → Staged Packages → Approve, with 2FA); that is the whole release. `.github/workflows/publish.yml` fires on the `published` event, re-runs every gate at the tag, stamps the tag's version into `package.json` (`scripts/set-version-from-tag.sh` - on `main` the field is the placeholder `0.0.0`), builds, and runs `npm stage publish` over OIDC trusted publishing with provenance - staged, so nothing CI does alone makes a version installable. No token lives in the repository. The tag decides the number: bump the patch for fixes, the minor for features, and treat 1.0 as a decision.
 
 ## Spec Header Table
 

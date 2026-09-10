@@ -52,23 +52,31 @@ Two habits the checks will otherwise teach you the slow way:
 
 ## Releases
 
-A release is one act: a maintainer publishes a GitHub Release. Nothing is bumped, tagged or
-published by hand, and no pull request is needed for a version to exist.
+A release is two acts by a maintainer: publish a GitHub Release, then approve the version npm
+has staged. Nothing is bumped, tagged or published by hand, and no pull request is needed for a
+version to exist.
 
 1. Releases → **Draft a new release** → _Choose a tag_ → type `vX.Y.Z` → _Create new tag on
    publish_. Patch for fixes, minor for features; 1.0 is a decision, not a side effect.
 2. Target `main`, title `vX.Y.Z`, **Generate release notes** (the merged pull requests since the
    previous tag become the notes - keep pull-request titles honest for that reason).
 3. Leave _pre-release_ unticked; the workflow refuses pre-releases. **Publish release**.
+4. When the `Publish` workflow run is green, approve the staged version: npmjs.com → the
+   package → **Staged Packages** → **Approve** (2FA is asked for), or `npm stage list` then
+   `npm stage approve <id>` from a logged-in terminal. Until then the version is on the
+   registry with its provenance but not installable, and `npm stage download <id>` hands you
+   the exact tarball to inspect first.
 
 The `published` event runs `.github/workflows/publish.yml`: the `verify` job re-runs every gate
 at the tag; the `publish` job stamps the tag's version into `package.json`
 (`scripts/set-version-from-tag.sh` - on `main` the field is the placeholder
 `0.0.0` and is never edited), builds, and runs
-`npm publish --access public --provenance` over OIDC trusted publishing. npm is the source of
-truth for versions, and `npm view @re-cinq/bowman-ui versions` lists them. A tag that repeats a
-published version fails at the registry; a failed publish on an existing tag is re-run from the
-Actions tab (`publish.yml` → _Run workflow_ → the tag). The assistive-technology pass in
+`npm stage publish --access public --provenance` over OIDC trusted publishing - staged, because
+the trusted publisher deliberately allows no direct `npm publish`: nothing CI does on its own can
+make a version installable. npm is the source of truth for versions, and
+`npm view @re-cinq/bowman-ui versions` lists them. A tag that repeats a published version fails
+at the registry; a failed run on an existing tag is re-run from the Actions tab (`publish.yml` →
+_Run workflow_ → the tag). The assistive-technology pass in
 [docs/accessibility/README.md](./docs/accessibility/README.md) is a procedure, not a release
 gate: run it when you can, commit the record through a pull request, and CI validates its shape.
 
