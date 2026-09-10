@@ -5,6 +5,7 @@ import { useFocusTrap } from "../hooks/useFocusTrap.js";
 import { useReducedMotion } from "../hooks/useReducedMotion.js";
 import { CloseIcon, MenuIcon } from "../icons/index.js";
 import { resolveLabels } from "../labels.js";
+import { FOCUS_RING_COLOR } from "../theme/tokens.js";
 
 export interface SidebarSlotContext {
   variant: "desktop" | "mobile";
@@ -107,7 +108,7 @@ export function AppShell({
       {skipLink && (
         <a
           href={`#${mainContentId}`}
-          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:rounded-lg focus:bg-white focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:bg-slate-900 dark:focus:text-white dark:focus:ring-blue-400"
+          className={`sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:rounded-lg focus:bg-white focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-slate-900 focus:outline-none focus:ring-2 ${FOCUS_RING_COLOR} dark:focus:bg-slate-900 dark:focus:text-white`}
         >
           {resolved.skipToMainContent}
         </a>
@@ -135,7 +136,7 @@ export function AppShell({
           <button
             type="button"
             onClick={close}
-            className="flex h-10 w-10 items-center justify-center rounded-lg text-slate-600 ring-offset-2 transition-colors hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-slate-400 dark:ring-offset-slate-900 dark:hover:bg-slate-800 dark:focus:ring-blue-400"
+            className={`flex h-10 w-10 items-center justify-center rounded-lg text-slate-600 ring-offset-2 transition-colors hover:bg-slate-100 focus:outline-none focus:ring-2 ${FOCUS_RING_COLOR} dark:text-slate-400 dark:ring-offset-slate-900 dark:hover:bg-slate-800`}
             aria-label={resolved.closeSidebar}
           >
             <CloseIcon className="h-6 w-6" />
@@ -150,7 +151,7 @@ export function AppShell({
           type="button"
           aria-controls={drawerId}
           onClick={() => setOpen(true)}
-          className="flex h-10 w-10 items-center justify-center rounded-lg text-slate-600 ring-offset-2 transition-colors hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-slate-400 dark:ring-offset-slate-900 dark:hover:bg-slate-800 dark:focus:ring-blue-400"
+          className={`flex h-10 w-10 items-center justify-center rounded-lg text-slate-600 ring-offset-2 transition-colors hover:bg-slate-100 focus:outline-none focus:ring-2 ${FOCUS_RING_COLOR} dark:text-slate-400 dark:ring-offset-slate-900 dark:hover:bg-slate-800`}
           aria-label={resolved.openSidebar}
         >
           <MenuIcon className="h-6 w-6" />

@@ -1,3 +1,19 @@
+/* --bowman-accent: var(--color-blue-500) - send button, primary Button/IconButton, thinking dots */
+/* --bowman-accent-dark: var(--color-blue-600) - send button, primary Button/IconButton (dark) */
+/* --bowman-accent-hover: var(--color-blue-600) - send button, primary Button/IconButton hover */
+/* --bowman-accent-hover-dark: var(--color-blue-500) - send button, primary Button/IconButton hover (dark) */
+/* --bowman-accent-soft: var(--color-blue-50) - streaming avatar circle background */
+/* --bowman-accent-soft-dark: var(--color-blue-950) - streaming avatar circle background (dark) */
+/* --bowman-accent-border: var(--color-blue-200) - streaming avatar circle border */
+/* --bowman-accent-border-dark: var(--color-blue-800) - streaming avatar circle border (dark) */
+/* --bowman-accent-glow: rgba(59, 130, 246, 0.1) - composer focus glow, bowman-pulse-subtle box-shadow */
+/* --bowman-accent-glow-dark: rgba(96, 165, 250, 0.1) - composer focus glow (dark) */
+/* --bowman-focus-ring: var(--color-blue-500) - every focus ring */
+/* --bowman-focus-ring-dark: var(--color-blue-400) - every focus ring (dark) */
+/* --bowman-active: var(--color-slate-100) - active conversation row, active sidebar item */
+/* --bowman-active-dark: var(--color-slate-800) - active conversation row, active sidebar item (dark) */
+/* --bowman-pulse-outline: rgba(59, 130, 246, 0.5) - bowman-pulse-subtle outline */
+
 @keyframes bowman-fade-in {
   from {
     opacity: 0;
@@ -47,8 +63,8 @@
     outline-offset: -1px;
   }
   50% {
-    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
-    outline: 2px solid rgba(59, 130, 246, 0.5);
+    box-shadow: 0 0 0 4px var(--bowman-accent-glow, rgba(59, 130, 246, 0.1));
+    outline: 2px solid var(--bowman-pulse-outline, rgba(59, 130, 246, 0.5));
     outline-offset: -1px;
   }
 }

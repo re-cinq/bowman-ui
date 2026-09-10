@@ -42,6 +42,24 @@ Tailwind CSS v4 is required: the stylesheet ships only what Tailwind cannot gene
 
 `styles.css` itself is plain CSS - no Tailwind at-rules - so a non-Tailwind consumer can import it too, but must then supply the utility styles the components reference by other means.
 
+### Theming
+
+Every brand colour the components paint - the send button and primary `Button` fill, the streaming circle's tint and border, the focus ring and the composer's focus glow, the active row's surface, the pulse animation - is read through one of fifteen `--bowman-*` custom properties, each with today's palette value as its `var()` fallback. Set the ones you want at `:root`, or on any wrapper to scope a brand to part of the page:
+
+```css
+:root {
+  --bowman-accent: #b7410e;
+  --bowman-accent-hover: #9a3412;
+  --bowman-focus-ring: #b7410e;
+}
+
+.client-brand {
+  --bowman-active: #fdebdc;
+}
+```
+
+Override none and the package resolves to the same Tailwind theme variables it used before the tokens existed, byte for byte - nothing declares a `--bowman-*` value, so there is no cascade to fight. Fourteen of the tokens form seven light/dark pairs (`--bowman-accent` and `--bowman-accent-dark`, `--bowman-focus-ring` and `--bowman-focus-ring-dark`, ...), the `-dark` half read by the components' `dark:` variants, so your build's dark-mode strategy applies to the tokens unchanged; set both halves for a brand that holds in both modes. The fifteenth, `--bowman-pulse-outline`, has no twin: the pulse keyframe paints one outline in both modes. `--bowman-active` colours only the active row's background while its label colours stay fixed, so keep it a light surface in light mode and `--bowman-active-dark` a dark one. The full table - every name, fallback and site - is in docs/design-notes.md § Theming.
+
 ## Minimal app
 
 Every screen in this package is assembled the same way: the consumer owns the entries and the

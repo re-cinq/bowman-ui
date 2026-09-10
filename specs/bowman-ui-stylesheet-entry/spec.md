@@ -14,9 +14,9 @@ copies verbatim (`tsc` emits no assets, so `build` is
 over a node script because CI and development both run on POSIX shells).
 `dist/styles.css` ships in the tarball under the `sideEffects:
 ["*.css"]` seam `018` left open - already present, not re-added
-([validated by](../../tests/styles.test.ts#L108),
-[L100](../../tests/styles.test.ts#L100),
-[L93](../../tests/styles.test.ts#L93)).
+([validated by](../../tests/styles.test.ts#L121),
+[L113](../../tests/styles.test.ts#L113),
+[L106](../../tests/styles.test.ts#L106)).
 
 ## What ships
 
@@ -30,10 +30,16 @@ consumer's own `animate-*` utilities; the issue prescribed `.bowman-fade-in`
 for the split fade and the other two follow the same convention
 ([validated by](../../tests/styles.test.ts#L31)). All rules are
 unlayered, so they win on plain specificity without depending on a
-consumer's `@layer` order.
+consumer's `@layer` order. Since issue 210 the file opens with a fifteen-line comment
+block declaring each `--bowman-*` theming token and its default, and the 50 % stop of
+`bowman-pulse-subtle` reads `--bowman-accent-glow` and `--bowman-pulse-outline` with today's
+literals as fallbacks - the zero stop stays literal
+([validated by](../../tests/styles.test.ts#L71)).
 
 Absent on purpose: no `pulse-icon` keyframe, no `.no-scrollbar` utility and
-no `@theme` tokens - none has a consumer in this package. The file contains no `@theme`, no
+no `@theme` tokens - the theming tokens are custom properties read through `var()` fallbacks
+and declared nowhere (docs/design-notes.md § Theming decision 1), so the sentence still
+holds. The file contains no `@theme`, no
 `@import` of any kind and no `@plugin`, so a non-Tailwind consumer can import
 it as plain CSS ([validated by](../../tests/styles.test.ts#L55)).
 
@@ -52,7 +58,7 @@ only; `Toast` keeps its centring in its own dedicated rule
 
 `@media (prefers-reduced-motion: reduce)` sets `animation: none` on all three
 utility classes, with no `data-animations` attribute in any selector
-([validated by](../../tests/styles.test.ts#L80)). No
+([validated by](../../tests/styles.test.ts#L89)). No
 `NEXT_PUBLIC_FLAG_ANIMATIONS` escape hatch exists: flag plumbing belongs to
 a consumer ([validated by](../../tests/hooks-dist.test.ts#L71)).
 
@@ -61,8 +67,8 @@ a consumer ([validated by](../../tests/hooks-dist.test.ts#L71)).
 `@tailwindcss/typography` appears in no `package.json` field and no `src/`
 file contains
 the string the plugin's classes are built from
-([validated by](../../tests/styles.test.ts#L104),
-[L119](../../tests/styles.test.ts#L119)). Instead, `markdownComponents`
+([validated by](../../tests/styles.test.ts#L117),
+[L132](../../tests/styles.test.ts#L132)). Instead, `markdownComponents`
 is a named export from the package root: a `react-markdown` `components` map
 covering exactly `p`, `a`, `ul`, `ol`, `li`, `code`, `pre`, `blockquote`,
 `h1`-`h3`, `table`, `thead`, `th`, `td`, `hr`, `strong`, `em`

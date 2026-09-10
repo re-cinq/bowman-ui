@@ -1,0 +1,21 @@
+/* The second, invented brand the chat fixture renders at "?view=chat&brand=copperline" and
+   the Overview page's Theming section previews. Every one of the library's fifteen tokens is
+   set here, scoped to a wrapper rather than :root, so the same document can show the default
+   and the branded look side by side. The values are Copperline Bicycles' - invented. */
+.client-brand {
+  --bowman-accent: #b7410e;
+  --bowman-accent-dark: #c2410c;
+  --bowman-accent-hover: #9a3412;
+  --bowman-accent-hover-dark: #ea580c;
+  --bowman-accent-soft: #fff1e6;
+  --bowman-accent-soft-dark: #431407;
+  --bowman-accent-border: #f4c9a8;
+  --bowman-accent-border-dark: #7c2d12;
+  --bowman-accent-glow: rgba(183, 65, 14, 0.12);
+  --bowman-accent-glow-dark: rgba(234, 88, 12, 0.12);
+  --bowman-focus-ring: #b7410e;
+  --bowman-focus-ring-dark: #fb923c;
+  --bowman-active: #fdebdc;
+  --bowman-active-dark: #3b1a0d;
+  --bowman-pulse-outline: rgba(183, 65, 14, 0.5);
+}

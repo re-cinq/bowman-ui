@@ -5,6 +5,7 @@
  */
 import { fireEvent, render, screen } from "@testing-library/react";
 import { PromptChips, defaultPromptChipsLabels } from "../src/index.js";
+import { expectFocusRing } from "./helpers/expect-theme-tokens.js";
 
 const threePrompts = ["Hvor er min booking?", "Send faktura 4711", "Skift afrejsedato"] as const;
 
@@ -117,6 +118,20 @@ describe("PromptChips", () => {
     it('is frozen and equals { suggestedPrompts: "Suggested prompts" }', () => {
       expect(Object.isFrozen(defaultPromptChipsLabels)).toBe(true);
       expect(defaultPromptChipsLabels).toEqual({ suggestedPrompts: "Suggested prompts" });
+    });
+  });
+
+  describe("theming tokens", () => {
+    it("a chip keeps focus:ring-2 ring-offset-2 focus:outline-none beside the --bowman-focus-ring colour", () => {
+      render(<PromptChips prompts={["Hvor er min booking?"]} onPick={vi.fn()} />);
+
+      expectFocusRing(screen.getByRole("button"));
+      expect(screen.getByRole("button")).toHaveClass(
+        "ring-offset-2",
+        "focus:outline-none",
+        "focus:ring-offset-white",
+        "dark:ring-offset-slate-900"
+      );
     });
   });
 });

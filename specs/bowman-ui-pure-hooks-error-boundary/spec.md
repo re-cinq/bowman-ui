@@ -69,7 +69,7 @@ exports entry for a consumer ([validated by](../../tests/hooks-dist.test.ts#L61)
   GDPR zero-retention rider on the error text. The three English strings became
   `labels?: Partial<ErrorBoundaryLabels>` merged over English defaults; a `fallback` node wins
   over labels; retry re-renders children
-  ([validated by](../../tests/ErrorBoundary.test.tsx#L156),
+  ([validated by](../../tests/ErrorBoundary.test.tsx#L173),
   [L46](../../tests/ErrorBoundary.test.tsx#L46),
   [L61](../../tests/ErrorBoundary.test.tsx#L61),
   [L97](../../tests/ErrorBoundary.test.tsx#L97),

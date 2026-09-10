@@ -27,7 +27,7 @@ the four keyframes and the stylesheet tests are unchanged
 
 Four components, two defaults objects and nine types, all from the package root
 ([validated by](../../tests/public-api.test.ts#L40), [L46](../../tests/public-api.test.ts#L46),
-[L117](../../tests/PromptChips.test.tsx#L117), [L105](../../tests/SearchField.test.tsx#L105)).
+[L118](../../tests/PromptChips.test.tsx#L118), [L106](../../tests/SearchField.test.tsx#L106)).
 Every value export lands in one bucket of `tests/labelled-exports.test.tsx`
 ([validated by](../../tests/labelled-exports.test.tsx#L158)). The `labelsProp` bucket holds
 `IconButton`, `PromptChips` and `SearchField`, with a sentinel harness each
@@ -68,27 +68,29 @@ export const Button: ForwardRefExoticComponent<ButtonProps & RefAttributes<HTMLB
 ```
 
 - Renders one `<button>` with `type` defaulting to `"button"`, the `children` as its accessible
-  name, and the `ref` forwarded to that element ([validated by](../../tests/Button.test.tsx#L15),
-  [L22](../../tests/Button.test.tsx#L22), [L32](../../tests/Button.test.tsx#L32)).
-- `variant` picks the look: `primary` is the composer send button's blue fill
-  (`bg-blue-500 text-white`), `secondary` is the chat-demo's "new chat" look (a `border-slate-200`
-  border on `bg-white` with `text-slate-700`), `ghost` is borderless text with a hover surface
-  (`text-slate-600 hover:bg-slate-50`), each with its `dark:` counterpart. Every variant carries
-  the package's focus ring (`focus:ring-2 focus:ring-blue-500`) and the
+  name, and the `ref` forwarded to that element ([validated by](../../tests/Button.test.tsx#L16),
+  [L23](../../tests/Button.test.tsx#L23), [L33](../../tests/Button.test.tsx#L33)).
+- `variant` picks the look: `primary` is the composer send button's accent fill (the
+  `ACCENT_BG` and `ACCENT_BG_HOVER` token strings from `src/theme/tokens.ts`, reading
+  `--bowman-accent` and `--bowman-accent-hover`, with `text-white`), `secondary` is the
+  chat-demo's "new chat" look (a `border-slate-200` border on `bg-white` with `text-slate-700`),
+  `ghost` is borderless text with a hover surface (`text-slate-600 hover:bg-slate-50`), each with
+  its `dark:` counterpart. Every variant carries the package's focus ring (`focus:ring-2` beside
+  the `FOCUS_RING_COLOR` token string, reading `--bowman-focus-ring`) and the
   `disabled:cursor-not-allowed disabled:opacity-50` pair ([validated
-  by](../../tests/Button.test.tsx#L82),
-  [L89](../../tests/Button.test.tsx#L89), [L102](../../tests/Button.test.tsx#L102),
-  [L110](../../tests/Button.test.tsx#L110)).
+  by](../../tests/Button.test.tsx#L83),
+  [L92](../../tests/Button.test.tsx#L92), [L105](../../tests/Button.test.tsx#L105),
+  [L113](../../tests/Button.test.tsx#L113)).
 - `size` picks the padding and type scale: `md` is `px-4 py-2.5 text-sm`, `sm` is
-  `px-3 py-1.5 text-xs` ([validated by](../../tests/Button.test.tsx#L133),
-  [L140](../../tests/Button.test.tsx#L140)).
+  `px-3 py-1.5 text-xs` ([validated by](../../tests/Button.test.tsx#L134),
+  [L141](../../tests/Button.test.tsx#L141)).
 - `icon`, when given, renders before the text with `h-4 w-4` at `md` and `h-3.5 w-3.5` at `sm`;
   a package icon rendered this way carries `aria-hidden="true"` because it receives no
-  `ariaLabel` ([validated by](../../tests/Button.test.tsx#L153),
-  [L173](../../tests/Button.test.tsx#L173),
-  [L183](../../tests/Button.test.tsx#L183)).
+  `ariaLabel` ([validated by](../../tests/Button.test.tsx#L154),
+  [L174](../../tests/Button.test.tsx#L174),
+  [L184](../../tests/Button.test.tsx#L184)).
 - `onClick` receives the click event; `disabled` renders the native attribute and the click never
-  fires ([validated by](../../tests/Button.test.tsx#L46), [L58](../../tests/Button.test.tsx#L58)).
+  fires ([validated by](../../tests/Button.test.tsx#L47), [L59](../../tests/Button.test.tsx#L59)).
 - `Button` renders no string of its own - its text is `children` - so it sits in `noStrings` and
   takes no `labels` prop ([validated by](../../tests/labelled-exports.test.tsx#L132),
   [L158](../../tests/labelled-exports.test.tsx#L158)).
@@ -122,15 +124,15 @@ export const IconButton: ForwardRefExoticComponent<
 - Renders one `<button>` named by `labels.accessibleName` through `aria-label`, containing only
   the icon (`h-4 w-4` at `md`, `h-3.5 w-3.5` at `sm`, `aria-hidden`), with square padding
   (`p-2` at `md`, `p-1.5` at `sm`) and the same variant looks, focus ring and disabled pair as
-  `Button` ([validated by](../../tests/IconButton.test.tsx#L17),
-  [L40](../../tests/IconButton.test.tsx#L40),
-  [L111](../../tests/IconButton.test.tsx#L111), [L120](../../tests/IconButton.test.tsx#L120),
-  [L73](../../tests/IconButton.test.tsx#L73), [L80](../../tests/IconButton.test.tsx#L80),
-  [L87](../../tests/IconButton.test.tsx#L87), [L96](../../tests/IconButton.test.tsx#L96)).
+  `Button` ([validated by](../../tests/IconButton.test.tsx#L18),
+  [L41](../../tests/IconButton.test.tsx#L41),
+  [L112](../../tests/IconButton.test.tsx#L112), [L121](../../tests/IconButton.test.tsx#L121),
+  [L74](../../tests/IconButton.test.tsx#L74), [L81](../../tests/IconButton.test.tsx#L81),
+  [L87](../../tests/IconButton.test.tsx#L87), [L99](../../tests/IconButton.test.tsx#L99)).
 - `IconButton` shares `Button`'s `type` default and `"submit"` option, its `onClick` event and its
-  `disabled` behaviour ([validated by](../../tests/IconButton.test.tsx#L26),
-  [L17](../../tests/IconButton.test.tsx#L17), [L51](../../tests/IconButton.test.tsx#L51),
-  [L59](../../tests/IconButton.test.tsx#L59)).
+  `disabled` behaviour ([validated by](../../tests/IconButton.test.tsx#L27),
+  [L18](../../tests/IconButton.test.tsx#L18), [L52](../../tests/IconButton.test.tsx#L52),
+  [L60](../../tests/IconButton.test.tsx#L60)).
 - `labels` is required and `IconButtonLabels` has no defaults object: the accessible name is the
   component's only string and no English default may stand in for it, the same reasoning as
   `aiDisclosure` (docs/design-notes.md § Labels decision 5). Omitting `labels` is a compile
@@ -166,21 +168,21 @@ export function PromptChips(props: PromptChipsProps): ReactElement | null;
   `<button type="button">` whose accessible name is the prompt text, laid out as a wrapping,
   centred row of rounded chips (`flex flex-wrap justify-center gap-2`; chip:
   `rounded-full border border-slate-200 bg-white px-4 py-2 text-sm`)
-  ([validated by](../../tests/PromptChips.test.tsx#L13),
-  [L23](../../tests/PromptChips.test.tsx#L23),
-  [L36](../../tests/PromptChips.test.tsx#L36), [L57](../../tests/PromptChips.test.tsx#L57),
-  [L101](../../tests/PromptChips.test.tsx#L101)).
+  ([validated by](../../tests/PromptChips.test.tsx#L14),
+  [L24](../../tests/PromptChips.test.tsx#L24),
+  [L37](../../tests/PromptChips.test.tsx#L37), [L58](../../tests/PromptChips.test.tsx#L58),
+  [L102](../../tests/PromptChips.test.tsx#L102)).
 - Clicking a chip calls `onPick` once with exactly that prompt's text
-  ([validated by](../../tests/PromptChips.test.tsx#L74),
-  [L85](../../tests/PromptChips.test.tsx#L85)).
+  ([validated by](../../tests/PromptChips.test.tsx#L75),
+  [L86](../../tests/PromptChips.test.tsx#L86)).
 - An empty `prompts` array renders nothing at all - no list, no accessible name
-  ([validated by](../../tests/PromptChips.test.tsx#L48)).
+  ([validated by](../../tests/PromptChips.test.tsx#L49)).
 - Two identical prompt strings render two chips; keys are index-qualified so React never
-  collapses them ([validated by](../../tests/PromptChips.test.tsx#L95)).
+  collapses them ([validated by](../../tests/PromptChips.test.tsx#L96)).
 - `PromptChips` is the intended content of `ChatMessageList`'s `prompts` slot, which stays typed
   `ReactNode`: the consumer renders `prompts={<PromptChips prompts={...} onPick={pick} />}` and
   wires `onPick` to `ChatComposerHandle.setValue` itself. The slot contract does not change
-  ([validated by](../../tests/ChatMessageList.test.tsx#L140)).
+  ([validated by](../../tests/ChatMessageList.test.tsx#L141)).
 
 ### `SearchField`
 
@@ -209,16 +211,16 @@ export const SearchField: ForwardRefExoticComponent<
 - Renders a wrapper `<div class="relative">` holding a decorative `SearchIcon` (absolutely
   positioned at the left, `pointer-events-none`, `aria-hidden`) and one `<input type="search">`
   named by `searchInput` through `aria-label`, with `searchPlaceholder` as its placeholder and
-  the `ref` forwarded to the input ([validated by](../../tests/SearchField.test.tsx#L15),
-  [L63](../../tests/SearchField.test.tsx#L63), [L53](../../tests/SearchField.test.tsx#L53),
-  [L83](../../tests/SearchField.test.tsx#L83), [L99](../../tests/SearchField.test.tsx#L99)).
+  the `ref` forwarded to the input ([validated by](../../tests/SearchField.test.tsx#L16),
+  [L64](../../tests/SearchField.test.tsx#L64), [L54](../../tests/SearchField.test.tsx#L54),
+  [L84](../../tests/SearchField.test.tsx#L84), [L100](../../tests/SearchField.test.tsx#L100)).
 - The input is controlled: it renders `value`, and every change calls `onChange` with the
-  input's new value verbatim ([validated by](../../tests/SearchField.test.tsx#L24),
-  [L30](../../tests/SearchField.test.tsx#L30)).
-- `disabled` renders the native attribute ([validated by](../../tests/SearchField.test.tsx#L41),
-  [L47](../../tests/SearchField.test.tsx#L47)).
+  input's new value verbatim ([validated by](../../tests/SearchField.test.tsx#L25),
+  [L31](../../tests/SearchField.test.tsx#L31)).
+- `disabled` renders the native attribute ([validated by](../../tests/SearchField.test.tsx#L42),
+  [L48](../../tests/SearchField.test.tsx#L48)).
 - No clear button, no submit, no debounce: filtering as the user types is the consumer's, and
-  `useDebounce` already ships for it ([validated by](../../tests/SearchField.test.tsx#L75)).
+  `useDebounce` already ships for it ([validated by](../../tests/SearchField.test.tsx#L76)).
 
 ## Conventions every primitive follows
 
@@ -229,8 +231,8 @@ export const SearchField: ForwardRefExoticComponent<
 - `Button`, `IconButton` and `SearchField` are `forwardRef` components (decision 4: no cleanup
   rewrites `forwardRef` away), so a consumer can focus the control - a "jump to latest" button,
   a search box behind a keyboard shortcut - without reaching into the DOM
-  ([validated by](../../tests/Button.test.tsx#L32), [L32](../../tests/IconButton.test.tsx#L32),
-  [L53](../../tests/SearchField.test.tsx#L53)).
+  ([validated by](../../tests/Button.test.tsx#L33), [L33](../../tests/IconButton.test.tsx#L33),
+  [L54](../../tests/SearchField.test.tsx#L54)).
 - No primitive takes `className`, `style` or a render prop. Layout is the wrapper's: a `Button`
   in a `flex flex-col` sidebar column stretches to the column's width on its own, and a floating
   "jump to latest" `IconButton` is positioned by the element the consumer wraps it in. The
@@ -242,12 +244,12 @@ export const SearchField: ForwardRefExoticComponent<
   [L39](../../tests/primitives-dist.test.ts#L39)).
 - No icon is added: `PlusIcon`, `SearchIcon` and `ChevronDownIcon` cover the issue's six cases,
   and `SearchField` is the first shipped component to render `SearchIcon`
-  ([validated by](../../tests/icons.test.tsx#L56), [L63](../../tests/SearchField.test.tsx#L63)).
+  ([validated by](../../tests/icons.test.tsx#L56), [L64](../../tests/SearchField.test.tsx#L64)).
 - `Button` and `IconButton` share their variant and size class maps through a private
   `src/components/buttonStyles.ts` that the barrel does not export: the built runtime and type
   export lists equal the committed snapshot, which carries none of its names
   ([validated by](../../tests/public-api.test.ts#L40), [L46](../../tests/public-api.test.ts#L46),
-  [L73](../../tests/IconButton.test.tsx#L73)).
+  [L74](../../tests/IconButton.test.tsx#L74)).
 - The built `dist/components/buttonStyles.js` ships in the pack beside the four primitives and does
   not open with `"use client"`: it has no handler and no hook (decision 1)
   ([validated by](../../tests/primitives-dist.test.ts#L25),
@@ -271,7 +273,7 @@ by](../../tests/public-api.test.ts#L40),
    fifth case), and the chat-demo's sign-out footer button, a control the issue did not
    enumerate - and a bordered `secondary` there reads as chrome. One `ButtonVariant` union
    serves both components so a consumer never learns two
-   vocabularies ([validated by](../../tests/Button.test.tsx#L102),
+   vocabularies ([validated by](../../tests/Button.test.tsx#L105),
    [L87](../../tests/IconButton.test.tsx#L87),
    [L48](../../tests/types/primitives-type-assertions.tsx#L48)).
 2. **`IconButton` ships no `defaultIconButtonLabels`.** Its one key is required, so the defaults
@@ -293,7 +295,7 @@ by](../../tests/public-api.test.ts#L40),
    [L63](../../tests/types/primitives-type-assertions.tsx#L63)).
 5. **`SearchField` reports the raw value.** A controlled input that trimmed on the way out would
    fight the caret; `ChatComposer` trims because it clears, `SearchField` does not because it
-   reflects ([validated by](../../tests/SearchField.test.tsx#L30)).
+   reflects ([validated by](../../tests/SearchField.test.tsx#L31)).
 6. **`Text` and layout primitives are refused**, as the issue says: the greeting and the sidebar
    footer are consumer prose, and a layout primitive would decide spacing the consumer's page
    already decides.

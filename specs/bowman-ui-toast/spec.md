@@ -103,7 +103,7 @@ the animated `transform` would otherwise overwrite the element's static
 `translateX`-free while
 the new `bowman-toast-fade-in` keyframe restates `translateX(-50%)` in
 both stops ([validated by](../../tests/styles.test.ts#L63),
-[L71](../../tests/styles.test.ts#L71)). The keyframe count grows to
+[L80](../../tests/styles.test.ts#L80)). The keyframe count grows to
 four with a paired utility rule; the
 `prefers-reduced-motion: reduce` block from 019 Decision 5 covers
 `.bowman-toast-fade-in` and touches no `transform`, so the element stays
@@ -112,7 +112,7 @@ positioned when animation is off.
 ([validated by](../../tests/Toast.test.tsx#L166),
 [L31](../../tests/styles.test.ts#L31),
 [L42](../../tests/styles.test.ts#L42),
-[L80](../../tests/styles.test.ts#L80)).
+[L89](../../tests/styles.test.ts#L89)).
 
 ## The partition amendment
 
@@ -159,7 +159,7 @@ and the partition still asserts the full barrel
   `src/` contains `translateX`; the toast keyframe now legitimately carries
   it in `src/styles.css`, so that assertion exempts `styles.css` alone -
   component sources remain banned from restating centring transforms
-  ([validated by](../../tests/ChatMessage.test.tsx#L659)).
+  ([validated by](../../tests/ChatMessage.test.tsx#L679)).
 - **Precedent citation.** The issue cites "021 Decision 0" for shipping on
   thin call-site evidence; 021's spec has no such numbered decision - the
   precedent lives in its Why section, and is cited as such here and in

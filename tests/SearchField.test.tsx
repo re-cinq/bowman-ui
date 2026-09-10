@@ -7,6 +7,7 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { createRef } from "react";
 import { SearchField, defaultSearchFieldLabels } from "../src/index.js";
+import { expectFocusRing } from "./helpers/expect-theme-tokens.js";
 
 const searchboxOf = (): HTMLInputElement => screen.getByRole("searchbox");
 
@@ -108,6 +109,15 @@ describe("SearchField", () => {
         searchInput: "Search",
         searchPlaceholder: "Search...",
       });
+    });
+  });
+
+  describe("theming tokens", () => {
+    it("the input keeps focus:ring-2 focus:outline-none beside the --bowman-focus-ring colour", () => {
+      render(<SearchField value="" onChange={vi.fn()} />);
+
+      expectFocusRing(searchboxOf());
+      expect(searchboxOf()).toHaveClass("focus:outline-none");
     });
   });
 });

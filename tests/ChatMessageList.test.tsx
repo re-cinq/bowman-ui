@@ -2,6 +2,7 @@ import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { createRef } from "react";
+import { ACCENT_DOT_SELECTOR } from "./helpers/expect-theme-tokens.js";
 import {
   ChatMessageList,
   defaultChatMessageLabels,
@@ -1132,7 +1133,7 @@ describe("ChatMessageList", () => {
         />
       );
 
-      expect(container.querySelectorAll("summary .bg-blue-500")).toHaveLength(3);
+      expect(container.querySelectorAll(`summary ${ACCENT_DOT_SELECTOR}`)).toHaveLength(3);
       expect(container.querySelectorAll(".bowman-fade-dot")).toHaveLength(0);
     });
 

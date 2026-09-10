@@ -3,6 +3,7 @@ import { resolve } from "node:path";
 import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import { AppShell, type SidebarSlotContext } from "../src/index.js";
 import { stubFocusEnvironment } from "./helpers/focus-environment.js";
+import { expectFocusRing } from "./helpers/expect-theme-tokens.js";
 
 const source = readFileSync(resolve(process.cwd(), "src/components/AppShell.tsx"), "utf8");
 
@@ -392,6 +393,20 @@ describe("AppShell", () => {
       expect(screen.getByTestId("app-shell-backdrop")).toHaveClass("transition-opacity");
 
       vi.unstubAllGlobals();
+    });
+  });
+
+  describe("theming tokens", () => {
+    it("the skip link, the hamburger and the close button keep focus:ring-2 beside the --bowman-focus-ring colour", () => {
+      render(
+        <AppShell renderSidebar={sidebarWithLink}>
+          <p>Detalles del pedido 4711</p>
+        </AppShell>
+      );
+
+      expectFocusRing(screen.getByRole("link", { name: "Skip to main content" }));
+      expectFocusRing(getHamburger());
+      expectFocusRing(getCloseButton());
     });
   });
 

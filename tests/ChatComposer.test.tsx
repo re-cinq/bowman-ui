@@ -180,6 +180,32 @@ describe("ChatComposer", () => {
     });
   });
 
+  describe("theming tokens", () => {
+    it("the send button reads --bowman-accent for its background and --bowman-accent-hover on hover, light and dark", () => {
+      render(<ChatComposer onSubmit={vi.fn()} />);
+
+      expect(sendButtonOf()).toHaveClass(
+        "bg-(--bowman-accent,var(--color-blue-500))",
+        "dark:bg-(--bowman-accent-dark,var(--color-blue-600))",
+        "hover:bg-(--bowman-accent-hover,var(--color-blue-600))",
+        "dark:hover:bg-(--bowman-accent-hover-dark,var(--color-blue-500))"
+      );
+      expect(sendButtonOf()).not.toHaveClass("bg-blue-500", "hover:bg-blue-600");
+    });
+
+    it("the wrapper keeps focus-within:ring-2 beside the --bowman-focus-ring /50 ring and the --bowman-accent-glow shadow", () => {
+      const { container } = render(<ChatComposer onSubmit={vi.fn()} />);
+
+      expect(container.firstElementChild).toHaveClass(
+        "focus-within:ring-2",
+        "focus-within:ring-(--bowman-focus-ring,var(--color-blue-500))/50",
+        "focus-within:shadow-[0_0_0_4px_var(--bowman-accent-glow,rgba(59,130,246,0.1))]",
+        "dark:focus-within:ring-(--bowman-focus-ring-dark,var(--color-blue-400))/50",
+        "dark:focus-within:shadow-[0_0_0_4px_var(--bowman-accent-glow-dark,rgba(96,165,250,0.1))]"
+      );
+    });
+  });
+
   describe("the ref handle", () => {
     it('setValue("linje 1\\nlinje 2") puts the text in the textarea, enables send, and re-runs the resize', () => {
       const ref = createRef<ChatComposerHandle>();
