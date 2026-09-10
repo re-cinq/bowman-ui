@@ -153,6 +153,23 @@ describe("ErrorBoundary", () => {
     expect(screen.getByText("recovered")).toBeInTheDocument();
   });
 
+  it("the retry button keeps focus-visible:ring-2 beside the --bowman-focus-ring colour, with no dark ring", () => {
+    render(
+      <ErrorBoundary>
+        <Bomb error={new Error("kaputt")} />
+      </ErrorBoundary>,
+      silenced
+    );
+
+    expect(screen.getByRole("button", { name: "Try again" })).toHaveClass(
+      "focus-visible:ring-2",
+      "focus-visible:ring-(--bowman-focus-ring,var(--color-blue-500))"
+    );
+    expect(screen.getByRole("button", { name: "Try again" }).className).not.toMatch(
+      /focus-visible:ring-blue-500|dark:focus-visible:ring/
+    );
+  });
+
   it("reports only through onError and writes nothing to the console or localStorage", () => {
     const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
     const consoleWarn = vi.spyOn(console, "warn").mockImplementation(() => {});

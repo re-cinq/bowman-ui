@@ -1,10 +1,12 @@
 // The non-component surface, four groups deep: hooks, the markdown policy
-// trio, the labels merge and the entry types.
+// trio, the labels merge and the entry types - then the theming tokens, which
+// are CSS rather than an export and get a rendered comparison instead of a note.
 
 import { docsLabels } from "../docs-labels";
 import { docsHref } from "./DocsApp";
 import { CodeBlock, DocSection } from "./DocsUi";
 import { hookNotes, labelNotes, markdownNotes, typeNotes, type ApiNote } from "./overview";
+import { ThemingSection } from "./ThemingSection";
 
 function NoteGroup({ title, notes }: { title: string; notes: ReadonlyArray<ApiNote> }) {
   return (
@@ -47,6 +49,7 @@ export function OverviewPage() {
       <NoteGroup title="Markdown" notes={markdownNotes} />
       <NoteGroup title="Labels" notes={labelNotes} />
       <NoteGroup title="Types" notes={typeNotes} />
+      <ThemingSection />
     </>
   );
 }

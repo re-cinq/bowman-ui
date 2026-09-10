@@ -11,4 +11,9 @@ export const expectThinkingDots = (container: HTMLElement) => {
     "0.2s",
     "0.4s",
   ]);
+  expect(dots).toHaveLength(3);
+
+  for (const dot of dots) {
+    expect(dot).toHaveClass("h-1", "w-1", "bg-(--bowman-accent,var(--color-blue-500))");
+  }
 };

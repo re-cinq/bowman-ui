@@ -136,8 +136,8 @@ The exported prop type for the 23 icons is public: `IconProps`
 `assistantAvatar?: ReactNode` fills the circle around the assistant's mark.
 The circle itself, its border, and its streaming-state pulse stay in the
 library, because the circle's classes carry `message.isStreaming` state
-(`animate-pulse-subtle`, the blue border/background swap) that every
-consumer would otherwise have to reimplement.
+(`bowman-pulse-subtle`, the `--bowman-accent-border`/`--bowman-accent-soft`
+swap of § Theming) that every consumer would otherwise have to reimplement.
 
 No bundled default mark: a component library that ships a fallback logo
 silently brands every consumer that forgets the prop. `userInitials: string`,
@@ -437,6 +437,221 @@ flex child down to the list. Without `min-h-0` a flex child never shrinks
 below its content, the region never overflows, and the page scrolls instead
 of the transcript. The library does not set the outer height; that is the
 consumer's layout decision.
+
+## Theming
+
+Thirty-three `--bowman-*` custom properties are the package's whole theming
+surface: fifteen brand tokens (issue 210) and eighteen neutral chrome
+roles added under decision 12. Every brand colour a component paints - the
+accent fill and its hover, the streaming circle's tint and border, the focus
+ring, the composer's focus glow, the active row's surface, the pulse
+keyframe's two stops - and every neutral surface, border, ring offset and
+text tier whose light and dark shades form one of the nine recorded role
+pairs is read through a `var()` whose fallback is the
+palette value the component painted before the tokens existed. A consumer
+that sets nothing sees today's look; a consumer that sets one property
+re-brands every site that reads it. `specs/bowman-ui-theming-tokens/spec.md`
+pins the sites and the tests; this section records the table and the
+decisions. `tests/theming-tokens-dist.test.ts` parses the table below, so
+the name and fallback columns are the contract, not an illustration.
+
+| Token                          | Fallback                 | Read by                                                                                                                         |
+| ------------------------------ | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------- |
+| `--bowman-accent`              | `var(--color-blue-500)`  | send button background (light); thinking dots (both modes); primary `Button`/`IconButton` (light)                               |
+| `--bowman-accent-dark`         | `var(--color-blue-600)`  | send button and primary `Button`/`IconButton` background (dark)                                                                 |
+| `--bowman-accent-hover`        | `var(--color-blue-600)`  | send button and primary `Button`/`IconButton` hover (light)                                                                     |
+| `--bowman-accent-hover-dark`   | `var(--color-blue-500)`  | send button and primary `Button`/`IconButton` hover (dark)                                                                      |
+| `--bowman-accent-soft`         | `var(--color-blue-50)`   | streaming avatar circle background (light): `ChatMessage`, `ThinkingIndicator`                                                  |
+| `--bowman-accent-soft-dark`    | `var(--color-blue-950)`  | streaming avatar circle background (dark)                                                                                       |
+| `--bowman-accent-border`       | `var(--color-blue-200)`  | streaming avatar circle border (light)                                                                                          |
+| `--bowman-accent-border-dark`  | `var(--color-blue-800)`  | streaming avatar circle border (dark)                                                                                           |
+| `--bowman-accent-glow`         | `rgba(59,130,246,0.1)`   | composer `focus-within` shadow (light); `bowman-pulse-subtle` box-shadow (both modes)                                           |
+| `--bowman-accent-glow-dark`    | `rgba(96,165,250,0.1)`   | composer `focus-within` shadow (dark)                                                                                           |
+| `--bowman-focus-ring`          | `var(--color-blue-500)`  | every `focus:ring`, `ErrorBoundary`'s `focus-visible:ring`, the composer's `focus-within:ring` at `/50` (light)                 |
+| `--bowman-focus-ring-dark`     | `var(--color-blue-400)`  | the same rings (dark); `ErrorBoundary` has no dark ring today and gains none                                                    |
+| `--bowman-active`              | `var(--color-slate-100)` | active conversation row background; active sidebar item background (light)                                                      |
+| `--bowman-active-dark`         | `var(--color-slate-800)` | active conversation row and sidebar item background (dark)                                                                      |
+| `--bowman-pulse-outline`       | `rgba(59,130,246,0.5)`   | `bowman-pulse-subtle` outline (both modes)                                                                                      |
+| `--bowman-surface`             | `var(--color-white)`     | panel, sidebar, drawer, composer, search field, prompt chip and secondary `Button`/`IconButton` background (light)              |
+| `--bowman-surface-dark`        | `var(--color-slate-900)` | the same surfaces (dark)                                                                                                        |
+| `--bowman-surface-hover`       | `var(--color-slate-50)`  | sidebar item, conversation row, prompt chip, secondary and ghost button hover (light)                                           |
+| `--bowman-surface-hover-dark`  | `var(--color-slate-800)` | the same hovers (dark)                                                                                                          |
+| `--bowman-control-hover`       | `var(--color-slate-100)` | `AppShell` drawer and menu buttons, `ChatMessage` copy and feedback controls hover (light)                                      |
+| `--bowman-control-hover-dark`  | `var(--color-slate-800)` | the same control hovers (dark)                                                                                                  |
+| `--bowman-border`              | `var(--color-slate-200)` | panel, sidebar (`md:` edge included), composer, search field, prompt chip, secondary button and disclosure band borders (light) |
+| `--bowman-border-dark`         | `var(--color-slate-800)` | the same borders (dark)                                                                                                         |
+| `--bowman-ring-offset`         | `var(--color-white)`     | every `focus:ring-offset` colour beside `ring-offset-2` (light); `ChatMessage`'s slate-950 offsets stay palette-mapped          |
+| `--bowman-ring-offset-dark`    | `var(--color-slate-900)` | the same offsets (dark)                                                                                                         |
+| `--bowman-text-body`           | `var(--color-slate-700)` | conversation title, prompt chip, secondary button and `ToolActivity` chip text (light)                                          |
+| `--bowman-text-body-dark`      | `var(--color-slate-200)` | the same text (dark)                                                                                                            |
+| `--bowman-text-secondary`      | `var(--color-slate-600)` | `AppShell` drawer buttons, sidebar item, ghost button, `ErrorBoundary` body text (light)                                        |
+| `--bowman-text-secondary-dark` | `var(--color-slate-400)` | the same text (dark)                                                                                                            |
+| `--bowman-text-muted`          | `var(--color-slate-500)` | timestamps, the disclosure band, thinking and tool labels (light)                                                               |
+| `--bowman-text-muted-dark`     | `var(--color-slate-400)` | the same labels (dark)                                                                                                          |
+| `--bowman-text-subtle`         | `var(--color-slate-400)` | faint timestamps, empty-state hints, the search icon, composer and search placeholders (light)                                  |
+| `--bowman-text-subtle-dark`    | `var(--color-slate-500)` | the same hints and placeholders (dark)                                                                                          |
+
+In `src/styles.css` the two `rgba()` fallbacks keep the keyframe's original
+spacing (`rgba(59, 130, 246, 0.1)`); inside a Tailwind class name no space is
+possible, so the class strings carry the unspaced form. The dist test
+normalises whitespace before comparing.
+
+**The fallback rule.** Every token ships a default, and the default lives
+only in the `var()` fallback: `src/styles.css` declares no `:root` block and
+no `@theme` entry, and nothing in `dist/` assigns a `--bowman-*` value. Each
+site reads its token as `bg-(--bowman-accent,var(--color-blue-500))`, which
+Tailwind v4 compiles to `background-color: var(--bowman-accent,
+var(--color-blue-500))` while still emitting the referenced `--color-blue-*`
+theme variable into `:root` - so a consumer that overrides nothing resolves
+to the identical theme variable, byte for byte, and a consumer that
+overrides one token at `:root` or on any wrapper (`.client-brand { ... }`)
+wins on plain cascade order with no specificity fight against the package.
+
+**The boundary.** The dark-mode strategy stays the consumer's build decision,
+exactly as the stylesheet spec (`specs/bowman-ui-stylesheet-entry/spec.md`)
+left it. The `-dark` tokens are read by the components' existing `dark:`
+variants, so whatever the consumer's Tailwind build resolves `dark:` to - the
+`prefers-color-scheme` default or a class strategy - resolves the `-dark`
+tokens the same way. The package adds no media query, no class selector and
+no strategy of its own; a consumer setting `--bowman-accent` alone re-brands
+light mode and leaves dark mode on its blue-600 fallback until it also sets
+`--bowman-accent-dark`.
+
+Decisions:
+
+1. **Defaults live only in `var()` fallbacks; the stylesheet declares no
+   token block.** A `:root { --bowman-accent: ... }` in `dist/styles.css`
+   would set a cascade-order trap - a consumer's own `:root` override wins
+   or loses depending on which stylesheet its bundler emits first - and
+   would fix the override's scope at `:root`. With fallbacks only, a
+   consumer can scope an override to any wrapper and the package never
+   competes.
+2. **Dark-side tokens are separate names with a `-dark` suffix**, read by the
+   `dark:` variant each site already carried. The rejected alternative was
+   eight tokens, one name per role with a mode-specific fallback on each side
+   (`dark:bg-(--bowman-accent,var(--color-blue-600))`): fewer names, but a
+   consumer could then set only one value per role and would have to write
+   its own dark selector to get a second - re-deriving the very strategy
+   this package refuses to choose. Separate names cost seven extra rows in
+   the table and nothing at runtime.
+3. **One token per distinct role-and-shade that existed - fifteen brand tokens, thirty-three
+   with the neutral roles of decision 12.**
+   Byte-for-byte fallbacks forbid deriving tints: blue-50 is not
+   `color-mix(blue-500 10%, white)`, so the circle's tint and border, the
+   glow and the pulse outline each need their own name. The issue described
+   `--bowman-accent` as "today blue-600"; measured against the components it
+   is blue-500 in light mode and blue-600 in dark, with the hover pair the
+   other way round (`hover:bg-blue-600 dark:hover:bg-blue-500`), and the
+   byte-for-byte rule forced the table to say what the code said, not what
+   the issue assumed.
+4. **The class strings live once, in the internal module
+   `src/theme/tokens.ts`.** One `export const` per class string, so each
+   token name and its fallback are declared in exactly one TypeScript file
+   and every component imports the constant. Not exported from
+   `src/index.ts`: the public-API snapshot does not move, and
+   `dist/index.js` re-exports nothing from it. The reasons are mechanical:
+   the focus-ring string is over 100 characters and appears at four sites in
+   `ChatMessage.tsx` alone, so inlining it would trip
+   `sonarjs/no-duplicate-string` (threshold 3) inside a file and the jscpd 4 %
+   gate across the eleven files that import it. The module carries no `"use client"` (no
+   trigger under decision 1) and one-line comments only.
+5. **Active-row emphasis has its own pair, `--bowman-active` and
+   `--bowman-active-dark`, with slate defaults.** The default stays neutral
+   and a brand may tint it, but only the two backgrounds are tokenised: the
+   row's label colours (`text-slate-900`, `dark:text-white` on the sidebar
+   item) stay palette-mapped. The constraint that follows is the consumer's
+   to honour: `--bowman-active` must stay a light surface in light mode and
+   `--bowman-active-dark` a dark one in dark mode, or the fixed label colour
+   loses its contrast.
+6. **Neutral chrome: nine role pairs are tokenised, the long tail stays
+   palette-mapped.** Amended 2026-09-10 (the first PR under issue 210 tokenised
+   no neutral at all). A neutral site qualifies for a role when its light
+   and dark utilities both equal the role pair's fallbacks; a site that
+   matches on one side only keeps its palette classes on both, so no site is
+   ever half-branded. The nine pairs: `--bowman-surface` (`bg-white` /
+   `dark:bg-slate-900`), `--bowman-surface-hover` (`hover:bg-slate-50` /
+   `dark:hover:bg-slate-800`), `--bowman-control-hover` (`hover:bg-slate-100`
+   / `dark:hover:bg-slate-800`), `--bowman-border` (`border-slate-200` /
+   `dark:border-slate-800`), `--bowman-ring-offset` (`focus:ring-offset-white`
+   / `dark:ring-offset-slate-900`) and the four text tiers `--bowman-text-body`
+   (slate-700 / slate-200), `--bowman-text-secondary` (slate-600 / slate-400),
+   `--bowman-text-muted` (slate-500 / slate-400) and `--bowman-text-subtle`
+   (slate-400 / slate-500, the placeholders included). Everything else stays
+   palette-mapped by this rule and is listed so no cleanup PR "finishes" it:
+   the shell ground (`bg-slate-50` / `dark:bg-slate-950`) and main region
+   (`bg-white` / `dark:bg-slate-950`), the avatar circles' rest state
+   (`bg-white` / `dark:bg-black` with `border-slate-200` /
+   `dark:border-slate-700`), the user avatar and code chips (`bg-slate-200` /
+   `dark:bg-slate-700`, `bg-slate-100` / `dark:bg-slate-800`), the inverse
+   surfaces of `Toast` and `ErrorBoundary`'s retry button, the mobile overlay
+   (`bg-black`), the disabled send button, the `border-slate-300` /
+   `dark:border-slate-600` dividers, `ChatMessage`'s `dark:ring-offset-slate-950`,
+   the skip link's focus colours, every strong-text site (`text-slate-900`
+   pairs with `dark:text-white`, `-200` and `-100` at different sites, so no
+   single pair exists), the slate-600 / slate-300 label pair, the hover text
+   colours, and the icon controls' lone `text-slate-400`. Ring width, offset
+   and outline classes beside each colour token stay at every site untouched.
+7. **No `ThemeProvider`, no runtime, no storage, no console, no network.**
+   Theming is CSS custom properties and nothing else, so the GDPR no-egress
+   rule and the closed public API are untouched by design rather than by
+   restraint.
+8. **The composer's `/50` ring keeps its opacity modifier on the token.**
+   `focus-within:ring-(--bowman-focus-ring,var(--color-blue-500))/50` makes
+   Tailwind emit two branches: under
+   `@supports (color: color-mix(in lab, red, red))` the ring is
+   `color-mix(in oklab, var(--bowman-focus-ring, var(--color-blue-500)) 50%, transparent)`,
+   identical to what `ring-blue-500/50` produced; the legacy branch drops
+   the 50 % because Tailwind cannot pre-mix a `var()` at build time. That
+   legacy branch is unreachable on Tailwind v4's own browser floor - Safari
+   16.4, Chrome 111 and Firefox 128 all support `color-mix()` - so the
+   byte-for-byte claim holds on every engine the toolchain supports.
+9. **The keyframe's zero stop stays the literal `rgba(59, 130, 246, 0)`.** A
+   review finding asked for a token there too, on the grounds that a brand's
+   transparent stop should carry the brand's hue. Rejected: CSS Color 4
+   interpolates premultiplied, so the hue of a fully transparent stop is
+   inert - the animation from a transparent blue to an opaque copper is the
+   same animation as from a transparent copper. Only the 50 % stop reads
+   tokens (`--bowman-accent-glow`, `--bowman-pulse-outline`).
+10. **The thirty-three-line comment block at the top of `src/styles.css` is the
+    in-stylesheet declaration the issue asked for.** One line per token,
+    `/* --bowman-accent: var(--color-blue-500) - send button, thinking dots */`,
+    at zero runtime cost, because decision 1 forbids a real declaration. It
+    is the one multi-line comment in the package: `max-comment-lines` (§ Lint
+    guardrails decision 9) reads TypeScript through ESLint and never sees
+    CSS, and the dist test parses the block - the token set it declares must
+    equal the set of `var(--bowman-...)` reads across `dist/theme/tokens.js`
+    and `dist/styles.css`, and every read must carry a non-empty fallback -
+    so the block cannot drift from the code. A thirty-fourth token is a table
+    row here, a comment line there and a constant in the module, in one PR.
+11. **The styled primitives read the same tokens.** `Button`, `IconButton`,
+    `PromptChips` and `SearchField` (§ Styled primitives) landed on `main`
+    first with their own `focus:ring-blue-500` string in `buttonStyles.ts`,
+    and whichever of the two features merged second owed the other the
+    tokens; this one did. `buttonStyles.ts` now imports `ACCENT_BG`,
+    `ACCENT_BG_HOVER` and `FOCUS_RING_COLOR` from the tokens module, so the
+    primary variant is the send button's fill and every primitive's ring is
+    `--bowman-focus-ring`. The dist test's "no bare `blue-` utility survives"
+    assertion therefore scans every built component, not a named list.
+
+12. **The neutral roles are named for what a designer overrides, not for a
+    shade.** `surface`, `surface-hover`, `control-hover`, `border`,
+    `ring-offset` and the four text tiers `body`, `secondary`, `muted`,
+    `subtle` each carry one light fallback and one `-dark` fallback under
+    decision 2, so a client sets nine or eighteen values and never learns
+    that slate-800 is both a hover and a dark border. Two roles share a dark
+    fallback (`surface-hover-dark` and `control-hover-dark` are both
+    slate-800) and two share a light one (`surface` and `ring-offset` are
+    both white); they stay separate names because a brand may well want a
+    tinted hover under a white surface. The role constants live in
+    `src/theme/tokens.ts` beside the brand ones; `BORDER_MD` derives the
+    sidebar's `md:` edge from `BORDER` at module load rather than restating
+    the fallback. Three focus sites that carried only the dark offset
+    (`AppShell`'s two drawer buttons, `AppSidebar`'s nav link) gained the
+    light `focus:ring-offset` read too: its fallback is Tailwind's own
+    default offset colour, so the rendered pixels are unchanged and the role
+    is whole. `tests/theming-tokens-dist.test.ts` pins which built component
+    imports which role, so a site drifting back to a palette utility is a
+    test failure, not a silent regression.
 
 ## Styled primitives
 

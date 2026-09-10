@@ -86,11 +86,11 @@ pending; a non-trailing one stays done. `describeTool`, `showToolName`,
 entry still shows the `aiDisclosure` band. `ChatMessageListLabels` gains
 `activity`, `activityDone` and `details` as defaulted keys, so `aiDisclosure`
 stays its only required key
-([validated by](../../tests/ChatMessageList.test.tsx#L942),
-[L964](../../tests/ChatMessageList.test.tsx#L964),
-[L977](../../tests/ChatMessageList.test.tsx#L977),
-[L999](../../tests/ChatMessageList.test.tsx#L999),
-[L991](../../tests/ChatMessageList.test.tsx#L991)).
+([validated by](../../tests/ChatMessageList.test.tsx#L943),
+[L965](../../tests/ChatMessageList.test.tsx#L965),
+[L978](../../tests/ChatMessageList.test.tsx#L978),
+[L1000](../../tests/ChatMessageList.test.tsx#L1000),
+[L992](../../tests/ChatMessageList.test.tsx#L992)).
 
 ## GDPR zero retention
 

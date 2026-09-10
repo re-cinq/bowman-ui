@@ -13,7 +13,7 @@ chat screen in a real Chromium. It proves what no jsdom test can: the
 package's eight major components in one document, compiled by a real Tailwind v4
 build, laid out by a real browser. The whole proof is one command,
 `npm run consumer` ([validated by](../../package.json#L53)), documented in the
-README's Worked consumer section ([validated by](../../README.md#L144)).
+README's Worked consumer section ([validated by](../../README.md#L196)).
 
 Anchor caveat: `scripts/repoint-spec-anchors.mjs` tracks
 `(../)+tests/*.ts(x)` anchors, `(../)+examples/*/tests/*.ts(x)` anchors since
@@ -60,6 +60,12 @@ enters the committed manifest or lockfile
 sufficient to render the screen, so the README's Styles section needed no
 amendment.
 
+Since the theming tokens (issue 210) a second stylesheet,
+`src/client-brand.css`, sets the library's thirty-three `--bowman-*` tokens under
+the `.client-brand` wrapper - never `:root` - and `main.tsx` imports it after
+`./styles.css`; the three-line entry stylesheet above is unchanged
+([validated by](../../examples/chat-demo/src/main.tsx#L1)).
+
 ### Composition
 
 `App.tsx` imports `AppShell`, `AppSidebar`, `ConversationList`,
@@ -67,18 +73,28 @@ amendment.
 specifier `@re-cinq/bowman-ui`
 ([validated by](../../examples/chat-demo/src/App.tsx#L2)). All state lives in
 `App.tsx` `useState` hooks
-([validated by](../../examples/chat-demo/src/App.tsx#L55)); the assistant
+([validated by](../../examples/chat-demo/src/App.tsx#L64)); the assistant
 reply is a `setTimeout` appending a fixture entry - no fetch, no WebSocket, no
-engine ([validated by](../../examples/chat-demo/src/App.tsx#L118)).
+engine ([validated by](../../examples/chat-demo/src/App.tsx#L127)).
 
 `renderSidebar` returns `AppSidebar` with the brand passed as a plain text
 node, two nav items, `ConversationList` as `children` and a button in `footer`
-([validated by](../../examples/chat-demo/src/App.tsx#L144)).
+([validated by](../../examples/chat-demo/src/App.tsx#L153)).
 `ChatMessageList` sits above `ChatComposer` inside the shell's `children`,
 wrapped in the bounded flex column (`flex h-full min-h-0 flex-col`) that
 docs/design-notes.md § Layout requires of consumers
-([validated by](../../examples/chat-demo/src/App.tsx#L180)), and copy shows a
-`Toast` ([validated by](../../examples/chat-demo/src/App.tsx#L201)).
+([validated by](../../examples/chat-demo/src/App.tsx#L189)), and copy shows a
+`Toast` ([validated by](../../examples/chat-demo/src/App.tsx#L211)).
+
+`src/brands.tsx` adds the `&brand=copperline` dimension to `?view=chat`:
+`resolveBrand` maps the query value to a brand - the Marginalia Books default,
+or the invented Copperline Bicycles client - and `ChatScreen` wraps the whole
+fragment, shell and toast alike, in the brand's `.client-brand` wrapper and
+passes its chainring mark as `ChatMessageList`'s `assistantAvatar`; an
+unknown value falls back to the default
+([validated by](../../examples/chat-demo/src/brands.tsx#L46)). The wrapper,
+the tokens it sets and the Chromium proof are specified in
+`specs/bowman-ui-theming-tokens/spec.md` § The demo, not restated here.
 
 ### Fixtures (GDPR)
 
@@ -94,12 +110,16 @@ the whole file
 
 The demo ships English only (the Marginalia Books re-theme collapsed the
 original Danish catalogue and the `VITE_DEMO_LOCALE` build-time switch into
-one module). `src/labels.ts` is the single catalogue, and it is deliberately
-thin: every component exports a complete English default label set, so the
-module reuses those defaults and writes out only the strings no default can
-supply - the required `aiDisclosure` (docs/design-notes.md § Labels decision 5) and
-the demo's own screen copy
-([validated by](../../examples/chat-demo/src/labels.ts#L1)).
+one module). `src/labels.ts` is the chat screen's catalogue, and it is
+deliberately thin: every component exports a complete English default label
+set, so the module reuses those defaults and writes out only the strings no
+default can supply - the required `aiDisclosure` (docs/design-notes.md § Labels
+decision 5) and the demo's own screen copy
+([validated by](../../examples/chat-demo/src/labels.ts#L1)). "Single" is
+looser than it was: the two brand names live with their brands in
+`src/brands.tsx`, and the Theming section's explanatory copy with its previews
+in `src/docs/ThemingSection.tsx`, beside the docs chrome's own
+`src/docs-labels.ts` - none of them a second locale, all of them English.
 
 ## The consumer script
 
@@ -161,9 +181,11 @@ otherwise ([validated by](../../examples/chat-demo/playwright.config.ts#L8)).
 
 ## The Playwright suite
 
-All statements below executed green on 2026-09-01 against the packed tarball
-(22 passed across the chat and docs suites, exit 0), re-run for the
-Marginalia Books English-only re-theme.
+All statements below executed green on 2026-09-10 against the packed tarball
+(32 passed across the chat, docs and theming suites, exit 0), re-run for the
+theming tokens' client-branded variant. See
+`specs/bowman-ui-theming-tokens/spec.md` § The demo for the theming suite,
+`tests/theming.spec.ts`, which this spec does not restate.
 
 The rendered screen exposes, by role query rather than CSS selector: one
 `aside`, one `nav` with two items, three conversation list items, one `main`,
@@ -296,9 +318,9 @@ result ([validated by](../../.github/workflows/publish.yml#L72)).
 - `npm pack --dry-run` ships `dist/`, `package.json`, `LICENSE`, `README.md`
   and nothing else, now executable-asserted on every consumer run
   ([validated by](../../scripts/consumer-app.sh#L60)).
-- No file under `src/` changed in this PR - the one statement here with no
-  executable anchor: its proof is the PR diff itself, reviewable but not
-  re-runnable.
+- No file under `src/` changed in the PR that introduced the demo - the one
+  statement here with no executable anchor: its proof is that PR's diff
+  itself, reviewable but not re-runnable.
 
 ## Out of scope
 
@@ -306,3 +328,7 @@ Per the issue: proving the `@source` line strictly required (stylesheet-entry
 issue), real assistive technology, the RSC/Next fixture, registry publishing,
 engine wiring, the real Danish catalogue and disclosure wording
 (issue 32), source-app adoption, and visual regression testing.
+
+Branding and theming of the demo were outside this issue too; the
+client-branded variant and the tokens it proves are covered by
+`specs/bowman-ui-theming-tokens/spec.md` (issue 210).

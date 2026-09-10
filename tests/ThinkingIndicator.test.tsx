@@ -8,6 +8,7 @@ import {
 } from "../src/index.js";
 import { expectThinkingDots } from "./helpers/expect-thinking-dots.js";
 import { listFiles } from "./helpers/source-hygiene.js";
+import { expectAccentSoftSurface } from "./helpers/expect-theme-tokens.js";
 
 describe("ThinkingIndicator", () => {
   it('renders "Thinking" and a role="status" element with aria-label "Loading response" by default', () => {
@@ -70,6 +71,12 @@ describe("ThinkingIndicator", () => {
     const circle = container.querySelector('[aria-hidden="true"]');
 
     expect(circle?.classList.contains("bowman-pulse-subtle")).toBe(true);
+  });
+
+  it("the circle reads --bowman-accent-border and --bowman-accent-soft, light and dark", () => {
+    const { container } = render(<ThinkingIndicator />);
+
+    expectAccentSoftSurface(container.querySelector('[aria-hidden="true"]'));
   });
 
   it('InlineThinkingIndicator renders its label and dots with no role="status" and no avatar circle', () => {

@@ -16,9 +16,9 @@ existing consumer suite, measuring the really rendered box via
 `src/` and no file under `examples/chat-demo/src/` changes in this PR - the
 proof is the PR diff itself, reviewable but not re-runnable.
 
-All statements below executed green on 2026-09-01 against the packed tarball
-via `scripts/consumer-app.sh` (22 passed, exit 0), re-run for the Marginalia
-Books English-only re-theme; the three resize tests also passed a local
+All statements below executed green on 2026-09-10 against the packed tarball
+via `scripts/consumer-app.sh` (32 passed, exit 0), re-run for the theming
+tokens' client-branded variant; the three resize tests also passed a local
 `--repeat-each 10` flake run on 2026-08-27 (30 passed).
 
 Anchor note: `scripts/repoint-spec-anchors.mjs` originally tracked only
@@ -154,8 +154,8 @@ the customer-visible fact, and asserting the string here would only duplicate
 The `maxHeightPx` override is proven only by `027`'s stubbed unit test - a
 stubbed `scrollHeight` of 320 capping at `200px` under the default and
 reaching `320px` with `maxHeightPx={400}` - and by no browser
-([validated by](../../tests/ChatComposer.test.tsx#L245),
-[L254](../../tests/ChatComposer.test.tsx#L254)). The demo pins its
+([validated by](../../tests/ChatComposer.test.tsx#L271),
+[L280](../../tests/ChatComposer.test.tsx#L280)). The demo pins its
 composition and threads no URL parameter to a second `maxHeightPx`, per the
 issue's tech note: that would turn the worked consumer into a fixture for its
 own test suite.
