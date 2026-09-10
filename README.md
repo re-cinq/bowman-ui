@@ -42,7 +42,7 @@ Tailwind CSS v4 is required: the stylesheet ships only what Tailwind cannot gene
 
 `styles.css` itself is plain CSS - no Tailwind at-rules - so a non-Tailwind consumer can import it too, but must then supply the utility styles the components reference by other means.
 
-### Theming
+## Theming
 
 Every brand colour the components paint - the send button and primary `Button` fill, the streaming circle's tint and border, the focus ring and the composer's focus glow, the active row's surface, the pulse animation - is read through one of fifteen brand-colour `--bowman-*` custom properties (of the thirty-three the package exposes), each with today's palette value as its `var()` fallback. Set the ones you want at `:root`, or on any wrapper to scope a brand to part of the page:
 
@@ -68,7 +68,7 @@ Every brand colour the components paint - the send button and primary `Button` f
 
 The neutral chrome has its own roles - `--bowman-surface`, `--bowman-surface-hover`, `--bowman-control-hover`, `--bowman-border`, `--bowman-ring-offset` and the text tiers `--bowman-text-body`, `--bowman-text-secondary`, `--bowman-text-muted`, `--bowman-text-subtle`, each with a `-dark` twin - so a client can move the panels off pure white and the borders off slate-200 the same way. docs/design-notes.md § Theming lists all thirty-three with the fallback each ships.
 
-#### Rebranding a client, step by step
+### Rebranding a client, step by step
 
 1. **Pick the scope.** Set the properties on `:root` in your own stylesheet when the whole app
    is one brand, or on a wrapper class (`.client-brand`, `[data-tenant="acme"]`) when one build
