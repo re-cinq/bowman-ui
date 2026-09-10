@@ -504,7 +504,7 @@ Tailwind v4 compiles to `background-color: var(--bowman-accent,
 var(--color-blue-500))` while still emitting the referenced `--color-blue-*`
 theme variable into `:root` - so a consumer that overrides nothing resolves
 to the identical theme variable, byte for byte, and a consumer that
-overrides one token at `:root` or on any wrapper (`.client-brand { ... }`)
+overrides one token at `:root` or on any wrapper (`.custom-brand { ... }`)
 wins on plain cascade order with no specificity fight against the package.
 
 **The boundary.** The dark-mode strategy stays the consumer's build decision,

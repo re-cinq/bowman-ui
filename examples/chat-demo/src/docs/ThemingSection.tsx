@@ -1,16 +1,16 @@
 // The Overview page's Theming section: the same three components rendered
 // twice, once with the library's defaults and once inside the wrapper class
-// that overrides the thirty-three --bowman-* tokens (src/client-brand.css). One
+// that overrides the thirty-three --bowman-* tokens (src/custom-brand.css). One
 // preview component renders both, so the two columns cannot drift apart.
 
 import { ChatComposer, ChatMessage, ConversationList } from "@re-cinq/bowman-ui";
-import { clientBrand, defaultBrand, type DemoBrand } from "../brands";
+import { customBrand, defaultBrand, type DemoBrand } from "../brands";
 import { CodeBlock, DocSection, Stage } from "./DocsUi";
 import { docsConversationItems, docsStreamingEntry, docsUserInitials } from "./fixtures";
 
 const previewItems = docsConversationItems.slice(0, 2);
 
-const clientBrandSnippet = `.client-brand {
+const customBrandSnippet = `.custom-brand {
   --bowman-accent: #b7410e;
   --bowman-accent-hover: #9a3412;
   --bowman-accent-soft: #fff1e6;
@@ -51,7 +51,7 @@ export function ThemingSection() {
         />
         <ThemingPreview
           id="client"
-          brand={clientBrand}
+          brand={customBrand}
           note="Inside a wrapper that sets the tokens: the same components, the client's colours."
         />
       </div>
@@ -64,7 +64,7 @@ export function ThemingSection() {
         <code>-dark</code> tokens, read by the components&apos; existing <code>dark:</code>{" "}
         variants.
       </p>
-      <CodeBlock code={clientBrandSnippet} />
+      <CodeBlock code={customBrandSnippet} />
     </DocSection>
   );
 }

@@ -2,7 +2,7 @@
    the Overview page's Theming section previews. Every one of the library's thirty-three tokens is
    set here, scoped to a wrapper rather than :root, so the same document can show the default
    and the branded look side by side. The values are Copperline Bicycles' - invented. */
-.client-brand {
+.custom-brand {
   --bowman-accent: #b7410e;
   --bowman-accent-dark: #c2410c;
   --bowman-accent-hover: #9a3412;

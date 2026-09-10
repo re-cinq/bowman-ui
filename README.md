@@ -56,7 +56,7 @@ Every brand colour the components paint - the send button and primary `Button` f
   --bowman-focus-ring-dark: #fb923c;
 }
 
-.client-brand {
+.custom-brand {
   --bowman-active: #fdebdc;
   --bowman-active-dark: #3b1a0d;
   --bowman-surface: #fffaf5;
@@ -71,7 +71,7 @@ The neutral chrome has its own roles - `--bowman-surface`, `--bowman-surface-hov
 ### Rebranding, step by step
 
 1. **Pick the scope.** Set the properties on `:root` in your own stylesheet when the whole app
-   is one brand, or on a wrapper class (`.client-brand`, `[data-tenant="acme"]`) when one build
+   is one brand, or on a wrapper class (`.custom-brand`, `[data-tenant="acme"]`) when one build
    serves several. The package declares no `--bowman-*` value anywhere, so either scope wins on
    plain inheritance and there is no specificity to beat.
 2. **Start with the accent.** `--bowman-accent`, `--bowman-accent-hover` and
@@ -96,7 +96,7 @@ The neutral chrome has its own roles - `--bowman-surface`, `--bowman-surface-hov
    Tailwind theme, which recolours every use rather than one role.
 
 A complete rebrand is the union of the two blocks above plus their `-dark` twins; the chat
-demo's `examples/chat-demo/src/client-brand.css` is a worked example that sets all thirty-three.
+demo's `examples/chat-demo/src/custom-brand.css` is a worked example that sets all thirty-three.
 
 Override none and the package resolves to the same Tailwind theme variables it used before the tokens existed, byte for byte - nothing declares a `--bowman-*` value, so there is no cascade to fight. Fourteen of the tokens form seven light/dark pairs (`--bowman-accent` and `--bowman-accent-dark`, `--bowman-focus-ring` and `--bowman-focus-ring-dark`, ...), the `-dark` half read by the components' `dark:` variants, so your build's dark-mode strategy applies to the tokens unchanged; set both halves for a brand that holds in both modes. The fifteenth, `--bowman-pulse-outline`, has no twin: the pulse keyframe paints one outline in both modes. `--bowman-active` colours only the active row's background while its label colours stay fixed, so keep it a light surface in light mode and `--bowman-active-dark` a dark one. The full table - every name, fallback and site - is in docs/design-notes.md § Theming.
 

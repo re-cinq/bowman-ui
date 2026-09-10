@@ -56,8 +56,8 @@ state captions - is English, like the whole demo. The page chrome around it
 
 `?view=chat&brand=copperline` renders the same chat fixture as a second,
 invented client, Copperline Bicycles: `src/brands.tsx` picks the brand from the
-query, and `src/client-brand.css` sets the library's thirty-three `--bowman-*`
-theming tokens on the `.client-brand` wrapper. The overview page's Theming
+query, and `src/custom-brand.css` sets the library's thirty-three `--bowman-*`
+theming tokens on the `.custom-brand` wrapper. The overview page's Theming
 section renders the default and the branded components side by side, and
 `tests/theming.spec.ts` measures both in Chromium.
 

@@ -2,7 +2,7 @@
 // the Marginalia Books screen every existing test drives: no wrapper class, no
 // avatar. "copperline" is the invented second client that proves the theming
 // tokens: its wrapper class carries the thirty-three --bowman-* overrides in
-// client-brand.css, and its chainring mark fills the assistant avatar circle.
+// custom-brand.css, and its chainring mark fills the assistant avatar circle.
 
 import type { ReactNode } from "react";
 
@@ -33,15 +33,15 @@ export function ChainringMark() {
 
 export const defaultBrand: DemoBrand = { name: "Marginalia Books" };
 
-export const clientBrand: DemoBrand = {
+export const customBrand: DemoBrand = {
   name: "Copperline Bicycles",
-  className: "client-brand",
+  className: "custom-brand",
   assistantAvatar: <ChainringMark />,
 };
 
 // A Map, not a record: a record lookup reads the prototype chain, so
 // "?brand=constructor" would resolve to a function instead of the default.
-const brandsByQueryValue: ReadonlyMap<string, DemoBrand> = new Map([["copperline", clientBrand]]);
+const brandsByQueryValue: ReadonlyMap<string, DemoBrand> = new Map([["copperline", customBrand]]);
 
 export const resolveBrand = (queryValue: string | null): DemoBrand =>
   brandsByQueryValue.get(queryValue ?? "") ?? defaultBrand;

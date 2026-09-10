@@ -61,8 +61,8 @@ sufficient to render the screen, so the README's Styles section needed no
 amendment.
 
 Since the theming tokens (issue 210) a second stylesheet,
-`src/client-brand.css`, sets the library's thirty-three `--bowman-*` tokens under
-the `.client-brand` wrapper - never `:root` - and `main.tsx` imports it after
+`src/custom-brand.css`, sets the library's thirty-three `--bowman-*` tokens under
+the `.custom-brand` wrapper - never `:root` - and `main.tsx` imports it after
 `./styles.css`; the three-line entry stylesheet above is unchanged
 ([validated by](../../examples/chat-demo/src/main.tsx#L1)).
 
@@ -89,7 +89,7 @@ docs/design-notes.md § Layout requires of consumers
 `src/brands.tsx` adds the `&brand=copperline` dimension to `?view=chat`:
 `resolveBrand` maps the query value to a brand - the Marginalia Books default,
 or the invented Copperline Bicycles client - and `ChatScreen` wraps the whole
-fragment, shell and toast alike, in the brand's `.client-brand` wrapper and
+fragment, shell and toast alike, in the brand's `.custom-brand` wrapper and
 passes its chainring mark as `ChatMessageList`'s `assistantAvatar`; an
 unknown value falls back to the default
 ([validated by](../../examples/chat-demo/src/brands.tsx#L46)). The wrapper,
@@ -183,7 +183,7 @@ otherwise ([validated by](../../examples/chat-demo/playwright.config.ts#L8)).
 
 All statements below executed green on 2026-09-10 against the packed tarball
 (32 passed across the chat, docs and theming suites, exit 0), re-run for the
-theming tokens' client-branded variant. See
+theming tokens' custom-branded variant. See
 `specs/bowman-ui-theming-tokens/spec.md` § The demo for the theming suite,
 `tests/theming.spec.ts`, which this spec does not restate.
 
@@ -330,5 +330,5 @@ engine wiring, the real Danish catalogue and disclosure wording
 (issue 32), source-app adoption, and visual regression testing.
 
 Branding and theming of the demo were outside this issue too; the
-client-branded variant and the tokens it proves are covered by
+custom-branded variant and the tokens it proves are covered by
 `specs/bowman-ui-theming-tokens/spec.md` (issue 210).

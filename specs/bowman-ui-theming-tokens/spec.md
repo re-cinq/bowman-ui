@@ -193,7 +193,7 @@ renders the chat fixture twice over: the Marginalia Books default at `?view=chat
 (a web search found no such brand), named as such in the sidebar
 ([validated by](../../examples/chat-demo/tests/theming.spec.ts#L174)). The module
 `src/brands.tsx` resolves the brand from the query, and `ChatScreen` wraps the whole fragment, `AppShell` and `Toast`
-alike, in `<div class="client-brand">` and passes the brand's chainring mark (an `aria-hidden`
+alike, in `<div class="custom-brand">` and passes the brand's chainring mark (an `aria-hidden`
 SVG carrying `data-brand-mark="copperline"`) as `ChatMessageList`'s `assistantAvatar`, so the
 mark fills the streaming avatar circle
 ([validated by](../../examples/chat-demo/tests/theming.spec.ts#L133),
@@ -207,12 +207,12 @@ side by side"), so the two columns cannot drift apart
 ([validated by](../../examples/chat-demo/tests/theming.spec.ts#L182),
 [preview](../../examples/chat-demo/src/docs/ThemingSection.tsx#L24)).
 
-The override lives in `examples/chat-demo/src/client-brand.css`, which sets all thirty-three tokens
-under `.client-brand` (scoped to the wrapper, not `:root`) and is imported from `main.tsx` after
+The override lives in `examples/chat-demo/src/custom-brand.css`, which sets all thirty-three tokens
+under `.custom-brand` (scoped to the wrapper, not `:root`) and is imported from `main.tsx` after
 `./styles.css`, whose three documented lines are untouched; the branded screen takes its colours
 from that wrapper alone
 ([validated by](../../examples/chat-demo/tests/theming.spec.ts#L126),
-[stylesheet](../../examples/chat-demo/src/client-brand.css#L5),
+[stylesheet](../../examples/chat-demo/src/custom-brand.css#L5),
 [import](../../examples/chat-demo/src/main.tsx#L5)). The wrapper scope is what lets one document
 show the default and the branded look side by side, and it is the fallback rule (decision 1 in
 docs/design-notes.md § Theming) doing its job: the package declares nothing, so an override on

@@ -1,7 +1,7 @@
 // The theming tokens (issue 210), proved in a real Chromium: a consumer
 // that sets nothing gets the palette colour the library shipped with - measured
 // against a probe element, never a pinned oklch serialisation - and a consumer
-// that sets the thirty-three --bowman-* properties on a wrapper (src/client-brand.css)
+// that sets the thirty-three --bowman-* properties on a wrapper (src/custom-brand.css)
 // recolours the send button, the active row, the streaming avatar circle and
 // the composer's focus glow inside that wrapper alone.
 
