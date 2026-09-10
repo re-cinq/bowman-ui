@@ -136,7 +136,7 @@ jobs:
           {
             echo "## Staged on npm - a maintainer must approve it before it is installable"
             echo
-            echo "npmjs.com -> @re-cinq/bowman-ui -> Staged Packages -> Approve (2FA), or: npm stage list, then npm stage approve <id>.
+            echo "npmjs.com -> @re-cinq/bowman-ui -> Staged Packages -> Approve (2FA), or: npm stage list, then npm stage approve <id>."
             echo
             echo '```'
             cat stage.log
