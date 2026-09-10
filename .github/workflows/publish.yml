@@ -117,3 +117,12 @@ jobs:
       # before the first release runs this step.
       - name: Publish to npm
         run: npm publish --access public --provenance
+        # Bootstrap only, for the package's first-ever publish: npm's OIDC
+        # exchange fails silently until a trusted publisher exists for the
+        # package, and a not-yet-published package has no settings page to
+        # register one on. With this token configured, npm falls back to it and
+        # still signs provenance through id-token. The token is a granular,
+        # one-day, publish-only secret; the follow-up PR removes these lines
+        # and the secret once the trusted publisher is registered.
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
