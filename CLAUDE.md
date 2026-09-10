@@ -50,6 +50,9 @@ The typecheck script is `typecheck`, not `type-check`.
   The `rm -rf` is load-bearing (tests/dist-is-clean.test.ts: `tsc` never cleans, and stale
   artifacts otherwise ship via `files: ["dist"]`).
 - `npm run typecheck` — `typescript7` `tsc --noEmit`.
+- Releases: merge the release-please pull request that .github/workflows/release.yml keeps
+  open from the Conventional Commits on `main`; never `npm version` or tag by hand.
+  CHANGELOG.md is generated there, never edited (it is prettier-ignored for that reason).
 - `npm test` = `npm run test:coverage` = `npm run build && vitest run --coverage`. Always builds
   first: `*-dist.test.ts` read `dist/`, tests/public-api.test.ts imports `dist/index.js`.
 - `npm run lint` — `eslint . --max-warnings 0`.
@@ -176,7 +179,9 @@ The typecheck script is `typecheck`, not `type-check`.
     decisions 10 and 11.
 12. **Publishing** is release-triggered CI only, via npm OIDC trusted publishing
     (.github/workflows/publish.yml: `release: types: [published]`, `id-token: write`, no
-    `NPM_TOKEN`). Never `npm publish` by hand. Never push to `main` — guard-main-pushes.yml opens a security issue,
+    `NPM_TOKEN`). release.yml dispatches it on the tag it cuts, because a Release created by
+    `GITHUB_TOKEN` raises no `published` event; `workflow_dispatch` is the only other way in and
+    the version guard rejects a branch ref. Never `npm publish` by hand. Never push to `main` — guard-main-pushes.yml opens a security issue,
     because push access to `main` is transitively npm-publish access.
 
 ## Landmines checklist (never do)

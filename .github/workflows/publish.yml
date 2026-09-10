@@ -10,10 +10,15 @@ name: Publish
 # publish must be done once with a token before the trusted publisher can be
 # registered on npmjs.com.
 #
-# No workflow_dispatch and no tag-push trigger: the version guard below runs
-# unconditionally on every execution, and a published release is the only
-# way in. Draft releases never fire `published`; pre-releases are rejected
-# by the job condition below, so a pre-release cannot reach the registry.
+# Two ways in, no tag-push trigger. A published release fires this directly
+# when a human publishes one. release.yml dispatches it on the tag it just cut,
+# because a Release created by GITHUB_TOKEN raises no `published` event; npm
+# validates the dispatched workflow's own filename, so this stays the one the
+# trusted publisher is registered for. Either way the version guard below runs
+# unconditionally: a dispatch on a branch fails it, since a branch name is not
+# a release tag. Draft releases never fire `published`; pre-releases are
+# rejected by the job condition below, so a pre-release cannot reach the
+# registry.
 #
 # The publish job holds the OIDC credential, so it must never run untrusted
 # third-party code. The example-app checks (consumer, rsc) install dependencies
@@ -25,6 +30,7 @@ name: Publish
 on:
   release:
     types: [published]
+  workflow_dispatch:
 
 # Least privilege by default: only the publish job opts into id-token: write.
 permissions:
@@ -96,7 +102,7 @@ jobs:
       # they are not published from this repo.
       - name: Package version matches the release tag
         env:
-          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          RELEASE_TAG: ${{ github.event.release.tag_name || github.ref_name }}
         run: ./scripts/check-version.sh "$RELEASE_TAG"
       - name: Install
         run: npm ci --ignore-scripts

@@ -1,0 +1,47 @@
+name: Release
+
+# Opens and maintains the release pull request from the Conventional Commits
+# on main (release-please bumps package.json, writes CHANGELOG.md and drafts
+# the notes) and, when that pull request merges, cuts the tag and the GitHub
+# Release. Then it hands off twice, because everything this job creates it
+# creates as GITHUB_TOKEN, and GitHub raises no workflow run for an event that
+# token caused: the release pull request would never see CI, and the Release
+# would never reach publish.yml. So this job dispatches ci.yml on the release
+# branch (check runs attach to the head commit, which is all the required
+# checks look at) and publish.yml on the new tag. No PAT and no GitHub App:
+# workflow_dispatch is the one event GITHUB_TOKEN may raise, and publish.yml
+# stays the workflow the npm trusted publisher is registered for.
+
+on:
+  push:
+    branches: [main]
+
+# Least privilege by default; the one job below opts into what it needs.
+permissions:
+  contents: read
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # the tag and the GitHub Release
+      pull-requests: write # the release pull request
+      actions: write # the two workflow_dispatch hand-offs
+    steps:
+      - uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
+        id: rp
+        with:
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+      - name: Run CI on the release pull request
+        if: steps.rp.outputs.pr != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          HEAD_BRANCH: ${{ fromJSON(steps.rp.outputs.pr).headBranchName }}
+        run: gh workflow run ci.yml --ref "$HEAD_BRANCH"
+      - name: Publish the release
+        if: steps.rp.outputs.release_created == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.rp.outputs.tag_name }}
+        run: gh workflow run publish.yml --ref "$TAG"

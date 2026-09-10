@@ -52,10 +52,12 @@ Two habits the checks will otherwise teach you the slow way:
 
 ## Releases
 
-Never `npm publish` by hand. Bump `version` in `package.json` through a pull request, then
-publish a GitHub Release whose tag is `v<version>`; `.github/workflows/publish.yml` re-runs
-every gate at that tag and publishes to npm over OIDC trusted publishing with provenance.
-The assistive-technology pass in
+Never `npm publish`, `npm version` or tag by hand. `.github/workflows/release.yml` keeps a
+release pull request open from the Conventional Commits on `main`; merging it bumps the version,
+writes `CHANGELOG.md`, cuts the tag and the GitHub Release, and dispatches
+`.github/workflows/publish.yml`, which re-runs every gate at that tag and publishes to npm over
+OIDC trusted publishing with provenance. Your commit type is therefore the release decision: a
+`feat` bumps the minor, a `fix` the patch. The assistive-technology pass in
 [docs/accessibility/README.md](./docs/accessibility/README.md) is a procedure, not a release
 gate: run it when you can, commit the record through a pull request, and CI validates its shape.
 
