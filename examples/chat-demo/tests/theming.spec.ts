@@ -1,7 +1,7 @@
 // The theming tokens (re-cinq/Otto#210), proved in a real Chromium: a consumer
 // that sets nothing gets the palette colour the library shipped with - measured
 // against a probe element, never a pinned oklch serialisation - and a consumer
-// that sets the fifteen --bowman-* properties on a wrapper (src/client-brand.css)
+// that sets the thirty-three --bowman-* properties on a wrapper (src/client-brand.css)
 // recolours the send button, the active row, the streaming avatar circle and
 // the composer's focus glow inside that wrapper alone.
 
@@ -19,6 +19,8 @@ const copperActiveRow = "rgb(253, 235, 220)";
 const copperCircleBorder = "rgb(244, 201, 168)";
 const copperCircleSurface = "rgb(255, 241, 230)";
 const copperGlow = "rgba(183, 65, 14, 0.12)";
+const copperSurface = "rgb(255, 250, 245)";
+const copperBorder = "rgb(234, 219, 205)";
 const transparent = "rgba(0, 0, 0, 0)";
 const streamWindowMs = 10_000;
 
@@ -98,6 +100,18 @@ test.describe("the default chat screen", () => {
     await expect(page.locator("[data-brand-mark]")).toHaveCount(0);
   });
 
+  test("the composer's surface and border resolve to the palette neutrals the library shipped with", async ({
+    page,
+  }) => {
+    await page.goto("/?view=chat");
+    const composerFrame = page.getByRole("textbox").locator("..");
+    const white = await computedPaletteColor(page, "--color-white");
+    const slate200 = await computedPaletteColor(page, "--color-slate-200", "borderColor");
+
+    expect(await backgroundOf(composerFrame)).toBe(white);
+    expect(await borderColorOf(composerFrame)).toBe(slate200);
+  });
+
   test("a prototype name as the brand value still resolves to the default brand", async ({
     page,
   }) => {
@@ -133,6 +147,16 @@ test.describe("the Copperline Bicycles chat screen", () => {
       .poll(() => borderColorOf(streamingCircle), { timeout: streamWindowMs })
       .toBe(copperCircleBorder);
     await expect(streamingCircle.locator("svg[data-brand-mark]")).toHaveCount(1);
+  });
+
+  test("the composer's surface and border take the wrapper's neutral role tokens", async ({
+    page,
+  }) => {
+    await page.goto(brandedChatUrl);
+    const composerFrame = page.getByRole("textbox").locator("..");
+
+    expect(await backgroundOf(composerFrame)).toBe(copperSurface);
+    expect(await borderColorOf(composerFrame)).toBe(copperBorder);
   });
 
   test("the focused composer glows in the brand's accent", async ({ page }) => {

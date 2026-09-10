@@ -1,5 +1,5 @@
 /* The second, invented brand the chat fixture renders at "?view=chat&brand=copperline" and
-   the Overview page's Theming section previews. Every one of the library's fifteen tokens is
+   the Overview page's Theming section previews. Every one of the library's thirty-three tokens is
    set here, scoped to a wrapper rather than :root, so the same document can show the default
    and the branded look side by side. The values are Copperline Bicycles' - invented. */
 .client-brand {
@@ -18,4 +18,22 @@
   --bowman-active: #fdebdc;
   --bowman-active-dark: #3b1a0d;
   --bowman-pulse-outline: rgba(183, 65, 14, 0.5);
+  --bowman-surface: #fffaf5;
+  --bowman-surface-dark: #2a1a10;
+  --bowman-surface-hover: #fdf3ea;
+  --bowman-surface-hover-dark: #3b2618;
+  --bowman-control-hover: #f8e8da;
+  --bowman-control-hover-dark: #3b2618;
+  --bowman-border: #eadbcd;
+  --bowman-border-dark: #4a3020;
+  --bowman-ring-offset: #fffaf5;
+  --bowman-ring-offset-dark: #2a1a10;
+  --bowman-text-body: #4a3324;
+  --bowman-text-body-dark: #f3e4d6;
+  --bowman-text-secondary: #6b4a35;
+  --bowman-text-secondary-dark: #c9a98f;
+  --bowman-text-muted: #8a6a55;
+  --bowman-text-muted-dark: #c9a98f;
+  --bowman-text-subtle: #ab8d78;
+  --bowman-text-subtle-dark: #8a6a55;
 }

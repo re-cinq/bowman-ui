@@ -1,7 +1,7 @@
 // The chat fixture's brands, keyed by the "brand" query value. The default is
 // the Marginalia Books screen every existing test drives: no wrapper class, no
 // avatar. "copperline" is the invented second client that proves the theming
-// tokens: its wrapper class carries the fifteen --bowman-* overrides in
+// tokens: its wrapper class carries the thirty-three --bowman-* overrides in
 // client-brand.css, and its chainring mark fills the assistant avatar circle.
 
 import type { ReactNode } from "react";
