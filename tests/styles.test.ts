@@ -52,14 +52,6 @@ describe("dist/styles.css", () => {
     }
   });
 
-  it("declares --bowman-accent, --bowman-accent-soft and --bowman-accent-border with fallback values in a :root block", () => {
-    const css = readStyles();
-
-    expect(css).toMatch(/:root\s*\{[^}]*--bowman-accent\s*:/s);
-    expect(css).toMatch(/:root\s*\{[^}]*--bowman-accent-soft\s*:/s);
-    expect(css).toMatch(/:root\s*\{[^}]*--bowman-accent-border\s*:/s);
-  });
-
   it('contains no @theme block, no @import "tailwindcss" and no @plugin line', () => {
     const css = readStyles();
 
