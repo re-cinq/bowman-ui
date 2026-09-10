@@ -60,18 +60,11 @@ enters the committed manifest or lockfile
 sufficient to render the screen, so the README's Styles section needed no
 amendment.
 
-<<<<<<< HEAD
 Since the theming tokens (issue 210) a second stylesheet,
 `src/client-brand.css`, sets the library's thirty-three `--bowman-*` tokens under
-=======
-
-Since the theming tokens (issue 210) a second stylesheet,
-`src/client-brand.css`, sets the library's fifteen `--bowman-*` tokens under
-
-> > > > > > > feat/theming-tokens-v2
-> > > > > > > the `.client-brand` wrapper - never `:root` - and `main.tsx` imports it after
-> > > > > > > `./styles.css`; the three-line entry stylesheet above is unchanged
-> > > > > > > ([validated by](../../examples/chat-demo/src/main.tsx#L1)).
+the `.client-brand` wrapper - never `:root` - and `main.tsx` imports it after
+`./styles.css`; the three-line entry stylesheet above is unchanged
+([validated by](../../examples/chat-demo/src/main.tsx#L1)).
 
 ### Composition
 
