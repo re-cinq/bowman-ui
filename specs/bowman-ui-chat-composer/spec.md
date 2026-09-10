@@ -17,12 +17,12 @@ baseline: the tests in
 `autoFocus`, `maxHeightPx`, `attachSlot`, `labels` - with an uncontrolled
 draft: the source grep shows `onChange=` once (the textarea's own binding)
 and no `value=` or `onValueChange` prop
-([validated by](../../tests/ChatComposer.test.tsx#L341)). External writes go
+([validated by](../../tests/ChatComposer.test.tsx#L367)). External writes go
 through `ChatComposerHandle` (`focus()`, `setValue()`) via
 `forwardRef` + `useImperativeHandle`, covering the only two outside
 writes a consumer needs: clear-on-send and a text-injection helper
-([validated by](../../tests/ChatComposer.test.tsx#L184),
-[L217](../../tests/ChatComposer.test.tsx#L217)).
+([validated by](../../tests/ChatComposer.test.tsx#L210),
+[L243](../../tests/ChatComposer.test.tsx#L243)).
 
 **Note - first `useImperativeHandle` in the repo.** 018 Decision 4's idiom is
 `forwardRef` (preserved here); `useImperativeHandle` itself has no prior use
@@ -80,11 +80,11 @@ blank write keeps send disabled; a
 handle retained past unmount is a no-op. `focus()` makes the
 textarea `document.activeElement`; `autoFocus` does
 the same on mount and defaults to false
-([validated by](../../tests/ChatComposer.test.tsx#L217),
-[L227](../../tests/ChatComposer.test.tsx#L227),
-[L184](../../tests/ChatComposer.test.tsx#L184),
-[L197](../../tests/ChatComposer.test.tsx#L197),
-[L207](../../tests/ChatComposer.test.tsx#L207)).
+([validated by](../../tests/ChatComposer.test.tsx#L243),
+[L253](../../tests/ChatComposer.test.tsx#L253),
+[L210](../../tests/ChatComposer.test.tsx#L210),
+[L223](../../tests/ChatComposer.test.tsx#L223),
+[L233](../../tests/ChatComposer.test.tsx#L233)).
 
 ## Auto-resize
 
@@ -94,37 +94,37 @@ cap. jsdom performs no layout and reports `scrollHeight` 0, so the tests stub
 the property (`Object.defineProperty(textarea, "scrollHeight", { value: 320,
 configurable: true })`) and note it: a stubbed 320 caps at `200px` by default
 and reaches `320px` with `maxHeightPx={400}`
-([validated by](../../tests/ChatComposer.test.tsx#L239),
-[L248](../../tests/ChatComposer.test.tsx#L248)). A passing test here
+([validated by](../../tests/ChatComposer.test.tsx#L265),
+[L274](../../tests/ChatComposer.test.tsx#L274)). A passing test here
 proves the arithmetic, never real browser layout.
 
 ## The attachment slot
 
 No attach button ships and no paperclip glyph exists in `src/` or `dist/`
 (docs/design-notes.md decision 2 - the attach affordance is decorative,
-so no button ships without a slot to fill it) ([validated by](../../tests/ChatComposer.test.tsx#L346)).
+so no button ships without a slot to fill it) ([validated by](../../tests/ChatComposer.test.tsx#L372)).
 With no `attachSlot`, send is the only button; a supplied slot
 renders left of send
-([validated by](../../tests/ChatComposer.test.tsx#L259),
-[L265](../../tests/ChatComposer.test.tsx#L265)). The wrapper is a
+([validated by](../../tests/ChatComposer.test.tsx#L285),
+[L291](../../tests/ChatComposer.test.tsx#L291)). The wrapper is a
 `div`, not a `<form>`, and every self-rendered button carries
 `type="button"`, so
 a consumer's own wrapping form never receives a submit from the composer
-([validated by](../../tests/ChatComposer.test.tsx#L279),
-[L287](../../tests/ChatComposer.test.tsx#L287)).
+([validated by](../../tests/ChatComposer.test.tsx#L305),
+[L313](../../tests/ChatComposer.test.tsx#L313)).
 
 ## Labels and accessible names
 
 Three flat keys per 022 Decision 2: `composerInput` (the textarea's
 `aria-label` - a real accessible name, not the placeholder),
 `composerPlaceholder`, and `send`
-([validated by](../../tests/ChatComposer.test.tsx#L318)). The textarea answers to the resolved
+([validated by](../../tests/ChatComposer.test.tsx#L344)). The textarea answers to the resolved
 `composerInput` while showing the `composerPlaceholder`; the send button's
 accessible name is the resolved `send` label with its `SendIcon`
 `aria-hidden` per 020's `getAccessibleIconProps` contract
-([validated by](../../tests/ChatComposer.test.tsx#L305), defaults
-[L318](../../tests/ChatComposer.test.tsx#L318),
-[L327](../../tests/ChatComposer.test.tsx#L327)).
+([validated by](../../tests/ChatComposer.test.tsx#L331), defaults
+[L344](../../tests/ChatComposer.test.tsx#L344),
+[L353](../../tests/ChatComposer.test.tsx#L353)).
 
 `defaultChatComposerLabels` is `Readonly<Required<ChatComposerLabels>>`; a
 key added without a default fails `npm run typecheck`, pinned by the
@@ -140,7 +140,7 @@ default (`"Reply..."`) is the mid-conversation reply prompt, the composer's
 common case. A consumer rendering an empty state passes its own
 welcome sentence through `labels` instead of the package shipping a second
 default
-([validated by](../../tests/ChatComposer.test.tsx#L318)).
+([validated by](../../tests/ChatComposer.test.tsx#L344)).
 
 ## GDPR
 
@@ -149,9 +149,9 @@ and addresses (`003-support-conversation-data-flow-record`). The component
 calls no `console.*`, `localStorage`, `sessionStorage`, `fetch`,
 `sendBeacon` or analytics, asserted by source grep and by the
 suite-wide console trap in `tests/setup.ts`
-([validated by](../../tests/ChatComposer.test.tsx#L358)). There is no draft persistence
+([validated by](../../tests/ChatComposer.test.tsx#L384)). There is no draft persistence
 and no autosave: an unsent support question does not survive on the
-customer's device ([validated by](../../tests/ChatComposer.test.tsx#L358)).
+customer's device ([validated by](../../tests/ChatComposer.test.tsx#L384)).
 
 ## Source purity and the build
 
@@ -161,7 +161,7 @@ No `@clerk`, `swr`, `next-intl`, `next/`, `@/` or
 statement per 018 Decision 1's positional check, and `npm pack` ships it
 with its `.d.ts`
 ([validated by](../../tests/chat-composer-dist.test.ts#L7),
-[L362](../../tests/ChatComposer.test.tsx#L362)).
+[L388](../../tests/ChatComposer.test.tsx#L388)).
 
 ## Recorded deviations from the issue text
 
