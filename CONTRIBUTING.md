@@ -52,12 +52,23 @@ Two habits the checks will otherwise teach you the slow way:
 
 ## Releases
 
-Never `npm publish`, `npm version` or tag by hand. `.github/workflows/release.yml` keeps a
-release pull request open from the Conventional Commits on `main`; merging it bumps the version,
-writes `CHANGELOG.md`, cuts the tag and the GitHub Release, and dispatches
-`.github/workflows/publish.yml`, which re-runs every gate at that tag and publishes to npm over
-OIDC trusted publishing with provenance. Your commit type is therefore the release decision: a
-`feat` bumps the minor, a `fix` the patch. The assistive-technology pass in
+A release is one act: a maintainer publishes a GitHub Release. Nothing is bumped, tagged or
+published by hand, and no pull request is needed for a version to exist.
+
+1. Releases → **Draft a new release** → _Choose a tag_ → type `vX.Y.Z` → _Create new tag on
+   publish_. Patch for fixes, minor for features; 1.0 is a decision, not a side effect.
+2. Target `main`, title `vX.Y.Z`, **Generate release notes** (the merged pull requests since the
+   previous tag become the notes - keep pull-request titles honest for that reason).
+3. Leave _pre-release_ unticked; the workflow refuses pre-releases. **Publish release**.
+
+The `published` event runs `.github/workflows/publish.yml`: the `verify` job re-runs every gate
+at the tag; the `publish` job stamps the tag's version into `package.json`
+(`scripts/set-version-from-tag.sh` - on `main` the field is the placeholder
+`0.0.0` and is never edited), builds, and runs
+`npm publish --access public --provenance` over OIDC trusted publishing. npm is the source of
+truth for versions, and `npm view @re-cinq/bowman-ui versions` lists them. A tag that repeats a
+published version fails at the registry; a failed publish on an existing tag is re-run from the
+Actions tab (`publish.yml` → _Run workflow_ → the tag). The assistive-technology pass in
 [docs/accessibility/README.md](./docs/accessibility/README.md) is a procedure, not a release
 gate: run it when you can, commit the record through a pull request, and CI validates its shape.
 

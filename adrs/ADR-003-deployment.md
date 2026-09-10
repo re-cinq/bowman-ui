@@ -26,7 +26,7 @@ This ADR records how `bowman-ui` reaches its consumers: the npm registry is the 
 ### Package distribution: npm, from a GitHub Release
 
 - `files` ships `dist/` (ESM only, with type definitions) and `THIRD-PARTY-NOTICES.md`.
-- `.github/workflows/publish.yml` runs when a GitHub Release is published. A credential-free `verify` job re-runs every gate (lint, typecheck, markdown safety, the coverage suite, the consumer and RSC tarball proofs) at the release's tag; only then does the `publish` job, holding `id-token: write` and nothing else, check that the tag equals `package.json`'s version, build, and `npm publish --access public --provenance`.
+- `.github/workflows/publish.yml` runs when a GitHub Release is published. A credential-free `verify` job re-runs every gate (lint, typecheck, markdown safety, the coverage suite, the consumer and RSC tarball proofs) at the release's tag; only then does the `publish` job, holding `id-token: write` and nothing else, stamp the tag's version into `package.json` (`main` carries the placeholder `0.0.0`; the tag is the version), build, and `npm publish --access public --provenance`.
 - Authentication is npm trusted publishing: a trusted publisher registered on npmjs.com for this repository and this workflow file. No `NPM_TOKEN` exists in the repository after the first publish, so push access to `main` is not, transitively, publish access - `guard-main-pushes.yml` treats a direct push to `main` as a security event for the same reason.
 - Pre-releases and malformed tags are refused; drafts never fire the workflow.
 

@@ -333,6 +333,10 @@ npm run build
 
 [CONTRIBUTING.md](./CONTRIBUTING.md) has the branch, commit and pull-request conventions and the gates a change must pass.
 
+### Releasing
+
+A release is a GitHub Release with a `vX.Y.Z` tag, nothing more: publishing it runs `publish.yml`, which re-runs every gate at the tag, stamps the tag's version into `package.json` (the field on `main` is the placeholder `0.0.0`), and publishes to npm with provenance over OIDC trusted publishing. No version is ever bumped by hand and no token is stored anywhere. [CONTRIBUTING.md](./CONTRIBUTING.md#releases) has the three clicks.
+
 Two TypeScript installs exist on purpose: `typescript` (~6.x) feeds the lint stack, because `typescript-eslint` caps its peer range below TypeScript 7, while the `typescript7` alias (`npm:typescript@~7.0.2`) is the actual compiler that `build` and `typecheck` invoke. Do not "clean up" the alias, and do not enable type-aware linting (`recommendedTypeChecked`) without revisiting this split - the linter would type-check with a different compiler major than the build.
 
 ## Accessibility

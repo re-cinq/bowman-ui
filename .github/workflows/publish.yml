@@ -10,15 +10,15 @@ name: Publish
 # publish must be done once with a token before the trusted publisher can be
 # registered on npmjs.com.
 #
-# Two ways in, no tag-push trigger. A published release fires this directly
-# when a human publishes one. release.yml dispatches it on the tag it just cut,
-# because a Release created by GITHUB_TOKEN raises no `published` event; npm
-# validates the dispatched workflow's own filename, so this stays the one the
-# trusted publisher is registered for. Either way the version guard below runs
-# unconditionally: a dispatch on a branch fails it, since a branch name is not
-# a release tag. Draft releases never fire `published`; pre-releases are
-# rejected by the job condition below, so a pre-release cannot reach the
-# registry.
+# The GitHub Release is the release: a human drafts one with a `vX.Y.Z` tag
+# and publishes it, and that `published` event is the way in. The version is
+# taken FROM THE TAG - package.json carries a placeholder on main and is never
+# bumped by hand or by a bot - so a release is one act, not a pull request
+# plus a release. workflow_dispatch exists to re-run a failed publish on an
+# existing tag; on any other ref the tag check below fails, since a branch
+# name is not a release tag. Draft releases never fire `published`;
+# pre-releases are rejected by the job condition below, so a pre-release
+# cannot reach the registry.
 #
 # The publish job holds the OIDC credential, so it must never run untrusted
 # third-party code. The example-app checks (consumer, rsc) install dependencies
@@ -96,14 +96,13 @@ jobs:
           registry-url: "https://registry.npmjs.org"
       - name: Upgrade npm for OIDC trusted publishing
         run: npm install -g npm@^11.5.1
-      # A tag whose package.json was never bumped republishes an existing
-      # version, which npm rejects with an error that reads like an auth
-      # failure. Fail here instead, naming the bump. Prerelease tags fail too:
-      # they are not published from this repo.
-      - name: Package version matches the release tag
+      # The tag names the version. A malformed or prerelease tag fails here;
+      # a tag that repeats a published version fails at the registry, loudly,
+      # which is the right place for it.
+      - name: Set the version from the release tag
         env:
           RELEASE_TAG: ${{ github.event.release.tag_name || github.ref_name }}
-        run: ./scripts/check-version.sh "$RELEASE_TAG"
+        run: ./scripts/set-version-from-tag.sh "$RELEASE_TAG"
       - name: Install
         run: npm ci --ignore-scripts
       # Kept even though verify also builds: jobs share no filesystem, so this
