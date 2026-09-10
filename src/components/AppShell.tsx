@@ -5,7 +5,14 @@ import { useFocusTrap } from "../hooks/useFocusTrap.js";
 import { useReducedMotion } from "../hooks/useReducedMotion.js";
 import { CloseIcon, MenuIcon } from "../icons/index.js";
 import { resolveLabels } from "../labels.js";
-import { FOCUS_RING_COLOR } from "../theme/tokens.js";
+import {
+  BORDER,
+  CONTROL_HOVER,
+  FOCUS_RING_COLOR,
+  RING_OFFSET,
+  SURFACE,
+  TEXT_SECONDARY,
+} from "../theme/tokens.js";
 
 export interface SidebarSlotContext {
   variant: "desktop" | "mobile";
@@ -130,13 +137,13 @@ export function AppShell({
         aria-label={isOpen ? resolved.sidebarDialog : undefined}
         data-testid="app-shell-drawer"
         inert={!isOpen}
-        className={`fixed inset-y-0 left-0 z-50 flex w-72 max-w-[85vw] flex-col border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 md:hidden${drawerMotionClass} ${drawerStateClass}`}
+        className={`fixed inset-y-0 left-0 z-50 flex w-72 max-w-[85vw] flex-col border-r ${BORDER} ${SURFACE} md:hidden${drawerMotionClass} ${drawerStateClass}`}
       >
-        <div className="flex h-14 items-center justify-end border-b border-slate-200 px-4 dark:border-slate-800">
+        <div className={`flex h-14 items-center justify-end border-b ${BORDER} px-4`}>
           <button
             type="button"
             onClick={close}
-            className={`flex h-10 w-10 items-center justify-center rounded-lg text-slate-600 ring-offset-2 transition-colors hover:bg-slate-100 focus:outline-none focus:ring-2 ${FOCUS_RING_COLOR} dark:text-slate-400 dark:ring-offset-slate-900 dark:hover:bg-slate-800`}
+            className={`flex h-10 w-10 items-center justify-center rounded-lg ${TEXT_SECONDARY} ring-offset-2 transition-colors ${CONTROL_HOVER} focus:outline-none focus:ring-2 ${FOCUS_RING_COLOR} ${RING_OFFSET}`}
             aria-label={resolved.closeSidebar}
           >
             <CloseIcon className="h-6 w-6" />
@@ -145,13 +152,15 @@ export function AppShell({
         {renderSidebar?.({ variant: "mobile", close })}
       </div>
 
-      <div className="fixed inset-x-0 top-0 z-40 flex h-14 items-center justify-between border-b border-slate-200 bg-white px-4 dark:border-slate-800 dark:bg-slate-900 md:hidden">
+      <div
+        className={`fixed inset-x-0 top-0 z-40 flex h-14 items-center justify-between border-b ${BORDER} ${SURFACE} px-4 md:hidden`}
+      >
         <button
           ref={hamburgerRef}
           type="button"
           aria-controls={drawerId}
           onClick={() => setOpen(true)}
-          className={`flex h-10 w-10 items-center justify-center rounded-lg text-slate-600 ring-offset-2 transition-colors hover:bg-slate-100 focus:outline-none focus:ring-2 ${FOCUS_RING_COLOR} dark:text-slate-400 dark:ring-offset-slate-900 dark:hover:bg-slate-800`}
+          className={`flex h-10 w-10 items-center justify-center rounded-lg ${TEXT_SECONDARY} ring-offset-2 transition-colors ${CONTROL_HOVER} focus:outline-none focus:ring-2 ${FOCUS_RING_COLOR} ${RING_OFFSET}`}
           aria-label={resolved.openSidebar}
         >
           <MenuIcon className="h-6 w-6" />

@@ -13,7 +13,13 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { CheckIcon, CopyIcon, ThumbsDownIcon, ThumbsUpIcon } from "../icons/index.js";
 import { resolveLabels } from "../labels.js";
-import { ACCENT_SOFT_SURFACE, FOCUS_RING_COLOR } from "../theme/tokens.js";
+import {
+  ACCENT_SOFT_SURFACE,
+  CONTROL_HOVER,
+  FOCUS_RING_COLOR,
+  TEXT_MUTED,
+  TEXT_SUBTLE,
+} from "../theme/tokens.js";
 import {
   createMarkdownComponents,
   defaultMarkdownComponentsLabels,
@@ -307,7 +313,7 @@ function AssistantMessage({
         )}
         <div className="max-w-none overflow-x-auto pt-1 text-sm leading-6">
           {entry.toolStatus && (
-            <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
+            <div className={`flex items-center gap-2 text-sm ${TEXT_MUTED}`}>
               <div className="h-3.5 w-3.5 animate-spin rounded-full border border-slate-300 border-t-slate-600 dark:border-slate-600 dark:border-t-slate-300" />
               <span>{entry.toolStatus}</span>
             </div>
@@ -330,7 +336,7 @@ function AssistantMessage({
           <div className="-ml-1 flex items-center gap-2 opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100">
             <button
               type="button"
-              className={`rounded p-1.5 text-slate-400 ring-offset-2 transition-colors hover:bg-slate-100 hover:text-slate-600 focus:outline-none focus:ring-2 ${FOCUS_RING_COLOR} dark:ring-offset-slate-950 dark:hover:bg-slate-800 dark:hover:text-slate-300`}
+              className={`rounded p-1.5 text-slate-400 ring-offset-2 transition-colors ${CONTROL_HOVER} hover:text-slate-600 focus:outline-none focus:ring-2 ${FOCUS_RING_COLOR} dark:ring-offset-slate-950 dark:hover:text-slate-300`}
               onClick={() => onCopy(entry.content, entry.id)}
               aria-label={copiedId === entry.id ? resolved.copied : resolved.copy}
             >
@@ -341,7 +347,7 @@ function AssistantMessage({
               )}
             </button>
             {copiedId === entry.id && (
-              <span className="bowman-fade-in text-xs text-slate-400 dark:text-slate-500">
+              <span className={`bowman-fade-in text-xs ${TEXT_SUBTLE}`}>
                 {resolved.copiedNotice}
               </span>
             )}
@@ -353,7 +359,7 @@ function AssistantMessage({
                   className={`rounded p-1.5 ring-offset-2 transition-colors focus:outline-none focus:ring-2 ${FOCUS_RING_COLOR} dark:ring-offset-slate-950 ${
                     feedbackId?.id === entry.id && feedbackId.type === "up"
                       ? "bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400"
-                      : "text-slate-400 hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-800 dark:hover:text-slate-300"
+                      : `text-slate-400 ${CONTROL_HOVER} hover:text-slate-600 dark:hover:text-slate-300`
                   }`}
                   onClick={() => onFeedback(entry.id, "up")}
                   aria-label={resolved.feedbackPositive}
@@ -366,7 +372,7 @@ function AssistantMessage({
                   className={`rounded p-1.5 ring-offset-2 transition-colors focus:outline-none focus:ring-2 ${FOCUS_RING_COLOR} dark:ring-offset-slate-950 ${
                     feedbackId?.id === entry.id && feedbackId.type === "down"
                       ? "bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400"
-                      : "text-slate-400 hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-800 dark:hover:text-slate-300"
+                      : `text-slate-400 ${CONTROL_HOVER} hover:text-slate-600 dark:hover:text-slate-300`
                   }`}
                   onClick={() => onFeedback(entry.id, "down")}
                   aria-label={resolved.feedbackNegative}
@@ -375,7 +381,7 @@ function AssistantMessage({
                   <ThumbsDownIcon className="h-4 w-4" />
                 </button>
                 {feedbackId?.id === entry.id && (
-                  <span className="bowman-fade-in ml-1 text-xs text-slate-400 dark:text-slate-500">
+                  <span className={`bowman-fade-in ml-1 text-xs ${TEXT_SUBTLE}`}>
                     {resolved.feedbackNotice}
                   </span>
                 )}

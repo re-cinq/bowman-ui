@@ -13,6 +13,24 @@
 /* --bowman-active: var(--color-slate-100) - active conversation row, active sidebar item */
 /* --bowman-active-dark: var(--color-slate-800) - active conversation row, active sidebar item (dark) */
 /* --bowman-pulse-outline: rgba(59, 130, 246, 0.5) - bowman-pulse-subtle outline */
+/* --bowman-surface: var(--color-white) - panel, sidebar, drawer, composer, search field, prompt chip and secondary button background */
+/* --bowman-surface-dark: var(--color-slate-900) - the same surfaces (dark) */
+/* --bowman-surface-hover: var(--color-slate-50) - sidebar item, conversation row, prompt chip, secondary and ghost button hover */
+/* --bowman-surface-hover-dark: var(--color-slate-800) - the same hovers (dark) */
+/* --bowman-control-hover: var(--color-slate-100) - drawer and menu buttons, copy and feedback controls hover */
+/* --bowman-control-hover-dark: var(--color-slate-800) - the same control hovers (dark) */
+/* --bowman-border: var(--color-slate-200) - panel, sidebar, composer, search field, prompt chip, secondary button and disclosure borders */
+/* --bowman-border-dark: var(--color-slate-800) - the same borders (dark) */
+/* --bowman-ring-offset: var(--color-white) - every focus ring's offset colour */
+/* --bowman-ring-offset-dark: var(--color-slate-900) - the same offsets (dark) */
+/* --bowman-text-body: var(--color-slate-700) - conversation title, prompt chip, secondary button and tool chip text */
+/* --bowman-text-body-dark: var(--color-slate-200) - the same text (dark) */
+/* --bowman-text-secondary: var(--color-slate-600) - drawer buttons, sidebar item, ghost button and error body text */
+/* --bowman-text-secondary-dark: var(--color-slate-400) - the same text (dark) */
+/* --bowman-text-muted: var(--color-slate-500) - timestamps, disclosure band, thinking and tool labels */
+/* --bowman-text-muted-dark: var(--color-slate-400) - the same labels (dark) */
+/* --bowman-text-subtle: var(--color-slate-400) - faint timestamps, empty-state hints, search icon, placeholders */
+/* --bowman-text-subtle-dark: var(--color-slate-500) - the same hints and placeholders (dark) */
 
 @keyframes bowman-fade-in {
   from {
