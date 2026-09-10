@@ -8,7 +8,3 @@
 # interface; either way the directory's contents belong to that tool, not to
 # this repo's formatter.
 .lore/
-
-# Written by release-please from the commit log on every release pull request,
-# never by hand; its formatting belongs to that tool for the same reason.
-CHANGELOG.md

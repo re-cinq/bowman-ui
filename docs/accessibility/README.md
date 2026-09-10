@@ -310,7 +310,7 @@ is complete and copy-pasteable once the values are yours:
 date: 2026-09-15
 runner: A Named Person
 commit: 0123456789abcdef0123456789abcdef01234567
-package: "@re-cinq/bowman-ui@0.1.0"
+package: "@re-cinq/bowman-ui@0.1.1"
 covers:
   - src/components/ChatMessage.tsx
   - src/components/ChatMessageList.tsx
@@ -386,7 +386,7 @@ Required fields:
 | `date`    | `YYYY-MM-DD`; equal to the filename's date                                                                                                                                                                                         |
 | `runner`  | The person who listened, as a plain name. No email address and no angle brackets - the placeholder check rejects `<...>`                                                                                                           |
 | `commit`  | Lowercase 40-hex sha of the commit the surface was built from ([Which commit](#which-commit)); `--freshness` also requires it to exist in the repository                                                                           |
-| `package` | The package and version listened to, `@re-cinq/bowman-ui@<version>` from `package.json` at that commit                                                                                                                             |
+| `package` | The package and version listened to: `@re-cinq/bowman-ui@<version>` for a registry install, or `@re-cinq/bowman-ui@main-<sha>` for the published site, which is built from `main` and carries no version                           |
 | `covers`  | Path list; every component a row exercises - see below                                                                                                                                                                             |
 | `stacks`  | One or more entries, each with an `id` slug (lowercase letters, digits, dashes; unique) and `screenReader`, plus `browser`, `platform` and `voice` as run - or `not-run: <why>` instead of those three. At least one entry was run |
 | `rows`    | One entry per row per declared stack: `id` (`A1`..`A7`), `stack` (a stack `id`), `verdict`                                                                                                                                         |
