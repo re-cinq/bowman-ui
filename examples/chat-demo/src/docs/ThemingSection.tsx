@@ -1,16 +1,16 @@
 // The Overview page's Theming section: the same three components rendered
 // twice, once with the library's defaults and once inside the wrapper class
-// that overrides the thirty-three --bowman-* tokens (src/client-brand.css). One
+// that overrides the thirty-three --bowman-* tokens (src/custom-theme.css). One
 // preview component renders both, so the two columns cannot drift apart.
 
 import { ChatComposer, ChatMessage, ConversationList } from "@re-cinq/bowman-ui";
-import { clientBrand, defaultBrand, type DemoBrand } from "../brands";
+import { customTheme, defaultTheme, type DemoTheme } from "../themes";
 import { CodeBlock, DocSection, Stage } from "./DocsUi";
 import { docsConversationItems, docsStreamingEntry, docsUserInitials } from "./fixtures";
 
 const previewItems = docsConversationItems.slice(0, 2);
 
-const clientBrandSnippet = `.client-brand {
+const customThemeSnippet = `.custom-theme {
   --bowman-accent: #b7410e;
   --bowman-accent-hover: #9a3412;
   --bowman-accent-soft: #fff1e6;
@@ -21,16 +21,16 @@ const clientBrandSnippet = `.client-brand {
 
 const ignoreSubmit = () => {};
 
-function ThemingPreview({ id, brand, note }: { id: string; brand: DemoBrand; note: string }) {
+function ThemingPreview({ id, theme, note }: { id: string; theme: DemoTheme; note: string }) {
   return (
-    <div data-theming-preview={id} className={brand.className}>
+    <div data-theming-preview={id} className={theme.className}>
       <Stage>
         <div className="flex flex-col gap-4">
           <p className="text-sm leading-6 text-slate-600 dark:text-slate-400">{note}</p>
           <ChatMessage
             entry={docsStreamingEntry}
             userInitials={docsUserInitials}
-            assistantAvatar={brand.assistantAvatar}
+            assistantAvatar={theme.assistantAvatar}
           />
           <ChatComposer onSubmit={ignoreSubmit} />
           <ConversationList items={previewItems} activeId={previewItems[0].id} />
@@ -46,13 +46,13 @@ export function ThemingSection() {
       <div className="grid gap-4 md:grid-cols-2">
         <ThemingPreview
           id="default"
-          brand={defaultBrand}
+          theme={defaultTheme}
           note="The defaults: every token falls back to the palette colour the library shipped with."
         />
         <ThemingPreview
-          id="client"
-          brand={clientBrand}
-          note="Inside a wrapper that sets the tokens: the same components, the client's colours."
+          id="custom"
+          theme={customTheme}
+          note="Inside a wrapper that sets the tokens: the same components, the theme's colours."
         />
       </div>
       <p className="text-sm leading-6 text-slate-600 dark:text-slate-400">
@@ -64,7 +64,7 @@ export function ThemingSection() {
         <code>-dark</code> tokens, read by the components&apos; existing <code>dark:</code>{" "}
         variants.
       </p>
-      <CodeBlock code={clientBrandSnippet} />
+      <CodeBlock code={customThemeSnippet} />
     </DocSection>
   );
 }

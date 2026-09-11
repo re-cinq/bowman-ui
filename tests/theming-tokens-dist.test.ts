@@ -1,5 +1,6 @@
-import { readdirSync, readFileSync } from "node:fs";
+import { readdirSync } from "node:fs";
 import { basename, resolve } from "node:path";
+import { bowmanTokenNamesIn, readFromRepoRoot as read } from "./helpers/theme-token-source.js";
 
 // docs/design-notes.md § Theming: every --bowman-* token is read only through a
 // var() fallback, so the built package resolves to today's palette byte for
@@ -80,8 +81,6 @@ const NEUTRAL_ROLE_READERS: Record<string, string[]> = {
   TEXT_SUBTLE: ["ChatMessage", "ConversationList", "SearchField"],
   PLACEHOLDER_SUBTLE: ["ChatComposer", "SearchField"],
 };
-
-const read = (file: string): string => readFileSync(resolve(process.cwd(), file), "utf8");
 
 const COMMENT_LINE = /^\/\* (--bowman-[a-z-]+): (.+?) - .+ \*\/$/;
 
@@ -166,7 +165,7 @@ describe("the built theming tokens", () => {
 
   it("every --bowman-* occurrence outside the declaration block is a var() read with a non-empty fallback", () => {
     for (const [file, source] of scannedSources()) {
-      const occurrences = source.match(/--bowman-[a-z-]+/g) ?? [];
+      const occurrences = bowmanTokenNamesIn(source);
       const usages = usagesIn(file, source);
 
       expect(usages.length, file).toBe(occurrences.length);

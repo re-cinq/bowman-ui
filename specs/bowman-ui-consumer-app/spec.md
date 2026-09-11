@@ -13,7 +13,7 @@ chat screen in a real Chromium. It proves what no jsdom test can: the
 package's eight major components in one document, compiled by a real Tailwind v4
 build, laid out by a real browser. The whole proof is one command,
 `npm run consumer` ([validated by](../../package.json#L53)), documented in the
-README's Worked consumer section ([validated by](../../README.md#L196)).
+README's Worked consumer section ([validated by](../../README.md#L202)).
 
 Anchor caveat: `scripts/repoint-spec-anchors.mjs` tracks
 `(../)+tests/*.ts(x)` anchors, `(../)+examples/*/tests/*.ts(x)` anchors since
@@ -61,8 +61,8 @@ sufficient to render the screen, so the README's Styles section needed no
 amendment.
 
 Since the theming tokens (issue 210) a second stylesheet,
-`src/client-brand.css`, sets the library's thirty-three `--bowman-*` tokens under
-the `.client-brand` wrapper - never `:root` - and `main.tsx` imports it after
+`src/custom-theme.css`, sets the library's thirty-three `--bowman-*` tokens under
+the `.custom-theme` wrapper - never `:root` - and `main.tsx` imports it after
 `./styles.css`; the three-line entry stylesheet above is unchanged
 ([validated by](../../examples/chat-demo/src/main.tsx#L1)).
 
@@ -86,13 +86,13 @@ docs/design-notes.md § Layout requires of consumers
 ([validated by](../../examples/chat-demo/src/App.tsx#L189)), and copy shows a
 `Toast` ([validated by](../../examples/chat-demo/src/App.tsx#L211)).
 
-`src/brands.tsx` adds the `&brand=copperline` dimension to `?view=chat`:
-`resolveBrand` maps the query value to a brand - the Marginalia Books default,
-or the invented Copperline Bicycles client - and `ChatScreen` wraps the whole
-fragment, shell and toast alike, in the brand's `.client-brand` wrapper and
+`src/themes.tsx` adds the `&theme=copperline` dimension to `?view=chat`:
+`resolveTheme` maps the query value to a theme - the Marginalia Books default,
+or the invented Copperline Bicycles company - and `ChatScreen` wraps the whole
+fragment, shell and toast alike, in the theme's `.custom-theme` wrapper and
 passes its chainring mark as `ChatMessageList`'s `assistantAvatar`; an
 unknown value falls back to the default
-([validated by](../../examples/chat-demo/src/brands.tsx#L46)). The wrapper,
+([validated by](../../examples/chat-demo/src/themes.tsx#L46)). The wrapper,
 the tokens it sets and the Chromium proof are specified in
 `specs/bowman-ui-theming-tokens/spec.md` § The demo, not restated here.
 
@@ -116,8 +116,8 @@ set, so the module reuses those defaults and writes out only the strings no
 default can supply - the required `aiDisclosure` (docs/design-notes.md § Labels
 decision 5) and the demo's own screen copy
 ([validated by](../../examples/chat-demo/src/labels.ts#L1)). "Single" is
-looser than it was: the two brand names live with their brands in
-`src/brands.tsx`, and the Theming section's explanatory copy with its previews
+looser than it was: the two theme names live with their themes in
+`src/themes.tsx`, and the Theming section's explanatory copy with its previews
 in `src/docs/ThemingSection.tsx`, beside the docs chrome's own
 `src/docs-labels.ts` - none of them a second locale, all of them English.
 
@@ -183,7 +183,7 @@ otherwise ([validated by](../../examples/chat-demo/playwright.config.ts#L8)).
 
 All statements below executed green on 2026-09-10 against the packed tarball
 (32 passed across the chat, docs and theming suites, exit 0), re-run for the
-theming tokens' client-branded variant. See
+theming tokens' custom-themed variant. See
 `specs/bowman-ui-theming-tokens/spec.md` § The demo for the theming suite,
 `tests/theming.spec.ts`, which this spec does not restate.
 
@@ -329,6 +329,6 @@ issue), real assistive technology, the RSC/Next fixture, registry publishing,
 engine wiring, the real Danish catalogue and disclosure wording
 (issue 32), source-app adoption, and visual regression testing.
 
-Branding and theming of the demo were outside this issue too; the
-client-branded variant and the tokens it proves are covered by
+Theming of the demo was outside this issue too; the
+custom-themed variant and the tokens it proves are covered by
 `specs/bowman-ui-theming-tokens/spec.md` (issue 210).

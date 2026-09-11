@@ -1,8 +1,8 @@
-/* The second, invented brand the chat fixture renders at "?view=chat&brand=copperline" and
+/* The second, invented theme the chat fixture renders at "?view=chat&theme=copperline" and
    the Overview page's Theming section previews. Every one of the library's thirty-three tokens is
    set here, scoped to a wrapper rather than :root, so the same document can show the default
-   and the branded look side by side. The values are Copperline Bicycles' - invented. */
-.client-brand {
+   and the themed look side by side. The values are Copperline Bicycles' - invented. */
+.custom-theme {
   --bowman-accent: #b7410e;
   --bowman-accent-dark: #c2410c;
   --bowman-accent-hover: #9a3412;

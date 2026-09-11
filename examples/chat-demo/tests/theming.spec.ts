@@ -1,19 +1,19 @@
 // The theming tokens (issue 210), proved in a real Chromium: a consumer
 // that sets nothing gets the palette colour the library shipped with - measured
 // against a probe element, never a pinned oklch serialisation - and a consumer
-// that sets the thirty-three --bowman-* properties on a wrapper (src/client-brand.css)
+// that sets the thirty-three --bowman-* properties on a wrapper (src/custom-theme.css)
 // recolours the send button, the active row, the streaming avatar circle and
 // the composer's focus glow inside that wrapper alone.
 
 import { expect, test, type Locator, type Page } from "@playwright/test";
 import { chatComposerLabels, chatMessageListLabels, conversationListLabels } from "../src/labels";
 
-// Kept as literals rather than imported from src/brands.tsx: Playwright's
+// Kept as literals rather than imported from src/themes.tsx: Playwright's
 // transform resolves modules the way Node does, and would choke on the JSX.
-const defaultBrandName = "Marginalia Books";
-const copperlineBrandName = "Copperline Bicycles";
+const defaultThemeName = "Marginalia Books";
+const copperlineThemeName = "Copperline Bicycles";
 
-const brandedChatUrl = "/?view=chat&brand=copperline";
+const themedChatUrl = "/?view=chat&theme=copperline";
 const copperAccent = "rgb(183, 65, 14)";
 const copperActiveRow = "rgb(253, 235, 220)";
 const copperCircleBorder = "rgb(244, 201, 168)";
@@ -97,7 +97,7 @@ test.describe("the default chat screen", () => {
 
     expect(await backgroundOf(await enabledSendButton(page))).toBe(blue500);
     expect(await backgroundOf(activeConversationRow(page))).toBe(slate100);
-    await expect(page.locator("[data-brand-mark]")).toHaveCount(0);
+    await expect(page.locator("[data-theme-mark]")).toHaveCount(0);
   });
 
   test("the composer's surface and border resolve to the palette neutrals the library shipped with", async ({
@@ -112,28 +112,28 @@ test.describe("the default chat screen", () => {
     expect(await borderColorOf(composerFrame)).toBe(slate200);
   });
 
-  test("a prototype name as the brand value still resolves to the default brand", async ({
+  test("a prototype name as the theme value still resolves to the default theme", async ({
     page,
   }) => {
-    await page.goto("/?view=chat&brand=constructor");
+    await page.goto("/?view=chat&theme=constructor");
 
-    await expect(page.getByRole("complementary").getByText(defaultBrandName)).toBeVisible();
-    await expect(page.locator("[data-brand-mark]")).toHaveCount(0);
+    await expect(page.getByRole("complementary").getByText(defaultThemeName)).toBeVisible();
+    await expect(page.locator("[data-theme-mark]")).toHaveCount(0);
   });
 });
 
 test.describe("the Copperline Bicycles chat screen", () => {
   test("the send button and the active row take the wrapper's tokens", async ({ page }) => {
-    await page.goto(brandedChatUrl);
+    await page.goto(themedChatUrl);
 
     expect(await backgroundOf(await enabledSendButton(page))).toBe(copperAccent);
     expect(await backgroundOf(activeConversationRow(page))).toBe(copperActiveRow);
   });
 
-  test("the streaming avatar circle carries the brand's border and its chainring mark", async ({
+  test("the streaming avatar circle carries the theme's border and its chainring mark", async ({
     page,
   }) => {
-    await page.goto(brandedChatUrl);
+    await page.goto(themedChatUrl);
 
     const composer = composerOf(page);
 
@@ -146,21 +146,21 @@ test.describe("the Copperline Bicycles chat screen", () => {
     await expect
       .poll(() => borderColorOf(streamingCircle), { timeout: streamWindowMs })
       .toBe(copperCircleBorder);
-    await expect(streamingCircle.locator("svg[data-brand-mark]")).toHaveCount(1);
+    await expect(streamingCircle.locator("svg[data-theme-mark]")).toHaveCount(1);
   });
 
   test("the composer's surface and border take the wrapper's neutral role tokens", async ({
     page,
   }) => {
-    await page.goto(brandedChatUrl);
+    await page.goto(themedChatUrl);
     const composerFrame = page.getByRole("textbox").locator("..");
 
     expect(await backgroundOf(composerFrame)).toBe(copperSurface);
     expect(await borderColorOf(composerFrame)).toBe(copperBorder);
   });
 
-  test("the focused composer glows in the brand's accent", async ({ page }) => {
-    await page.goto(brandedChatUrl);
+  test("the focused composer glows in the theme's accent", async ({ page }) => {
+    await page.goto(themedChatUrl);
 
     const composer = composerOf(page);
     const composerWrapper = composer.locator("..");
@@ -171,10 +171,10 @@ test.describe("the Copperline Bicycles chat screen", () => {
       .toContain(copperGlow);
   });
 
-  test("the sidebar names the brand", async ({ page }) => {
-    await page.goto(brandedChatUrl);
+  test("the sidebar names the theme", async ({ page }) => {
+    await page.goto(themedChatUrl);
 
-    await expect(page.getByRole("complementary").getByText(copperlineBrandName)).toBeVisible();
+    await expect(page.getByRole("complementary").getByText(copperlineThemeName)).toBeVisible();
   });
 });
 
@@ -183,20 +183,20 @@ test.describe("the Overview page's Theming section", () => {
     await page.goto("/?view=docs&component=overview");
 
     const defaultPreview = page.locator('[data-theming-preview="default"]');
-    const clientPreview = page.locator('[data-theming-preview="client"]');
+    const customPreview = page.locator('[data-theming-preview="custom"]');
 
     await expect(defaultPreview).toHaveCount(1);
-    await expect(clientPreview).toHaveCount(1);
+    await expect(customPreview).toHaveCount(1);
 
     const blue500 = await computedPaletteColor(page, "--color-blue-500");
     const defaultBackground = await backgroundOf(await enabledSendButton(defaultPreview));
-    const clientBackground = await backgroundOf(await enabledSendButton(clientPreview));
+    const customBackground = await backgroundOf(await enabledSendButton(customPreview));
 
     expect(defaultBackground).toBe(blue500);
-    expect(clientBackground).toBe(copperAccent);
-    expect(defaultBackground).not.toBe(clientBackground);
-    await expect(clientPreview.locator("svg[data-brand-mark]")).toHaveCount(1);
-    await expect(defaultPreview.locator("[data-brand-mark]")).toHaveCount(0);
+    expect(customBackground).toBe(copperAccent);
+    expect(defaultBackground).not.toBe(customBackground);
+    await expect(customPreview.locator("svg[data-theme-mark]")).toHaveCount(1);
+    await expect(defaultPreview.locator("[data-theme-mark]")).toHaveCount(0);
   });
 
   // The preview's entry streams forever, so the circle needs no polling window.
@@ -206,17 +206,17 @@ test.describe("the Overview page's Theming section", () => {
     await page.goto("/?view=docs&component=overview");
 
     const defaultCircle = page.locator('[data-theming-preview="default"] .bowman-pulse-subtle');
-    const clientCircle = page.locator('[data-theming-preview="client"] .bowman-pulse-subtle');
+    const customCircle = page.locator('[data-theming-preview="custom"] .bowman-pulse-subtle');
 
     await expect(defaultCircle).toHaveCount(1);
-    await expect(clientCircle).toHaveCount(1);
+    await expect(customCircle).toHaveCount(1);
 
     const blue200 = await computedPaletteColor(page, "--color-blue-200", "borderColor");
     const blue50 = await computedPaletteColor(page, "--color-blue-50");
 
     expect(await borderColorOf(defaultCircle)).toBe(blue200);
     expect(await backgroundOf(defaultCircle)).toBe(blue50);
-    expect(await borderColorOf(clientCircle)).toBe(copperCircleBorder);
-    expect(await backgroundOf(clientCircle)).toBe(copperCircleSurface);
+    expect(await borderColorOf(customCircle)).toBe(copperCircleBorder);
+    expect(await backgroundOf(customCircle)).toBe(copperCircleSurface);
   });
 });
