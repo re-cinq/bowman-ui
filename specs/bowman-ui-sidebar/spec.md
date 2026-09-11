@@ -83,12 +83,22 @@ sentinel render with both labels set to sentinels
    growth and scrolling regardless of what's passed in - an unsized child is
    the one that grows, pinned by the wrapper's class list
    ([validated by](../../tests/AppSidebar.test.tsx#L215)).
+
+   The region owns its text colour: it reads `--bowman-text-body`, so
+   plain-string children read on the dark surface instead of inheriting the
+   page colour ([validated by](../../tests/AppSidebar.test.tsx#L271)).
+
 5. **The footer is one `footer?: ReactNode` slot inside a single `border-t`
    region, not four named slots.** User menu, org switcher, language picker
    and sign-in are all consumer-specific; a support customer has none of
    them. `footer` present renders exactly one `border-t` region; omitted,
    no such region ([validated by](../../tests/AppSidebar.test.tsx#L230),
    [L239](../../tests/AppSidebar.test.tsx#L239)).
+
+   The region owns its text colour: it reads `--bowman-text-body`, so a
+   plain-string footer reads on the dark surface instead of inheriting the page
+   colour ([validated by](../../tests/AppSidebar.test.tsx#L280)).
+
 6. **The brand is a slot inside the bordered top row; omitted, no row
    renders at all** - no `h-14` row and no `border-b` above the navigation
    ([validated by](../../tests/AppSidebar.test.tsx#L245),
@@ -119,7 +129,7 @@ and customer names (`003-support-conversation-data-flow-record`). The
 component calls no `console.*`, no `fetch`, no `navigator.sendBeacon` and no
 `localStorage` or `sessionStorage`, and stores nothing outside React state -
 asserted by a source grep
-([validated by](../../tests/AppSidebar.test.tsx#L277)). The suite-wide
+([validated by](../../tests/AppSidebar.test.tsx#L295)). The suite-wide
 console spy stays at zero calls ([spy](../../tests/setup.ts#L29)).
 
 ## Build contract
@@ -130,7 +140,7 @@ The file imports nothing from `@clerk`, `swr`, `next-intl`, `next/`,
 and ships with its `.d.ts`
 ([validated by](../../tests/app-sidebar-dist.test.ts#L7),
 [L11](../../tests/app-sidebar-dist.test.ts#L11),
-[L281](../../tests/AppSidebar.test.tsx#L281)). A key added to
+[L299](../../tests/AppSidebar.test.tsx#L299)). A key added to
 `AppSidebarLabels` without a default cannot satisfy
 `Readonly<Required<AppSidebarLabels>>`
 ([validated by](../../tests/types/app-sidebar-type-assertions.tsx#L19)).

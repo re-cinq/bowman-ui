@@ -140,7 +140,7 @@ export function AppShell({
         inert={!isOpen}
         className={`fixed inset-y-0 left-0 z-50 flex w-72 max-w-[85vw] flex-col border-r ${BORDER} ${SURFACE} md:hidden${drawerMotionClass} ${drawerStateClass}`}
       >
-        <div className={`flex h-14 items-center justify-end border-b ${BORDER} px-4`}>
+        <div className={`flex h-14 items-center justify-end border-b ${BORDER} ${TEXT_BODY} px-4`}>
           <button
             type="button"
             onClick={close}
@@ -178,7 +178,9 @@ export function AppShell({
         id={mainContentId}
         className="relative flex flex-1 flex-col overflow-hidden pt-14 md:pt-0"
       >
-        <div className="flex-1 overflow-auto bg-white dark:bg-slate-950">{children}</div>
+        <div className={`flex-1 overflow-auto bg-white dark:bg-slate-950 ${TEXT_BODY}`}>
+          {children}
+        </div>
       </main>
     </div>
   );

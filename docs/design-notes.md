@@ -482,7 +482,7 @@ the name and fallback columns are the contract, not an illustration.
 | `--bowman-border-dark`         | `var(--color-slate-800)` | the same borders (dark)                                                                                                         |
 | `--bowman-ring-offset`         | `var(--color-white)`     | every `focus:ring-offset` colour beside `ring-offset-2` (light); `ChatMessage`'s slate-950 offsets stay palette-mapped          |
 | `--bowman-ring-offset-dark`    | `var(--color-slate-900)` | the same offsets (dark)                                                                                                         |
-| `--bowman-text-body`           | `var(--color-slate-700)` | conversation title, prompt chip, secondary button, `ToolActivity` chip, `AppShell` header and `AppSidebar` brand rows (light)   |
+| `--bowman-text-body`           | `var(--color-slate-700)` | conversation title, prompt chip, secondary button, `ToolActivity` chip, `AppShell` and `AppSidebar` consumer regions (light)    |
 | `--bowman-text-body-dark`      | `var(--color-slate-200)` | the same text (dark)                                                                                                            |
 | `--bowman-text-secondary`      | `var(--color-slate-600)` | `AppShell` drawer buttons, sidebar item, ghost button, `ErrorBoundary` body text (light)                                        |
 | `--bowman-text-secondary-dark` | `var(--color-slate-400)` | the same text (dark)                                                                                                            |
@@ -568,12 +568,15 @@ Decisions:
    no neutral at all). A neutral site qualifies for a role when its light
    and dark utilities both equal the role pair's fallbacks; a site that
    matches on one side only keeps its palette classes on both, so no site is
-   ever half-themed. Amended 2026-09-11, a recorded exception:
-   the `AppShell` mobile header row and the `AppSidebar` brand row read
-   `--bowman-text-body` although they carried no text utility before, because
-   a plain-string `brand` inherited the page colour and was unreadable on a
-   dark surface. The other consumer slots keep inheriting for now. The nine
-   pairs: `--bowman-surface` (`bg-white` /
+   ever half-themed. Amended 2026-09-11, a recorded exception: the library
+   paints `--bowman-text-body` on every region it lays out for consumer
+   content, so a plain string reads on a dark surface instead of inheriting
+   the page colour. That is the `AppShell` mobile header row, drawer
+   close-button row and main region, and the `AppSidebar` brand row, children
+   scroll region and footer row - each carried no text utility before. Only
+   the body text is painted; these regions' backgrounds stay palette-mapped by
+   the rule below (the main region's `bg-white` / `dark:bg-slate-950` is listed
+   there). The nine pairs: `--bowman-surface` (`bg-white` /
    `dark:bg-slate-900`), `--bowman-surface-hover` (`hover:bg-slate-50` /
    `dark:hover:bg-slate-800`), `--bowman-control-hover` (`hover:bg-slate-100`
    / `dark:hover:bg-slate-800`), `--bowman-border` (`border-slate-200` /

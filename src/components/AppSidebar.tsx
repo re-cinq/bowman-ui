@@ -109,8 +109,10 @@ export function AppSidebar({
           })}
         </nav>
       )}
-      <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">{children}</div>
-      {footer != null && <div className={`flex-shrink-0 border-t ${BORDER}`}>{footer}</div>}
+      <div className={`flex min-h-0 flex-1 flex-col overflow-y-auto ${TEXT_BODY}`}>{children}</div>
+      {footer != null && (
+        <div className={`flex-shrink-0 border-t ${BORDER} ${TEXT_BODY}`}>{footer}</div>
+      )}
     </aside>
   );
 }

@@ -129,9 +129,15 @@ utility fails ([validated by](../../tests/theming-tokens-dist.test.ts#L217)).
 - A `PromptChips` chip reads `--bowman-border`, `--bowman-surface`, `--bowman-surface-hover` and
   `--bowman-text-body` beside its pill classes
   ([validated by](../../tests/PromptChips.test.tsx#L109)).
-- The `AppShell` mobile header row and the `AppSidebar` brand row read `--bowman-text-body`, so
-  a plain-string `brand` is painted by the library instead of inheriting the page colour
-  ([validated by](../../tests/AppShell.test.tsx#L435), [L262](../../tests/AppSidebar.test.tsx#L262)).
+- The `AppShell` mobile header row, drawer close-button row and main region and the `AppSidebar`
+  brand row, children scroll region and footer region read `--bowman-text-body`, so a plain string
+  the library lays out for consumer content is painted instead of inheriting the page colour
+  ([validated by](../../tests/AppShell.test.tsx#L435),
+  [L501](../../tests/AppShell.test.tsx#L501),
+  [L509](../../tests/AppShell.test.tsx#L509),
+  [L262](../../tests/AppSidebar.test.tsx#L262),
+  [L271](../../tests/AppSidebar.test.tsx#L271),
+  [L280](../../tests/AppSidebar.test.tsx#L280)).
 - The eighteen role fallbacks are declared in the stylesheet block and the design-notes table
   in the same order as the code reads them, and every read carries the declared fallback
   ([validated by](../../tests/theming-tokens-dist.test.ts#L161),
