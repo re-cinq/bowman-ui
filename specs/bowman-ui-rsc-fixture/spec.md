@@ -125,7 +125,7 @@ mechanically with
 `AppSidebar`, `Button`, `ChatComposer`, `ChatMessage`, `ChatMessageList`,
 `ConversationList`, `ErrorBoundary`, `IconButton`, `PromptChips`,
 `SearchField`, `Toast`, `ToolActivity`
-([validated by](../../docs/design-notes.md#L768)), and the same sentence appears in
+([validated by](../../docs/design-notes.md#L836)), and the same sentence appears in
 the README ([validated by](../../README.md#L224)). `app/client/page.tsx` is
 the control: the same composition under `"use client"`, building green, so
 the rejection is attributable to the boundary and not to the components
@@ -148,7 +148,7 @@ regression here would surface the day a consumer tries the server idiom, not
 in this fixture.
 
 No `"react-server"` condition is added to `exports`; docs/design-notes.md records the
-refusal and its reason ([validated by](../../docs/design-notes.md#L748)).
+refusal and its reason ([validated by](../../docs/design-notes.md#L816)).
 
 ## The script
 
@@ -318,7 +318,7 @@ instead reachable the same way `consumer` is, as a `package.json` script
   the one exception in place, so the decision does not contradict the
   § RSC fixture section ([validated by](../../docs/design-notes.md#L163)); that
   section names `examples/rsc-fixture` as the only path in the repo
-  where `next` may appear ([validated by](../../docs/design-notes.md#L738)).
+  where `next` may appear ([validated by](../../docs/design-notes.md#L806)).
 - Observation, not a test-linked statement (no test can assert a property of
   the PR's own diff): no file under the library's `src/` changed in this PR -
   the fixture's own `examples/rsc-fixture/src/` is the issue's named path for

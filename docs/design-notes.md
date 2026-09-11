@@ -581,21 +581,89 @@ Decisions:
    / `dark:ring-offset-slate-900`) and the four text tiers `--bowman-text-body`
    (slate-700 / slate-200), `--bowman-text-secondary` (slate-600 / slate-400),
    `--bowman-text-muted` (slate-500 / slate-400) and `--bowman-text-subtle`
-   (slate-400 / slate-500, the placeholders included). Everything else stays
+   (slate-400 / slate-500, the placeholders included). Everything non-text stays
    palette-mapped by this rule and is listed so no cleanup PR "finishes" it:
    the shell ground (`bg-slate-50` / `dark:bg-slate-950`) and main region
    (`bg-white` / `dark:bg-slate-950`), the avatar circles' rest state
    (`bg-white` / `dark:bg-black` with `border-slate-200` /
    `dark:border-slate-700`), the user avatar and code chips (`bg-slate-200` /
-   `dark:bg-slate-700`, `bg-slate-100` / `dark:bg-slate-800`), the inverse
-   surfaces of `Toast` and `ErrorBoundary`'s retry button, the mobile overlay
-   (`bg-black`), the disabled send button, the `border-slate-300` /
-   `dark:border-slate-600` dividers, `ChatMessage`'s `dark:ring-offset-slate-950`,
-   the skip link's focus colours, every strong-text site (`text-slate-900`
-   pairs with `dark:text-white`, `-200` and `-100` at different sites, so no
-   single pair exists), the slate-600 / slate-300 label pair, the hover text
-   colours, and the icon controls' lone `text-slate-400`. Ring width, offset
-   and outline classes beside each colour token stay at every site untouched.
+   `dark:bg-slate-700`, `bg-slate-100` / `dark:bg-slate-800`), the mobile
+   overlay (`bg-black`), the `border-slate-300` / `dark:border-slate-600`
+   dividers, `ChatMessage`'s `dark:ring-offset-slate-950` and the skip link's
+   focus surface (`focus:bg-white` / `dark:focus:bg-slate-900`). Ring width,
+   offset and outline classes beside each colour token stay at every site
+   untouched.
+
+   Amended 2026-09-11 under issue 101, the epic that flips this stance for text
+   (distinct from the brand-row exception recorded above on the same date):
+   every text colour the library paints becomes a `--bowman-*` role, so the
+   text half of the long tail leaves it and only the non-text sites above stay
+   palette-mapped. The reversal is split across seven child PRs, each naming
+   its role here first so no child invents one. Fallbacks equal today's
+   palette wherever a role covers one shade; where a role unifies sites that
+   differ today, the owning child records the one-step shift - the message body
+   and the avatar initials below, and the success and danger solids, each of
+   which covers an icon or a hover a shade off its selected-state siblings.
+   Where a text colour sits on its own palette-mapped surface, that surface is
+   tokenised with it rather than left half-themed. The roles:
+
+   - **Strong text** (issue 102): `--bowman-text-strong` and its `-dark` twin,
+     light `slate-900`, dark `slate-100` - the median of the `white` / `-100` /
+     `-200` dark sides the strong sites carry today, since no single pair
+     exists. `ChatMessage`'s message body (`text-slate-800` /
+     `dark:text-slate-100`) joins this role, not `--bowman-text-body`: its dark
+     side already equals `slate-100`, and its light side moves `slate-800` to
+     `slate-900`, one step darker and higher-contrast, where `--bowman-text-body`
+     would have lightened it. The ghost-button, nav-item and skip-link
+     hover/focus text join the role too.
+   - **Label text** (issue 103): `--bowman-text-label` and its `-dark` twin,
+     `slate-600` / `slate-300` - a new role, not a fold into
+     `--bowman-text-secondary`. Folding was the issue's recommended path, but
+     `--bowman-text-secondary`'s dark side is `slate-400`, and `slate-400` on
+     the `dark:bg-slate-700` surface the badge (`ConversationList`,
+     `text-[10px]`) and user-avatar initials (`ChatMessage`, `text-xs`) sit on
+     measures about 4.0:1 - below the 4.5:1 AA floor for sub-large text - where
+     today's `slate-300` clears it at about 7:1. Four sites are `slate-600` /
+     `slate-300` (sender name, badge, thinking summary, tool name); the avatar
+     initials are the lone `slate-600` / `slate-200`, so joining the role moves
+     their dark side `slate-200` to `slate-300` (about 8.4:1 to 7:1, still AA),
+     a small change the child records.
+   - **Icon-control text** (issue 104): the rest colour adopts the existing
+     `--bowman-text-subtle` (`slate-400` / `slate-500`); the hover adds
+     `--bowman-text-control-hover` and its `-dark` twin, `slate-600` /
+     `slate-300`. That fallback equals `--bowman-text-label`'s, and the two stay
+     separate names for decision 12's reason: a theme may want a resting label
+     and a control's hover to diverge.
+   - **Text on accent and inverse surfaces** (issue 105):
+     `--bowman-text-on-accent`, a single `white` value for both modes, for the
+     send and primary buttons - a consumer with a pale accent needs dark text
+     on it. The toast and the retry button paint `white` on the palette-mapped
+     inverse pair, so text and surface tokenise together:
+     `--bowman-text-on-inverse` and `--bowman-inverse-surface`, each with a
+     `-dark` twin.
+   - **Disabled text** (issue 106): `--bowman-text-disabled` and its `-dark`
+     twin, `slate-400` / `slate-500` - the same values as `--bowman-text-subtle`,
+     a separate role so a theme may let disabled and subtle diverge. The
+     disabled send button's background on the same class string tokenises with
+     it as `--bowman-surface-disabled` and its `-dark` twin.
+   - **Success** (issue 107): `--bowman-success` (`green-600` / `green-400`)
+     and `--bowman-success-soft` with `-dark` twins, for the copied check and
+     the selected thumbs-up. The solid unifies two shades - the thumbs-up text
+     is `green-600` / `green-400`, the copied check a lone `green-500` with no
+     dark variant - so adopting the role moves the check to `green-600` and
+     gives it `green-400` in dark, a small change the child records. The dark
+     soft fill's `/30` alpha cannot ride a token through a Tailwind modifier, so
+     its fallback is a literal `rgba()`, the technique `--bowman-accent-glow`
+     already uses.
+   - **Danger** (issue 108): `--bowman-danger` (`red-600` / `red-400`) and
+     `--bowman-danger-soft` with `-dark` twins, for the selected thumbs-down,
+     the delete-button hover and the error icon. The solid unifies two shades -
+     the thumbs-down and error icon are `red-600` / `red-400`, the delete hover
+     a lone `red-500` with no dark variant - so the hover moves to `red-600` and
+     gains `red-400` in dark. The two dark soft fills also differ (`red-900/30`
+     and `red-900/20`) and collapse to one `rgba()` fallback. Both are small
+     visual changes the child records.
+
 7. **No `ThemeProvider`, no runtime, no storage, no console, no network.**
    Theming is CSS custom properties and nothing else, so the GDPR no-egress
    rule and the closed public API are untouched by design rather than by
