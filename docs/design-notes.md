@@ -587,8 +587,10 @@ Decisions:
    (`bg-white` / `dark:bg-slate-950`), the avatar circles' rest state
    (`bg-white` / `dark:bg-black` with `border-slate-200` /
    `dark:border-slate-700`), the user avatar and code chips (`bg-slate-200` /
-   `dark:bg-slate-700`, `bg-slate-100` / `dark:bg-slate-800`), the mobile
-   overlay (`bg-black`), the `border-slate-300` / `dark:border-slate-600`
+   `dark:bg-slate-700`, `bg-slate-100` / `dark:bg-slate-800`), the inverse
+   surfaces of `Toast` and `ErrorBoundary`'s retry button (`bg-slate-900` /
+   `dark:bg-slate-100`, deferred with their text per issue 105 below), the
+   mobile overlay (`bg-black`), the `border-slate-300` / `dark:border-slate-600`
    dividers, `ChatMessage`'s `dark:ring-offset-slate-950` and the skip link's
    focus surface (`focus:bg-white` / `dark:focus:bg-slate-900`). Ring width,
    offset and outline classes beside each colour token stay at every site
