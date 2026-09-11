@@ -431,6 +431,14 @@ describe("AppShell", () => {
     it("the component imports no logo", () => {
       expect(source).not.toMatch(/Logo/);
     });
+
+    it("the mobile header row carries the body text token, so a plain-string brand reads on the dark surface", () => {
+      render(<AppShell brand="4711">content</AppShell>);
+
+      const headerRow = getHamburger().parentElement as HTMLElement;
+
+      expect(headerRow.className).toContain("--bowman-text-body");
+    });
   });
 
   describe("GDPR and import hygiene", () => {

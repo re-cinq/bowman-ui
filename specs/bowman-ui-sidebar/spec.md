@@ -94,6 +94,10 @@ sentinel render with both labels set to sentinels
    ([validated by](../../tests/AppSidebar.test.tsx#L245),
    [L255](../../tests/AppSidebar.test.tsx#L255)).
 
+   The row owns its text colour: it reads `--bowman-text-body`, so a
+   plain-string brand reads on the dark surface instead of inheriting the page
+   colour ([validated by](../../tests/AppSidebar.test.tsx#L262)).
+
    One consequence carried over from 030 as shipped: in the mobile drawer the
    shell renders its own bordered 56px close-button row as a sibling above
    this component, so a `brand` row stacks a second bordered 56px row directly
@@ -115,7 +119,7 @@ and customer names (`003-support-conversation-data-flow-record`). The
 component calls no `console.*`, no `fetch`, no `navigator.sendBeacon` and no
 `localStorage` or `sessionStorage`, and stores nothing outside React state -
 asserted by a source grep
-([validated by](../../tests/AppSidebar.test.tsx#L268)). The suite-wide
+([validated by](../../tests/AppSidebar.test.tsx#L277)). The suite-wide
 console spy stays at zero calls ([spy](../../tests/setup.ts#L29)).
 
 ## Build contract
@@ -126,7 +130,7 @@ The file imports nothing from `@clerk`, `swr`, `next-intl`, `next/`,
 and ships with its `.d.ts`
 ([validated by](../../tests/app-sidebar-dist.test.ts#L7),
 [L11](../../tests/app-sidebar-dist.test.ts#L11),
-[L272](../../tests/AppSidebar.test.tsx#L272)). A key added to
+[L281](../../tests/AppSidebar.test.tsx#L281)). A key added to
 `AppSidebarLabels` without a default cannot satisfy
 `Readonly<Required<AppSidebarLabels>>`
 ([validated by](../../tests/types/app-sidebar-type-assertions.tsx#L19)).

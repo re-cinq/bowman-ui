@@ -67,7 +67,14 @@ const NEUTRAL_ROLE_READERS: Record<string, string[]> = {
   ],
   BORDER_MD: ["AppSidebar"],
   RING_OFFSET: ["AppShell", "AppSidebar", "ConversationList", "PromptChips", "buttonStyles"],
-  TEXT_BODY: ["ConversationList", "PromptChips", "ToolActivity", "buttonStyles"],
+  TEXT_BODY: [
+    "AppShell",
+    "AppSidebar",
+    "ConversationList",
+    "PromptChips",
+    "ToolActivity",
+    "buttonStyles",
+  ],
   TEXT_SECONDARY: ["AppShell", "AppSidebar", "ErrorBoundary", "buttonStyles"],
   TEXT_MUTED: [
     "ChatMessage",

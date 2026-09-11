@@ -52,6 +52,10 @@ imports no logo ([validated by](../../tests/AppShell.test.tsx#L414),
 [L423](../../tests/AppShell.test.tsx#L423),
 [L431](../../tests/AppShell.test.tsx#L431)).
 
+The mobile header row owns its text colour: it reads `--bowman-text-body`, so a
+plain-string `brand` reads on the dark surface instead of inheriting the page
+colour ([validated by](../../tests/AppShell.test.tsx#L435)).
+
 ## Open state
 
 Uncontrolled by default: the hamburger opens the drawer
@@ -151,7 +155,7 @@ DOM, and the deliberate decisions below are each pinned by a test.
 - `MenuIcon`/`CloseIcon` come from 020's set; imports are relative with `.js`
   extensions, and no `@clerk`, `swr`, `next-intl`, `next/`,
   `@/` or `lucide-react` import survives
-  ([validated by](../../tests/AppShell.test.tsx#L443)).
+  ([validated by](../../tests/AppShell.test.tsx#L451)).
 - GDPR: the shell wraps a surface carrying customer questions and booking
   identifiers (`003-support-conversation-data-flow-record`). The source
   references no `console.`, `fetch`, `sendBeacon`, `localStorage`,
@@ -159,7 +163,7 @@ DOM, and the deliberate decisions below are each pinned by a test.
   console trap in `tests/setup.ts` fails any test that triggered a console
   call. Desktop collapse state is out of scope precisely because it is the
   only thing here that would persist anything
-  ([validated by](../../tests/AppShell.test.tsx#L437)).
+  ([validated by](../../tests/AppShell.test.tsx#L445)).
 - `dist/components/AppShell.js` opens with `"use client";` as its first
   statement per 018's positional check, and `npm pack`
   ships exactly the built pair
@@ -172,13 +176,13 @@ DOM, and the deliberate decisions below are each pinned by a test.
   deliberate fix: giving the mobile header and the drawer the same
   `z-50` and relying on DOM order would let the header paint over the open
   drawer's top strip. Pinned by a class assertion in the tests
-  ([validated by](../../tests/AppShell.test.tsx#L458)).
+  ([validated by](../../tests/AppShell.test.tsx#L466)).
 - **`brand={null}` renders no spacer**, same as omitting the prop - `null` is
   the React idiom for intentionally-nothing, and an empty centring spacer with
   no mark would be a layout surprise. A characterization test pairs the two
   renders, finds each mobile header row through its hamburger's parent, and
   asserts zero spacers in the `null` render and the same count in the omitted
-  one ([validated by](../../tests/AppShell.test.tsx#L469)).
+  one ([validated by](../../tests/AppShell.test.tsx#L477)).
 
 - **Test locations.** The issue names `tests/components/AppShell.test.tsx`;
   this repository keeps every test flat under `tests/`, and the partition
