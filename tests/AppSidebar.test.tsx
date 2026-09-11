@@ -267,6 +267,24 @@ describe("AppSidebar", () => {
       expect(row.classList).toContain("h-14");
       expect(row.className).toContain("--bowman-text-body");
     });
+
+    it("the children scroll region carries the body text token, so plain-string children read on the dark surface", () => {
+      render(<AppSidebar>4711</AppSidebar>);
+
+      const region = screen.getByText("4711");
+
+      expect(region.classList).toContain("overflow-y-auto");
+      expect(region.className).toContain("--bowman-text-body");
+    });
+
+    it("the footer region carries the body text token, so a plain-string footer reads on the dark surface", () => {
+      render(<AppSidebar footer="v1.2.3" navItems={threeItems} />);
+
+      const region = screen.getByText("v1.2.3");
+
+      expect(region.classList).toContain("border-t");
+      expect(region.className).toContain("--bowman-text-body");
+    });
   });
 });
 

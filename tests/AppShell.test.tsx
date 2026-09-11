@@ -496,4 +496,23 @@ describe("AppShell", () => {
       });
     });
   });
+
+  describe("consumer-slot text colour", () => {
+    it("the drawer close-button row carries the body text token, so plain-string drawer content reads on the dark surface", () => {
+      render(<AppShell>content</AppShell>);
+
+      const closeRow = getCloseButton().parentElement as HTMLElement;
+
+      expect(closeRow.className).toContain("--bowman-text-body");
+    });
+
+    it("the main region carries the body text token, so plain-string content reads on the dark surface", () => {
+      render(<AppShell>content 4711</AppShell>);
+
+      const mainRegion = screen.getByText("content 4711");
+
+      expect(mainRegion.classList).toContain("overflow-auto");
+      expect(mainRegion.className).toContain("--bowman-text-body");
+    });
+  });
 });
