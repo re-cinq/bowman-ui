@@ -189,17 +189,17 @@ it without the package choosing; the package adds no media query and no selector
 
 The consumer app (`examples/chat-demo`, specified in `specs/bowman-ui-consumer-app/spec.md`)
 renders the chat fixture twice over: the Marginalia Books default at `?view=chat`, and at
-`?view=chat&brand=copperline` the same fixture as a second, invented client, Copperline Bicycles
-(a web search found no such brand), named as such in the sidebar
+`?view=chat&theme=copperline` the same fixture as a second, invented client, Copperline Bicycles
+(a web search found no such company), named as such in the sidebar
 ([validated by](../../examples/chat-demo/tests/theming.spec.ts#L174)). The module
-`src/brands.tsx` resolves the brand from the query, and `ChatScreen` wraps the whole fragment, `AppShell` and `Toast`
-alike, in `<div class="custom-theme">` and passes the brand's chainring mark (an `aria-hidden`
-SVG carrying `data-brand-mark="copperline"`) as `ChatMessageList`'s `assistantAvatar`, so the
+`src/themes.tsx` resolves the theme from the query, and `ChatScreen` wraps the whole fragment, `AppShell` and `Toast`
+alike, in `<div class="custom-theme">` and passes the theme's chainring mark (an `aria-hidden`
+SVG carrying `data-theme-mark="copperline"`) as `ChatMessageList`'s `assistantAvatar`, so the
 mark fills the streaming avatar circle
 ([validated by](../../examples/chat-demo/tests/theming.spec.ts#L133),
 [wrapper](../../examples/chat-demo/src/App.tsx#L224),
 [avatar](../../examples/chat-demo/src/App.tsx#L193),
-[mark](../../examples/chat-demo/src/brands.tsx#L25)). The Overview page
+[mark](../../examples/chat-demo/src/themes.tsx#L25)). The Overview page
 (`?view=docs&component=overview`) gains a Theming section that renders `ChatMessage`,
 `ChatComposer` and `ConversationList` twice from one preview component,
 `data-theming-preview="default"` beside `data-theming-preview="client"` (the issue's "shows both
@@ -209,12 +209,12 @@ side by side"), so the two columns cannot drift apart
 
 The override lives in `examples/chat-demo/src/custom-theme.css`, which sets all thirty-three tokens
 under `.custom-theme` (scoped to the wrapper, not `:root`) and is imported from `main.tsx` after
-`./styles.css`, whose three documented lines are untouched; the branded screen takes its colours
+`./styles.css`, whose three documented lines are untouched; the themed screen takes its colours
 from that wrapper alone
 ([validated by](../../examples/chat-demo/tests/theming.spec.ts#L126),
 [stylesheet](../../examples/chat-demo/src/custom-theme.css#L5),
 [import](../../examples/chat-demo/src/main.tsx#L5)). The wrapper scope is what lets one document
-show the default and the branded look side by side, and it is the fallback rule (decision 1 in
+show the default and the themed look side by side, and it is the fallback rule (decision 1 in
 docs/design-notes.md § Theming) doing its job: the package declares nothing, so an override on
 any wrapper wins on inheritance alone, with no cascade-order fight against `dist/styles.css`
 ([validated by](../../examples/chat-demo/tests/theming.spec.ts#L182)). The demo commits touched
@@ -223,15 +223,15 @@ anchor: its proof is the diff itself, reviewable but not re-runnable.
 
 The neutral roles ride the same wrapper: the composer's frame resolves to the palette's white
 surface and slate-200 border on the default screen and to Copperline's warm surface and border
-on the branded one ([validated by](../../examples/chat-demo/tests/theming.spec.ts#L103),
+on the themed one ([validated by](../../examples/chat-demo/tests/theming.spec.ts#L103),
 [L152](../../examples/chat-demo/tests/theming.spec.ts#L152)).
 
-An unknown `brand` value falls back to the default: `resolveBrand` reads a `Map`, not a record,
-so a prototype name such as `constructor` cannot resolve to a function, and `?brand=constructor`
-renders the Marginalia Books sidebar with no brand mark
-([validated by](../../examples/chat-demo/tests/theming.spec.ts#L115)). The unbranded
+An unknown `theme` value falls back to the default: `resolveTheme` reads a `Map`, not a record,
+so a prototype name such as `constructor` cannot resolve to a function, and `?theme=constructor`
+renders the Marginalia Books sidebar with no theme mark
+([validated by](../../examples/chat-demo/tests/theming.spec.ts#L115)). The unthemed
 `?view=chat` screen renders no wrapper and no mark, so the existing chat and docs suites drive
-markup identical to what they drove before the brand dimension existed
+markup identical to what they drove before the theme dimension existed
 ([validated by](../../examples/chat-demo/tests/theming.spec.ts#L90)).
 
 ### The Chromium proof
@@ -250,7 +250,7 @@ palette colour cannot fail the suite, and a consumer build that stops emitting t
 
 - On the default chat screen the enabled send button's background equals the `--color-blue-500`
   probe, the active conversation row's equals the `--color-slate-100` probe, and no
-  `[data-brand-mark]` renders
+  `[data-theme-mark]` renders
   ([validated by](../../examples/chat-demo/tests/theming.spec.ts#L90)).
 - On the Copperline screen the send button's background is `rgb(183, 65, 14)` -
   `--bowman-accent` - and the active row's is `rgb(253, 235, 220)` - `--bowman-active`

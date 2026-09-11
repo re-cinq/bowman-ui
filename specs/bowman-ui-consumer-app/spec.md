@@ -86,13 +86,13 @@ docs/design-notes.md § Layout requires of consumers
 ([validated by](../../examples/chat-demo/src/App.tsx#L189)), and copy shows a
 `Toast` ([validated by](../../examples/chat-demo/src/App.tsx#L211)).
 
-`src/brands.tsx` adds the `&brand=copperline` dimension to `?view=chat`:
-`resolveBrand` maps the query value to a brand - the Marginalia Books default,
+`src/themes.tsx` adds the `&theme=copperline` dimension to `?view=chat`:
+`resolveTheme` maps the query value to a theme - the Marginalia Books default,
 or the invented Copperline Bicycles client - and `ChatScreen` wraps the whole
 fragment, shell and toast alike, in the theme's `.custom-theme` wrapper and
 passes its chainring mark as `ChatMessageList`'s `assistantAvatar`; an
 unknown value falls back to the default
-([validated by](../../examples/chat-demo/src/brands.tsx#L46)). The wrapper,
+([validated by](../../examples/chat-demo/src/themes.tsx#L46)). The wrapper,
 the tokens it sets and the Chromium proof are specified in
 `specs/bowman-ui-theming-tokens/spec.md` § The demo, not restated here.
 
@@ -116,8 +116,8 @@ set, so the module reuses those defaults and writes out only the strings no
 default can supply - the required `aiDisclosure` (docs/design-notes.md § Labels
 decision 5) and the demo's own screen copy
 ([validated by](../../examples/chat-demo/src/labels.ts#L1)). "Single" is
-looser than it was: the two brand names live with their brands in
-`src/brands.tsx`, and the Theming section's explanatory copy with its previews
+looser than it was: the two theme names live with their themes in
+`src/themes.tsx`, and the Theming section's explanatory copy with its previews
 in `src/docs/ThemingSection.tsx`, beside the docs chrome's own
 `src/docs-labels.ts` - none of them a second locale, all of them English.
 

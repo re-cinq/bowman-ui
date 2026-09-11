@@ -1,4 +1,4 @@
-// The chat fixture's brands, keyed by the "brand" query value. The default is
+// The chat fixture's themes, keyed by the "theme" query value. The default is
 // the Marginalia Books screen every existing test drives: no wrapper class, no
 // avatar. "copperline" is the invented second client that proves the theming
 // tokens: its wrapper class carries the thirty-three --bowman-* overrides in
@@ -6,7 +6,7 @@
 
 import type { ReactNode } from "react";
 
-export interface DemoBrand {
+export interface DemoTheme {
   name: string;
   className?: string;
   assistantAvatar?: ReactNode;
@@ -22,7 +22,7 @@ export function ChainringMark() {
       strokeWidth="1.5"
       aria-hidden="true"
       className="h-4 w-4"
-      data-brand-mark="copperline"
+      data-theme-mark="copperline"
     >
       <circle cx="12" cy="12" r="7" />
       <circle cx="12" cy="12" r="2.5" />
@@ -31,17 +31,17 @@ export function ChainringMark() {
   );
 }
 
-export const defaultBrand: DemoBrand = { name: "Marginalia Books" };
+export const defaultTheme: DemoTheme = { name: "Marginalia Books" };
 
-export const customBrand: DemoBrand = {
+export const customTheme: DemoTheme = {
   name: "Copperline Bicycles",
   className: "custom-theme",
   assistantAvatar: <ChainringMark />,
 };
 
 // A Map, not a record: a record lookup reads the prototype chain, so
-// "?brand=constructor" would resolve to a function instead of the default.
-const brandsByQueryValue: ReadonlyMap<string, DemoBrand> = new Map([["copperline", customBrand]]);
+// "?theme=constructor" would resolve to a function instead of the default.
+const themesByQueryValue: ReadonlyMap<string, DemoTheme> = new Map([["copperline", customTheme]]);
 
-export const resolveBrand = (queryValue: string | null): DemoBrand =>
-  brandsByQueryValue.get(queryValue ?? "") ?? defaultBrand;
+export const resolveTheme = (queryValue: string | null): DemoTheme =>
+  themesByQueryValue.get(queryValue ?? "") ?? defaultTheme;
