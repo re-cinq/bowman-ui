@@ -601,7 +601,7 @@ Decisions:
    every text colour the library paints becomes a role a consumer can override,
    so the text half of the long tail leaves it. Most sites fold into an
    existing role; four take a new role (strong, on-accent, success, danger);
-   two surface-bound sites stay palette-mapped as recorded exceptions at the
+   three surface-bound sites stay palette-mapped as recorded exceptions at the
    end. The reversal is split across seven child PRs, each following the
    decision here so no child re-decides, and the token count moves only in the
    children and only for the new roles. Where a folded or unified shade differs
@@ -618,16 +618,16 @@ Decisions:
      would have lightened it. The ghost-button, nav-item and skip-link
      hover/focus text join the role too.
    - **Label text** (issue 103): folds into the existing
-     `--bowman-text-secondary`, no fifth text tier. The `slate-600` /
-     `slate-300` label sites - the assistant name, the `ConversationList`
-     badge, the `ThinkingTrace` summary and the `ToolActivity` tool name - read
+     `--bowman-text-secondary`, no fifth text tier. The three `slate-600` /
+     `slate-300` label sites that sit on the panel ground - the assistant name,
+     the `ThinkingTrace` summary and the `ToolActivity` tool name - read
      `--bowman-text-secondary` (`slate-600` / `slate-400`); the light side is
-     exact and the dark side dims one step, `slate-300` to `slate-400`. On the
-     badge's own `dark:bg-slate-700` chip that dark value is about 4.1:1 for its
-     `text-[10px]`, under the 4.5:1 AA floor for sub-large text where
-     `slate-300` cleared it at about 7:1 - the contrast cost of dropping the
-     tier, recorded here rather than hidden. The user-avatar initials, on the
-     same chip, are the exception below.
+     exact and the dark side dims one step, `slate-300` to `slate-400`, still
+     well clear of AA against that ground. The `ConversationList` badge does
+     NOT fold: on its own `dark:bg-slate-700` chip `slate-400` is about 4.1:1
+     for its `text-[10px]`, under the 4.5:1 AA floor for sub-large text where
+     `slate-300` clears it at about 7:1, so it stays palette-mapped beside the
+     user-avatar initials - both exceptions below.
    - **Icon-control text** (issue 104): folds both states into existing roles,
      no new role. The rest colour reads `--bowman-text-subtle` (`slate-400` /
      `slate-500`), so dark rest moves from an inherited `slate-400` to
@@ -663,9 +663,13 @@ Decisions:
      and `red-900/20`) and collapse to one `rgba()` fallback. Both are small
      visual changes the child records.
 
-   Two text sites stay palette-mapped as recorded exceptions, each bound to a
+   Three text sites stay palette-mapped as recorded exceptions, each bound to a
    surface that itself stays long-tail so that folding would break it:
 
+   - The **`ConversationList` badge** (`text-slate-600` / `dark:text-slate-300`
+     on the `bg-slate-200` / `dark:bg-slate-700` chip, `text-[10px]`): folding
+     to `--bowman-text-secondary`'s `slate-400` on `slate-700` is about 4.1:1,
+     under the AA 4.5 floor for sub-large text, so it keeps its palette classes.
    - The **user-avatar initials** (`ChatMessage`, `text-slate-600` /
      `dark:text-slate-200` on the `bg-slate-200` / `dark:bg-slate-700` chip):
      folding to `--bowman-text-secondary`'s `slate-400` on `slate-700` cuts the
