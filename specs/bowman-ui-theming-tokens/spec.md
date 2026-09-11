@@ -20,16 +20,16 @@ that reads them, and the tests.
 Thirty-three tokens - fifteen theme tokens named for a role and a shade, and eighteen neutral
 chrome roles added under docs/design-notes.md § Theming decision 12 - each with its default
 recorded once in a comment line at the top of `src/styles.css`
-([validated by](../../tests/theming-tokens-dist.test.ts#L154)).
+([validated by](../../tests/theming-tokens-dist.test.ts#L161)).
 
 The names and their fallbacks are tabled once, in docs/design-notes.md § Theming, and that
 table is the contract rather than a copy: the dist test parses it and fails the moment a name,
 a fallback or the order departs from the declaration block
-([validated by](../../tests/theming-tokens-dist.test.ts#L246)).
+([validated by](../../tests/theming-tokens-dist.test.ts#L253)).
 
 - The set of tokens read across `dist/theme/tokens.js` and `dist/styles.css` is exactly the
   thirty-three the comment block declares - no thirty-fourth name in the code, no orphan in the block
-  ([validated by](../../tests/theming-tokens-dist.test.ts#L161)).
+  ([validated by](../../tests/theming-tokens-dist.test.ts#L168)).
 
 ## The fallback rule
 
@@ -38,24 +38,24 @@ Every token ships a default, and the default lives only in the `var()` fallback:
 ([validated by](../../tests/styles.test.ts#L100), [L55](../../tests/styles.test.ts#L55)).
 
 - Every `--bowman-*` occurrence outside the declaration block is a `var()` read carrying a
-  non-empty fallback ([validated by](../../tests/theming-tokens-dist.test.ts#L167)).
+  non-empty fallback ([validated by](../../tests/theming-tokens-dist.test.ts#L174)).
 - A token falls back to the same palette value at every site that reads it, and that value is
   the one its comment line declares
-  ([validated by](../../tests/theming-tokens-dist.test.ts#L181)).
+  ([validated by](../../tests/theming-tokens-dist.test.ts#L188)).
 - No bare `blue-` palette utility survives in any built component, the tokens module or the
   stylesheet - the only `blue` left in `dist` sits inside a `var()` fallback
-  ([validated by](../../tests/theming-tokens-dist.test.ts#L229)).
+  ([validated by](../../tests/theming-tokens-dist.test.ts#L236)).
 
 ## Where the classes live
 
 The class strings live once, in the internal module `src/theme/tokens.ts` - one `export const`
 per string, each naming its token and fallback - and the components import the constants: no
 built component carries a `--bowman-` literal, and no file in `dist` assigns a `--bowman-*`
-value ([validated by](../../tests/theming-tokens-dist.test.ts#L250),
-[L261](../../tests/theming-tokens-dist.test.ts#L261)).
+value ([validated by](../../tests/theming-tokens-dist.test.ts#L257),
+[L268](../../tests/theming-tokens-dist.test.ts#L268)).
 
 - `dist/theme/tokens.js` carries no `"use client"` directive, and `dist/index.js` re-exports
-  nothing from it ([validated by](../../tests/theming-tokens-dist.test.ts#L241)).
+  nothing from it ([validated by](../../tests/theming-tokens-dist.test.ts#L248)).
 - The public runtime and type export lists equal the committed snapshot, which carries none of
   the module's names ([validated by](../../tests/public-api.test.ts#L40),
   [L46](../../tests/public-api.test.ts#L46)).
@@ -94,7 +94,7 @@ value ([validated by](../../tests/theming-tokens-dist.test.ts#L250),
 - `bowman-pulse-subtle`'s 50 % stop reads `--bowman-accent-glow` and `--bowman-pulse-outline`
   with today's literals as fallbacks, while its zero stop stays literal
   ([validated by](../../tests/styles.test.ts#L71),
-  [L198](../../tests/theming-tokens-dist.test.ts#L198)).
+  [L205](../../tests/theming-tokens-dist.test.ts#L205)).
 - `Button`'s and `IconButton`'s `primary` variant carries the `--bowman-accent` background and
   hover, and every variant of both keeps `focus:ring-2 ring-offset-2` beside the
   `--bowman-focus-ring` colour ([validated by](../../tests/Button.test.tsx#L92),
@@ -112,7 +112,7 @@ Nine neutral role pairs join the theme tokens (docs/design-notes.md § Theming d
 `--bowman-text-muted` and `--bowman-text-subtle`, each with a `-dark` twin. A site reads a role
 only when its light and dark utilities both equal the pair's fallbacks; the dist test pins
 which built component imports which role constant, so a site drifting back to a palette
-utility fails ([validated by](../../tests/theming-tokens-dist.test.ts#L210)).
+utility fails ([validated by](../../tests/theming-tokens-dist.test.ts#L217)).
 
 - `Button`'s `secondary` variant reads `--bowman-border`, `--bowman-surface`,
   `--bowman-surface-hover` and `--bowman-text-body` beside its `border` class; `ghost` reads
@@ -129,10 +129,13 @@ utility fails ([validated by](../../tests/theming-tokens-dist.test.ts#L210)).
 - A `PromptChips` chip reads `--bowman-border`, `--bowman-surface`, `--bowman-surface-hover` and
   `--bowman-text-body` beside its pill classes
   ([validated by](../../tests/PromptChips.test.tsx#L109)).
+- The `AppShell` mobile header row and the `AppSidebar` brand row read `--bowman-text-body`, so
+  a plain-string `brand` is painted by the library instead of inheriting the page colour
+  ([validated by](../../tests/AppShell.test.tsx#L435), [L262](../../tests/AppSidebar.test.tsx#L262)).
 - The eighteen role fallbacks are declared in the stylesheet block and the design-notes table
   in the same order as the code reads them, and every read carries the declared fallback
-  ([validated by](../../tests/theming-tokens-dist.test.ts#L154),
-  [L246](../../tests/theming-tokens-dist.test.ts#L246)).
+  ([validated by](../../tests/theming-tokens-dist.test.ts#L161),
+  [L253](../../tests/theming-tokens-dist.test.ts#L253)).
 
 ## What stays palette-mapped
 
@@ -177,13 +180,13 @@ it without the package choosing; the package adds no media query and no selector
 3. **The keyframe's zero stop stays the literal `rgba(59, 130, 246, 0)`.** A review finding
    asked for a token there too; rejected because CSS Color 4 interpolates premultiplied, so the
    hue of a fully transparent stop is inert
-   ([validated by](../../tests/theming-tokens-dist.test.ts#L198)).
+   ([validated by](../../tests/theming-tokens-dist.test.ts#L205)).
 4. **`--bowman-accent` falls back to blue-500 in light mode and blue-600 in dark, with the hover
    pair the other way round.** The issue described the accent as "today blue-600"; the
    components said otherwise, and the byte-for-byte rule forced the table to follow the code.
    The rejected alternative was eight tokens, one name per role with a mode-specific fallback
    on each side: a consumer could then set only one value per role without writing its own dark
-   selector ([validated by](../../tests/theming-tokens-dist.test.ts#L181)).
+   selector ([validated by](../../tests/theming-tokens-dist.test.ts#L188)).
 
 ## The demo
 

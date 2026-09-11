@@ -258,6 +258,15 @@ describe("AppSidebar", () => {
       expect(container.querySelector(".border-b")).toBeNull();
       expect(container.querySelector(".h-14")).toBeNull();
     });
+
+    it("the brand row carries the body text token, so a plain-string brand reads on the dark surface", () => {
+      render(<AppSidebar brand="Acme Support" navItems={threeItems} />);
+
+      const row = screen.getByText("Acme Support");
+
+      expect(row.classList).toContain("h-14");
+      expect(row.className).toContain("--bowman-text-body");
+    });
   });
 });
 

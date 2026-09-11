@@ -10,6 +10,7 @@ import {
   RING_OFFSET,
   SURFACE,
   SURFACE_HOVER,
+  TEXT_BODY,
   TEXT_SECONDARY,
 } from "../theme/tokens.js";
 
@@ -82,7 +83,9 @@ export function AppSidebar({
   return (
     <aside aria-label={resolved.sidebar} className={asideClassName}>
       {brand != null && (
-        <div className={`flex h-14 flex-shrink-0 items-center border-b ${BORDER} px-4`}>
+        <div
+          className={`flex h-14 flex-shrink-0 items-center border-b ${BORDER} ${TEXT_BODY} px-4`}
+        >
           {brand}
         </div>
       )}

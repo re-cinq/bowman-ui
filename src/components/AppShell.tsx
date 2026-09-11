@@ -11,6 +11,7 @@ import {
   FOCUS_RING_COLOR,
   RING_OFFSET,
   SURFACE,
+  TEXT_BODY,
   TEXT_SECONDARY,
 } from "../theme/tokens.js";
 
@@ -153,7 +154,7 @@ export function AppShell({
       </div>
 
       <div
-        className={`fixed inset-x-0 top-0 z-40 flex h-14 items-center justify-between border-b ${BORDER} ${SURFACE} px-4 md:hidden`}
+        className={`fixed inset-x-0 top-0 z-40 flex h-14 items-center justify-between border-b ${BORDER} ${SURFACE} ${TEXT_BODY} px-4 md:hidden`}
       >
         <button
           ref={hamburgerRef}
