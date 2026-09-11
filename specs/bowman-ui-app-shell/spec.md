@@ -56,6 +56,16 @@ The mobile header row owns its text colour: it reads `--bowman-text-body`, so a
 plain-string `brand` reads on the dark surface instead of inheriting the page
 colour ([validated by](../../tests/AppShell.test.tsx#L435)).
 
+The drawer close-button row owns its text colour the same way: it reads
+`--bowman-text-body`, so plain-string content the shell lays out in the drawer
+reads on the dark surface ([validated by](../../tests/AppShell.test.tsx#L501)).
+
+The main region reads `--bowman-text-body` on the element that wraps
+`children`, so a plain string reads on the dark surface instead of inheriting
+the page colour; only the text is painted - the `bg-white` /
+`dark:bg-slate-950` background stays palette-mapped
+([validated by](../../tests/AppShell.test.tsx#L509)).
+
 ## Open state
 
 Uncontrolled by default: the hamburger opens the drawer
