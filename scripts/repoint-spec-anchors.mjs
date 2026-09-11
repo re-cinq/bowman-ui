@@ -25,7 +25,11 @@
 // and no baseline exists to repoint them from. An individual anchor whose
 // line number differs from the base spec's at the same position was
 // deliberately retargeted by a spec edit: it is accepted as authored, never
-// rewritten, and reported as "retargeted (not checked)".
+// rewritten, and reported as "retargeted (not checked)". When such a retarget
+// cites a test file byte-identical to the base ref, the moved line cannot be a
+// response to drift, so it is additionally warned as "retargeted into an
+// unchanged file" (still accepted, never failing) for a human to confirm the
+// re-link was intentional (issue 95).
 //
 // Independent of any baseline, every anchor must land on a line that exists
 // and carries content: an anchor whose target file is missing, whose line is
@@ -124,6 +128,16 @@ const workingFile = (path) => {
   workingFileCache.set(path, content);
 
   return content;
+};
+
+// A retargeted anchor citing a test file byte-identical to the base ref cannot
+// be responding to drift; the moved line is a hand-edit (a deliberate re-link
+// or a mistake) worth surfacing.
+const testFileUnchanged = (anchor, specDir) => {
+  const testPath = normalize(join(specDir, anchor.path));
+  const base = baseFile(testPath);
+
+  return base !== null && base === workingFile(testPath);
 };
 
 const extractAnchors = (source) =>
@@ -233,6 +247,7 @@ let upToDate = 0;
 let retargeted = 0;
 const unresolved = [];
 const staleDetails = [];
+const retargetedIntoUnchanged = [];
 const rotten = [];
 const specContent = new Map();
 
@@ -275,7 +290,7 @@ for (const spec of specFiles) {
   }
   const resolutions = anchors.map((anchor, index) => {
     if (anchor.line !== baseAnchors[index].line) {
-      return { retargeted: true };
+      return { retargeted: true, unchangedFile: testFileUnchanged(anchor, specDir) };
     }
 
     return resolveAnchor(anchor, baseAnchors[index].line, specDir);
@@ -293,6 +308,10 @@ for (const spec of specFiles) {
     if (resolution.retargeted) {
       retargeted += 1;
       upToDate += 1;
+
+      if (resolution.unchangedFile) {
+        retargetedIntoUnchanged.push(`${spec}: ${anchor.path}#L${anchor.line}`);
+      }
 
       return;
     }
@@ -391,6 +410,10 @@ for (const detail of unresolved) {
 
 for (const detail of rotten) {
   process.stderr.write(`rotten ${detail}\n`);
+}
+
+for (const detail of retargetedIntoUnchanged) {
+  process.stderr.write(`retargeted into an unchanged file ${detail}\n`);
 }
 
 for (const detail of mislabelled) {

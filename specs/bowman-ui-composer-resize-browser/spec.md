@@ -24,19 +24,19 @@ tokens' custom-themed variant; the three resize tests also passed a local
 Anchor note: `scripts/repoint-spec-anchors.mjs` originally tracked only
 `(../)+tests/*.ts(x)` anchors; this change widens its regex by one line to
 also track `(../)+examples/*/tests/*.ts(x)` anchors
-([regex](../../scripts/repoint-spec-anchors.mjs#L56)), so this spec's
+([regex](../../scripts/repoint-spec-anchors.mjs#L60)), so this spec's
 links into `examples/chat-demo/tests/chat-demo.spec.ts` are repointed by CI like
 any `tests/` anchor. The widened check ran clean over the pre-existing
 consumer-app spec (21 newly tracked anchors there; 591 up to date repo-wide,
 0 stale, 0 rotten). Issue 32 widened the same pattern again to `scripts/`,
 `README.md` and `docs/` markdown anchors, which exposed six dead links the
 narrower check had never seen
-([validated by](../../tests/repoint-spec-anchors.test.ts#L528)). Issue 37
+([validated by](../../tests/repoint-spec-anchors.test.ts#L548)). Issue 37
 widened it once more to any repo-relative path carrying a file extension, so
 root config files, workflow files, `package.json` files and `examples/`
 sources are repointed and rot-checked like every other cited file
-([validated by](../../tests/repoint-spec-anchors.test.ts#L552),
-[L566](../../tests/repoint-spec-anchors.test.ts#L566)). A file built
+([validated by](../../tests/repoint-spec-anchors.test.ts#L572),
+[L586](../../tests/repoint-spec-anchors.test.ts#L586)). A file built
 of repeated blocks - a workflow whose jobs share an identical setup - has to
 be cited on a line unique to its own step, because the resolver reports a
 context tie as ambiguous rather than guessing
@@ -45,7 +45,7 @@ assistive-technology spec's placeholder links carry `#A1`-style fragments and
 a `<date>` placeholder, so the tracker never matches them; a real
 `docs/accessibility/at-pass-*.md` cited with `#L` anchors becomes tracked the
 moment it exists
-([validated by](../../tests/repoint-spec-anchors.test.ts#L596)).
+([validated by](../../tests/repoint-spec-anchors.test.ts#L616)).
 
 ## Baseline
 

@@ -306,7 +306,7 @@ describe("repoint-spec-anchors", () => {
     rmSync(clone, { recursive: true, force: true });
   });
 
-  it("a manually retargeted anchor is accepted, reported, and never rewritten", () => {
+  it("warns and accepts a retargeted anchor whose test file is unchanged, never rewriting it", () => {
     write(
       repo,
       "specs/foo/spec.md",
@@ -318,8 +318,28 @@ describe("repoint-spec-anchors", () => {
 
     expect(check).toMatchObject({ status: 0 });
     expect(check.stdout).toContain("retargeted (not checked): 2");
+    expect(check.stderr).toContain(
+      "retargeted into an unchanged file specs/foo/spec.md: ../../tests/Foo.test.tsx#L3"
+    );
+    expect(rewrite.stderr).toContain("retargeted into an unchanged file specs/foo/spec.md:");
     expect(rewrite).toMatchObject({ status: 0 });
     expect(read(repo, "specs/foo/spec.md")).toEqual(specBefore);
+  });
+
+  it("does not warn when a retargeted anchor's test file changed from the base ref", () => {
+    write(repo, "tests/Foo.test.tsx", asTestFile(["alpha", "beta", "gamma", "delta", "epsilon"]));
+    write(
+      repo,
+      "specs/foo/spec.md",
+      asSpec("../../tests/Foo.test.tsx#L5", "../../tests/Foo.test.tsx#L1")
+    );
+    write(repo, ".specify/spec.md", asSpec("../tests/Foo.test.tsx#L5"));
+
+    const check = run(repo, "--check", "main");
+
+    expect(check).toMatchObject({ status: 0 });
+    expect(check.stdout).toContain("retargeted (not checked): 3");
+    expect(check.stderr).not.toContain("retargeted into an unchanged file");
   });
 
   it("an anchor landing on a blank line is rotten and exits 1 in both modes", () => {
