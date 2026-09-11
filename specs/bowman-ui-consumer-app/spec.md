@@ -183,7 +183,7 @@ otherwise ([validated by](../../examples/chat-demo/playwright.config.ts#L8)).
 
 All statements below executed green on 2026-09-10 against the packed tarball
 (32 passed across the chat, docs and theming suites, exit 0), re-run for the
-theming tokens' custom-themeed variant. See
+theming tokens' custom-themed variant. See
 `specs/bowman-ui-theming-tokens/spec.md` § The demo for the theming suite,
 `tests/theming.spec.ts`, which this spec does not restate.
 
@@ -330,5 +330,5 @@ engine wiring, the real Danish catalogue and disclosure wording
 (issue 32), source-app adoption, and visual regression testing.
 
 Theming of the demo was outside this issue too; the
-custom-themeed variant and the tokens it proves are covered by
+custom-themed variant and the tokens it proves are covered by
 `specs/bowman-ui-theming-tokens/spec.md` (issue 210).

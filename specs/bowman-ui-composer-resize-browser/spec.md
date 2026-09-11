@@ -18,7 +18,7 @@ proof is the PR diff itself, reviewable but not re-runnable.
 
 All statements below executed green on 2026-09-10 against the packed tarball
 via `scripts/consumer-app.sh` (32 passed, exit 0), re-run for the theming
-tokens' custom-themeed variant; the three resize tests also passed a local
+tokens' custom-themed variant; the three resize tests also passed a local
 `--repeat-each 10` flake run on 2026-08-27 (30 passed).
 
 Anchor note: `scripts/repoint-spec-anchors.mjs` originally tracked only
