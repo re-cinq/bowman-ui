@@ -88,7 +88,7 @@ docs/design-notes.md § Layout requires of consumers
 
 `src/themes.tsx` adds the `&theme=copperline` dimension to `?view=chat`:
 `resolveTheme` maps the query value to a theme - the Marginalia Books default,
-or the invented Copperline Bicycles client - and `ChatScreen` wraps the whole
+or the invented Copperline Bicycles company - and `ChatScreen` wraps the whole
 fragment, shell and toast alike, in the theme's `.custom-theme` wrapper and
 passes its chainring mark as `ChatMessageList`'s `assistantAvatar`; an
 unknown value falls back to the default

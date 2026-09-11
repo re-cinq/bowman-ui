@@ -183,19 +183,19 @@ test.describe("the Overview page's Theming section", () => {
     await page.goto("/?view=docs&component=overview");
 
     const defaultPreview = page.locator('[data-theming-preview="default"]');
-    const clientPreview = page.locator('[data-theming-preview="client"]');
+    const customPreview = page.locator('[data-theming-preview="custom"]');
 
     await expect(defaultPreview).toHaveCount(1);
-    await expect(clientPreview).toHaveCount(1);
+    await expect(customPreview).toHaveCount(1);
 
     const blue500 = await computedPaletteColor(page, "--color-blue-500");
     const defaultBackground = await backgroundOf(await enabledSendButton(defaultPreview));
-    const clientBackground = await backgroundOf(await enabledSendButton(clientPreview));
+    const customBackground = await backgroundOf(await enabledSendButton(customPreview));
 
     expect(defaultBackground).toBe(blue500);
-    expect(clientBackground).toBe(copperAccent);
-    expect(defaultBackground).not.toBe(clientBackground);
-    await expect(clientPreview.locator("svg[data-theme-mark]")).toHaveCount(1);
+    expect(customBackground).toBe(copperAccent);
+    expect(defaultBackground).not.toBe(customBackground);
+    await expect(customPreview.locator("svg[data-theme-mark]")).toHaveCount(1);
     await expect(defaultPreview.locator("[data-theme-mark]")).toHaveCount(0);
   });
 
@@ -206,17 +206,17 @@ test.describe("the Overview page's Theming section", () => {
     await page.goto("/?view=docs&component=overview");
 
     const defaultCircle = page.locator('[data-theming-preview="default"] .bowman-pulse-subtle');
-    const clientCircle = page.locator('[data-theming-preview="client"] .bowman-pulse-subtle');
+    const customCircle = page.locator('[data-theming-preview="custom"] .bowman-pulse-subtle');
 
     await expect(defaultCircle).toHaveCount(1);
-    await expect(clientCircle).toHaveCount(1);
+    await expect(customCircle).toHaveCount(1);
 
     const blue200 = await computedPaletteColor(page, "--color-blue-200", "borderColor");
     const blue50 = await computedPaletteColor(page, "--color-blue-50");
 
     expect(await borderColorOf(defaultCircle)).toBe(blue200);
     expect(await backgroundOf(defaultCircle)).toBe(blue50);
-    expect(await borderColorOf(clientCircle)).toBe(copperCircleBorder);
-    expect(await backgroundOf(clientCircle)).toBe(copperCircleSurface);
+    expect(await borderColorOf(customCircle)).toBe(copperCircleBorder);
+    expect(await backgroundOf(customCircle)).toBe(copperCircleSurface);
   });
 });

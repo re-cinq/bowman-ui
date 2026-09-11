@@ -50,9 +50,9 @@ export function ThemingSection() {
           note="The defaults: every token falls back to the palette colour the library shipped with."
         />
         <ThemingPreview
-          id="client"
+          id="custom"
           theme={customTheme}
-          note="Inside a wrapper that sets the tokens: the same components, the client's colours."
+          note="Inside a wrapper that sets the tokens: the same components, the theme's colours."
         />
       </div>
       <p className="text-sm leading-6 text-slate-600 dark:text-slate-400">

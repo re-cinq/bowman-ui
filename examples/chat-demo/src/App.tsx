@@ -42,7 +42,7 @@ const settingsNavKey = "settings";
 // "?view=chat" reaches the chat fixture - a local-test-only surface with no
 // on-page link to it. "&component=<slug>" picks a docs page inside the docs
 // view. "&theme=copperline" - meaningful only with "?view=chat" - renders the
-// same chat fixture as the invented second client: wrapped in the class that
+// same chat fixture as the invented second company: wrapped in the class that
 // overrides the theming tokens, under its own name, with its own avatar mark;
 // an unknown value falls back to the default theme. Read once, at module scope,
 // from the URL the document was loaded with: the demo has no router and needs

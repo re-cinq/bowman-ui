@@ -189,7 +189,7 @@ it without the package choosing; the package adds no media query and no selector
 
 The consumer app (`examples/chat-demo`, specified in `specs/bowman-ui-consumer-app/spec.md`)
 renders the chat fixture twice over: the Marginalia Books default at `?view=chat`, and at
-`?view=chat&theme=copperline` the same fixture as a second, invented client, Copperline Bicycles
+`?view=chat&theme=copperline` the same fixture as a second, invented company, Copperline Bicycles
 (a web search found no such company), named as such in the sidebar
 ([validated by](../../examples/chat-demo/tests/theming.spec.ts#L174)). The module
 `src/themes.tsx` resolves the theme from the query, and `ChatScreen` wraps the whole fragment, `AppShell` and `Toast`
@@ -202,7 +202,7 @@ mark fills the streaming avatar circle
 [mark](../../examples/chat-demo/src/themes.tsx#L25)). The Overview page
 (`?view=docs&component=overview`) gains a Theming section that renders `ChatMessage`,
 `ChatComposer` and `ConversationList` twice from one preview component,
-`data-theming-preview="default"` beside `data-theming-preview="client"` (the issue's "shows both
+`data-theming-preview="default"` beside `data-theming-preview="custom"` (the issue's "shows both
 side by side"), so the two columns cannot drift apart
 ([validated by](../../examples/chat-demo/tests/theming.spec.ts#L182),
 [preview](../../examples/chat-demo/src/docs/ThemingSection.tsx#L24)).
@@ -264,12 +264,12 @@ palette colour cannot fail the suite, and a consumer build that stops emitting t
 - The sidebar names Copperline Bicycles
   ([validated by](../../examples/chat-demo/tests/theming.spec.ts#L174)).
 - On the Overview page both previews render exactly once; the default preview's send button
-  equals the `--color-blue-500` probe, the client preview's is `rgb(183, 65, 14)`, the two
-  differ, and only the client preview carries the mark
+  equals the `--color-blue-500` probe, the custom preview's is `rgb(183, 65, 14)`, the two
+  differ, and only the custom preview carries the mark
   ([validated by](../../examples/chat-demo/tests/theming.spec.ts#L182)).
 - The previews' entry streams forever, so their circles need no polling window: the default
   circle's border and background equal the `--color-blue-200` and `--color-blue-50` probes, the
-  client circle's are `rgb(244, 201, 168)` and `rgb(255, 241, 230)` - `--bowman-accent-border`
+  custom circle's are `rgb(244, 201, 168)` and `rgb(255, 241, 230)` - `--bowman-accent-border`
   and `--bowman-accent-soft`
   ([validated by](../../examples/chat-demo/tests/theming.spec.ts#L203)).
 

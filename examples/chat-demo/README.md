@@ -55,7 +55,7 @@ state captions - is English, like the whole demo. The page chrome around it
 `/` and the `?view=docs` alias included - renders the documentation.
 
 `?view=chat&theme=copperline` renders the same chat fixture as a second,
-invented client, Copperline Bicycles: `src/themes.tsx` picks the theme from the
+invented company, Copperline Bicycles: `src/themes.tsx` picks the theme from the
 query, and `src/custom-theme.css` sets the library's thirty-three `--bowman-*`
 theming tokens on the `.custom-theme` wrapper. The overview page's Theming
 section renders the default and the themed components side by side, and
