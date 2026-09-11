@@ -1,10 +1,8 @@
-import { readFileSync } from "node:fs";
-import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
-
-const read = (path: string): string => readFileSync(resolve(process.cwd(), path), "utf8");
-
-const tokenNames = (source: string): string[] => source.match(/--bowman-[a-z-]+/g) ?? [];
+import {
+  bowmanTokenNamesIn as tokenNames,
+  readFromRepoRoot as read,
+} from "./helpers/theme-token-source.js";
 
 const allTokens = new Set([
   ...tokenNames(read("src/theme/tokens.ts")),
