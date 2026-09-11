@@ -441,8 +441,8 @@ consumer's layout decision.
 ## Theming
 
 Thirty-three `--bowman-*` custom properties are the package's whole theming
-surface: fifteen brand tokens (issue 210) and eighteen neutral chrome
-roles added under decision 12. Every brand colour a component paints - the
+surface: fifteen theme tokens (issue 210) and eighteen neutral chrome
+roles added under decision 12. Every theme colour a component paints - the
 accent fill and its hover, the streaming circle's tint and border, the focus
 ring, the composer's focus glow, the active row's surface, the pulse
 keyframe's two stops - and every neutral surface, border, ring offset and
@@ -450,7 +450,7 @@ text tier whose light and dark shades form one of the nine recorded role
 pairs is read through a `var()` whose fallback is the
 palette value the component painted before the tokens existed. A consumer
 that sets nothing sees today's look; a consumer that sets one property
-re-brands every site that reads it. `specs/bowman-ui-theming-tokens/spec.md`
+re-themes every site that reads it. `specs/bowman-ui-theming-tokens/spec.md`
 pins the sites and the tests; this section records the table and the
 decisions. `tests/theming-tokens-dist.test.ts` parses the table below, so
 the name and fallback columns are the contract, not an illustration.
@@ -504,7 +504,7 @@ Tailwind v4 compiles to `background-color: var(--bowman-accent,
 var(--color-blue-500))` while still emitting the referenced `--color-blue-*`
 theme variable into `:root` - so a consumer that overrides nothing resolves
 to the identical theme variable, byte for byte, and a consumer that
-overrides one token at `:root` or on any wrapper (`.client-brand { ... }`)
+overrides one token at `:root` or on any wrapper (`.custom-theme { ... }`)
 wins on plain cascade order with no specificity fight against the package.
 
 **The boundary.** The dark-mode strategy stays the consumer's build decision,
@@ -513,7 +513,7 @@ left it. The `-dark` tokens are read by the components' existing `dark:`
 variants, so whatever the consumer's Tailwind build resolves `dark:` to - the
 `prefers-color-scheme` default or a class strategy - resolves the `-dark`
 tokens the same way. The package adds no media query, no class selector and
-no strategy of its own; a consumer setting `--bowman-accent` alone re-brands
+no strategy of its own; a consumer setting `--bowman-accent` alone re-themes
 light mode and leaves dark mode on its blue-600 fallback until it also sets
 `--bowman-accent-dark`.
 
@@ -534,7 +534,7 @@ Decisions:
    its own dark selector to get a second - re-deriving the very strategy
    this package refuses to choose. Separate names cost seven extra rows in
    the table and nothing at runtime.
-3. **One token per distinct role-and-shade that existed - fifteen brand tokens, thirty-three
+3. **One token per distinct role-and-shade that existed - fifteen theme tokens, thirty-three
    with the neutral roles of decision 12.**
    Byte-for-byte fallbacks forbid deriving tints: blue-50 is not
    `color-mix(blue-500 10%, white)`, so the circle's tint and border, the
@@ -557,7 +557,7 @@ Decisions:
    trigger under decision 1) and one-line comments only.
 5. **Active-row emphasis has its own pair, `--bowman-active` and
    `--bowman-active-dark`, with slate defaults.** The default stays neutral
-   and a brand may tint it, but only the two backgrounds are tokenised: the
+   and a theme may tint it, but only the two backgrounds are tokenised: the
    row's label colours (`text-slate-900`, `dark:text-white` on the sidebar
    item) stay palette-mapped. The constraint that follows is the consumer's
    to honour: `--bowman-active` must stay a light surface in light mode and
@@ -568,7 +568,7 @@ Decisions:
    no neutral at all). A neutral site qualifies for a role when its light
    and dark utilities both equal the role pair's fallbacks; a site that
    matches on one side only keeps its palette classes on both, so no site is
-   ever half-branded. The nine pairs: `--bowman-surface` (`bg-white` /
+   ever half-themed. The nine pairs: `--bowman-surface` (`bg-white` /
    `dark:bg-slate-900`), `--bowman-surface-hover` (`hover:bg-slate-50` /
    `dark:hover:bg-slate-800`), `--bowman-control-hover` (`hover:bg-slate-100`
    / `dark:hover:bg-slate-800`), `--bowman-border` (`border-slate-200` /
@@ -606,8 +606,8 @@ Decisions:
    16.4, Chrome 111 and Firefox 128 all support `color-mix()` - so the
    byte-for-byte claim holds on every engine the toolchain supports.
 9. **The keyframe's zero stop stays the literal `rgba(59, 130, 246, 0)`.** A
-   review finding asked for a token there too, on the grounds that a brand's
-   transparent stop should carry the brand's hue. Rejected: CSS Color 4
+   review finding asked for a token there too, on the grounds that a theme's
+   transparent stop should carry the theme's hue. Rejected: CSS Color 4
    interpolates premultiplied, so the hue of a fully transparent stop is
    inert - the animation from a transparent blue to an opaque copper is the
    same animation as from a transparent copper. Only the 50 % stop reads
@@ -641,9 +641,9 @@ Decisions:
     that slate-800 is both a hover and a dark border. Two roles share a dark
     fallback (`surface-hover-dark` and `control-hover-dark` are both
     slate-800) and two share a light one (`surface` and `ring-offset` are
-    both white); they stay separate names because a brand may well want a
+    both white); they stay separate names because a theme may well want a
     tinted hover under a white surface. The role constants live in
-    `src/theme/tokens.ts` beside the brand ones; `BORDER_MD` derives the
+    `src/theme/tokens.ts` beside the theme ones; `BORDER_MD` derives the
     sidebar's `md:` edge from `BORDER` at module load rather than restating
     the fallback. Three focus sites that carried only the dark offset
     (`AppShell`'s two drawer buttons, `AppSidebar`'s nav link) gained the

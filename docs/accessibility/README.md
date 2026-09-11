@@ -116,7 +116,7 @@ goes in `<dir>/chat-demo/src/`, the temp copy - never in the repository's
 `examples/chat-demo`, where it would break the consumer check's own Playwright
 counts.
 
-The demo brand is `Marginalia Books`; the three conversations are
+The demo theme is `Marginalia Books`; the three conversations are
 `Delivery change for MB-4821-XQ` (open by default), `Damaged copy of The
 Cartographer's Atlas` and `New conversation`. All of it is invented fixture
 data. Under the composer sits a note reading "Static demo - canned responses,
