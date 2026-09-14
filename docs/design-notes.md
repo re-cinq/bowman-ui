@@ -440,13 +440,13 @@ consumer's layout decision.
 
 ## Theming
 
-Thirty-three `--bowman-*` custom properties are the package's whole theming
-surface: fifteen theme tokens (issue 210) and eighteen neutral chrome
+Thirty-five `--bowman-*` custom properties are the package's whole theming
+surface: fifteen theme tokens (issue 210) and twenty neutral chrome
 roles added under decision 12. Every theme colour a component paints - the
 accent fill and its hover, the streaming circle's tint and border, the focus
 ring, the composer's focus glow, the active row's surface, the pulse
 keyframe's two stops - and every neutral surface, border, ring offset and
-text tier whose light and dark shades form one of the nine recorded role
+text tier whose light and dark shades form one of the ten recorded role
 pairs is read through a `var()` whose fallback is the
 palette value the component painted before the tokens existed. A consumer
 that sets nothing sees today's look; a consumer that sets one property
@@ -482,6 +482,8 @@ the name and fallback columns are the contract, not an illustration.
 | `--bowman-border-dark`         | `var(--color-slate-800)` | the same borders (dark)                                                                                                         |
 | `--bowman-ring-offset`         | `var(--color-white)`     | every `focus:ring-offset` colour beside `ring-offset-2` (light); `ChatMessage`'s slate-950 offsets stay palette-mapped          |
 | `--bowman-ring-offset-dark`    | `var(--color-slate-900)` | the same offsets (dark)                                                                                                         |
+| `--bowman-text-strong`         | `var(--color-slate-900)` | textarea, search input, nav item + hover, ghost hover, `ErrorBoundary` heading, message body, skip-link focus (light)           |
+| `--bowman-text-strong-dark`    | `var(--color-slate-100)` | the same strong text (dark)                                                                                                     |
 | `--bowman-text-body`           | `var(--color-slate-700)` | conversation title, prompt chip, secondary button, `ToolActivity` chip, `AppShell` and `AppSidebar` consumer regions (light)    |
 | `--bowman-text-body-dark`      | `var(--color-slate-200)` | the same text (dark)                                                                                                            |
 | `--bowman-text-secondary`      | `var(--color-slate-600)` | `AppShell` drawer buttons, sidebar item, ghost button, `ErrorBoundary` body text (light)                                        |
@@ -534,7 +536,7 @@ Decisions:
    its own dark selector to get a second - re-deriving the very strategy
    this package refuses to choose. Separate names cost seven extra rows in
    the table and nothing at runtime.
-3. **One token per distinct role-and-shade that existed - fifteen theme tokens, thirty-three
+3. **One token per distinct role-and-shade that existed - fifteen theme tokens, thirty-five
    with the neutral roles of decision 12.**
    Byte-for-byte fallbacks forbid deriving tints: blue-50 is not
    `color-mix(blue-500 10%, white)`, so the circle's tint and border, the
@@ -563,7 +565,7 @@ Decisions:
    to honour: `--bowman-active` must stay a light surface in light mode and
    `--bowman-active-dark` a dark one in dark mode, or the fixed label colour
    loses its contrast.
-6. **Neutral chrome: nine role pairs are tokenised, the long tail stays
+6. **Neutral chrome: ten role pairs are tokenised, the long tail stays
    palette-mapped.** Amended 2026-09-10 (the first PR under issue 210 tokenised
    no neutral at all). A neutral site qualifies for a role when its light
    and dark utilities both equal the role pair's fallbacks; a site that
@@ -576,13 +578,13 @@ Decisions:
    scroll region and footer row - each carried no text utility before. Only
    the body text is painted; these regions' backgrounds stay palette-mapped by
    the rule below (the main region's `bg-white` / `dark:bg-slate-950` is listed
-   there). The nine pairs: `--bowman-surface` (`bg-white` /
+   there). The ten pairs: `--bowman-surface` (`bg-white` /
    `dark:bg-slate-900`), `--bowman-surface-hover` (`hover:bg-slate-50` /
    `dark:hover:bg-slate-800`), `--bowman-control-hover` (`hover:bg-slate-100`
    / `dark:hover:bg-slate-800`), `--bowman-border` (`border-slate-200` /
    `dark:border-slate-800`), `--bowman-ring-offset` (`focus:ring-offset-white`
-   / `dark:ring-offset-slate-900`) and the four text tiers `--bowman-text-body`
-   (slate-700 / slate-200), `--bowman-text-secondary` (slate-600 / slate-400),
+   / `dark:ring-offset-slate-900`) and the five text tiers `--bowman-text-strong`
+   (slate-900 / slate-100), `--bowman-text-body` (slate-700 / slate-200), `--bowman-text-secondary` (slate-600 / slate-400),
    `--bowman-text-muted` (slate-500 / slate-400) and `--bowman-text-subtle`
    (slate-400 / slate-500, the placeholders included). Everything non-text stays
    palette-mapped by this rule and is listed so no cleanup PR "finishes" it:
@@ -705,7 +707,7 @@ Decisions:
    inert - the animation from a transparent blue to an opaque copper is the
    same animation as from a transparent copper. Only the 50 % stop reads
    tokens (`--bowman-accent-glow`, `--bowman-pulse-outline`).
-10. **The thirty-three-line comment block at the top of `src/styles.css` is the
+10. **The thirty-five-line comment block at the top of `src/styles.css` is the
     in-stylesheet declaration the issue asked for.** One line per token,
     `/* --bowman-accent: var(--color-blue-500) - send button, thinking dots */`,
     at zero runtime cost, because decision 1 forbids a real declaration. It
@@ -714,7 +716,7 @@ Decisions:
     CSS, and the dist test parses the block - the token set it declares must
     equal the set of `var(--bowman-...)` reads across `dist/theme/tokens.js`
     and `dist/styles.css`, and every read must carry a non-empty fallback -
-    so the block cannot drift from the code. A thirty-fourth token is a table
+    so the block cannot drift from the code. A thirty-sixth token is a table
     row here, a comment line there and a constant in the module, in one PR.
 11. **The styled primitives read the same tokens.** `Button`, `IconButton`,
     `PromptChips` and `SearchField` (§ Styled primitives) landed on `main`
@@ -728,9 +730,9 @@ Decisions:
 
 12. **The neutral roles are named for what a designer overrides, not for a
     shade.** `surface`, `surface-hover`, `control-hover`, `border`,
-    `ring-offset` and the four text tiers `body`, `secondary`, `muted`,
+    `ring-offset` and the five text tiers `strong`, `body`, `secondary`, `muted`,
     `subtle` each carry one light fallback and one `-dark` fallback under
-    decision 2, so a client sets nine or eighteen values and never learns
+    decision 2, so a client sets ten or twenty values and never learns
     that slate-800 is both a hover and a dark border. Two roles share a dark
     fallback (`surface-hover-dark` and `control-hover-dark` are both
     slate-800) and two share a light one (`surface` and `ring-offset` are

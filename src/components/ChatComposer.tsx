@@ -18,6 +18,7 @@ import {
   FOCUS_WITHIN_RING_COLOR,
   PLACEHOLDER_SUBTLE,
   SURFACE,
+  TEXT_STRONG,
 } from "../theme/tokens.js";
 
 export interface ChatComposerLabels {
@@ -130,7 +131,7 @@ export function ChatComposer({
         aria-label={resolved.composerInput}
         placeholder={resolved.composerPlaceholder}
         rows={1}
-        className={`block w-full resize-none bg-transparent px-4 py-4 text-base text-slate-900 ${PLACEHOLDER_SUBTLE} focus:outline-none dark:text-slate-200`}
+        className={`block w-full resize-none bg-transparent px-4 py-4 text-base ${TEXT_STRONG} ${PLACEHOLDER_SUBTLE} focus:outline-none`}
         onChange={handleChange}
         onKeyDown={handleKeyDown}
         disabled={inactive}

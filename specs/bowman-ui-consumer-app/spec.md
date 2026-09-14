@@ -58,7 +58,7 @@ sufficient to render the screen, so the README's Styles section needed no
 amendment.
 
 Since the theming tokens (issue 210) a second stylesheet,
-`src/custom-theme.css`, sets the library's thirty-three `--bowman-*` tokens under
+`src/custom-theme.css`, sets the library's thirty-five `--bowman-*` tokens under
 the `.custom-theme` wrapper - never `:root` - and `main.tsx` imports it after
 `./styles.css`; the three-line entry stylesheet above is unchanged
 ([validated by](../../examples/chat-demo/src/main.tsx#L1)).

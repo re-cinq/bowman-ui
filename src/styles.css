@@ -23,6 +23,8 @@
 /* --bowman-border-dark: var(--color-slate-800) - the same borders (dark) */
 /* --bowman-ring-offset: var(--color-white) - every focus ring's offset colour */
 /* --bowman-ring-offset-dark: var(--color-slate-900) - the same offsets (dark) */
+/* --bowman-text-strong: var(--color-slate-900) - textarea, search input, active nav item, error heading, message body, plus nav/ghost hover and skip-link focus (light) */
+/* --bowman-text-strong-dark: var(--color-slate-100) - the same strong text (dark) */
 /* --bowman-text-body: var(--color-slate-700) - conversation title, prompt chip, secondary button and tool chip text */
 /* --bowman-text-body-dark: var(--color-slate-200) - the same text (dark) */
 /* --bowman-text-secondary: var(--color-slate-600) - drawer buttons, sidebar item, ghost button and error body text */

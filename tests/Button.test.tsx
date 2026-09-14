@@ -16,6 +16,7 @@ import {
   expectSurfaceHover,
   expectTextBody,
   expectTextSecondary,
+  expectTextStrongHover,
 } from "./helpers/expect-theme-tokens.js";
 
 const buttonOf = (): HTMLButtonElement => screen.getByRole("button", { name: "Ny samtale" });
@@ -106,10 +107,11 @@ describe("Button", () => {
       expect(buttonOf()).not.toHaveClass("bg-(--bowman-accent,var(--color-blue-500))");
     });
 
-    it('variant="ghost" reads --bowman-text-secondary and --bowman-surface-hover with neither a border token nor the --bowman-accent background', () => {
+    it('variant="ghost" reads --bowman-text-secondary, its hover reads --bowman-text-strong, beside --bowman-surface-hover with neither a border token nor the --bowman-accent background', () => {
       render(<Button variant="ghost">Ny samtale</Button>);
 
       expectTextSecondary(buttonOf());
+      expectTextStrongHover(buttonOf());
       expectSurfaceHover(buttonOf());
       expect(buttonOf()).not.toHaveClass("border-(--bowman-border,var(--color-slate-200))");
       expect(buttonOf()).not.toHaveClass("bg-(--bowman-accent,var(--color-blue-500))");

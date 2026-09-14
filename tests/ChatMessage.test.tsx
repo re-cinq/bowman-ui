@@ -11,7 +11,11 @@ import { resolve } from "node:path";
 import { ChatMessage, defaultChatMessageLabels } from "../src/index.js";
 import type { AssistantChatEntry, UserChatEntry } from "../src/index.js";
 import { expectImportHygiene, listFiles } from "./helpers/source-hygiene.js";
-import { expectAccentSoftSurface, expectFocusRing } from "./helpers/expect-theme-tokens.js";
+import {
+  expectAccentSoftSurface,
+  expectFocusRing,
+  expectTextStrong,
+} from "./helpers/expect-theme-tokens.js";
 
 const writeTextMock = vi.fn();
 
@@ -479,6 +483,12 @@ describe("ChatMessage", () => {
       expectFocusRing(screen.getByRole("button", { name: "Copy message" }));
       expectFocusRing(screen.getByRole("button", { name: "Good response" }));
       expectFocusRing(screen.getByRole("button", { name: "Bad response" }));
+    });
+
+    it("the message body reads the strong text token, joining text-strong rather than text-body per decision 6", () => {
+      render(<ChatMessage entry={makeEntry()} userInitials="LM" />);
+
+      expectTextStrong(screen.getByRole("article"));
     });
   });
 

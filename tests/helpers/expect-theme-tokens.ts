@@ -95,3 +95,36 @@ export const expectTextSecondary = (element: Element | null) =>
     "dark:text-(--bowman-text-secondary-dark,var(--color-slate-400))",
     ["text-slate-600", "dark:text-slate-400"]
   );
+
+// The strong sites shipped a slate-900 light side but split dark (white / slate-100 / slate-200);
+// the role unifies the dark side to slate-100, so every retired literal is checked gone.
+const RETIRED_STRONG = [
+  "text-slate-800",
+  "text-slate-900",
+  "dark:text-white",
+  "dark:text-slate-100",
+];
+
+export const expectTextStrong = (element: Element | null) =>
+  expectPair(
+    element,
+    "text-(--bowman-text-strong,var(--color-slate-900))",
+    "dark:text-(--bowman-text-strong-dark,var(--color-slate-100))",
+    [...RETIRED_STRONG, "dark:text-slate-200"]
+  );
+
+export const expectTextStrongHover = (element: Element | null) =>
+  expectPair(
+    element,
+    "hover:text-(--bowman-text-strong,var(--color-slate-900))",
+    "dark:hover:text-(--bowman-text-strong-dark,var(--color-slate-100))",
+    ["hover:text-slate-900", "dark:hover:text-white"]
+  );
+
+export const expectTextStrongFocus = (element: Element | null) =>
+  expectPair(
+    element,
+    "focus:text-(--bowman-text-strong,var(--color-slate-900))",
+    "dark:focus:text-(--bowman-text-strong-dark,var(--color-slate-100))",
+    ["focus:text-slate-900", "dark:focus:text-white"]
+  );

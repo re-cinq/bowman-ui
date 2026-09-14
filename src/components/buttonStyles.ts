@@ -8,6 +8,7 @@ import {
   SURFACE_HOVER,
   TEXT_BODY,
   TEXT_SECONDARY,
+  TEXT_STRONG_HOVER,
 } from "../theme/tokens.js";
 
 export type ButtonVariant = "primary" | "secondary" | "ghost";
@@ -21,7 +22,7 @@ export const buttonBaseClassNames = `inline-flex items-center justify-center gap
 export const buttonVariantClassNames: Readonly<Record<ButtonVariant, string>> = Object.freeze({
   primary: `${ACCENT_BG} text-white ${ACCENT_BG_HOVER}`,
   secondary: `border ${BORDER} ${SURFACE} ${TEXT_BODY} ${SURFACE_HOVER}`,
-  ghost: `${TEXT_SECONDARY} ${SURFACE_HOVER} hover:text-slate-900 dark:hover:text-white`,
+  ghost: `${TEXT_SECONDARY} ${SURFACE_HOVER} ${TEXT_STRONG_HOVER}`,
 });
 
 export const buttonSizeClassNames: Readonly<Record<ButtonSize, string>> = Object.freeze({

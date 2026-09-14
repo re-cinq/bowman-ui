@@ -1,6 +1,7 @@
 import { render, screen, fireEvent } from "@testing-library/react";
 import { useState } from "react";
 import { ErrorBoundary } from "../src/components/ErrorBoundary.js";
+import { expectTextStrong } from "./helpers/expect-theme-tokens.js";
 
 const Bomb = ({ error }: { error: Error }) => {
   throw error;
@@ -56,6 +57,17 @@ describe("ErrorBoundary", () => {
     expect(alert).toHaveTextContent("Something went wrong");
     expect(alert).toHaveTextContent("An unexpected error occurred. Please try again.");
     expect(screen.getByRole("button", { name: "Try again" })).toBeInTheDocument();
+  });
+
+  it("the fallback heading reads the strong text token, so a consumer recolours it with the theme", () => {
+    render(
+      <ErrorBoundary>
+        <Bomb error={new Error("boom")} />
+      </ErrorBoundary>,
+      silenced
+    );
+
+    expectTextStrong(screen.getByRole("heading", { name: "Something went wrong" }));
   });
 
   it("labels override the defaults per key and no English remains", () => {

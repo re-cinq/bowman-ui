@@ -12,6 +12,8 @@ import {
   SURFACE_HOVER,
   TEXT_BODY,
   TEXT_SECONDARY,
+  TEXT_STRONG,
+  TEXT_STRONG_HOVER,
 } from "../theme/tokens.js";
 
 export interface SidebarNavItem {
@@ -62,8 +64,8 @@ const defaultRenderNavLink = (_item: SidebarNavItem, props: SidebarNavLinkProps)
 const navLinkClassName = (isActive: boolean) =>
   `group flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm font-medium ring-offset-2 transition-colors focus:outline-none focus:ring-2 ${FOCUS_RING_COLOR} ${RING_OFFSET} ${
     isActive
-      ? `${ACTIVE_ROW_BG} text-slate-900 dark:text-white`
-      : `${TEXT_SECONDARY} ${SURFACE_HOVER} hover:text-slate-900 dark:hover:text-white`
+      ? `${ACTIVE_ROW_BG} ${TEXT_STRONG}`
+      : `${TEXT_SECONDARY} ${SURFACE_HOVER} ${TEXT_STRONG_HOVER}`
   }`;
 
 // Drawer below md (flex-1 + min-h-0 fills the height); rail at md+ pins its own width, as flex-1 would collapse it.
