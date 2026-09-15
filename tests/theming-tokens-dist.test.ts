@@ -81,6 +81,7 @@ const NEUTRAL_ROLE_READERS: Record<string, string[]> = {
   TEXT_STRONG_HOVER: ["AppSidebar", "buttonStyles"],
   TEXT_STRONG_FOCUS: ["AppShell"],
   TEXT_SECONDARY: ["AppShell", "AppSidebar", "ErrorBoundary", "buttonStyles"],
+  TEXT_SECONDARY_HOVER: ["ChatMessage"],
   TEXT_MUTED: [
     "ChatMessage",
     "ChatMessageList",
