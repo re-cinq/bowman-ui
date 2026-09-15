@@ -40,6 +40,12 @@ export const TEXT_SUBTLE =
   "text-(--bowman-text-subtle,var(--color-slate-400)) dark:text-(--bowman-text-subtle-dark,var(--color-slate-500))";
 export const PLACEHOLDER_SUBTLE =
   "placeholder-(--bowman-text-subtle,var(--color-slate-400)) dark:placeholder-(--bowman-text-subtle-dark,var(--color-slate-500))";
+export const DANGER =
+  "text-(--bowman-danger,var(--color-red-600)) dark:text-(--bowman-danger-dark,var(--color-red-400))";
+export const DANGER_HOVER =
+  "hover:text-(--bowman-danger,var(--color-red-600)) dark:hover:text-(--bowman-danger-dark,var(--color-red-400))";
+export const DANGER_SOFT =
+  "bg-(--bowman-danger-soft,var(--color-red-100)) dark:bg-[var(--bowman-danger-soft-dark,rgba(127,29,29,0.3))]";
 export const BORDER_MD = BORDER.split(" ")
   .map((className) => `md:${className}`)
   .join(" ");

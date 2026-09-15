@@ -11,7 +11,11 @@ import { resolve } from "node:path";
 import { ConversationList } from "../src/index.js";
 import type { ConversationListItem } from "../src/index.js";
 import { expectImportHygiene, expectNoEgress } from "./helpers/source-hygiene.js";
-import { expectActiveRowBackground, expectFocusRing } from "./helpers/expect-theme-tokens.js";
+import {
+  expectActiveRowBackground,
+  expectDangerHover,
+  expectFocusRing,
+} from "./helpers/expect-theme-tokens.js";
 
 const makeItem = (overrides?: Partial<ConversationListItem>): ConversationListItem => ({
   id: "conv-1",
@@ -147,6 +151,12 @@ describe("ConversationList", () => {
 
       expectFocusRing(screen.getByRole("button", { name: "Booking 4711" }));
       expectFocusRing(screen.getByRole("button", { name: "Delete conversation: Booking 4711" }));
+    });
+
+    it("the delete button's hover reads the danger role, not the lone red-500", () => {
+      render(<ConversationList items={[makeItem()]} onDelete={vi.fn()} />);
+
+      expectDangerHover(screen.getByRole("button", { name: "Delete conversation: Booking 4711" }));
     });
   });
 

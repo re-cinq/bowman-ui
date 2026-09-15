@@ -33,6 +33,10 @@
 /* --bowman-text-muted-dark: var(--color-slate-400) - the same labels (dark) */
 /* --bowman-text-subtle: var(--color-slate-400) - faint timestamps, empty-state hints, search icon, placeholders */
 /* --bowman-text-subtle-dark: var(--color-slate-500) - the same hints and placeholders (dark) */
+/* --bowman-danger: var(--color-red-600) - selected thumbs-down and error-icon glyph text, delete-button hover (light) */
+/* --bowman-danger-dark: var(--color-red-400) - the same danger text (dark) */
+/* --bowman-danger-soft: var(--color-red-100) - selected thumbs-down chip and error-icon circle background (light) */
+/* --bowman-danger-soft-dark: rgba(127, 29, 29, 0.3) - the same danger surfaces (dark) */
 
 @keyframes bowman-fade-in {
   from {

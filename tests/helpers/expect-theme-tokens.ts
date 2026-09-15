@@ -128,3 +128,29 @@ export const expectTextStrongFocus = (element: Element | null) =>
     "dark:focus:text-(--bowman-text-strong-dark,var(--color-slate-100))",
     ["focus:text-slate-900", "dark:focus:text-white"]
   );
+
+// The delete hover shipped a lone red-500 with no dark side; the danger role unifies it to
+// red-600 / red-400, and the two soft dark fills (red-900/30 and /20) collapse to one rgba.
+export const expectDanger = (element: Element | null) =>
+  expectPair(
+    element,
+    "text-(--bowman-danger,var(--color-red-600))",
+    "dark:text-(--bowman-danger-dark,var(--color-red-400))",
+    ["text-red-600", "dark:text-red-400"]
+  );
+
+export const expectDangerHover = (element: Element | null) =>
+  expectPair(
+    element,
+    "hover:text-(--bowman-danger,var(--color-red-600))",
+    "dark:hover:text-(--bowman-danger-dark,var(--color-red-400))",
+    ["hover:text-red-500"]
+  );
+
+export const expectDangerSoft = (element: Element | null) =>
+  expectPair(
+    element,
+    "bg-(--bowman-danger-soft,var(--color-red-100))",
+    "dark:bg-[var(--bowman-danger-soft-dark,rgba(127,29,29,0.3))]",
+    ["bg-red-100", "dark:bg-red-900/30", "dark:bg-red-900/20"]
+  );

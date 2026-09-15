@@ -440,14 +440,16 @@ consumer's layout decision.
 
 ## Theming
 
-Thirty-five `--bowman-*` custom properties are the package's whole theming
-surface: fifteen theme tokens (issue 210) and twenty neutral chrome
-roles added under decision 12. Every theme colour a component paints - the
+Thirty-nine `--bowman-*` custom properties are the package's whole theming
+surface: fifteen theme tokens (issue 210), twenty neutral chrome
+roles added under decision 12, and four semantic-colour roles (the danger
+pair and its soft surface, issue 108, under decision 6). Every theme colour a
+component paints - the
 accent fill and its hover, the streaming circle's tint and border, the focus
 ring, the composer's focus glow, the active row's surface, the pulse
-keyframe's two stops - and every neutral surface, border, ring offset and
+keyframe's two stops - every neutral surface, border, ring offset and
 text tier whose light and dark shades form one of the ten recorded role
-pairs is read through a `var()` whose fallback is the
+pairs, and the danger role's red text and soft surface, is read through a `var()` whose fallback is the
 palette value the component painted before the tokens existed. A consumer
 that sets nothing sees today's look; a consumer that sets one property
 re-themes every site that reads it. `specs/bowman-ui-theming-tokens/spec.md`
@@ -492,6 +494,10 @@ the name and fallback columns are the contract, not an illustration.
 | `--bowman-text-muted-dark`     | `var(--color-slate-400)` | the same labels (dark)                                                                                                          |
 | `--bowman-text-subtle`         | `var(--color-slate-400)` | faint timestamps, empty-state hints, the search icon, composer and search placeholders (light)                                  |
 | `--bowman-text-subtle-dark`    | `var(--color-slate-500)` | the same hints and placeholders (dark)                                                                                          |
+| `--bowman-danger`              | `var(--color-red-600)`   | selected thumbs-down and `ErrorBoundary` icon glyph text, `ConversationList` delete-button hover (light)                        |
+| `--bowman-danger-dark`         | `var(--color-red-400)`   | the same danger text (dark)                                                                                                     |
+| `--bowman-danger-soft`         | `var(--color-red-100)`   | selected thumbs-down chip and `ErrorBoundary` icon circle background (light)                                                    |
+| `--bowman-danger-soft-dark`    | `rgba(127, 29, 29, 0.3)` | the same danger surfaces (dark); the `red-900/30` and `red-900/20` fills collapse to this one fallback                          |
 
 In `src/styles.css` the two `rgba()` fallbacks keep the keyframe's original
 spacing (`rgba(59, 130, 246, 0.1)`); inside a Tailwind class name no space is
@@ -536,8 +542,8 @@ Decisions:
    its own dark selector to get a second - re-deriving the very strategy
    this package refuses to choose. Separate names cost seven extra rows in
    the table and nothing at runtime.
-3. **One token per distinct role-and-shade that existed - fifteen theme tokens, thirty-five
-   with the neutral roles of decision 12.**
+3. **One token per distinct role-and-shade that existed - fifteen theme tokens, thirty-nine
+   with the neutral roles of decision 12 and the semantic roles of decision 6.**
    Byte-for-byte fallbacks forbid deriving tints: blue-50 is not
    `color-mix(blue-500 10%, white)`, so the circle's tint and border, the
    glow and the pulse outline each need their own name. The issue described
@@ -707,7 +713,7 @@ Decisions:
    inert - the animation from a transparent blue to an opaque copper is the
    same animation as from a transparent copper. Only the 50 % stop reads
    tokens (`--bowman-accent-glow`, `--bowman-pulse-outline`).
-10. **The thirty-five-line comment block at the top of `src/styles.css` is the
+10. **The thirty-nine-line comment block at the top of `src/styles.css` is the
     in-stylesheet declaration the issue asked for.** One line per token,
     `/* --bowman-accent: var(--color-blue-500) - send button, thinking dots */`,
     at zero runtime cost, because decision 1 forbids a real declaration. It
@@ -716,7 +722,7 @@ Decisions:
     CSS, and the dist test parses the block - the token set it declares must
     equal the set of `var(--bowman-...)` reads across `dist/theme/tokens.js`
     and `dist/styles.css`, and every read must carry a non-empty fallback -
-    so the block cannot drift from the code. A thirty-sixth token is a table
+    so the block cannot drift from the code. A fortieth token is a table
     row here, a comment line there and a constant in the module, in one PR.
 11. **The styled primitives read the same tokens.** `Button`, `IconButton`,
     `PromptChips` and `SearchField` (§ Styled primitives) landed on `main`
