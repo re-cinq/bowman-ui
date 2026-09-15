@@ -18,6 +18,7 @@ import {
   CONTROL_HOVER,
   FOCUS_RING_COLOR,
   TEXT_MUTED,
+  TEXT_STRONG,
   TEXT_SUBTLE,
 } from "../theme/tokens.js";
 import {
@@ -198,7 +199,7 @@ export function ChatMessage({
       tabIndex={0}
       aria-label={ariaLabel}
       onKeyDown={handleKeyDown}
-      className={`group w-full rounded-xl p-2 text-slate-800 ring-offset-2 focus:outline-none focus:ring-2 ${FOCUS_RING_COLOR} dark:text-slate-100 dark:ring-offset-slate-950`}
+      className={`group w-full rounded-xl p-2 ${TEXT_STRONG} ring-offset-2 focus:outline-none focus:ring-2 ${FOCUS_RING_COLOR} dark:ring-offset-slate-950`}
     >
       {entry.role === "user" ? (
         <UserMessage content={entry.content} userInitials={userInitials} />

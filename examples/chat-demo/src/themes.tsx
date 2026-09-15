@@ -1,7 +1,7 @@
 // The chat fixture's themes, keyed by the "theme" query value. The default is
 // the Marginalia Books screen every existing test drives: no wrapper class, no
 // avatar. "copperline" is the invented second company that proves the theming
-// tokens: its wrapper class carries the thirty-three --bowman-* overrides in
+// tokens: its wrapper class carries the thirty-five --bowman-* overrides in
 // custom-theme.css, and its chainring mark fills the assistant avatar circle.
 
 import type { ReactNode } from "react";

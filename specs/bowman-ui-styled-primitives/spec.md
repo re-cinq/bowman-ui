@@ -68,8 +68,8 @@ export const Button: ForwardRefExoticComponent<ButtonProps & RefAttributes<HTMLB
 ```
 
 - Renders one `<button>` with `type` defaulting to `"button"`, the `children` as its accessible
-  name, and the `ref` forwarded to that element ([validated by](../../tests/Button.test.tsx#L25),
-  [L32](../../tests/Button.test.tsx#L32), [L42](../../tests/Button.test.tsx#L42)).
+  name, and the `ref` forwarded to that element ([validated by](../../tests/Button.test.tsx#L26),
+  [L33](../../tests/Button.test.tsx#L33), [L43](../../tests/Button.test.tsx#L43)).
 - `variant` picks the look: `primary` is the composer send button's accent fill (the
   `ACCENT_BG` and `ACCENT_BG_HOVER` token strings from `src/theme/tokens.ts`, reading
   `--bowman-accent` and `--bowman-accent-hover`, with `text-white`), `secondary` is the
@@ -78,19 +78,23 @@ export const Button: ForwardRefExoticComponent<ButtonProps & RefAttributes<HTMLB
   its `dark:` counterpart. Every variant carries the package's focus ring (`focus:ring-2` beside
   the `FOCUS_RING_COLOR` token string, reading `--bowman-focus-ring`) and the
   `disabled:cursor-not-allowed disabled:opacity-50` pair ([validated
-  by](../../tests/Button.test.tsx#L92),
-  [L92](../../tests/Button.test.tsx#L92), [L112](../../tests/Button.test.tsx#L112),
-  [L121](../../tests/Button.test.tsx#L121)).
+  by](../../tests/Button.test.tsx#L93),
+  [L93](../../tests/Button.test.tsx#L93), [L113](../../tests/Button.test.tsx#L113),
+  [L123](../../tests/Button.test.tsx#L123)).
+- `ghost`'s hover text and the `SearchField` input read `--bowman-text-strong`
+  (docs/design-notes.md § Theming decision 6), so a consumer recolours the emphasised text on
+  both with the theme rather than the fixed slate they carried before
+  ([validated by](../../tests/Button.test.tsx#L110), [L123](../../tests/SearchField.test.tsx#L123)).
 - `size` picks the padding and type scale: `md` is `px-4 py-2.5 text-sm`, `sm` is
-  `px-3 py-1.5 text-xs` ([validated by](../../tests/Button.test.tsx#L141),
-  [L148](../../tests/Button.test.tsx#L148)).
+  `px-3 py-1.5 text-xs` ([validated by](../../tests/Button.test.tsx#L143),
+  [L150](../../tests/Button.test.tsx#L150)).
 - `icon`, when given, renders before the text with `h-4 w-4` at `md` and `h-3.5 w-3.5` at `sm`;
   a package icon rendered this way carries `aria-hidden="true"` because it receives no
-  `ariaLabel` ([validated by](../../tests/Button.test.tsx#L161),
-  [L181](../../tests/Button.test.tsx#L181),
-  [L191](../../tests/Button.test.tsx#L191)).
+  `ariaLabel` ([validated by](../../tests/Button.test.tsx#L163),
+  [L183](../../tests/Button.test.tsx#L183),
+  [L193](../../tests/Button.test.tsx#L193)).
 - `onClick` receives the click event; `disabled` renders the native attribute and the click never
-  fires ([validated by](../../tests/Button.test.tsx#L56), [L68](../../tests/Button.test.tsx#L68)).
+  fires ([validated by](../../tests/Button.test.tsx#L57), [L69](../../tests/Button.test.tsx#L69)).
 - `Button` renders no string of its own - its text is `children` - so it sits in `noStrings` and
   takes no `labels` prop ([validated by](../../tests/labelled-exports.test.tsx#L132),
   [L158](../../tests/labelled-exports.test.tsx#L158)).
@@ -231,7 +235,7 @@ export const SearchField: ForwardRefExoticComponent<
 - `Button`, `IconButton` and `SearchField` are `forwardRef` components (decision 4: no cleanup
   rewrites `forwardRef` away), so a consumer can focus the control - a "jump to latest" button,
   a search box behind a keyboard shortcut - without reaching into the DOM
-  ([validated by](../../tests/Button.test.tsx#L42), [L42](../../tests/IconButton.test.tsx#L42),
+  ([validated by](../../tests/Button.test.tsx#L43), [L42](../../tests/IconButton.test.tsx#L42),
   [L54](../../tests/SearchField.test.tsx#L54)).
 - No primitive takes `className`, `style` or a render prop. Layout is the wrapper's: a `Button`
   in a `flex flex-col` sidebar column stretches to the column's width on its own, and a floating
@@ -273,7 +277,7 @@ by](../../tests/public-api.test.ts#L40),
    fifth case), and the chat-demo's sign-out footer button, a control the issue did not
    enumerate - and a bordered `secondary` there reads as chrome. One `ButtonVariant` union
    serves both components so a consumer never learns two
-   vocabularies ([validated by](../../tests/Button.test.tsx#L112),
+   vocabularies ([validated by](../../tests/Button.test.tsx#L113),
    [L99](../../tests/IconButton.test.tsx#L99),
    [L48](../../tests/types/primitives-type-assertions.tsx#L48)).
 2. **`IconButton` ships no `defaultIconButtonLabels`.** Its one key is required, so the defaults

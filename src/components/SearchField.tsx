@@ -8,6 +8,7 @@ import {
   FOCUS_RING_COLOR,
   PLACEHOLDER_SUBTLE,
   SURFACE,
+  TEXT_STRONG,
   TEXT_SUBTLE,
 } from "../theme/tokens.js";
 
@@ -30,7 +31,7 @@ export interface SearchFieldProps {
   labels?: Partial<SearchFieldLabels>;
 }
 
-const inputClassName = `block w-full rounded-lg border ${BORDER} ${SURFACE} py-2 pl-9 pr-3 text-sm text-slate-900 ${PLACEHOLDER_SUBTLE} focus:outline-none focus:ring-2 ${FOCUS_RING_COLOR} disabled:cursor-not-allowed disabled:opacity-50 dark:text-slate-200`;
+const inputClassName = `block w-full rounded-lg border ${BORDER} ${SURFACE} py-2 pl-9 pr-3 text-sm ${TEXT_STRONG} ${PLACEHOLDER_SUBTLE} focus:outline-none focus:ring-2 ${FOCUS_RING_COLOR} disabled:cursor-not-allowed disabled:opacity-50`;
 
 export const SearchField = forwardRef<HTMLInputElement, SearchFieldProps>(function SearchField(
   { value, onChange, disabled = false, labels },

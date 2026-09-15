@@ -24,6 +24,12 @@ export const BORDER =
   "border-(--bowman-border,var(--color-slate-200)) dark:border-(--bowman-border-dark,var(--color-slate-800))";
 export const RING_OFFSET =
   "focus:ring-offset-(--bowman-ring-offset,var(--color-white)) dark:ring-offset-(--bowman-ring-offset-dark,var(--color-slate-900))";
+export const TEXT_STRONG =
+  "text-(--bowman-text-strong,var(--color-slate-900)) dark:text-(--bowman-text-strong-dark,var(--color-slate-100))";
+export const TEXT_STRONG_HOVER =
+  "hover:text-(--bowman-text-strong,var(--color-slate-900)) dark:hover:text-(--bowman-text-strong-dark,var(--color-slate-100))";
+export const TEXT_STRONG_FOCUS =
+  "focus:text-(--bowman-text-strong,var(--color-slate-900)) dark:focus:text-(--bowman-text-strong-dark,var(--color-slate-100))";
 export const TEXT_BODY =
   "text-(--bowman-text-body,var(--color-slate-700)) dark:text-(--bowman-text-body-dark,var(--color-slate-200))";
 export const TEXT_SECONDARY =

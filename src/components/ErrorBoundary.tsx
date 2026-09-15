@@ -3,7 +3,7 @@
 import { Component, type ErrorInfo, type ReactNode } from "react";
 import { WarningIcon } from "../icons/index.js";
 import { resolveLabels } from "../labels.js";
-import { FOCUS_VISIBLE_RING_COLOR, TEXT_SECONDARY } from "../theme/tokens.js";
+import { FOCUS_VISIBLE_RING_COLOR, TEXT_SECONDARY, TEXT_STRONG } from "../theme/tokens.js";
 
 export interface ErrorBoundaryLabels {
   title: string;
@@ -69,9 +69,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, State> {
         <div className="mb-4 rounded-full bg-red-100 p-3 dark:bg-red-900/20">
           <WarningIcon className="h-6 w-6 text-red-600 dark:text-red-400" />
         </div>
-        <h2 className="mb-2 text-lg font-semibold text-slate-900 dark:text-slate-100">
-          {labels.title}
-        </h2>
+        <h2 className={`mb-2 text-lg font-semibold ${TEXT_STRONG}`}>{labels.title}</h2>
         <p className={`mb-4 text-sm ${TEXT_SECONDARY}`}>{labels.description}</p>
         <button
           type="button"

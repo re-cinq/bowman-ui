@@ -1,7 +1,7 @@
 // The theming tokens (issue 210), proved in a real Chromium: a consumer
 // that sets nothing gets the palette colour the library shipped with - measured
 // against a probe element, never a pinned oklch serialisation - and a consumer
-// that sets the thirty-three --bowman-* properties on a wrapper (src/custom-theme.css)
+// that sets the thirty-five --bowman-* properties on a wrapper (src/custom-theme.css)
 // recolours the send button, the active row, the streaming avatar circle and
 // the composer's focus glow inside that wrapper alone.
 
@@ -21,15 +21,16 @@ const copperCircleSurface = "rgb(255, 241, 230)";
 const copperGlow = "rgba(183, 65, 14, 0.12)";
 const copperSurface = "rgb(255, 250, 245)";
 const copperBorder = "rgb(234, 219, 205)";
+const copperTextStrong = "rgb(51, 36, 26)";
 const transparent = "rgba(0, 0, 0, 0)";
 const streamWindowMs = 10_000;
 
-type ColorProperty = "backgroundColor" | "borderColor";
+type ColorProperty = "backgroundColor" | "borderColor" | "color";
 
 // A probe element painted with the palette variable itself: whatever Chromium
 // serialises that colour as, the token site must serialise identically. The
-// guard keeps the equality from passing vacuously should the consumer build
-// stop emitting the variable into :root.
+// transparent guard catches a dropped variable for a paint property; for a text
+// colour that fell back to inherit, the caller's expected-shade assertion catches it.
 const computedPaletteColor = async (
   page: Page,
   variable: string,
@@ -60,6 +61,9 @@ const backgroundOf = (locator: Locator): Promise<string> =>
 
 const borderColorOf = (locator: Locator): Promise<string> =>
   locator.evaluate((element) => getComputedStyle(element).borderColor);
+
+const textColorOf = (locator: Locator): Promise<string> =>
+  locator.evaluate((element) => getComputedStyle(element).color);
 
 const boxShadowOf = (locator: Locator): Promise<string> =>
   locator.evaluate((element) => getComputedStyle(element).boxShadow);
@@ -112,6 +116,15 @@ test.describe("the default chat screen", () => {
     expect(await borderColorOf(composerFrame)).toBe(slate200);
   });
 
+  test("the composer's text resolves to the palette strong colour the library shipped with", async ({
+    page,
+  }) => {
+    await page.goto("/?view=chat");
+    const slate900 = await computedPaletteColor(page, "--color-slate-900", "color");
+
+    expect(await textColorOf(composerOf(page))).toBe(slate900);
+  });
+
   test("a prototype name as the theme value still resolves to the default theme", async ({
     page,
   }) => {
@@ -157,6 +170,12 @@ test.describe("the Copperline Bicycles chat screen", () => {
 
     expect(await backgroundOf(composerFrame)).toBe(copperSurface);
     expect(await borderColorOf(composerFrame)).toBe(copperBorder);
+  });
+
+  test("the composer's text takes the wrapper's strong text token", async ({ page }) => {
+    await page.goto(themedChatUrl);
+
+    expect(await textColorOf(composerOf(page))).toBe(copperTextStrong);
   });
 
   test("the focused composer glows in the theme's accent", async ({ page }) => {

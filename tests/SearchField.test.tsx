@@ -7,7 +7,7 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { createRef } from "react";
 import { SearchField, defaultSearchFieldLabels } from "../src/index.js";
-import { expectFocusRing } from "./helpers/expect-theme-tokens.js";
+import { expectFocusRing, expectTextStrong } from "./helpers/expect-theme-tokens.js";
 
 const searchboxOf = (): HTMLInputElement => screen.getByRole("searchbox");
 
@@ -118,6 +118,12 @@ describe("SearchField", () => {
 
       expectFocusRing(searchboxOf());
       expect(searchboxOf()).toHaveClass("focus:outline-none");
+    });
+
+    it("the input reads the strong text token, so a consumer recolours the query text with the theme", () => {
+      render(<SearchField value="" onChange={vi.fn()} />);
+
+      expectTextStrong(searchboxOf());
     });
   });
 });

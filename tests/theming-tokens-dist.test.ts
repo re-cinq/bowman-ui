@@ -42,6 +42,8 @@ const EXPECTED_FALLBACKS: Record<string, string> = {
   "--bowman-border-dark": "var(--color-slate-800)",
   "--bowman-ring-offset": "var(--color-white)",
   "--bowman-ring-offset-dark": "var(--color-slate-900)",
+  "--bowman-text-strong": "var(--color-slate-900)",
+  "--bowman-text-strong-dark": "var(--color-slate-100)",
   "--bowman-text-body": "var(--color-slate-700)",
   "--bowman-text-body-dark": "var(--color-slate-200)",
   "--bowman-text-secondary": "var(--color-slate-600)",
@@ -75,6 +77,9 @@ const NEUTRAL_ROLE_READERS: Record<string, string[]> = {
     "ToolActivity",
     "buttonStyles",
   ],
+  TEXT_STRONG: ["AppSidebar", "ChatComposer", "ChatMessage", "ErrorBoundary", "SearchField"],
+  TEXT_STRONG_HOVER: ["AppSidebar", "buttonStyles"],
+  TEXT_STRONG_FOCUS: ["AppShell"],
   TEXT_SECONDARY: ["AppShell", "AppSidebar", "ErrorBoundary", "buttonStyles"],
   TEXT_MUTED: [
     "ChatMessage",
@@ -157,14 +162,14 @@ const documentedTokens = (): Record<string, string> =>
   );
 
 describe("the built theming tokens", () => {
-  it("dist/styles.css opens with one comment line per token, thirty-three in all, each stating its default", () => {
+  it("dist/styles.css opens with one comment line per token, thirty-five in all, each stating its default", () => {
     const declared = declaredTokens();
 
     expect([...declared.keys()]).toEqual(Object.keys(EXPECTED_FALLBACKS));
     expect(Object.fromEntries(declared)).toEqual(EXPECTED_FALLBACKS);
   });
 
-  it("the tokens read in dist/theme/tokens.js and dist/styles.css are exactly the thirty-three declared ones", () => {
+  it("the tokens read in dist/theme/tokens.js and dist/styles.css are exactly the thirty-five declared ones", () => {
     const used = new Set(allUsages().map((usage) => usage.token));
 
     expect([...used].sort()).toEqual([...declaredTokens().keys()].sort());
@@ -249,7 +254,7 @@ describe("the built theming tokens", () => {
     expect(read("dist/index.js")).not.toMatch(/theme\/tokens/);
   });
 
-  it("the token table in docs/design-notes.md § Theming lists the same thirty-three names and fallbacks, in the declared order", () => {
+  it("the token table in docs/design-notes.md § Theming lists the same thirty-five names and fallbacks, in the declared order", () => {
     expect(Object.entries(documentedTokens())).toEqual(Object.entries(EXPECTED_FALLBACKS));
   });
 

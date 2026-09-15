@@ -3,7 +3,7 @@ import { resolve } from "node:path";
 import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import { AppShell, type SidebarSlotContext } from "../src/index.js";
 import { stubFocusEnvironment } from "./helpers/focus-environment.js";
-import { expectFocusRing } from "./helpers/expect-theme-tokens.js";
+import { expectFocusRing, expectTextStrongFocus } from "./helpers/expect-theme-tokens.js";
 
 const source = readFileSync(resolve(process.cwd(), "src/components/AppShell.tsx"), "utf8");
 
@@ -407,6 +407,12 @@ describe("AppShell", () => {
       expectFocusRing(screen.getByRole("link", { name: "Skip to main content" }));
       expectFocusRing(getHamburger());
       expectFocusRing(getCloseButton());
+    });
+
+    it("the focused skip link reads the strong text token, so a consumer recolours it with the theme", () => {
+      render(<AppShell>content</AppShell>);
+
+      expectTextStrongFocus(screen.getByRole("link", { name: "Skip to main content" }));
     });
   });
 

@@ -139,7 +139,7 @@ handler and the ref handle's `setValue`, the textarea is uncontrolled, and
 the demo passes no ref, so nothing re-runs the resize after `submit()` writes
 `auto`. `027`'s string criterion therefore still holds in a real browser,
 exactly as its unit test asserts
-([validated by](../../tests/ChatComposer.test.tsx#L42)).
+([validated by](../../tests/ChatComposer.test.tsx#L43)).
 
 What this suite adds is the half no jsdom test could reach: the browser
 resolves that `auto` back to a real rendered height equal to the recorded
@@ -154,8 +154,8 @@ the customer-visible fact, and asserting the string here would only duplicate
 The `maxHeightPx` override is proven only by `027`'s stubbed unit test - a
 stubbed `scrollHeight` of 320 capping at `200px` under the default and
 reaching `320px` with `maxHeightPx={400}` - and by no browser
-([validated by](../../tests/ChatComposer.test.tsx#L271),
-[L280](../../tests/ChatComposer.test.tsx#L280)). The demo pins its
+([validated by](../../tests/ChatComposer.test.tsx#L278),
+[L287](../../tests/ChatComposer.test.tsx#L287)). The demo pins its
 composition and threads no URL parameter to a second `maxHeightPx`, per the
 issue's tech note: that would turn the worked consumer into a fixture for its
 own test suite.

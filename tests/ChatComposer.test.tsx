@@ -11,6 +11,7 @@ import { createRef } from "react";
 import { ChatComposer } from "../src/index.js";
 import type { ChatComposerHandle } from "../src/index.js";
 import { expectImportHygiene, expectNoEgress, listFiles } from "./helpers/source-hygiene.js";
+import { expectTextStrong } from "./helpers/expect-theme-tokens.js";
 
 const textareaOf = (): HTMLTextAreaElement => screen.getByRole("textbox");
 const sendButtonOf = (): HTMLButtonElement => screen.getByRole("button", { name: "Send message" });
@@ -191,6 +192,12 @@ describe("ChatComposer", () => {
         "dark:hover:bg-(--bowman-accent-hover-dark,var(--color-blue-500))"
       );
       expect(sendButtonOf()).not.toHaveClass("bg-blue-500", "hover:bg-blue-600");
+    });
+
+    it("the textarea reads the strong text token, so a consumer recolours the drafted text with the theme", () => {
+      render(<ChatComposer onSubmit={vi.fn()} />);
+
+      expectTextStrong(textareaOf());
     });
 
     it("the wrapper keeps focus-within:ring-2 beside the --bowman-focus-ring /50 ring and the --bowman-accent-glow shadow", () => {
