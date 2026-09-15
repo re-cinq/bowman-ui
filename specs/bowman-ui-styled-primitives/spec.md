@@ -72,14 +72,15 @@ export const Button: ForwardRefExoticComponent<ButtonProps & RefAttributes<HTMLB
   [L33](../../tests/Button.test.tsx#L33), [L43](../../tests/Button.test.tsx#L43)).
 - `variant` picks the look: `primary` is the composer send button's accent fill (the
   `ACCENT_BG` and `ACCENT_BG_HOVER` token strings from `src/theme/tokens.ts`, reading
-  `--bowman-accent` and `--bowman-accent-hover`, with `text-white`), `secondary` is the
+  `--bowman-accent` and `--bowman-accent-hover`, with the `TEXT_ON_ACCENT` string reading
+  `--bowman-text-on-accent`), `secondary` is the
   chat-demo's "new chat" look (a `border-slate-200` border on `bg-white` with `text-slate-700`),
   `ghost` is borderless text with a hover surface (`text-slate-600 hover:bg-slate-50`), each with
   its `dark:` counterpart. Every variant carries the package's focus ring (`focus:ring-2` beside
   the `FOCUS_RING_COLOR` token string, reading `--bowman-focus-ring`) and the
   `disabled:cursor-not-allowed disabled:opacity-50` pair ([validated
-  by](../../tests/Button.test.tsx#L93),
-  [L93](../../tests/Button.test.tsx#L93), [L113](../../tests/Button.test.tsx#L113),
+  by](../../tests/Button.test.tsx#L96),
+  [L96](../../tests/Button.test.tsx#L96), [L113](../../tests/Button.test.tsx#L113),
   [L123](../../tests/Button.test.tsx#L123)).
 - `ghost`'s hover text and the `SearchField` input read `--bowman-text-strong`
   (docs/design-notes.md § Theming decision 6), so a consumer recolours the emphasised text on
@@ -131,7 +132,7 @@ export const IconButton: ForwardRefExoticComponent<
   `Button` ([validated by](../../tests/IconButton.test.tsx#L27),
   [L50](../../tests/IconButton.test.tsx#L50),
   [L124](../../tests/IconButton.test.tsx#L124), [L133](../../tests/IconButton.test.tsx#L133),
-  [L83](../../tests/IconButton.test.tsx#L83), [L93](../../tests/IconButton.test.tsx#L93),
+  [L83](../../tests/IconButton.test.tsx#L83), [L96](../../tests/IconButton.test.tsx#L96),
   [L99](../../tests/IconButton.test.tsx#L99), [L112](../../tests/IconButton.test.tsx#L112)).
 - `IconButton` shares `Button`'s `type` default and `"submit"` option, its `onClick` event and its
   `disabled` behaviour ([validated by](../../tests/IconButton.test.tsx#L36),

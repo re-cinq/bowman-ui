@@ -19,6 +19,7 @@ const copperActiveRow = "rgb(253, 235, 220)";
 const copperCircleBorder = "rgb(244, 201, 168)";
 const copperCircleSurface = "rgb(255, 241, 230)";
 const copperGlow = "rgba(183, 65, 14, 0.12)";
+const copperTextOnAccent = "rgb(255, 241, 230)";
 const copperSurface = "rgb(255, 250, 245)";
 const copperBorder = "rgb(234, 219, 205)";
 const copperTextStrong = "rgb(51, 36, 26)";
@@ -114,8 +115,12 @@ test.describe("the default chat screen", () => {
 
     const blue500 = await computedPaletteColor(page, "--color-blue-500");
     const slate100 = await computedPaletteColor(page, "--color-slate-100");
+    const white = await computedPaletteColor(page, "--color-white");
 
-    expect(await backgroundOf(await enabledSendButton(page))).toBe(blue500);
+    const sendButton = await enabledSendButton(page);
+
+    expect(await backgroundOf(sendButton)).toBe(blue500);
+    expect(await textColorOf(sendButton)).toBe(white);
     expect(await backgroundOf(activeConversationRow(page))).toBe(slate100);
     await expect(page.locator("[data-theme-mark]")).toHaveCount(0);
   });
@@ -166,7 +171,10 @@ test.describe("the Copperline Bicycles chat screen", () => {
   test("the send button and the active row take the wrapper's tokens", async ({ page }) => {
     await page.goto(themedChatUrl);
 
-    expect(await backgroundOf(await enabledSendButton(page))).toBe(copperAccent);
+    const sendButton = await enabledSendButton(page);
+
+    expect(await backgroundOf(sendButton)).toBe(copperAccent);
+    expect(await textColorOf(sendButton)).toBe(copperTextOnAccent);
     expect(await backgroundOf(activeConversationRow(page))).toBe(copperActiveRow);
   });
 

@@ -1,6 +1,6 @@
 // The Overview page's Theming section: the same three components rendered
 // twice, once with the library's defaults and once inside the wrapper class
-// that overrides the forty-three --bowman-* tokens (src/custom-theme.css). One
+// that overrides the forty-four --bowman-* tokens (src/custom-theme.css). One
 // preview component renders both, so the two columns cannot drift apart.
 
 import { ChatComposer, ChatMessage, ConversationList } from "@re-cinq/bowman-ui";
@@ -56,7 +56,7 @@ export function ThemingSection() {
         />
       </div>
       <p className="text-sm leading-6 text-slate-600 dark:text-slate-400">
-        The library reads forty-three <code>--bowman-*</code> custom properties through{" "}
+        The library reads forty-four <code>--bowman-*</code> custom properties through{" "}
         <code>var()</code> fallbacks and declares none of them, so a consumer sets any subset in its
         own CSS - at <code>:root</code>, or scoped to a wrapper as the right-hand preview is - and
         inheritance does the rest. The fallbacks name the exact palette variables the components

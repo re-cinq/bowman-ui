@@ -440,8 +440,8 @@ consumer's layout decision.
 
 ## Theming
 
-Forty-three `--bowman-*` custom properties are the package's whole theming
-surface: fifteen theme tokens (issue 210), twenty neutral chrome
+Forty-four `--bowman-*` custom properties are the package's whole theming
+surface: fifteen theme tokens (issue 210), twenty-one neutral chrome
 roles added under decision 12, and eight semantic-colour roles (the danger
 pair and its soft surface, issue 108, and the success pair and its soft fill,
 issue 107, under decision 6). Every theme colour a
@@ -496,6 +496,7 @@ the name and fallback columns are the contract, not an illustration.
 | `--bowman-text-muted-dark`     | `var(--color-slate-400)` | the same labels (dark)                                                                                                                                                                                 |
 | `--bowman-text-subtle`         | `var(--color-slate-400)` | faint timestamps, empty-state hints, the search icon, composer and search placeholders, `ChatMessage` copy/thumb buttons and `ConversationList` delete button at rest (light)                          |
 | `--bowman-text-subtle-dark`    | `var(--color-slate-500)` | the same hints and placeholders (dark)                                                                                                                                                                 |
+| `--bowman-text-on-accent`      | `var(--color-white)`     | send button and primary `Button`/`IconButton` text (one value, both modes)                                                                                                                             |
 | `--bowman-danger`              | `var(--color-red-600)`   | selected thumbs-down and `ErrorBoundary` icon glyph text, `ConversationList` delete-button hover (light)                                                                                               |
 | `--bowman-danger-dark`         | `var(--color-red-400)`   | the same danger text (dark)                                                                                                                                                                            |
 | `--bowman-danger-soft`         | `var(--color-red-100)`   | selected thumbs-down chip and `ErrorBoundary` icon circle background (light)                                                                                                                           |
@@ -548,7 +549,7 @@ Decisions:
    its own dark selector to get a second - re-deriving the very strategy
    this package refuses to choose. Separate names cost seven extra rows in
    the table and nothing at runtime.
-3. **One token per distinct role-and-shade that existed - fifteen theme tokens, forty-three
+3. **One token per distinct role-and-shade that existed - fifteen theme tokens, forty-four
    with the neutral roles of decision 12 and the semantic roles of decision 6.**
    Byte-for-byte fallbacks forbid deriving tints: blue-50 is not
    `color-mix(blue-500 10%, white)`, so the circle's tint and border, the
@@ -719,7 +720,7 @@ Decisions:
    inert - the animation from a transparent blue to an opaque copper is the
    same animation as from a transparent copper. Only the 50 % stop reads
    tokens (`--bowman-accent-glow`, `--bowman-pulse-outline`).
-10. **The forty-three-line comment block at the top of `src/styles.css` is the
+10. **The forty-four-line comment block at the top of `src/styles.css` is the
     in-stylesheet declaration the issue asked for.** One line per token,
     `/* --bowman-accent: var(--color-blue-500) - send button, thinking dots */`,
     at zero runtime cost, because decision 1 forbids a real declaration. It
@@ -728,7 +729,7 @@ Decisions:
     CSS, and the dist test parses the block - the token set it declares must
     equal the set of `var(--bowman-...)` reads across `dist/theme/tokens.js`
     and `dist/styles.css`, and every read must carry a non-empty fallback -
-    so the block cannot drift from the code. A forty-fourth token is a table
+    so the block cannot drift from the code. A forty-fifth token is a table
     row here, a comment line there and a constant in the module, in one PR.
 11. **The styled primitives read the same tokens.** `Button`, `IconButton`,
     `PromptChips` and `SearchField` (§ Styled primitives) landed on `main`

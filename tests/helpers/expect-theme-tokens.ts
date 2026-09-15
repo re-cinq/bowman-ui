@@ -22,14 +22,19 @@ export const expectAccentSoftSurface = (element: Element | null) => {
   );
 };
 
+export const expectTextOnAccent = (element: Element | null) => {
+  expect(element).toHaveClass("text-(--bowman-text-on-accent,var(--color-white))");
+  expect(element).not.toHaveClass("text-white");
+};
+
 export const expectPrimaryAccentFill = (element: Element | null) => {
   expect(element).toHaveClass(
     "bg-(--bowman-accent,var(--color-blue-500))",
     "dark:bg-(--bowman-accent-dark,var(--color-blue-600))",
     "hover:bg-(--bowman-accent-hover,var(--color-blue-600))",
-    "dark:hover:bg-(--bowman-accent-hover-dark,var(--color-blue-500))",
-    "text-white"
+    "dark:hover:bg-(--bowman-accent-hover-dark,var(--color-blue-500))"
   );
+  expectTextOnAccent(element);
   expect(element).not.toHaveClass("bg-blue-500", "hover:bg-blue-600");
   expect(element).not.toHaveClass("border-slate-200");
 };

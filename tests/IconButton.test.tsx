@@ -90,7 +90,7 @@ describe("IconButton", () => {
       expect(buttonOf()).not.toHaveClass("bg-(--bowman-accent,var(--color-blue-500))");
     });
 
-    it('variant="primary" carries the --bowman-accent background and hover, text-white and no border-slate-200', () => {
+    it('variant="primary" carries the --bowman-accent background and hover, --bowman-text-on-accent text and no border-slate-200', () => {
       render(<IconButton icon={PlusIcon} labels={labels} variant="primary" />);
 
       expectPrimaryAccentFill(buttonOf());
