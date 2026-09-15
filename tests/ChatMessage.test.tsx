@@ -14,6 +14,7 @@ import { expectImportHygiene, listFiles } from "./helpers/source-hygiene.js";
 import {
   expectAccentSoftSurface,
   expectFocusRing,
+  expectTextSecondary,
   expectTextStrong,
 } from "./helpers/expect-theme-tokens.js";
 
@@ -489,6 +490,12 @@ describe("ChatMessage", () => {
       render(<ChatMessage entry={makeEntry()} userInitials="LM" />);
 
       expectTextStrong(screen.getByRole("article"));
+    });
+
+    it("the assistant name reads the secondary text token, folding the label pair per decision 6", () => {
+      render(<ChatMessage entry={makeEntry()} userInitials="LM" assistantName="Facturación" />);
+
+      expectTextSecondary(screen.getByText("Facturación"));
     });
   });
 

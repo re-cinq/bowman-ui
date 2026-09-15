@@ -3,7 +3,7 @@
 import type { ReactNode } from "react";
 import { resolveLabels } from "../labels.js";
 import type { ToolChatEntry } from "../types/chat.js";
-import { TEXT_BODY, TEXT_MUTED } from "../theme/tokens.js";
+import { TEXT_BODY, TEXT_MUTED, TEXT_SECONDARY } from "../theme/tokens.js";
 
 export interface ToolActivityLabels {
   activity: string;
@@ -71,9 +71,7 @@ export function ToolActivity({
       <div className="flex min-w-0 flex-col gap-1 py-1">
         <span>{headline}</span>
         {showToolName && (
-          <code className="font-mono text-xs text-slate-600 dark:text-slate-300">
-            {entry.toolName}
-          </code>
+          <code className={`font-mono text-xs ${TEXT_SECONDARY}`}>{entry.toolName}</code>
         )}
         {showToolInput && (
           <details className="text-xs">
