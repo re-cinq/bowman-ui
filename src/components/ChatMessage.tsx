@@ -18,6 +18,7 @@ import {
   CONTROL_HOVER,
   FOCUS_RING_COLOR,
   TEXT_MUTED,
+  TEXT_SECONDARY_HOVER,
   TEXT_STRONG,
   TEXT_SUBTLE,
 } from "../theme/tokens.js";
@@ -337,7 +338,7 @@ function AssistantMessage({
           <div className="-ml-1 flex items-center gap-2 opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100">
             <button
               type="button"
-              className={`rounded p-1.5 text-slate-400 ring-offset-2 transition-colors ${CONTROL_HOVER} hover:text-slate-600 focus:outline-none focus:ring-2 ${FOCUS_RING_COLOR} dark:ring-offset-slate-950 dark:hover:text-slate-300`}
+              className={`rounded p-1.5 ${TEXT_SUBTLE} ring-offset-2 transition-colors ${CONTROL_HOVER} ${TEXT_SECONDARY_HOVER} focus:outline-none focus:ring-2 ${FOCUS_RING_COLOR} dark:ring-offset-slate-950`}
               onClick={() => onCopy(entry.content, entry.id)}
               aria-label={copiedId === entry.id ? resolved.copied : resolved.copy}
             >
@@ -360,7 +361,7 @@ function AssistantMessage({
                   className={`rounded p-1.5 ring-offset-2 transition-colors focus:outline-none focus:ring-2 ${FOCUS_RING_COLOR} dark:ring-offset-slate-950 ${
                     feedbackId?.id === entry.id && feedbackId.type === "up"
                       ? "bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400"
-                      : `text-slate-400 ${CONTROL_HOVER} hover:text-slate-600 dark:hover:text-slate-300`
+                      : `${TEXT_SUBTLE} ${CONTROL_HOVER} ${TEXT_SECONDARY_HOVER}`
                   }`}
                   onClick={() => onFeedback(entry.id, "up")}
                   aria-label={resolved.feedbackPositive}
@@ -373,7 +374,7 @@ function AssistantMessage({
                   className={`rounded p-1.5 ring-offset-2 transition-colors focus:outline-none focus:ring-2 ${FOCUS_RING_COLOR} dark:ring-offset-slate-950 ${
                     feedbackId?.id === entry.id && feedbackId.type === "down"
                       ? "bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400"
-                      : `text-slate-400 ${CONTROL_HOVER} hover:text-slate-600 dark:hover:text-slate-300`
+                      : `${TEXT_SUBTLE} ${CONTROL_HOVER} ${TEXT_SECONDARY_HOVER}`
                   }`}
                   onClick={() => onFeedback(entry.id, "down")}
                   aria-label={resolved.feedbackNegative}
