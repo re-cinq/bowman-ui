@@ -43,3 +43,7 @@ export const PLACEHOLDER_SUBTLE =
 export const BORDER_MD = BORDER.split(" ")
   .map((className) => `md:${className}`)
   .join(" ");
+export const SUCCESS =
+  "text-(--bowman-success,var(--color-green-600)) dark:text-(--bowman-success-dark,var(--color-green-400))";
+export const SUCCESS_SOFT =
+  "bg-(--bowman-success-soft,var(--color-green-100)) dark:bg-(--bowman-success-soft-dark,rgba(20,83,45,0.3))";

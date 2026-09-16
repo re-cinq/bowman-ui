@@ -33,6 +33,10 @@
 /* --bowman-text-muted-dark: var(--color-slate-400) - the same labels (dark) */
 /* --bowman-text-subtle: var(--color-slate-400) - faint timestamps, empty-state hints, search icon, placeholders */
 /* --bowman-text-subtle-dark: var(--color-slate-500) - the same hints and placeholders (dark) */
+/* --bowman-success: var(--color-green-600) - copied check mark and selected thumbs-up text (light) */
+/* --bowman-success-dark: var(--color-green-400) - the same success text (dark) */
+/* --bowman-success-soft: var(--color-green-100) - selected thumbs-up fill (light) */
+/* --bowman-success-soft-dark: rgba(20,83,45,0.3) - the same fill (dark) */
 
 @keyframes bowman-fade-in {
   from {

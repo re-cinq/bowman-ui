@@ -1,5 +1,5 @@
 /* The second, invented theme the chat fixture renders at "?view=chat&theme=copperline" and
-   the Overview page's Theming section previews. Every one of the library's thirty-five tokens is
+   the Overview page's Theming section previews. Every one of the library's thirty-nine tokens is
    set here, scoped to a wrapper rather than :root, so the same document can show the default
    and the themed look side by side. The values are Copperline Bicycles' - invented. */
 .custom-theme {
@@ -38,4 +38,8 @@
   --bowman-text-muted-dark: #c9a98f;
   --bowman-text-subtle: #ab8d78;
   --bowman-text-subtle-dark: #8a6a55;
+  --bowman-success: #2e7d4f;
+  --bowman-success-dark: #86d3a5;
+  --bowman-success-soft: #e4f3ea;
+  --bowman-success-soft-dark: rgba(46, 125, 79, 0.3);
 }

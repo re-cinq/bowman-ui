@@ -17,6 +17,8 @@ import {
   ACCENT_SOFT_SURFACE,
   CONTROL_HOVER,
   FOCUS_RING_COLOR,
+  SUCCESS,
+  SUCCESS_SOFT,
   TEXT_MUTED,
   TEXT_STRONG,
   TEXT_SUBTLE,
@@ -342,7 +344,7 @@ function AssistantMessage({
               aria-label={copiedId === entry.id ? resolved.copied : resolved.copy}
             >
               {copiedId === entry.id ? (
-                <CheckIcon className="h-4 w-4 text-green-500" />
+                <CheckIcon className={`h-4 w-4 ${SUCCESS}`} />
               ) : (
                 <CopyIcon className="h-4 w-4" />
               )}
@@ -359,7 +361,7 @@ function AssistantMessage({
                   type="button"
                   className={`rounded p-1.5 ring-offset-2 transition-colors focus:outline-none focus:ring-2 ${FOCUS_RING_COLOR} dark:ring-offset-slate-950 ${
                     feedbackId?.id === entry.id && feedbackId.type === "up"
-                      ? "bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400"
+                      ? `${SUCCESS_SOFT} ${SUCCESS}`
                       : `text-slate-400 ${CONTROL_HOVER} hover:text-slate-600 dark:hover:text-slate-300`
                   }`}
                   onClick={() => onFeedback(entry.id, "up")}

@@ -128,3 +128,21 @@ export const expectTextStrongFocus = (element: Element | null) =>
     "dark:focus:text-(--bowman-text-strong-dark,var(--color-slate-100))",
     ["focus:text-slate-900", "dark:focus:text-white"]
   );
+
+// The success role unifies the copied check (a lone green-500) with the selected thumbs-up
+// text (green-600 / green-400): both retired literals are checked gone at either site.
+export const expectSuccess = (element: Element | null) =>
+  expectPair(
+    element,
+    "text-(--bowman-success,var(--color-green-600))",
+    "dark:text-(--bowman-success-dark,var(--color-green-400))",
+    ["text-green-500", "text-green-600", "dark:text-green-400"]
+  );
+
+export const expectSuccessSoft = (element: Element | null) =>
+  expectPair(
+    element,
+    "bg-(--bowman-success-soft,var(--color-green-100))",
+    "dark:bg-(--bowman-success-soft-dark,rgba(20,83,45,0.3))",
+    ["bg-green-100", "dark:bg-green-900/30"]
+  );

@@ -1,7 +1,7 @@
 // The theming tokens (issue 210), proved in a real Chromium: a consumer
 // that sets nothing gets the palette colour the library shipped with - measured
 // against a probe element, never a pinned oklch serialisation - and a consumer
-// that sets the thirty-five --bowman-* properties on a wrapper (src/custom-theme.css)
+// that sets the thirty-nine --bowman-* properties on a wrapper (src/custom-theme.css)
 // recolours the send button, the active row, the streaming avatar circle and
 // the composer's focus glow inside that wrapper alone.
 
@@ -22,6 +22,8 @@ const copperGlow = "rgba(183, 65, 14, 0.12)";
 const copperSurface = "rgb(255, 250, 245)";
 const copperBorder = "rgb(234, 219, 205)";
 const copperTextStrong = "rgb(51, 36, 26)";
+const copperSuccess = "rgb(46, 125, 79)";
+const copperSuccessSoft = "rgb(228, 243, 234)";
 const transparent = "rgba(0, 0, 0, 0)";
 const streamWindowMs = 10_000;
 
@@ -90,6 +92,19 @@ const activeConversationRow = (page: Page): Locator =>
 const lastAssistantArticle = (page: Page): Locator =>
   page.getByRole("article", { name: chatMessageListLabels.assistantMessage }).last();
 
+// The feedback control carries transition-colors, so poll past the fade into the selected role.
+const expectSelectedThumbsUp = async (
+  page: Page,
+  text: string,
+  background: string
+): Promise<void> => {
+  const thumbsUp = lastAssistantArticle(page).getByRole("button", { name: "Good response" });
+
+  await thumbsUp.click();
+  await expect.poll(() => textColorOf(thumbsUp), { timeout: streamWindowMs }).toBe(text);
+  await expect.poll(() => backgroundOf(thumbsUp), { timeout: streamWindowMs }).toBe(background);
+};
+
 test.describe("the default chat screen", () => {
   test("the send button and the active row resolve to the palette colours the library shipped with", async ({
     page,
@@ -123,6 +138,17 @@ test.describe("the default chat screen", () => {
     const slate900 = await computedPaletteColor(page, "--color-slate-900", "color");
 
     expect(await textColorOf(composerOf(page))).toBe(slate900);
+  });
+
+  test("the selected thumbs-up resolves to the palette success colours the library shipped with", async ({
+    page,
+  }) => {
+    await page.goto("/?view=chat");
+
+    const green600 = await computedPaletteColor(page, "--color-green-600", "color");
+    const green100 = await computedPaletteColor(page, "--color-green-100");
+
+    await expectSelectedThumbsUp(page, green600, green100);
   });
 
   test("a prototype name as the theme value still resolves to the default theme", async ({
@@ -188,6 +214,12 @@ test.describe("the Copperline Bicycles chat screen", () => {
     await expect
       .poll(() => boxShadowOf(composerWrapper), { timeout: streamWindowMs })
       .toContain(copperGlow);
+  });
+
+  test("the selected thumbs-up takes the wrapper's success tokens", async ({ page }) => {
+    await page.goto(themedChatUrl);
+
+    await expectSelectedThumbsUp(page, copperSuccess, copperSuccessSoft);
   });
 
   test("the sidebar names the theme", async ({ page }) => {
