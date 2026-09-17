@@ -1,0 +1,38 @@
+name: Lore Test Report
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  lore-tests-vitest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: ./.github/actions/setup-node-install
+        with:
+          build: "true"
+
+      - name: Install Playwright (Chromium, with OS deps)
+        run: npx playwright install --with-deps chromium
+
+      - name: Fetch lore-code-trace
+        env:
+          LORE_INGEST_URL: ${{ secrets.LORE_INGEST_URL || vars.LORE_INGEST_URL }}
+        run: |
+          curl -fsSL "${LORE_INGEST_URL}/dist/lore-code-trace/linux-amd64" -o lore-code-trace
+          curl -fsSL "${LORE_INGEST_URL}/dist/lore-code-trace/checksums.txt" -o lore-code-trace-checksums.txt
+          sha256sum --ignore-missing -c lore-code-trace-checksums.txt
+          chmod +x lore-code-trace
+
+      - name: Run and ingest test report
+        env:
+          LORE_WEBHOOK_URL: ${{ vars.LORE_WEBHOOK_URL }}
+          LORE_INGEST_TOKEN: ${{ secrets.LORE_INGEST_TOKEN }}
+        run: ./lore-code-trace --post || echo "::warning::Lore test ingest failed"
