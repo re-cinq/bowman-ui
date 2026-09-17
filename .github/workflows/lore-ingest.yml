@@ -1,10 +1,4 @@
-# lore-ingest-version: 4
-# The curl hardening (auth-file token, status handling, body prefixing) lives in
-# scripts/lore-post.sh, shared by both jobs below. See issue #38.
-# LORE_INGEST_URL is a repository secret, not a variable, although it holds no
-# credential: the runner prints every step's env block in the public log and
-# masks only secrets, and the endpoint's hostname has no business in a public
-# log. The template's `vars.` form is a deliberate per-repo deviation.
+# lore-ingest-version: 5
 name: Lore Context Ingest
 
 on:
@@ -23,10 +17,9 @@ jobs:
   ingest:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 2
-          persist-credentials: false
 
       - name: Get changed files
         id: changes
@@ -43,7 +36,9 @@ jobs:
           LORE_INGEST_URL: ${{ secrets.LORE_INGEST_URL }}
           FILES: ${{ steps.changes.outputs.files }}
         run: |
-          scripts/lore-post.sh /api/ingest "{\"files\": ${FILES}, \"repo\": \"${{ github.repository }}\", \"commit\": \"${{ github.sha }}\"}" "context was NOT ingested"
+          scripts/lore-post.sh "/api/ingest" \
+            '{"files": '"${FILES}"', "repo": "${{ github.repository }}", "commit": "${{ github.sha }}"}' \
+            "context was NOT ingested"
 
   graph:
     runs-on: ubuntu-latest
@@ -52,13 +47,11 @@ jobs:
       matrix:
         kind: [specs, adrs]
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-
       - name: Project ${{ matrix.kind }} into the graph
         env:
           LORE_INGEST_TOKEN: ${{ secrets.LORE_INGEST_TOKEN }}
           LORE_INGEST_URL: ${{ secrets.LORE_INGEST_URL }}
         run: |
-          scripts/lore-post.sh "/api/repos/${{ github.repository }}/ingest-graph" "{\"kinds\":[\"${{ matrix.kind }}\"],\"commit\":\"${{ github.sha }}\"}" "${{ matrix.kind }} were NOT projected"
+          scripts/lore-post.sh "/api/repos/${{ github.repository }}/ingest-graph" \
+            '{"kinds":["${{ matrix.kind }}"],"commit":"${{ github.sha }}"}' \
+            "${{ matrix.kind }} were NOT projected"
