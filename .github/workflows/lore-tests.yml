@@ -26,9 +26,10 @@ jobs:
         env:
           LORE_INGEST_URL: ${{ secrets.LORE_INGEST_URL || vars.LORE_INGEST_URL }}
         run: |
-          curl -fsSL "${LORE_INGEST_URL}/dist/lore-code-trace/linux-amd64" -o lore-code-trace
+          curl -fsSL "${LORE_INGEST_URL}/dist/lore-code-trace/linux-amd64" -o linux-amd64
           curl -fsSL "${LORE_INGEST_URL}/dist/lore-code-trace/checksums.txt" -o lore-code-trace-checksums.txt
           sha256sum --ignore-missing -c lore-code-trace-checksums.txt
+          mv linux-amd64 lore-code-trace
           chmod +x lore-code-trace
 
       - name: Run and ingest test report
