@@ -96,6 +96,22 @@ export const expectTextSecondary = (element: Element | null) =>
     ["text-slate-600", "dark:text-slate-400"]
   );
 
+export const expectTextSecondaryHover = (element: Element | null) =>
+  expectPair(
+    element,
+    "hover:text-(--bowman-text-secondary,var(--color-slate-600))",
+    "dark:hover:text-(--bowman-text-secondary-dark,var(--color-slate-400))",
+    ["hover:text-slate-600", "dark:hover:text-slate-300"]
+  );
+
+export const expectTextSubtle = (element: Element | null) =>
+  expectPair(
+    element,
+    "text-(--bowman-text-subtle,var(--color-slate-400))",
+    "dark:text-(--bowman-text-subtle-dark,var(--color-slate-500))",
+    ["text-slate-400"]
+  );
+
 // The strong sites shipped a slate-900 light side but split dark (white / slate-100 / slate-200);
 // the role unifies the dark side to slate-100, so every retired literal is checked gone.
 const RETIRED_STRONG = [

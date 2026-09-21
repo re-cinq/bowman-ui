@@ -22,6 +22,7 @@ const copperGlow = "rgba(183, 65, 14, 0.12)";
 const copperSurface = "rgb(255, 250, 245)";
 const copperBorder = "rgb(234, 219, 205)";
 const copperTextStrong = "rgb(51, 36, 26)";
+const copperTextSubtle = "rgb(171, 141, 120)";
 const transparent = "rgba(0, 0, 0, 0)";
 const streamWindowMs = 10_000;
 
@@ -176,6 +177,15 @@ test.describe("the Copperline Bicycles chat screen", () => {
     await page.goto(themedChatUrl);
 
     expect(await textColorOf(composerOf(page))).toBe(copperTextStrong);
+  });
+
+  test("the copy button's rest text takes the wrapper's subtle text token", async ({ page }) => {
+    await page.goto(themedChatUrl);
+
+    const copyButton = lastAssistantArticle(page).getByRole("button", { name: "Copy message" });
+
+    await expect(copyButton).toHaveCount(1);
+    expect(await textColorOf(copyButton)).toBe(copperTextSubtle);
   });
 
   test("the focused composer glows in the theme's accent", async ({ page }) => {
