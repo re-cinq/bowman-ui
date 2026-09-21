@@ -27,12 +27,16 @@
 /* --bowman-text-strong-dark: var(--color-slate-100) - the same strong text (dark) */
 /* --bowman-text-body: var(--color-slate-700) - conversation title, prompt chip, secondary button and tool chip text */
 /* --bowman-text-body-dark: var(--color-slate-200) - the same text (dark) */
-/* --bowman-text-secondary: var(--color-slate-600) - drawer buttons, sidebar item, ghost button and error body text */
+/* --bowman-text-secondary: var(--color-slate-600) - drawer buttons, sidebar item, ghost button, error body text, assistant name, thinking-trace content, tool name */
 /* --bowman-text-secondary-dark: var(--color-slate-400) - the same text (dark) */
 /* --bowman-text-muted: var(--color-slate-500) - timestamps, disclosure band, thinking and tool labels */
 /* --bowman-text-muted-dark: var(--color-slate-400) - the same labels (dark) */
 /* --bowman-text-subtle: var(--color-slate-400) - faint timestamps, empty-state hints, search icon, placeholders */
 /* --bowman-text-subtle-dark: var(--color-slate-500) - the same hints and placeholders (dark) */
+/* --bowman-danger: var(--color-red-600) - selected thumbs-down and error-icon glyph text, delete-button hover (light) */
+/* --bowman-danger-dark: var(--color-red-400) - the same danger text (dark) */
+/* --bowman-danger-soft: var(--color-red-100) - selected thumbs-down chip and error-icon circle background (light) */
+/* --bowman-danger-soft-dark: rgba(127, 29, 29, 0.3) - the same danger surfaces (dark) */
 /* --bowman-success: var(--color-green-600) - copied check mark and selected thumbs-up text (light) */
 /* --bowman-success-dark: var(--color-green-400) - the same success text (dark) */
 /* --bowman-success-soft: var(--color-green-100) - selected thumbs-up fill (light) */

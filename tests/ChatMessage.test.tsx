@@ -13,10 +13,15 @@ import type { AssistantChatEntry, UserChatEntry } from "../src/index.js";
 import { expectImportHygiene, listFiles } from "./helpers/source-hygiene.js";
 import {
   expectAccentSoftSurface,
+  expectDanger,
+  expectDangerSoft,
   expectFocusRing,
   expectSuccess,
   expectSuccessSoft,
+  expectTextSecondary,
+  expectTextSecondaryHover,
   expectTextStrong,
+  expectTextSubtle,
 } from "./helpers/expect-theme-tokens.js";
 
 const writeTextMock = vi.fn();
@@ -491,6 +496,34 @@ describe("ChatMessage", () => {
       render(<ChatMessage entry={makeEntry()} userInitials="LM" />);
 
       expectTextStrong(screen.getByRole("article"));
+    });
+
+    it("a selected thumbs-down reads the danger role's soft surface and text, not the red palette classes", () => {
+      render(<ChatMessage entry={makeEntry()} userInitials="LM" onFeedback={vi.fn()} />);
+      const down = screen.getByRole("button", { name: "Bad response" });
+
+      act(() => {
+        fireEvent.click(down);
+      });
+      expectDangerSoft(down);
+      expectDanger(down);
+    });
+
+    it("the assistant name reads the secondary text token, folding the label pair per decision 6", () => {
+      render(<ChatMessage entry={makeEntry()} userInitials="LM" assistantName="Facturación" />);
+
+      expectTextSecondary(screen.getByText("Facturación"));
+    });
+
+    it("copy and both thumb buttons read text-subtle at rest and promote to text-secondary on hover", () => {
+      render(<ChatMessage entry={makeEntry()} userInitials="LM" onFeedback={vi.fn()} />);
+
+      for (const name of ["Copy message", "Good response", "Bad response"]) {
+        const control = screen.getByRole("button", { name });
+
+        expectTextSubtle(control);
+        expectTextSecondaryHover(control);
+      }
     });
 
     it("the copied check and the selected thumbs-up read the success role, retiring the green literals", () => {

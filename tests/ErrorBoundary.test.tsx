@@ -1,7 +1,7 @@
 import { render, screen, fireEvent } from "@testing-library/react";
 import { useState } from "react";
 import { ErrorBoundary } from "../src/components/ErrorBoundary.js";
-import { expectTextStrong } from "./helpers/expect-theme-tokens.js";
+import { expectDanger, expectDangerSoft, expectTextStrong } from "./helpers/expect-theme-tokens.js";
 
 const Bomb = ({ error }: { error: Error }) => {
   throw error;
@@ -68,6 +68,19 @@ describe("ErrorBoundary", () => {
     );
 
     expectTextStrong(screen.getByRole("heading", { name: "Something went wrong" }));
+  });
+
+  it("the error icon circle and glyph read the danger role, not the red palette classes", () => {
+    render(
+      <ErrorBoundary>
+        <Bomb error={new Error("boom")} />
+      </ErrorBoundary>,
+      silenced
+    );
+    const alert = screen.getByRole("alert");
+
+    expectDangerSoft(alert.querySelector(".rounded-full"));
+    expectDanger(alert.querySelector("svg"));
   });
 
   it("labels override the defaults per key and no English remains", () => {

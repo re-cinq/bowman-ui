@@ -111,10 +111,10 @@ prop smuggled in with it fails. `ChatMessage` gains exactly one prop,
    `"Assistant response"` exactly - and exactly one element fewer renders.
    `assistantName` passed with a `UserChatEntry` renders no name and leaves the
    user article's label alone
-   ([validated by](../../tests/ChatMessage.test.tsx#L558),
-   [L515](../../tests/ChatMessage.test.tsx#L515),
-   [with an avatar supplied](../../tests/ChatMessage.test.tsx#L567),
-   [L524](../../tests/ChatMessage.test.tsx#L524)).
+   ([validated by](../../tests/ChatMessage.test.tsx#L591),
+   [L548](../../tests/ChatMessage.test.tsx#L548),
+   [with an avatar supplied](../../tests/ChatMessage.test.tsx#L600),
+   [L557](../../tests/ChatMessage.test.tsx#L557)).
 
 ## The label
 
@@ -127,8 +127,8 @@ as `Readonly<Required<ChatMessageLabels>>`
 [the override](../../tests/types/chat-message-type-assertions.tsx#L48)), the
 default is a function of one string, and a supplied `assistantMessageFrom`
 returning `"Respuesta de " + name` produces `"Respuesta de Facturación"`
-([validated by](../../tests/ChatMessage.test.tsx#L538),
-[L551](../../tests/ChatMessage.test.tsx#L551)).
+([validated by](../../tests/ChatMessage.test.tsx#L571),
+[L584](../../tests/ChatMessage.test.tsx#L584)).
 
 `resolveLabels` needed no change: it is generic over `object` and copies a
 function value by reference like any other. The `no-restricted-syntax` labels
@@ -204,7 +204,7 @@ Zero retention holds by source grep and by the suite-wide spy: neither changed
 component calls `console.*`, `localStorage`, `sessionStorage`, `fetch` or
 `navigator.sendBeacon`, and `tests/setup.ts` fails any test whose render
 touched the console or the network
-([validated by](../../tests/ChatMessage.test.tsx#L700),
+([validated by](../../tests/ChatMessage.test.tsx#L733),
 [the list](../../tests/ChatMessageList.test.tsx#L929)).
 
 ## Gates

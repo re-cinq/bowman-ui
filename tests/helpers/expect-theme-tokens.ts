@@ -96,6 +96,22 @@ export const expectTextSecondary = (element: Element | null) =>
     ["text-slate-600", "dark:text-slate-400"]
   );
 
+export const expectTextSecondaryHover = (element: Element | null) =>
+  expectPair(
+    element,
+    "hover:text-(--bowman-text-secondary,var(--color-slate-600))",
+    "dark:hover:text-(--bowman-text-secondary-dark,var(--color-slate-400))",
+    ["hover:text-slate-600", "dark:hover:text-slate-300"]
+  );
+
+export const expectTextSubtle = (element: Element | null) =>
+  expectPair(
+    element,
+    "text-(--bowman-text-subtle,var(--color-slate-400))",
+    "dark:text-(--bowman-text-subtle-dark,var(--color-slate-500))",
+    ["text-slate-400"]
+  );
+
 // The strong sites shipped a slate-900 light side but split dark (white / slate-100 / slate-200);
 // the role unifies the dark side to slate-100, so every retired literal is checked gone.
 const RETIRED_STRONG = [
@@ -127,6 +143,32 @@ export const expectTextStrongFocus = (element: Element | null) =>
     "focus:text-(--bowman-text-strong,var(--color-slate-900))",
     "dark:focus:text-(--bowman-text-strong-dark,var(--color-slate-100))",
     ["focus:text-slate-900", "dark:focus:text-white"]
+  );
+
+// The delete hover shipped a lone red-500 with no dark side; the danger role unifies it to
+// red-600 / red-400, and the two soft dark fills (red-900/30 and /20) collapse to one rgba.
+export const expectDanger = (element: Element | null) =>
+  expectPair(
+    element,
+    "text-(--bowman-danger,var(--color-red-600))",
+    "dark:text-(--bowman-danger-dark,var(--color-red-400))",
+    ["text-red-600", "dark:text-red-400"]
+  );
+
+export const expectDangerHover = (element: Element | null) =>
+  expectPair(
+    element,
+    "hover:text-(--bowman-danger,var(--color-red-600))",
+    "dark:hover:text-(--bowman-danger-dark,var(--color-red-400))",
+    ["hover:text-red-500"]
+  );
+
+export const expectDangerSoft = (element: Element | null) =>
+  expectPair(
+    element,
+    "bg-(--bowman-danger-soft,var(--color-red-100))",
+    "dark:bg-[var(--bowman-danger-soft-dark,rgba(127,29,29,0.3))]",
+    ["bg-red-100", "dark:bg-red-900/30", "dark:bg-red-900/20"]
   );
 
 // The success role unifies the copied check (a lone green-500) with the selected thumbs-up

@@ -31,7 +31,7 @@ string-carrying component already in the repo - it adds no new component.
   `tests/types/labels-type-assertions.tsx`, compiled against the BUILT package through the single
   `"."` exports entry ([validated by](../../tests/labels-dist.test.ts#L3)).
 - The three translated labels render with no English remaining; no `labels` prop renders the three
-  021 English defaults unchanged ([validated by](../../tests/ErrorBoundary.test.tsx#L73),
+  021 English defaults unchanged ([validated by](../../tests/ErrorBoundary.test.tsx#L86),
   [L47](../../tests/ErrorBoundary.test.tsx#L47)).
 - `eslint.config.mjs` gains a labels entry (core ESLint only): `no-restricted-syntax` selectors
   banning bare Latin JSX text, hardcoded string literals in the seven
@@ -78,7 +78,7 @@ string-carrying component already in the repo - it adds no new component.
   `labels={{ title: undefined }}` blank the title. `resolveLabels` treats that key as missing and
   renders the English default instead. This is the convention's intent; it
   is the one observable behaviour change in the retrofit
-  ([validated by](../../tests/ErrorBoundary.test.tsx#L95)).
+  ([validated by](../../tests/ErrorBoundary.test.tsx#L108)).
 - **Partition is over value exports.** The partition test statically parses `export { ... }`
   blocks of `src/index.ts`; `export type { ... }` names are excluded by design - a type carries
   no renderable string. Interfaces like `ErrorBoundaryLabels` are therefore not partition

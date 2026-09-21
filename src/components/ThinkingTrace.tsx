@@ -4,7 +4,7 @@ import { useReducedMotion } from "../hooks/useReducedMotion.js";
 import { resolveLabels } from "../labels.js";
 import type { ThinkingChatEntry } from "../types/chat.js";
 import { ThinkingDots } from "./ThinkingDots.js";
-import { TEXT_MUTED } from "../theme/tokens.js";
+import { TEXT_MUTED, TEXT_SECONDARY } from "../theme/tokens.js";
 
 export interface ThinkingTraceLabels {
   thinkingTrace: string;
@@ -33,7 +33,7 @@ export function ThinkingTrace({ entry, reducedMotion, labels }: ThinkingTracePro
         <span>{resolved.thinkingTrace}</span>
         {entry.isStreaming && <ThinkingDots reducedMotion={prefersReducedMotion} />}
       </summary>
-      <div className="mt-2 whitespace-pre-wrap break-words text-slate-600 dark:text-slate-300">
+      <div className={`mt-2 whitespace-pre-wrap break-words ${TEXT_SECONDARY}`}>
         {entry.content}
       </div>
     </details>
