@@ -4,7 +4,7 @@ import { resolve } from "node:path";
 import { ThinkingTrace, defaultThinkingTraceLabels } from "../src/index.js";
 import type { ThinkingChatEntry } from "../src/index.js";
 import { expectThinkingDots } from "./helpers/expect-thinking-dots.js";
-import { ACCENT_DOT_SELECTOR } from "./helpers/expect-theme-tokens.js";
+import { ACCENT_DOT_SELECTOR, expectTextSecondary } from "./helpers/expect-theme-tokens.js";
 
 // 017's fixture entry (tests/fixtures/hal-session-entries.json § thinking).
 const reasoningEntry: ThinkingChatEntry = {
@@ -58,6 +58,12 @@ describe("ThinkingTrace", () => {
       expect(container.querySelector(".whitespace-pre-wrap")?.textContent).toBe(
         reasoningEntry.content
       );
+    });
+
+    it("reads the secondary text token, folding the label pair per decision 6", () => {
+      const { container } = render(<ThinkingTrace entry={reasoningEntry} />);
+
+      expectTextSecondary(container.querySelector(".whitespace-pre-wrap"));
     });
 
     it("renders markdown and HTML payloads as inert literal text", () => {

@@ -18,6 +18,7 @@ import {
   CONTROL_HOVER,
   FOCUS_RING_COLOR,
   TEXT_MUTED,
+  TEXT_SECONDARY,
   TEXT_SECONDARY_HOVER,
   TEXT_STRONG,
   TEXT_SUBTLE,
@@ -309,9 +310,7 @@ function AssistantMessage({
       </div>
       <div className="flex min-w-0 max-w-full flex-col gap-2">
         {assistantName && (
-          <span className="pt-1 text-sm font-medium text-slate-600 dark:text-slate-300">
-            {assistantName}
-          </span>
+          <span className={`pt-1 text-sm font-medium ${TEXT_SECONDARY}`}>{assistantName}</span>
         )}
         <div className="max-w-none overflow-x-auto pt-1 text-sm leading-6">
           {entry.toolStatus && (

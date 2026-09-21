@@ -4,6 +4,7 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { ToolActivity, defaultToolActivityLabels } from "../src/index.js";
 import type { ToolChatEntry } from "../src/index.js";
+import { expectTextSecondary } from "./helpers/expect-theme-tokens.js";
 
 // 017's fixture entry (tests/fixtures/hal-session-entries.json § tool).
 const weatherEntry: ToolChatEntry = {
@@ -36,6 +37,12 @@ describe("ToolActivity", () => {
       render(<ToolActivity entry={weatherEntry} showToolName />);
 
       expect(screen.getByText("get_weather")).toBeInTheDocument();
+    });
+
+    it("true reads the tool name in the secondary text token, folding the label pair per decision 6", () => {
+      render(<ToolActivity entry={weatherEntry} showToolName />);
+
+      expectTextSecondary(screen.getByText("get_weather"));
     });
 
     it("defaults false, keeping the tool name out of the document", () => {
