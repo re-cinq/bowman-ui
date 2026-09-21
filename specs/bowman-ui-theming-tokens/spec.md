@@ -165,7 +165,10 @@ utility fails ([validated by](../../tests/theming-tokens-dist.test.ts#L238)).
   `--bowman-danger-soft` and their `-dark` twins - so a consumer recolours every negative-state
   site at once; the delete hover moves from a lone `red-500` to the role's `red-600`, and the two
   dark soft fills (`red-900/30` and `/20`) collapse to one `rgba()` fallback, per decision 6
-  ([validated by](../../tests/theming-tokens-dist.test.ts#L237), [L499](../../tests/ChatMessage.test.tsx#L499)).
+  ([validated by](../../tests/theming-tokens-dist.test.ts#L237),
+  [L499](../../tests/ChatMessage.test.tsx#L499),
+  [L157](../../tests/ConversationList.test.tsx#L157),
+  [L73](../../tests/ErrorBoundary.test.tsx#L73)).
 - The twenty role fallbacks are declared in the stylesheet block and the design-notes table
   in the same order as the code reads them, and every read carries the declared fallback
   ([validated by](../../tests/theming-tokens-dist.test.ts#L182),
