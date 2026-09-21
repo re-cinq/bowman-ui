@@ -89,6 +89,7 @@ const NEUTRAL_ROLE_READERS: Record<string, string[]> = {
     "ToolActivity",
     "buttonStyles",
   ],
+  TEXT_SECONDARY_HOVER: ["ChatMessage"],
   TEXT_MUTED: [
     "ChatMessage",
     "ChatMessageList",

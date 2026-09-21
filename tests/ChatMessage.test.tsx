@@ -15,7 +15,9 @@ import {
   expectAccentSoftSurface,
   expectFocusRing,
   expectTextSecondary,
+  expectTextSecondaryHover,
   expectTextStrong,
+  expectTextSubtle,
 } from "./helpers/expect-theme-tokens.js";
 
 const writeTextMock = vi.fn();
@@ -496,6 +498,17 @@ describe("ChatMessage", () => {
       render(<ChatMessage entry={makeEntry()} userInitials="LM" assistantName="Facturación" />);
 
       expectTextSecondary(screen.getByText("Facturación"));
+    });
+
+    it("copy and both thumb buttons read text-subtle at rest and promote to text-secondary on hover", () => {
+      render(<ChatMessage entry={makeEntry()} userInitials="LM" onFeedback={vi.fn()} />);
+
+      for (const name of ["Copy message", "Good response", "Bad response"]) {
+        const control = screen.getByRole("button", { name });
+
+        expectTextSubtle(control);
+        expectTextSecondaryHover(control);
+      }
     });
   });
 
