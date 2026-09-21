@@ -16,8 +16,6 @@ jobs:
           persist-credentials: false
 
       - uses: ./.github/actions/setup-node-install
-        with:
-          build: "true"
 
       - name: Install Playwright (Chromium, with OS deps)
         run: npx playwright install --with-deps chromium
