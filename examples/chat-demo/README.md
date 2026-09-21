@@ -56,7 +56,7 @@ state captions - is English, like the whole demo. The page chrome around it
 
 `?view=chat&theme=copperline` renders the same chat fixture as a second,
 invented company, Copperline Bicycles: `src/themes.tsx` picks the theme from the
-query, and `src/custom-theme.css` sets the library's thirty-five `--bowman-*`
+query, and `src/custom-theme.css` sets the library's thirty-nine `--bowman-*`
 theming tokens on the `.custom-theme` wrapper. The overview page's Theming
 section renders the default and the themed components side by side, and
 `tests/theming.spec.ts` measures both in Chromium.

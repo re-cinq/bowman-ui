@@ -86,7 +86,7 @@ The typecheck script is `typecheck`, not `type-check`.
 
 - `src/index.ts` — the ONLY public surface (barrel).
 - `src/labels.ts` — `resolveLabels`.
-- `src/styles.css` — opens with the 15-line `--bowman-*` token comment block (invariant 13).
+- `src/styles.css` — opens with the `--bowman-*` token comment block, one line per token (invariant 13).
 - `src/theme/tokens.ts` — the internal theming-token class strings, one `export const` per
   string; imported by the components, never exported from the barrel (invariant 13).
 - `src/components/` — 17 `.tsx` (AppShell, AppSidebar, Button, ChatComposer, ChatMessage,
@@ -188,13 +188,13 @@ The typecheck script is `typecheck`, not `type-check`.
     fails on any other ref. Never `npm publish`, `npm stage approve` for a run you did not
     review, or `npm version` by hand. Never push to `main` — guard-main-pushes.yml opens a security issue,
     because push access to `main` is transitively npm-publish access.
-13. **Theming tokens** (docs/design-notes.md § Theming). Exactly 33 `--bowman-*` custom
+13. **Theming tokens** (docs/design-notes.md § Theming). Exactly 39 `--bowman-*` custom
     properties, read only through `var()` fallbacks that equal today's palette — no `:root`
     block, no `@theme`. The class strings live once in the internal `src/theme/tokens.ts`.
     Enforced by tests/theming-tokens-dist.test.ts (the stylesheet comment block, the design-notes
     table and the dist reads must agree). Never add a brand-palette utility (`blue-*`) in `src/`
     outside the tokens module's fallbacks, and never a neutral `slate-*`/`white` utility at a site
-    whose light and dark shades equal one of the nine role pairs of decision 6 (read the role).
+    whose light and dark shades equal one of the role pairs of decision 6 (read the role).
 
 ## Landmines checklist (never do)
 

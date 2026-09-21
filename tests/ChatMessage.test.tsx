@@ -13,6 +13,8 @@ import type { AssistantChatEntry, UserChatEntry } from "../src/index.js";
 import { expectImportHygiene, listFiles } from "./helpers/source-hygiene.js";
 import {
   expectAccentSoftSurface,
+  expectDanger,
+  expectDangerSoft,
   expectFocusRing,
   expectTextSecondary,
   expectTextSecondaryHover,
@@ -492,6 +494,17 @@ describe("ChatMessage", () => {
       render(<ChatMessage entry={makeEntry()} userInitials="LM" />);
 
       expectTextStrong(screen.getByRole("article"));
+    });
+
+    it("a selected thumbs-down reads the danger role's soft surface and text, not the red palette classes", () => {
+      render(<ChatMessage entry={makeEntry()} userInitials="LM" onFeedback={vi.fn()} />);
+      const down = screen.getByRole("button", { name: "Bad response" });
+
+      act(() => {
+        fireEvent.click(down);
+      });
+      expectDangerSoft(down);
+      expectDanger(down);
     });
 
     it("the assistant name reads the secondary text token, folding the label pair per decision 6", () => {

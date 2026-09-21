@@ -16,6 +16,8 @@ import { resolveLabels } from "../labels.js";
 import {
   ACCENT_SOFT_SURFACE,
   CONTROL_HOVER,
+  DANGER,
+  DANGER_SOFT,
   FOCUS_RING_COLOR,
   TEXT_MUTED,
   TEXT_SECONDARY,
@@ -372,7 +374,7 @@ function AssistantMessage({
                   type="button"
                   className={`rounded p-1.5 ring-offset-2 transition-colors focus:outline-none focus:ring-2 ${FOCUS_RING_COLOR} dark:ring-offset-slate-950 ${
                     feedbackId?.id === entry.id && feedbackId.type === "down"
-                      ? "bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400"
+                      ? `${DANGER_SOFT} ${DANGER}`
                       : `${TEXT_SUBTLE} ${CONTROL_HOVER} ${TEXT_SECONDARY_HOVER}`
                   }`}
                   onClick={() => onFeedback(entry.id, "down")}

@@ -6,6 +6,7 @@ import { TrashIcon } from "../icons/index.js";
 import { resolveLabels } from "../labels.js";
 import {
   ACTIVE_ROW_BG,
+  DANGER_HOVER,
   FOCUS_RING_COLOR,
   RING_OFFSET,
   SURFACE_HOVER,
@@ -241,7 +242,7 @@ export function ConversationList({
               <button
                 type="button"
                 onClick={() => onDelete(conversation.id)}
-                className={`ml-1 flex-shrink-0 rounded p-1.5 ${TEXT_SUBTLE} opacity-0 ring-offset-2 transition-opacity hover:bg-slate-200 hover:text-red-500 focus:opacity-100 focus:outline-none focus:ring-2 ${FOCUS_RING_COLOR} ${RING_OFFSET} group-hover:opacity-100 group-focus-within:opacity-100 dark:hover:bg-slate-700`}
+                className={`ml-1 flex-shrink-0 rounded p-1.5 ${TEXT_SUBTLE} opacity-0 ring-offset-2 transition-opacity hover:bg-slate-200 ${DANGER_HOVER} focus:opacity-100 focus:outline-none focus:ring-2 ${FOCUS_RING_COLOR} ${RING_OFFSET} group-hover:opacity-100 group-focus-within:opacity-100 dark:hover:bg-slate-700`}
                 aria-label={resolved.deleteConversation(conversation.title)}
               >
                 <TrashIcon className="h-4 w-4" aria-hidden="true" />
