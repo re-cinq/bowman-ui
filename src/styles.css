@@ -27,7 +27,7 @@
 /* --bowman-text-strong-dark: var(--color-slate-100) - the same strong text (dark) */
 /* --bowman-text-body: var(--color-slate-700) - conversation title, prompt chip, secondary button and tool chip text */
 /* --bowman-text-body-dark: var(--color-slate-200) - the same text (dark) */
-/* --bowman-text-secondary: var(--color-slate-600) - drawer buttons, sidebar item, ghost button and error body text */
+/* --bowman-text-secondary: var(--color-slate-600) - drawer buttons, sidebar item, ghost button, error body text, assistant name, thinking-trace content, tool name */
 /* --bowman-text-secondary-dark: var(--color-slate-400) - the same text (dark) */
 /* --bowman-text-muted: var(--color-slate-500) - timestamps, disclosure band, thinking and tool labels */
 /* --bowman-text-muted-dark: var(--color-slate-400) - the same labels (dark) */

@@ -16,7 +16,10 @@ import {
   expectDanger,
   expectDangerSoft,
   expectFocusRing,
+  expectTextSecondary,
+  expectTextSecondaryHover,
   expectTextStrong,
+  expectTextSubtle,
 } from "./helpers/expect-theme-tokens.js";
 
 const writeTextMock = vi.fn();
@@ -502,6 +505,23 @@ describe("ChatMessage", () => {
       });
       expectDangerSoft(down);
       expectDanger(down);
+    });
+
+    it("the assistant name reads the secondary text token, folding the label pair per decision 6", () => {
+      render(<ChatMessage entry={makeEntry()} userInitials="LM" assistantName="Facturación" />);
+
+      expectTextSecondary(screen.getByText("Facturación"));
+    });
+
+    it("copy and both thumb buttons read text-subtle at rest and promote to text-secondary on hover", () => {
+      render(<ChatMessage entry={makeEntry()} userInitials="LM" onFeedback={vi.fn()} />);
+
+      for (const name of ["Copy message", "Good response", "Bad response"]) {
+        const control = screen.getByRole("button", { name });
+
+        expectTextSubtle(control);
+        expectTextSecondaryHover(control);
+      }
     });
   });
 

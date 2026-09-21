@@ -77,7 +77,7 @@ exports entry for a consumer ([validated by](../../tests/hooks-dist.test.ts#L61)
   `--bowman-danger` glyph - rather than the `red-*` palette classes, the circle's dark fill
   joining the collapsed `rgba()` soft-dark fallback per § Theming decision 6
   ([validated by](../../tests/ErrorBoundary.test.tsx#L73),
-  [readers](../../tests/theming-tokens-dist.test.ts#L228)).
+  [readers](../../tests/theming-tokens-dist.test.ts#L237)).
 
 No built file reads `process.env`, and no `NEXT_PUBLIC_FLAG_ANIMATIONS`
 string survives in `src/`

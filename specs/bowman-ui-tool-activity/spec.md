@@ -22,8 +22,8 @@ done; `ChatMessageList` filtered it out until this issue.
 `details` (the disclosure's `<summary>`, `"Details"`) - with
 `defaultToolActivityLabels` frozen over the three English strings, resolved per
 key by the convention's `resolveLabels`
-([validated by](../../tests/ToolActivity.test.tsx#L152),
-[L166](../../tests/ToolActivity.test.tsx#L166)).
+([validated by](../../tests/ToolActivity.test.tsx#L159),
+[L173](../../tests/ToolActivity.test.tsx#L173)).
 
 ## The decisions
 
@@ -36,20 +36,20 @@ key by the convention's `resolveLabels`
    `showToolInput` opts the arguments in; both default off. Whether a consumer
    may flip either is `003-support-conversation-data-flow-record`'s call,
    recorded in docs/design-notes.md § Tool activity
-   ([validated by](../../tests/ToolActivity.test.tsx#L18),
-   [L35](../../tests/ToolActivity.test.tsx#L35),
-   [L49](../../tests/ToolActivity.test.tsx#L49)).
+   ([validated by](../../tests/ToolActivity.test.tsx#L19),
+   [L36](../../tests/ToolActivity.test.tsx#L36),
+   [L56](../../tests/ToolActivity.test.tsx#L56)).
 2. **`describeTool` is the caller's sentence.** When present it replaces the
    `activity`/`activityDone` line with caller-authored copy and does not
    suppress `showToolName`; the Danish `describeTool` map itself belongs to the
    support agent, not the library
-   ([validated by](../../tests/ToolActivity.test.tsx#L79)).
+   ([validated by](../../tests/ToolActivity.test.tsx#L86)).
 3. **`pending` is caller-derived.** `pending` true renders `activity`, absent
    renders `activityDone` - there is no protocol "done" signal, so
    `ChatMessageList` derives it as
    `busy === true && index === entries.length - 1`
-   ([validated by](../../tests/ToolActivity.test.tsx#L124),
-   [done](../../tests/ToolActivity.test.tsx#L131)).
+   ([validated by](../../tests/ToolActivity.test.tsx#L131),
+   [done](../../tests/ToolActivity.test.tsx#L138)).
 4. **Arguments are inert JSON behind a native disclosure.** When shown they
    render as `JSON.stringify(entry.toolInput, null, 2)` inside a `<pre>`,
    behind a `<details>`/`<summary>` closed by default - never markdown or
@@ -57,17 +57,17 @@ key by the convention's `resolveLabels`
    created. The source references no `dangerouslySetInnerHTML`,
    `react-markdown` or `remark-` and holds no `useState`, `useEffect` or
    `useId`
-   ([validated by](../../tests/ToolActivity.test.tsx#L196),
-   [L140](../../tests/ToolActivity.test.tsx#L140),
-   [L64](../../tests/ToolActivity.test.tsx#L64),
-   [L192](../../tests/ToolActivity.test.tsx#L192)).
+   ([validated by](../../tests/ToolActivity.test.tsx#L203),
+   [L147](../../tests/ToolActivity.test.tsx#L147),
+   [L71](../../tests/ToolActivity.test.tsx#L71),
+   [L199](../../tests/ToolActivity.test.tsx#L199)).
 5. **It is not a message.** No avatar, copy or feedback affordance, and
    `ToolActivityProps` declares none of `assistantAvatar`, `onCopy`,
    `onFeedback` or `showFeedback`. No `renderEntry` escape hatch exists -
    `dist/index.d.ts` carries none - so the data-boundary default cannot be
    moved out of the library
-   ([validated by](../../tests/ToolActivity.test.tsx#L204),
-   [L219](../../tests/ToolActivity.test.tsx#L219)).
+   ([validated by](../../tests/ToolActivity.test.tsx#L211),
+   [L226](../../tests/ToolActivity.test.tsx#L226)).
 
 ## In the message list
 
@@ -97,8 +97,8 @@ stays its only required key
 `ToolActivity.tsx` makes no `console` call and touches no `localStorage`,
 `sessionStorage` or `IndexedDB`; rendering with `showToolInput` leaves
 `localStorage.length` at `0`
-([validated by](../../tests/ToolActivity.test.tsx#L210),
-[L200](../../tests/ToolActivity.test.tsx#L200)).
+([validated by](../../tests/ToolActivity.test.tsx#L217),
+[L207](../../tests/ToolActivity.test.tsx#L207)).
 
 ## The labels partition
 

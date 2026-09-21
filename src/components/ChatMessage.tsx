@@ -20,6 +20,8 @@ import {
   DANGER_SOFT,
   FOCUS_RING_COLOR,
   TEXT_MUTED,
+  TEXT_SECONDARY,
+  TEXT_SECONDARY_HOVER,
   TEXT_STRONG,
   TEXT_SUBTLE,
 } from "../theme/tokens.js";
@@ -310,9 +312,7 @@ function AssistantMessage({
       </div>
       <div className="flex min-w-0 max-w-full flex-col gap-2">
         {assistantName && (
-          <span className="pt-1 text-sm font-medium text-slate-600 dark:text-slate-300">
-            {assistantName}
-          </span>
+          <span className={`pt-1 text-sm font-medium ${TEXT_SECONDARY}`}>{assistantName}</span>
         )}
         <div className="max-w-none overflow-x-auto pt-1 text-sm leading-6">
           {entry.toolStatus && (
@@ -339,7 +339,7 @@ function AssistantMessage({
           <div className="-ml-1 flex items-center gap-2 opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100">
             <button
               type="button"
-              className={`rounded p-1.5 text-slate-400 ring-offset-2 transition-colors ${CONTROL_HOVER} hover:text-slate-600 focus:outline-none focus:ring-2 ${FOCUS_RING_COLOR} dark:ring-offset-slate-950 dark:hover:text-slate-300`}
+              className={`rounded p-1.5 ${TEXT_SUBTLE} ring-offset-2 transition-colors ${CONTROL_HOVER} ${TEXT_SECONDARY_HOVER} focus:outline-none focus:ring-2 ${FOCUS_RING_COLOR} dark:ring-offset-slate-950`}
               onClick={() => onCopy(entry.content, entry.id)}
               aria-label={copiedId === entry.id ? resolved.copied : resolved.copy}
             >
@@ -362,7 +362,7 @@ function AssistantMessage({
                   className={`rounded p-1.5 ring-offset-2 transition-colors focus:outline-none focus:ring-2 ${FOCUS_RING_COLOR} dark:ring-offset-slate-950 ${
                     feedbackId?.id === entry.id && feedbackId.type === "up"
                       ? "bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400"
-                      : `text-slate-400 ${CONTROL_HOVER} hover:text-slate-600 dark:hover:text-slate-300`
+                      : `${TEXT_SUBTLE} ${CONTROL_HOVER} ${TEXT_SECONDARY_HOVER}`
                   }`}
                   onClick={() => onFeedback(entry.id, "up")}
                   aria-label={resolved.feedbackPositive}
@@ -375,7 +375,7 @@ function AssistantMessage({
                   className={`rounded p-1.5 ring-offset-2 transition-colors focus:outline-none focus:ring-2 ${FOCUS_RING_COLOR} dark:ring-offset-slate-950 ${
                     feedbackId?.id === entry.id && feedbackId.type === "down"
                       ? `${DANGER_SOFT} ${DANGER}`
-                      : `text-slate-400 ${CONTROL_HOVER} hover:text-slate-600 dark:hover:text-slate-300`
+                      : `${TEXT_SUBTLE} ${CONTROL_HOVER} ${TEXT_SECONDARY_HOVER}`
                   }`}
                   onClick={() => onFeedback(entry.id, "down")}
                   aria-label={resolved.feedbackNegative}

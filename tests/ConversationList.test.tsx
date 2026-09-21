@@ -15,6 +15,7 @@ import {
   expectActiveRowBackground,
   expectDangerHover,
   expectFocusRing,
+  expectTextSubtle,
 } from "./helpers/expect-theme-tokens.js";
 
 const makeItem = (overrides?: Partial<ConversationListItem>): ConversationListItem => ({
@@ -157,6 +158,12 @@ describe("ConversationList", () => {
       render(<ConversationList items={[makeItem()]} onDelete={vi.fn()} />);
 
       expectDangerHover(screen.getByRole("button", { name: "Delete conversation: Booking 4711" }));
+    });
+
+    it("the delete button reads text-subtle at rest, its danger hover left to the danger role", () => {
+      render(<ConversationList items={[makeItem()]} onDelete={vi.fn()} />);
+
+      expectTextSubtle(screen.getByRole("button", { name: "Delete conversation: Booking 4711" }));
     });
   });
 

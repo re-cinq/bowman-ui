@@ -34,6 +34,8 @@ export const TEXT_BODY =
   "text-(--bowman-text-body,var(--color-slate-700)) dark:text-(--bowman-text-body-dark,var(--color-slate-200))";
 export const TEXT_SECONDARY =
   "text-(--bowman-text-secondary,var(--color-slate-600)) dark:text-(--bowman-text-secondary-dark,var(--color-slate-400))";
+export const TEXT_SECONDARY_HOVER =
+  "hover:text-(--bowman-text-secondary,var(--color-slate-600)) dark:hover:text-(--bowman-text-secondary-dark,var(--color-slate-400))";
 export const TEXT_MUTED =
   "text-(--bowman-text-muted,var(--color-slate-500)) dark:text-(--bowman-text-muted-dark,var(--color-slate-400))";
 export const TEXT_SUBTLE =

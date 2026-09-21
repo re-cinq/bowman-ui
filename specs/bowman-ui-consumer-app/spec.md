@@ -33,8 +33,8 @@ resolver refuses to guess at.
 and declares no `@re-cinq/bowman-ui` dependency at all - the version under
 test is always the tarball `npm pack` just produced
 ([validated by](../../scripts/consumer-app.sh#L93)). `react` and `react-dom`
-are pinned at exactly `19.2.8`
-([validated by](../../examples/chat-demo/package.json#L14)), the version
+are pinned at exactly `19.3.0`
+([validated by](../../examples/chat-demo/package.json#L15)), the version
 docs/design-notes.md decision 4 records as the one CI installs and the only one tested
 ([validated by](../../tests/react-version-consistency.test.ts#L42)).
 
