@@ -55,7 +55,8 @@ npm run lint -- --fix
 npm run typecheck
 ```
 
-Runs the `typescript7` compiler in check-only mode (no emit).
+Runs the `typescript7` compiler in check-only mode (no emit), over `tsconfig.json` (src/) and
+then `tsconfig.tests.json` (tests/).
 
 ### Release
 

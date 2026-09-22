@@ -49,7 +49,10 @@ The typecheck script is `typecheck`, not `type-check`.
 - `npm run build` — `rm -rf dist` → `typescript7` `tsc` → `cp src/styles.css dist/styles.css`.
   The `rm -rf` is load-bearing (tests/dist-is-clean.test.ts: `tsc` never cleans, and stale
   artifacts otherwise ship via `files: ["dist"]`).
-- `npm run typecheck` — `typescript7` `tsc --noEmit`.
+- `npm run typecheck` — `typescript7` `tsc --noEmit`, first over `tsconfig.json` (src/), then over
+  `tsconfig.tests.json` (tests/ minus `tests/fixtures` and the `tests/types/*-type-assertions.*`
+  the `*-dist` tests compile against dist/; its explicit `types` list is what keeps `@types/node`
+  and the vitest globals out of the library's compile environment).
 - Releases: a maintainer drafts a GitHub Release with a `vX.Y.Z` tag, then approves the version
   npm staged (npmjs.com → package → Versions tab → Approve, 2FA). publish.yml stamps the version from
   the tag (`scripts/set-version-from-tag.sh`), so package.json carries the placeholder `0.0.0`

@@ -7,9 +7,9 @@ import { resolve } from "node:path";
  * could be renamed or dropped and 402 green tests would not notice - while every
  * consumer's build broke on install.
  *
- * Read from dist rather than src (the same choice as the *-dist tests): the
- * built artifact is what ships, and a barrel that compiles is not the same
- * claim as a barrel that exports what it meant to.
+ * Read from dist rather than src (the same choice as the *-dist tests): a barrel
+ * that compiles is not a barrel that exports what it meant to. The dist import is
+ * a runtime path, not a literal, so tsconfig.tests.json never needs dist/ to exist.
  *
  * When this fails, do not reflexively regenerate the snapshot. An addition is a
  * minor; a removal or a rename is a BREAKING change and needs a major.
@@ -38,7 +38,7 @@ const declaredTypeExports = (): string[] =>
 
 describe("public API surface", () => {
   it(`the built runtime exports are exactly the ${snapshot.values.length} committed names`, async () => {
-    const built = await import("../dist/index.js");
+    const built = await import(resolve(process.cwd(), "dist/index.js"));
 
     expect(Object.keys(built).sort()).toEqual(snapshot.values);
   });
