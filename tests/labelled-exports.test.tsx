@@ -222,6 +222,7 @@ const toolActivitySentinels = {
   activity: "⟦activity⟧",
   activityDone: "⟦activityDone⟧",
   details: "⟦details⟧",
+  toolInputUnavailable: "⟦toolInputUnavailable⟧",
 } satisfies Required<ToolActivityLabels>;
 
 const thinkingTraceSentinels = {
@@ -434,14 +435,17 @@ const sentinelHarnesses: Record<
         toolName: "4711",
         toolInput: { "4712": 4713 },
       } satisfies ToolChatEntry;
+      const bigIntEntry = { ...entry, id: "t2", toolInput: { "4714": 4715n } };
 
       // The pending instance surfaces activity and the disclosure summary; the
-      // resting one surfaces activityDone. showToolName stays false and the
+      // resting one surfaces activityDone; the BigInt one surfaces
+      // toolInputUnavailable. showToolName stays false and the serialisable
       // input is numeric, so the only Latin runs are the sentinels themselves.
       return render(
         <>
           <ToolActivity entry={entry} pending showToolInput labels={toolActivitySentinels} />
           <ToolActivity entry={entry} labels={toolActivitySentinels} />
+          <ToolActivity entry={bigIntEntry} showToolInput labels={toolActivitySentinels} />
         </>
       ).container;
     },

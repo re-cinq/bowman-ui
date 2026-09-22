@@ -146,7 +146,7 @@ key added without a default fails `npm run typecheck`, pinned by the
 compiled against `dist/` (fixture at
 [chat-composer-type-assertions](../../tests/types/chat-composer-type-assertions.tsx)).
 `ChatComposer` joins the `labelsProp` partition and the sentinel render
-covers it ([validated by](../../tests/labelled-exports.test.tsx#L542),
+covers it ([validated by](../../tests/labelled-exports.test.tsx#L546),
 [L15](../../tests/chat-composer-dist.test.ts#L15)).
 
 **Note - one placeholder default.** The single `composerPlaceholder`

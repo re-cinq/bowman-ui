@@ -9,12 +9,14 @@ export interface ToolActivityLabels {
   activity: string;
   activityDone: string;
   details: string;
+  toolInputUnavailable: string;
 }
 
 export const defaultToolActivityLabels: Readonly<Required<ToolActivityLabels>> = Object.freeze({
   activity: "Looking something up",
   activityDone: "Looked something up",
   details: "Details",
+  toolInputUnavailable: "Arguments could not be shown",
 });
 
 export interface ToolActivityProps {
@@ -43,6 +45,15 @@ const headlineFor = (
   }
 
   return pending ? resolved.activity : resolved.activityDone;
+};
+
+// Null when the arguments cannot be serialised (BigInt, cycle, throwing or undefined-yielding toJSON).
+const toolInputJson = (input: Record<string, unknown>): string | null => {
+  try {
+    return JSON.stringify(input, null, 2) ?? null;
+  } catch {
+    return null;
+  }
 };
 
 // Not a message; name and arguments are opt-in per prop, shown as JSON in a <details>, never markdown or HTML.
@@ -79,7 +90,7 @@ export function ToolActivity({
             <pre
               className={`mt-1 overflow-x-auto rounded bg-slate-100 p-2 font-mono ${TEXT_BODY} dark:bg-slate-800`}
             >
-              {JSON.stringify(entry.toolInput, null, 2)}
+              {toolInputJson(entry.toolInput) ?? resolved.toolInputUnavailable}
             </pre>
           </details>
         )}
