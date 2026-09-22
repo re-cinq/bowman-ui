@@ -73,7 +73,7 @@ Other public data shapes are consumer-supplied and rendered as-is: `Conversation
 
 1. **TypeScript Strict Mode** — `tsconfig.json` enforces `strict: true`; all files compile without implicit `any`. ([validated by tsconfig.json enforces strict mode](../tests/system-contract.test.ts#L53))
 2. **No Console Logs in Production** — Development aids removed before distribution. ([validated by no built file under dist/ calls console](../tests/system-contract.test.ts#L76))
-3. **Accessibility Baseline** — ARIA attributes, semantic HTML, keyboard support, and 4.5:1 color contrast minimum for text. ([validated by](../tests/icons.test.tsx#L178), [validated by focuses the first focusable element when opened](../tests/useFocusTrap.test.tsx#L57))
+3. **Accessibility Baseline** — ARIA attributes, semantic HTML, keyboard support, and 4.5:1 color contrast minimum for text. ([validated by](../tests/icons.test.tsx#L178), [validated by focuses the first focusable element when opened](../tests/useFocusTrap.test.tsx#L65))
 4. **Test Coverage Floor** — `vitest.config.ts` commits 100 lines/functions/statements/branches over `src/**`, and the contract test guards that no threshold ever drops below 80; props, prop combinations, and user interactions are covered by React Testing Library tests. ([validated by the committed coverage floor is at least 80 on every threshold](../tests/system-contract.test.ts#L61))
 5. **ESLint & Prettier Enforcement** — Consistent formatting and linting; CI blocks merge on violations.
 

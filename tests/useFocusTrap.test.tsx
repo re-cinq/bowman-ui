@@ -41,6 +41,14 @@ const Harness = ({
   );
 };
 
+const openThenCloseTrapAfterFocusing = (previouslyFocused: HTMLElement | SVGElement) => {
+  previouslyFocused.focus();
+
+  const { rerender } = render(<Harness isOpen onClose={vi.fn()} />);
+
+  rerender(<Harness isOpen={false} onClose={vi.fn()} />);
+};
+
 const focusOutsideAnOpenTrap = () => {
   render(<button>outside</button>);
   render(<Harness isOpen onClose={vi.fn()} />);
@@ -118,11 +126,7 @@ describe("useFocusTrap", () => {
     render(<button>outside</button>);
     const outside = screen.getByRole("button", { name: "outside" });
 
-    outside.focus();
-
-    const { rerender } = render(<Harness isOpen onClose={vi.fn()} />);
-
-    rerender(<Harness isOpen={false} onClose={vi.fn()} />);
+    openThenCloseTrapAfterFocusing(outside);
 
     expect(outside).toHaveFocus();
   });
@@ -232,11 +236,7 @@ describe("useFocusTrap", () => {
     render(<svg tabIndex={0} data-testid="glyph" />);
     const glyph = screen.getByTestId("glyph");
 
-    glyph.focus();
-
-    const { rerender } = render(<Harness isOpen onClose={vi.fn()} />);
-
-    rerender(<Harness isOpen={false} onClose={vi.fn()} />);
+    openThenCloseTrapAfterFocusing(glyph);
 
     expect(glyph).toHaveFocus();
   });
