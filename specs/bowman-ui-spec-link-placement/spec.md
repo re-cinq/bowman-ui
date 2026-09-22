@@ -138,12 +138,15 @@ decision 14).
   ([validated by an anchor on a blank line or into a missing file is rotten in both modes](../../tests/reanchor-spec-links.test.ts#L337)).
 - A fragment that is not a line number, and a web URL, are never touched
   ([validated by leaves a link whose fragment is not a line number, and a web URL, untouched](../../tests/reanchor-spec-links.test.ts#L357)).
+- During an uncommitted merge the baseline includes `MERGE_HEAD`, so links the merged side already
+  moved are mapped only through this branch's own shift
+  ([validated by maps L6, an L6 label and setup L3 to L9, L9 and L5 during an uncommitted merge of main](../../tests/reanchor-spec-links.test.ts#L370)).
 - The base ref defaults to `origin/main`
-  ([validated by defaults the base ref to origin/main](../../tests/reanchor-spec-links.test.ts#L370)).
+  ([validated by defaults the base ref to origin/main](../../tests/reanchor-spec-links.test.ts#L395)).
 - An unknown flag or a second base ref exits 2 with the usage line
-  ([validated by an unknown flag or a second base ref exits 2 with usage](../../tests/reanchor-spec-links.test.ts#L385)).
+  ([validated by an unknown flag or a second base ref exits 2 with usage](../../tests/reanchor-spec-links.test.ts#L410)).
 - A base ref that does not resolve exits 2 naming the ref
-  ([validated by an unknown base ref exits 2 naming the ref](../../tests/reanchor-spec-links.test.ts#L392)).
+  ([validated by an unknown base ref exits 2 naming the ref](../../tests/reanchor-spec-links.test.ts#L417)).
 
 ## CI
 

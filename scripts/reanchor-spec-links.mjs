@@ -28,8 +28,8 @@
 // Usage:
 //   node scripts/reanchor-spec-links.mjs [--check] [--all] [base-ref]
 //
-// base-ref defaults to origin/main; the merge base of it and HEAD is the
-// baseline. --check rewrites nothing and exits 1 when any link would move or
+// base-ref defaults to origin/main; the merge base of it and HEAD (and of
+// MERGE_HEAD during an uncommitted merge) is the baseline. --check rewrites nothing and exits 1 when any link would move or
 // any label disagrees with its href. Both modes exit 1 on an unmapped or
 // rotten link, and 2 on a bad flag or a base ref that does not resolve.
 
@@ -78,7 +78,10 @@ if (git(["rev-parse", "--verify", "--quiet", `${baseRef}^{commit}`]) === null) {
   process.stderr.write(`base ref does not resolve to a commit: ${baseRef}\n`);
   process.exit(2);
 }
-const mergeBase = git(["merge-base", baseRef, "HEAD"])?.trim();
+// Mid-merge the working tree already holds MERGE_HEAD's side, so the baseline is the
+// merge base with the merge being made, not with the pre-merge HEAD alone.
+const mergeHead = git(["rev-parse", "--verify", "--quiet", "MERGE_HEAD"])?.trim();
+const mergeBase = git(["merge-base", baseRef, "HEAD", ...(mergeHead ? [mergeHead] : [])])?.trim();
 
 if (!mergeBase) {
   process.stderr.write(`no merge base between ${baseRef} and HEAD\n`);

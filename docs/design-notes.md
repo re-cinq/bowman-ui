@@ -1197,7 +1197,11 @@ typecheck` now runs `typescript7` twice: `tsconfig.json`, then
     copy in the merge base's markdown (lines compared with their line numbers
     blanked, so the script's own rewrites never unpair them) and mapped
     through the cited file's `git diff -U0` hunks from that merge base.
-    Reading the merge-base copy is what makes a second run a no-op. A link
+    Reading the merge-base copy is what makes a second run a no-op. During an
+    uncommitted merge the working tree already holds `MERGE_HEAD`'s side, so
+    the baseline is `git merge-base <base> HEAD MERGE_HEAD`; against the
+    pre-merge merge base, every link the merged side had already moved read
+    as hand-edited and went unchecked. A link
     whose cited line the branch deleted or rewrote is reported for a manual
     fix; a link the branch added, or whose href the branch edited by hand, is
     kept as authored. Only links into files the branch changed are touched,

@@ -367,6 +367,31 @@ describe("reanchor-spec-links", () => {
     expect(read(repo, SPEC_PATH)).toEqual(spec);
   });
 
+  it("maps L6, an L6 label and setup L3 to L9, L9 and L5 during an uncommitted merge of main", () => {
+    const setupLink = (line: number) => `[validated by](../../tests/setup.ts#L${line})`;
+    const repo = repoWith(asSpec(link("validated by", "6"), link("L6", "6"), setupLink(3)));
+
+    git(repo, "checkout", "-q", "main");
+    write(repo, "tests/setup.ts", asFile(["a", "b", "c"]));
+    commit(repo, "setup before the feature");
+    git(repo, "branch", "-f", "feature");
+    write(repo, "tests/setup.ts", asFile(["main", "a", "b", "c"]));
+    write(repo, TEST_PATH, asFile(["// main", ...MATHS_TEST]));
+    write(repo, SPEC_PATH, asSpec(link("validated by", "7"), link("L7", "7"), setupLink(4)));
+    commit(repo, "main shifts every cited line by one");
+    git(repo, "checkout", "-q", "feature");
+    write(repo, "tests/setup.ts", asFile(["a", "b", "feature", "c"]));
+    write(repo, TEST_PATH, asFile([...MATHS_TEST.slice(0, 2), ...INTRO, ...MATHS_TEST.slice(2)]));
+    commit(repo, "feature inserts below the second line");
+    git(repo, "merge", "-q", "--no-commit", "--no-ff", "main");
+    const result = run(repo, "main");
+
+    expect(result).toMatchObject({ status: 0 });
+    expect(read(repo, SPEC_PATH)).toEqual(
+      asSpec(link("validated by", "9"), link("L9", "9"), setupLink(5))
+    );
+  });
+
   it("defaults the base ref to origin/main", () => {
     const repo = repoWith(asSpec(link("validated by", "6")));
     const clone = mkdtempSync(join(tmpdir(), "reanchor-spec-links-clone-"));
