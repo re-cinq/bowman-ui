@@ -15,7 +15,7 @@ enumerated by name so a dropped icon fails the build rather than the consumer
 byte-for-byte, asserted attribute-by-attribute against a golden-master
 fixture copy rather than by `outerHTML` string - attribute order in `outerHTML`
 follows JSX order and changes when the element moves into `IconWrapper`
-([validated by](../../tests/icons.test.tsx#L162), oracle at
+([validated by](../../tests/icons.test.tsx#L164), oracle at
 [tests/fixtures/golden-icons.tsx](../../tests/fixtures/golden-icons.tsx)).
 
 ## IconWrapper is the render path
@@ -94,8 +94,8 @@ The tested accessibility behaviour holds for every icon: no label →
 [L233](../../tests/icons.test.tsx#L233),
 [L244](../../tests/icons.test.tsx#L244)). The
 `getAttribute`-based class assertions work around `SVGAnimatedString`
-([validated by](../../tests/icons.test.tsx#L267),
-[L321](../../tests/icons.test.tsx#L321)).
+([validated by](../../tests/icons.test.tsx#L273),
+[L328](../../tests/icons.test.tsx#L328)).
 
 `strokeWidth` defaults to `2` and reaches both the `<svg>` and the `<path>`.
 `<SearchIcon strokeWidth={1.5} />` renders `stroke-width="1.5"` on the path

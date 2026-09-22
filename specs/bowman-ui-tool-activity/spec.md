@@ -89,7 +89,7 @@ key by the convention's `resolveLabels`
 `087-bowman-ui-thinking-trace` has since widened it to the full `ChatEntry`
 union and replaced this issue's `@ts-expect-error` with a positive assertion
 over the same thinking-entry array
-([validated by](../../tests/types/chat-message-list-type-assertions.tsx#L28),
+([validated by](../../tests/types/chat-message-list-type-assertions.tsx#L49),
 compiled by
 [chat-message-list-dist](../../tests/chat-message-list-dist.test.ts#L81)). The
 map dispatches on `role`: a tool entry renders `ToolActivity`, everything else
