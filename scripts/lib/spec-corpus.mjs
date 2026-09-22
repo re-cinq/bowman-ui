@@ -1,7 +1,7 @@
-// The spec corpus as the check-spec and repoint scripts walk it: every
+// The spec corpus as the check-spec and re-anchor scripts walk it: every
 // `specs/<slug>/spec.md` in sorted slug order, then the caller's extras in
-// the order the tests pin (`.specify/spec.md` for links and repoint, the
-// sorted `adrs/*.md` for status). Every caller names its corpus: the
+// the order the tests pin (`.specify/spec.md` for links and re-anchor, the
+// sorted `adrs/*.md` for status and re-anchor). Every caller names its corpus: the
 // options are load-bearing because each script scans a different one.
 
 import { readFileSync, readdirSync } from "node:fs";

@@ -80,9 +80,13 @@ The typecheck script is `typecheck`, not `type-check`.
   any finding, exit 2 on a bad flag or unreadable doc. `--coverage` instead lists every unlinked
   testable statement and ALWAYS exits 0 — a report, not a gate. See docs/design-notes.md § Lint
   guardrails decision 11.
-- `node scripts/repoint-spec-anchors.mjs [--check]` — after editing any cited repository file (a
-  test, a script, README.md, a docs/ markdown file, a workflow, a config), re-run WITHOUT
-  `--check` or CI reds.
+- `npm run reanchor [-- --all] [-- <base-ref>]` / `npm run reanchor:check` — after editing any
+  cited repository file (a test, a script, README.md, a docs/ markdown file, a workflow, a
+  config), run `npm run reanchor` and commit the result or CI reds. A `[validated by <test
+title>]` link follows its `it()`; every other link is mapped through the cited file's diff
+  hunks from the merge base with `origin/main`. A cited line the branch deleted is reported,
+  exit 1. CI runs `reanchor:check` only, never a bot commit. See docs/design-notes.md § Lint
+  guardrails decision 14.
 - `node scripts/write-public-api.mjs` — only after deliberately deciding a surface change is
   intended (see invariant 3).
 
@@ -191,7 +195,8 @@ The typecheck script is `typecheck`, not `type-check`.
     tests/eslint-spec-docs.test.ts against `tests/fixtures/spec-status/`. The package's
     `/spec/*.js` exports are lore's vendored spec domain and are what `npm run check:spec-links`
     and `npm run check:spec-status` import — see docs/design-notes.md § Lint guardrails
-    decisions 10 and 11.
+    decisions 10 and 11. Spec `#Lnn` links are healed by `npm run reanchor` and only
+    checked in CI (decision 14).
 12. **Publishing** is release-triggered CI only, via npm OIDC trusted publishing
     (.github/workflows/publish.yml: `release: types: [published]`, `id-token: write`, no
     `NPM_TOKEN`) and STAGED: `npm stage publish`, approved by a maintainer with 2FA on npmjs.com.

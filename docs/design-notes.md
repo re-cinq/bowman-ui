@@ -1183,6 +1183,46 @@ typecheck` now runs `typescript7` twice: `tsconfig.json`, then
     `types`, and neither compiler auto-includes `@types/*`.
     tests/typecheck-contract.test.ts pins the script and checks the compiled
     program against the test files on disk.
+14. **Spec links are re-anchored by test title and merge-base hunks, and CI
+    only checks.** A `#Lnn` link drifts the moment its cited file gains or
+    loses a line above it (issues 36 and 37). `scripts/reanchor-spec-links.mjs`
+    (`npm run reanchor`) heals it deterministically. A link labelled
+    `[validated by <test title>]` into a test file moves to the line of the
+    one `it()`/`test()` carrying that title, because a title survives every
+    edit to the test body that a line number does not. Every other link -
+    the untitled `[validated by]`, `[Lnnn]` and descriptive labels, and every
+    link into a script, README, doc, workflow or config - is paired with its
+    copy in the merge base's markdown (lines compared with their line numbers
+    blanked, so the script's own rewrites never unpair them) and mapped
+    through the cited file's `git diff -U0` hunks from that merge base.
+    Reading the merge-base copy is what makes a second run a no-op. A link
+    whose cited line the branch deleted or rewrote is reported for a manual
+    fix; a link the branch added, or whose href the branch edited by hand, is
+    kept as authored. Only links into files the branch changed are touched,
+    so a pull request never carries unrelated spec churn; `--all` sweeps
+    every titled link for a deliberate cleanup. The rot check (issue 46) and
+    the `[Lnnn]` label sync (issue 18) carry over unchanged and ignore scope.
+
+    It replaced `scripts/repoint-spec-anchors.mjs`, which found each anchor's
+    cited content from the base ref in the working copy and broke ties by
+    surrounding context. Three of its behaviours are gone with it. The
+    content search, and the ambiguity failure a file of repeated blocks
+    produced, gave way to hunk mapping, which has no ties to break. The
+    `retargeted (not checked)` report, and its warning for a retarget into an
+    unchanged file, became "kept as authored": a hand-edited href is detected
+    per link by comparing it with its paired merge-base href. The whole-spec
+    skip when a spec's ordered anchor set differed from the base became
+    per-link pairing, so one added or removed link no longer exempts every
+    other link in that spec from the check.
+
+    CI runs `npm run reanchor:check` and never commits the healed links
+    itself. A bot commit would be unsigned under the repository's signed-commit
+    rule, would need a `contents: write` token this read-only workflow does
+    not hold, and, pushed with `GITHUB_TOKEN`, would not retrigger CI, leaving
+    the healed commit unchecked. A red check is fixed by running
+    `npm run reanchor` locally and committing the result. The existing
+    untitled links keep passing through the hunk mapping; relabelling them
+    with test titles is a separate, later sweep.
 
 Considered and rejected:
 

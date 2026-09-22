@@ -77,16 +77,17 @@ jobs:
       - name: AT-pass structure check
         run: npm run check:at-pass -- --structure
       # specs' [validated by](...#Lnn) anchors drift silently when any cited
-      # repository file gains or loses lines (issues 36 and 37). Fails
-      # when an anchor no longer points at the line content it cited on the
-      # base branch; a red check is fixed with
-      # `node scripts/repoint-spec-anchors.mjs`.
+      # repository file gains or loses lines (issues 36 and 37). Fails when a
+      # link into a file this branch changed would be re-anchored, cites a line
+      # the branch deleted, or lands on a blank line; a red check is fixed with
+      # `npm run reanchor` and a commit. Check only, never a bot commit
+      # (docs/design-notes.md § Lint guardrails decision 14).
       - name: Spec anchor check
         env:
           # A stacked PR is checked against its own base, not main; push and
           # workflow_dispatch runs carry no base_ref and fall back to main.
           BASE_REF: ${{ github.base_ref || 'main' }}
-        run: node scripts/repoint-spec-anchors.mjs --check "origin/$BASE_REF"
+        run: npm run reanchor:check -- "origin/$BASE_REF"
       # Issue 2, the other half of the anchor check above: a `[validated by]`
       # link counts as coverage only in its statement's TRAILING parenthetical,
       # so one written mid-statement is dropped upstream in silence and the spec
