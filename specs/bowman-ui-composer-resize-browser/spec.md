@@ -154,8 +154,8 @@ the customer-visible fact, and asserting the string here would only duplicate
 The `maxHeightPx` override is proven only by `027`'s stubbed unit test - a
 stubbed `scrollHeight` of 320 capping at `200px` under the default and
 reaching `320px` with `maxHeightPx={400}` - and by no browser
-([validated by](../../tests/ChatComposer.test.tsx#L278),
-[L287](../../tests/ChatComposer.test.tsx#L287)). The demo pins its
+([validated by](../../tests/ChatComposer.test.tsx#L284),
+[L293](../../tests/ChatComposer.test.tsx#L293)). The demo pins its
 composition and threads no URL parameter to a second `maxHeightPx`, per the
 issue's tech note: that would turn the worked consumer into a fixture for its
 own test suite.

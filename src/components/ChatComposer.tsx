@@ -18,6 +18,7 @@ import {
   FOCUS_WITHIN_RING_COLOR,
   PLACEHOLDER_SUBTLE,
   SURFACE,
+  TEXT_ON_ACCENT,
   TEXT_STRONG,
 } from "../theme/tokens.js";
 
@@ -146,7 +147,7 @@ export function ChatComposer({
           onClick={submit}
           disabled={!hasDraft || inactive}
           aria-label={resolved.send}
-          className={`cursor-pointer rounded-lg ${ACCENT_BG} p-1.5 text-white ${ACCENT_BG_HOVER} disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400 disabled:opacity-50 dark:disabled:bg-slate-800 dark:disabled:text-slate-500`}
+          className={`cursor-pointer rounded-lg ${ACCENT_BG} p-1.5 ${TEXT_ON_ACCENT} ${ACCENT_BG_HOVER} disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400 disabled:opacity-50 dark:disabled:bg-slate-800 dark:disabled:text-slate-500`}
         >
           <SendIcon className="h-4 w-4" />
         </button>

@@ -42,6 +42,7 @@ export const TEXT_SUBTLE =
   "text-(--bowman-text-subtle,var(--color-slate-400)) dark:text-(--bowman-text-subtle-dark,var(--color-slate-500))";
 export const PLACEHOLDER_SUBTLE =
   "placeholder-(--bowman-text-subtle,var(--color-slate-400)) dark:placeholder-(--bowman-text-subtle-dark,var(--color-slate-500))";
+export const TEXT_ON_ACCENT = "text-(--bowman-text-on-accent,var(--color-white))";
 export const DANGER =
   "text-(--bowman-danger,var(--color-red-600)) dark:text-(--bowman-danger-dark,var(--color-red-400))";
 export const DANGER_HOVER =

@@ -11,7 +11,7 @@ import { createRef } from "react";
 import { ChatComposer } from "../src/index.js";
 import type { ChatComposerHandle } from "../src/index.js";
 import { expectImportHygiene, expectNoEgress, listFiles } from "./helpers/source-hygiene.js";
-import { expectTextStrong } from "./helpers/expect-theme-tokens.js";
+import { expectTextOnAccent, expectTextStrong } from "./helpers/expect-theme-tokens.js";
 
 const textareaOf = (): HTMLTextAreaElement => screen.getByRole("textbox");
 const sendButtonOf = (): HTMLButtonElement => screen.getByRole("button", { name: "Send message" });
@@ -198,6 +198,12 @@ describe("ChatComposer", () => {
       render(<ChatComposer onSubmit={vi.fn()} />);
 
       expectTextStrong(textareaOf());
+    });
+
+    it("the send button reads --bowman-text-on-accent for its text, one value in both modes", () => {
+      render(<ChatComposer onSubmit={vi.fn()} />);
+
+      expectTextOnAccent(sendButtonOf());
     });
 
     it("the wrapper keeps focus-within:ring-2 beside the --bowman-focus-ring /50 ring and the --bowman-accent-glow shadow", () => {

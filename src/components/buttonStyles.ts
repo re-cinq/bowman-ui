@@ -7,6 +7,7 @@ import {
   SURFACE,
   SURFACE_HOVER,
   TEXT_BODY,
+  TEXT_ON_ACCENT,
   TEXT_SECONDARY,
   TEXT_STRONG_HOVER,
 } from "../theme/tokens.js";
@@ -20,7 +21,7 @@ const disabledClassNames = "disabled:cursor-not-allowed disabled:opacity-50";
 export const buttonBaseClassNames = `inline-flex items-center justify-center gap-2 rounded-lg font-medium transition-colors cursor-pointer ${focusRingClassNames} ${disabledClassNames}`;
 
 export const buttonVariantClassNames: Readonly<Record<ButtonVariant, string>> = Object.freeze({
-  primary: `${ACCENT_BG} text-white ${ACCENT_BG_HOVER}`,
+  primary: `${ACCENT_BG} ${TEXT_ON_ACCENT} ${ACCENT_BG_HOVER}`,
   secondary: `border ${BORDER} ${SURFACE} ${TEXT_BODY} ${SURFACE_HOVER}`,
   ghost: `${TEXT_SECONDARY} ${SURFACE_HOVER} ${TEXT_STRONG_HOVER}`,
 });
