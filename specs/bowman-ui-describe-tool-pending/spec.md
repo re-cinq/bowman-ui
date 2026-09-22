@@ -37,11 +37,11 @@ re-exports.
    `tests/types/tool-activity-type-assertions.tsx` compiles against the built
    package suppressing no error. The same
    one-parameter shape stays pinned through `ChatMessageList`'s own assertions
-   ([validated by](../../tests/types/chat-message-list-type-assertions.tsx#L73),
+   ([validated by](../../tests/types/chat-message-list-type-assertions.tsx#L107),
    [L166](../../tests/ToolActivity.test.tsx#L166),
    [L293](../../tests/ToolActivity.test.tsx#L293),
    compiled by
-   [chat-message-list-dist](../../tests/chat-message-list-dist.test.ts#L27)).
+   [chat-message-list-dist](../../tests/chat-message-list-dist.test.ts#L81)).
 2. **One source of truth for the flag.** The value passed is the prop
    `ToolActivity` already resolved (default `false`), so a caller using the
    component directly and one going through `ChatMessageList` see identical
@@ -52,7 +52,7 @@ re-exports.
    one its present-tense string, and with `busy` false both read past tense.
    Its prop type
    restates the signature inline and is kept identical to `ToolActivity`'s
-   ([validated by](../../tests/ChatMessageList.test.tsx#L691)).
+   ([validated by](../../tests/ChatMessageList.test.tsx#L1032)).
 3. **Replacement semantics are untouched.** A supplied `describeTool` still
    replaces the tensed labels entirely and suppresses nothing else - with
    `showToolName` also set, the fixture's tool name is still in the document.

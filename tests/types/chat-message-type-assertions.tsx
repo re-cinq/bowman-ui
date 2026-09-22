@@ -58,8 +58,8 @@ const Renderable = () => (
 const completeDefaults = defaultChatMessageLabels satisfies Readonly<Required<ChatMessageLabels>>;
 
 // @ts-expect-error -- a ChatMessageLabels key without a default must not
-// compile: an object missing `linkOpensInNewTab` (076's tenth key) is not a
-// Readonly<Required<ChatMessageLabels>>.
+// compile: an object missing `assistantMessageFrom` (121) and
+// `linkOpensInNewTab` (076) is not a Readonly<Required<ChatMessageLabels>>.
 const incompleteDefaults: Readonly<Required<ChatMessageLabels>> = {
   userMessage: "Your message",
   assistantMessage: "Assistant response",

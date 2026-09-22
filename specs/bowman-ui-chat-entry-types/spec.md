@@ -30,7 +30,14 @@ typecheck, and an `AssistantChatEntry` without `isStreaming` does not compile
 `scores`, `tenantId`, `organizationId`, `timestamp` or an index signature.
 `AssistantChatEntry.toolStatus?: string` is caller-supplied and has no HAL
 protocol counterpart ([validated by](../../tests/types/chat.test.ts#L100),
-[L120](../../tests/types/chat.test.ts#L120)). The module ships types only:
+[L120](../../tests/types/chat.test.ts#L120)). Its sibling
+`persona?: string` (`specs/bowman-ui-entry-attribution/spec.md`) is the other
+caller-supplied field - the opaque id keying `ChatMessageList`'s `attribution`
+table, the counterpart of the engine protocol's `AssistantEntry.persona` - and
+no other role declares it: the compiled fixture carries an assistant entry with
+one and rejects it on the three other roles
+([validated by](../../tests/types/chat.test.ts#L75),
+[fixture](../../tests/types/chat-type-assertions.ts#L56)). The module ships types only:
 `dist/types/chat.js` is a
 bare `export {};`, so nothing in it can log, serialize or persist the customer
 data the types describe - the GDPR zero-retention constraint from

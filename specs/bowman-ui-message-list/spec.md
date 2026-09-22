@@ -202,8 +202,8 @@ list.
   ([validated by](../../tests/ChatMessageList.test.tsx#L929)).
 - `dist/components/ChatMessageList.js` opens with `"use client";` as its
   first statement per 018 decision 1, and ships with its `.d.ts` in the
-  pack ([validated by](../../tests/chat-message-list-dist.test.ts#L66),
-  [pack](../../tests/chat-message-list-dist.test.ts#L72)).
+  pack ([validated by](../../tests/chat-message-list-dist.test.ts#L73),
+  [pack](../../tests/chat-message-list-dist.test.ts#L77)).
 - `ChatMessageList` sits in the `labelsProp` partition bucket with a
   sentinel harness that renders a user entry, a thinking entry with
   `showThinking` on, a linked assistant entry and the busy indicator, then
