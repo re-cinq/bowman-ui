@@ -2,14 +2,8 @@
 
 import type { ReactElement } from "react";
 import { resolveLabels } from "../labels.js";
-import {
-  BORDER,
-  FOCUS_RING_COLOR,
-  RING_OFFSET,
-  SURFACE,
-  SURFACE_HOVER,
-  TEXT_BODY,
-} from "../theme/tokens.js";
+import { BORDER, SURFACE, SURFACE_HOVER, TEXT_BODY } from "../theme/tokens.js";
+import { FOCUS_RING } from "../theme/focusRing.js";
 
 export interface PromptChipsLabels {
   /** The chip group's accessible name. */
@@ -27,7 +21,7 @@ export interface PromptChipsProps {
   labels?: Partial<PromptChipsLabels>;
 }
 
-const chipClassName = `cursor-pointer rounded-full border ${BORDER} ${SURFACE} px-4 py-2 text-sm ${TEXT_BODY} transition-colors ${SURFACE_HOVER} ring-offset-2 focus:outline-none focus:ring-2 ${FOCUS_RING_COLOR} ${RING_OFFSET}`;
+const chipClassName = `cursor-pointer rounded-full border ${BORDER} ${SURFACE} px-4 py-2 text-sm ${TEXT_BODY} transition-colors ${SURFACE_HOVER} ring-offset-2 ${FOCUS_RING}`;
 
 export function PromptChips({ prompts, onPick, labels }: PromptChipsProps): ReactElement | null {
   const resolved = resolveLabels(defaultPromptChipsLabels, labels);

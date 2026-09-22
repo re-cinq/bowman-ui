@@ -7,13 +7,12 @@ import { resolveLabels } from "../labels.js";
 import {
   ACTIVE_ROW_BG,
   DANGER_HOVER,
-  FOCUS_RING_COLOR,
-  RING_OFFSET,
   SURFACE_HOVER,
   TEXT_BODY,
   TEXT_MUTED,
   TEXT_SUBTLE,
 } from "../theme/tokens.js";
+import { FOCUS_RING } from "../theme/focusRing.js";
 
 export interface ConversationListItem {
   id: string;
@@ -203,7 +202,7 @@ export function ConversationList({
       {conversationItems.map((conversation) => {
         const isActive = conversation.id === activeId;
         const linkProps: ConversationLinkProps = {
-          className: `-m-1 flex min-w-0 flex-1 flex-col gap-0.5 rounded-lg px-3 py-2 text-left ring-offset-2 focus:outline-none focus:ring-2 ${FOCUS_RING_COLOR} ${RING_OFFSET}`,
+          className: `-m-1 flex min-w-0 flex-1 flex-col gap-0.5 rounded-lg px-3 py-2 text-left ring-offset-2 ${FOCUS_RING}`,
           children: (
             <>
               <span className={`text-sm font-medium ${TEXT_BODY}`}>
@@ -243,7 +242,7 @@ export function ConversationList({
               <button
                 type="button"
                 onClick={() => onDelete(conversation.id)}
-                className={`ml-1 flex-shrink-0 rounded p-1.5 ${TEXT_SUBTLE} opacity-0 ring-offset-2 transition-opacity hover:bg-slate-200 ${DANGER_HOVER} focus:opacity-100 focus:outline-none focus:ring-2 ${FOCUS_RING_COLOR} ${RING_OFFSET} group-hover:opacity-100 group-focus-within:opacity-100 dark:hover:bg-slate-700`}
+                className={`ml-1 flex-shrink-0 rounded p-1.5 ${TEXT_SUBTLE} opacity-0 ring-offset-2 transition-opacity hover:bg-slate-200 ${DANGER_HOVER} focus:opacity-100 ${FOCUS_RING} group-hover:opacity-100 group-focus-within:opacity-100 dark:hover:bg-slate-700`}
                 aria-label={resolved.deleteConversation(conversation.title)}
               >
                 <TrashIcon className="h-4 w-4" aria-hidden="true" />
