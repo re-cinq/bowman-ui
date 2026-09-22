@@ -18,8 +18,8 @@ it — doc prose and the code have drifted in places.
   invariant traces to a numbered decision or named section here. When code and prose disagree,
   docs/design-notes.md wins.
 - **.specify/spec.md** — the repo-level spec.
-- **specs/<slug>/spec.md** — 25 feature specs. Statements cite their validating test with a
-  trailing `([validated by](../../tests/X.test.tsx#Lnn))` parenthetical (AGENTS.md:71-82).
+- **specs/<slug>/spec.md** — 30 feature specs. Statements cite their validating test with a
+  trailing `([validated by](../../tests/X.test.tsx#Lnn))` parenthetical (AGENTS.md § Spec Test Links).
 - **AGENTS.md** — commit / PR / branch conventions (Conventional Commits, scope = component
   area, imperative lowercase subject ≤ 50 chars, branch `<type>/<scope>-<description>`) and the
   command reference. Where it and this file disagree, this file wins; say so in the PR that
@@ -33,13 +33,13 @@ ESM-only (`"type": "module"`, no CJS). `exports`: `"."` → `dist/index.js`, `".
 testing claim, not a technical floor (docs/design-notes.md decision 4). Runtime deps: only `react-markdown` +
 `remark-gfm`. Node `>=20.9.0` published floor — the lowest Node the package is exercised under
 (the rsc-fixture's `next` floor; the shipped `dist/` is browser code with no `node:` builtins).
-Dev pins 22 via `.nvmrc`; CI pins 22 by literal `node-version: "22"` in `.github/`. Vitest 4 +
+Dev pins 22 via `.nvmrc`; CI pins 22 by literal `node-version: "22"` in `.github/`. Vitest 5 +
 jsdom + Testing Library. Consumers require Tailwind v4.
 Prettier: `printWidth` 100, double quotes, semicolons (.prettierrc).
 
 **Two-TypeScript landmine:** `typescript` (`~6.0.2`) feeds the lint stack because
 `typescript-eslint` caps its peer range below TypeScript 7; the aliased `typescript7`
-(`npm:typescript@~7.0.2`) is what `build` and `typecheck` invoke (README.md:201). Never "clean
+(`npm:typescript@~7.0.2`) is what `build` and `typecheck` invoke (README.md § Releasing). Never "clean
 up" the alias; never enable `recommendedTypeChecked`.
 
 ## Commands
@@ -99,9 +99,12 @@ The typecheck script is `typecheck`, not `type-check`.
 - `src/icons/` — `Icon.tsx` primitive + `index.tsx` (23 icons; see invariant 9).
 - `src/markdown/` — `components.tsx`, `urlPolicy.ts`.
 - `src/types/chat.ts`.
-- `tests/` (flat): `<Component>.test.tsx` = behavior; `<thing>-dist.test.ts` = built output;
-  `tests/types/*-type-assertions.tsx` = compile-time `@ts-expect-error` against the BUILT
-  package; `tests/security/`; `tests/setup.ts` = suite-wide console + network traps.
+- `tests/` (test files flat at the top level): `<Component>.test.tsx` = behavior;
+  `<thing>-dist.test.ts` = built output; `tests/setup.ts` = suite-wide console + network traps.
+  Subdirectories: `tests/types/*-type-assertions.tsx` = compile-time `@ts-expect-error` against
+  the BUILT package; `tests/security/`; `tests/markdown/`; `tests/helpers/` = the shared test
+  routines decision 12 extracted; `tests/fixtures/` = committed fixtures (the public-API
+  snapshot, ESLint and client-directive cases, golden icons).
 - `examples/chat-demo` (Vite + Playwright); `examples/rsc-fixture` (Next.js — the ONLY place
   `next` may appear).
 - `scripts/` — 16 enforcement scripts.
@@ -166,7 +169,8 @@ The typecheck script is `typecheck`, not `type-check`.
     `no-restricted-syntax` selector that MUST ride in every overlay (arrays replace, never
     merge). House style is `curly: all` + `@stylistic/padding-line-between-statements`,
     repo-wide and autofixable. All validated by tests/eslint-house-rules.test.ts against
-    committed fixtures. Ten rules from `@re-cinq/eslint-plugin-re-lint` (decision 9; wired by
+    committed fixtures. Ten more rules from `@re-cinq/eslint-plugin-re-lint` (eleven `re-lint/*`
+    ids in all, counting `no-inline-styles` above; decision 9; wired by
     hand under the `re-lint` key, NEVER through its `recommended` preset) also run at error:
     seven over `src/**` — `no-nested-if`, `no-nested-loop`, `no-reexport-only-module`,
     `no-vague-names`, `prefer-early-return`, `max-comment-lines` at max 1 — a comment in `src/`

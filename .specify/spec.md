@@ -98,7 +98,7 @@ Other public data shapes are consumer-supplied and rendered as-is: `Conversation
 2. **Branch Naming** — `<type>/<scope>-<description>` (e.g., `feat/chat-message`, `fix/composer-submit-bug`).
 3. **PR Gating** — All CI checks, linting, type-check, and tests must pass before merge.
 4. **Minimum 1 Approval** — Code review required before merge.
-5. **Git Tags on Release** — Version tag (e.g., `v1.0.0`) matches `package.json` version.
+5. **Git Tags on Release** — The `vX.Y.Z` tag of the GitHub Release alone names the version; `package.json` carries the placeholder `0.0.0` on `main`, and `publish.yml` stamps the tag's version into it at publish time.
 
 ## Rendering & Runtime Boundaries
 
