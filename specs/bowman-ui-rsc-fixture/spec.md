@@ -253,8 +253,9 @@ the existing file's style wins and the deviation is recorded here - and
 takes its setup from the shared `setup-node-install` composite action, which
 reads Node from `.nvmrc` via `node-version-file` ([validated by](../../.github/actions/setup-node-install/action.yml#L19)),
 runs `npm ci --ignore-scripts`
-([validated by](../../.github/actions/setup-node-install/action.yml#L23)) and, because the job asks for it with
-`build: "true"` ([validated by](../../.github/workflows/ci.yml#L168)), an explicit
+([validated by](../../.github/actions/setup-node-install/action.yml#L23)) and, because the job passes
+`build: "true"`, the one input the composite action's build step is gated on
+([validated by](../../.github/actions/setup-node-install/action.yml#L25)), an explicit
 `npm run build` before packing
 ([validated by](../../.github/actions/setup-node-install/action.yml#L27)), then runs the green
 case and the `--expect-failure` case as separately named steps

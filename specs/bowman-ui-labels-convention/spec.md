@@ -52,7 +52,7 @@ string-carrying component already in the repo - it adds no new component.
   `src/index.ts` is classified into `labelsProp` / `stringPropOnly` / `noStrings`, and the sorted
   union must equal the sorted parsed export names; an unclassified export fails by name with a
   pointer at `docs/design-notes.md § Labels` ([validated by labelsProp, stringPropOnly and noStrings together are exactly src/index.ts's value exports](../../tests/labelled-exports.test.tsx#L158)).
-- The sentinel test renders every `labelsProp` member (today: `ErrorBoundary`, error state) with
+- The sentinel test renders every `labelsProp` member the partition test lists with
   every label a unique `⟦sentinel⟧` and asserts no run of three or more Latin letters survives in
   `textContent` or in `aria-label`/`aria-placeholder`/`aria-roledescription`/`aria-valuetext`/
   `title`/`placeholder`/`alt` outside the sentinels, with the sentinel set pinned to
