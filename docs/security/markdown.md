@@ -63,8 +63,9 @@ build when any standing invariant regresses:
 2. A file under `src/` mentions `rehype`, imports `remark-html`, sets
    `dangerouslySetInnerHTML`, or re-enables raw HTML with `skipHtml={false}`.
 3. `defaultMarkdownPolicy.allowImages` is not literally `false`.
-4. `defaultMarkdownPolicy.allowedSchemes` admits `javascript`, `data`,
-   `vbscript`, or `file`.
+4. `defaultMarkdownPolicy.allowedSchemes` is declared more than once, is not an
+   inline array of quoted string literals the gate can read, or admits
+   `javascript`, `data`, `vbscript`, or `file`.
 
 It runs on `pull_request` in `ci.yml` and before `npm publish` in `publish.yml`,
 and is self-tested by `tests/security/check-markdown-safety.test.ts`, which

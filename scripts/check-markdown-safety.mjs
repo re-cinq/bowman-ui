@@ -14,7 +14,8 @@
 //   2. No file under src/ mentions rehype, imports remark-html, sets
 //      dangerouslySetInnerHTML, or re-enables raw HTML via skipHtml={false}.
 //   3. defaultMarkdownPolicy.allowImages is literally false.
-//   4. defaultMarkdownPolicy.allowedSchemes admits none of
+//   4. defaultMarkdownPolicy.allowedSchemes is declared once as an inline array
+//      of quoted string literals (so the gate can read it) admitting none of
 //      javascript / data / vbscript / file.
 //
 // Runs against process.cwd() by default; a directory argument points it at
@@ -74,6 +75,13 @@ const scanPackageJson = (root) => {
   return { violations: /rehype-raw/.test(content) ? ["package.json declares rehype-raw"] : [] };
 };
 
+const QUOTED_LITERAL = /["']([^"']*)["']/g;
+
+const ALLOWED_SCHEMES_ARRAY =
+  /allowedSchemes:\s*(?:Object\.freeze\(\s*)?\[([^\]]*)\]\s*(?:as const\s*)?\)?\s*[,}]/;
+
+const isInlineStringArray = (list) => list.replace(QUOTED_LITERAL, "").replace(/[\s,]/g, "") === "";
+
 const defaultPolicyBlock = (source) => {
   const match = source.match(/defaultMarkdownPolicy[\s\S]*?\}\)/);
 
@@ -97,11 +105,17 @@ const scanPolicy = (root) => {
   if (allowImages === null || allowImages[1] !== "false") {
     violations.push("defaultMarkdownPolicy.allowImages must be literally false");
   }
-  const schemes = block.match(/allowedSchemes:[^[]*\[([^\]]*)\]/);
-  const declared =
-    schemes === null
-      ? []
-      : [...schemes[1].matchAll(/["']([^"']+)["']/g)].map((m) => m[1].toLowerCase());
+  const declaredOnce = (block.match(/allowedSchemes:/g) ?? []).length === 1;
+  const list = declaredOnce ? block.match(ALLOWED_SCHEMES_ARRAY)?.[1] : undefined;
+
+  if (!declaredOnce) {
+    violations.push("defaultMarkdownPolicy.allowedSchemes must be declared exactly once");
+  } else if (list === undefined || !isInlineStringArray(list)) {
+    violations.push(
+      "defaultMarkdownPolicy.allowedSchemes must be an inline array of quoted string literals"
+    );
+  }
+  const declared = [...(list ?? "").matchAll(QUOTED_LITERAL)].map((m) => m[1].toLowerCase());
 
   for (const banned of BANNED_SCHEMES) {
     if (declared.includes(banned)) {
