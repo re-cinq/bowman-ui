@@ -334,4 +334,12 @@ describe("the built theming tokens", () => {
       "buttonStyles",
     ]);
   });
+
+  it("CLAUDE.md invariant 13 states the same token count as the stylesheet's declaration block", () => {
+    const counts = [...read("CLAUDE.md").matchAll(/Exactly (\d+) `--bowman-\*`/g)].map((match) =>
+      Number(match[1])
+    );
+
+    expect(counts).toEqual([declaredTokens().size]);
+  });
 });
