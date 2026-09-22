@@ -353,17 +353,17 @@ source import a bundler tree-shakes away.
 The `consumer` job in `ci.yml` runs on every pull request (the workflow's
 unfiltered `pull_request` trigger), pins its actions to the same commit SHAs
 as the existing job with `persist-credentials: false`
-([validated by](../../.github/workflows/ci.yml#L134)), takes its setup from
+([validated by](../../.github/workflows/ci.yml#L135)), takes its setup from
 the shared `setup-node-install` composite action, which sets
 Node from `.nvmrc` via `node-version-file` ([validated by](../../.github/actions/setup-node-install/action.yml#L19)),
 runs `npm ci --ignore-scripts`
 ([validated by](../../.github/actions/setup-node-install/action.yml#L23)) and, because the job asks for it with
-`build: "true"` ([validated by](../../.github/workflows/ci.yml#L142)), an explicit
+`build: "true"` ([validated by](../../.github/workflows/ci.yml#L143)), an explicit
 `npm run build` before packing
 ([validated by](../../.github/actions/setup-node-install/action.yml#L27)), and runs the script as
 its `Consumer app check` step with no browser install step of its own - the
 script installs the demo's pinned Chromium itself
-([validated by](../../.github/workflows/ci.yml#L147)). It omits
+([validated by](../../.github/workflows/ci.yml#L148)). It omits
 `fetch-depth: 0` on purpose: that exists for the spec anchor check, which
 this job does not run.
 
