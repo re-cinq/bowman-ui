@@ -3,6 +3,7 @@ import { join } from "node:path";
 
 const SOURCE_EXTENSIONS = [".ts", ".tsx", ".mts", ".cts"];
 
+/** @returns {string[]} */
 export const listSourceFiles = (directory, extensions = SOURCE_EXTENSIONS) => {
   const files = [];
 

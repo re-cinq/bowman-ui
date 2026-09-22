@@ -37,9 +37,9 @@ unchanged.
    outside the package by an `@ts-expect-error` fixture that resolves the
    type through `ChatMessageListProps["renderEntryFooter"]`
    ([validated by](../../tests/types/chat-message-list-type-assertions.tsx#L64)).
-   The fixture is what enforces this: `npm run typecheck` compiles `src`
-   only (compiled against dist by
-   [chat-message-list-dist](../../tests/chat-message-list-dist.test.ts#L81)).
+   The fixture is what enforces this: `npm run typecheck` skips the
+   type-assertion fixtures, so only the dist test compiles it
+   ([chat-message-list-dist](../../tests/chat-message-list-dist.test.ts#L81)).
 2. **The callback runs for every rendered entry, user rows included.**
    No role filter in the library - 023's rule that the caller decides what
    to pass. It is invoked once per rendered `ChatMessage` per render, in

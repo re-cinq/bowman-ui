@@ -41,7 +41,7 @@
   "scripts": {
     "build": "rm -rf dist && node node_modules/typescript7/bin/tsc -p tsconfig.json && cp src/styles.css dist/styles.css",
     "prepare": "test -d dist || npm run build",
-    "typecheck": "node node_modules/typescript7/bin/tsc --noEmit -p tsconfig.json",
+    "typecheck": "node node_modules/typescript7/bin/tsc --noEmit -p tsconfig.json && node node_modules/typescript7/bin/tsc --noEmit -p tsconfig.tests.json",
     "test": "npm run test:coverage",
     "test:coverage": "npm run build && vitest run --coverage",
     "lint": "eslint . --max-warnings 0",
@@ -71,6 +71,7 @@
     "@tailwindcss/cli": "^4.3.3",
     "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/react": "^16.3.3",
+    "@types/node": "^22.20.4",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.2.7",
     "@vitejs/plugin-react": "^6.1.1",

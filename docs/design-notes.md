@@ -1163,6 +1163,26 @@ Decisions:
     A jscpd baseline file was rejected: with zero clones an empty baseline
     equals threshold 0, and a baseline exists to grandfather clones, which is
     the opposite of the gate's purpose.
+13. **Test files compile under `tsc` too, through a second config.** The
+    root `tsconfig.json` includes `src/` only, vitest transpiles without
+    checking, and decision 9 keeps the lint stack type-blind, so until
+    issue 140 no `tests/**/*.test.ts(x)` was ever compiled. `npm run
+typecheck` now runs `typescript7` twice: `tsconfig.json`, then
+    `tsconfig.tests.json`, which extends it with `include: ["tests"]`,
+    `noEmit`, `rootDir: "."`, an explicit `types` list (`node`,
+    `vitest/globals`, `@testing-library/jest-dom/vitest`) and `allowJs`
+    (tests import `scripts/lib/*.mjs`; `checkJs` stays off, so an untyped
+    helper's return needs a JSDoc `@returns`). Two exclusions:
+    `tests/fixtures` (golden inputs, broken by design; an imported one such
+    as `golden-icons.tsx` still compiles) and `tests/types/*-type-assertions.*`
+    (compiled against dist by the `*-dist` tests' own `tsc --ignoreConfig`
+    spawns, `@ts-expect-error` fixtures included). No test may import
+    `dist/` by a literal specifier: CI typechecks before it builds, so
+    tests/public-api.test.ts loads the built barrel through a runtime path.
+    src's compile environment is unchanged - `tsconfig.json` declares no
+    `types`, and neither compiler auto-includes `@types/*`.
+    tests/typecheck-contract.test.ts pins the script and checks the compiled
+    program against the test files on disk.
 
 Considered and rejected:
 
