@@ -24,7 +24,7 @@ tokens' custom-themed variant; the three resize tests also passed a local
 Anchor note: `scripts/repoint-spec-anchors.mjs` originally tracked only
 `(../)+tests/*.ts(x)` anchors; this change widens its regex by one line to
 also track `(../)+examples/*/tests/*.ts(x)` anchors
-([regex](../../scripts/repoint-spec-anchors.mjs#L60)), so this spec's
+([regex](../../scripts/repoint-spec-anchors.mjs#L61)), so this spec's
 links into `examples/chat-demo/tests/chat-demo.spec.ts` are repointed by CI like
 any `tests/` anchor. The widened check ran clean over the pre-existing
 consumer-app spec (21 newly tracked anchors there; 591 up to date repo-wide,

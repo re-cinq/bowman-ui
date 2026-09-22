@@ -87,13 +87,13 @@ value ([validated by](../../tests/theming-tokens-dist.test.ts#L286),
   `ConversationList`'s row link and delete button, every `AppSidebar` item, and `AppShell`'s
   skip link, hamburger and close button
   ([validated by](../../tests/ChatMessage.test.tsx#L486),
-  [L150](../../tests/ConversationList.test.tsx#L150),
+  [L152](../../tests/ConversationList.test.tsx#L152),
   [L137](../../tests/AppSidebar.test.tsx#L137), [L400](../../tests/AppShell.test.tsx#L400)).
 - `ErrorBoundary`'s retry button keeps `focus-visible:ring-2` beside the `--bowman-focus-ring`
   colour and gains no dark ring, because it had none
   ([validated by](../../tests/ErrorBoundary.test.tsx#L181)).
 - `ConversationList`'s active row alone reads `--bowman-active`, light and dark
-  ([validated by](../../tests/ConversationList.test.tsx#L135)).
+  ([validated by](../../tests/ConversationList.test.tsx#L137)).
 - `AppSidebar`'s `isActive` item alone reads `--bowman-active`, its label the `--bowman-text-strong`
   role, while an inactive item takes that role's `hover:` variant
   ([validated by](../../tests/AppSidebar.test.tsx#L137)).
@@ -163,7 +163,7 @@ utility fails ([validated by](../../tests/theming-tokens-dist.test.ts#L246)).
   its danger hover left to the danger role; dark rest dims one step to slate-500 and dark hover to
   slate-400 ([validated by](../../tests/theming-tokens-dist.test.ts#L246),
   [L518](../../tests/ChatMessage.test.tsx#L518),
-  [L163](../../tests/ConversationList.test.tsx#L163)).
+  [L165](../../tests/ConversationList.test.tsx#L165)).
 - The selected thumbs-down chip and text, the `ErrorBoundary` icon circle and glyph, and the
   `ConversationList` delete-button hover read the danger role - `--bowman-danger` /
   `--bowman-danger-soft` and their `-dark` twins - so a consumer recolours every negative-state
@@ -171,7 +171,7 @@ utility fails ([validated by](../../tests/theming-tokens-dist.test.ts#L246)).
   dark soft fills (`red-900/30` and `/20`) collapse to one `rgba()` fallback, per decision 6
   ([validated by](../../tests/theming-tokens-dist.test.ts#L245),
   [L501](../../tests/ChatMessage.test.tsx#L501),
-  [L157](../../tests/ConversationList.test.tsx#L157),
+  [L159](../../tests/ConversationList.test.tsx#L159),
   [L73](../../tests/ErrorBoundary.test.tsx#L73)).
 - The twenty-one role fallbacks are declared in the stylesheet block and the design-notes table
   in the same order as the code reads them, and every read carries the declared fallback

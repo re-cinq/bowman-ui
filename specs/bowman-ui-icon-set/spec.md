@@ -47,9 +47,9 @@ it through ([validated by](../../tests/icons.test.tsx#L280),
 [L292](../../tests/icons.test.tsx#L292)). The would-be regression is pinned: no root `stroke` attribute,
 `class` containing `animate-spin`, `<path fill="currentColor">` with no stroke.
 `animate-spin` is a Tailwind
-core utility, not one of the three keyframes `019` ships - `src/styles.css`
-gains no rule for it; a consumer's Tailwind build generates it by scanning
-the installed `dist`.
+core utility, not one of the four keyframes the package stylesheet ships (019's three plus
+025's `bowman-toast-fade-in`) ([validated by](../../tests/styles.test.ts#L31)). No rule for it
+lands in `src/styles.css`; a consumer's Tailwind build generates it by scanning the installed `dist`.
 `LoadingIcon`'s English `ariaLabel` default `"Loading"`
 is the icon set's only user-visible string, prop-overridable per
 call site; the icon set needs no `labels` prop and the `labels` issue does

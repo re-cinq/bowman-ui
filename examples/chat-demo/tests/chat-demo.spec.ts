@@ -333,3 +333,21 @@ test.describe("composer auto-resize", () => {
     await expect.poll(() => measuredHeight(composer)).toBe(baseline);
   });
 });
+
+// issue 132: a pasted token with no break opportunity must wrap inside the bubble.
+test.describe("long unbroken strings", () => {
+  test("a 300-character token sent from the composer does not widen the user article", async ({
+    page,
+  }) => {
+    await page.goto("/?view=chat");
+    const token = "a1b2c3".repeat(50);
+
+    await send(page, token);
+    const article = page.getByRole("article", { name: chatMessageListLabels.userMessage }).last();
+
+    await expect(article).toContainText(token);
+    await expect
+      .poll(() => article.evaluate((element) => element.scrollWidth - element.clientWidth))
+      .toBeLessThanOrEqual(0);
+  });
+});

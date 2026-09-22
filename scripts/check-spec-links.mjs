@@ -5,61 +5,32 @@
 // of @re-cinq/eslint-plugin-re-lint (docs/design-notes.md § Lint guardrails
 // decision 10).
 
-import { readFileSync, readdirSync } from "node:fs";
-import { join, relative, resolve } from "node:path";
+import { relative, resolve } from "node:path";
 import process from "node:process";
 import { findMisplacedCoverageLinks } from "@re-cinq/eslint-plugin-re-lint/spec/spec-link-parser.js";
 import { segmentStatements } from "@re-cinq/eslint-plugin-re-lint/spec/spec-segment.js";
+import { emitReport, parseFlags } from "./lib/cli-args.mjs";
 import { root } from "./lib/repo-root.mjs";
+import { listSpecDocs, readRepoFileOrExit } from "./lib/spec-corpus.mjs";
 
 const USAGE =
   "usage: check-spec-links.mjs [--json] [spec-path ...]\n" +
   "spec paths resolve against the repo root, not the working directory; an absolute path is taken as given";
 
-const args = process.argv.slice(2);
-const flags = args.filter((arg) => arg.startsWith("--"));
-const specArgs = args.filter((arg) => !arg.startsWith("--"));
-
-for (const flag of flags) {
-  if (flag === "--json") {
-    continue;
-  }
-  process.stderr.write(`${USAGE}\n`);
-  process.exit(2);
-}
-
+const { flags, positional: specArgs } = parseFlags(process.argv.slice(2), ["--json"], USAGE);
 const asJson = flags.includes("--json");
-
-const discoverSpecs = () => {
-  const specsDir = join(root, "specs");
-  const slugs = readdirSync(specsDir, { withFileTypes: true })
-    .filter((entry) => entry.isDirectory())
-    .map((entry) => entry.name)
-    .sort();
-
-  return [...slugs.map((slug) => `specs/${slug}/spec.md`), ".specify/spec.md"];
-};
 
 const specPaths =
   specArgs.length > 0
     ? specArgs.map((path) => relative(root, resolve(root, path)))
-    : discoverSpecs();
-
-const readSpec = (specPath) => {
-  try {
-    return readFileSync(join(root, specPath), "utf8");
-  } catch (error) {
-    process.stderr.write(`cannot read spec ${specPath}: ${error.message}\n`);
-    process.exit(2);
-  }
-};
+    : listSpecDocs(root, { includeSystemSpec: true });
 
 const findings = [];
 const specsWithFindings = new Set();
 let statementsScanned = 0;
 
 for (const specPath of specPaths) {
-  const content = readSpec(specPath);
+  const content = readRepoFileOrExit(root, specPath, "spec");
 
   for (const statement of segmentStatements(content)) {
     statementsScanned += 1;
@@ -93,9 +64,4 @@ const reportLines = () => {
   return lines;
 };
 
-// process.exitCode, not process.exit: exiting truncates a large stdout write
-// to a pipe.
-process.exitCode = findings.length > 0 ? 1 : 0;
-process.stdout.write(
-  asJson ? `${JSON.stringify(findings, null, 2)}\n` : `${reportLines().join("\n")}\n`
-);
+emitReport({ asJson, findings, lines: reportLines, exitCode: findings.length > 0 ? 1 : 0 });

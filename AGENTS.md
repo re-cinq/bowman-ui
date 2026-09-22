@@ -2,14 +2,17 @@
 
 ## Context Loading Order
 
-Agents should read repository files in this order:
+Agents should read repository files in the order CLAUDE.md sets (where this file and
+CLAUDE.md disagree, CLAUDE.md wins):
 
 1. **README.md** — Package purpose, scope, and naming conventions
-2. **package.json** — Dependencies, scripts, and version information
-3. **tsconfig.json** — TypeScript configuration and compilation targets
-4. **eslint.config.mjs** — Linting rules and code standards
-5. **src/** directory structure — Component organization and export patterns
-6. **CONTRIBUTING.md** — Contribution-specific guidelines
+2. **docs/design-notes.md** — The decision record every enforced invariant traces to
+3. **package.json** — Dependencies, scripts, and version information
+4. **specs/<slug>/spec.md** — The feature spec for the area being changed
+5. **tsconfig.json** — TypeScript configuration and compilation targets
+6. **eslint.config.mjs** — Linting rules and code standards
+7. **src/** directory structure — Component organization and export patterns
+8. **CONTRIBUTING.md** — Contribution-specific guidelines
 
 ## Workflow Commands
 
@@ -39,7 +42,8 @@ npx vitest
 npm run lint
 ```
 
-Runs ESLint on TypeScript and JSX files. Auto-fix:
+Runs ESLint over the TypeScript and JSX sources and over every `*.md` (a repo-relative
+markdown link must land on a file; specs and ADRs must open with a lead paragraph). Auto-fix:
 
 ```bash
 npm run lint -- --fix
@@ -86,7 +90,7 @@ are `In Progress`, all are `Shipped`. ADRs declare theirs as YAML frontmatter
 
 ## Spec Checks
 
-Three local checks run over the spec and ADR corpora:
+Four local commands run over the spec and ADR corpora, three gates and one report:
 
 - `npm run check:spec-links` - every `[validated by]` link must sit in its
   statement's trailing parenthetical. Exit 1 on any finding.
@@ -179,21 +183,31 @@ Closes #42
 
 ### PR Description Template
 
+The body follows `.github/PULL_REQUEST_TEMPLATE.md`. Three of its headings are required:
+`.github/workflows/pr-description-check.yml` fails a pull request whose body lacks a line
+starting `## Why`, `## What Changed` or `## Testing`.
+
 ```markdown
-## Description
+## Why
 
-Brief explanation of changes.
+Fixes #<n>. The symptom and the root cause.
 
-## Type of Change
+## What Changed
 
-- [ ] New component
-- [ ] Bug fix
-- [ ] Refactor
-- [ ] Documentation
+- One bullet per change.
+
+## Alternatives Considered
+
+Other approaches evaluated and why this one was chosen (omit if none).
+
+## ADRs & Architecture
+
+Decision records in `adrs/` or `docs/design-notes.md` the change touches (omit if none).
 
 ## Testing
 
-How to verify this works (manual steps or test output).
+The gate commands run and their results (`npm run lint`, `npm run typecheck`, `npm test`,
+`npm run build`), plus manual steps where a check cannot see the change.
 
 ## Checklist
 
@@ -254,11 +268,14 @@ How to verify this works (manual steps or test output).
    export const MessageBubble: React.FC<MessageBubbleProps> = (props) => { ... }
    ```
 
-2. **README.md** must document:
+2. **README.md** documents:
    - Package purpose and scope
    - Installation instructions
-   - Basic usage examples for each exported component
-   - Props reference (or link to generated docs)
+   - Usage examples for the app surfaces (`AppShell`, `AppSidebar`, `ChatComposer`,
+     `ChatMessage`, `ChatMessageList`, `ConversationList`) and the hooks; the remaining
+     components have no README example, and `examples/chat-demo` is the worked example for them
+   - Props through the exported TypeScript interfaces and their JSDoc; there is no generated
+     props reference
 
 3. **No internal implementation details exposed** in public API; use `.d.ts` or `export` statement control.
 

@@ -36,7 +36,7 @@ test is always the tarball `npm pack` just produced
 are pinned at exactly `19.3.0`
 ([validated by](../../examples/chat-demo/package.json#L15)), the version
 docs/design-notes.md decision 4 records as the one CI installs and the only one tested
-([validated by](../../tests/react-version-consistency.test.ts#L42)).
+([validated by](../../tests/react-version-consistency.test.ts#L54)).
 
 The Tailwind dependency is `tailwindcss@4.3.3` with the matching
 `@tailwindcss/vite@4.3.3` Vite adapter
@@ -58,7 +58,7 @@ sufficient to render the screen, so the README's Styles section needed no
 amendment.
 
 Since the theming tokens (issue 210) a second stylesheet,
-`src/custom-theme.css`, sets the library's thirty-nine `--bowman-*` tokens under
+`src/custom-theme.css`, sets every `--bowman-*` token the library exposes under
 the `.custom-theme` wrapper - never `:root` - and `main.tsx` imports it after
 `./styles.css`; the three-line entry stylesheet above is unchanged
 ([validated by](../../examples/chat-demo/src/main.tsx#L1)).
@@ -131,8 +131,8 @@ see `specs/bowman-ui-rsc-fixture/spec.md`):
   defaulted first, for runners that leave it unset)
   ([validated by](../../scripts/pack-to-temp.sh#L7))
 - then asserts `npm pack --dry-run` lists `dist/` (including
-  `dist/styles.css`), `package.json`, `LICENSE` and `README.md` and nothing
-  from `examples/`, `src/` or `tests/`
+  `dist/styles.css`), `package.json`, `LICENSE`, `README.md` and
+  `THIRD-PARTY-NOTICES.md`, and nothing from `examples/`, `src/` or `tests/`
   ([validated by](../../scripts/consumer-app.sh#L51))
 - asserts the committed demo manifest declares no `@re-cinq/bowman-ui`
   dependency and the Playwright config no `executablePath`, so neither claim
@@ -313,9 +313,9 @@ result ([validated by](../../.github/workflows/publish.yml#L101)).
   vitest's `exclude` gains `examples/**` so the Playwright suite - which
   matches the default spec glob - never runs under vitest
   ([validated by](../../vitest.config.ts#L12)).
-- `npm pack --dry-run` ships `dist/`, `package.json`, `LICENSE`, `README.md`
-  and nothing else, now executable-asserted on every consumer run
-  ([validated by](../../scripts/consumer-app.sh#L60)).
+- `npm pack --dry-run` ships `dist/`, `package.json`, `LICENSE`, `README.md`,
+  `THIRD-PARTY-NOTICES.md` and nothing else, now executable-asserted on every
+  consumer run ([validated by](../../scripts/consumer-app.sh#L60)).
 - No file under `src/` changed in the PR that introduced the demo - the one
   statement here with no executable anchor: its proof is that PR's diff
   itself, reviewable but not re-runnable.
