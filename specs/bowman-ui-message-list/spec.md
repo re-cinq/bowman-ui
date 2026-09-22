@@ -49,12 +49,12 @@ name, default `"Conversation"`). `ChatMessageLabels` and
 legally because they name the same concept with the same type, which is
 exactly decision 3's "unique by concept" rule - a future function-form
 `thinking` on either side breaks the `extends` and must rename by concept.
-`ToolActivityLabels`'s three keys (`activity`, `activityDone`, `details`)
-and `ThinkingTraceLabels`'s `thinkingTrace`
+`ToolActivityLabels`'s four keys (`activity`, `activityDone`, `details`,
+`toolInputUnavailable`) and `ThinkingTraceLabels`'s `thinkingTrace`
 (`specs/bowman-ui-thinking-trace/spec.md`) add no further collision, and
 `assistantMessageFrom` (`specs/bowman-ui-entry-attribution/spec.md`) rides
-in through `ChatMessageLabels`. The union is therefore eighteen keys,
-seventeen in `defaultChatMessageListLabels`
+in through `ChatMessageLabels`. The union is therefore nineteen keys,
+eighteen in `defaultChatMessageListLabels`
 ([validated by](../../tests/ChatMessageList.test.tsx#L221)).
 
 Because `aiDisclosure` has no default, `ChatMessageList` is the package's
@@ -205,17 +205,17 @@ list.
   checked DOM. Its key-coverage check is the package's one asymmetric
   sentinel test - defaults keys **plus** `aiDisclosure` - because the
   required label is deliberately absent from `defaultChatMessageListLabels`
-  ([validated by](../../tests/labelled-exports.test.tsx#L557),
-  [L365](../../tests/labelled-exports.test.tsx#L365)).
+  ([validated by](../../tests/labelled-exports.test.tsx#L561),
+  [L366](../../tests/labelled-exports.test.tsx#L366)).
 
 ## Recorded decisions
 
 - **Name.** `ChatMessageList`, not `MessageList`: the longer name states
   what the list holds and stays clear of the generic `MessageList` name a
   consumer app is likely to declare itself.
-- **Labels forwarding.** The resolved eighteen-key object is handed to
+- **Labels forwarding.** The resolved nineteen-key object is handed to
   `ChatMessage` whole - structurally a valid `Partial<ChatMessageLabels>`
-  whose seven extra keys ride along harmlessly through `ChatMessage`'s own
+  whose eight extra keys ride along harmlessly through `ChatMessage`'s own
   `resolveLabels` merge, decision 3's flat-union forwarding without an
   eleven-key copy - while `ThinkingIndicator`, `ThinkingTrace` and
   `ToolActivity` each receive their own keys explicitly.

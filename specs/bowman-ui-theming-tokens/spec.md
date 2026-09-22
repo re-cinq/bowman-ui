@@ -81,7 +81,7 @@ value ([validated by](../../tests/theming-tokens-dist.test.ts#L286),
 - `ThinkingDots` read `--bowman-accent` for every dot, in both modes, and keep doing so under
   `reducedMotion` in `ThinkingTrace` and `ChatMessageList`
   ([validated by](../../tests/ThinkingTrace.test.tsx#L107),
-  [L1125](../../tests/ChatMessageList.test.tsx#L1125)).
+  [L1138](../../tests/ChatMessageList.test.tsx#L1138)).
 - Every focus ring keeps its `focus:ring-2` width class beside the `--bowman-focus-ring`
   colour, light and dark: `ChatMessage`'s article, copy button and thumb buttons,
   `ConversationList`'s row link and delete button, every `AppSidebar` item, and `AppShell`'s

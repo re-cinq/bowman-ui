@@ -32,8 +32,8 @@ name, added by the 2026-08-26 review) - per docs/design-notes.md § Labels.
 sentinel render with all four labels set to sentinels; the harness opens the
 drawer so the dialog-name sentinel renders
 ([partition](../../tests/labelled-exports.test.tsx#L86),
-[harness](../../tests/labelled-exports.test.tsx#L454),
-[L599](../../tests/labelled-exports.test.tsx#L599)).
+[harness](../../tests/labelled-exports.test.tsx#L458),
+[L603](../../tests/labelled-exports.test.tsx#L603)).
 
 `renderSidebar({ variant, close })` is called exactly twice per render - once
 per position, `"desktop"` rail and `"mobile"` drawer - and both returned

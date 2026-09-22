@@ -390,7 +390,10 @@ decision for that consumer's own compliance record, not one the library
 makes. `ToolActivity` is not a message: it carries no avatar, copy or
 feedback affordance, and no `renderEntry` escape hatch exists - the
 data-boundary default stays in the library rather than one deadline from a
-raw entry dump.
+raw entry dump. When `JSON.stringify` cannot serialise the arguments - a
+BigInt, a cycle, a `toJSON` that throws or yields `undefined` - the `<pre>`
+shows the `toolInputUnavailable` label instead, so one malformed entry never
+unmounts the list (issue 130).
 
 `describeTool` is `(entry: ToolChatEntry, pending: boolean) => ReactNode`.
 The second parameter is the component's own resolved `pending` prop - the

@@ -245,6 +245,7 @@ export const ChatMessageList = forwardRef<ChatMessageListHandle, ChatMessageList
               activity: resolved.activity,
               activityDone: resolved.activityDone,
               details: resolved.details,
+              toolInputUnavailable: resolved.toolInputUnavailable,
             }}
           />
         );

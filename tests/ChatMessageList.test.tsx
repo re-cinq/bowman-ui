@@ -1016,6 +1016,19 @@ describe("ChatMessageList", () => {
       expect(screen.getByTestId("tool-icon")).toBeInTheDocument();
     });
 
+    it("forwards toolInputUnavailable, so a BigInt tool input renders the override instead of throwing", () => {
+      const { container } = render(
+        <ChatMessageList
+          entries={[{ ...toolEntry("t1"), toolInput: { n: 1n } }]}
+          userInitials="LM"
+          labels={{ aiDisclosure, toolInputUnavailable: "Argumenterne kan ikke vises" }}
+          showToolInput
+        />
+      );
+
+      expect(container.querySelector("pre")?.textContent).toBe("Argumenterne kan ikke vises");
+    });
+
     it("hands describeTool the same pending flag it derives for its own labels", () => {
       const entries = [userEntry("u1", "Ver pedido 4711"), toolEntry("t1"), toolEntry("t2")];
       const describeTool = (entry: ToolChatEntry, pending: boolean) =>

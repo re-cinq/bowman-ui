@@ -33,8 +33,8 @@ sits in the `labelsProp` partition bucket
 [L22](../../tests/AppSidebar.test.tsx#L22),
 [L33](../../tests/AppSidebar.test.tsx#L33)). It passes the
 sentinel render with both labels set to sentinels
-([harness](../../tests/labelled-exports.test.tsx#L333),
-[coverage](../../tests/labelled-exports.test.tsx#L477)).
+([harness](../../tests/labelled-exports.test.tsx#L334),
+[coverage](../../tests/labelled-exports.test.tsx#L481)).
 
 ## The decisions
 
