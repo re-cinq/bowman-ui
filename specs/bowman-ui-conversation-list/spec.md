@@ -123,7 +123,7 @@ consumer-computed `badge` string).
   the `text-slate-400` palette class, the icon-control fold issue 104 shipped
   ([validated by](../../tests/ConversationList.test.tsx#L159),
   [L165](../../tests/ConversationList.test.tsx#L165)).
-- The full title renders once more as plain text in a `bowman-sr-only` span and the
+- The full title also renders as plain text in a `bowman-sr-only` span and the
   per-character run is `aria-hidden`, so assistive tech reads the whole title - and, mid-animation,
   already the new one - while the visible characters step
   ([validated by](../../tests/ConversationList.test.tsx#L406),
