@@ -5,6 +5,10 @@
 # credential: the runner prints every step's env block in the public log and
 # masks only secrets, and the endpoint's hostname has no business in a public
 # log. The template's `vars.` form is a deliberate per-repo deviation.
+# The changed-files step diffs the whole push (before..after over a full
+# checkout, scoped to the trigger's paths) where the template diffs HEAD~1,
+# which sees only the last commit of a rebase merge. See issue #136; a
+# template regen must keep it, and the two blocks below.
 name: Lore Context Ingest
 
 on:
@@ -19,21 +23,53 @@ on:
       - "teams/**"
       - ".specify/**"
 
+# One run at a time, in push order, so a slow run for an older push cannot
+# ingest stale content after a newer push's run. GitHub queues only the newest
+# pending run per group: a third quick push cancels the second's run, and that
+# push's CLAUDE.md, AGENTS.md, .specify deltas wait for their next touch (specs
+# and adrs self-heal, the graph job re-projects them in full every run).
+concurrency:
+  group: lore-ingest
+  cancel-in-progress: false
+
+# actions/checkout fetches with github.token even with persist-credentials
+# false, and on a public repo contents: read grants nothing anonymous access
+# lacks, so this is the sibling workflows' floor rather than `{}`.
+permissions:
+  contents: read
+
 jobs:
   ingest:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          fetch-depth: 2
+          # before..after needs the push's whole history, not the tip's parent.
+          fetch-depth: 0
           persist-credentials: false
 
       - name: Get changed files
         id: changes
+        env:
+          BEFORE: ${{ github.event.before }}
+          AFTER: ${{ github.event.after }}
         run: |
+          # pipefail: a failed git diff (say, an unreachable before) must go
+          # red, not let jq turn it into an empty list and a green skip.
+          set -euo pipefail
+          # push is the only trigger, so BEFORE is a commit or, on branch
+          # creation, all zeros: diff the empty tree then, so a recreated main
+          # ingests its whole corpus rather than its last commit.
+          if [ "${BEFORE}" = "0000000000000000000000000000000000000000" ]; then
+            BEFORE=$(git hash-object -t tree /dev/null)
+          fi
           # --no-renames: a moved file must arrive as its old path (a delete)
           # plus its new path, or the old path's chunks outlive the file.
-          FILES=$(git diff --name-only --no-renames HEAD~1 HEAD | jq -R -s -c 'split("\n") | map(select(. != ""))')
+          # The pathspec mirrors on.push.paths: without it a whole-tree diff
+          # would post src/ paths to the doc store.
+          FILES=$(git diff --name-only --no-renames "${BEFORE}" "${AFTER}" \
+            -- CLAUDE.md AGENTS.md adrs runbooks specs teams .specify \
+            | jq -R -s -c 'split("\n") | map(select(. != ""))')
           echo "files=${FILES}" >> "$GITHUB_OUTPUT"
 
       - name: Notify Lore to ingest
