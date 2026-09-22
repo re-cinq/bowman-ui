@@ -10,7 +10,7 @@ Tailwind v4 build cannot generate from a class name, and nothing else
 ([validated by](../../tests/styles.test.ts#L31)). The
 `"./styles.css"` export resolves to `dist/styles.css`, which the build script
 copies verbatim: `tsc` emits no assets, so `build` is
-`rm -rf dist && tsc -p tsconfig.json && cp src/styles.css dist/styles.css`
+`rm -rf dist && node node_modules/typescript7/bin/tsc -p tsconfig.json && cp src/styles.css dist/styles.css`
 (README § Development names the compiler alias), with `cp` chosen over
 a node script because CI and development both run on POSIX shells.
 `dist/styles.css` ships in the tarball under the `sideEffects:
