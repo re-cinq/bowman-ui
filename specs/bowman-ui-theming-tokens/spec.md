@@ -225,11 +225,15 @@ it without the package choosing; the package adds no media query and no selector
    floor - Safari 16.4, Chrome 111 and Firefox 128 all support `color-mix()` - so the
    byte-for-byte claim holds on every supported engine
    ([validated by](../../tests/ChatComposer.test.tsx#L209)).
-2. **Only the active row's backgrounds are tokenised.** `--bowman-active` and
-   `--bowman-active-dark` colour the surface; the label colours stay palette-mapped, so a
-   consumer must keep `--bowman-active` a light surface in light mode and
-   `--bowman-active-dark` a dark one, or the fixed label loses its contrast
-   ([validated by](../../tests/AppSidebar.test.tsx#L132)).
+2. **The active row's backgrounds have their own pair; its label rides the strong text
+   role.** `--bowman-active` and `--bowman-active-dark` colour the surface. As first recorded
+   the label colours stayed palette-mapped. **Amended by 146:** issue 102 moved the sidebar
+   item's label onto `--bowman-text-strong` and its `-dark` twin (docs/design-notes.md §
+   Theming decision 6), so the contrast constraint now binds two tokens the consumer sets
+   together: `--bowman-active` must contrast with `--bowman-text-strong` in light mode and
+   `--bowman-active-dark` with `--bowman-text-strong-dark` in dark mode, or the active label
+   loses its contrast
+   ([validated by](../../tests/AppSidebar.test.tsx#L137)).
 3. **The keyframe's zero stop stays the literal `rgba(59, 130, 246, 0)`.** A review finding
    asked for a token there too; rejected because CSS Color 4 interpolates premultiplied, so the
    hue of a fully transparent stop is inert
@@ -329,13 +333,20 @@ palette colour cannot fail the suite, and a consumer build that stops emitting t
   and `--bowman-accent-soft`
   ([validated by](../../examples/chat-demo/tests/theming.spec.ts#L272)).
 
-Five tokens are measured in the browser - `--bowman-accent`, `--bowman-active`,
-`--bowman-accent-border`, `--bowman-accent-soft` and `--bowman-accent-glow` - while
-`--bowman-focus-ring` rides along inside the same `box-shadow` string as the glow, through the
-`/50` ring's `oklab` entry, without being asserted
-([validated by](../../examples/chat-demo/tests/theming.spec.ts#L171),
+Twelve tokens are measured in the browser - `--bowman-accent`, `--bowman-text-on-accent`,
+`--bowman-active`, `--bowman-accent-border`, `--bowman-accent-soft`, `--bowman-accent-glow`,
+`--bowman-surface`, `--bowman-border`, `--bowman-text-strong`, `--bowman-text-subtle`,
+`--bowman-success` and `--bowman-success-soft` - while `--bowman-focus-ring` rides along inside
+the same `box-shadow` string as the glow, through the `/50` ring's `oklab` entry, without being
+asserted ([validated by](../../examples/chat-demo/tests/theming.spec.ts#L171),
 [L272](../../examples/chat-demo/tests/theming.spec.ts#L272),
-[L225](../../examples/chat-demo/tests/theming.spec.ts#L225)). Not measured in Chromium at all
-are `--bowman-accent-hover`, `--bowman-pulse-outline` and the seven `-dark` tokens - Playwright
-runs the light scheme only and never hovers - which the jsdom class-string tests above pin alone ([validated by](../../tests/ChatComposer.test.tsx#L185),
+[L225](../../examples/chat-demo/tests/theming.spec.ts#L225),
+[L200](../../examples/chat-demo/tests/theming.spec.ts#L200),
+[L210](../../examples/chat-demo/tests/theming.spec.ts#L210),
+[L216](../../examples/chat-demo/tests/theming.spec.ts#L216),
+[L237](../../examples/chat-demo/tests/theming.spec.ts#L237)). Not measured in Chromium at all
+are the twenty-one `-dark` tokens and the light ones no test reads, among them
+`--bowman-accent-hover` and `--bowman-pulse-outline` - Playwright runs the light scheme only
+and never hovers - which the jsdom class-string tests above pin alone
+([validated by](../../tests/ChatComposer.test.tsx#L185),
 [L71](../../tests/styles.test.ts#L71), [L478](../../tests/ChatMessage.test.tsx#L478)).

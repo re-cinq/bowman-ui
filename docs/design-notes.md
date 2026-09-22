@@ -572,12 +572,15 @@ Decisions:
    trigger under decision 1) and one-line comments only.
 5. **Active-row emphasis has its own pair, `--bowman-active` and
    `--bowman-active-dark`, with slate defaults.** The default stays neutral
-   and a theme may tint it, but only the two backgrounds are tokenised: the
-   row's label colours (`text-slate-900`, `dark:text-white` on the sidebar
-   item) stay palette-mapped. The constraint that follows is the consumer's
-   to honour: `--bowman-active` must stay a light surface in light mode and
-   `--bowman-active-dark` a dark one in dark mode, or the fixed label colour
-   loses its contrast.
+   and a theme may tint it. As first recorded only the two backgrounds were
+   tokenised and the row's label colours (`text-slate-900`, `dark:text-white`
+   on the sidebar item) stayed palette-mapped. Amended 2026-09-22 under issue
+   146, recording issue 102: the label reads `--bowman-text-strong` and its
+   `-dark` twin (decision 6), so the constraint that follows is the consumer's
+   to honour across two tokens:
+   `--bowman-active` must contrast with `--bowman-text-strong` in light mode
+   and `--bowman-active-dark` with `--bowman-text-strong-dark` in dark mode,
+   or the active label loses its contrast.
 6. **Neutral chrome: ten role pairs are tokenised, the long tail stays
    palette-mapped.** Amended 2026-09-10 (the first PR under issue 210 tokenised
    no neutral at all). A neutral site qualifies for a role when its light
