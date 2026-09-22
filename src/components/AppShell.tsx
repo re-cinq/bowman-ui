@@ -9,12 +9,12 @@ import {
   BORDER,
   CONTROL_HOVER,
   FOCUS_RING_COLOR,
-  RING_OFFSET,
   SURFACE,
   TEXT_BODY,
   TEXT_SECONDARY,
   TEXT_STRONG_FOCUS,
 } from "../theme/tokens.js";
+import { FOCUS_RING } from "../theme/focusRing.js";
 
 export interface SidebarSlotContext {
   variant: "desktop" | "mobile";
@@ -52,6 +52,8 @@ export interface AppShellProps {
   reducedMotion?: boolean;
   labels?: Partial<AppShellLabels>;
 }
+
+const iconControlClassName = `flex h-10 w-10 items-center justify-center rounded-lg ${TEXT_SECONDARY} ring-offset-2 transition-colors ${CONTROL_HOVER} ${FOCUS_RING}`;
 
 export function AppShell({
   children,
@@ -145,7 +147,7 @@ export function AppShell({
           <button
             type="button"
             onClick={close}
-            className={`flex h-10 w-10 items-center justify-center rounded-lg ${TEXT_SECONDARY} ring-offset-2 transition-colors ${CONTROL_HOVER} focus:outline-none focus:ring-2 ${FOCUS_RING_COLOR} ${RING_OFFSET}`}
+            className={iconControlClassName}
             aria-label={resolved.closeSidebar}
           >
             <CloseIcon className="h-6 w-6" />
@@ -162,7 +164,7 @@ export function AppShell({
           type="button"
           aria-controls={drawerId}
           onClick={() => setOpen(true)}
-          className={`flex h-10 w-10 items-center justify-center rounded-lg ${TEXT_SECONDARY} ring-offset-2 transition-colors ${CONTROL_HOVER} focus:outline-none focus:ring-2 ${FOCUS_RING_COLOR} ${RING_OFFSET}`}
+          className={iconControlClassName}
           aria-label={resolved.openSidebar}
         >
           <MenuIcon className="h-6 w-6" />

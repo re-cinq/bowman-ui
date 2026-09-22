@@ -2,8 +2,6 @@ import {
   ACCENT_BG,
   ACCENT_BG_HOVER,
   BORDER,
-  FOCUS_RING_COLOR,
-  RING_OFFSET,
   SURFACE,
   SURFACE_HOVER,
   TEXT_BODY,
@@ -11,11 +9,12 @@ import {
   TEXT_SECONDARY,
   TEXT_STRONG_HOVER,
 } from "../theme/tokens.js";
+import { FOCUS_RING } from "../theme/focusRing.js";
 
 export type ButtonVariant = "primary" | "secondary" | "ghost";
 export type ButtonSize = "sm" | "md";
 
-const focusRingClassNames = `ring-offset-2 focus:outline-none focus:ring-2 ${FOCUS_RING_COLOR} ${RING_OFFSET}`;
+const focusRingClassNames = `ring-offset-2 ${FOCUS_RING}`;
 const disabledClassNames = "disabled:cursor-not-allowed disabled:opacity-50";
 
 export const buttonBaseClassNames = `inline-flex items-center justify-center gap-2 rounded-lg font-medium transition-colors cursor-pointer ${focusRingClassNames} ${disabledClassNames}`;

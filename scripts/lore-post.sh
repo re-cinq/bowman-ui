@@ -13,7 +13,7 @@ FAILURE_NOUN="${3:?${USAGE}}"
 # Misconfiguration (unset URL) is a hard error - a missing var must
 # never silently fall back and report success.
 if [ -z "${LORE_INGEST_URL:-}" ]; then
-  echo "::error::LORE_INGEST_URL repository variable is not set - ${FAILURE_NOUN}"
+  echo "::error::LORE_INGEST_URL repository secret is not set - ${FAILURE_NOUN}"
   exit 1
 fi
 # Same class of misconfiguration: an unset token means every POST is

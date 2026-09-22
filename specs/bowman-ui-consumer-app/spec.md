@@ -58,7 +58,7 @@ sufficient to render the screen, so the README's Styles section needed no
 amendment.
 
 Since the theming tokens (issue 210) a second stylesheet,
-`src/custom-theme.css`, sets the library's thirty-nine `--bowman-*` tokens under
+`src/custom-theme.css`, sets every `--bowman-*` token the library exposes under
 the `.custom-theme` wrapper - never `:root` - and `main.tsx` imports it after
 `./styles.css`; the three-line entry stylesheet above is unchanged
 ([validated by](../../examples/chat-demo/src/main.tsx#L1)).
@@ -131,8 +131,8 @@ see `specs/bowman-ui-rsc-fixture/spec.md`):
   defaulted first, for runners that leave it unset)
   ([validated by](../../scripts/pack-to-temp.sh#L7))
 - then asserts `npm pack --dry-run` lists `dist/` (including
-  `dist/styles.css`), `package.json`, `LICENSE` and `README.md` and nothing
-  from `examples/`, `src/` or `tests/`
+  `dist/styles.css`), `package.json`, `LICENSE`, `README.md` and
+  `THIRD-PARTY-NOTICES.md`, and nothing from `examples/`, `src/` or `tests/`
   ([validated by](../../scripts/consumer-app.sh#L51))
 - asserts the committed demo manifest declares no `@re-cinq/bowman-ui`
   dependency and the Playwright config no `executablePath`, so neither claim
@@ -275,7 +275,7 @@ unless every specifier the fixture carries trips - one allowed specifier
 sneaking in would rot the fixture's proof
 ([validated by](../../scripts/check-forbidden-imports.mjs#L88)). The check
 runs as the named `ci.yml` step "Forbidden import check"
-([validated by](../../.github/workflows/ci.yml#L51)). It is static on top of,
+([validated by](../../.github/workflows/ci.yml#L54)). It is static on top of,
 not instead of, the dynamic `node_modules` scan in `consumer-app.sh`: a grep
 misses a transitively pulled-in package, and a `node_modules` scan misses a
 source import a bundler tree-shakes away.
@@ -285,23 +285,24 @@ source import a bundler tree-shakes away.
 The `consumer` job in `ci.yml` runs on every pull request (the workflow's
 unfiltered `pull_request` trigger), pins its actions to the same commit SHAs
 as the existing job with `persist-credentials: false`
-([validated by](../../.github/workflows/ci.yml#L117)), takes its setup from
+([validated by](../../.github/workflows/ci.yml#L133)), takes its setup from
 the shared `setup-node-install` composite action, which sets
-`node-version: "22"` ([validated by](../../.github/actions/setup-node-install/action.yml#L18)),
+Node from `.nvmrc` via `node-version-file` ([validated by](../../.github/actions/setup-node-install/action.yml#L19)),
 runs `npm ci --ignore-scripts`
-([validated by](../../.github/actions/setup-node-install/action.yml#L22)) and, because the job asks for it with
-`build: "true"` ([validated by](../../.github/workflows/ci.yml#L125)), an explicit
+([validated by](../../.github/actions/setup-node-install/action.yml#L23)) and, because the job asks for it with
+`build: "true"` ([validated by](../../.github/workflows/ci.yml#L141)), an explicit
 `npm run build` before packing
-([validated by](../../.github/actions/setup-node-install/action.yml#L26)), and installs Chromium
-with `npx playwright install --with-deps chromium`
-([validated by](../../.github/workflows/ci.yml#L128)). It omits
+([validated by](../../.github/actions/setup-node-install/action.yml#L27)), and runs the script as
+its `Consumer app check` step with no browser install step of its own - the
+script installs the demo's pinned Chromium itself
+([validated by](../../.github/workflows/ci.yml#L146)). It omits
 `fetch-depth: 0` on purpose: that exists for the spec anchor check, which
 this job does not run.
 
 `publish.yml` runs `scripts/consumer-app.sh` in its credential-free `verify`
 job, after `test:coverage` has built `dist/`; the `publish` job holds the
 OIDC credential, runs no example-app code, and only `needs:` that green
-result ([validated by](../../.github/workflows/publish.yml#L72)).
+result ([validated by](../../.github/workflows/publish.yml#L101)).
 
 ## Gates preserved
 
@@ -312,9 +313,9 @@ result ([validated by](../../.github/workflows/publish.yml#L72)).
   vitest's `exclude` gains `examples/**` so the Playwright suite - which
   matches the default spec glob - never runs under vitest
   ([validated by](../../vitest.config.ts#L12)).
-- `npm pack --dry-run` ships `dist/`, `package.json`, `LICENSE`, `README.md`
-  and nothing else, now executable-asserted on every consumer run
-  ([validated by](../../scripts/consumer-app.sh#L60)).
+- `npm pack --dry-run` ships `dist/`, `package.json`, `LICENSE`, `README.md`,
+  `THIRD-PARTY-NOTICES.md` and nothing else, now executable-asserted on every
+  consumer run ([validated by](../../scripts/consumer-app.sh#L60)).
 - No file under `src/` changed in the PR that introduced the demo - the one
   statement here with no executable anchor: its proof is that PR's diff
   itself, reviewable but not re-runnable.

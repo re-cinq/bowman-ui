@@ -371,6 +371,51 @@ describe("ChatComposer", () => {
       expect(button.querySelector("svg")).toHaveAttribute("aria-hidden", "true");
     });
   });
+
+  describe("focus after send", () => {
+    it("clicking the focused send button submits, disables send, and leaves the textarea as document.activeElement", () => {
+      const onSubmit = vi.fn();
+
+      render(<ChatComposer onSubmit={onSubmit} />);
+
+      typeDraft("Hvor er min booking?");
+      sendButtonOf().focus();
+      fireEvent.click(sendButtonOf());
+
+      expect(onSubmit).toHaveBeenCalledTimes(1);
+      expect(sendButtonOf()).toBeDisabled();
+      expect(document.activeElement).toBe(textareaOf());
+    });
+
+    it("Enter keeps the textarea as document.activeElement after the submit", () => {
+      render(<ChatComposer onSubmit={vi.fn()} />);
+
+      textareaOf().focus();
+      typeDraft("Hvor er min booking?");
+      fireEvent.keyDown(textareaOf(), { key: "Enter" });
+
+      expect(sendButtonOf()).toBeDisabled();
+      expect(document.activeElement).toBe(textareaOf());
+    });
+
+    it("an onSubmit that focuses an outside button wins: that button is document.activeElement after send", () => {
+      const elsewhereOf = (): HTMLButtonElement =>
+        screen.getByRole("button", { name: "Elsewhere" });
+
+      render(
+        <>
+          <button type="button">Elsewhere</button>
+          <ChatComposer onSubmit={() => elsewhereOf().focus()} />
+        </>
+      );
+
+      typeDraft("Hvor er min booking?");
+      fireEvent.click(sendButtonOf());
+
+      expect(sendButtonOf()).toBeDisabled();
+      expect(document.activeElement).toBe(elsewhereOf());
+    });
+  });
 });
 
 describe("the authored source (grep acceptance criteria)", () => {

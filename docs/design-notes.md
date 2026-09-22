@@ -237,10 +237,10 @@ typed
 `Partial<ChatMessageListLabels> & Required<Pick<ChatMessageListLabels, "aiDisclosure">>`.
 `IconButton` (§ Styled primitives) is the second component whose `labels`
 prop is required, typed `labels: IconButtonLabels`: its single key
-`accessibleName` is required, so it ships no `defaultIconButtonLabels` - an
-empty frozen object exported for ceremony. Decision 2's optional `labels?`
-shape reads subject to these two exceptions; every other key still defaults
-per key.
+`accessibleName` is required, so no `defaultIconButtonLabels` ships; nothing
+of that name exists, and an empty frozen object would be ceremony. Decision
+2's optional `labels?` shape reads subject to these two exceptions; every
+other key still defaults per key.
 
 **The three `stringPropOnly` exceptions** (every other string-carrying export
 takes `labels`):
@@ -567,17 +567,20 @@ Decisions:
    `dist/index.js` re-exports nothing from it. The reasons are mechanical:
    the focus-ring string is over 100 characters and appears at four sites in
    `ChatMessage.tsx` alone, so inlining it would trip
-   `sonarjs/no-duplicate-string` (threshold 3) inside a file and the jscpd 4 %
-   gate across the eleven files that import it. The module carries no `"use client"` (no
-   trigger under decision 1) and one-line comments only.
+   `sonarjs/no-duplicate-string` (threshold 3) inside a file and the jscpd
+   zero-clone gate (decision 12) across its importers. The module carries no
+   `"use client"` (no trigger under decision 1) and one-line comments only.
 5. **Active-row emphasis has its own pair, `--bowman-active` and
    `--bowman-active-dark`, with slate defaults.** The default stays neutral
-   and a theme may tint it, but only the two backgrounds are tokenised: the
-   row's label colours (`text-slate-900`, `dark:text-white` on the sidebar
-   item) stay palette-mapped. The constraint that follows is the consumer's
-   to honour: `--bowman-active` must stay a light surface in light mode and
-   `--bowman-active-dark` a dark one in dark mode, or the fixed label colour
-   loses its contrast.
+   and a theme may tint it. As first recorded only the two backgrounds were
+   tokenised and the row's label colours (`text-slate-900`, `dark:text-white`
+   on the sidebar item) stayed palette-mapped. Amended 2026-09-22 under issue
+   146, recording issue 102: the label reads `--bowman-text-strong` and its
+   `-dark` twin (decision 6), so the constraint that follows is the consumer's
+   to honour across two tokens:
+   `--bowman-active` must contrast with `--bowman-text-strong` in light mode
+   and `--bowman-active-dark` with `--bowman-text-strong-dark` in dark mode,
+   or the active label loses its contrast.
 6. **Neutral chrome: ten role pairs are tokenised, the long tail stays
    palette-mapped.** Amended 2026-09-10 (the first PR under issue 210 tokenised
    no neutral at all). A neutral site qualifies for a role when its light
@@ -760,6 +763,20 @@ Decisions:
     is whole. `tests/theming-tokens-dist.test.ts` pins which built component
     imports which role, so a site drifting back to a palette utility is a
     test failure, not a silent regression.
+    Amended 2026-09-22 under issue 155: the ring recipe the offset sites share -
+    `focus:outline-none focus:ring-2` beside `FOCUS_RING_COLOR` and `RING_OFFSET` -
+    is composed once as `FOCUS_RING` in `src/theme/focusRing.ts`, which does not
+    breach decision 4's single module: it declares no `--bowman-` literal
+    and no fallback, only a fragment of constants `tokens.ts` already exports,
+    and the barrel does not export it. `ring-offset-2` stays at each site
+    because it is not adjacent to the fragment everywhere, so every rendered
+    class string is byte-identical. `RING_OFFSET` is read by that module alone
+    (its component pin in the dist test is empty), and the same test pins the
+    module's two imports and its five importers - `AppShell`, `AppSidebar`,
+    `ConversationList`, `PromptChips` and `buttonStyles` - so a site drifting
+    back to a spelled-out ring is still a test failure. `ChatMessage`'s
+    page-ground rings, `SearchField` and the skip link share no offset and stay
+    as they are.
 
 ## Styled primitives
 
@@ -874,7 +891,7 @@ cannot pass a function across the client boundary - `AppShell`
 (`renderNavLink`, `onNavigate`, a `SidebarNavItem`'s `icon`), `Button` and
 `IconButton` (`onClick`, and the `icon` component), `ChatComposer`
 (`onSubmit`), `ChatMessage` and `ChatMessageList` (`onCopy`, `onFeedback`, the
-`assistantMessageFrom` label),
+`assistantMessageFrom` label, and on `ChatMessageList` alone `renderEntryFooter` and `describeTool`),
 `ConversationList` (`renderLink`, `onSelect`, `onDelete`, the
 `deleteConversation` label), `ErrorBoundary` (`onError`), `PromptChips`
 (`onPick`), `SearchField` (`onChange`), `Toast` (`onClose`) and
@@ -1129,7 +1146,9 @@ Decisions:
     fixture linting, focus-environment stubs), two scripts each carried their
     own `listSourceFiles`, and the workflow jobs repeated one setup block. The
     copies now live once, in `tests/helpers/`, `scripts/lib/` and the
-    `setup-node-install` composite action, and the gate holds the tree there:
+    `setup-node-install` composite action (issue 157 later folded three more
+    directory walks and the Lore scripts' Vitest report runner into the same
+    homes), and the gate holds the tree there:
     `path` is the repo, `threshold` is 0, and a red check is fixed only by
     extracting a helper. Three inputs are ignored because they are not code
     and cannot be deduplicated: `**/package-lock.json` (generated, the same

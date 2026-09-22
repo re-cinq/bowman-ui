@@ -77,7 +77,7 @@ const NEUTRAL_ROLE_READERS: Record<string, string[]> = {
     "buttonStyles",
   ],
   BORDER_MD: ["AppSidebar"],
-  RING_OFFSET: ["AppShell", "AppSidebar", "ConversationList", "PromptChips", "buttonStyles"],
+  RING_OFFSET: [],
   TEXT_BODY: [
     "AppShell",
     "AppSidebar",
@@ -306,5 +306,32 @@ describe("the built theming tokens", () => {
       expect(read(file), file).not.toMatch(assignment);
     }
     expect(stripDeclarationBlock(read(STYLESHEET))).not.toMatch(assignment);
+  });
+
+  it("dist/theme/focusRing.js composes FOCUS_RING from the tokens module's ring colour and offset, and exactly the five offset-ring components import it", () => {
+    const focusRingModule = read("dist/theme/focusRing.js");
+
+    expect(focusRingModule).toMatch(
+      /import \{\s*FOCUS_RING_COLOR,\s*RING_OFFSET\s*\} from "\.\/tokens\.js";/
+    );
+    expect(focusRingModule).not.toMatch(/use client|--bowman-/);
+    expect(read("dist/index.js")).not.toMatch(/theme\/focusRing/);
+
+    const readers = builtComponents()
+      .filter((file) =>
+        (read(file).match(/import \{([^}]*)\} from "\.\.\/theme\/focusRing\.js";/)?.[1] ?? "")
+          .split(",")
+          .map((name) => name.trim())
+          .includes("FOCUS_RING")
+      )
+      .map((file) => basename(file, ".js"));
+
+    expect(readers).toEqual([
+      "AppShell",
+      "AppSidebar",
+      "ConversationList",
+      "PromptChips",
+      "buttonStyles",
+    ]);
   });
 });

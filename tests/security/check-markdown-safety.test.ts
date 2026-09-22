@@ -18,8 +18,10 @@ const write = (root: string, path: string, content: string) => {
   writeFileSync(join(root, path), content);
 };
 
+const FROZEN_SCHEMES = 'Object.freeze(["https", "mailto", "tel"])';
+
 const cleanPolicy = `export const defaultMarkdownPolicy = Object.freeze({
-  allowedSchemes: Object.freeze(["https", "mailto", "tel"]),
+  allowedSchemes: ${FROZEN_SCHEMES},
   allowRelativeUrls: false,
   linkTarget: "_blank",
   allowImages: false,
@@ -128,6 +130,135 @@ describe("check-markdown-safety", () => {
       expect(result.stderr).toContain(scheme);
     }
   );
+
+  it.each([
+    ["a bare array", '["https", "mailto", "tel"]'],
+    ["a bare array as const", '["https", "mailto", "tel"] as const'],
+    ["a frozen array as const", 'Object.freeze(["https", "mailto", "tel"] as const)'],
+  ])("exits 0 when the default allowlist is %s", (_, value) => {
+    write(root, "src/markdown/urlPolicy.ts", cleanPolicy.replace(FROZEN_SCHEMES, value));
+
+    expect(run(root)).toMatchObject({ status: 0 });
+  });
+
+  it("exits 0 when the default allowlist is the last property without a trailing comma", () => {
+    write(
+      root,
+      "src/markdown/urlPolicy.ts",
+      `export const defaultMarkdownPolicy = Object.freeze({
+  allowImages: false,
+  allowedSchemes: ${FROZEN_SCHEMES}
+});
+`
+    );
+
+    expect(run(root)).toMatchObject({ status: 0 });
+  });
+
+  it("exits 1 when the default allowlist is declared twice in the policy object", () => {
+    write(
+      root,
+      "src/markdown/urlPolicy.ts",
+      cleanPolicy.replace(
+        FROZEN_SCHEMES,
+        `DEFAULT_SCHEMES,\n  // allowedSchemes: ${FROZEN_SCHEMES}`
+      )
+    );
+
+    const result = run(root);
+
+    expect(result).toMatchObject({ status: 1 });
+    expect(result.stderr).toContain("allowedSchemes must be declared exactly once");
+  });
+
+  it.each([
+    ["an identifier", "DEFAULT_SCHEMES"],
+    ["a spread", "Object.freeze([...DEFAULT_SCHEMES])"],
+    ["an array under another key", 'DEFAULT_SCHEMES,\n  extra: ["https"]'],
+    ["an array with a call chained after it", 'Object.freeze(["https"]).concat(["javascript"])'],
+  ])(
+    "exits 1 when the default allowlist is %s instead of an inline array of quoted literals",
+    (_, value) => {
+      write(root, "src/markdown/urlPolicy.ts", cleanPolicy.replace(FROZEN_SCHEMES, value));
+
+      const result = run(root);
+
+      expect(result).toMatchObject({ status: 1 });
+      expect(result.stderr).toContain(
+        "allowedSchemes must be an inline array of quoted string literals"
+      );
+    }
+  );
+
+  it("exits 1 and reports a banned literal beside a spread in the default allowlist", () => {
+    write(
+      root,
+      "src/markdown/urlPolicy.ts",
+      cleanPolicy.replace('["https"', '[...DEFAULT_SCHEMES, "javascript", "https"')
+    );
+
+    const result = run(root);
+
+    expect(result).toMatchObject({ status: 1 });
+    expect(result.stderr).toContain(
+      "allowedSchemes must be an inline array of quoted string literals"
+    );
+    expect(result.stderr).toContain('admits the dangerous scheme "javascript"');
+  });
+
+  it.each([
+    ["a hex escape", String.raw`"javascr\x69pt"`],
+    ["a unicode escape", String.raw`"javascr\u0069pt"`],
+  ])("exits 1 when the default allowlist hides javascript behind %s", (_, literal) => {
+    write(root, "src/markdown/urlPolicy.ts", cleanPolicy.replace('"tel"', `"tel", ${literal}`));
+
+    const result = run(root);
+
+    expect(result).toMatchObject({ status: 1 });
+    expect(result.stderr).toContain("allowedSchemes must not contain escape sequences");
+  });
+
+  it("exits 0 when the default allowlist key is quoted", () => {
+    write(
+      root,
+      "src/markdown/urlPolicy.ts",
+      cleanPolicy.replace("allowedSchemes:", '"allowedSchemes":')
+    );
+
+    expect(run(root)).toMatchObject({ status: 0 });
+  });
+
+  it.each([
+    ["a quoted key", `"allowedSchemes": ${FROZEN_SCHEMES.replace('"tel"', '"javascript"')}`],
+    [
+      "a quoted key after a prefixed key",
+      `unallowedSchemes: ${FROZEN_SCHEMES},\n  "allowedSchemes": ["javascript"]`,
+    ],
+  ])("exits 1 when %s admits javascript", (_, property) => {
+    write(
+      root,
+      "src/markdown/urlPolicy.ts",
+      cleanPolicy.replace(`allowedSchemes: ${FROZEN_SCHEMES}`, property)
+    );
+
+    const result = run(root);
+
+    expect(result).toMatchObject({ status: 1 });
+    expect(result.stderr).toContain('admits the dangerous scheme "javascript"');
+  });
+
+  it("exits 1 when only a prefixed key declares the default allowlist", () => {
+    write(
+      root,
+      "src/markdown/urlPolicy.ts",
+      cleanPolicy.replace("allowedSchemes:", "unallowedSchemes:")
+    );
+
+    const result = run(root);
+
+    expect(result).toMatchObject({ status: 1 });
+    expect(result.stderr).toContain("allowedSchemes must be declared exactly once");
+  });
 
   it("exits 2 when the tree has no urlPolicy.ts", () => {
     rmSync(join(root, "src/markdown/urlPolicy.ts"));

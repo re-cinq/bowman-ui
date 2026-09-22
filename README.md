@@ -98,7 +98,7 @@ The neutral chrome has its own roles - `--bowman-surface`, `--bowman-surface-hov
 A complete theme is the union of the two blocks above plus their `-dark` twins; the chat
 demo's `examples/chat-demo/src/custom-theme.css` is a worked example that sets all forty-four.
 
-Override none and the package resolves to the same Tailwind theme variables it used before the tokens existed, byte for byte - nothing declares a `--bowman-*` value, so there is no cascade to fight. Fourteen of the tokens form seven light/dark pairs (`--bowman-accent` and `--bowman-accent-dark`, `--bowman-focus-ring` and `--bowman-focus-ring-dark`, ...), the `-dark` half read by the components' `dark:` variants, so your build's dark-mode strategy applies to the tokens unchanged; set both halves for a theme that holds in both modes. The fifteenth, `--bowman-pulse-outline`, has no twin: the pulse keyframe paints one outline in both modes. `--bowman-active` colours only the active row's background while its label colours stay fixed, so keep it a light surface in light mode and `--bowman-active-dark` a dark one. The full table - every name, fallback and site - is in docs/design-notes.md § Theming.
+Override none and the package resolves to the same Tailwind theme variables it used before the tokens existed, byte for byte - nothing declares a `--bowman-*` value, so there is no cascade to fight. Forty-two of the tokens form twenty-one light/dark pairs (`--bowman-accent` and `--bowman-accent-dark`, `--bowman-focus-ring` and `--bowman-focus-ring-dark`, ...), the `-dark` half read by the components' `dark:` variants, so your build's dark-mode strategy applies to the tokens unchanged; set both halves for a theme that holds in both modes. Two have no twin: `--bowman-pulse-outline`, because the pulse keyframe paints one outline in both modes, and `--bowman-text-on-accent`, the one text colour on the accent surface in both modes. `--bowman-active` colours the active row's background and its label reads `--bowman-text-strong`, so keep `--bowman-active` in contrast with `--bowman-text-strong` in light mode and `--bowman-active-dark` with `--bowman-text-strong-dark` in dark mode. The full table - every name, fallback and site - is in docs/design-notes.md § Theming.
 
 ## Minimal app
 
@@ -223,7 +223,7 @@ A React server component cannot pass a function across the client boundary - `Ap
 (`renderSidebar`, `onMobileSidebarOpenChange`), `AppSidebar` (`renderNavLink`, `onNavigate`, a
 `SidebarNavItem`'s `icon`), `Button` and `IconButton` (`onClick`, and the `icon` component),
 `ChatComposer` (`onSubmit`), `ChatMessage` and `ChatMessageList` (`onCopy`, `onFeedback`, the
-`assistantMessageFrom` label), `ConversationList` (`renderLink`, `onSelect`, `onDelete`, the
+`assistantMessageFrom` label, and on `ChatMessageList` alone `renderEntryFooter` and `describeTool`), `ConversationList` (`renderLink`, `onSelect`, `onDelete`, the
 `deleteConversation` label), `ErrorBoundary` (`onError`), `PromptChips` (`onPick`), `SearchField`
 (`onChange`), `Toast` (`onClose`) and `ToolActivity` (`describeTool`) accept function-valued props,
 so an App Router consumer supplies those props from a `"use client"` file (measured on Next 16.3.3;

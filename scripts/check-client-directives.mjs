@@ -32,16 +32,17 @@
 //
 // Exits non-zero listing every violation on stderr.
 
-import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join, relative, resolve } from "node:path";
 import process from "node:process";
 import ts from "typescript";
+import { listSourceFiles } from "./lib/list-source-files.mjs";
 
 const HOOK_NAME = /^use[A-Z]/;
 const JSX_HANDLER = /^on[A-Z]/;
 
 // Measured with `node -e 'console.log(typeof <name>)'` probes: all eighteen
-// are undefined on Node v20.19.5. On v22.23.2 (what CI's node-version: "22"
+// are undefined on Node v20.19.5. On v22.23.2 (what CI's node-version-file: .nvmrc
 // resolves to today) navigator and WebSocket are defined - kept anyway as
 // silent-divergence cases: a server render that reaches them throws nothing,
 // which is exactly why the static check must carry them. DOM type names
@@ -273,31 +274,12 @@ const collectTriggers = (sourceFile) => {
   return [...new Set(triggers)];
 };
 
-const walk = (dir, extensions) => {
-  const files = [];
-
-  for (const entry of readdirSync(dir)) {
-    const fullPath = join(dir, entry);
-
-    if (statSync(fullPath).isDirectory()) {
-      files.push(...walk(fullPath, extensions));
-      continue;
-    }
-
-    if (extensions.some((extension) => entry.endsWith(extension))) {
-      files.push(fullPath);
-    }
-  }
-
-  return files;
-};
-
 const parsedFile = (file) => parse(file, readFileSync(file, "utf8"));
 
 const checkSourceDirection = (dir) => {
   const violations = [];
 
-  for (const file of walk(dir, [".ts", ".tsx"])) {
+  for (const file of listSourceFiles(dir, [".ts", ".tsx"])) {
     const path = relative(process.cwd(), file);
     const sourceFile = parsedFile(file);
     const errors = parseErrors(sourceFile);
@@ -321,7 +303,7 @@ const checkSourceDirection = (dir) => {
 const checkBuiltDirection = (srcDir, distDir) => {
   const violations = [];
 
-  for (const file of walk(srcDir, [".ts", ".tsx"])) {
+  for (const file of listSourceFiles(srcDir, [".ts", ".tsx"])) {
     if (!hasClientDirective(parsedFile(file))) {
       continue;
     }

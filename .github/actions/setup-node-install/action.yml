@@ -1,8 +1,8 @@
 name: Set up Node and install
 description: >-
-  The setup every job shares: Node 22 from the pinned setup-node with the npm
-  cache, then `npm ci --ignore-scripts`, then optionally the build. Checkout
-  stays in each job - a local action can only run once the tree is present.
+  The setup every job shares: the Node that .nvmrc names, from the pinned setup-node
+  with the npm cache, then `npm ci --ignore-scripts`, then optionally the build.
+  Checkout stays in each job - a local action can only run once the tree is present.
 
 inputs:
   build:
@@ -13,9 +13,10 @@ inputs:
 runs:
   using: composite
   steps:
+    # A file, not a literal: .nvmrc is the one place the Node major lives.
     - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
       with:
-        node-version: "22"
+        node-version-file: .nvmrc
         cache: npm
     - name: Install
       shell: bash

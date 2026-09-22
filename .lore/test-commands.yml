@@ -26,7 +26,7 @@
     preview - it exercises the packed tarball rather than the working tree.
     Needs Chromium: the run itself executes "npx playwright install
     --with-deps chromium" before the tests (on Linux --with-deps also installs
-    OS packages), and CI runs that same command as a separate step first. The
+    OS packages); CI adds no install step of its own. The
     suite runs whole: a {selector} is accepted and ignored - the run command
     contains no placeholder, so nothing is interpolated, and the script takes
     no argument but --keep. No list command, since the suite is not
