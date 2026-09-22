@@ -80,6 +80,51 @@ describe("ToolActivity", () => {
       expect(container.querySelector("img")).toBeNull();
       expect(container.textContent).toContain("<img src=x onerror=alert(1)>");
     });
+
+    const cyclic: Record<string, unknown> = {};
+
+    cyclic.self = cyclic;
+
+    it.each([
+      ["a BigInt", { n: 1n }],
+      ["a cycle", cyclic],
+      ["a toJSON yielding undefined", { toJSON: () => undefined }],
+      [
+        "a throwing toJSON",
+        {
+          toJSON: () => {
+            throw new Error("arguments withheld");
+          },
+        },
+      ],
+    ])(
+      "renders the toolInputUnavailable label in the closed disclosure instead of throwing when toolInput holds %s",
+      (_, toolInput) => {
+        const entry: ToolChatEntry = { id: "t3", role: "tool", toolName: "lookup", toolInput };
+        const { container } = render(<ToolActivity entry={entry} showToolInput />);
+
+        expect(container.querySelector("details")?.open).toBe(false);
+        expect(container.querySelector("pre")?.textContent).toBe("Arguments could not be shown");
+      }
+    );
+
+    it("labels.toolInputUnavailable replaces the default fallback", () => {
+      const entry: ToolChatEntry = {
+        id: "t4",
+        role: "tool",
+        toolName: "lookup",
+        toolInput: { n: 1n },
+      };
+      const { container } = render(
+        <ToolActivity
+          entry={entry}
+          showToolInput
+          labels={{ toolInputUnavailable: "Argumenterne kan ikke vises" }}
+        />
+      );
+
+      expect(container.querySelector("pre")?.textContent).toBe("Argumenterne kan ikke vises");
+    });
   });
 
   describe("describeTool", () => {
@@ -170,12 +215,13 @@ describe("ToolActivity", () => {
       expect(screen.getByText("Detalles")).toBeInTheDocument();
     });
 
-    it("defaultToolActivityLabels is frozen with the three English strings", () => {
+    it("defaultToolActivityLabels is frozen with the four English strings", () => {
       expect(Object.isFrozen(defaultToolActivityLabels)).toBe(true);
       expect(defaultToolActivityLabels).toEqual({
         activity: "Looking something up",
         activityDone: "Looked something up",
         details: "Details",
+        toolInputUnavailable: "Arguments could not be shown",
       });
     });
   });

@@ -84,25 +84,26 @@ compiled by
 `showThinking` gates the mount, not the visibility, and defaults `false`: with
 the flag absent, `[user, thinking, assistant]` renders no `<details>` and none
 of the thinking content while the user and assistant entries render unchanged
-([validated by](../../tests/ChatMessageList.test.tsx#L1082),
-[L1072](../../tests/ChatMessageList.test.tsx#L1072)). With it true the same
+([validated by](../../tests/ChatMessageList.test.tsx#L1095),
+[L1085](../../tests/ChatMessageList.test.tsx#L1085)). With it true the same
 array renders exactly one collapsed `ThinkingTrace` between them.
 `reducedMotion` forwards to the trace, as does the resolved `thinkingTrace`
-label ([validated by](../../tests/ChatMessageList.test.tsx#L1140),
-[L1094](../../tests/ChatMessageList.test.tsx#L1094),
-[L1125](../../tests/ChatMessageList.test.tsx#L1125)).
+label ([validated by](../../tests/ChatMessageList.test.tsx#L1153),
+[L1107](../../tests/ChatMessageList.test.tsx#L1107),
+[L1138](../../tests/ChatMessageList.test.tsx#L1138)).
 
 `ChatMessageListLabels` gains `thinkingTrace` as a defaulted key, colliding
 with no key of `ChatMessageLabels`, `ThinkingIndicatorLabels` (`thinking`,
 `thinkingRegion`) or `ToolActivityLabels` (`activity`, `activityDone`,
-`details`), so `aiDisclosure` stays its only required key.
+`details`, `toolInputUnavailable`), so `aiDisclosure` stays its only required
+key.
 
 ## EU AI Act
 
 A reasoning trace is not a disclosure and does not substitute for one: a list
 holding a single thinking entry with `showThinking` true still renders the
 `aiDisclosure` band
-([validated by](../../tests/ChatMessageList.test.tsx#L1112)).
+([validated by](../../tests/ChatMessageList.test.tsx#L1125)).
 
 ## GDPR
 
@@ -148,9 +149,9 @@ finding that `processToolUseChunk` ignores suppression outright.
 
 `ThinkingTrace` sits in the `labelsProp` bucket with its own sentinel harness,
 and its sentinel labels cover every `defaultThinkingTraceLabels` key
-([validated by](../../tests/labelled-exports.test.tsx#L575),
+([validated by](../../tests/labelled-exports.test.tsx#L579),
 [L82](../../tests/labelled-exports.test.tsx#L82),
-[L415](../../tests/labelled-exports.test.tsx#L415)).
+[L416](../../tests/labelled-exports.test.tsx#L416)).
 
 ## Out of scope
 

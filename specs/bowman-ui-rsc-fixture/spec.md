@@ -35,7 +35,8 @@ the version under test is always the tarball `npm pack` just produced,
 executable-asserted before every run
 ([validated by](../../scripts/rsc-fixture.sh#L54)). `react` and `react-dom`
 are pinned at exactly `19.3.0`
-([validated by](../../examples/rsc-fixture/package.json#L11)), the version
+([validated by](../../examples/rsc-fixture/package.json#L11),
+[L12](../../examples/rsc-fixture/package.json#L12)), the version
 docs/design-notes.md decision 4 records as the one CI installs and the only
 one tested; the pin is held equal to that record, the README's claim, the
 root lockfile and the chat-demo pin by the version-consistency test
@@ -45,11 +46,11 @@ React build for parts of the App Router render, so the pin is a claim about
 what the fixture installs, not proof that stock `react@19.3.0` executed every
 server frame.
 
-`next` is pinned at exactly `16.3.3`
-([validated by](../../examples/rsc-fixture/package.json#L18)) - the latest
-`16.x` on the registry at implementation time, with no `^`.
+`next` is pinned at exactly `16.3.5`
+([validated by](../../examples/rsc-fixture/package.json#L18)) - `16.3.3` at
+implementation time, since moved by Dependabot's grouped bump, with no `^`.
 Turbopack is Next 16's default bundler and the fixture does not opt out: the
-measured build banner reads `Next.js 16.3.3 (Turbopack)`, and the config
+measured build banner reads `Next.js 16.3.5 (Turbopack)`, and the config
 carries no `--webpack`-equivalent nor any bundler key
 ([validated by](../../examples/rsc-fixture/next.config.ts#L3)). `typescript` is
 pinned at `7.0.2`, the same version `examples/chat-demo` pins; `next build`'s
@@ -129,7 +130,7 @@ mechanically with
 `AppSidebar`, `Button`, `ChatComposer`, `ChatMessage`, `ChatMessageList`,
 `ConversationList`, `ErrorBoundary`, `IconButton`, `PromptChips`,
 `SearchField`, `Toast`, `ToolActivity`
-([validated by](../../docs/design-notes.md#L888)), and the same sentence appears in
+([validated by](../../docs/design-notes.md#L891)), and the same sentence appears in
 the README ([validated by](../../README.md#L224)). `app/client/page.tsx` is
 the control: the same composition under `"use client"`, building green, so
 the rejection is attributable to the boundary and not to the components
@@ -152,7 +153,7 @@ regression here would surface the day a consumer tries the server idiom, not
 in this fixture.
 
 No `"react-server"` condition is added to `exports`; docs/design-notes.md records the
-refusal and its reason ([validated by](../../docs/design-notes.md#L868)).
+refusal and its reason ([validated by](../../docs/design-notes.md#L871)).
 
 ## The script
 
@@ -322,7 +323,7 @@ instead reachable the same way `consumer` is, as a `package.json` script
   the one exception in place, so the decision does not contradict the
   § RSC fixture section ([validated by](../../docs/design-notes.md#L163)); that
   section names `examples/rsc-fixture` as the only path in the repo
-  where `next` may appear ([validated by](../../docs/design-notes.md#L858)).
+  where `next` may appear ([validated by](../../docs/design-notes.md#L861)).
 - Observation, not a test-linked statement (no test can assert a property of
   the PR's own diff): no file under the library's `src/` changed in this PR -
   the fixture's own `examples/rsc-fixture/src/` is the issue's named path for

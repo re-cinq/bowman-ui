@@ -34,10 +34,10 @@ Every value export lands in one bucket of `tests/labelled-exports.test.tsx`
 ([validated by](../../tests/labelled-exports.test.tsx#L88),
 [L89](../../tests/labelled-exports.test.tsx#L89),
 [L90](../../tests/labelled-exports.test.tsx#L90),
-[L617](../../tests/labelled-exports.test.tsx#L617),
 [L621](../../tests/labelled-exports.test.tsx#L621),
-[L627](../../tests/labelled-exports.test.tsx#L627),
-[L633](../../tests/labelled-exports.test.tsx#L633)). The `noStrings` bucket holds `Button`,
+[L625](../../tests/labelled-exports.test.tsx#L625),
+[L631](../../tests/labelled-exports.test.tsx#L631),
+[L637](../../tests/labelled-exports.test.tsx#L637)). The `noStrings` bucket holds `Button`,
 `defaultPromptChipsLabels` and `defaultSearchFieldLabels`
 ([validated by](../../tests/labelled-exports.test.tsx#L132),
 [L144](../../tests/labelled-exports.test.tsx#L144),
@@ -141,13 +141,13 @@ export const IconButton: ForwardRefExoticComponent<
 - `labels` is required and `IconButtonLabels` has no defaults object: the accessible name is the
   component's only string and no English default may stand in for it, the same reasoning as
   `aiDisclosure` (docs/design-notes.md § Labels decision 5). Omitting `labels` is a compile
-  error against the built package ([validated by](../../tests/labelled-exports.test.tsx#L617),
+  error against the built package ([validated by](../../tests/labelled-exports.test.tsx#L621),
   [L55](../../tests/types/primitives-type-assertions.tsx#L55),
   [L39](../../tests/primitives-dist.test.ts#L39)).
 - The accessible name goes through `labels`, never a string prop, so `IconButton` is a
   `labelsProp` member and the closed `stringPropOnly` list is untouched
   ([validated by](../../tests/labelled-exports.test.tsx#L88),
-  [L633](../../tests/labelled-exports.test.tsx#L633)).
+  [L637](../../tests/labelled-exports.test.tsx#L637)).
 
 ### `PromptChips`
 
@@ -284,7 +284,7 @@ by](../../tests/public-api.test.ts#L40),
 2. **`IconButton` ships no `defaultIconButtonLabels`.** Its one key is required, so the defaults
    object would be an empty frozen object exported for ceremony. `IconButton` therefore joins
    `ChatMessageList` as a component whose `labels` prop is itself required; docs/design-notes.md
-   § Labels records both ([validated by](../../tests/labelled-exports.test.tsx#L617),
+   § Labels records both ([validated by](../../tests/labelled-exports.test.tsx#L621),
    [L55](../../tests/types/primitives-type-assertions.tsx#L55),
    [L39](../../tests/primitives-dist.test.ts#L39)).
 3. **The `prompts` slot stays `ReactNode`.** Folding the chips into `ChatMessageList` (a
