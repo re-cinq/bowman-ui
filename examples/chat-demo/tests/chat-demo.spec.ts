@@ -87,7 +87,7 @@ test.describe("composing and replying", () => {
 });
 
 // issue 97: the reply the assistive-technology pass listens to. The
-// demo grows the last entry over 24 timed steps, so a screen reader has a
+// demo grows the last entry over 36 timed steps, so a screen reader has a
 // real streaming answer to announce (or not) rather than one array push.
 test.describe("streamed assistant reply", () => {
   test("the reply text is longer at 2.6s than at 0.9s and the full canned reply arrives", async ({
@@ -182,16 +182,19 @@ test.describe("copy toast", () => {
 
     await expect(toastPill).toBeVisible();
 
+    const shownAt = Date.now();
+
     await expect(page.getByText(toastCopiedMessage)).toHaveCount(0, {
       timeout: toastDurationMs + 3000,
     });
 
-    // The countdown starts after the click, so it cannot end before toastDurationMs has
-    // elapsed since clickedAt; the slack above bounds it from the other side.
-    const shownForMs = Date.now() - clickedAt;
+    const dismissedAt = Date.now();
 
-    expect(shownForMs).toBeGreaterThanOrEqual(toastDurationMs);
-    expect(shownForMs).toBeLessThan(toastDurationMs + 2500);
+    // The countdown starts after the click, so it cannot end before toastDurationMs has
+    // elapsed since clickedAt; measured from the pill being visible, a slow click on a
+    // contended runner cannot eat into the slack that bounds it from the other side.
+    expect(dismissedAt - clickedAt).toBeGreaterThanOrEqual(toastDurationMs);
+    expect(dismissedAt - shownAt).toBeLessThan(toastDurationMs + 2500);
   });
 });
 
@@ -439,8 +442,8 @@ test.describe("sticky scroll", () => {
     expect(await overflows(transcript)).toBe(true);
 
     // A delta landing between the write and its scroll event re-pins the reader, so the
-    // write repeats until it has held across two delta intervals - well inside the stream,
-    // so the guard below still sees a reply in progress.
+    // write repeats until it has held across two delta intervals. The window ends about
+    // three seconds before the stream commits, so the guard below sees a reply in progress.
     await expect
       .poll(
         async () => {

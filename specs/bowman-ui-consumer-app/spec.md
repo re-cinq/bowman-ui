@@ -206,11 +206,13 @@ own - a real timer in a real event loop, no fake timers anywhere in the suite.
 The dismissal is bounded on both sides against the screen's own
 `toastDurationMs` (`examples/chat-demo/src/toastDuration.ts`, the one number
 `App.tsx` mounts the `Toast` with): measured from the click, the toast lives
-at least that long and less than 2.5 s longer, so a toast dismissed at half the
-duration or lingering to twice it both fail where the former
+at least that long, and measured from the pill being visible it is gone less
+than 2.5 s later - so a slow click on a contended runner cannot eat the slack -
+and a toast dismissed at half the duration or lingering to twice it both fail
+where the former
 `toHaveCount(0, { timeout: 10_000 })` passed any duration under ten seconds
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L193),
-[L194](../../examples/chat-demo/tests/chat-demo.spec.ts#L194),
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L196),
+[L197](../../examples/chat-demo/tests/chat-demo.spec.ts#L197),
 [L183](../../examples/chat-demo/tests/chat-demo.spec.ts#L183)). The toast is
 located via its visible pill and its unmount, because `Toast` deliberately
 renders the message twice (an `aria-hidden` pill and a visually-hidden live
@@ -238,18 +240,18 @@ every labelled export.
 
 The resolved `aiDisclosure` is visible by exact text with entries present and
 in the empty state
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L233),
-[L206](../../examples/chat-demo/tests/chat-demo.spec.ts#L206)). The obligation
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L236),
+[L209](../../examples/chat-demo/tests/chat-demo.spec.ts#L209)). The obligation
 applies regardless of server location because the agent serves EU users. The
 disclosure sits outside the scrollable region - it is not a descendant of the
 `role="log"` region and stays in the viewport with the transcript scrolled to
 either end
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L225),
-[L210](../../examples/chat-demo/tests/chat-demo.spec.ts#L210)). The transcript
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L228),
+[L213](../../examples/chat-demo/tests/chat-demo.spec.ts#L213)). The transcript
 is first asserted to overflow (`scrollHeight > clientHeight`), so the two
 `scrollTop` writes move something rather than being no-ops on a fixture that
 fits the viewport
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L220)).
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L223)).
 
 ### Mobile drawer focus trap
 
@@ -257,15 +259,15 @@ At a 375x667 viewport the drawer starts closed, the hamburger opens it, `Tab`
 from the last focusable element inside it returns to the first, and `Escape`
 closes it and returns focus to the hamburger - the first execution of the focus
 trap where `offsetParent` is a real value rather than the jsdom shim
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L257),
-[L261](../../examples/chat-demo/tests/chat-demo.spec.ts#L261),
-[L272](../../examples/chat-demo/tests/chat-demo.spec.ts#L272),
-[L275](../../examples/chat-demo/tests/chat-demo.spec.ts#L275)). The test waits
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L260),
+[L264](../../examples/chat-demo/tests/chat-demo.spec.ts#L264),
+[L275](../../examples/chat-demo/tests/chat-demo.spec.ts#L275),
+[L278](../../examples/chat-demo/tests/chat-demo.spec.ts#L278)). The test waits
 for the trap to have focused the close button before moving focus itself: the
 trap focuses a frame after opening, and a test that focused the last element
 before that frame let the trap's own focus land second and the `Tab` move on
 past the close button - two of three local runs failed that way
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L267)).
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L270)).
 
 ### Browser-only behaviour (issue 151)
 
@@ -283,27 +285,27 @@ in `specs/bowman-ui-theming-tokens/spec.md`, the reveals in
 - A reader who scrolls the transcript to the top mid-stream is still at the
   top when the reply commits, and a reader left at the bottom is within a
   pixel of it - real `scrollHeight`, real `scrollTo`
-  ([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L428),
-  [L465](../../examples/chat-demo/tests/chat-demo.spec.ts#L465)).
+  ([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L431),
+  [L468](../../examples/chat-demo/tests/chat-demo.spec.ts#L468)).
 - An assistant entry's action row and a conversation row's delete button have
   computed opacity `0` at rest and `1` on hover or when focus enters them; the
   demo wires `ConversationList`'s `onDelete`, so `Enter` on the revealed
   delete button removes the row and its entries, and deleting the current
-  conversation makes the first remaining one current ([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L486),
-  [L511](../../examples/chat-demo/tests/chat-demo.spec.ts#L511),
+  conversation makes the first remaining one current ([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L489),
+  [L514](../../examples/chat-demo/tests/chat-demo.spec.ts#L514),
   [App](../../examples/chat-demo/src/App.tsx#L196)).
 - `Tab` on a fresh load reaches the skip link first, and `Enter` on it sends
   the next `Tab` inside `main`
-  ([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L546)).
+  ([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L549)).
 - With the drawer open at 375px and the viewport then grown to 1024px, three
   `Tab`s each move focus forward through `main` and never into the hidden
   drawer
-  ([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L584)).
+  ([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L587)).
 - Under `prefers-reduced-motion: reduce` a thinking dot's computed
   `animation-name` is `none` and the drawer's `transition-duration` is `0s`,
   against `bowman-fade-dot` and `0.3s` without the emulation
-  ([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L621),
-  [L635](../../examples/chat-demo/tests/chat-demo.spec.ts#L635)).
+  ([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L624),
+  [L638](../../examples/chat-demo/tests/chat-demo.spec.ts#L638)).
 - Under the dark colour scheme the enabled send button and the composer
   surface resolve to the `-dark` fallbacks, which differ from the light shades
   ([validated by](../../examples/chat-demo/tests/theming.spec.ts#L298)).

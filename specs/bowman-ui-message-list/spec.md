@@ -106,8 +106,8 @@ default ([validated by](../../tests/ChatMessageList.test.tsx#L214)).
    [append while pinned](../../tests/ChatMessageList.test.tsx#L637),
    [L744](../../tests/ChatMessageList.test.tsx#L744),
    [L760](../../tests/ChatMessageList.test.tsx#L760),
-   [browser](../../examples/chat-demo/tests/chat-demo.spec.ts#L428),
-   [L465](../../examples/chat-demo/tests/chat-demo.spec.ts#L465)).
+   [browser](../../examples/chat-demo/tests/chat-demo.spec.ts#L431),
+   [L468](../../examples/chat-demo/tests/chat-demo.spec.ts#L468)).
 3. **Smooth on append, instant on delta, always instant under reduced
    motion.** `behavior: "smooth"` when `entries.length` grew, `"auto"` when
    only content changed, and `useReducedMotion(reducedMotion)` (021's hook)
