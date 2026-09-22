@@ -246,29 +246,29 @@ The `rsc` job in `ci.yml` runs on every pull request (the workflow's
 unfiltered `pull_request` trigger) beside `032`'s `consumer` job. It pins
 its actions to the same commit SHAs as the existing jobs with
 `persist-credentials: false`
-([validated by](../../.github/workflows/ci.yml#L140)) - the issue text
+([validated by](../../.github/workflows/ci.yml#L158)) - the issue text
 named the older `v6`/`v4` SHAs from before this repo moved to `v7` pins;
 the existing file's style wins and the deviation is recorded here - and
 takes its setup from the shared `setup-node-install` composite action, which
-sets `node-version: "22"` ([validated by](../../.github/actions/setup-node-install/action.yml#L18)),
+reads Node from `.nvmrc` via `node-version-file` ([validated by](../../.github/actions/setup-node-install/action.yml#L19)),
 runs `npm ci --ignore-scripts`
-([validated by](../../.github/actions/setup-node-install/action.yml#L22)) and, because the job asks for it with
-`build: "true"` ([validated by](../../.github/workflows/ci.yml#L148)), an explicit
+([validated by](../../.github/actions/setup-node-install/action.yml#L23)) and, because the job asks for it with
+`build: "true"` ([validated by](../../.github/workflows/ci.yml#L166)), an explicit
 `npm run build` before packing
-([validated by](../../.github/actions/setup-node-install/action.yml#L26)), then runs the green
+([validated by](../../.github/actions/setup-node-install/action.yml#L27)), then runs the green
 case and the `--expect-failure` case as separately named steps
-([validated by](../../.github/workflows/ci.yml#L149),
-[the red step](../../.github/workflows/ci.yml#L151)).
+([validated by](../../.github/workflows/ci.yml#L167),
+[the red step](../../.github/workflows/ci.yml#L169)).
 
 The same job re-runs the three next-absence checks, unmodified:
 `check-forbidden-imports.mjs`
-([validated by](../../.github/workflows/ci.yml#L153)), `018`'s manifest grep
+([validated by](../../.github/workflows/ci.yml#L171)), `018`'s manifest grep
 with the `node_modules/next` probe
-([validated by](../../.github/workflows/ci.yml#L155)), and `032`'s
+([validated by](../../.github/workflows/ci.yml#L173)), and `032`'s
 node_modules `find` - which issue 100 moved into
 `scripts/scan-forbidden-node-modules.sh` so this job and `consumer-app.sh`
 share one copy of the pattern rather than drifting
-([validated by](../../.github/workflows/ci.yml#L163)). One honest caveat,
+([validated by](../../.github/workflows/ci.yml#L184)). One honest caveat,
 recorded instead of dressed up: the `find` cannot run against the fixture's
 own installed tree, which contains `next` by design - the `consumer` job
 remains its executable home for the consumer tree, and here the identical
@@ -279,7 +279,7 @@ the three checks carries a pointer comment at its home naming the
 exemption: `check-forbidden-imports.mjs`
 ([validated by](../../scripts/check-forbidden-imports.mjs#L11)), the
 `next must be absent` step
-([validated by](../../.github/workflows/ci.yml#L108)), and the shared
+([validated by](../../.github/workflows/ci.yml#L119)), and the shared
 node_modules scan
 ([validated by](../../scripts/scan-forbidden-node-modules.sh#L6)).
 
@@ -287,7 +287,7 @@ node_modules scan
 job, after `test:coverage` has built `dist/` and before the `publish` job
 that `needs:` its green result may start, against the tarball packed from the
 tagged commit - the same release-candidate gate `011` and `032` install
-([validated by](../../.github/workflows/publish.yml#L78)). Green mode only:
+([validated by](../../.github/workflows/publish.yml#L107)). Green mode only:
 the `--expect-failure` branch guards the repo's own `dist/` directives,
 which CI already gated on the same commit, and a release run should not
 spend a second `next build` re-proving the guard rather than the release.

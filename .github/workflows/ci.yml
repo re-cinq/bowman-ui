@@ -20,14 +20,16 @@ permissions:
   contents: read
 
 jobs:
+  # Required status check on main: branch protection names this job, so a
+  # rename silently drops the gate.
   build-test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-          # The spec anchor check resolves origin/main content; the repo is
-          # private, so a later unauthenticated fetch cannot bring it in.
+          # The spec anchor check reads the base branch's copy of every cited
+          # file, which a single-commit checkout does not carry.
           fetch-depth: 0
       - uses: ./.github/actions/setup-node-install
       - name: Lint (--max-warnings 0)
@@ -40,9 +42,10 @@ jobs:
       - name: Typecheck
         run: npm run typecheck
       # test:coverage runs the build itself, so dist/ is fresh for the
-      # directive check without a second build step.
+      # directive check without a second build step. The JSON report it writes
+      # beside the default reporter feeds the Lore list check below.
       - name: Test (coverage gate)
-        run: npm run test:coverage
+        run: npm run test:coverage -- --reporter=default --reporter=json --outputFile.json="$RUNNER_TEMP/vitest-report.json"
       - name: Client directive check
         run: node scripts/check-client-directives.mjs
       # Issue 82: the tree-wide static import ban (auth SDK, data-fetching,
@@ -75,11 +78,15 @@ jobs:
         run: npm run check:at-pass -- --structure
       # specs' [validated by](...#Lnn) anchors drift silently when any cited
       # repository file gains or loses lines (issues 36 and 37). Fails
-      # when an anchor no longer points at the line content it cited on main; a
-      # red check is fixed with
+      # when an anchor no longer points at the line content it cited on the
+      # base branch; a red check is fixed with
       # `node scripts/repoint-spec-anchors.mjs`.
       - name: Spec anchor check
-        run: node scripts/repoint-spec-anchors.mjs --check origin/main
+        env:
+          # A stacked PR is checked against its own base, not main; push and
+          # workflow_dispatch runs carry no base_ref and fall back to main.
+          BASE_REF: ${{ github.base_ref || 'main' }}
+        run: node scripts/repoint-spec-anchors.mjs --check "origin/$BASE_REF"
       # Issue 2, the other half of the anchor check above: a `[validated by]`
       # link counts as coverage only in its statement's TRAILING parenthetical,
       # so one written mid-statement is dropped upstream in silence and the spec
@@ -97,23 +104,32 @@ jobs:
         run: npm run check:spec-status
       # The Lore test-command interface must not drift from the scripts it
       # wraps: the committed list command has to keep emitting a parseable
-      # JSON array (issue 189).
+      # JSON array (issue 189). --report maps the coverage run's own report
+      # instead of building and running the whole suite a second time; the
+      # command's own build-and-run branch is pinned by its unit test.
       - name: Lore list command emits parseable JSON
-        run: node scripts/lore-list-tests.mjs | jq -e 'type == "array" and length > 0' > /dev/null
+        run: node scripts/lore-list-tests.mjs --report "$RUNNER_TEMP/vitest-report.json" | jq -e 'type == "array" and length > 0' > /dev/null
       # docs/design-notes.md decision 4: next is no dependency of the published
       # package. Prove it against the installed tree, not just the manifest.
       # Both probes read the repo root only, so examples/rsc-fixture - the one
       # path where next may appear (§ RSC fixture) - is outside
       # their scope by construction; the exemption changes nothing here.
+      # An if, not `! grep`: bash -e ignores a negated pipeline, so `! grep`
+      # only gated while it was the last line of the step.
       - name: next must be absent
         run: |
           test ! -d node_modules/next
-          ! grep -E '"next"[[:space:]]*:' package.json
+          if grep -qE '"next"[[:space:]]*:' package.json; then
+            echo "next is declared in package.json"
+            exit 1
+          fi
 
   # Issue 82: the packed-tarball consumer proof. Builds the package, packs it,
   # installs the tarball into a temp copy of examples/chat-demo outside the
   # repo tree and runs the real-Chromium Playwright suite against vite
   # preview. No fetch-depth: 0 - this job runs no spec anchor check.
+  # Required status check on main: branch protection names this job, so a
+  # rename silently drops the gate.
   consumer:
     runs-on: ubuntu-latest
     steps:
@@ -123,10 +139,10 @@ jobs:
       - uses: ./.github/actions/setup-node-install
         with:
           build: "true"
-      # OS-level browser dependencies for the runner; the script installs the
-      # Chromium build matching the demo's pinned @playwright/test itself.
-      - name: Install chromium
-        run: npx playwright install --with-deps chromium
+      # No browser install step here: the script runs `npx playwright install
+      # --with-deps chromium` itself against the demo's pinned @playwright/test,
+      # OS-level dependencies included. A root install would resolve the latest
+      # playwright from the registry and install a second Chromium.
       - name: Consumer app check
         run: ./scripts/consumer-app.sh
 
@@ -137,6 +153,8 @@ jobs:
   # The --expect-failure step proves the guard goes red when a dist directive
   # is stripped. The three next-absence checks run here too, unmodified,
   # beside the one place next is allowed to appear.
+  # Required status check on main: branch protection names this job, so a
+  # rename silently drops the gate.
   rsc:
     runs-on: ubuntu-latest
     steps:
@@ -155,7 +173,10 @@ jobs:
       - name: next must be absent (unchanged, beside the fixture)
         run: |
           test ! -d node_modules/next
-          ! grep -E '"next"[[:space:]]*:' package.json
+          if grep -qE '"next"[[:space:]]*:' package.json; then
+            echo "next is declared in package.json"
+            exit 1
+          fi
       # The consumer job's dynamic scan cannot run against the fixture's own
       # installed tree - that tree contains next by design. Running the same
       # find against this job's repo install proves the exemption stays

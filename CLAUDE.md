@@ -33,7 +33,7 @@ ESM-only (`"type": "module"`, no CJS). `exports`: `"."` → `dist/index.js`, `".
 testing claim, not a technical floor (docs/design-notes.md decision 4). Runtime deps: only `react-markdown` +
 `remark-gfm`. Node `>=20.9.0` published floor — the lowest Node the package is exercised under
 (the rsc-fixture's `next` floor; the shipped `dist/` is browser code with no `node:` builtins).
-Dev pins 22 via `.nvmrc`; CI pins 22 by literal `node-version: "22"` in `.github/`. Vitest 4 +
+Dev pins 22 via `.nvmrc`; CI reads the same file through `node-version-file: .nvmrc` in `.github/`. Vitest 4 +
 jsdom + Testing Library. Consumers require Tailwind v4.
 Prettier: `printWidth` 100, double quotes, semicolons (.prettierrc).
 

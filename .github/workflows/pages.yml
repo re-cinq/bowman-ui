@@ -65,10 +65,11 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+      # The same setup every ci.yml job takes: Node from .nvmrc, `npm ci
+      # --ignore-scripts` from the lockfile, then the explicit library build.
+      - uses: ./.github/actions/setup-node-install
         with:
-          node-version: "22"
-          cache: npm
+          build: "true"
       # Reads the repository's Pages settings and reports the path the site is
       # served from - "/bowman-ui" for a project site. Deriving it beats
       # hardcoding the repository name in the vite config. Skipped on pull
@@ -77,18 +78,17 @@ jobs:
       - uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
         id: pages
         if: github.event_name != 'pull_request'
-      - name: Install
-        run: npm ci --ignore-scripts
-      - name: Build the library
-        run: npm run build
       - name: Pack the library
         run: echo "tarball=$(npm pack --pack-destination "$RUNNER_TEMP" | tail -n 1)" >> "$GITHUB_OUTPUT"
         id: pack
+      # From the demo's own lockfile, the way consumer-app.sh installs it: a
+      # plain npm install resolves live and can diverge from the tree the
+      # consumer check proved.
       - name: Install the demo's dependencies
-        run: npm install --no-fund --no-audit
+        run: npm ci --no-fund --no-audit --ignore-scripts
         working-directory: examples/chat-demo
       - name: Install the packed tarball by file path
-        run: npm install --no-fund --no-audit --no-save "$RUNNER_TEMP/${{ steps.pack.outputs.tarball }}"
+        run: npm install --no-fund --no-audit --ignore-scripts --no-save "$RUNNER_TEMP/${{ steps.pack.outputs.tarball }}"
         working-directory: examples/chat-demo
       # VITE_BASE_PATH is read by examples/chat-demo/vite.config.ts, which adds
       # the trailing slash Vite wants. Unset - every local run and every check

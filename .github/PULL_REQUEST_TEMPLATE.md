@@ -37,7 +37,7 @@
 ### Code Quality
 
 - [ ] Linting passes (`npm run lint`)
-- [ ] TypeScript strict mode passes (`npm run type-check`)
+- [ ] TypeScript strict mode passes (`npm run typecheck`)
 - [ ] All tests pass (`npm test`)
 - [ ] Build succeeds (`npm run build`)
 - [ ] No console warnings or errors in output

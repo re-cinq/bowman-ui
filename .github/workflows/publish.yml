@@ -32,15 +32,44 @@ on:
     types: [published]
   workflow_dispatch:
 
+# One credentialled publish at a time, never cancelled mid-flight: a
+# half-staged version is registry state a human has to clean up. The group is
+# a constant on purpose - keyed by ref it would be one group per tag and
+# serialise nothing. GitHub keeps one pending run per group, so a third
+# release while one runs and one waits cancels the waiting one; re-run it.
+concurrency:
+  group: publish
+  cancel-in-progress: false
+
 # Least privilege by default: only the publish job opts into id-token: write.
 permissions:
   contents: read
 
 jobs:
+  # The cheap gate first: a malformed or prerelease tag - or a
+  # workflow_dispatch from a branch - fails here in seconds, before verify
+  # spends lint, tests, consumer and rsc on it. Both jobs below `needs:` this
+  # one; a skipped or failed job skips its dependents. Tags cut before the
+  # script grew --check (v0.1.0, v0.1.1) fail here on a workflow_dispatch
+  # re-run; both are published, so there is nothing to re-run.
+  release-tag:
+    if: ${{ !github.event.release.prerelease }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Release tag names a stable version
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name || github.ref_name }}
+        run: ./scripts/set-version-from-tag.sh --check "$RELEASE_TAG"
+
   # Every gate that runs third-party or example-app code lives here, in a job
   # that never sees the publish credential. The publish job below gates on it.
   verify:
-    if: ${{ !github.event.release.prerelease }}
+    needs: release-tag
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -66,9 +95,9 @@ jobs:
         run: npm run test:coverage
       # Issue 82: the last executable proof before the package goes public and
       # immutable - the packed tarball from this tagged commit must render the
-      # full chat screen in the standalone Vite consumer.
-      - name: Install chromium for the consumer check
-        run: npx playwright install --with-deps chromium
+      # full chat screen in the standalone Vite consumer. The script installs
+      # the demo's pinned Chromium itself; a root install would resolve the
+      # latest playwright from the registry.
       - name: Consumer app check
         run: ./scripts/consumer-app.sh
       # Issue 100: the App Router client-boundary proof against the tarball
@@ -79,9 +108,9 @@ jobs:
         run: ./scripts/rsc-fixture.sh
 
   publish:
-    # Gate the credentialled job on every verify gate. If any is red, the
-    # id-token job never starts, so the token is never minted.
-    needs: verify
+    # Gate the credentialled job on the tag gate and every verify gate. If any
+    # is red, the id-token job never starts, so the token is never minted.
+    needs: [release-tag, verify]
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -92,14 +121,16 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version: "22"
+          node-version-file: .nvmrc
           registry-url: "https://registry.npmjs.org"
       # Trusted publishing needs npm >= 11.5.1; `npm stage` needs >= 11.15.0.
+      # Pinned exactly: this job holds the credential, so nothing it installs
+      # may resolve live. Bump the pin by hand.
       - name: Upgrade npm for OIDC trusted publishing and staged publishing
-        run: npm install -g npm@^11.15.0
-      # The tag names the version. A malformed or prerelease tag fails here;
-      # a tag that repeats a published version fails at the registry, loudly,
-      # which is the right place for it.
+        run: npm install -g npm@11.19.1
+      # The tag names the version. A malformed or prerelease tag already failed
+      # release-tag; a tag that repeats a published version fails at the
+      # registry, loudly, which is the right place for it.
       - name: Set the version from the release tag
         env:
           RELEASE_TAG: ${{ github.event.release.tag_name || github.ref_name }}
