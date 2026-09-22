@@ -3,7 +3,7 @@
 | Field  | Value                                                                                             |
 | ------ | ------------------------------------------------------------------------------------------------- |
 | Issue  | issue 100 (the RSC fixture build docs/design-notes.md decision 1 calls "078's RSC fixture build") |
-| Status | Draft                                                                                             |
+| Status | In Progress                                                                                       |
 
 `examples/rsc-fixture` is the executable proof of the `"use client"`
 boundary: a standalone Next.js App Router app that installs
@@ -34,12 +34,16 @@ resolver refuses to guess at.
 the version under test is always the tarball `npm pack` just produced,
 executable-asserted before every run
 ([validated by](../../scripts/rsc-fixture.sh#L54)). `react` and `react-dom`
-are pinned at exactly `19.2.0`
+are pinned at exactly `19.3.0`
 ([validated by](../../examples/rsc-fixture/package.json#L11)), the version
-`018`'s record names as the only one CI installs. One caveat recorded rather
-than papered over: Next substitutes its own vendored React build for parts
-of the App Router render, so the pin is a claim about what the fixture
-installs, not proof that stock `react@19.2.0` executed every server frame.
+docs/design-notes.md decision 4 records as the one CI installs and the only
+one tested; the pin is held equal to that record, the README's claim, the
+root lockfile and the chat-demo pin by the version-consistency test
+([validated by](../../tests/react-version-consistency.test.ts#L54)). One
+caveat recorded rather than papered over: Next substitutes its own vendored
+React build for parts of the App Router render, so the pin is a claim about
+what the fixture installs, not proof that stock `react@19.3.0` executed every
+server frame.
 
 `next` is pinned at exactly `16.3.3`
 ([validated by](../../examples/rsc-fixture/package.json#L18)) - the latest
@@ -305,9 +309,9 @@ instead reachable the same way `consumer` is, as a `package.json` script
   thresholds ([validated by](../../vitest.config.ts#L25)); vitest's
   `exclude` already covered `examples/**`
   ([validated by](../../vitest.config.ts#L12)).
-- `npm pack --dry-run` ships `dist/`, `package.json`, `LICENSE`, `README.md`
-  and nothing from `examples/`, executable-asserted on every consumer run
-  ([validated by](../../scripts/consumer-app.sh#L60)).
+- `npm pack --dry-run` ships `dist/`, `package.json`, `LICENSE`, `README.md`,
+  `THIRD-PARTY-NOTICES.md` and nothing from `examples/`, executable-asserted on
+  every consumer run ([validated by](../../scripts/consumer-app.sh#L60)).
 - Next's build artifacts cannot leak into the gates: `.next/`,
   `next-env.d.ts` and `tsconfig.tsbuildinfo` are git-ignored
   ([validated by](../../.gitignore#L6), through

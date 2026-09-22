@@ -25,8 +25,14 @@ updates:
     labels:
       - "dependencies"
 
+  # The examples carry their own lockfiles (playwright and vite in chat-demo,
+  # next in rsc-fixture) and age silently unless they are scanned too; every
+  # policy below applies to all three directories.
   - package-ecosystem: "npm"
-    directory: "/"
+    directories:
+      - "/"
+      - "/examples/chat-demo"
+      - "/examples/rsc-fixture"
     schedule:
       interval: "weekly"
     commit-message:

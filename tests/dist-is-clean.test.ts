@@ -1,5 +1,6 @@
-import { readdirSync, statSync } from "node:fs";
+import { statSync } from "node:fs";
 import { join, relative, resolve } from "node:path";
+import { listFiles } from "./helpers/source-hygiene.js";
 
 // The build compiles into dist/ without cleaning it first - or did, until the
 // rm -rf this suite guards. tsc happily leaves output from deleted sources in
@@ -14,13 +15,6 @@ import { join, relative, resolve } from "node:path";
 // before it can ship.
 const root = process.cwd();
 
-const walk = (dir: string): string[] =>
-  readdirSync(dir).flatMap((entry) => {
-    const full = join(dir, entry);
-
-    return statSync(full).isDirectory() ? walk(full) : [full];
-  });
-
 const expectedSource = (builtFile: string): string[] => {
   const rel = relative(join(root, "dist"), builtFile);
 
@@ -34,7 +28,7 @@ const expectedSource = (builtFile: string): string[] => {
 
 describe("dist matches src", () => {
   it("every built file traces back to a source file - no stale artifacts ship", () => {
-    const built = walk(resolve(root, "dist"));
+    const built = listFiles(resolve(root, "dist"));
     const orphans = built.filter(
       (file) => !expectedSource(file).some((candidate) => candidateExists(candidate))
     );

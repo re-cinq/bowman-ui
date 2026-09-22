@@ -15,7 +15,7 @@ consulted:
 
 # ADR-003: Distribution and Documentation Publishing
 
-This ADR records how `bowman-ui` reaches its consumers: the npm registry is the only distribution channel for the package, published from GitHub Actions when a GitHub Release is created, over npm trusted publishing (OIDC) with a provenance attestation and no registry token stored anywhere. The component documentation and the chat fixture are a static site built from the packed tarball and served by GitHub Pages from the same repository. There is no container image, no orchestration and no server, because the library has no runtime backend and its demo has no data. The costs accepted are a release process that depends on a human step (the assistive-technology pass) and a first publish that must bootstrap the trusted publisher with a short-lived token.
+This ADR records how `bowman-ui` reaches its consumers: the npm registry is the only distribution channel for the package, published from GitHub Actions when a GitHub Release is created, over npm trusted publishing (OIDC) with a provenance attestation and no registry token stored anywhere. The component documentation and the chat fixture are a static site built from the packed tarball and served by GitHub Pages from the same repository. There is no container image, no orchestration and no server, because the library has no runtime backend and its demo has no data. The costs accepted are a release process that depends on human steps (a maintainer publishes the Release and approves the staged version on npmjs.com; the assistive-technology pass is a documented procedure, not a release gate) and a first publish that must bootstrap the trusted publisher with a short-lived token.
 
 ## Context
 

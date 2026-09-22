@@ -77,5 +77,5 @@ We have chosen **TypeScript** as the primary language and **React** as the UI fr
 
 ## Related Decisions
 
-- ADR-002: Build tooling and bundler selection (to follow).
-- ADR-003: Testing and documentation strategy (to follow).
+- [ADR-003: Distribution and Documentation Publishing](./ADR-003-deployment.md). No ADR-002 was
+  written; the build tooling is recorded in README.md § Development and docs/design-notes.md.

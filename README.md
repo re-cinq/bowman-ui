@@ -24,7 +24,7 @@ Every version is published from this repository's CI with npm provenance, so `np
 
 ## Requirements
 
-- React and React DOM `^19.0.0` as peer dependencies. That range is what the components are tested against (React 19.2) - it is not a claim of React 18 support.
+- React and React DOM `^19.0.0` as peer dependencies. That range is what the components are tested against (React 19.3.0) - it is not a claim of React 18 support.
 - Node.js `>=20.9.0` to consume the package (its published `engines` floor). Developing this repo needs `>=22`, pinned in `.nvmrc` and CI.
 
 ## Styles
@@ -223,7 +223,7 @@ A React server component cannot pass a function across the client boundary - `Ap
 (`renderSidebar`, `onMobileSidebarOpenChange`), `AppSidebar` (`renderNavLink`, `onNavigate`, a
 `SidebarNavItem`'s `icon`), `Button` and `IconButton` (`onClick`, and the `icon` component),
 `ChatComposer` (`onSubmit`), `ChatMessage` and `ChatMessageList` (`onCopy`, `onFeedback`, the
-`assistantMessageFrom` label), `ConversationList` (`renderLink`, `onSelect`, `onDelete`, the
+`assistantMessageFrom` label, and on `ChatMessageList` alone `renderEntryFooter` and `describeTool`), `ConversationList` (`renderLink`, `onSelect`, `onDelete`, the
 `deleteConversation` label), `ErrorBoundary` (`onError`), `PromptChips` (`onPick`), `SearchField`
 (`onChange`), `Toast` (`onClose`) and `ToolActivity` (`describeTool`) accept function-valued props,
 so an App Router consumer supplies those props from a `"use client"` file (measured on Next 16.3.3;

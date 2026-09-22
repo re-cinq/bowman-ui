@@ -52,10 +52,11 @@
 // repoints needs no manual fix and is not reported.
 
 import { execFileSync } from "node:child_process";
-import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, normalize } from "node:path";
 import process from "node:process";
 import { splitArgs } from "./lib/cli-args.mjs";
+import { listSpecDocs } from "./lib/spec-corpus.mjs";
 
 const TRACKED_PATH = String.raw`(?:\.\.\/)+(?:scripts\/[\w./-]+|[\w./-]+\.[A-Za-z]+)`;
 const ANCHOR = new RegExp(String.raw`(${TRACKED_PATH})#L(\d+)`, "g");
@@ -234,13 +235,9 @@ const resolveAnchor = (anchor, baselineLine, specDir) => {
   return { expectedLine: best[0] };
 };
 
-const specFiles = [
-  ...readdirSync(join(root, "specs"), { withFileTypes: true })
-    .filter((entry) => entry.isDirectory())
-    .map((entry) => `specs/${entry.name}/spec.md`)
-    .sort(),
-  ".specify/spec.md",
-].filter((spec) => existsSync(join(root, spec)));
+const specFiles = listSpecDocs(root, { includeSystemSpec: true }).filter((spec) =>
+  existsSync(join(root, spec))
+);
 
 let moved = 0;
 let upToDate = 0;

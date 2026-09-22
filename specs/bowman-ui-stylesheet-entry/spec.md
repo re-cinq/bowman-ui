@@ -9,29 +9,39 @@
 Tailwind v4 build cannot generate from a class name, and nothing else
 ([validated by](../../tests/styles.test.ts#L31)). The
 `"./styles.css"` export resolves to `dist/styles.css`, which the build script
-copies verbatim (`tsc` emits no assets, so `build` is
-`tsc -p tsconfig.json && cp src/styles.css dist/styles.css` - `cp` was chosen
-over a node script because CI and development both run on POSIX shells).
+copies verbatim: `tsc` emits no assets, so `build` is
+`rm -rf dist && node node_modules/typescript7/bin/tsc -p tsconfig.json && cp src/styles.css dist/styles.css`
+(README § Development names the compiler alias), with `cp` chosen over
+a node script because CI and development both run on POSIX shells.
 `dist/styles.css` ships in the tarball under the `sideEffects:
 ["*.css"]` seam `018` left open - already present, not re-added
 ([validated by](../../tests/styles.test.ts#L121),
 [L113](../../tests/styles.test.ts#L113),
-[L106](../../tests/styles.test.ts#L106)).
+[L106](../../tests/styles.test.ts#L106)). The leading `rm -rf dist` is
+load-bearing - `tsc` never cleans, and `files: ["dist"]` would ship whatever
+stale artifact survived - so every built file must trace back to a source
+file ([validated by](../../tests/dist-is-clean.test.ts#L36)).
 
 ## What ships
 
-Exactly three keyframes with their utility rules - `bowman-fade-in`,
-`bowman-fade-dot`, `bowman-pulse-subtle` - plus the `bowman-md-*` markdown
-element styling and an unconditional reduced-motion rule
+Exactly four keyframes with their utility rules - `bowman-fade-in`,
+`bowman-fade-dot` and `bowman-pulse-subtle` from this issue, plus
+`bowman-toast-fade-in`, which 025 added for the toast's centred fade (see
+`specs/bowman-ui-toast/spec.md` § The stylesheet) - alongside the `bowman-md-*`
+markdown element styling, the `bowman-sr-only` rule and an unconditional
+reduced-motion rule
 ([validated by](../../tests/styles.test.ts#L31),
-[L42](../../tests/styles.test.ts#L42)). All class and
+[L42](../../tests/styles.test.ts#L42),
+[L149](../../tests/styles.test.ts#L149)). All class and
 keyframe names carry the `bowman-` prefix so they cannot collide with a
 consumer's own `animate-*` utilities; the issue prescribed `.bowman-fade-in`
-for the split fade and the other two follow the same convention
+for the split fade and the other three follow the same convention
 ([validated by](../../tests/styles.test.ts#L31)). All rules are
 unlayered, so they win on plain specificity without depending on a
-consumer's `@layer` order. Since issue 210 the file opens with a thirty-nine-line comment
-block declaring each `--bowman-*` theming token and its default, and the 50 % stop of
+consumer's `@layer` order. Since issue 210 the copied `dist/styles.css` opens with a
+comment block declaring, one line per `--bowman-*` theming token, that token and
+its default
+([validated by](../../tests/theming-tokens-dist.test.ts#L189)). The 50 % stop of
 `bowman-pulse-subtle` reads `--bowman-accent-glow` and `--bowman-pulse-outline` with today's
 literals as fallbacks - the zero stop stays literal
 ([validated by](../../tests/styles.test.ts#L71)).
@@ -56,11 +66,11 @@ only; `Toast` keeps its centring in its own dedicated rule
 
 ## Reduced motion
 
-`@media (prefers-reduced-motion: reduce)` sets `animation: none` on all three
+`@media (prefers-reduced-motion: reduce)` sets `animation: none` on all four
 utility classes, with no `data-animations` attribute in any selector
 ([validated by](../../tests/styles.test.ts#L89)). No
 `NEXT_PUBLIC_FLAG_ANIMATIONS` escape hatch exists: flag plumbing belongs to
-a consumer ([validated by](../../tests/hooks-dist.test.ts#L71)).
+a consumer ([validated by](../../tests/hooks-dist.test.ts#L66)).
 
 ## The typography-plugin replacement
 
@@ -102,6 +112,12 @@ classes like `language-js` are merged rather than clobbered, and the
   `specs/bowman-ui-markdown-link-policy/spec.md`;
   [validated by](../../tests/markdown-components.test.tsx#L93),
   [tags](../../tests/markdown-components.test.tsx#L55)).
+- **Updated in place after 025 and the dist-clean guard.** 019 shipped three
+  keyframes and a plain `tsc && cp` build; 025 added `bowman-toast-fade-in`
+  (see `specs/bowman-ui-toast/spec.md`) and the guard pinned by
+  `tests/dist-is-clean.test.ts` put `rm -rf dist` in front of the build.
+  The counts and the build line above describe today's file rather than
+  carrying a superseded three.
 - **Markdown styling is color-neutral.** The `bowman-md-*` rules use
   `currentColor` and `color-mix(...)` for backgrounds and borders instead of
   palette colors, so they work under either dark-mode strategy without the
@@ -129,7 +145,8 @@ Both results, from Tailwind v4.3.3 compiling the fixture consumer:
   rule at all - v4 does not scan `node_modules` by default
   ([validated by](../../tests/tailwind-build.test.ts#L79)).
 - In both builds `@import "@re-cinq/bowman-ui/styles.css"` resolves through
-  the package `exports` map and inlines the three keyframes
+  the package `exports` map and inlines the stylesheet -
+  `@keyframes bowman-fade-in` appears in both compiled outputs
   ([validated by](../../tests/tailwind-build.test.ts#L83)).
 
 The README's Styles section documents the two consumer lines, names Tailwind
