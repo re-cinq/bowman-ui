@@ -30,8 +30,8 @@ closed drawer keep one exposed at a time; a bare render contains exactly one
 `<nav>`. `AppSidebar`
 sits in the `labelsProp` partition bucket
 ([partition](../../tests/labelled-exports.test.tsx#L87),
-[L22](../../tests/AppSidebar.test.tsx#L22),
-[L33](../../tests/AppSidebar.test.tsx#L33)). It passes the
+[validated by `renders one <aside> named "Sidebar" containing one <nav> named "Main navigation" by default`](../../tests/AppSidebar.test.tsx#L22),
+[validated by labels={{sidebar: "Panel lateral", mainNavigation: "Navegación principal"}} names both landmarks](../../tests/AppSidebar.test.tsx#L33)). It passes the
 sentinel render with both labels set to sentinels
 ([harness](../../tests/labelled-exports.test.tsx#L478),
 [coverage](../../tests/labelled-exports.test.tsx#L609)).
@@ -49,12 +49,12 @@ sentinel render with both labels set to sentinels
      the one with `isActive: true` alone carries `aria-current="page"` -
      announced, not merely background-coloured - and with no
      item marked, none does
-     ([validated by](../../tests/AppSidebar.test.tsx#L66),
-     [L78](../../tests/AppSidebar.test.tsx#L78)).
+     ([validated by three navItems render three items in order, each showing its label, and the isActive one alone carries aria-current="page"](../../tests/AppSidebar.test.tsx#L66),
+     [validated by with no item marked isActive, none carries aria-current](../../tests/AppSidebar.test.tsx#L78)).
    - Rows are keyed by `item.key`: reordering moves the same DOM nodes
-     ([validated by](../../tests/AppSidebar.test.tsx#L93)).
+     ([validated by items are keyed by item.key: reversing navItems moves the same DOM nodes instead of remounting them](../../tests/AppSidebar.test.tsx#L93)).
    - `navItems` omitted or `[]` renders no `<nav>` element at all
-     ([validated by](../../tests/AppSidebar.test.tsx#L106),
+     ([validated by `navItems omitted renders no <nav> element at all`](../../tests/AppSidebar.test.tsx#L106),
      [L112](../../tests/AppSidebar.test.tsx#L112)).
 3. **`renderNavLink(item, props)` is the routing seam; the default is
    `<button type="button" {...props} />`.**
@@ -66,52 +66,52 @@ sentinel render with both labels set to sentinels
    - The consumer's element must spread every prop it is handed -
      docs/design-notes.md § renderNavLink states it, pinned together with the anchor
      round-trip and the dropped-`onClick` failure mode
-     ([validated by](../../tests/AppSidebar.test.tsx#L152),
-     [L175](../../tests/AppSidebar.test.tsx#L175),
-     [L194](../../tests/AppSidebar.test.tsx#L194)).
+     ([validated by anchors carry the component's className and aria-current, and clicking one calls onNavigate with that key](../../tests/AppSidebar.test.tsx#L152),
+     [validated by a renderNavLink that spreads everything except onClick calls onNavigate zero times](../../tests/AppSidebar.test.tsx#L175),
+     [validated by the design notes' renderNavLink section requires the consumer to spread every prop](../../tests/AppSidebar.test.tsx#L194)).
    - Clicking an item calls `onNavigate` once with that item's `key`;
      `onNavigate` omitted, clicking throws nothing
-     ([validated by](../../tests/AppSidebar.test.tsx#L118),
-     [L129](../../tests/AppSidebar.test.tsx#L129)).
+     ([validated by clicking an item calls onNavigate once with "settings"](../../tests/AppSidebar.test.tsx#L118),
+     [validated by with onNavigate omitted, clicking an item throws nothing](../../tests/AppSidebar.test.tsx#L129)).
    - `icon` is an optional `ComponentType<{ className?: string }>` rendered at
      `h-5 w-5`; an item without one renders its label and no `<svg>` - the
      component imports no icon itself
-     ([validated by](../../tests/AppSidebar.test.tsx#L202),
-     [L212](../../tests/AppSidebar.test.tsx#L212)).
+     ([validated by an item with icon: ChatIcon renders that component with className "h-5 w-5"](../../tests/AppSidebar.test.tsx#L202),
+     [validated by `an item without icon renders its label and no <svg>`](../../tests/AppSidebar.test.tsx#L212)).
 4. **The middle region is `children`, wrapped in
    `flex min-h-0 flex-1 flex-col overflow-y-auto`.** The sidebar supplies
    growth and scrolling regardless of what's passed in - an unsized child is
    the one that grows, pinned by the wrapper's class list
-   ([validated by](../../tests/AppSidebar.test.tsx#L221)).
+   ([validated by children render inside a wrapper carrying flex min-h-0 flex-1 flex-col overflow-y-auto, so an unsized child is the one that grows](../../tests/AppSidebar.test.tsx#L221)).
 
    The region owns its text colour: it reads `--bowman-text-body`, so
    plain-string children read on the dark surface instead of inheriting the
-   page colour ([validated by](../../tests/AppSidebar.test.tsx#L277)).
+   page colour ([validated by the children scroll region carries the body text token, so plain-string children read on the dark surface](../../tests/AppSidebar.test.tsx#L277)).
 
 5. **The footer is one `footer?: ReactNode` slot inside a single `border-t`
    region, not four named slots.** User menu, org switcher, language picker
    and sign-in are all consumer-specific; a support customer has none of
    them. `footer` present renders exactly one `border-t` region; omitted,
-   no such region ([validated by](../../tests/AppSidebar.test.tsx#L236),
-   [L245](../../tests/AppSidebar.test.tsx#L245)).
+   no such region ([validated by `footer={<button>Log ud</button>} renders that node inside exactly one border-t region`](../../tests/AppSidebar.test.tsx#L236),
+   [validated by footer omitted renders no border-t region](../../tests/AppSidebar.test.tsx#L245)).
 
    The region owns its text colour: it reads `--bowman-text-body`, so a
    plain-string footer reads on the dark surface instead of inheriting the page
-   colour ([validated by](../../tests/AppSidebar.test.tsx#L286)).
+   colour ([validated by the footer region carries the body text token, so a plain-string footer reads on the dark surface](../../tests/AppSidebar.test.tsx#L286)).
 
 6. **The brand is a slot inside the bordered top row; omitted, no row
    renders at all** - no `h-14` row and no `border-b` above the navigation
-   ([validated by](../../tests/AppSidebar.test.tsx#L251),
-   [L261](../../tests/AppSidebar.test.tsx#L261)).
+   ([validated by `brand={<span>Acme Support</span>} renders it inside the bordered top row`](../../tests/AppSidebar.test.tsx#L251),
+   [validated by brand omitted renders no top row and no border-b above the navigation](../../tests/AppSidebar.test.tsx#L261)).
 
    The row owns its text colour: it reads `--bowman-text-body`, so a
    plain-string brand reads on the dark surface instead of inheriting the page
-   colour ([validated by](../../tests/AppSidebar.test.tsx#L268)).
+   colour ([validated by the brand row carries the body text token, so a plain-string brand reads on the dark surface](../../tests/AppSidebar.test.tsx#L268)).
 
    The active nav item reads `--bowman-text-strong` for its label and an inactive
    item takes the role's `hover:` variant (docs/design-notes.md § Theming decision 6),
    so a consumer recolours the strong nav text with the theme
-   ([validated by](../../tests/AppSidebar.test.tsx#L137)).
+   ([validated by the isActive item reads --bowman-active with the strong text token, an inactive item takes the strong hover token, and every item keeps focus:ring-2 beside the --bowman-focus-ring colour](../../tests/AppSidebar.test.tsx#L137)).
 
    One consequence carried over from 030 as shipped: in the mobile drawer the
    shell renders its own bordered 56px close-button row as a sibling above
@@ -125,7 +125,7 @@ sentinel render with both labels set to sentinels
    `flex-1 min-h-0` fills the remaining height and the drawer supplies width
    and border. At `md`+ the only position is the row-flex rail, where the
    aside pins its own `md:h-full md:w-64 md:flex-none md:border-r lg:w-72`
-   ([validated by](../../tests/AppSidebar.test.tsx#L44)).
+   ([validated by the aside grows in the 030 drawer and sizes itself in the rail: flex-1 min-h-0 below md, md:h-full md:w-64 md:flex-none md:border-r lg:w-72](../../tests/AppSidebar.test.tsx#L44)).
 
 ## GDPR
 
@@ -134,7 +134,7 @@ and customer names (`003-support-conversation-data-flow-record`). The
 component calls no `console.*`, no `fetch`, no `navigator.sendBeacon` and no
 `localStorage` or `sessionStorage`, and stores nothing outside React state -
 asserted by a source grep
-([validated by](../../tests/AppSidebar.test.tsx#L301)). The suite-wide
+([validated by `GDPR: the file calls no console.*, localStorage, sessionStorage, fetch, sendBeacon or analytics`](../../tests/AppSidebar.test.tsx#L301)). The suite-wide
 console spy stays at zero calls ([spy](../../tests/setup.ts#L58)).
 
 ## Build contract
@@ -143,9 +143,9 @@ The file imports nothing from `@clerk`, `swr`, `next-intl`, `next/`,
 `@/` or `lucide-react`, and every relative import ends in `.js`.
 `dist/components/AppSidebar.js` carries `"use client"` as its first statement
 and ships with its `.d.ts`
-([validated by](../../tests/app-sidebar-dist.test.ts#L7),
-[L11](../../tests/app-sidebar-dist.test.ts#L11),
-[L305](../../tests/AppSidebar.test.tsx#L305)). A key added to
+([validated by dist/components/AppSidebar.js opens with "use client"; as its first statement](../../tests/app-sidebar-dist.test.ts#L7),
+[validated by npm pack --dry-run ships dist/components/AppSidebar.js with its d.ts](../../tests/app-sidebar-dist.test.ts#L11),
+[validated by no @clerk, swr, next-intl, next/, @/ or lucide-react import, and every relative import ends in .js](../../tests/AppSidebar.test.tsx#L305)). A key added to
 `AppSidebarLabels` without a default cannot satisfy
 `Readonly<Required<AppSidebarLabels>>`
 ([validated by](../../tests/types/app-sidebar-type-assertions.tsx#L19)).

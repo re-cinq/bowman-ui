@@ -31,7 +31,7 @@ test is always the tarball `npm pack` just produced
 are pinned at exactly `19.3.0`
 ([validated by](../../examples/chat-demo/package.json#L15)), the version
 docs/design-notes.md decision 4 records as the one CI installs and the only one tested
-([validated by](../../tests/react-version-consistency.test.ts#L54)).
+([validated by is the same in decision 4, the README, the lockfile, the chat-demo pin and the rsc-fixture pin](../../tests/react-version-consistency.test.ts#L54)).
 
 The Tailwind dependency is `tailwindcss@4.3.3` with the matching
 `@tailwindcss/vite@4.3.3` Vite adapter
@@ -194,7 +194,7 @@ because role queries exclude the `display: none` copy at each viewport
 Typing into the composer and pressing Enter appends a user entry, and the
 fixture reply appends an assistant entry, with no data layer between the
 composer's submit handler and the list's entries
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L68)).
+([validated by Enter appends the typed user entry and the fixture assistant reply follows](../../examples/chat-demo/tests/chat-demo.spec.ts#L68)).
 
 Clicking copy on an assistant entry shows the toast, and it disappears on its
 own - a real timer in a real event loop, no fake timers anywhere in the suite.
@@ -217,7 +217,7 @@ One `getComputedStyle` assertion proves the consumer's Tailwind build scanned
 the installed `dist`: the `aside`'s `lg:w-72` - a class only the library's
 built files carry, never written by the demo - resolves to a computed width
 of `288px`
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L63)).
+([validated by the consumer Tailwind build scanned the installed dist](../../examples/chat-demo/tests/chat-demo.spec.ts#L63)).
 
 ### Zero English (superseded)
 
@@ -235,7 +235,7 @@ every labelled export.
 
 The resolved `aiDisclosure` is visible by exact text with entries present and
 in the empty state
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L236),
+([validated by the disclosure is visible in the empty state](../../examples/chat-demo/tests/chat-demo.spec.ts#L236),
 [L209](../../examples/chat-demo/tests/chat-demo.spec.ts#L209)). The obligation
 applies regardless of server location because the agent serves EU users. The
 disclosure sits outside the scrollable region - it is not a descendant of the
@@ -254,15 +254,15 @@ At a 375x667 viewport the drawer starts closed, the hamburger opens it, `Tab`
 from the last focusable element inside it returns to the first, and `Escape`
 closes it and returns focus to the hamburger - the first execution of the focus
 trap where `offsetParent` is a real value rather than the jsdom shim
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L260),
-[L264](../../examples/chat-demo/tests/chat-demo.spec.ts#L264),
-[L275](../../examples/chat-demo/tests/chat-demo.spec.ts#L275),
-[L278](../../examples/chat-demo/tests/chat-demo.spec.ts#L278)). The test waits
+([validated by the drawer starts closed, traps focus and closes on Escape](../../examples/chat-demo/tests/chat-demo.spec.ts#L260),
+[validated by the drawer starts closed, traps focus and closes on Escape](../../examples/chat-demo/tests/chat-demo.spec.ts#L264),
+[validated by the drawer starts closed, traps focus and closes on Escape](../../examples/chat-demo/tests/chat-demo.spec.ts#L275),
+[validated by the drawer starts closed, traps focus and closes on Escape](../../examples/chat-demo/tests/chat-demo.spec.ts#L278)). The test waits
 for the trap to have focused the close button before moving focus itself: the
 trap focuses a frame after opening, and a test that focused the last element
 before that frame let the trap's own focus land second and the `Tab` move on
 past the close button - two of three local runs failed that way
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L270)).
+([validated by the drawer starts closed, traps focus and closes on Escape](../../examples/chat-demo/tests/chat-demo.spec.ts#L270)).
 
 ### Browser-only behaviour (issue 151)
 
@@ -280,34 +280,34 @@ in `specs/bowman-ui-theming-tokens/spec.md`, the reveals in
 - A reader who scrolls the transcript to the top mid-stream is still at the
   top when the reply commits, and a reader left at the bottom is within a
   pixel of it - real `scrollHeight`, real `scrollTo`
-  ([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L431),
-  [L468](../../examples/chat-demo/tests/chat-demo.spec.ts#L468)).
+  ([validated by a reader who scrolls to the top mid-stream is still at the top when the reply commits](../../examples/chat-demo/tests/chat-demo.spec.ts#L431),
+  [validated by a reader left at the bottom is still at the bottom when the reply commits](../../examples/chat-demo/tests/chat-demo.spec.ts#L468)).
 - An assistant entry's action row and a conversation row's delete button have
   computed opacity `0` at rest and `1` on hover or when focus enters them; the
   demo wires `ConversationList`'s `onDelete`, so `Enter` on the revealed
   delete button removes the row and its entries, and deleting the current
-  conversation makes the first remaining one current ([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L489),
-  [L514](../../examples/chat-demo/tests/chat-demo.spec.ts#L514),
+  conversation makes the first remaining one current ([validated by an assistant entry's action row is invisible at rest and revealed by hover or by focus](../../examples/chat-demo/tests/chat-demo.spec.ts#L489),
+  [validated by the current conversation's delete button is invisible at rest, revealed on focus, and Enter removes the row and moves the current mark](../../examples/chat-demo/tests/chat-demo.spec.ts#L514),
   [App](../../examples/chat-demo/src/App.tsx#L196)).
 - `Tab` on a fresh load reaches the skip link first, and `Enter` on it sends
   the next `Tab` inside `main`
-  ([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L549)).
+  ([validated by Tab reaches the skip link first, and Enter on it sends the next Tab inside main](../../examples/chat-demo/tests/chat-demo.spec.ts#L549)).
 - With the drawer open at 375px and the viewport then grown to 1024px, three
   `Tab`s each move focus forward through `main` and never into the hidden
   drawer
-  ([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L587)).
+  ([validated by after the viewport grows to desktop, three Tabs advance through main, never the drawer](../../examples/chat-demo/tests/chat-demo.spec.ts#L587)).
 - Under `prefers-reduced-motion: reduce` a thinking dot's computed
   `animation-name` is `none` and the drawer's `transition-duration` is `0s`,
   against `bowman-fade-dot` and `0.3s` without the emulation
-  ([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L624),
+  ([validated by the thinking dots animate by default and stop under prefers-reduced-motion](../../examples/chat-demo/tests/chat-demo.spec.ts#L624),
   [L638](../../examples/chat-demo/tests/chat-demo.spec.ts#L638)).
 - Under the dark colour scheme the enabled send button and the composer
   surface resolve to the `-dark` fallbacks, which differ from the light shades
-  ([validated by](../../examples/chat-demo/tests/theming.spec.ts#L298)).
+  ([validated by the send button and the composer's surface resolve to the dark palette fallbacks](../../examples/chat-demo/tests/theming.spec.ts#L298)).
 - The documentation gains a `search-field` page with a `SearchFieldExample`,
   and Chromium's native clear control and `Escape` both empty the controlled
   field through `onChange("")`
-  ([validated by](../../examples/chat-demo/tests/docs.spec.ts#L175)).
+  ([validated by typing narrows the example's count, and the native clear control and Escape empty the field through onChange](../../examples/chat-demo/tests/docs.spec.ts#L175)).
 
 Each of these was shown red against a deliberately broken condition before
 this record (the unpin removed, the reveal classes dropped, the skip link's

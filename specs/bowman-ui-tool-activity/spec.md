@@ -24,8 +24,8 @@ done; `ChatMessageList` filtered it out until this issue.
 serialised, `"Arguments could not be shown"`, decision 6) - with
 `defaultToolActivityLabels` frozen over the four English strings, resolved per
 key by the convention's `resolveLabels`
-([validated by](../../tests/ToolActivity.test.tsx#L211),
-[L225](../../tests/ToolActivity.test.tsx#L225)).
+([validated by resolves overrides over the English defaults per key](../../tests/ToolActivity.test.tsx#L211),
+[validated by defaultToolActivityLabels is frozen with the four English strings](../../tests/ToolActivity.test.tsx#L225)).
 
 ## The decisions
 
@@ -38,19 +38,19 @@ key by the convention's `resolveLabels`
    `showToolInput` opts the arguments in; both default off. Whether a consumer
    may flip either is `003-support-conversation-data-flow-record`'s call,
    recorded in docs/design-notes.md § Tool activity
-   ([validated by](../../tests/ToolActivity.test.tsx#L20),
-   [L37](../../tests/ToolActivity.test.tsx#L37),
-   [L57](../../tests/ToolActivity.test.tsx#L57)).
+   ([validated by shows the activityDone sentence and none of the tool name or arguments](../../tests/ToolActivity.test.tsx#L20),
+   [validated by true puts the tool name in the document](../../tests/ToolActivity.test.tsx#L37),
+   [validated by true renders a pre containing the JSON arguments](../../tests/ToolActivity.test.tsx#L57)).
 2. **`describeTool` is the caller's sentence.** When present it replaces the
    `activity`/`activityDone` line with caller-authored copy and does not
    suppress `showToolName`; the Danish `describeTool` map itself belongs to the
    support agent, not the library
-   ([validated by](../../tests/ToolActivity.test.tsx#L132)).
+   ([validated by replaces the default sentence and does not suppress showToolName](../../tests/ToolActivity.test.tsx#L132)).
 3. **`pending` is caller-derived.** `pending` true renders `activity`, absent
    renders `activityDone` - there is no protocol "done" signal, so
    `ChatMessageList` derives it as
    `busy === true && index === entries.length - 1`
-   ([validated by](../../tests/ToolActivity.test.tsx#L177),
+   ([validated by true renders the activity label](../../tests/ToolActivity.test.tsx#L177),
    [done](../../tests/ToolActivity.test.tsx#L184)).
 4. **Arguments are inert JSON behind a native disclosure.** When shown they
    render as `JSON.stringify(entry.toolInput, null, 2)` inside a `<pre>`
@@ -62,18 +62,18 @@ key by the convention's `resolveLabels`
    `useId`. Clicking the summary opens the disclosure and a second click
    closes it again (jsdom activates a summary on click, not on Enter or
    Space, so the keyboard path is a browser's job)
-   ([validated by](../../tests/ToolActivity.test.tsx#L256),
-   [L193](../../tests/ToolActivity.test.tsx#L193),
-   [L72](../../tests/ToolActivity.test.tsx#L72),
-   [L252](../../tests/ToolActivity.test.tsx#L252),
+   ([validated by holds no useState, useEffect or useId](../../tests/ToolActivity.test.tsx#L256),
+   [validated by is a details/summary closed by default with the details label as its summary](../../tests/ToolActivity.test.tsx#L193),
+   [validated by renders the arguments as inert text, never HTML](../../tests/ToolActivity.test.tsx#L72),
+   [validated by references no dangerouslySetInnerHTML, react-markdown or remark-](../../tests/ToolActivity.test.tsx#L252),
    [toggle](../../tests/ToolActivity.test.tsx#L203)).
 5. **It is not a message.** No avatar, copy or feedback affordance, and
    `ToolActivityProps` declares none of `assistantAvatar`, `onCopy`,
    `onFeedback` or `showFeedback`. No `renderEntry` escape hatch exists -
    `dist/index.d.ts` carries none - so the data-boundary default cannot be
    moved out of the library
-   ([validated by](../../tests/ToolActivity.test.tsx#L264),
-   [L279](../../tests/ToolActivity.test.tsx#L279)).
+   ([validated by declares none of assistantAvatar, onCopy, onFeedback or showFeedback](../../tests/ToolActivity.test.tsx#L264),
+   [validated by dist/index.d.ts declares no renderEntry escape hatch](../../tests/ToolActivity.test.tsx#L279)).
 6. **Unserialisable arguments degrade to a label, never a throw.** The
    arguments are stringified through a pure helper that returns `null` when
    `JSON.stringify` throws (a BigInt, a cycle, a throwing `toJSON`) or yields
@@ -104,21 +104,21 @@ entry still shows the `aiDisclosure` band. `ChatMessageListLabels` gains
 `toolInputUnavailable`) as defaulted keys, so `aiDisclosure` stays its only
 required key
 ([validated by](../../tests/ChatMessageList.test.tsx#L943),
-[L965](../../tests/ChatMessageList.test.tsx#L965),
-[L978](../../tests/ChatMessageList.test.tsx#L978),
-[L1000](../../tests/ChatMessageList.test.tsx#L1000),
-[L992](../../tests/ChatMessageList.test.tsx#L992)).
+[validated by busy true makes a trailing tool entry pending and busy false makes it done](../../tests/ChatMessageList.test.tsx#L965),
+[validated by a non-trailing tool entry stays done even while busy](../../tests/ChatMessageList.test.tsx#L978),
+[validated by forwards describeTool, showToolName, showToolInput and toolIcon to the activity](../../tests/ChatMessageList.test.tsx#L1000),
+[validated by a list holding a single tool entry still renders the aiDisclosure band](../../tests/ChatMessageList.test.tsx#L992)).
 
 ## GDPR zero retention
 
 `ToolActivity.tsx` makes no `console` call and touches no `localStorage`,
 `sessionStorage` or `IndexedDB`; rendering with `showToolInput` leaves
 `localStorage.length` at `0`
-([validated by](../../tests/ToolActivity.test.tsx#L270),
-[L260](../../tests/ToolActivity.test.tsx#L260)).
+([validated by writes nothing to localStorage when rendering with showToolInput](../../tests/ToolActivity.test.tsx#L270),
+[validated by makes no console call and touches no client storage](../../tests/ToolActivity.test.tsx#L260)).
 
 ## The labels partition
 
 `ToolActivity` sits in the `labelsProp` bucket with its own sentinel harness,
 and its sentinel labels cover every `defaultToolActivityLabels` key
-([validated by](../../tests/labelled-exports.test.tsx#L585)).
+([validated by ToolActivity's sentinel labels cover every defaultToolActivityLabels key](../../tests/labelled-exports.test.tsx#L585)).
