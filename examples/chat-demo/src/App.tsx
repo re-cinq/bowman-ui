@@ -19,6 +19,7 @@ import { resolveTheme, type DemoTheme } from "./themes";
 import { DocsApp } from "./docs/DocsApp";
 import { staticDemoNote } from "./staticDemoNote";
 import { streamAssistantReply } from "./streaming";
+import { toastDurationMs } from "./toastDuration";
 import {
   appShellLabels,
   appSidebarLabels,
@@ -33,7 +34,6 @@ import {
   toastDemoOnlyMessage,
 } from "./labels";
 
-const toastDurationMs = 4000;
 const conversationsNavKey = "conversations";
 const settingsNavKey = "settings";
 
@@ -62,6 +62,7 @@ export function App() {
 
 function ChatScreen({ theme }: { theme: DemoTheme }) {
   const [entriesByConversation, setEntriesByConversation] = useState(initialEntriesByConversation);
+  const [conversationItems, setConversationItems] = useState(conversations);
   const [activeConversationId, setActiveConversationId] = useState(conversations[0].id);
   const [activeNavKey, setActiveNavKey] = useState(conversationsNavKey);
   const [busy, setBusy] = useState(false);
@@ -139,6 +140,21 @@ function ChatScreen({ theme }: { theme: DemoTheme }) {
     });
   };
 
+  const deleteConversation = (id: string) => {
+    const remaining = conversationItems.filter((item) => item.id !== id);
+
+    setConversationItems(remaining);
+    setEntriesByConversation((current) =>
+      Object.fromEntries(
+        Object.entries(current).filter(([conversationId]) => conversationId !== id)
+      )
+    );
+
+    if (id === activeConversationId) {
+      setActiveConversationId(remaining[0]?.id ?? "");
+    }
+  };
+
   const navigate = (key: string, close: () => void) => {
     close();
 
@@ -171,12 +187,13 @@ function ChatScreen({ theme }: { theme: DemoTheme }) {
     >
       <div className="px-3 py-3">
         <ConversationList
-          items={conversations}
+          items={conversationItems}
           activeId={activeConversationId}
           onSelect={(id) => {
             setActiveConversationId(id);
             context.close();
           }}
+          onDelete={deleteConversation}
           labels={conversationListLabels}
         />
       </div>

@@ -95,13 +95,19 @@ default ([validated by](../../tests/ChatMessageList.test.tsx#L214)).
    started fires downward scroll events of its own, and those do not
    unpin - reaching the bottom, or any upward reader-initiated movement,
    settles the flight. Mount always scrolls to the latest message
-   unconditionally, instant, before any scroll event
+   unconditionally, instant, before any scroll event. The browser suite
+   proves both halves against real layout rather than stubbed geometry
+   (issue 151): a reader who scrolls the demo transcript to the top
+   mid-stream is still at the top when the reply commits, and a reader left
+   at the bottom is within a pixel of it
    ([validated by](../../tests/ChatMessageList.test.tsx#L706),
    [L646](../../tests/ChatMessageList.test.tsx#L646),
    [L655](../../tests/ChatMessageList.test.tsx#L655),
    [append while pinned](../../tests/ChatMessageList.test.tsx#L637),
    [L744](../../tests/ChatMessageList.test.tsx#L744),
-   [L760](../../tests/ChatMessageList.test.tsx#L760)).
+   [L760](../../tests/ChatMessageList.test.tsx#L760),
+   [browser](../../examples/chat-demo/tests/chat-demo.spec.ts#L431),
+   [L468](../../examples/chat-demo/tests/chat-demo.spec.ts#L468)).
 3. **Smooth on append, instant on delta, always instant under reduced
    motion.** `behavior: "smooth"` when `entries.length` grew, `"auto"` when
    only content changed, and `useReducedMotion(reducedMotion)` (021's hook)
@@ -196,8 +202,8 @@ list.
   ([validated by](../../tests/ChatMessageList.test.tsx#L929)).
 - `dist/components/ChatMessageList.js` opens with `"use client";` as its
   first statement per 018 decision 1, and ships with its `.d.ts` in the
-  pack ([validated by](../../tests/chat-message-list-dist.test.ts#L66),
-  [pack](../../tests/chat-message-list-dist.test.ts#L72)).
+  pack ([validated by](../../tests/chat-message-list-dist.test.ts#L73),
+  [pack](../../tests/chat-message-list-dist.test.ts#L77)).
 - `ChatMessageList` sits in the `labelsProp` partition bucket with a
   sentinel harness that renders a user entry, a thinking entry with
   `showThinking` on, a linked assistant entry and the busy indicator, then

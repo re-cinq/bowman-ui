@@ -88,7 +88,7 @@ value ([validated by](../../tests/theming-tokens-dist.test.ts#L286),
   skip link, hamburger and close button
   ([validated by](../../tests/ChatMessage.test.tsx#L502),
   [L152](../../tests/ConversationList.test.tsx#L152),
-  [L137](../../tests/AppSidebar.test.tsx#L137), [L400](../../tests/AppShell.test.tsx#L400)).
+  [L137](../../tests/AppSidebar.test.tsx#L137), [L420](../../tests/AppShell.test.tsx#L420)).
 - `ErrorBoundary`'s retry button keeps `focus-visible:ring-2` beside the `--bowman-focus-ring`
   colour and gains no dark ring, because it had none
   ([validated by](../../tests/ErrorBoundary.test.tsx#L188)).
@@ -138,9 +138,9 @@ utility fails ([validated by](../../tests/theming-tokens-dist.test.ts#L246)).
 - The `AppShell` mobile header row, drawer close-button row and main region and the `AppSidebar`
   brand row, children scroll region and footer region read `--bowman-text-body`, so a plain string
   the library lays out for consumer content is painted instead of inheriting the page colour
-  ([validated by](../../tests/AppShell.test.tsx#L441),
-  [L507](../../tests/AppShell.test.tsx#L507),
-  [L515](../../tests/AppShell.test.tsx#L515),
+  ([validated by](../../tests/AppShell.test.tsx#L461),
+  [L527](../../tests/AppShell.test.tsx#L527),
+  [L535](../../tests/AppShell.test.tsx#L535),
   [L268](../../tests/AppSidebar.test.tsx#L268),
   [L277](../../tests/AppSidebar.test.tsx#L277),
   [L286](../../tests/AppSidebar.test.tsx#L286)).
@@ -259,8 +259,8 @@ alike, in `<div class="custom-theme">` and passes the theme's chainring mark (an
 SVG carrying `data-theme-mark="copperline"`) as `ChatMessageList`'s `assistantAvatar`, so the
 mark fills the streaming avatar circle
 ([validated by](../../examples/chat-demo/tests/theming.spec.ts#L181),
-[wrapper](../../examples/chat-demo/src/App.tsx#L224),
-[avatar](../../examples/chat-demo/src/App.tsx#L193),
+[wrapper](../../examples/chat-demo/src/App.tsx#L241),
+[avatar](../../examples/chat-demo/src/App.tsx#L210),
 [mark](../../examples/chat-demo/src/themes.tsx#L25)). The Overview page
 (`?view=docs&component=overview`) gains a Theming section that renders `ChatMessage`,
 `ChatComposer` and `ConversationList` twice from one preview component,
@@ -346,9 +346,13 @@ asserted ([validated by](../../examples/chat-demo/tests/theming.spec.ts#L171),
 [L200](../../examples/chat-demo/tests/theming.spec.ts#L200),
 [L210](../../examples/chat-demo/tests/theming.spec.ts#L210),
 [L216](../../examples/chat-demo/tests/theming.spec.ts#L216),
-[L237](../../examples/chat-demo/tests/theming.spec.ts#L237)). Not measured in Chromium at all
-are the twenty-one `-dark` tokens and the light ones no test reads, among them
-`--bowman-accent-hover` and `--bowman-pulse-outline` - Playwright runs the light scheme only
-and never hovers - which the jsdom class-string tests above pin alone
+[L237](../../examples/chat-demo/tests/theming.spec.ts#L237)). Under the dark colour scheme
+(issue 151) Chromium measures two of the `-dark` fallbacks: the enabled send button's
+`--bowman-accent-dark` (`blue-600`) and the composer surface's `--bowman-surface-dark`
+(`slate-900`), each shown to differ from the light shade the tests above read
+([validated by](../../examples/chat-demo/tests/theming.spec.ts#L298)). Not measured in Chromium
+are the other nineteen `-dark` tokens and the light ones no test reads, among them
+`--bowman-accent-hover` and `--bowman-pulse-outline` - Playwright never hovers a control -
+which the jsdom class-string tests above pin alone
 ([validated by](../../tests/ChatComposer.test.tsx#L206),
 [L71](../../tests/styles.test.ts#L71), [L494](../../tests/ChatMessage.test.tsx#L494)).

@@ -51,24 +51,24 @@ string-carrying component already in the repo - it adds no new component.
 - `tests/labelled-exports.test.tsx` - the export-partition test: every value export of
   `src/index.ts` is classified into `labelsProp` / `stringPropOnly` / `noStrings`, and the sorted
   union must equal the sorted parsed export names; an unclassified export fails by name with a
-  pointer at `docs/design-notes.md § Labels` ([validated by](../../tests/labelled-exports.test.tsx#L152)).
+  pointer at `docs/design-notes.md § Labels` ([validated by](../../tests/labelled-exports.test.tsx#L158)).
 - The sentinel test renders every `labelsProp` member (today: `ErrorBoundary`, error state) with
   every label a unique `⟦sentinel⟧` and asserts no run of three or more Latin letters survives in
   `textContent` or in `aria-label`/`aria-placeholder`/`aria-roledescription`/`aria-valuetext`/
   `title`/`placeholder`/`alt` outside the sentinels, with the sentinel set pinned to
   the default-labels keys ([validated by](../../tests/labelled-exports.test.tsx#L637),
-  [L498](../../tests/labelled-exports.test.tsx#L498)).
+  [L549](../../tests/labelled-exports.test.tsx#L549)).
 - **The check's own proof:** reverting 021's `labels` prop to a hardcoded
   `"Something went wrong"` makes the sentinel test fail - the stray English survives sentinel
   stripping and matches the Latin-run regex
   ([validated by](../../tests/labelled-exports.test.tsx#L637)).
 - `docs/design-notes.md § Labels` - Decisions 1-5, the flat-union key-naming rule, the function form for
-  interpolation, the two `stringPropOnly` exceptions with reasons, and `aiDisclosure` documented
+  interpolation, the three `stringPropOnly` exceptions with reasons, and `aiDisclosure` documented
   as required-with-no-default under the EU AI Act.
 - Re-pinned prior behaviour (AC 39): `<LoadingIcon ariaLabel="Cargando" />` renders
   `aria-label="Cargando"` with `"Loading"` nowhere in the output; the translated `announce`
   assertion already existed and is referenced, not duplicated
-  ([validated by](../../tests/icons.test.tsx#L263),
+  ([validated by](../../tests/icons.test.tsx#L266),
   [announce](../../tests/useFocusGroups.test.tsx#L136)).
 
 ## Recorded decisions, interpretations and deviations
@@ -82,7 +82,7 @@ string-carrying component already in the repo - it adds no new component.
 - **Partition is over value exports.** The partition test statically parses `export { ... }`
   blocks of `src/index.ts`; `export type { ... }` names are excluded by design - a type carries
   no renderable string. Interfaces like `ErrorBoundaryLabels` are therefore not partition
-  members ([validated by](../../tests/labelled-exports.test.tsx#L152)).
+  members ([validated by](../../tests/labelled-exports.test.tsx#L158)).
 - **Test path deviation.** The issue names `src/__tests__/labelled-exports.tsx`; this repo keeps
   every test under `tests/` with a `.test.tsx` suffix (vitest's include pattern requires the
   suffix), so the file is `tests/labelled-exports.test.tsx`. Same content, repo-conventional
@@ -91,7 +91,7 @@ string-carrying component already in the repo - it adds no new component.
   `tests/fixtures/eslint-labels/**` alongside `src/**`, and the fixture directory sits in the
   global `ignores`. `npm run lint` therefore never sees the fixtures, while the red-fixture test
   lints them with `--no-ignore` against the exact committed rules rather than a copy of them
-  ([validated by](../../tests/eslint-labels.test.ts#L9)).
+  ([validated by](../../tests/eslint-labels.test.ts#L31)).
 - **Placeholder deleted.** `src/Placeholder.tsx`, `tests/Placeholder.test.tsx` and the barrel
   export are gone, sanctioned by 014's own design (the placeholder existed only until real components did):
   six real `"use client"` files now exist, and Placeholder's hardcoded English text can neither
@@ -107,7 +107,7 @@ string-carrying component already in the repo - it adds no new component.
   `useFocusGroups`' `announce` are grandfathered per `docs/design-notes.md § Labels`; everything else with
   strings takes `labels`. Closed means an addition requires a `docs/design-notes.md § Labels` amendment
   in the PR that adds it - Toast's `message` (issue 025) did exactly this
-  ([validated by](../../tests/labelled-exports.test.tsx#L114)).
+  ([validated by](../../tests/labelled-exports.test.tsx#L158)).
 - **`aiDisclosure` is declared, not rendered.** The required label and its EU AI Act rationale
   live in `docs/design-notes.md § Labels`; the component that renders it and its reviewed wording belong to
   the message-list issue and the consumer's catalogue.

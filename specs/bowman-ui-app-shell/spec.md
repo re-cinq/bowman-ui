@@ -23,7 +23,10 @@ first focusable element in the rendered tree and carries the resolved
 `skipToMainContent` label; `skipLink={false}` opts
 out for a consumer with its own
 ([validated by](../../tests/AppShell.test.tsx#L50),
-[L62](../../tests/AppShell.test.tsx#L62)).
+[L62](../../tests/AppShell.test.tsx#L62)). In Chromium, `Tab` on a fresh load
+reaches the skip link first and `Enter` on it moves the sequential focus start
+to `main`, so the next `Tab` lands inside `main` with no `tabIndex` on it
+(issue 151) ([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L549)).
 
 `AppShellLabels` has four defaulted keys - `openSidebar`, `closeSidebar`,
 `skipToMainContent`, and `sidebarDialog` (the open drawer dialog's accessible
@@ -43,32 +46,34 @@ renders the frame ([validated by](../../tests/AppShell.test.tsx#L74),
 mobile copy needs `close` so tapping a nav item closes the drawer - the same
 slot idiom as `ConversationList`'s `renderLink`. `close` is handed to
 both variants, not just the drawer: from the desktop rail it re-reports the
-already-closed state, which keeps one shared `renderSidebar` safe to wire to
-either position ([validated by](../../tests/AppShell.test.tsx#L131)).
+already-closed state - `onMobileSidebarOpenChange` receives `false` once and
+the drawer stays `inert` - which keeps one shared `renderSidebar` safe to wire
+to either position ([validated by](../../tests/AppShell.test.tsx#L131),
+[desktop](../../tests/AppShell.test.tsx#L150)).
 
 `brand` renders inside the mobile header row with the centring spacer;
 omitted, the header shows the hamburger and no spacer, and the component
-imports no logo ([validated by](../../tests/AppShell.test.tsx#L420),
-[L429](../../tests/AppShell.test.tsx#L429),
-[L437](../../tests/AppShell.test.tsx#L437)).
+imports no logo ([validated by](../../tests/AppShell.test.tsx#L440),
+[L449](../../tests/AppShell.test.tsx#L449),
+[L457](../../tests/AppShell.test.tsx#L457)).
 
 The mobile header row owns its text colour: it reads `--bowman-text-body`, so a
 plain-string `brand` reads on the dark surface instead of inheriting the page
-colour ([validated by](../../tests/AppShell.test.tsx#L441)).
+colour ([validated by](../../tests/AppShell.test.tsx#L461)).
 
 The drawer close-button row owns its text colour the same way: it reads
 `--bowman-text-body`, so plain-string content the shell lays out in the drawer
-reads on the dark surface ([validated by](../../tests/AppShell.test.tsx#L507)).
+reads on the dark surface ([validated by](../../tests/AppShell.test.tsx#L527)).
 
 The main region reads `--bowman-text-body` on the element that wraps
 `children`, so a plain string reads on the dark surface instead of inheriting
 the page colour; only the text is painted - the `bg-white` /
 `dark:bg-slate-950` background stays palette-mapped
-([validated by](../../tests/AppShell.test.tsx#L515)).
+([validated by](../../tests/AppShell.test.tsx#L535)).
 
 The focused skip link reads `--bowman-text-strong` (docs/design-notes.md § Theming
 decision 6), so a consumer recolours it with the theme rather than the fixed slate
-it carried before ([validated by](../../tests/AppShell.test.tsx#L412)).
+it carried before ([validated by](../../tests/AppShell.test.tsx#L432)).
 
 ## Open state
 
@@ -83,23 +88,23 @@ and the `"mobile"` slot's `close()` each return it to closed
 Controlled: with `mobileSidebarOpen={false}`, clicking the hamburger calls
 `onMobileSidebarOpenChange` once with `true` and the drawer stays closed;
 `mobileSidebarOpen={true}` renders it open with no interaction
-([validated by](../../tests/AppShell.test.tsx#L152),
-[L169](../../tests/AppShell.test.tsx#L169)). A controlling consumer owns
+([validated by](../../tests/AppShell.test.tsx#L172),
+[L189](../../tests/AppShell.test.tsx#L189)). A controlling consumer owns
 closing on navigation - recorded in docs/design-notes.md § AppShell, because
 closing on a route change is router-specific behaviour that cannot ship here
-([validated by](../../tests/AppShell.test.tsx#L169)).
+([validated by](../../tests/AppShell.test.tsx#L189)).
 
 ## Dialog semantics
 
 The open drawer is a modal dialog: it carries `role="dialog"`,
 `aria-modal="true"`, and an `aria-label` resolved from the `sidebarDialog`
 label - `"Menu"` by default, overridable per instance
-([validated by](../../tests/AppShell.test.tsx#L191),
-[L212](../../tests/AppShell.test.tsx#L212)). The closed drawer carries none of
-the three ([validated by](../../tests/AppShell.test.tsx#L202)). The hamburger
+([validated by](../../tests/AppShell.test.tsx#L211),
+[L232](../../tests/AppShell.test.tsx#L232)). The closed drawer carries none of
+the three ([validated by](../../tests/AppShell.test.tsx#L222)). The hamburger
 names the drawer through `aria-controls` but deliberately carries no
 `aria-expanded` - it only opens, so an expanded state would promise a collapse
-the button cannot perform ([validated by](../../tests/AppShell.test.tsx#L222)).
+the button cannot perform ([validated by](../../tests/AppShell.test.tsx#L242)).
 
 ## The two accessibility fixes
 
@@ -111,8 +116,8 @@ the button cannot perform ([validated by](../../tests/AppShell.test.tsx#L222)).
    the tab order and the accessibility tree; the open wrapper carries none,
    and the string `aria-hidden` appears nowhere in the source file. The rail
    and drawer stay two DOM nodes because `inert` cannot be conditioned on a
-   CSS breakpoint ([validated by](../../tests/AppShell.test.tsx#L234),
-   [L247](../../tests/AppShell.test.tsx#L247)).
+   CSS breakpoint ([validated by](../../tests/AppShell.test.tsx#L254),
+   [L267](../../tests/AppShell.test.tsx#L267)).
 2. **The scroll lock restores the prior overflow value.** Resetting
    `document.body.style.overflow` to `""` on close
    would clobber any other lock on the page.
@@ -122,9 +127,9 @@ the button cannot perform ([validated by](../../tests/AppShell.test.tsx#L222)).
    viewport sits at the desktop breakpoint - where `md:hidden` hides the
    drawer but the open state persists - and re-locks on the way back; the
    `768px` literal mirrors the component's own `md:*` classes
-   ([validated by](../../tests/AppShell.test.tsx#L319),
-   [L308](../../tests/AppShell.test.tsx#L308),
-   [L360](../../tests/AppShell.test.tsx#L360)).
+   ([validated by](../../tests/AppShell.test.tsx#L339),
+   [L328](../../tests/AppShell.test.tsx#L328),
+   [L380](../../tests/AppShell.test.tsx#L380)).
 
 **Landmark ruling (recorded decision).** The drawer and rail wrappers are
 non-landmark `div`s: issue 031's `AppSidebar` supplies the only `aside`/`nav`
@@ -138,18 +143,25 @@ would double up in the rotor. docs/design-notes.md § AppShell records the same 
 Opening moves focus to the close button - shell chrome, top-right,
 `h-10 w-10`, `CloseIcon` from 020 - `Tab` from the last focusable inside
 wraps to the first, and closing returns focus to the hamburger
-([validated by](../../tests/AppShell.test.tsx#L256),
-[L264](../../tests/AppShell.test.tsx#L264),
-[L285](../../tests/AppShell.test.tsx#L285)). Escape and tab-cycling come from
+([validated by](../../tests/AppShell.test.tsx#L276),
+[L284](../../tests/AppShell.test.tsx#L284),
+[L305](../../tests/AppShell.test.tsx#L305)). Escape and tab-cycling come from
 021's shared `useFocusTrap`, never a bespoke listener: the source contains no
 `"Escape"` string and adds no `document.addEventListener`
-([validated by](../../tests/AppShell.test.tsx#L296)).
+([validated by](../../tests/AppShell.test.tsx#L316)). With the drawer left
+open across a rotate to desktop - `md:hidden` hides it while the trap's
+listener stays mounted - each `Tab` moves focus forward through `main` and
+never into the hidden drawer (issue 151)
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L587)).
 
 `reducedMotion={true}` omits `transition-transform` and `transition-opacity`
 from the drawer and backdrop; omitted, 021's `useReducedMotion` tracks
 `prefers-reduced-motion` and a non-matching `matchMedia` keeps both classes
-([validated by](../../tests/AppShell.test.tsx#L373),
-[L380](../../tests/AppShell.test.tsx#L380)).
+([validated by](../../tests/AppShell.test.tsx#L393),
+[L400](../../tests/AppShell.test.tsx#L400)). Rendered in Chromium under
+`prefers-reduced-motion: reduce`, the drawer's computed `transition-duration`
+is `0s`, against `0.3s` without the emulation (issue 151)
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L638)).
 
 ## The characterization suite
 
@@ -161,15 +173,15 @@ DOM, and the deliberate decisions below are each pinned by a test.
 | a   | Children render in `<main id="main-content">`, and `mainContentId` makes the id a prop ([L24](../../tests/AppShell.test.tsx#L24))                                                    | The landing region stays addressable for skip links without hardcoding the id             |
 | b   | The `renderSidebar` slot is called twice (rail and drawer) while the shell owns the header and drawer chrome ([L74](../../tests/AppShell.test.tsx#L74))                              | The slot is the dependency boundary; the shell ships without auth, i18n or router imports |
 | c   | The drawer's open/close cycle is asserted on observable DOM state (`translate-x-0`/`inert`) through the menu-click / close-click sequence ([L96](../../tests/AppShell.test.tsx#L96)) | Real DOM state, not a stub attribute, is what a consumer's user experiences               |
-| d   | The closed drawer carries `inert` ([L234](../../tests/AppShell.test.tsx#L234))                                                                                                       | `aria-hidden` over still-tabbable content is the defect `inert` exists to prevent         |
-| e   | The scroll lock restores the prior `document.body.style.overflow` value ([L308](../../tests/AppShell.test.tsx#L308))                                                                 | Clobbering the value to `""` breaks a consumer that manages body overflow itself          |
+| d   | The closed drawer carries `inert` ([L254](../../tests/AppShell.test.tsx#L254))                                                                                                       | `aria-hidden` over still-tabbable content is the defect `inert` exists to prevent         |
+| e   | The scroll lock restores the prior `document.body.style.overflow` value ([L328](../../tests/AppShell.test.tsx#L328))                                                                 | Clobbering the value to `""` breaks a consumer that manages body overflow itself          |
 
 ## Mechanical invariants
 
 - `MenuIcon`/`CloseIcon` come from 020's set; imports are relative with `.js`
   extensions, and no `@clerk`, `swr`, `next-intl`, `next/`,
   `@/` or `lucide-react` import survives
-  ([validated by](../../tests/AppShell.test.tsx#L457)).
+  ([validated by](../../tests/AppShell.test.tsx#L477)).
 - GDPR: the shell wraps a surface carrying customer questions and booking
   identifiers (`003-support-conversation-data-flow-record`). The source
   references no `console.`, `fetch`, `sendBeacon`, `localStorage`,
@@ -177,7 +189,7 @@ DOM, and the deliberate decisions below are each pinned by a test.
   console trap in `tests/setup.ts` fails any test that triggered a console
   call. Desktop collapse state is out of scope precisely because it is the
   only thing here that would persist anything
-  ([validated by](../../tests/AppShell.test.tsx#L451)).
+  ([validated by](../../tests/AppShell.test.tsx#L471)).
 - `dist/components/AppShell.js` opens with `"use client";` as its first
   statement per 018's positional check, and `npm pack`
   ships exactly the built pair
@@ -190,26 +202,29 @@ DOM, and the deliberate decisions below are each pinned by a test.
   deliberate fix: giving the mobile header and the drawer the same
   `z-50` and relying on DOM order would let the header paint over the open
   drawer's top strip. Pinned by a class assertion in the tests
-  ([validated by](../../tests/AppShell.test.tsx#L472)).
+  ([validated by](../../tests/AppShell.test.tsx#L492)).
 - **`brand={null}` renders no spacer**, same as omitting the prop - `null` is
   the React idiom for intentionally-nothing, and an empty centring spacer with
   no mark would be a layout surprise. A characterization test pairs the two
   renders, finds each mobile header row through its hamburger's parent, and
   asserts zero spacers in the `null` render and the same count in the omitted
-  one ([validated by](../../tests/AppShell.test.tsx#L483)).
+  one ([validated by](../../tests/AppShell.test.tsx#L503)).
 
 - **Test locations.** The issue names `tests/components/AppShell.test.tsx`;
   this repository keeps every test flat under `tests/`, and the partition
   file is `tests/labelled-exports.test.tsx`. The tests land at
   `tests/AppShell.test.tsx` and `tests/app-shell-dist.test.ts`.
-- **The `offsetParent` shim is local, not in `tests/setup.ts`.** The issue
-  claims `tests/setup.ts` defines the shim; it does not and never has. The
-  focus-management block defines it in a local `beforeEach` - prototype
-  `offsetParent` getter plus a synchronous `requestAnimationFrame` stub -
-  exactly as `tests/useFocusTrap.test.tsx` does, restored in `afterEach`.
-  Removing the shim still makes the three focus assertions fail, which is
-  the property the issue was after
-  ([validated by](../../tests/AppShell.test.tsx#L256)).
+- **The `offsetParent` shim is a shared test helper, not in `tests/setup.ts`.**
+  The issue claims `tests/setup.ts` defines the shim; it does not and never
+  has. The focus-management block calls `stubFocusEnvironment()` from
+  `tests/helpers/focus-environment.ts` - a `beforeEach` that installs a
+  prototype `offsetParent` getter plus a synchronous `requestAnimationFrame`
+  stub, restored in `afterEach` - the same helper `tests/useFocusTrap.test.tsx`
+  calls. Removing the shim still makes two of the four focus tests fail - the
+  open-moves-focus and Tab-wrap ones, the two that read the focusable list -
+  which is the property the issue was after
+  ([validated by](../../tests/AppShell.test.tsx#L276),
+  [L284](../../tests/AppShell.test.tsx#L284)).
 - **Coverage floor.** The issue says "the 100 / 100 / 100 thresholds the
   repo-skeleton issue committed"; the floor was lines/functions/statements
   100 with branches 90 when this landed (100 on all four since issue 152,

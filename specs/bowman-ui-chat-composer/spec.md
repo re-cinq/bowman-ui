@@ -74,6 +74,11 @@ and never remounts, so its value and the enabled send button return once
 `busy` is false again
 ([validated by](../../tests/ChatComposer.test.tsx#L188)).
 
+The wrapper also carries `aria-busy`: `"true"` while `busy`, `"false"` when
+idle and when merely `disabled`, so assistive technology hears the pulse the
+sighted reader sees
+([validated by](../../tests/ChatComposer.test.tsx#L163)).
+
 **Note - pulse class.** The wrapper carries `bowman-pulse-subtle`, not the
 issue text's `animate-pulse-subtle`: 019 renamed every package animation
 class under the `bowman-` prefix, the same recorded deviation as
@@ -105,7 +110,7 @@ Chromium)
 ([validated by](../../tests/ChatComposer.test.tsx#L397),
 [L411](../../tests/ChatComposer.test.tsx#L411),
 [L422](../../tests/ChatComposer.test.tsx#L422),
-[L358](../../examples/chat-demo/tests/chat-demo.spec.ts#L358)).
+[L388](../../examples/chat-demo/tests/chat-demo.spec.ts#L388)).
 
 ## Auto-resize
 
@@ -153,7 +158,9 @@ key added without a default fails `npm run typecheck`, pinned by the
 compiled against `dist/` (fixture at
 [chat-composer-type-assertions](../../tests/types/chat-composer-type-assertions.tsx)).
 `ChatComposer` joins the `labelsProp` partition and the sentinel render
-covers it ([validated by](../../tests/labelled-exports.test.tsx#L546),
+covers it ([partition](../../tests/labelled-exports.test.tsx#L84),
+[harness](../../tests/labelled-exports.test.tsx#L453),
+[coverage](../../tests/labelled-exports.test.tsx#L591),
 [L15](../../tests/chat-composer-dist.test.ts#L15)).
 
 **Note - one placeholder default.** The single `composerPlaceholder`
