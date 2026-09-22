@@ -84,6 +84,11 @@ and no `<ul>` ([validated by](../../tests/ConversationList.test.tsx#L282),
 [L248](../../tests/ConversationList.test.tsx#L248),
 [L273](../../tests/ConversationList.test.tsx#L273)).
 
+The delete button is `opacity-0` until its row is hovered or focused within;
+measured in Chromium, its computed opacity is `0` at rest and `1` on focus,
+and `Enter` then removes the row from the demo's list (issue 151)
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L514)).
+
 ## The characterization suite
 
 The deliberate decisions below are each pinned in
@@ -159,5 +164,5 @@ consumer-computed `badge` string).
   `tests/labelled-exports.test.tsx`. The tests land there
   (`tests/ConversationList.test.tsx`, `tests/conversation-list-dist.test.ts`).
 - **Coverage floor.** The issue says "the 100 / 100 / 100 thresholds `014`
-  committed"; the committed floor is lines/functions/statements 100 with
-  branches 90 (`vitest.config.ts`), and it holds.
+  committed"; the floor was lines/functions/statements 100 with branches 90
+  when this landed (100 on all four since issue 152), and it holds.

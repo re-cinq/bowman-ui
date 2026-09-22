@@ -1,10 +1,28 @@
 import { render, screen, fireEvent } from "@testing-library/react";
-import { useState } from "react";
+import { userEvent } from "@testing-library/user-event";
+import { useState, type ReactNode } from "react";
 import { ErrorBoundary } from "../src/components/ErrorBoundary.js";
 import { expectDanger, expectDangerSoft, expectTextStrong } from "./helpers/expect-theme-tokens.js";
 
 const Bomb = ({ error }: { error: Error }) => {
   throw error;
+};
+
+// The wrapper's capture-phase click counts the retry, so the boundary's own
+// button is what swaps the throwing child for the recovered content; the
+// buttons around the boundary are focusable siblings the retry must not pick.
+const Recoverable = ({ recovered }: { recovered: ReactNode }) => {
+  const [attempt, setAttempt] = useState(0);
+
+  return (
+    <div onClickCapture={() => setAttempt((count) => count + 1)}>
+      <button type="button">before</button>
+      <ErrorBoundary>
+        {attempt === 0 ? <Bomb error={new Error("first render")} /> : recovered}
+      </ErrorBoundary>
+      <button type="button">after</button>
+    </div>
+  );
 };
 
 const RetryableBomb = () => {
@@ -132,26 +150,14 @@ describe("ErrorBoundary", () => {
   });
 
   it("the retry button re-renders children", () => {
-    const Recoverable = () => {
-      const [attempt, setAttempt] = useState(0);
-
-      return (
-        <div onClickCapture={() => setAttempt((n) => n + 1)}>
-          <ErrorBoundary>
-            {attempt === 0 ? <Bomb error={new Error("first render")} /> : <p>second attempt</p>}
-          </ErrorBoundary>
-        </div>
-      );
-    };
-
-    render(<Recoverable />, silenced);
+    render(<Recoverable recovered={<p>second attempt</p>} />, silenced);
 
     fireEvent.click(screen.getByRole("button", { name: "Try again" }));
 
     expect(screen.getByText("second attempt")).toBeInTheDocument();
   });
 
-  it("the retry button inside a consumer form retries without submitting it", () => {
+  it("the retry button inside a consumer form retries without submitting it, and a child that throws again leaves focus on the fresh retry button", () => {
     const onSubmit = vi.fn((event: React.FormEvent) => {
       event.preventDefault();
     });
@@ -168,6 +174,7 @@ describe("ErrorBoundary", () => {
     fireEvent.click(screen.getByRole("button", { name: "Try again" }));
 
     expect(onSubmit).not.toHaveBeenCalled();
+    expect(document.activeElement).toBe(screen.getByRole("button", { name: "Try again" }));
   });
 
   it("a custom fallback can drive recovery", () => {
@@ -221,5 +228,80 @@ describe("ErrorBoundary", () => {
     expect(consoleLog).not.toHaveBeenCalled();
     expect(localStorage.length).toBe(0);
     vi.restoreAllMocks();
+  });
+
+  describe("focus after retry", () => {
+    const retryInto = async (recovered: ReactNode): Promise<HTMLElement> => {
+      const user = userEvent.setup();
+      const { container } = render(<Recoverable recovered={recovered} />, silenced);
+
+      await user.click(screen.getByRole("button", { name: "Try again" }));
+
+      return container;
+    };
+
+    it('clicking "Try again" moves focus to the first focusable element of the recovered children, past the focusable siblings before and after the boundary', async () => {
+      await retryInto(
+        <>
+          <p>second attempt</p>
+          <button type="button">recovered</button>
+        </>
+      );
+
+      expect(document.activeElement).toBe(screen.getByRole("button", { name: "recovered" }));
+    });
+
+    it("recovered children without a focusable element leave document.activeElement on body and write no tabindex into the consumer's DOM", async () => {
+      const container = await retryInto(<p>second attempt</p>);
+
+      expect(screen.getByText("second attempt")).toBeInTheDocument();
+      expect(document.activeElement).toBe(document.body);
+      expect(container.querySelector("[tabindex]")).toBeNull();
+    });
+
+    it("an autoFocus input among the recovered children keeps the focus it took during the commit", async () => {
+      await retryInto(
+        <>
+          <button type="button">recovered</button>
+          <input autoFocus aria-label="Reintentar con" />
+        </>
+      );
+
+      expect(document.activeElement).toBe(screen.getByRole("textbox", { name: "Reintentar con" }));
+    });
+
+    it("a sibling after the boundary that unmounts in the same commit does not extend the range: the consumer's later button stays unfocused", async () => {
+      const Banner = ({ recovered }: { recovered: ReactNode }) => {
+        const [attempt, setAttempt] = useState(0);
+
+        return (
+          <div onClickCapture={() => setAttempt((count) => count + 1)}>
+            <ErrorBoundary>
+              {attempt === 0 ? <Bomb error={new Error("first render")} /> : recovered}
+            </ErrorBoundary>
+            {attempt === 0 && <p>only while errored</p>}
+            <button type="button">after</button>
+          </div>
+        );
+      };
+      const user = userEvent.setup();
+
+      render(<Banner recovered={<p>second attempt</p>} />, silenced);
+
+      await user.click(screen.getByRole("button", { name: "Try again" }));
+
+      expect(screen.queryByText("only while errored")).not.toBeInTheDocument();
+      expect(document.activeElement).toBe(document.body);
+    });
+
+    it("recovered children rooted in a <div> - the host node React reuses from the fallback - still get the focus", async () => {
+      await retryInto(
+        <div>
+          <button type="button">recovered</button>
+        </div>
+      );
+
+      expect(document.activeElement).toBe(screen.getByRole("button", { name: "recovered" }));
+    });
   });
 });

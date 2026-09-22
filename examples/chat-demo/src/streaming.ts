@@ -10,7 +10,7 @@ import { streamedReplyText } from "./fixtures";
 
 export type StreamEvent = { kind: "upsert" } | { kind: "delta"; text: string } | { kind: "commit" };
 
-export const streamStepCount = 24;
+export const streamStepCount = 36;
 export const streamStepIntervalMs = 150;
 export const streamStartDelayMs = 400;
 

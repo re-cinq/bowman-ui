@@ -18,13 +18,18 @@ const stepContaining = (needle: string): string => {
   return step;
 };
 
-const fetchStep = stepContaining("- name: Fetch lore-code-trace");
 const runMarker = "run: |\n";
-const fetchRunBlock = fetchStep
-  .slice(fetchStep.indexOf(runMarker) + runMarker.length)
-  .split("\n")
-  .map((line) => line.slice(10))
-  .join("\n");
+
+const runBlockOf = (step: string): string =>
+  step
+    .slice(step.indexOf(runMarker) + runMarker.length)
+    .split("\n")
+    .map((line) => line.slice(10))
+    .join("\n");
+
+const fetchStep = stepContaining("- name: Fetch lore-code-trace");
+const fetchRunBlock = runBlockOf(fetchStep);
+const ingestRunBlock = runBlockOf(stepContaining("- name: Run and ingest test report"));
 const pinnedSha256 = workflow.match(/^ {10}LORE_CODE_TRACE_SHA256: ([0-9a-f]{64})$/m)?.[1];
 const fetchedGate = "if: steps.fetch.outputs.fetched == 'true'";
 const fetchIt = it.skipIf(spawnSync("sha256sum", ["--version"]).status !== 0);
@@ -169,5 +174,44 @@ describe("lore-tests.yml fetch step", () => {
     expect(result.stdout).not.toMatch(/::(warning|error)::/);
     expect(output).toBe("fetched=true\n");
     expect(isExecutable).toBe(true);
+  });
+});
+
+const runIngest = (traceExit: number, eventName: string) => {
+  const workDir = mkdtempSync(join(tmpdir(), "lore-tests-ingest-"));
+  const scriptPath = join(workDir, "ingest.sh");
+  const tracePath = join(workDir, "lore-code-trace");
+
+  writeFileSync(tracePath, `#!/usr/bin/env bash\nexit ${traceExit}\n`);
+  chmodSync(tracePath, 0o755);
+  writeFileSync(scriptPath, ingestRunBlock);
+
+  return spawnSync("bash", ["-e", scriptPath], {
+    cwd: workDir,
+    encoding: "utf8",
+    env: { PATH: process.env.PATH, GITHUB_EVENT_NAME: eventName },
+  });
+};
+
+describe("lore-tests.yml ingest step", () => {
+  it("exits 0 without a warning when lore-code-trace --post succeeds in a push", () => {
+    const result = runIngest(0, "push");
+
+    expect(result.status).toBe(0);
+    expect(result.stdout).not.toMatch(/::warning::/);
+  });
+
+  it("warns and exits 0 when lore-code-trace --post fails in a pull_request", () => {
+    const result = runIngest(1, "pull_request");
+
+    expect(result.status).toBe(0);
+    expect(result.stdout).toMatch(/^::warning::Lore test ingest failed$/m);
+  });
+
+  it("warns and exits 1 when lore-code-trace --post fails in a push", () => {
+    const result = runIngest(1, "push");
+
+    expect(result.status).toBe(1);
+    expect(result.stdout).toMatch(/^::warning::Lore test ingest failed$/m);
   });
 });

@@ -17,24 +17,37 @@ inside `ChatMessage`
 
 ## The public surface
 
-`ChatMessageProps` is exactly the nine fields the issue names - `entry`,
+`ChatMessageProps` began as the nine fields the issue names - `entry`,
 `userInitials`, `assistantAvatar`, `showFeedback` (default `true`),
 `arrowKeyFeedback` (default `false`), `footer`, `labels`, `onCopy`,
 `onFeedback` - with `showDevInfo`, `conversationId`, `onRetryJudge` and
-`scores` gone.
+`scores` gone
+([validated by](../../tests/ChatMessage.test.tsx#L717)).
+
 `defaultChatMessageLabels` is a frozen `Readonly<Required<ChatMessageLabels>>`
-over the nine keys `userMessage`, `assistantMessage`, `copy`, `copied`,
-`copiedNotice`, `feedbackPositive`, `feedbackNegative`, `feedbackNotice`,
-`thinking`; a key added without a default fails the build, pinned from outside
-by an `@ts-expect-error` fixture
-([validated by](../../tests/types/chat-message-type-assertions.tsx#L60)).
+that began over the nine keys `userMessage`, `assistantMessage`, `copy`,
+`copied`, `copiedNotice`, `feedbackPositive`, `feedbackNegative`,
+`feedbackNotice`, `thinking`; a key added without a default fails the build,
+pinned from outside by an `@ts-expect-error` fixture
+([validated by](../../tests/types/chat-message-type-assertions.tsx#L60),
+compiled by [chat-message-dist](../../tests/chat-message-dist.test.ts#L22)).
+
 **Amended by 076:** `ChatMessageProps` gained a tenth field,
 `markdown?: MarkdownPolicy`, and `ChatMessageLabels` a tenth key,
 `linkOpensInNewTab`; markdown renders through `createMarkdownComponents`
 rather than 019's constant (see
 `specs/bowman-ui-markdown-link-policy/spec.md`)
-([validated by](../../tests/ChatMessage.test.tsx#L717),
+([validated by](../../tests/ChatMessage.test.tsx#L787),
+[L812](../../tests/ChatMessage.test.tsx#L812),
 compiled by [chat-message-dist](../../tests/chat-message-dist.test.ts#L22)).
+
+**Amended by 121:** `ChatMessageProps` gained an eleventh field,
+`assistantName?: string`, and `ChatMessageLabels` an eleventh key, the
+function-form `assistantMessageFrom: (name: string) => string`, which names
+the article once `assistantName` is set - eleven fields and eleven keys
+today (see `specs/bowman-ui-entry-attribution/spec.md`)
+([validated by](../../tests/ChatMessage.test.tsx#L547),
+[L600](../../tests/ChatMessage.test.tsx#L600)).
 
 ## The four decisions
 
@@ -47,12 +60,16 @@ compiled by [chat-message-dist](../../tests/chat-message-dist.test.ts#L22)).
 2. **Arrow-key feedback is opt-in; `Cmd/Ctrl+C` stays on.** `arrowKeyFeedback`
    defaults to `false`: `ArrowUp` on a focused assistant message calls
    `onFeedback` zero times and does not `preventDefault`; enabled, the
-   shortcuts work as before. Copy stays unconditional
-   with its selection guard. The default labels follow:
+   shortcuts work as before, and a modified arrow - any of Meta, Ctrl, Shift
+   or Alt, Alt+ArrowUp pinned - calls `onFeedback` zero times; both thumbs
+   carry `aria-pressed`, `true` on the selected one and `false` on the other,
+   whichever path set it. Copy stays unconditional with its selection guard.
+   The default labels follow:
    `assistantMessage` is plain `"Assistant response"` and the thumb labels
    drop their shortcut parentheticals
-   ([validated by](../../tests/ChatMessage.test.tsx#L257),
-   [L268](../../tests/ChatMessage.test.tsx#L268),
+   ([validated by](../../tests/ChatMessage.test.tsx#L273),
+   [L284](../../tests/ChatMessage.test.tsx#L284),
+   [L278](../../tests/ChatMessage.test.tsx#L278),
    [L287](../../tests/ChatMessage.test.tsx#L287),
    [L160](../../tests/ChatMessage.test.tsx#L160),
    [L202](../../tests/ChatMessage.test.tsx#L202),
@@ -62,13 +79,13 @@ compiled by [chat-message-dist](../../tests/chat-message-dist.test.ts#L22)).
    behind `showFeedback && arrowKeyFeedback`; with `showFeedback={false}` and
    `arrowKeyFeedback`, `ArrowUp` calls nothing and no thumb renders - removing
    the `showFeedback` term from the handler fails the test
-   ([validated by](../../tests/ChatMessage.test.tsx#L297)).
+   ([validated by](../../tests/ChatMessage.test.tsx#L313)).
 4. **The render-phase latch stays, keyed per `entry.id`.** Once content or
    tool status has appeared the indicator never returns for that id; a
    rerender with a different id, streaming and empty, shows it again -
    removing the id reset fails the test
-   ([validated by](../../tests/ChatMessage.test.tsx#L357),
-   [L378](../../tests/ChatMessage.test.tsx#L378)).
+   ([validated by](../../tests/ChatMessage.test.tsx#L373),
+   [L394](../../tests/ChatMessage.test.tsx#L394)).
 
 ## The characterization suite
 
@@ -78,11 +95,11 @@ and the deliberate decisions below each carry their own test.
 
 | #   | Decision                                                                                                                                                                                                 | Reason                                                                                          |
 | --- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
-| a   | The two arrow-key feedback tests pass `arrowKeyFeedback` and assert the parenthetical-free thumb labels ([L268](../../tests/ChatMessage.test.tsx#L268), [L287](../../tests/ChatMessage.test.tsx#L287))   | Decision 2: the shortcuts are opt-in and the default labels no longer mention them              |
-| b   | New default-off test: `ArrowUp` with default props calls `onFeedback` zero times and does not `preventDefault` (asserted via `fireEvent`'s return value) ([L257](../../tests/ChatMessage.test.tsx#L257)) | Decision 2: the library default must not steal a keyboard user's scroll keys                    |
-| c   | `arrowKeyFeedback` + `showFeedback={false}` fires nothing and renders no thumbs ([L297](../../tests/ChatMessage.test.tsx#L297))                                                                          | Decision 3: the keyboard handler must respect `showFeedback` like the visible thumbs do         |
-| d   | The latch test runs both directions: a new `entry.id`, streaming and empty, shows the indicator again ([L378](../../tests/ChatMessage.test.tsx#L378))                                                    | Decision 4: a module-lifetime latch would mask the bug in any consumer that keys its list by id |
-| e   | The streaming no-key-handling test passes `arrowKeyFeedback` ([L327](../../tests/ChatMessage.test.tsx#L327))                                                                                             | It must still exercise the `isStreaming` gate now that arrows are off by default                |
+| a   | The two arrow-key feedback tests pass `arrowKeyFeedback` and assert the parenthetical-free thumb labels ([L284](../../tests/ChatMessage.test.tsx#L284), [L303](../../tests/ChatMessage.test.tsx#L303))   | Decision 2: the shortcuts are opt-in and the default labels no longer mention them              |
+| b   | New default-off test: `ArrowUp` with default props calls `onFeedback` zero times and does not `preventDefault` (asserted via `fireEvent`'s return value) ([L273](../../tests/ChatMessage.test.tsx#L273)) | Decision 2: the library default must not steal a keyboard user's scroll keys                    |
+| c   | `arrowKeyFeedback` + `showFeedback={false}` fires nothing and renders no thumbs ([L313](../../tests/ChatMessage.test.tsx#L313))                                                                          | Decision 3: the keyboard handler must respect `showFeedback` like the visible thumbs do         |
+| d   | The latch test runs both directions: a new `entry.id`, streaming and empty, shows the indicator again ([L394](../../tests/ChatMessage.test.tsx#L394))                                                    | Decision 4: a module-lifetime latch would mask the bug in any consumer that keys its list by id |
+| e   | The streaming no-key-handling test passes `arrowKeyFeedback` ([L343](../../tests/ChatMessage.test.tsx#L343))                                                                                             | It must still exercise the `isStreaming` gate now that arrows are off by default                |
 
 Out of scope by design: no judge-score or dev-info surface ships -
 `showDevInfo`, `conversationId`, judge-scoring hooks and their harness
@@ -93,64 +110,85 @@ circle carries `bowman-pulse-subtle`, never a bare
 `animate-pulse-subtle`, because 019 shipped
 every package animation class under the `bowman-` prefix (its spec: names
 "cannot collide with a consumer's own `animate-*` utilities")
-([validated by](../../tests/ChatMessage.test.tsx#L465),
+([validated by](../../tests/ChatMessage.test.tsx#L481),
 [keyframes](../../tests/styles.test.ts#L31)). That is the
 same rename the confirmation spans (`bowman-fade-in`) and the indicator dots
 (`bowman-fade-dot`) received
-([validated by](../../tests/ChatMessage.test.tsx#L659),
+([validated by](../../tests/ChatMessage.test.tsx#L675),
 [dots](../../tests/InlineThinkingIndicator.test.tsx#L19)).
 The tool-status row keeps `animate-spin` unchanged: that is a Tailwind
 core utility generated by the consumer's build, not a package keyframe
-([validated by](../../tests/ChatMessage.test.tsx#L344)).
+([validated by](../../tests/ChatMessage.test.tsx#L360)).
 
 ## Mechanical invariants
 
-- Markdown renders through 019's `markdownComponents` map with `remarkGfm`;
-  no `prose` class anywhere in `src/`
-  ([validated by](../../tests/ChatMessage.test.tsx#L118),
+- Markdown renders through 076's `createMarkdownComponents` map with
+  `remarkGfm`; no `prose` class anywhere in `src/`
+  ([validated by](../../tests/ChatMessage.test.tsx#L117),
   [L131](../../tests/ChatMessage.test.tsx#L131),
-  [L739](../../tests/ChatMessage.test.tsx#L739)).
+  [L755](../../tests/ChatMessage.test.tsx#L755)).
 - Raw HTML in `entry.content` stays escaped text; `rehype-raw` appears in no
   `package.json` field and no `rehypePlugins` prop is passed - the one
   security property this component must never lose (C-18)
   ([validated by](../../tests/ChatMessage.test.tsx#L146),
-  [L727](../../tests/ChatMessage.test.tsx#L727),
+  [L743](../../tests/ChatMessage.test.tsx#L743),
   [manifest](../../tests/chat-message-dist.test.ts#L65)).
+- A user entry's content never passes through ReactMarkdown: the bubble
+  renders it as literal `whitespace-pre-wrap` text, so
+  `"**Ver** pedido\n[4711](https://example.test)"` produces no `<strong>` and
+  no `<a>` and keeps its newline - routing user content through markdown is a
+  deliberate change, never drift
+  ([validated by](../../tests/ChatMessage.test.tsx#L160)).
 - The avatar circle takes `assistantAvatar` in place of the hardcoded logo and
   renders empty without it - no bundled mark (018 decision 3)
-  ([validated by](../../tests/ChatMessage.test.tsx#L444),
-  [L456](../../tests/ChatMessage.test.tsx#L456)).
+  ([validated by](../../tests/ChatMessage.test.tsx#L460),
+  [L472](../../tests/ChatMessage.test.tsx#L472)).
+- The action row under a committed assistant entry is `opacity-0` until the pointer
+  hovers the article or focus enters it (`group-hover` / `group-focus-within`), and no
+  jsdom test can see that: measured in Chromium, the row's computed opacity is `0` at
+  rest and `1` on hover or when the copy button takes focus (issue 151)
+  ([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L489)).
 - The selected thumbs-down reads the danger role - `--bowman-danger` text on the
   `--bowman-danger-soft` surface - rather than the `red-*` palette classes, so the
   negative-feedback state re-themes with the consumer's danger colour (§ Theming decision 6)
-  ([validated by](../../tests/ChatMessage.test.tsx#L501)).
+  ([validated by](../../tests/ChatMessage.test.tsx#L517)).
 - Long unbroken strings wrap: the user bubble and the assistant prose
   container both carry `break-words` (`overflow-wrap: break-word`), so a
   pasted 300-character token stays inside the user bubble and inside the
   assistant column instead of escaping horizontally; the browser test sends
   such a token through the demo composer and measures the user article
   (issue 132)
-  ([validated by](../../tests/ChatMessage.test.tsx#L839),
-  [L845](../../tests/ChatMessage.test.tsx#L845),
-  [browser](../../examples/chat-demo/tests/chat-demo.spec.ts#L339)).
+  ([validated by](../../tests/ChatMessage.test.tsx#L855),
+  [L861](../../tests/ChatMessage.test.tsx#L861),
+  [browser](../../examples/chat-demo/tests/chat-demo.spec.ts#L369)).
 - `footer` collapses the two dev-harness slots into one `ReactNode` rendered
   last in the message column, streaming or not
-  ([validated by](../../tests/ChatMessage.test.tsx#L625),
-  [L636](../../tests/ChatMessage.test.tsx#L636),
-  [L648](../../tests/ChatMessage.test.tsx#L648)).
+  ([validated by](../../tests/ChatMessage.test.tsx#L641),
+  [L652](../../tests/ChatMessage.test.tsx#L652),
+  [L664](../../tests/ChatMessage.test.tsx#L664)).
 - The four icons come from 020's set via relative `.js` imports; no `@clerk`,
   `swr`, `next-intl`, `next/` or `@/` import survives
-  ([validated by](../../tests/ChatMessage.test.tsx#L721)).
+  ([validated by](../../tests/ChatMessage.test.tsx#L737)).
 - Both files carry `"use client"` as the first statement of their `dist/`
   output, per 018 decision 1's positional check and
   `scripts/check-client-directives.mjs`
   ([validated by](../../tests/chat-message-dist.test.ts#L12)).
+- The copy chord is `Cmd/Ctrl+C` alone: Shift and Alt are excluded so the
+  browser's inspect-element chord `Cmd+Shift+C` copies nothing, and the key
+  is compared lowercased so `Cmd+C` under Caps Lock still copies
+  ([validated by](../../tests/ChatMessage.test.tsx#L193),
+  [L200](../../tests/ChatMessage.test.tsx#L200)).
 - `navigator.clipboard` is optional-chained: an insecure-context browser is a
   supported consumer environment - `Cmd+C` with `navigator.clipboard`
-  undefined does not throw and still calls `onCopy`. The 2000ms
-  `copiedNotice` timeout is pinned under fake timers
-  ([validated by](../../tests/ChatMessage.test.tsx#L214),
-  [L160](../../tests/ChatMessage.test.tsx#L160)).
+  undefined does not throw and still calls `onCopy`, and a rejecting
+  `writeText` (a permission denial) is swallowed while `onCopy` still fires
+  ([validated by](../../tests/ChatMessage.test.tsx#L230),
+  [L694](../../tests/ChatMessage.test.tsx#L694)).
+- The 2000ms `copiedNotice` timeout is pinned under fake timers, and a rapid
+  second copy replaces the pending timer so the notice lasts a full 2000ms
+  from the second press
+  ([validated by](../../tests/ChatMessage.test.tsx#L160),
+  [L688](../../tests/ChatMessage.test.tsx#L688)).
 
 ## Recorded decisions
 
@@ -172,14 +210,14 @@ core utility generated by the consumer's build, not a package keyframe
   Latin-run check needs no extra strip entry for user-shaped text. The
   harness clicks copy and thumbs-up so the interaction-only labels
   (`copied`, `copiedNotice`, `feedbackNotice`) render into the checked DOM
-  ([validated by](../../tests/labelled-exports.test.tsx#L555), harness at
-  [L311](../../tests/labelled-exports.test.tsx#L311)).
+  ([validated by](../../tests/labelled-exports.test.tsx#L555),
+  [harness](../../tests/labelled-exports.test.tsx#L324)).
 - **The copied check and selected thumbs-up read the success theming role.**
   The check mark and the selected thumbs-up's text read `--bowman-success`, and the
   thumbs-up's fill reads `--bowman-success-soft` (docs/design-notes.md § Theming decision 6),
   so a consumer recolours both at once; adopting the role moves the check off its lone
   `green-500` onto the `green-600` / `green-400` the thumbs-up already used
-  ([validated by](../../tests/ChatMessage.test.tsx#L529)).
+  ([validated by](../../tests/ChatMessage.test.tsx#L545)).
 - **GDPR enforcement is a source grep plus a suite-wide console trap.**
   `entry.content` may carry booking identifiers and names
   (`003-support-conversation-data-flow-record`). Neither component references
@@ -191,7 +229,7 @@ core utility generated by the consumer's build, not a package keyframe
   before the setup-level `afterEach` (which runs last) asserts zero calls.
   The only egress of `content` is the user-initiated
   `navigator.clipboard.writeText` - the single documented exception
-  ([validated by](../../tests/ChatMessage.test.tsx#L733)).
+  ([validated by](../../tests/ChatMessage.test.tsx#L749)).
 - **`react-markdown` and `remark-gfm` are runtime dependencies** at
   `^10.1.0` and `^4.0.1`,
   not devDependencies; 019's zero-runtime-deps claim carries a supersession note

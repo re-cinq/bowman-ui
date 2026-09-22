@@ -302,8 +302,8 @@ instead reachable the same way `consumer` is, as a `package.json` script
 
 - `tsconfig.json` still excludes `examples/`
   ([validated by](../../tsconfig.json#L17)).
-- Coverage still scopes to `src/**` at the unchanged 100/100/100/90
-  thresholds ([validated by](../../vitest.config.ts#L25)); vitest's
+- Coverage still scopes to `src/**` at the unchanged 100/100/100/100
+  thresholds ([validated by](../../vitest.config.ts#L26)); vitest's
   `exclude` already covered `examples/**`
   ([validated by](../../vitest.config.ts#L12)).
 - `npm pack --dry-run` ships `dist/`, `package.json`, `LICENSE`, `README.md`,

@@ -21,10 +21,10 @@ flag to the callback where the derivation already lives.
 component's own resolved `pending` prop rather than a second derivation. With
 `pending` set the callback's present-tense string renders; without it the
 past-tense one
-([validated by](../../tests/ToolActivity.test.tsx#L151)). The published
+([validated by](../../tests/ToolActivity.test.tsx#L152)). The published
 declarations carry the two-parameter form, reached from the barrel's
 `export type { ... ToolActivityProps } from "./components/ToolActivity.js"`
-([validated by](../../tests/ToolActivity.test.tsx#L280)) - `dist/index.d.ts`
+([validated by](../../tests/ToolActivity.test.tsx#L287)) - `dist/index.d.ts`
 is re-export statements only, so the signature is emitted in the module it
 re-exports.
 
@@ -37,11 +37,11 @@ re-exports.
    `tests/types/tool-activity-type-assertions.tsx` compiles against the built
    package suppressing no error. The same
    one-parameter shape stays pinned through `ChatMessageList`'s own assertions
-   ([validated by](../../tests/types/chat-message-list-type-assertions.tsx#L73),
-   [L166](../../tests/ToolActivity.test.tsx#L166),
-   [L293](../../tests/ToolActivity.test.tsx#L293),
+   ([validated by](../../tests/types/chat-message-list-type-assertions.tsx#L107),
+   [L167](../../tests/ToolActivity.test.tsx#L167),
+   [L300](../../tests/ToolActivity.test.tsx#L300),
    compiled by
-   [chat-message-list-dist](../../tests/chat-message-list-dist.test.ts#L27)).
+   [chat-message-list-dist](../../tests/chat-message-list-dist.test.ts#L81)).
 2. **One source of truth for the flag.** The value passed is the prop
    `ToolActivity` already resolved (default `false`), so a caller using the
    component directly and one going through `ChatMessageList` see identical
@@ -52,17 +52,17 @@ re-exports.
    one its present-tense string, and with `busy` false both read past tense.
    Its prop type
    restates the signature inline and is kept identical to `ToolActivity`'s
-   ([validated by](../../tests/ChatMessageList.test.tsx#L691)).
+   ([validated by](../../tests/ChatMessageList.test.tsx#L1032)).
 3. **Replacement semantics are untouched.** A supplied `describeTool` still
    replaces the tensed labels entirely and suppresses nothing else - with
    `showToolName` also set, the fixture's tool name is still in the document.
    This issue changes
    what the callback knows, not what it controls
-   ([validated by](../../tests/ToolActivity.test.tsx#L131)).
+   ([validated by](../../tests/ToolActivity.test.tsx#L132)).
 4. **The component stays off the client-directive trigger list.**
    `ToolActivity.tsx` gains no state: its source still holds no `useState`,
    `useEffect` or `useId`
-   ([validated by](../../tests/ToolActivity.test.tsx#L249)).
+   ([validated by](../../tests/ToolActivity.test.tsx#L256)).
 
 ## Out of scope
 

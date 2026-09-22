@@ -17,6 +17,7 @@ import {
   ConversationList,
   ErrorBoundary,
   InlineThinkingIndicator,
+  SearchField,
   ThinkingIndicator,
   ThinkingTrace,
   ToolActivity,
@@ -28,6 +29,7 @@ import {
   defaultConversationListLabels,
   defaultErrorBoundaryLabels,
   defaultInlineThinkingIndicatorLabels,
+  defaultSearchFieldLabels,
   defaultThinkingIndicatorLabels,
   defaultThinkingTraceLabels,
   defaultToolActivityLabels,
@@ -51,6 +53,8 @@ import { IconsExample } from "./examples/IconsExample";
 import iconsSource from "./examples/IconsExample.tsx?raw";
 import { InlineThinkingIndicatorExample } from "./examples/InlineThinkingIndicatorExample";
 import inlineThinkingIndicatorSource from "./examples/InlineThinkingIndicatorExample.tsx?raw";
+import { SearchFieldExample } from "./examples/SearchFieldExample";
+import searchFieldSource from "./examples/SearchFieldExample.tsx?raw";
 import { ThinkingIndicatorExample } from "./examples/ThinkingIndicatorExample";
 import thinkingIndicatorSource from "./examples/ThinkingIndicatorExample.tsx?raw";
 import { ThinkingTraceExample } from "./examples/ThinkingTraceExample";
@@ -85,6 +89,7 @@ import {
   errorBoundaryPropDocs,
   iconPropDocs,
   inlineThinkingIndicatorPropDocs,
+  searchFieldPropDocs,
   thinkingIndicatorPropDocs,
   thinkingTracePropDocs,
   toastPropDocs,
@@ -465,6 +470,29 @@ export const componentDocs: ReadonlyArray<ComponentDoc> = [
         node: <ConversationList items={[]} isLoading />,
       },
       { id: "empty", caption: "No items", node: <ConversationList items={[]} /> },
+    ],
+  },
+  {
+    id: "search-field",
+    name: "SearchField",
+    purpose:
+      'A controlled search input with a leading icon and a real accessible name - the label, never the placeholder. It is type="search", so the browser adds its native clear control, and whatever the browser hands back - the empty string from that control included - reaches onChange verbatim and untrimmed. It keeps no state of its own; pair it with whatever filters your list.',
+    importLine: 'import { SearchField } from "@re-cinq/bowman-ui";',
+    Example: SearchFieldExample,
+    exampleSource: searchFieldSource,
+    props: searchFieldPropDocs,
+    labels: { defaults: defaultSearchFieldLabels, missing: [] },
+    variants: [
+      {
+        id: "filled",
+        caption: "With a value: the browser shows its clear control",
+        node: <SearchField value="atlas" onChange={ignore} />,
+      },
+      {
+        id: "disabled",
+        caption: "disabled: dimmed, no input",
+        node: <SearchField value="" onChange={ignore} disabled />,
+      },
     ],
   },
   {

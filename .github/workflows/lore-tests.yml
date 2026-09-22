@@ -4,7 +4,8 @@
 # no secrets, and `secrets` cannot be read from an `if:`); the binary is checked
 # against LORE_CODE_TRACE_SHA256 below instead of the checksums.txt served
 # beside it. A missing URL, a failed download or a mismatch never runs the
-# binary: each warns on a pull request and fails on main. To bump the pin,
+# binary, and a failed ingest is reported the same way: each warns on a pull
+# request and fails on main. To bump the pin,
 # download both /dist/lore-code-trace/linux-amd64 and
 # /dist/lore-code-trace/checksums.txt from the ingest origin, confirm
 # `sha256sum -c checksums.txt` agrees with an independent download, then paste
@@ -65,4 +66,9 @@ jobs:
         env:
           LORE_WEBHOOK_URL: ${{ vars.LORE_WEBHOOK_URL }}
           LORE_INGEST_TOKEN: ${{ secrets.LORE_INGEST_TOKEN }}
-        run: ./lore-code-trace --post || echo "::warning::Lore test ingest failed"
+        run: |
+          if ! ./lore-code-trace --post; then
+            echo "::warning::Lore test ingest failed"
+            [ "${GITHUB_EVENT_NAME}" = "pull_request" ] && exit 0
+            exit 1
+          fi

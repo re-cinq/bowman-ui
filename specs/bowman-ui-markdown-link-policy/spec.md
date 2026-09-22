@@ -96,7 +96,7 @@ which is the request a `fetch` spy would never see
 ([validated by](../../tests/markdown/urlPolicy.test.tsx#L263)). Suite-wide,
 `tests/setup.ts` records any `fetch` or `XMLHttpRequest` call and fails the
 test that triggered it, alongside 023's console trap
-([validated by](../../tests/setup.ts#L18)). Neither markdown source file
+([validated by](../../tests/setup.ts#L96)). Neither markdown source file
 references `console.`, storage APIs, `fetch` or `sendBeacon`
 ([validated by](../../tests/markdown/urlPolicy.test.tsx#L293)). Raw HTML
 still renders as escaped text - no `rehype` anywhere
@@ -117,14 +117,14 @@ result stays assignable to `react-markdown`'s `Components`
 `ChatMessage` merges its `markdown` prop over `defaultMarkdownPolicy` (via
 `resolveLabels`, so an explicit `undefined` field cannot clobber a default)
 and passes the factory's map plus `createUrlTransform`'s result to
-`ReactMarkdown` ([validated by](../../tests/ChatMessage.test.tsx#L758),
-[L787](../../tests/ChatMessage.test.tsx#L787),
-[L799](../../tests/ChatMessage.test.tsx#L799)). A rejected link renders as a
-span ([validated by](../../tests/ChatMessage.test.tsx#L774)). An image
+`ReactMarkdown` ([validated by](../../tests/ChatMessage.test.tsx#L774),
+[L803](../../tests/ChatMessage.test.tsx#L803),
+[L815](../../tests/ChatMessage.test.tsx#L815)). A rejected link renders as a
+span ([validated by](../../tests/ChatMessage.test.tsx#L790)). An image
 renders as alt text
-([validated by](../../tests/ChatMessage.test.tsx#L824)). The
+([validated by](../../tests/ChatMessage.test.tsx#L840)). The
 `linkOpensInNewTab` override reaches the notice
-([validated by](../../tests/ChatMessage.test.tsx#L812)).
+([validated by](../../tests/ChatMessage.test.tsx#L828)).
 
 ## Recorded decisions, interpretations and deviations
 
@@ -133,7 +133,7 @@ renders as alt text
   criterion, the "merged over `defaultMarkdownPolicy`" wording and the
   one-line `http` opt-in all require field-level merging - so the fields
   carry `?` and the prop stays the issue's literal `markdown?: MarkdownPolicy`
-  ([validated by](../../tests/ChatMessage.test.tsx#L787)).
+  ([validated by](../../tests/ChatMessage.test.tsx#L803)).
 - **The transform never decodes.** `java&#x09;script:` reaches the transform
   percent-encoded as `java%09script:`; comparing the raw scheme keeps the
   bypass closed, and a later `decodeURIComponent` "cleanup" would reopen it
@@ -168,17 +168,21 @@ renders as alt text
 - **The factory sits in the `labelsProp` partition bucket** with its own
   sentinel harness and key-coverage test (docs/design-notes.md § Labels records the
   shape; Toast's closed-list precedent)
-  ([validated by](../../tests/labelled-exports.test.tsx#L394),
-  [L481](../../tests/labelled-exports.test.tsx#L481)).
+  ([validated by](../../tests/labelled-exports.test.tsx#L615),
+  [harness](../../tests/labelled-exports.test.tsx#L492)).
 
   `ChatMessage`'s sentinel harness renders a numeric-text link so the notice
   label reaches the checked DOM.
 
 - **Amendments to merged criteria, per the issue:** `ChatMessageProps` gains
-  `markdown?: MarkdownPolicy` (ten fields), `ChatMessageLabels` and
-  `defaultChatMessageLabels` gain `linkOpensInNewTab` (ten keys).
-  - The `@ts-expect-error` completeness fixture now omits the tenth key
-    ([validated by](../../tests/types/chat-message-type-assertions.tsx#L61)).
+  `markdown?: MarkdownPolicy` (ten fields at the time; 121's `assistantName`
+  later made eleven), `ChatMessageLabels` and `defaultChatMessageLabels` gain
+  `linkOpensInNewTab` (ten keys then, eleven since 121's
+  `assistantMessageFrom`).
+  - The `@ts-expect-error` completeness fixture omits `linkOpensInNewTab`
+    (and, since 121, `assistantMessageFrom`)
+    ([validated by](../../tests/types/chat-message-type-assertions.tsx#L60),
+    compiled by [chat-message-dist](../../tests/chat-message-dist.test.ts#L22)).
   - 019's map-keys test counts nineteen entries, a necessary consequence of
     the `img` gate
     ([validated by](../../tests/markdown-components.test.tsx#L55)).
