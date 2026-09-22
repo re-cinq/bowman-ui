@@ -78,8 +78,9 @@ jobs:
         run: npm run check:at-pass -- --structure
       # specs' [validated by](...#Lnn) anchors drift silently when any cited
       # repository file gains or loses lines (issues 36 and 37). Fails when a
-      # link into a file this branch changed would be re-anchored, cites a line
-      # the branch deleted, or lands on a blank line; a red check is fixed with
+      # link would be re-anchored (--all: a titled link into any test file, not
+      # only one this branch changed), cites a line the branch deleted, or
+      # lands on a blank line; a red check is fixed with
       # `npm run reanchor` and a commit. Check only, never a bot commit
       # (docs/design-notes.md § Lint guardrails decision 14).
       - name: Spec anchor check

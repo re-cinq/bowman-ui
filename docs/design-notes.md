@@ -1233,6 +1233,13 @@ typecheck` now runs `typescript7` twice: `tsconfig.json`, then
     untitled links keep passing through the hunk mapping; relabelling them
     with test titles is a separate, later sweep.
 
+    Amended after that sweep (PR #206): both `npm run reanchor` and
+    `npm run reanchor:check` pass `--all`. Scoped to changed files, a titled
+    link into a test file the branch left alone was never verified, so a
+    hand-edited href there passed as authored; with `--all` every titled link
+    must sit inside its test. Untitled links into unchanged files map through
+    empty hunks, so the sweep adds no churn to a pull request.
+
 Considered and rejected:
 
 - **Type-aware rules** (`no-floating-promises`, `no-misused-promises`,

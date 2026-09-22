@@ -80,7 +80,7 @@ The typecheck script is `typecheck`, not `type-check`.
   any finding, exit 2 on a bad flag or unreadable doc. `--coverage` instead lists every unlinked
   testable statement and ALWAYS exits 0 — a report, not a gate. See docs/design-notes.md § Lint
   guardrails decision 11.
-- `npm run reanchor [-- --all] [-- <base-ref>]` / `npm run reanchor:check` — after editing any
+- `npm run reanchor [-- <base-ref>]` / `npm run reanchor:check` (both pass `--all`) — after editing any
   cited repository file (a test, a script, README.md, a docs/ markdown file, a workflow, a
   config), run `npm run reanchor` and commit the result or CI reds. A `[validated by <test
 title>]` link follows its `it()`; every other link is mapped through the cited file's diff
