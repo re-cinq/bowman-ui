@@ -107,7 +107,8 @@ The typecheck script is `typecheck`, not `type-check`.
 - `src/markdown/` — `components.tsx`, `urlPolicy.ts`.
 - `src/types/chat.ts`.
 - `tests/` (test files flat at the top level): `<Component>.test.tsx` = behavior;
-  `<thing>-dist.test.ts` = built output; `tests/setup.ts` = suite-wide console + network traps.
+  `<thing>-dist.test.ts` = built output; `tests/setup.ts` = suite-wide console + network traps,
+  pinned by `tests/setup-traps.test.ts`.
   Subdirectories: `tests/types/*-type-assertions.tsx` = compile-time `@ts-expect-error` against
   the BUILT package; `tests/security/`; `tests/markdown/`; `tests/helpers/` = the shared test
   routines decision 12 extracted; `tests/fixtures/` = committed fixtures (the public-API
@@ -143,8 +144,9 @@ The typecheck script is `typecheck`, not `type-check`.
    two `it()` titles derive their counts from that fixture. NEVER regenerate the snapshot to make
    the test pass; a removal or rename is a breaking major.
 4. **GDPR no-egress.** `src/` writes nothing to the console and performs no network egress
-   (`fetch` / `XMLHttpRequest` / `sendBeacon`). tests/setup.ts installs suite-wide traps that fail
-   any test whose render touches `console.error`/`console.warn`, `fetch`, or `XMLHttpRequest`.
+   (`fetch` / `XMLHttpRequest` / `WebSocket` / `EventSource` / `sendBeacon`). tests/setup.ts
+   installs suite-wide traps that fail any test whose render touches
+   `console.error`/`console.warn` or any of those five network channels.
    Storage is NOT part of this invariant and is NOT trapped: the opt-in `useSidebarState` hook
    (a public export) intentionally reads/writes `localStorage` for accessibility-state persistence,
    gated on a consumer-supplied `storagePrefix` — the only storage access in `src/`. Keep test
@@ -157,9 +159,9 @@ The typecheck script is `typecheck`, not `type-check`.
    relative import ends in `.js` (NodeNext). The compiler is the enforcement.
 7. **Forbidden imports in `src/`** (scripts/check-forbidden-imports.mjs): `next`, `next-intl`,
    `swr`, `lucide-react`, `@clerk/*`, `@/*`.
-8. **Coverage floor** (vitest.config.ts:25): 100 lines / 100 functions / 100 statements + 90
-   branches over `src/**`. Lower it only once, in the PR that needs it, with the number and
-   reason recorded — and never again.
+8. **Coverage floor** (vitest.config.ts:26): 100 lines / 100 functions / 100 statements / 100
+   branches over `src/**` (branches rose from 90 in issue 152). Lower it only once, in the PR
+   that needs it, with the number and reason recorded — and never again.
 9. **One icon system** (docs/design-notes.md decisions 2-3). The local 23-icon set only, no `lucide-react`.
    `SendIcon` is deliberately unused; NO paperclip icon is authored; no bundled default/brand
    mark ships.

@@ -65,33 +65,33 @@ value ([validated by](../../tests/theming-tokens-dist.test.ts#L286),
 
 - `ChatComposer`'s send button reads `--bowman-accent` for its background and
   `--bowman-accent-hover` on hover, light and dark
-  ([validated by](../../tests/ChatComposer.test.tsx#L185)).
+  ([validated by](../../tests/ChatComposer.test.tsx#L206)).
 - `ChatComposer`'s send button and the primary `Button`/`IconButton` variant paint their text
   with `--bowman-text-on-accent`, one `white` value in both modes, so a consumer with a pale
-  accent can darken it ([validated by](../../tests/ChatComposer.test.tsx#L203),
+  accent can darken it ([validated by](../../tests/ChatComposer.test.tsx#L224),
   [primary](../../tests/Button.test.tsx#L96), [icon](../../tests/IconButton.test.tsx#L96)).
 - `ChatComposer`'s wrapper keeps `focus-within:ring-2` beside the `--bowman-focus-ring` ring
   at `/50` and the `--bowman-accent-glow` shadow, light and dark
-  ([validated by](../../tests/ChatComposer.test.tsx#L209)).
+  ([validated by](../../tests/ChatComposer.test.tsx#L230)).
 - `ChatMessage`'s streaming avatar circle reads `--bowman-accent-border` and
   `--bowman-accent-soft`, light and dark
-  ([validated by](../../tests/ChatMessage.test.tsx#L478)).
+  ([validated by](../../tests/ChatMessage.test.tsx#L494)).
 - `ThinkingIndicator`'s circle reads the same two tokens
   ([validated by](../../tests/ThinkingIndicator.test.tsx#L76)).
 - `ThinkingDots` read `--bowman-accent` for every dot, in both modes, and keep doing so under
   `reducedMotion` in `ThinkingTrace` and `ChatMessageList`
-  ([validated by](../../tests/ThinkingTrace.test.tsx#L107),
+  ([validated by](../../tests/ThinkingTrace.test.tsx#L114),
   [L1138](../../tests/ChatMessageList.test.tsx#L1138)).
 - Every focus ring keeps its `focus:ring-2` width class beside the `--bowman-focus-ring`
   colour, light and dark: `ChatMessage`'s article, copy button and thumb buttons,
   `ConversationList`'s row link and delete button, every `AppSidebar` item, and `AppShell`'s
   skip link, hamburger and close button
-  ([validated by](../../tests/ChatMessage.test.tsx#L486),
+  ([validated by](../../tests/ChatMessage.test.tsx#L502),
   [L152](../../tests/ConversationList.test.tsx#L152),
   [L137](../../tests/AppSidebar.test.tsx#L137), [L420](../../tests/AppShell.test.tsx#L420)).
 - `ErrorBoundary`'s retry button keeps `focus-visible:ring-2` beside the `--bowman-focus-ring`
   colour and gains no dark ring, because it had none
-  ([validated by](../../tests/ErrorBoundary.test.tsx#L181)).
+  ([validated by](../../tests/ErrorBoundary.test.tsx#L188)).
 - `ConversationList`'s active row alone reads `--bowman-active`, light and dark
   ([validated by](../../tests/ConversationList.test.tsx#L137)).
 - `AppSidebar`'s `isActive` item alone reads `--bowman-active`, its label the `--bowman-text-strong`
@@ -149,20 +149,20 @@ utility fails ([validated by](../../tests/theming-tokens-dist.test.ts#L246)).
   `Button` hover and the focused `AppShell` skip link read the same role through its `hover:` and
   `focus:` variants, so a consumer recolours every strong-text site at once - the message body
   joining `--bowman-text-strong` rather than `--bowman-text-body` per decision 6
-  ([validated by](../../tests/theming-tokens-dist.test.ts#L246), [L495](../../tests/ChatMessage.test.tsx#L495)).
+  ([validated by](../../tests/theming-tokens-dist.test.ts#L246), [L511](../../tests/ChatMessage.test.tsx#L511)).
 - `ChatMessage`'s assistant name, the `ThinkingTrace` trace content and the `ToolActivity` tool
   name read `--bowman-text-secondary`, folding the slate-600 / slate-300 label pair into the
   existing role per decision 6, the dark side dimming one step to `slate-400`
   ([validated by](../../tests/theming-tokens-dist.test.ts#L246),
-  [L512](../../tests/ChatMessage.test.tsx#L512),
-  [L63](../../tests/ThinkingTrace.test.tsx#L63),
-  [L42](../../tests/ToolActivity.test.tsx#L42)).
+  [L528](../../tests/ChatMessage.test.tsx#L528),
+  [L70](../../tests/ThinkingTrace.test.tsx#L70),
+  [L43](../../tests/ToolActivity.test.tsx#L43)).
 - `ChatMessage`'s copy and thumb buttons read `--bowman-text-subtle` at rest and
   `--bowman-text-secondary` on hover through its `hover:` variant, the semantic promotion of
   decision 6, while `ConversationList`'s delete button reads `--bowman-text-subtle` at rest with
   its danger hover left to the danger role; dark rest dims one step to slate-500 and dark hover to
   slate-400 ([validated by](../../tests/theming-tokens-dist.test.ts#L246),
-  [L518](../../tests/ChatMessage.test.tsx#L518),
+  [L534](../../tests/ChatMessage.test.tsx#L534),
   [L165](../../tests/ConversationList.test.tsx#L165)).
 - The selected thumbs-down chip and text, the `ErrorBoundary` icon circle and glyph, and the
   `ConversationList` delete-button hover read the danger role - `--bowman-danger` /
@@ -170,9 +170,9 @@ utility fails ([validated by](../../tests/theming-tokens-dist.test.ts#L246)).
   site at once; the delete hover moves from a lone `red-500` to the role's `red-600`, and the two
   dark soft fills (`red-900/30` and `/20`) collapse to one `rgba()` fallback, per decision 6
   ([validated by](../../tests/theming-tokens-dist.test.ts#L245),
-  [L501](../../tests/ChatMessage.test.tsx#L501),
+  [L517](../../tests/ChatMessage.test.tsx#L517),
   [L159](../../tests/ConversationList.test.tsx#L159),
-  [L73](../../tests/ErrorBoundary.test.tsx#L73)).
+  [L91](../../tests/ErrorBoundary.test.tsx#L91)).
 - The twenty-one role fallbacks are declared in the stylesheet block and the design-notes table
   in the same order as the code reads them, and every read carries the declared fallback
   ([validated by](../../tests/theming-tokens-dist.test.ts#L190),
@@ -189,14 +189,14 @@ because a `/30` alpha modifier cannot ride a token.
   selected thumbs-up reads `--bowman-success-soft` for its fill; `ChatMessage` is the only component
   the dist test pins as importing either, and adopting the role retires the check's lone `green-500`
   for `green-600` (`green-400` in dark) per decision 6
-  ([validated by](../../tests/theming-tokens-dist.test.ts#L246), [L529](../../tests/ChatMessage.test.tsx#L529)).
+  ([validated by](../../tests/theming-tokens-dist.test.ts#L246), [L545](../../tests/ChatMessage.test.tsx#L545)).
 
 ## What stays palette-mapped
 
 - The ring width, offset and outline classes - `focus:ring-2`, `ring-offset-2`,
   `focus:outline-none` - render at every site untouched beside the colour tokens; at the offset-ring
   sites the outline and width ride in `FOCUS_RING` (`src/theme/focusRing.ts`, issue 155) with
-  `ring-offset-2` left in place ([validated by](../../tests/ChatComposer.test.tsx#L209),
+  `ring-offset-2` left in place ([validated by](../../tests/ChatComposer.test.tsx#L230),
   [L120](../../tests/Button.test.tsx#L120), [L134](../../tests/PromptChips.test.tsx#L134),
   [L311](../../tests/theming-tokens-dist.test.ts#L311)).
 - Every neutral site that matches a role pair on one side only keeps its palette classes on
@@ -215,7 +215,7 @@ build decision, exactly as that spec left it. Each `-dark` token rides the `dark
 variant its site already carried, so the media-query default and a class strategy both resolve
 it without the package choosing; the package adds no media query and no selector of its own.
 `ErrorBoundary`'s retry button had no dark ring and gains none
-([validated by](../../tests/ErrorBoundary.test.tsx#L181)).
+([validated by](../../tests/ErrorBoundary.test.tsx#L188)).
 
 ## Recorded decisions
 
@@ -226,7 +226,7 @@ it without the package choosing; the package adds no media query and no selector
    Tailwind cannot pre-mix a `var()`. That branch is unreachable on Tailwind v4's own browser
    floor - Safari 16.4, Chrome 111 and Firefox 128 all support `color-mix()` - so the
    byte-for-byte claim holds on every supported engine
-   ([validated by](../../tests/ChatComposer.test.tsx#L209)).
+   ([validated by](../../tests/ChatComposer.test.tsx#L230)).
 2. **The active row's backgrounds have their own pair; its label rides the strong text
    role.** `--bowman-active` and `--bowman-active-dark` colour the surface. As first recorded
    the label colours stayed palette-mapped. **Amended by 146:** issue 102 moved the sidebar
@@ -354,5 +354,5 @@ asserted ([validated by](../../examples/chat-demo/tests/theming.spec.ts#L171),
 are the other nineteen `-dark` tokens and the light ones no test reads, among them
 `--bowman-accent-hover` and `--bowman-pulse-outline` - Playwright never hovers a control -
 which the jsdom class-string tests above pin alone
-([validated by](../../tests/ChatComposer.test.tsx#L185),
-[L71](../../tests/styles.test.ts#L71), [L478](../../tests/ChatMessage.test.tsx#L478)).
+([validated by](../../tests/ChatComposer.test.tsx#L206),
+[L71](../../tests/styles.test.ts#L71), [L494](../../tests/ChatMessage.test.tsx#L494)).

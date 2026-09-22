@@ -4,6 +4,7 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { ToolActivity, defaultToolActivityLabels } from "../src/index.js";
 import type { ToolChatEntry } from "../src/index.js";
+import { expectSummaryClickToggles } from "./helpers/expect-summary-toggle.js";
 import { expectTextSecondary } from "./helpers/expect-theme-tokens.js";
 
 // 017's fixture entry (tests/fixtures/hal-session-entries.json § tool).
@@ -197,6 +198,12 @@ describe("ToolActivity", () => {
       expect(details).not.toBeNull();
       expect(details?.open).toBe(false);
       expect(details?.querySelector("summary")?.textContent).toBe("Details");
+    });
+
+    it("clicking the Details summary opens the disclosure and a second click closes it again", async () => {
+      const { container } = render(<ToolActivity entry={weatherEntry} showToolInput />);
+
+      await expectSummaryClickToggles(container);
     });
   });
 

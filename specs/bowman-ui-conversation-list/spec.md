@@ -164,5 +164,5 @@ consumer-computed `badge` string).
   `tests/labelled-exports.test.tsx`. The tests land there
   (`tests/ConversationList.test.tsx`, `tests/conversation-list-dist.test.ts`).
 - **Coverage floor.** The issue says "the 100 / 100 / 100 thresholds `014`
-  committed"; the committed floor is lines/functions/statements 100 with
-  branches 90 (`vitest.config.ts`), and it holds.
+  committed"; the floor was lines/functions/statements 100 with branches 90
+  when this landed (100 on all four since issue 152), and it holds.

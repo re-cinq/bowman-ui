@@ -96,7 +96,7 @@ which is the request a `fetch` spy would never see
 ([validated by](../../tests/markdown/urlPolicy.test.tsx#L263)). Suite-wide,
 `tests/setup.ts` records any `fetch` or `XMLHttpRequest` call and fails the
 test that triggered it, alongside 023's console trap
-([validated by](../../tests/setup.ts#L52)). Neither markdown source file
+([validated by](../../tests/setup.ts#L96)). Neither markdown source file
 references `console.`, storage APIs, `fetch` or `sendBeacon`
 ([validated by](../../tests/markdown/urlPolicy.test.tsx#L293)). Raw HTML
 still renders as escaped text - no `rehype` anywhere
@@ -117,14 +117,14 @@ result stays assignable to `react-markdown`'s `Components`
 `ChatMessage` merges its `markdown` prop over `defaultMarkdownPolicy` (via
 `resolveLabels`, so an explicit `undefined` field cannot clobber a default)
 and passes the factory's map plus `createUrlTransform`'s result to
-`ReactMarkdown` ([validated by](../../tests/ChatMessage.test.tsx#L758),
-[L787](../../tests/ChatMessage.test.tsx#L787),
-[L799](../../tests/ChatMessage.test.tsx#L799)). A rejected link renders as a
-span ([validated by](../../tests/ChatMessage.test.tsx#L774)). An image
+`ReactMarkdown` ([validated by](../../tests/ChatMessage.test.tsx#L774),
+[L803](../../tests/ChatMessage.test.tsx#L803),
+[L815](../../tests/ChatMessage.test.tsx#L815)). A rejected link renders as a
+span ([validated by](../../tests/ChatMessage.test.tsx#L790)). An image
 renders as alt text
-([validated by](../../tests/ChatMessage.test.tsx#L824)). The
+([validated by](../../tests/ChatMessage.test.tsx#L840)). The
 `linkOpensInNewTab` override reaches the notice
-([validated by](../../tests/ChatMessage.test.tsx#L812)).
+([validated by](../../tests/ChatMessage.test.tsx#L828)).
 
 ## Recorded decisions, interpretations and deviations
 
@@ -133,7 +133,7 @@ renders as alt text
   criterion, the "merged over `defaultMarkdownPolicy`" wording and the
   one-line `http` opt-in all require field-level merging - so the fields
   carry `?` and the prop stays the issue's literal `markdown?: MarkdownPolicy`
-  ([validated by](../../tests/ChatMessage.test.tsx#L787)).
+  ([validated by](../../tests/ChatMessage.test.tsx#L803)).
 - **The transform never decodes.** `java&#x09;script:` reaches the transform
   percent-encoded as `java%09script:`; comparing the raw scheme keeps the
   bypass closed, and a later `decodeURIComponent` "cleanup" would reopen it

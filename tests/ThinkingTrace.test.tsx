@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { ThinkingTrace, defaultThinkingTraceLabels } from "../src/index.js";
 import type { ThinkingChatEntry } from "../src/index.js";
+import { expectSummaryClickToggles } from "./helpers/expect-summary-toggle.js";
 import { expectThinkingDots } from "./helpers/expect-thinking-dots.js";
 import { ACCENT_DOT_SELECTOR, expectTextSecondary } from "./helpers/expect-theme-tokens.js";
 
@@ -46,6 +47,12 @@ describe("ThinkingTrace", () => {
       for (const word of reasoningEntry.content.split(" ")) {
         expect(summaryText).not.toContain(word);
       }
+    });
+
+    it("clicking the Reasoning summary opens the section and a second click closes it again", async () => {
+      const { container } = render(<ThinkingTrace entry={reasoningEntry} />);
+
+      await expectSummaryClickToggles(container);
     });
   });
 

@@ -139,7 +139,7 @@ handler and the ref handle's `setValue`, the textarea is uncontrolled, and
 the demo passes no ref, so nothing re-runs the resize after `submit()` writes
 `auto`. `027`'s string criterion therefore still holds in a real browser,
 exactly as its unit test asserts
-([validated by](../../tests/ChatComposer.test.tsx#L43)).
+([validated by](../../tests/ChatComposer.test.tsx#L41)).
 
 What this suite adds is the half no jsdom test could reach: the browser
 resolves that `auto` back to a real rendered height equal to the recorded
@@ -154,8 +154,8 @@ the customer-visible fact, and asserting the string here would only duplicate
 The `maxHeightPx` override is proven only by `027`'s stubbed unit test - a
 stubbed `scrollHeight` of 320 capping at `200px` under the default and
 reaching `320px` with `maxHeightPx={400}` - and by no browser
-([validated by](../../tests/ChatComposer.test.tsx#L284),
-[L293](../../tests/ChatComposer.test.tsx#L293)). The demo pins its
+([validated by](../../tests/ChatComposer.test.tsx#L305),
+[L314](../../tests/ChatComposer.test.tsx#L314)). The demo pins its
 composition and threads no URL parameter to a second `maxHeightPx`, per the
 issue's tech note: that would turn the worked consumer into a fixture for its
 own test suite.
@@ -185,8 +185,8 @@ anchor.
 
 ## Gates preserved
 
-- `npm run test:coverage` passes at the unchanged 100/100/100/90 thresholds
-  ([validated by](../../vitest.config.ts#L25)); the Playwright suite stays
+- `npm run test:coverage` passes at the unchanged 100/100/100/100 thresholds
+  ([validated by](../../vitest.config.ts#L26)); the Playwright suite stays
   excluded from vitest ([validated by](../../vitest.config.ts#L12)).
 - `npm run lint`, `npm run typecheck`, `npm test`, `npm run build` and
   `npm run prettier:check` pass, and `npm run consumer` exits 0 from a clean

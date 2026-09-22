@@ -226,6 +226,6 @@ DOM, and the deliberate decisions below are each pinned by a test.
   ([validated by](../../tests/AppShell.test.tsx#L276),
   [L284](../../tests/AppShell.test.tsx#L284)).
 - **Coverage floor.** The issue says "the 100 / 100 / 100 thresholds the
-  repo-skeleton issue committed"; the committed floor is
-  lines/functions/statements 100 with branches 90 (`vitest.config.ts`), and
-  it holds.
+  repo-skeleton issue committed"; the floor was lines/functions/statements
+  100 with branches 90 when this landed (100 on all four since issue 152,
+  `vitest.config.ts`), and it holds.

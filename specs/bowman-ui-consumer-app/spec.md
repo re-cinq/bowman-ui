@@ -382,7 +382,7 @@ result ([validated by](../../.github/workflows/publish.yml#L101)).
 - `tsconfig.json` excludes `examples/`
   ([validated by](../../tsconfig.json#L17)).
 - The coverage `include` still scopes to `src/**` at the unchanged
-  100/100/100/90 thresholds ([validated by](../../vitest.config.ts#L25));
+  100/100/100/100 thresholds ([validated by](../../vitest.config.ts#L26));
   vitest's `exclude` gains `examples/**` so the Playwright suite - which
   matches the default spec glob - never runs under vitest
   ([validated by](../../vitest.config.ts#L12)).

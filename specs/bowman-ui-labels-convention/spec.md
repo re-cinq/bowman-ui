@@ -31,8 +31,8 @@ string-carrying component already in the repo - it adds no new component.
   `tests/types/labels-type-assertions.tsx`, compiled against the BUILT package through the single
   `"."` exports entry ([validated by](../../tests/labels-dist.test.ts#L3)).
 - The three translated labels render with no English remaining; no `labels` prop renders the three
-  021 English defaults unchanged ([validated by](../../tests/ErrorBoundary.test.tsx#L86),
-  [L47](../../tests/ErrorBoundary.test.tsx#L47)).
+  021 English defaults unchanged ([validated by](../../tests/ErrorBoundary.test.tsx#L104),
+  [L65](../../tests/ErrorBoundary.test.tsx#L65)).
 - `eslint.config.mjs` gains a labels entry (core ESLint only): `no-restricted-syntax` selectors
   banning bare Latin JSX text, hardcoded string literals in the seven
   assistive attributes, and
@@ -78,7 +78,7 @@ string-carrying component already in the repo - it adds no new component.
   `labels={{ title: undefined }}` blank the title. `resolveLabels` treats that key as missing and
   renders the English default instead. This is the convention's intent; it
   is the one observable behaviour change in the retrofit
-  ([validated by](../../tests/ErrorBoundary.test.tsx#L108)).
+  ([validated by](../../tests/ErrorBoundary.test.tsx#L126)).
 - **Partition is over value exports.** The partition test statically parses `export { ... }`
   blocks of `src/index.ts`; `export type { ... }` names are excluded by design - a type carries
   no renderable string. Interfaces like `ErrorBoundaryLabels` are therefore not partition
@@ -99,7 +99,7 @@ string-carrying component already in the repo - it adds no new component.
   first-statement assertion now targets `dist/hooks/useDebounce.js`, a real directive-carrying
   file ([validated by](../../tests/build-contract.test.ts#L12)).
 - 014's deletion-trigger property
-  still holds without Placeholder: coverage includes all of `src/**` at the 100/100/100/90
+  still holds without Placeholder: coverage includes all of `src/**` at the 100/100/100/100
   floor, so deleting any component's test drops that file below threshold and fails
   `npm run test:coverage`.
 - **`stringPropOnly` is a closed exception list.** The icons' `ariaLabel` (023 icons; a
