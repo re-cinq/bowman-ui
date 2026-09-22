@@ -41,10 +41,10 @@ with `#L` anchors becomes tracked the moment it exists
 
 With the composer empty, the suite records `getBoundingClientRect().height`
 as the baseline and asserts it is greater than `0` and less than `200`
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L304),
-[L305](../../examples/chat-demo/tests/chat-demo.spec.ts#L305)). A baseline of
+([validated by the empty composer measures above 0 and below the 200px cap](../../examples/chat-demo/tests/chat-demo.spec.ts#L304),
+[validated by the empty composer measures above 0 and below the 200px cap](../../examples/chat-demo/tests/chat-demo.spec.ts#L305)). A baseline of
 `0` fails with a message naming the Marginalia Books demo screen
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L303)).
+([validated by the empty composer measures above 0 and below the 200px cap](../../examples/chat-demo/tests/chat-demo.spec.ts#L303)).
 
 Each of the three tests opens a fresh page and measures its own baseline in
 the same run rather than sharing one through `beforeAll`: the suite runs
@@ -129,7 +129,7 @@ handler and the ref handle's `setValue`, the textarea is uncontrolled, and
 the demo passes no ref, so nothing re-runs the resize after `submit()` writes
 `auto`. `027`'s string criterion therefore still holds in a real browser,
 exactly as its unit test asserts
-([validated by](../../tests/ChatComposer.test.tsx#L41)).
+([validated by typing "Hvor er min booking?" and clicking send calls onSubmit once with exactly that string, then the draft is "", the height is back to auto and send is disabled again](../../tests/ChatComposer.test.tsx#L41)).
 
 What this suite adds is the half no jsdom test could reach: the browser
 resolves that `auto` back to a real rendered height equal to the recorded
@@ -144,8 +144,8 @@ the customer-visible fact, and asserting the string here would only duplicate
 The `maxHeightPx` override is proven only by `027`'s stubbed unit test - a
 stubbed `scrollHeight` of 320 capping at `200px` under the default and
 reaching `320px` with `maxHeightPx={400}` - and by no browser
-([validated by](../../tests/ChatComposer.test.tsx#L305),
-[L314](../../tests/ChatComposer.test.tsx#L314)). The demo pins its
+([validated by a stubbed scrollHeight of 320 caps the height at 200px under the default maxHeightPx](../../tests/ChatComposer.test.tsx#L305),
+[validated by the same 320 becomes 320px with maxHeightPx={400}](../../tests/ChatComposer.test.tsx#L314)). The demo pins its
 composition and threads no URL parameter to a second `maxHeightPx`, per the
 issue's tech note: that would turn the worked consumer into a fixture for its
 own test suite.

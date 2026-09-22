@@ -13,7 +13,7 @@ becomes the `createMarkdownComponents(options)` factory (the `a` renderer now
 needs a policy and a label); `ChatMessage` gains a `markdown?: MarkdownPolicy`
 prop and a `linkOpensInNewTab` label. `react-markdown`'s own
 `defaultUrlTransform` is replaced, not wrapped - the string appears nowhere in
-`src/` ([validated by](../../tests/markdown/urlPolicy.test.tsx#L287)).
+`src/` ([validated by no file under src/ mentions rehype or defaultUrlTransform](../../tests/markdown/urlPolicy.test.tsx#L287)).
 
 ## The policy
 
@@ -23,7 +23,7 @@ linkTarget: "_blank", allowImages: false }`. `http` is
 dropped (a cleartext link to a customer's own booking is an accident),
 `irc`/`ircs`/`xmpp` are dropped (nothing in this product emits them), `tel` is
 added (a depot phone number is a plausible support answer)
-([validated by](../../tests/markdown/urlPolicy.test.tsx#L33)). The three allowed
+([validated by defaultMarkdownPolicy is the https/mailto/tel, no-relative, new-tab, no-image policy](../../tests/markdown/urlPolicy.test.tsx#L33)). The three allowed
 schemes render anchors with their exact `href`. `http`, `irc`,
 `xmpp`, `javascript:`, `data:`, `vbscript:` and every relative form render no
 anchor at all - the link text renders in a `<span>`, and
@@ -37,8 +37,8 @@ The allowlist is data, not a hardcoded branch:
 `allowedSchemes: ["https", "http"]` renders the `http` anchor. `[]`
 rejects everything.
 `allowRelativeUrls: true` renders `<a href="/booking/42">`; the default does
-not ([validated by](../../tests/markdown/urlPolicy.test.tsx#L99),
-[L105](../../tests/markdown/urlPolicy.test.tsx#L105),
+not ([validated by `allowRelativeUrls: true renders <a href="/booking/42">`](../../tests/markdown/urlPolicy.test.tsx#L99),
+[validated by the default policy renders /booking/42 as text](../../tests/markdown/urlPolicy.test.tsx#L105),
 [L82](../../tests/markdown/urlPolicy.test.tsx#L82),
 [L90](../../tests/markdown/urlPolicy.test.tsx#L90)).
 
@@ -46,26 +46,26 @@ not ([validated by](../../tests/markdown/urlPolicy.test.tsx#L99),
 
 Every rendered anchor carries `rel="noopener noreferrer"` and
 `target="_blank"`
-([validated by](../../tests/markdown/urlPolicy.test.tsx#L121)). With
+([validated by `every rendered anchor carries rel="noopener noreferrer" and target="_blank"`](../../tests/markdown/urlPolicy.test.tsx#L121)). With
 `linkTarget: "_self"` the `target` attribute is absent and the `rel` pair
 stays, so the chat URL `/chat/<conversation-id>` - a personal-data identifier
 per `003-support-conversation-data-flow-record` - never leaves in a `Referer`
-header ([validated by](../../tests/markdown/urlPolicy.test.tsx#L136)). A
+header ([validated by `linkTarget: "_self" drops the target attribute and still carries rel="noopener noreferrer"`](../../tests/markdown/urlPolicy.test.tsx#L136)). A
 `_blank` anchor contains a visually-hidden notice from the
 `linkOpensInNewTab` label, default `"(opens in a new tab)"`, overridable, and
 absent under `_self`
 ([validated by](../../tests/markdown/urlPolicy.test.tsx#L147),
-[L158](../../tests/markdown/urlPolicy.test.tsx#L158),
-[L166](../../tests/markdown/urlPolicy.test.tsx#L166)). The notice class is
+[validated by a labels override replaces the notice text](../../tests/markdown/urlPolicy.test.tsx#L158),
+[validated by `linkTarget: "_self" renders no notice element`](../../tests/markdown/urlPolicy.test.tsx#L166)). The notice class is
 `bowman-sr-only`, shipped in `src/styles.css` rather than Tailwind's
 `sr-only`, so a consumer without the `@source` line gets an invisible notice,
 not visible clutter in every link
-([validated by](../../tests/markdown/urlPolicy.test.tsx#L320)).
+([validated by styles.css ships the bowman-sr-only and bowman-md-img rules](../../tests/markdown/urlPolicy.test.tsx#L320)).
 
 remark-gfm autolink literals get identical treatment: a bare `https://` URL
 and a bare email render policy-checked anchors
-([validated by](../../tests/markdown/urlPolicy.test.tsx#L193),
-[L203](../../tests/markdown/urlPolicy.test.tsx#L203)).
+([validated by a bare https URL autolinks with the rel pair and the notice](../../tests/markdown/urlPolicy.test.tsx#L193),
+[validated by a bare email autolinks to a mailto anchor](../../tests/markdown/urlPolicy.test.tsx#L203)).
 
 **Correction to the issue text**: the criterion's bare `www.marginalia-books.invalid`
 case cannot render an anchor under the default policy - remark-gfm autolinks
@@ -85,22 +85,22 @@ The map's `img` renderer renders the `alt` text and no `HTMLImageElement` by
 default.
 `allowImages: true` renders one `<img>` with that `src`, still behind the
 scheme allowlist - a `javascript:` source renders none either way
-([validated by](../../tests/markdown/urlPolicy.test.tsx#L240),
-[L252](../../tests/markdown/urlPolicy.test.tsx#L252),
-[L233](../../tests/markdown/urlPolicy.test.tsx#L233)).
+([validated by allowImages: true renders one img with that src](../../tests/markdown/urlPolicy.test.tsx#L240),
+[validated by allowImages: true still renders no img for a javascript: src](../../tests/markdown/urlPolicy.test.tsx#L252),
+[validated by an https image renders no img element and renders the alt text](../../tests/markdown/urlPolicy.test.tsx#L233)).
 
 **GDPR.** With the default policy a fixture containing an image, an autolinked
 URL and a markdown link renders zero `<img>`, zero `src` attributes and zero
 `link[rel="preload"]` elements - React 19 hoists a preload per image source,
 which is the request a `fetch` spy would never see
-([validated by](../../tests/markdown/urlPolicy.test.tsx#L263)). Suite-wide,
+([validated by the default policy renders zero img, zero preload links and zero src attributes for a fixture with an image, an autolink and a markdown link](../../tests/markdown/urlPolicy.test.tsx#L263)). Suite-wide,
 `tests/setup.ts` records any `fetch` or `XMLHttpRequest` call and fails the
 test that triggered it, alongside 023's console trap
 ([validated by](../../tests/setup.ts#L96)). Neither markdown source file
 references `console.`, storage APIs, `fetch` or `sendBeacon`
-([validated by](../../tests/markdown/urlPolicy.test.tsx#L293)). Raw HTML
+([validated by `GDPR: neither markdown file calls console.*, localStorage, sessionStorage, fetch or sendBeacon`](../../tests/markdown/urlPolicy.test.tsx#L293)). Raw HTML
 still renders as escaped text - no `rehype` anywhere
-([validated by](../../tests/markdown/urlPolicy.test.tsx#L287)).
+([validated by no file under src/ mentions rehype or defaultUrlTransform](../../tests/markdown/urlPolicy.test.tsx#L287)).
 
 ## The factory
 
@@ -112,19 +112,19 @@ carries its `bowman-md-<tag>` class through a full fixture render - the `a`
 case on an `https` URL per the issue's amendment
 ([validated by](../../tests/markdown-components.test.tsx#L74)). The
 result stays assignable to `react-markdown`'s `Components`
-([validated by](../../tests/markdown-components.test.tsx#L93)).
+([validated by tsc accepts markdown-type-assertions.ts, proving the map is assignable to react-markdown's Components](../../tests/markdown-components.test.tsx#L93)).
 
 `ChatMessage` merges its `markdown` prop over `defaultMarkdownPolicy` (via
 `resolveLabels`, so an explicit `undefined` field cannot clobber a default)
 and passes the factory's map plus `createUrlTransform`'s result to
-`ReactMarkdown` ([validated by](../../tests/ChatMessage.test.tsx#L774),
-[L803](../../tests/ChatMessage.test.tsx#L803),
+`ReactMarkdown` ([validated by an https link renders an anchor with target, the rel pair and the hidden notice](../../tests/ChatMessage.test.tsx#L774),
+[validated by the markdown prop merges over defaultMarkdownPolicy, so an http opt-in renders the anchor](../../tests/ChatMessage.test.tsx#L803),
 [L815](../../tests/ChatMessage.test.tsx#L815)). A rejected link renders as a
-span ([validated by](../../tests/ChatMessage.test.tsx#L790)). An image
+span ([validated by `a javascript: link renders no anchor and no empty href, the text in a <span>`](../../tests/ChatMessage.test.tsx#L790)). An image
 renders as alt text
-([validated by](../../tests/ChatMessage.test.tsx#L840)). The
+([validated by an image in assistant content renders alt text and no img under the default policy](../../tests/ChatMessage.test.tsx#L840)). The
 `linkOpensInNewTab` override reaches the notice
-([validated by](../../tests/ChatMessage.test.tsx#L828)).
+([validated by a linkOpensInNewTab label override reaches the notice](../../tests/ChatMessage.test.tsx#L828)).
 
 ## Recorded decisions, interpretations and deviations
 
@@ -133,7 +133,7 @@ renders as alt text
   criterion, the "merged over `defaultMarkdownPolicy`" wording and the
   one-line `http` opt-in all require field-level merging - so the fields
   carry `?` and the prop stays the issue's literal `markdown?: MarkdownPolicy`
-  ([validated by](../../tests/ChatMessage.test.tsx#L803)).
+  ([validated by the markdown prop merges over defaultMarkdownPolicy, so an http opt-in renders the anchor](../../tests/ChatMessage.test.tsx#L803)).
 - **The transform never decodes.** `java&#x09;script:` reaches the transform
   percent-encoded as `java%09script:`; comparing the raw scheme keeps the
   bypass closed, and a later `decodeURIComponent` "cleanup" would reopen it
@@ -154,8 +154,8 @@ renders as alt text
   `mailto:` and `tel:` are non-special, never inherit a base, and have no
   legitimate authority form ([validated
   by](../../tests/markdown/urlPolicy.test.tsx#L329),
-  [L346](../../tests/markdown/urlPolicy.test.tsx#L346),
-  [L355](../../tests/markdown/urlPolicy.test.tsx#L355)).
+  [validated by the rejection survives allowRelativeUrls: true and an http opt-in](../../tests/markdown/urlPolicy.test.tsx#L346),
+  [validated by mailto and tel keep their authority-less form](../../tests/markdown/urlPolicy.test.tsx#L355)).
 - **`createUrlTransform` is exported from the package root** alongside the
   issue's three named exports: a consumer using the factory standalone without
   the transform would get the image gate but no href filtering. Declared here
@@ -168,7 +168,7 @@ renders as alt text
 - **The factory sits in the `labelsProp` partition bucket** with its own
   sentinel harness and key-coverage test (docs/design-notes.md § Labels records the
   shape; Toast's closed-list precedent)
-  ([validated by](../../tests/labelled-exports.test.tsx#L615),
+  ([validated by createMarkdownComponents' sentinel labels cover every defaultMarkdownComponentsLabels key](../../tests/labelled-exports.test.tsx#L615),
   [harness](../../tests/labelled-exports.test.tsx#L492)).
 
   `ChatMessage`'s sentinel harness renders a numeric-text link so the notice
@@ -185,7 +185,7 @@ renders as alt text
     compiled by [chat-message-dist](../../tests/chat-message-dist.test.ts#L22)).
   - 019's map-keys test counts nineteen entries, a necessary consequence of
     the `img` gate
-    ([validated by](../../tests/markdown-components.test.tsx#L55)).
+    ([validated by covers exactly the eighteen tags 019 named plus 076's img gate](../../tests/markdown-components.test.tsx#L55)).
 
   Supersession notes sit in 019's and 023's specs.
 
@@ -204,6 +204,6 @@ renders as alt text
   `#user-content-fn-*` fragments, which the default policy rejects like any
   relative URL - they render as spans, and the span keeps `id`, `aria-*` and
   the backref's accessible name so same-page assistive semantics survive
-  ([validated by](../../tests/markdown/urlPolicy.test.tsx#L301)).
+  ([validated by a gfm footnote reference keeps its id and aria attributes on the policy's span](../../tests/markdown/urlPolicy.test.tsx#L301)).
 - The default-policy objects are frozen, arrays included
-  ([validated by](../../tests/markdown/urlPolicy.test.tsx#L314)).
+  ([validated by defaultMarkdownPolicy, its allowedSchemes array and defaultMarkdownComponentsLabels are frozen](../../tests/markdown/urlPolicy.test.tsx#L314)).

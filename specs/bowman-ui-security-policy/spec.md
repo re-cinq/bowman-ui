@@ -50,13 +50,13 @@ report is measured against the controls already in `src/markdown/urlPolicy.ts` a
   ([validated by](../../tests/markdown/urlPolicy.test.tsx#L75),
   [L61](../../tests/markdown/urlPolicy.test.tsx#L61)).
 - **Every rendered anchor carries `rel="noopener noreferrer"`, hardening that survives a
-  `linkTarget` change** ([validated by](../../tests/markdown/urlPolicy.test.tsx#L121)).
+  `linkTarget` change** ([validated by `every rendered anchor carries rel="noopener noreferrer" and target="_blank"`](../../tests/markdown/urlPolicy.test.tsx#L121)).
 - **Raw HTML in model-authored content renders as escaped text, never as an element.** An
   `onerror`-carrying `<img>` string stays a string; no `<img>` element is created
   ([validated by](../../tests/ChatMessage.test.tsx#L146)).
 - **The component map leaks no internal prop onto the DOM.** `react-markdown`'s own `node` prop
   never reaches a rendered element, closing off attribute injection through a prop the policy does
-  not otherwise control ([validated by](../../tests/markdown-components.test.tsx#L88)).
+  not otherwise control ([validated by leaks no node prop onto the DOM](../../tests/markdown-components.test.tsx#L88)).
 
 ## The labels prop is the one consumer-controlled injection surface
 
@@ -65,7 +65,7 @@ through the controls above. A component's `labels` prop is the exception: it is 
 consumer-supplied string that the library renders directly, so a `labels` value that escaped text
 rendering would be a real vulnerability. The `linkOpensInNewTab` override is the worked example -
 an overridden label reaches the rendered notice element verbatim, as text
-([validated by](../../tests/ChatMessage.test.tsx#L828)).
+([validated by a linkOpensInNewTab label override reaches the notice](../../tests/ChatMessage.test.tsx#L828)).
 
 ## Out of scope
 
