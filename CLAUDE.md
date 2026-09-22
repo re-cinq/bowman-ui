@@ -89,6 +89,9 @@ The typecheck script is `typecheck`, not `type-check`.
 - `src/styles.css` — opens with the `--bowman-*` token comment block, one line per token (invariant 13).
 - `src/theme/tokens.ts` — the internal theming-token class strings, one `export const` per
   string; imported by the components, never exported from the barrel (invariant 13).
+- `src/theme/focusRing.ts` — `FOCUS_RING`, the offset focus-ring fragment composed from two token
+  constants; imported by five files (four components and `buttonStyles.ts`), never exported from the
+  barrel.
 - `src/components/` — 17 `.tsx` (AppShell, AppSidebar, Button, ChatComposer, ChatMessage,
   ChatMessageList, ConversationList, ErrorBoundary, IconButton, InlineThinkingIndicator,
   PromptChips, SearchField, ThinkingDots, ThinkingIndicator, ThinkingTrace, Toast, ToolActivity)
@@ -194,7 +197,9 @@ The typecheck script is `typecheck`, not `type-check`.
     because push access to `main` is transitively npm-publish access.
 13. **Theming tokens** (docs/design-notes.md § Theming). Exactly 44 `--bowman-*` custom
     properties, read only through `var()` fallbacks that equal today's palette — no `:root`
-    block, no `@theme`. The class strings live once in the internal `src/theme/tokens.ts`.
+    block, no `@theme`. The token class strings live once in the internal `src/theme/tokens.ts`;
+    `src/theme/focusRing.ts` composes the shared focus-ring fragment from two of them and
+    declares no token (§ Theming decision 12).
     Enforced by tests/theming-tokens-dist.test.ts (the stylesheet comment block, the design-notes
     table and the dist reads must agree; the 44 above is hand-kept, bump it in the same PR).
     Never add a brand-palette utility (`blue-*`) in `src/` outside the tokens module's fallbacks,

@@ -6,8 +6,6 @@ import {
   ACTIVE_ROW_BG,
   BORDER,
   BORDER_MD,
-  FOCUS_RING_COLOR,
-  RING_OFFSET,
   SURFACE,
   SURFACE_HOVER,
   TEXT_BODY,
@@ -15,6 +13,7 @@ import {
   TEXT_STRONG,
   TEXT_STRONG_HOVER,
 } from "../theme/tokens.js";
+import { FOCUS_RING } from "../theme/focusRing.js";
 
 export interface SidebarNavItem {
   key: string;
@@ -62,7 +61,7 @@ const defaultRenderNavLink = (_item: SidebarNavItem, props: SidebarNavLinkProps)
 );
 
 const navLinkClassName = (isActive: boolean) =>
-  `group flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm font-medium ring-offset-2 transition-colors focus:outline-none focus:ring-2 ${FOCUS_RING_COLOR} ${RING_OFFSET} ${
+  `group flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm font-medium ring-offset-2 transition-colors ${FOCUS_RING} ${
     isActive
       ? `${ACTIVE_ROW_BG} ${TEXT_STRONG}`
       : `${TEXT_SECONDARY} ${SURFACE_HOVER} ${TEXT_STRONG_HOVER}`

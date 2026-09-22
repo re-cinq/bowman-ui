@@ -194,9 +194,11 @@ because a `/30` alpha modifier cannot ride a token.
 ## What stays palette-mapped
 
 - The ring width, offset and outline classes - `focus:ring-2`, `ring-offset-2`,
-  `focus:outline-none` - stay at every site untouched beside the colour tokens
-  ([validated by](../../tests/ChatComposer.test.tsx#L209),
-  [L120](../../tests/Button.test.tsx#L120), [L134](../../tests/PromptChips.test.tsx#L134)).
+  `focus:outline-none` - render at every site untouched beside the colour tokens; at the offset-ring
+  sites the outline and width ride in `FOCUS_RING` (`src/theme/focusRing.ts`, issue 155) with
+  `ring-offset-2` left in place ([validated by](../../tests/ChatComposer.test.tsx#L209),
+  [L120](../../tests/Button.test.tsx#L120), [L134](../../tests/PromptChips.test.tsx#L134),
+  [L311](../../tests/theming-tokens-dist.test.ts#L311)).
 - Every neutral site that matches a role pair on one side only keeps its palette classes on
   both sides, so no site is half-themed: the shell ground and main region, the avatar circles'
   rest state, the user avatar and code chips, the inverse surfaces of `Toast` and

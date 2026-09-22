@@ -763,6 +763,20 @@ Decisions:
     is whole. `tests/theming-tokens-dist.test.ts` pins which built component
     imports which role, so a site drifting back to a palette utility is a
     test failure, not a silent regression.
+    Amended 2026-09-22 under issue 155: the ring recipe the offset sites share -
+    `focus:outline-none focus:ring-2` beside `FOCUS_RING_COLOR` and `RING_OFFSET` -
+    is composed once as `FOCUS_RING` in `src/theme/focusRing.ts`, which does not
+    breach decision 4's single module: it declares no `--bowman-` literal
+    and no fallback, only a fragment of constants `tokens.ts` already exports,
+    and the barrel does not export it. `ring-offset-2` stays at each site
+    because it is not adjacent to the fragment everywhere, so every rendered
+    class string is byte-identical. `RING_OFFSET` is read by that module alone
+    (its component pin in the dist test is empty), and the same test pins the
+    module's two imports and its five importers - `AppShell`, `AppSidebar`,
+    `ConversationList`, `PromptChips` and `buttonStyles` - so a site drifting
+    back to a spelled-out ring is still a test failure. `ChatMessage`'s
+    page-ground rings, `SearchField` and the skip link share no offset and stay
+    as they are.
 
 ## Styled primitives
 
