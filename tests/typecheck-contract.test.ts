@@ -14,7 +14,7 @@ const scripts = (
 
 const testFilesOnDisk = (): string[] =>
   readdirSync(resolve(root, "tests"), { recursive: true, encoding: "utf8" })
-    .filter((name) => /\.test\.tsx?$/.test(name))
+    .filter((name) => /\.test\.tsx?$/.test(name) && !name.startsWith("fixtures/"))
     .map((name) => `tests/${name}`)
     .sort();
 

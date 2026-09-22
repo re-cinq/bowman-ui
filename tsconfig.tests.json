@@ -7,5 +7,11 @@
     "types": ["node", "vitest/globals", "@testing-library/jest-dom/vitest"]
   },
   "include": ["tests"],
-  "exclude": ["tests/fixtures", "tests/types/*-type-assertions.*"]
+  "exclude": [
+    "dist",
+    "node_modules",
+    "examples",
+    "tests/fixtures",
+    "tests/types/*-type-assertions.*"
+  ]
 }
