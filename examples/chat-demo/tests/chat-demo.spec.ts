@@ -351,3 +351,34 @@ test.describe("long unbroken strings", () => {
       .toBeLessThanOrEqual(0);
   });
 });
+
+// issue 131: a keyboard user who leaves the textarea for the send button must
+// not land on body when the button disables itself after the send.
+test.describe("focus after send", () => {
+  test("Tab to send then Enter or Space appends the entry and returns focus to the textarea", async ({
+    page,
+  }) => {
+    await page.goto("/?view=chat");
+    const composer = page.getByRole("textbox", { name: chatComposerLabels.composerInput });
+    const sendButton = page.getByRole("button", { name: chatComposerLabels.send });
+    const userArticles = page.getByRole("article", { name: chatMessageListLabels.userMessage });
+
+    await composer.fill("An invented question sent with Enter");
+    await page.keyboard.press("Tab");
+    await expect(sendButton).toBeFocused();
+    await page.keyboard.press("Enter");
+
+    await expect(userArticles).toHaveCount(5);
+    await expect(sendButton).toBeDisabled();
+    await expect(composer).toBeFocused();
+
+    await composer.fill("An invented question sent with Space");
+    await page.keyboard.press("Tab");
+    await expect(sendButton).toBeFocused();
+    await page.keyboard.press("Space");
+
+    await expect(userArticles).toHaveCount(6);
+    await expect(sendButton).toBeDisabled();
+    await expect(composer).toBeFocused();
+  });
+});
