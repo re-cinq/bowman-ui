@@ -35,8 +35,8 @@ an intending publisher runs by hand; it was unhooked from `publish.yml` on
 2026-09-09, when the pass became a procedure rather than a release gate - while
 `--structure` passes with a warning so no pull request is held hostage to a
 listening session that has not happened yet
-([validated by](../../tests/check-at-pass.test.ts#L154),
-[L146](../../tests/check-at-pass.test.ts#L146)).
+([validated by --freshness exits 1 when no record exists](../../tests/check-at-pass.test.ts#L154),
+[validated by --structure passes with a warning when no record exists](../../tests/check-at-pass.test.ts#L146)).
 
 ## The demo's streamed reply
 
@@ -60,7 +60,7 @@ Sampling the entry's text length at two times shows it longer at 2.6 s than at
 ([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L93)). A
 second test counts the distinct growth steps and the span they cover: at least
 20 steps over at least 3 seconds
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L120)). That
+([validated by the reply grows in at least 20 distinct steps spanning at least 3 seconds](../../examples/chat-demo/tests/chat-demo.spec.ts#L120)). That
 second test samples inside the page rather than across the Playwright wire,
 because a slow round trip would merge two real steps into one observation and
 under-count a stream that did emit 24.
@@ -77,18 +77,18 @@ plus Safari on macOS are the recommended pairings, not requirements (the
 original NVDA-mandatory rule was dropped on 2026-09-09 with the release gate).
 Live-region behaviour is implementation-specific, so one stack proves one
 stack. At least one stack must actually have been run
-([validated by](../../tests/check-at-pass.test.ts#L218),
+([validated by a record whose every stack is declared not-run exits 1](../../tests/check-at-pass.test.ts#L218),
 [one is enough](../../tests/check-at-pass.test.ts#L471),
 [a third needs its rows](../../tests/check-at-pass.test.ts#L368)). Every
 stack needs a unique `id`
-([validated by](../../tests/check-at-pass.test.ts#L385),
+([validated by a stack entry without an id slug exits 1](../../tests/check-at-pass.test.ts#L385),
 [duplicates](../../tests/check-at-pass.test.ts#L398)). On a run stack's row,
 `not-run` is legal only with a stated reason
-([validated by](../../tests/check-at-pass.test.ts#L230),
+([validated by not-run on a run stack's row without a reason exits 1](../../tests/check-at-pass.test.ts#L230),
 [with one](../../tests/check-at-pass.test.ts#L236)). A stack nobody could run
 is declared once, on its `stacks` entry, with no invented versions; every row
 on it is then `not-run` without a reason of its own
-([validated by](../../tests/check-at-pass.test.ts#L448),
+([validated by a stack declared not-run needs no versions when every row on it is not-run](../../tests/check-at-pass.test.ts#L448),
 [a pass row on it](../../tests/check-at-pass.test.ts#L461)).
 
 The pass runs against the demo's English catalogue, and the record names the
@@ -153,50 +153,50 @@ check that a record exists, is complete, and has not been invalidated.
    repository's own, not a YAML dependency: the format is defined by
    `docs/accessibility/README.md`, and a record that strays from it is a
    finding rather than a parser upgrade
-   ([validated by](../../tests/check-at-pass.test.ts#L368),
-   [L171](../../tests/check-at-pass.test.ts#L171),
-   [L183](../../tests/check-at-pass.test.ts#L183),
-   [L192](../../tests/check-at-pass.test.ts#L192)).
+   ([validated by a third stack needs a verdict per row like any other](../../tests/check-at-pass.test.ts#L368),
+   [validated by a missing required field exits 1 naming the field](../../tests/check-at-pass.test.ts#L171),
+   [validated by a commit field that is not 40 hex exits 1](../../tests/check-at-pass.test.ts#L183),
+   [validated by a missing row verdict exits 1 naming the row and the stack](../../tests/check-at-pass.test.ts#L192)).
 2. **Every `fail` has an owner.** A `fail` row naming neither a `fixing-issue`
    nor an `accepted-by` fails the gate; one naming a fixing issue passes.
    Fixing what a row finds is a separate pull request against the component
    that shipped the behaviour
-   ([validated by](../../tests/check-at-pass.test.ts#L200),
-   [L206](../../tests/check-at-pass.test.ts#L206)).
+   ([validated by a fail row naming neither a fixing issue nor an accepting person exits 1](../../tests/check-at-pass.test.ts#L200),
+   [validated by a fail row naming a fixing issue passes](../../tests/check-at-pass.test.ts#L206)).
 3. **A waiver is temporary by construction.** `waived` without both `waived-by`
    and `expires` fails; an expired waiver fails in both modes, with the same
    exit code as a stale record; an unexpired one passes. A first release is not
    hostage to VM access, and a waiver cannot quietly become permanent
-   ([validated by](../../tests/check-at-pass.test.ts#L248),
-   [L254](../../tests/check-at-pass.test.ts#L254),
-   [L275](../../tests/check-at-pass.test.ts#L275)).
+   ([validated by a waiver without waived-by and expires exits 1](../../tests/check-at-pass.test.ts#L248),
+   [validated by an expired waiver exits 1 in both modes](../../tests/check-at-pass.test.ts#L254),
+   [validated by an unexpired waiver carrying waived-by and expires passes](../../tests/check-at-pass.test.ts#L275)).
 4. **`covers` makes the record perishable.** `--freshness` takes the last
    commit touching each covered path and fails when it is not an ancestor of
    the record's `commit`, naming the file and both commits; a covered path no
    commit touches fails too. Editing `ChatMessageList.tsx` mechanically
    invalidates the pass that certified it. Run it in a full clone: a shallow
    checkout has no history to walk and would read every record as stale
-   ([validated by](../../tests/check-at-pass.test.ts#L303),
-   [L322](../../tests/check-at-pass.test.ts#L322)).
+   ([validated by a later commit to a covered path makes --freshness exit 1 naming both commits](../../tests/check-at-pass.test.ts#L303),
+   [validated by a covers path no commit touches makes --freshness exit 1](../../tests/check-at-pass.test.ts#L322)).
 5. **No record fails `--freshness`, never `--structure`.** `--structure`
    passes with a warning when no record exists and `--freshness` fails. The
    asymmetry outlived the release gate: a pull request cannot be blocked by a
    listening session nobody has scheduled, and whoever runs `--freshness` by
    hand gets a plain no rather than a silent pass
-   ([validated by](../../tests/check-at-pass.test.ts#L146),
-   [L154](../../tests/check-at-pass.test.ts#L154)).
+   ([validated by --structure passes with a warning when no record exists](../../tests/check-at-pass.test.ts#L146),
+   [validated by --freshness exits 1 when no record exists](../../tests/check-at-pass.test.ts#L154)).
 6. **No placeholder survives.** `TBD`, `TODO`, `FIXME`, `XXX` and
    angle-bracket markers anywhere in the front matter fail the structure
    check, which is what turns "no placeholder left in the file" from an
    instruction into a gate
-   ([validated by](../../tests/check-at-pass.test.ts#L291)).
+   ([validated by a placeholder left in the front matter exits 1](../../tests/check-at-pass.test.ts#L291)).
 7. **The newest record by filename is the one validated**. ISO dates sort
    lexically, so the newest file name is the newest pass
-   ([validated by](../../tests/check-at-pass.test.ts#L337)).
+   ([validated by the newest record by filename is the one validated](../../tests/check-at-pass.test.ts#L337)).
 8. **Exit codes follow the house.** 1 lists every violation on stderr; 2 is a
    usage or environment error - no mode flag or an unknown one
-   ([validated by](../../tests/check-at-pass.test.ts#L419),
-   [L415](../../tests/check-at-pass.test.ts#L415)).
+   ([validated by an unknown flag exits 2 with usage](../../tests/check-at-pass.test.ts#L419),
+   [validated by no mode flag exits 2 with usage](../../tests/check-at-pass.test.ts#L415)).
 
 `npm run check:at-pass -- --structure` runs in `ci.yml`'s `build-test` job.
 `npm run check:at-pass -- --freshness` ran in `publish.yml` between the build
@@ -218,7 +218,7 @@ to a reader, would be the newest record the gate validates, and would be
 published when this repository goes public. The fixtures are synthetic, are
 labelled as such in the file they are generated in, and carry a runner name of
 `Test Runner`
-([validated by](../../tests/check-at-pass.test.ts#L161)).
+([validated by --structure and --freshness both pass on a complete, current record](../../tests/check-at-pass.test.ts#L161)).
 
 ## `121`'s recorded requirement
 
@@ -239,7 +239,7 @@ articles' accessible names and breaks the demo's Playwright counts).
   asserts it. The consequence is structural rather than rhetorical: the
   record's `runner` field is required by the gate, so whoever runs the pass
   names themselves in it and no name is asserted on this issue's own authority
-  ([validated by](../../tests/check-at-pass.test.ts#L171)).
+  ([validated by a missing required field exits 1 naming the field](../../tests/check-at-pass.test.ts#L171)).
 - **KU-22, which accessibility standard applies.** None has been named. This is
   seven checks against three named promises, not a WCAG or EN 301 549
   conformance audit, and `docs/accessibility/README.md` claims neither. Naming

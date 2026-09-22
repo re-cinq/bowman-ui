@@ -36,7 +36,7 @@ are pinned at exactly `19.3.0`
 docs/design-notes.md decision 4 records as the one CI installs and the only
 one tested; the pin is held equal to that record, the README's claim, the
 root lockfile and the chat-demo pin by the version-consistency test
-([validated by](../../tests/react-version-consistency.test.ts#L54)). One
+([validated by is the same in decision 4, the README, the lockfile, the chat-demo pin and the rsc-fixture pin](../../tests/react-version-consistency.test.ts#L54)). One
 caveat recorded rather than papered over: Next substitutes its own vendored
 React build for parts of the App Router render, so the pin is a claim about
 what the fixture installs, not proof that stock `react@19.3.0` executed every
