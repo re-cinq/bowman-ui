@@ -1,5 +1,22 @@
 import { existsSync, readFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
+import { runScript } from "./script-runner.js";
+
+const TSC = "node_modules/typescript7/bin/tsc";
+const TSC_FLAGS = [
+  "--ignoreConfig",
+  "--noEmit",
+  "--strict",
+  "--target",
+  "es2022",
+  "--module",
+  "nodenext",
+  "--moduleResolution",
+  "nodenext",
+  "--skipLibCheck",
+  "--jsx",
+  "react-jsx",
+];
 
 // docs/design-notes.md decision 1 requires "use client" as the first *statement*, so
 // leading comments and blank lines are allowed above it (018's positional
@@ -49,6 +66,12 @@ export const expectClientDirectiveFirst = (builtFile: string): void => {
   const firstStatement = stripLeadingTrivia(readFileSync(builtFile, "utf8"));
 
   expect(firstStatement.startsWith('"use client";')).toBe(true);
+};
+
+export const expectTypeAssertionsCompile = (fixture: string): void => {
+  const result = runScript(TSC, [...TSC_FLAGS, fixture], { cwd: process.cwd() });
+
+  expect(result).toMatchObject({ status: 0, stderr: "" });
 };
 
 export const expectPackedWithTypes = (builtFiles: string[]): void => {

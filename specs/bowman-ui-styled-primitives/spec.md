@@ -143,7 +143,7 @@ export const IconButton: ForwardRefExoticComponent<
   `aiDisclosure` (docs/design-notes.md § Labels decision 5). Omitting `labels` is a compile
   error against the built package ([validated by IconButton's sentinel labels are exactly the one required key accessibleName](../../tests/labelled-exports.test.tsx#L621),
   [L55](../../tests/types/primitives-type-assertions.tsx#L55),
-  [validated by tsc accepts primitives-type-assertions.tsx against dist via the '.' exports entry, pinning every @ts-expect-error fixture](../../tests/primitives-dist.test.ts#L39)).
+  [validated by tsc accepts primitives-type-assertions.tsx against dist via the '.' exports entry, pinning every @ts-expect-error fixture](../../tests/primitives-dist.test.ts#L42)).
 - The accessible name goes through `labels`, never a string prop, so `IconButton` is a
   `labelsProp` member and the closed `stringPropOnly` list is untouched
   ([validated by](../../tests/labelled-exports.test.tsx#L88),
@@ -236,7 +236,7 @@ export const SearchField: ForwardRefExoticComponent<
 - All four component files open with `"use client"` as their first statement: each takes a
   handler prop, which the trigger list (docs/design-notes.md decision 1, rule 5) measures off
   the AST, and the built `dist/components/*.js` files open with the directive
-  ([validated by](../../tests/primitives-dist.test.ts#L20)).
+  ([validated by](../../tests/primitives-dist.test.ts#L23)).
 - `Button`, `IconButton` and `SearchField` are `forwardRef` components (decision 4: no cleanup
   rewrites `forwardRef` away), so a consumer can focus the control - a "jump to latest" button,
   a search box behind a keyboard shortcut - without reaching into the DOM
@@ -250,7 +250,7 @@ export const SearchField: ForwardRefExoticComponent<
   [L57](../../tests/types/primitives-type-assertions.tsx#L57),
   [L60](../../tests/types/primitives-type-assertions.tsx#L60),
   [L63](../../tests/types/primitives-type-assertions.tsx#L63),
-  [validated by tsc accepts primitives-type-assertions.tsx against dist via the '.' exports entry, pinning every @ts-expect-error fixture](../../tests/primitives-dist.test.ts#L39)).
+  [validated by tsc accepts primitives-type-assertions.tsx against dist via the '.' exports entry, pinning every @ts-expect-error fixture](../../tests/primitives-dist.test.ts#L42)).
 - No icon is added: `PlusIcon`, `SearchIcon` and `ChevronDownIcon` cover the issue's six cases,
   and `SearchField` is the first shipped component to render `SearchIcon`
   ([validated by exports exactly the 23 icon components plus IconWrapper and getAccessibleIconProps](../../tests/icons.test.tsx#L56), [validated by `the SearchIcon is an aria-hidden, pointer-events-none absolute <svg> inside a relative wrapper`](../../tests/SearchField.test.tsx#L64)).
@@ -261,8 +261,8 @@ export const SearchField: ForwardRefExoticComponent<
   [validated by with variant omitted the button is secondary: border beside --bowman-border, --bowman-surface and --bowman-text-body, no --bowman-accent background](../../tests/IconButton.test.tsx#L83)).
 - The built `dist/components/buttonStyles.js` ships in the pack beside the four primitives and does
   not open with `"use client"`: it has no handler and no hook (decision 1)
-  ([validated by dist/components/buttonStyles.js exists and does not open with "use client";](../../tests/primitives-dist.test.ts#L25),
-  [validated by npm pack --dry-run ships the four primitives and buttonStyles with their d.ts files](../../tests/primitives-dist.test.ts#L30)).
+  ([validated by dist/components/buttonStyles.js exists and does not open with "use client";](../../tests/primitives-dist.test.ts#L28),
+  [validated by npm pack --dry-run ships the four primitives and buttonStyles with their d.ts files](../../tests/primitives-dist.test.ts#L33)).
 
 ## The published surface
 
@@ -290,7 +290,7 @@ by](../../tests/public-api.test.ts#L40),
    `ChatMessageList` as a component whose `labels` prop is itself required; docs/design-notes.md
    § Labels records both ([validated by IconButton's sentinel labels are exactly the one required key accessibleName](../../tests/labelled-exports.test.tsx#L621),
    [L55](../../tests/types/primitives-type-assertions.tsx#L55),
-   [validated by tsc accepts primitives-type-assertions.tsx against dist via the '.' exports entry, pinning every @ts-expect-error fixture](../../tests/primitives-dist.test.ts#L39)).
+   [validated by tsc accepts primitives-type-assertions.tsx against dist via the '.' exports entry, pinning every @ts-expect-error fixture](../../tests/primitives-dist.test.ts#L42)).
 3. **The `prompts` slot stays `ReactNode`.** Folding the chips into `ChatMessageList` (a
    `prompts: string[]` plus an `onPromptPick`) would break the slot's type for every consumer
    and still could not reach the composer, which is a sibling. The list renders what it is

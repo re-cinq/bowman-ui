@@ -1151,9 +1151,11 @@ Decisions:
     copies now live once, in `tests/helpers/`, `scripts/lib/` and the
     `setup-node-install` composite action (issue 157 later folded three more
     directory walks and the Lore scripts' Vitest report runner into the same
-    homes), and the gate holds the tree there:
-    `path` is the repo, `threshold` is 0, and a red check is fixed only by
-    extracting a helper. Three inputs are ignored because they are not code
+    homes, and issue 153 the `tsc --ignoreConfig` spawn behind all twelve
+    `tests/types/*-type-assertions.*` compiles, a clone jscpd never
+    saw because each copy sat under its floor), and the gate holds the tree
+    there: `path` is the repo, `threshold` is 0, and a red check is fixed only
+    by extracting a helper. Three inputs are ignored because they are not code
     and cannot be deduplicated: `**/package-lock.json` (generated, the same
     packages resolved in three trees), `**/*.md` (jscpd's markdown tokenizer
     reports AGENTS.md as a clone of itself at identical lines, the spec header
@@ -1175,8 +1177,9 @@ typecheck` now runs `typescript7` twice: `tsconfig.json`, then
     helper's return needs a JSDoc `@returns`). Two exclusions:
     `tests/fixtures` (golden inputs, broken by design; an imported one such
     as `golden-icons.tsx` still compiles) and `tests/types/*-type-assertions.*`
-    (compiled against dist by the `*-dist` tests' own `tsc --ignoreConfig`
-    spawns, `@ts-expect-error` fixtures included). No test may import
+    (compiled against dist by the `tsc --ignoreConfig` spawn the `*-dist`
+    tests share as `expectTypeAssertionsCompile` in `tests/helpers/`,
+    `@ts-expect-error` fixtures included). No test may import
     `dist/` by a literal specifier: CI typechecks before it builds, so
     tests/public-api.test.ts loads the built barrel through a runtime path.
     src's compile environment is unchanged - `tsconfig.json` declares no

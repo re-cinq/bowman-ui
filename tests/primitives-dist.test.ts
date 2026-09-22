@@ -1,6 +1,9 @@
-import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
-import { packedPaths, stripLeadingTrivia } from "./helpers/built-package.js";
+import {
+  expectTypeAssertionsCompile,
+  packedPaths,
+  stripLeadingTrivia,
+} from "./helpers/built-package.js";
 
 // The four styled primitives each take a handler prop, so decision 1's trigger
 // list puts "use client" first in every built file; buttonStyles.js is a
@@ -37,27 +40,6 @@ describe("the built styled primitives", () => {
   });
 
   it("tsc accepts primitives-type-assertions.tsx against dist via the '.' exports entry, pinning every @ts-expect-error fixture", () => {
-    const result = spawnSync(
-      "node",
-      [
-        "node_modules/typescript7/bin/tsc",
-        "--ignoreConfig",
-        "--noEmit",
-        "--strict",
-        "--target",
-        "es2022",
-        "--module",
-        "nodenext",
-        "--moduleResolution",
-        "nodenext",
-        "--skipLibCheck",
-        "--jsx",
-        "react-jsx",
-        "tests/types/primitives-type-assertions.tsx",
-      ],
-      { cwd: process.cwd(), encoding: "utf8" }
-    );
-
-    expect(result).toMatchObject({ status: 0, stderr: "" });
+    expectTypeAssertionsCompile("tests/types/primitives-type-assertions.tsx");
   });
 });

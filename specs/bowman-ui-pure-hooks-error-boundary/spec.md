@@ -13,9 +13,9 @@ Five hooks under `src/hooks/` and `src/components/ErrorBoundary.tsx`, all export
 barrel with their option types (`FocusGroupsOptions`, `SidebarStateOptions`,
 `ErrorBoundaryLabels`). Every file carries `"use client"` as its first statement, verified on the
 built output, ships in the tarball with its `.d.ts` and resolves through the `"."`
-exports entry for a consumer ([validated by each built hook and ErrorBoundary opens with "use client"; as its first statement](../../tests/hooks-dist.test.ts#L45),
-[validated by npm pack --dry-run ships the five hooks and ErrorBoundary with their d.ts files](../../tests/hooks-dist.test.ts#L41),
-[validated by tsc accepts hooks-type-assertions.tsx against dist via the '.' exports entry](../../tests/hooks-dist.test.ts#L16)).
+exports entry for a consumer ([validated by each built hook and ErrorBoundary opens with "use client"; as its first statement](../../tests/hooks-dist.test.ts#L23),
+[validated by npm pack --dry-run ships the five hooks and ErrorBoundary with their d.ts files](../../tests/hooks-dist.test.ts#L19),
+[validated by tsc accepts hooks-type-assertions.tsx against dist via the '.' exports entry](../../tests/hooks-dist.test.ts#L15)).
 
 - `useDebounce` — carries its own `"use client"` directive rather than inheriting it from its
   importers (the directive-inheritance failure docs/design-notes.md decision 1 records). Timing
@@ -38,7 +38,7 @@ exports entry for a consumer ([validated by each built hook and ErrorBoundary op
   ([validated by persists toggles under the exact key "olt-chat"](../../tests/useSidebarState.test.tsx#L37),
   [validated by a stored "false" wins over defaultOpen on mount](../../tests/useSidebarState.test.tsx#L61),
   [validated by degrades to in-memory state when storage access throws](../../tests/useSidebarState.test.tsx#L69),
-  [types](../../tests/hooks-dist.test.ts#L16)).
+  [types](../../tests/hooks-dist.test.ts#L15)).
   - `isHydrated` is `false` in a server render and `true` once the client has hydrated, and a
     server render ignores any stored value and reports `defaultOpen`, so a consumer can avoid a
     flash of the wrong state
@@ -103,7 +103,7 @@ exports entry for a consumer ([validated by each built hook and ErrorBoundary op
 
 No built file reads `process.env`, and no `NEXT_PUBLIC_FLAG_ANIMATIONS`
 string survives in `src/`
-([validated by `no built file reads process.env and no NEXT_PUBLIC flag string survives in src/`](../../tests/hooks-dist.test.ts#L58)).
+([validated by `no built file reads process.env and no NEXT_PUBLIC flag string survives in src/`](../../tests/hooks-dist.test.ts#L36)).
 
 ## Recorded decisions and limitations
 

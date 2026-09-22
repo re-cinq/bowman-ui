@@ -39,7 +39,7 @@ unchanged.
    ([validated by](../../tests/types/chat-message-list-type-assertions.tsx#L64)).
    The fixture is what enforces this: `npm run typecheck` skips the
    type-assertion fixtures, so only the dist test compiles it
-   ([chat-message-list-dist](../../tests/chat-message-list-dist.test.ts#L81)).
+   ([chat-message-list-dist](../../tests/chat-message-list-dist.test.ts#L84)).
 2. **The callback runs for every rendered entry, user rows included.**
    No role filter in the library - 023's rule that the caller decides what
    to pass. It is invoked once per rendered `ChatMessage` per render, in
