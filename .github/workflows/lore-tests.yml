@@ -4,12 +4,21 @@
 # no secrets, and `secrets` cannot be read from an `if:`); the binary is checked
 # against LORE_CODE_TRACE_SHA256 below instead of the checksums.txt served
 # beside it. A missing URL, a failed download or a mismatch never runs the
-# binary, and a failed ingest is reported the same way: each warns on a pull
-# request and fails on main. To bump the pin,
+# binary, and a failed run or ingest is reported the same way: each annotates
+# a pull request without failing it and fails on main. To bump the pin,
 # download both /dist/lore-code-trace/linux-amd64 and
 # /dist/lore-code-trace/checksums.txt from the ingest origin, confirm
 # `sha256sum -c checksums.txt` agrees with an independent download, then paste
 # the linux-amd64 digest.
+# Issue 166: the template's single `lore-code-trace --post` step ran the pull
+# request's own test code with LORE_INGEST_TOKEN in its environment. Here the
+# binary runs without --post and prints the report, which reaches a second job
+# as an artifact; only that job, which checks out nothing and runs no
+# repository code, holds the token and posts the report to the ci-tests
+# ingress itself, in one request. The artifact is the one input a pull request
+# still controls, so the post accepts exactly one JSON object. A same-repo
+# pull request edits this file too, so the guard test pins the shape against
+# drift, not against a write-access author.
 name: Lore Test Report
 
 on:
@@ -23,6 +32,8 @@ permissions:
 jobs:
   lore-tests-vitest:
     runs-on: ubuntu-latest
+    outputs:
+      report: ${{ steps.run.outputs.report }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -61,14 +72,74 @@ jobs:
         if: steps.fetch.outputs.fetched == 'true'
         run: npx playwright install --with-deps chromium
 
-      - name: Run and ingest test report
+      - name: Run test suite
+        id: run
         if: steps.fetch.outputs.fetched == 'true'
+        shell: bash
+        run: |
+          if ! ./lore-code-trace > lore-test-report.json; then
+            echo "::warning::Lore test run failed - Lore test ingest skipped"
+            [ "${GITHUB_EVENT_NAME}" = "pull_request" ] && exit 0
+            exit 1
+          fi
+          echo "report=true" >> "$GITHUB_OUTPUT"
+
+      - name: Upload test report
+        if: steps.run.outputs.report == 'true'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: lore-test-report
+          path: lore-test-report.json
+          retention-days: 1
+          overwrite: true
+
+  lore-tests-ingest:
+    needs: lore-tests-vitest
+    if: needs.lore-tests-vitest.outputs.report == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: lore-test-report
+
+      - name: Post test report
+        shell: bash
         env:
           LORE_WEBHOOK_URL: ${{ vars.LORE_WEBHOOK_URL }}
           LORE_INGEST_TOKEN: ${{ secrets.LORE_INGEST_TOKEN }}
         run: |
-          if ! ./lore-code-trace --post; then
-            echo "::warning::Lore test ingest failed"
+          if [ -z "${LORE_WEBHOOK_URL}" ] || [ -z "${LORE_INGEST_TOKEN}" ]; then
+            echo "::warning::LORE_WEBHOOK_URL or LORE_INGEST_TOKEN is not configured - Lore test ingest skipped"
             [ "${GITHUB_EVENT_NAME}" = "pull_request" ] && exit 0
             exit 1
           fi
+          if ! jq --slurp --arg repo "${GITHUB_REPOSITORY}" \
+            'if length == 1 and (.[0] | type) == "object" then .[0] + {repo: $repo} else error("expected one JSON object") end' \
+            lore-test-report.json > lore-test-body.json; then
+            echo "::warning::Lore test report is not one JSON object - Lore test ingest skipped"
+            [ "${GITHUB_EVENT_NAME}" = "pull_request" ] && exit 0
+            exit 1
+          fi
+          AUTH_FILE=$(mktemp)
+          RESPONSE_FILE=$(mktemp)
+          trap 'rm -f "${AUTH_FILE}" "${RESPONSE_FILE}"' EXIT
+          printf 'Authorization: Bearer %s\n' "${LORE_INGEST_TOKEN}" > "${AUTH_FILE}"
+          CURL_EXIT=0
+          HTTP_STATUS=$(curl -s -o "${RESPONSE_FILE}" -w '%{http_code}' --retry 3 --max-time 120 -X POST \
+            -H @"${AUTH_FILE}" -H "Content-Type: application/json" \
+            --data-binary @lore-test-body.json \
+            "${LORE_WEBHOOK_URL}/api/webhook/ci-tests") || CURL_EXIT=$?
+          echo "Lore ci-tests ingress returned HTTP ${HTTP_STATUS:-000} (curl exit ${CURL_EXIT})"
+          head -c 4096 "${RESPONSE_FILE}" | sed 's/^/| /'
+          echo
+          if [ "${CURL_EXIT}" = "3" ] || [ "${CURL_EXIT}" = "6" ]; then
+            echo "::error::Lore test ingest could not reach ${LORE_WEBHOOK_URL} (curl exit ${CURL_EXIT}) - check LORE_WEBHOOK_URL"
+          else
+            case "${HTTP_STATUS}" in
+              2??) exit 0 ;;
+              5??|408|429|000|"") echo "::warning::Lore test ingest failed (HTTP ${HTTP_STATUS:-000}, transient)" ;;
+              *) echo "::error::Lore test ingest rejected (HTTP ${HTTP_STATUS}) - check LORE_WEBHOOK_URL and LORE_INGEST_TOKEN" ;;
+            esac
+          fi
+          [ "${GITHUB_EVENT_NAME}" = "pull_request" ] && exit 0
+          exit 1
