@@ -12,7 +12,12 @@ import type { Mock } from "vitest";
 import { ChatComposer } from "../src/index.js";
 import type { ChatComposerHandle } from "../src/index.js";
 import { expectImportHygiene, expectNoEgress, listFiles } from "./helpers/source-hygiene.js";
-import { expectTextOnAccent, expectTextStrong } from "./helpers/expect-theme-tokens.js";
+import {
+  expectActiveBackgroundDisabled,
+  expectTextOnAccent,
+  expectTextStrong,
+  expectTextSubtleDisabled,
+} from "./helpers/expect-theme-tokens.js";
 
 const textareaOf = (): HTMLTextAreaElement => screen.getByRole("textbox");
 const sendButtonOf = (): HTMLButtonElement => screen.getByRole("button", { name: "Send message" });
@@ -237,6 +242,14 @@ describe("ChatComposer", () => {
         "dark:focus-within:ring-(--bowman-focus-ring-dark,var(--color-blue-400))/50",
         "dark:focus-within:shadow-[0_0_0_4px_var(--bowman-accent-glow-dark,rgba(96,165,250,0.1))]"
       );
+    });
+
+    it("the disabled send button reads --bowman-text-subtle for its text and --bowman-active for its background, light and dark", () => {
+      render(<ChatComposer onSubmit={vi.fn()} />);
+
+      expect(sendButtonOf()).toBeDisabled();
+      expectTextSubtleDisabled(sendButtonOf());
+      expectActiveBackgroundDisabled(sendButtonOf());
     });
   });
 
