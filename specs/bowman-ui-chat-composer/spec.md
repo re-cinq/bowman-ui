@@ -98,7 +98,7 @@ Chromium)
 ([validated by](../../tests/ChatComposer.test.tsx#L376),
 [L390](../../tests/ChatComposer.test.tsx#L390),
 [L401](../../tests/ChatComposer.test.tsx#L401),
-[L358](../../examples/chat-demo/tests/chat-demo.spec.ts#L358)).
+[L385](../../examples/chat-demo/tests/chat-demo.spec.ts#L385)).
 
 ## Auto-resize
 

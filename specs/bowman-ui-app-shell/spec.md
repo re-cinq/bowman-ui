@@ -23,7 +23,10 @@ first focusable element in the rendered tree and carries the resolved
 `skipToMainContent` label; `skipLink={false}` opts
 out for a consumer with its own
 ([validated by](../../tests/AppShell.test.tsx#L50),
-[L62](../../tests/AppShell.test.tsx#L62)).
+[L62](../../tests/AppShell.test.tsx#L62)). In Chromium, `Tab` on a fresh load
+reaches the skip link first and `Enter` on it moves the sequential focus start
+to `main`, so the next `Tab` lands inside `main` with no `tabIndex` on it
+(issue 151) ([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L546)).
 
 `AppShellLabels` has four defaulted keys - `openSidebar`, `closeSidebar`,
 `skipToMainContent`, and `sidebarDialog` (the open drawer dialog's accessible
@@ -143,13 +146,20 @@ wraps to the first, and closing returns focus to the hamburger
 [L285](../../tests/AppShell.test.tsx#L285)). Escape and tab-cycling come from
 021's shared `useFocusTrap`, never a bespoke listener: the source contains no
 `"Escape"` string and adds no `document.addEventListener`
-([validated by](../../tests/AppShell.test.tsx#L296)).
+([validated by](../../tests/AppShell.test.tsx#L296)). With the drawer left
+open across a rotate to desktop - `md:hidden` hides it while the trap's
+listener stays mounted - each `Tab` moves focus forward through `main` and
+never into the hidden drawer (issue 151)
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L584)).
 
 `reducedMotion={true}` omits `transition-transform` and `transition-opacity`
 from the drawer and backdrop; omitted, 021's `useReducedMotion` tracks
 `prefers-reduced-motion` and a non-matching `matchMedia` keeps both classes
 ([validated by](../../tests/AppShell.test.tsx#L373),
-[L380](../../tests/AppShell.test.tsx#L380)).
+[L380](../../tests/AppShell.test.tsx#L380)). Rendered in Chromium under
+`prefers-reduced-motion: reduce`, the drawer's computed `transition-duration`
+is `0s`, against `0.3s` without the emulation (issue 151)
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L635)).
 
 ## The characterization suite
 

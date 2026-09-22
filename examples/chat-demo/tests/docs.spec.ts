@@ -5,7 +5,7 @@
 // source, and that none of it leaks into the default screen.
 
 import { expect, test, type Page } from "@playwright/test";
-import { chatComposerLabels } from "../src/labels";
+import { chatComposerLabels, searchFieldLabels } from "../src/labels";
 import { docsLabels } from "../src/docs-labels";
 import { staticDemoNote } from "../src/staticDemoNote";
 
@@ -23,6 +23,7 @@ const componentIds = [
   "toast",
   "error-boundary",
   "conversation-list",
+  "search-field",
   "app-sidebar",
   "app-shell",
   "icons",
@@ -165,5 +166,48 @@ test.describe("the default screen", () => {
     await expect(page.getByRole("textbox", { name: chatComposerLabels.composerInput })).toHaveCount(
       1
     );
+  });
+});
+
+// issue 151: the search field in a browser, where type="search" brings Chromium's native
+// clear control - a click on it, or Escape, must reach the controlled onChange with "".
+test.describe("the search field page", () => {
+  test("typing narrows the example's count, and the native clear control and Escape empty the field through onChange", async ({
+    page,
+  }) => {
+    await page.goto("/?view=docs&component=search-field");
+
+    // The variants below the usage section render the same field; the example's is the one
+    // sharing a wrapper with its summary line.
+    const summary = page.getByText(/^Matching \d of 3 conversations$/);
+    const input = summary
+      .locator("..")
+      .getByRole("searchbox", { name: searchFieldLabels.searchInput });
+
+    await expect(summary).toHaveText("Matching 3 of 3 conversations");
+
+    await input.fill("atlas");
+    await expect(summary).toHaveText("Matching 1 of 3 conversations");
+
+    // The cancel control sits at the end of the content box, about one em wide.
+    const clearControl = await input.evaluate((element) => {
+      const style = getComputedStyle(element);
+
+      return {
+        x: element.clientWidth - parseFloat(style.paddingRight) - parseFloat(style.fontSize) / 2,
+        y: element.clientHeight / 2,
+      };
+    });
+
+    await input.click({ position: clearControl });
+    await expect(input, "the click must land on Chromium's native cancel control").toHaveValue("");
+    await expect(summary).toHaveText("Matching 3 of 3 conversations");
+
+    await input.fill("first edition");
+    await expect(summary).toHaveText("Matching 1 of 3 conversations");
+
+    await input.press("Escape");
+    await expect(input).toHaveValue("");
+    await expect(summary).toHaveText("Matching 3 of 3 conversations");
   });
 });

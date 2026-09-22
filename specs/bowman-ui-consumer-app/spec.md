@@ -72,16 +72,16 @@ specifier `@re-cinq/bowman-ui`
 `App.tsx` `useState` hooks
 ([validated by](../../examples/chat-demo/src/App.tsx#L64)); the assistant
 reply is a `setTimeout` appending a fixture entry - no fetch, no WebSocket, no
-engine ([validated by](../../examples/chat-demo/src/App.tsx#L127)).
+engine ([validated by](../../examples/chat-demo/src/App.tsx#L128)).
 
 `renderSidebar` returns `AppSidebar` with the brand passed as a plain text
 node, two nav items, `ConversationList` as `children` and a button in `footer`
-([validated by](../../examples/chat-demo/src/App.tsx#L153)).
+([validated by](../../examples/chat-demo/src/App.tsx#L169)).
 `ChatMessageList` sits above `ChatComposer` inside the shell's `children`,
 wrapped in the bounded flex column (`flex h-full min-h-0 flex-col`) that
 docs/design-notes.md § Layout requires of consumers
-([validated by](../../examples/chat-demo/src/App.tsx#L189)), and copy shows a
-`Toast` ([validated by](../../examples/chat-demo/src/App.tsx#L211)).
+([validated by](../../examples/chat-demo/src/App.tsx#L206)), and copy shows a
+`Toast` ([validated by](../../examples/chat-demo/src/App.tsx#L228)).
 
 `src/themes.tsx` adds the `&theme=copperline` dimension to `?view=chat`:
 `resolveTheme` maps the query value to a theme - the Marginalia Books default,
@@ -178,9 +178,9 @@ otherwise ([validated by](../../examples/chat-demo/playwright.config.ts#L8)).
 
 ## The Playwright suite
 
-All statements below executed green on 2026-09-10 against the packed tarball
-(32 passed across the chat, docs and theming suites, exit 0), re-run for the
-theming tokens' custom-themed variant. See
+All statements below executed green on 2026-09-22 against the packed tarball
+(49 passed across the chat, docs and theming suites, exit 0), re-run for the
+issue 151 browser-behaviour block below. See
 `specs/bowman-ui-theming-tokens/spec.md` § The demo for the theming suite,
 `tests/theming.spec.ts`, which this spec does not restate.
 
@@ -189,22 +189,29 @@ The rendered screen exposes, by role query rather than CSS selector: one
 user and assistant entries, and the composer textarea. `AppShell` renders
 `renderSidebar` twice (desktop rail and mobile drawer); the counts are exact
 because role queries exclude the `display: none` copy at each viewport
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L32),
-[L33](../../examples/chat-demo/tests/chat-demo.spec.ts#L33),
-[L40](../../examples/chat-demo/tests/chat-demo.spec.ts#L40),
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L34),
+[L35](../../examples/chat-demo/tests/chat-demo.spec.ts#L35),
 [L42](../../examples/chat-demo/tests/chat-demo.spec.ts#L42),
-[L43](../../examples/chat-demo/tests/chat-demo.spec.ts#L43),
-[L50](../../examples/chat-demo/tests/chat-demo.spec.ts#L50)).
+[L44](../../examples/chat-demo/tests/chat-demo.spec.ts#L44),
+[L45](../../examples/chat-demo/tests/chat-demo.spec.ts#L45),
+[L52](../../examples/chat-demo/tests/chat-demo.spec.ts#L52)).
 
 Typing into the composer and pressing Enter appends a user entry, and the
 fixture reply appends an assistant entry, with no data layer between the
 composer's submit handler and the list's entries
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L66)).
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L68)).
 
 Clicking copy on an assistant entry shows the toast, and it disappears on its
-own - a real timer in a real event loop, no fake timers anywhere in the suite
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L181),
-[L179](../../examples/chat-demo/tests/chat-demo.spec.ts#L179)). The toast is
+own - a real timer in a real event loop, no fake timers anywhere in the suite.
+The dismissal is bounded on both sides against the screen's own
+`toastDurationMs` (`examples/chat-demo/src/toastDuration.ts`, the one number
+`App.tsx` mounts the `Toast` with): measured from the click, the toast lives
+at least that long and less than 2.5 s longer, so a toast dismissed at half the
+duration or lingering to twice it both fail where the former
+`toHaveCount(0, { timeout: 10_000 })` passed any duration under ten seconds
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L193),
+[L194](../../examples/chat-demo/tests/chat-demo.spec.ts#L194),
+[L183](../../examples/chat-demo/tests/chat-demo.spec.ts#L183)). The toast is
 located via its visible pill and its unmount, because `Toast` deliberately
 renders the message twice (an `aria-hidden` pill and a visually-hidden live
 region).
@@ -213,7 +220,7 @@ One `getComputedStyle` assertion proves the consumer's Tailwind build scanned
 the installed `dist`: the `aside`'s `lg:w-72` - a class only the library's
 built files carry, never written by the demo - resolves to a computed width
 of `288px`
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L61)).
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L63)).
 
 ### Zero English (superseded)
 
@@ -231,14 +238,18 @@ every labelled export.
 
 The resolved `aiDisclosure` is visible by exact text with entries present and
 in the empty state
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L210),
-[L193](../../examples/chat-demo/tests/chat-demo.spec.ts#L193)). The obligation
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L233),
+[L206](../../examples/chat-demo/tests/chat-demo.spec.ts#L206)). The obligation
 applies regardless of server location because the agent serves EU users. The
 disclosure sits outside the scrollable region - it is not a descendant of the
 `role="log"` region and stays in the viewport with the transcript scrolled to
 either end
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L202),
-[L197](../../examples/chat-demo/tests/chat-demo.spec.ts#L197)).
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L225),
+[L210](../../examples/chat-demo/tests/chat-demo.spec.ts#L210)). The transcript
+is first asserted to overflow (`scrollHeight > clientHeight`), so the two
+`scrollTop` writes move something rather than being no-ops on a fixture that
+fits the viewport
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L220)).
 
 ### Mobile drawer focus trap
 
@@ -246,10 +257,70 @@ At a 375x667 viewport the drawer starts closed, the hamburger opens it, `Tab`
 from the last focusable element inside it returns to the first, and `Escape`
 closes it and returns focus to the hamburger - the first execution of the focus
 trap where `offsetParent` is a real value rather than the jsdom shim
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L233),
-[L237](../../examples/chat-demo/tests/chat-demo.spec.ts#L237),
-[L245](../../examples/chat-demo/tests/chat-demo.spec.ts#L245),
-[L248](../../examples/chat-demo/tests/chat-demo.spec.ts#L248)).
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L257),
+[L261](../../examples/chat-demo/tests/chat-demo.spec.ts#L261),
+[L272](../../examples/chat-demo/tests/chat-demo.spec.ts#L272),
+[L275](../../examples/chat-demo/tests/chat-demo.spec.ts#L275)). The test waits
+for the trap to have focused the close button before moving focus itself: the
+trap focuses a frame after opening, and a test that focused the last element
+before that frame let the trap's own focus land second and the `Tab` move on
+past the close button - two of three local runs failed that way
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L267)).
+
+### Browser-only behaviour (issue 151)
+
+Behaviour that jsdom cannot exercise - layout, media queries, the browser's
+own focus navigation and native controls - runs against the packed tarball in
+Chromium. Each statement's owning spec carries the same anchor: sticky scroll
+in `specs/bowman-ui-message-list/spec.md`, the skip link, the rotate and the
+drawer's reduced motion in `specs/bowman-ui-app-shell/spec.md`, the dots'
+reduced motion in `specs/bowman-ui-stylesheet-entry/spec.md`, the dark scheme
+in `specs/bowman-ui-theming-tokens/spec.md`, the reveals in
+`specs/bowman-ui-chat-message/spec.md` and
+`specs/bowman-ui-conversation-list/spec.md`, and the search field in
+`specs/bowman-ui-styled-primitives/spec.md`.
+
+- A reader who scrolls the transcript to the top mid-stream is still at the
+  top when the reply commits, and a reader left at the bottom is within a
+  pixel of it - real `scrollHeight`, real `scrollTo`
+  ([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L428),
+  [L465](../../examples/chat-demo/tests/chat-demo.spec.ts#L465)).
+- An assistant entry's action row and a conversation row's delete button have
+  computed opacity `0` at rest and `1` on hover or when focus enters them; the
+  demo wires `ConversationList`'s `onDelete`, so `Enter` on the revealed
+  delete button removes the row and its entries, and deleting the current
+  conversation makes the first remaining one current ([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L486),
+  [L511](../../examples/chat-demo/tests/chat-demo.spec.ts#L511),
+  [App](../../examples/chat-demo/src/App.tsx#L196)).
+- `Tab` on a fresh load reaches the skip link first, and `Enter` on it sends
+  the next `Tab` inside `main`
+  ([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L546)).
+- With the drawer open at 375px and the viewport then grown to 1024px, three
+  `Tab`s each move focus forward through `main` and never into the hidden
+  drawer
+  ([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L584)).
+- Under `prefers-reduced-motion: reduce` a thinking dot's computed
+  `animation-name` is `none` and the drawer's `transition-duration` is `0s`,
+  against `bowman-fade-dot` and `0.3s` without the emulation
+  ([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L621),
+  [L635](../../examples/chat-demo/tests/chat-demo.spec.ts#L635)).
+- Under the dark colour scheme the enabled send button and the composer
+  surface resolve to the `-dark` fallbacks, which differ from the light shades
+  ([validated by](../../examples/chat-demo/tests/theming.spec.ts#L298)).
+- The documentation gains a `search-field` page with a `SearchFieldExample`,
+  and Chromium's native clear control and `Escape` both empty the controlled
+  field through `onChange("")`
+  ([validated by](../../examples/chat-demo/tests/docs.spec.ts#L175)).
+
+Each of these was shown red against a deliberately broken condition before
+this record (the unpin removed, the reveal classes dropped, the skip link's
+`href` broken, the trap's visibility filter removed, the reduced-motion block
+deleted, the `dark:` halves of two tokens dropped, the demo's toast mounted
+at half and at twice its duration, `onDelete` unwired, the search input
+swallowing the empty string, and a 2000px viewport for the overflow
+precondition). The suite stays Chromium-only: a WebKit project needs
+`scripts/consumer-app.sh` to install WebKit too and one existing test tabs
+differently there - issue 200.
 
 ## The static import ban
 

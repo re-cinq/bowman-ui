@@ -289,3 +289,27 @@ test.describe("the Overview page's Theming section", () => {
     expect(await backgroundOf(customCircle)).toBe(copperCircleSurface);
   });
 });
+
+// issue 151: the dark scheme rendered, so two -dark fallbacks are measured rather than pinned
+// as class strings, and shown to differ from the light shades the tests above read.
+test.describe("the default chat screen under the dark scheme", () => {
+  test.use({ colorScheme: "dark" });
+
+  test("the send button and the composer's surface resolve to the dark palette fallbacks", async ({
+    page,
+  }) => {
+    await page.goto("/?view=chat");
+
+    const blue500 = await computedPaletteColor(page, "--color-blue-500");
+    const blue600 = await computedPaletteColor(page, "--color-blue-600");
+    const white = await computedPaletteColor(page, "--color-white");
+    const slate900 = await computedPaletteColor(page, "--color-slate-900");
+    const composerFrame = page.getByRole("textbox").locator("..");
+    const sendButton = await enabledSendButton(page);
+
+    await expect.poll(() => backgroundOf(sendButton), { timeout: streamWindowMs }).toBe(blue600);
+    expect(blue600).not.toBe(blue500);
+    expect(await backgroundOf(composerFrame)).toBe(slate900);
+    expect(slate900).not.toBe(white);
+  });
+});

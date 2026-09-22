@@ -220,8 +220,12 @@ export const SearchField: ForwardRefExoticComponent<
   [L64](../../tests/SearchField.test.tsx#L64), [L54](../../tests/SearchField.test.tsx#L54),
   [L84](../../tests/SearchField.test.tsx#L84), [L100](../../tests/SearchField.test.tsx#L100)).
 - The input is controlled: it renders `value`, and every change calls `onChange` with the
-  input's new value verbatim ([validated by](../../tests/SearchField.test.tsx#L25),
-  [L31](../../tests/SearchField.test.tsx#L31)).
+  input's new value verbatim. In Chromium, `type="search"` brings the browser's own clear
+  control and `Escape`-to-clear, and both empty the controlled field through `onChange("")`
+  - measured on the demo's `search-field` documentation page (issue 151)
+    ([validated by](../../tests/SearchField.test.tsx#L25),
+    [L31](../../tests/SearchField.test.tsx#L31),
+    [browser](../../examples/chat-demo/tests/docs.spec.ts#L175)).
 - `disabled` renders the native attribute ([validated by](../../tests/SearchField.test.tsx#L42),
   [L48](../../tests/SearchField.test.tsx#L48)).
 - No clear button, no submit, no debounce: filtering as the user types is the consumer's, and

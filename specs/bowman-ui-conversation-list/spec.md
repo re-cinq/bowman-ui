@@ -84,6 +84,11 @@ and no `<ul>` ([validated by](../../tests/ConversationList.test.tsx#L282),
 [L248](../../tests/ConversationList.test.tsx#L248),
 [L273](../../tests/ConversationList.test.tsx#L273)).
 
+The delete button is `opacity-0` until its row is hovered or focused within;
+measured in Chromium, its computed opacity is `0` at rest and `1` on focus,
+and `Enter` then removes the row from the demo's list (issue 151)
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L511)).
+
 ## The characterization suite
 
 The deliberate decisions below are each pinned in

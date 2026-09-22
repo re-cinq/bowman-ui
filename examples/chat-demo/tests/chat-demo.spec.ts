@@ -3,11 +3,13 @@ import {
   appShellLabels,
   chatComposerLabels,
   chatMessageListLabels,
+  conversationListLabels,
   toastCopiedMessage,
 } from "../src/labels";
-import { streamedReplyText } from "../src/fixtures";
-import { streamStepCount } from "../src/streaming";
+import { conversations, streamedReplyText } from "../src/fixtures";
+import { streamStepCount, streamStepIntervalMs } from "../src/streaming";
 import { staticDemoNote } from "../src/staticDemoNote";
+import { toastDurationMs } from "../src/toastDuration";
 
 const aiDisclosure = chatMessageListLabels.aiDisclosure;
 const fixtureReplyText = "This is a canned demo reply from a fixture.";
@@ -170,6 +172,8 @@ test.describe("copy toast", () => {
   }) => {
     await page.goto("/?view=chat");
 
+    const clickedAt = Date.now();
+
     await page.getByRole("button", { name: chatMessageListLabels.copy }).first().click();
 
     const toastPill = page
@@ -178,7 +182,16 @@ test.describe("copy toast", () => {
 
     await expect(toastPill).toBeVisible();
 
-    await expect(page.getByText(toastCopiedMessage)).toHaveCount(0, { timeout: 10_000 });
+    await expect(page.getByText(toastCopiedMessage)).toHaveCount(0, {
+      timeout: toastDurationMs + 3000,
+    });
+
+    // The countdown starts after the click, so it cannot end before toastDurationMs has
+    // elapsed since clickedAt; the slack above bounds it from the other side.
+    const shownForMs = Date.now() - clickedAt;
+
+    expect(shownForMs).toBeGreaterThanOrEqual(toastDurationMs);
+    expect(shownForMs).toBeLessThan(toastDurationMs + 2500);
   });
 });
 
@@ -196,6 +209,16 @@ test.describe("EU AI Act disclosure", () => {
 
     await expect(transcript).not.toContainText(aiDisclosure);
 
+    const geometry = await transcript.evaluate((region) => ({
+      scrollHeight: region.scrollHeight,
+      clientHeight: region.clientHeight,
+    }));
+
+    expect(
+      geometry.scrollHeight,
+      "the fixture must overflow the transcript, or the scrollTop writes below move nothing"
+    ).toBeGreaterThan(geometry.clientHeight);
+
     await transcript.evaluate((region) => {
       region.scrollTop = region.scrollHeight;
     });
@@ -210,7 +233,8 @@ test.describe("EU AI Act disclosure", () => {
   test("the disclosure is visible in the empty state", async ({ page }) => {
     await page.goto("/?view=chat");
 
-    await page.getByRole("button", { name: "New conversation" }).click();
+    // Anchored: the wired delete button's name also contains the title.
+    await page.getByRole("button", { name: /^New conversation/ }).click();
     await expect(page.getByText("How can we help you today?")).toBeVisible();
     await expect(page.getByText(aiDisclosure, { exact: true })).toBeVisible();
   });
@@ -238,6 +262,9 @@ test.describe("mobile drawer", () => {
     const drawer = page.getByRole("dialog", { name: appShellLabels.sidebarDialog });
 
     await expect(drawer).toBeVisible();
+    // The trap focuses the close button a frame after opening; focusing the last element
+    // before that frame lets the trap's own focus land second and the Tab below move on past it.
+    await expect(drawer.getByRole("button", { name: appShellLabels.closeSidebar })).toBeFocused();
 
     const lastFocusable = drawer.getByRole("button", { name: "Sign out of the demo" });
 
@@ -380,5 +407,243 @@ test.describe("focus after send", () => {
     await expect(userArticles).toHaveCount(6);
     await expect(sendButton).toBeDisabled();
     await expect(composer).toBeFocused();
+  });
+});
+
+// issue 151: the pinned auto-scroll measured against real layout, not stubbed geometry.
+test.describe("sticky scroll", () => {
+  const unpinWindowMs = 2000;
+
+  const transcriptOf = (page: Page): Locator => page.getByRole("log");
+
+  const scrollTopOf = (transcript: Locator): Promise<number> =>
+    transcript.evaluate((region) => region.scrollTop);
+
+  const distanceFromBottom = (transcript: Locator): Promise<number> =>
+    transcript.evaluate((region) => region.scrollHeight - region.scrollTop - region.clientHeight);
+
+  const overflows = (transcript: Locator): Promise<boolean> =>
+    transcript.evaluate((region) => region.scrollHeight > region.clientHeight);
+
+  test("a reader who scrolls to the top mid-stream is still at the top when the reply commits", async ({
+    page,
+  }) => {
+    await page.goto("/?view=chat");
+    await send(page, "Can I move my delivery to next week?");
+
+    const reply = lastAssistantArticle(page);
+    const transcript = transcriptOf(page);
+
+    await expect(reply).toBeVisible();
+    await expect.poll(async () => (await reply.innerText()).length).toBeGreaterThan(0);
+    expect(await overflows(transcript)).toBe(true);
+
+    // A delta landing between the write and its scroll event re-pins the reader, so the
+    // write repeats until it has held across two delta intervals - well inside the stream,
+    // so the guard below still sees a reply in progress.
+    await expect
+      .poll(
+        async () => {
+          await transcript.evaluate((region) => {
+            region.scrollTop = 0;
+          });
+          await page.waitForTimeout(2 * streamStepIntervalMs);
+
+          return scrollTopOf(transcript);
+        },
+        { timeout: unpinWindowMs }
+      )
+      .toBe(0);
+    expect((await reply.innerText()).length).toBeLessThan(streamedReplyText.length);
+
+    await expect(page.getByText(fixtureReplyText)).toBeVisible({ timeout: streamCommitTimeoutMs });
+    await expect(reply).toContainText(streamedReplyText);
+    expect(await overflows(transcript)).toBe(true);
+    expect(await scrollTopOf(transcript)).toBe(0);
+  });
+
+  test("a reader left at the bottom is still at the bottom when the reply commits", async ({
+    page,
+  }) => {
+    await page.goto("/?view=chat");
+    await send(page, "How much does gift wrapping cost?");
+
+    const transcript = transcriptOf(page);
+
+    await expect(page.getByText(fixtureReplyText)).toBeVisible({ timeout: streamCommitTimeoutMs });
+    await expect(lastAssistantArticle(page)).toContainText(streamedReplyText);
+    expect(await overflows(transcript)).toBe(true);
+    await expect.poll(() => distanceFromBottom(transcript)).toBeLessThanOrEqual(1);
+  });
+});
+
+// issue 151: the action rows are opacity-0 until the pointer hovers or focus enters the group,
+// and the existing copy click succeeds on an invisible button, so the reveal is measured here.
+test.describe("hover and focus reveal", () => {
+  const opacityOf = (locator: Locator): Promise<string> =>
+    locator.evaluate((element) => getComputedStyle(element).opacity);
+
+  test("an assistant entry's action row is invisible at rest and revealed by hover or by focus", async ({
+    page,
+  }) => {
+    await page.goto("/?view=chat");
+
+    const article = lastAssistantArticle(page);
+    const copyButton = article.getByRole("button", { name: chatMessageListLabels.copy });
+    const actionRow = copyButton.locator("..");
+
+    await expect(copyButton).toHaveCount(1);
+    expect(await opacityOf(actionRow)).toBe("0");
+
+    await article.hover();
+    await expect.poll(() => opacityOf(actionRow)).toBe("1");
+
+    await page.mouse.move(0, 0);
+    await expect.poll(() => opacityOf(actionRow)).toBe("0");
+
+    await copyButton.focus();
+    await expect.poll(() => opacityOf(actionRow)).toBe("1");
+
+    await page.getByRole("textbox", { name: chatComposerLabels.composerInput }).focus();
+    await expect.poll(() => opacityOf(actionRow)).toBe("0");
+  });
+
+  test("the current conversation's delete button is invisible at rest, revealed on focus, and Enter removes the row and moves the current mark", async ({
+    page,
+  }) => {
+    await page.goto("/?view=chat");
+
+    const rows = page
+      .getByRole("list", { name: conversationListLabels.conversations })
+      .getByRole("listitem");
+    const deleted = conversations[0];
+    const successor = conversations[1];
+    const deleteButton = page.getByRole("button", {
+      name: conversationListLabels.deleteConversation(deleted.title),
+    });
+
+    await expect(rows).toHaveCount(3);
+    await expect(
+      rows.filter({ hasText: deleted.title }).locator('[aria-current="page"]')
+    ).toHaveCount(1);
+    expect(await opacityOf(deleteButton)).toBe("0");
+
+    await deleteButton.focus();
+    await expect.poll(() => opacityOf(deleteButton)).toBe("1");
+
+    await page.keyboard.press("Enter");
+    await expect(rows).toHaveCount(2);
+    await expect(rows.filter({ hasText: deleted.title })).toHaveCount(0);
+    await expect(
+      rows.filter({ hasText: successor.title }).locator('[aria-current="page"]')
+    ).toHaveCount(1);
+  });
+});
+
+// issue 151: the skip link in a browser - Enter on it moves the sequential focus start into
+// main, so <main> needs no tabIndex for the next Tab to land inside it.
+test.describe("skip link", () => {
+  test("Tab reaches the skip link first, and Enter on it sends the next Tab inside main", async ({
+    page,
+  }) => {
+    await page.goto("/?view=chat");
+
+    const skipLink = page.getByRole("link", { name: appShellLabels.skipToMainContent });
+
+    await expect(
+      page.getByRole("textbox", { name: chatComposerLabels.composerInput })
+    ).toBeVisible();
+    await page.keyboard.press("Tab");
+    await expect(skipLink).toBeFocused();
+
+    await page.keyboard.press("Enter");
+    await expect(page).toHaveURL(/#main-content$/);
+
+    await page.keyboard.press("Tab");
+    await expect(skipLink).not.toBeFocused();
+    expect(await page.evaluate(() => Boolean(document.activeElement?.closest("main")))).toBe(true);
+  });
+});
+
+// issue 151: the trap's keydown listener outlives a rotate to desktop; with the drawer
+// display:none it must let Tab walk the page rather than pull focus into a hidden dialog.
+// Chromium keeps the sequential focus start at the hidden drawer, so Tab enters main.
+test.describe("drawer open across a rotate to desktop", () => {
+  test.use({ viewport: { width: 375, height: 667 } });
+
+  // The active element's position among main's focusable elements; -1 when focus is elsewhere.
+  const focusedIndexInMain = (page: Page): Promise<number> =>
+    page.evaluate(() => {
+      const focusable = Array.from(
+        document.querySelector("main")?.querySelectorAll("a, button, textarea, [tabindex]") ?? []
+      );
+
+      return focusable.findIndex((element) => element === document.activeElement);
+    });
+
+  test("after the viewport grows to desktop, three Tabs advance through main, never the drawer", async ({
+    page,
+  }) => {
+    await page.goto("/?view=chat");
+    await page.getByRole("button", { name: appShellLabels.openSidebar }).click();
+
+    const drawer = page.getByRole("dialog", { name: appShellLabels.sidebarDialog });
+
+    await expect(drawer.getByRole("button", { name: appShellLabels.closeSidebar })).toBeFocused();
+
+    await page.setViewportSize({ width: 1024, height: 768 });
+    await expect(page.getByRole("dialog")).toHaveCount(0);
+    await expect(page.getByRole("complementary")).toBeVisible();
+
+    let previousIndex = -1;
+
+    for (let step = 0; step < 3; step += 1) {
+      await page.keyboard.press("Tab");
+      const index = await focusedIndexInMain(page);
+
+      expect(index, `Tab ${step + 1} must move focus forward inside main`).toBeGreaterThan(
+        previousIndex
+      );
+      previousIndex = index;
+    }
+    await expect(page.getByTestId("app-shell-drawer").locator(":focus")).toHaveCount(0);
+  });
+});
+
+// issue 151: prefers-reduced-motion rendered, rather than asserted as CSS text or class strings.
+test.describe("reduced motion", () => {
+  const animationNameOf = (locator: Locator): Promise<string> =>
+    locator.evaluate((element) => getComputedStyle(element).animationName);
+
+  const transitionDurationOf = (locator: Locator): Promise<string> =>
+    locator.evaluate((element) => getComputedStyle(element).transitionDuration);
+
+  test("the thinking dots animate by default and stop under prefers-reduced-motion", async ({
+    page,
+  }) => {
+    await page.goto("/?view=docs&component=thinking-indicator");
+
+    const dot = page.locator(".bowman-fade-dot").first();
+
+    await expect(dot).toHaveCount(1);
+    expect(await animationNameOf(dot)).toBe("bowman-fade-dot");
+
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await expect.poll(() => animationNameOf(dot)).toBe("none");
+  });
+
+  test("the drawer slides over 0.3s by default and has no transition under prefers-reduced-motion", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 375, height: 667 });
+    await page.goto("/?view=chat");
+
+    const drawer = page.getByTestId("app-shell-drawer");
+
+    await expect(drawer).toHaveCount(1);
+    expect(await transitionDurationOf(drawer)).toBe("0.3s");
+
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await expect.poll(() => transitionDurationOf(drawer)).toBe("0s");
   });
 });

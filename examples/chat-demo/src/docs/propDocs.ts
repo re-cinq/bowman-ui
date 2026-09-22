@@ -24,6 +24,7 @@ import type {
   ErrorBoundaryProps,
   IconProps,
   InlineThinkingIndicatorProps,
+  SearchFieldProps,
   ThinkingIndicatorProps,
   ThinkingTraceProps,
   ToastProps,
@@ -336,6 +337,32 @@ export const toastPropDocs = {
     description: "Milliseconds until auto-dismiss. null disables it entirely.",
   },
 } satisfies Record<keyof ToastProps, PropDoc>;
+
+export const searchFieldPropDocs = {
+  value: {
+    type: "string",
+    required: true,
+    description: "The controlled value; the field keeps no state of its own.",
+  },
+  onChange: {
+    type: "(value: string) => void",
+    required: true,
+    description:
+      "Receives the new value verbatim, untrimmed - including the empty string the browser's native clear control produces.",
+  },
+  disabled: {
+    type: "boolean",
+    required: false,
+    default: "false",
+    description: "Disables and dims the input.",
+  },
+  labels: {
+    type: "Partial<SearchFieldLabels>",
+    required: false,
+    default: "defaultSearchFieldLabels",
+    description: "Overrides the accessible name and the placeholder.",
+  },
+} satisfies Record<keyof SearchFieldProps, PropDoc>;
 
 export const errorBoundaryPropDocs = {
   children: { type: "ReactNode", required: true, description: "The subtree being guarded." },
