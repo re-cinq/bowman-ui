@@ -96,7 +96,8 @@ Five local commands run over the spec and ADR corpora, four gates and one report
 - `npm run check:spec-links` - every `[validated by]` link must sit in its
   statement's trailing parenthetical. Exit 1 on any finding.
 - `npm run reanchor:check` - no `#Lnn` link into a file the branch changed
-  may be stale, and none may land on a deleted, blank or missing line.
+  may be stale, no `[validated by <test title>]` link anywhere may sit outside
+  its test (`--all`), and none may land on a deleted, blank or missing line.
   `npm run reanchor` heals the stale ones. Exit 1 on any finding.
 - `npm run lint` - every doc must open with a lead paragraph
   (`re-lint/require-intro-paragraph`) and a spec's status must parse and match
@@ -119,7 +120,8 @@ link is mapped through the cited file's diff hunks since the merge base with
 `origin/main`. After editing any cited repository file - a test, a script, a
 doc, a workflow, a config - run `npm run reanchor` and commit the result. CI
 runs `npm run reanchor:check`: it fails when a link into a file the branch
-changed would move, when the branch deleted or rewrote a cited line (fix the
+changed would move, when a titled link into any test file no longer sits in
+its test, when the branch deleted or rewrote a cited line (fix the
 link by hand), and on anchors landing on blank or closing-punctuation lines. A
 link whose href the branch edited by hand is kept as authored - reviewers
 verify those targets.
