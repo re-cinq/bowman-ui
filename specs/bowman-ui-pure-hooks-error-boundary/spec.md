@@ -45,11 +45,14 @@ exports entry for a consumer ([validated by each built hook and ErrorBoundary op
     ([validated by server render falls back to the default and reports not hydrated](../../tests/useSidebarState.test.tsx#L125),
     [validated by starts open by default and reports hydrated after mount](../../tests/useSidebarState.test.tsx#L23)).
   - A window `storage` event whose key is the stored key, or `null` (a whole-store clear),
-    re-reads storage, so a cross-tab write is reflected while the consumer has not yet set the
-    value locally (the post-set half is issue 169's job); an event for any other key is ignored
+    re-reads storage, so a cross-tab write is reflected until the consumer first sets the value
+    locally; after a local set the local value wins, a later matching event no longer changes
+    `isOpen`, and this tab does not write back to storage in response to the event; an event
+    for any other key is ignored
     ([validated by reflects a cross-tab write when the storage event key matches](../../tests/useSidebarState.test.tsx#L87),
     [L100](../../tests/useSidebarState.test.tsx#L100),
-    [validated by ignores a storage event for an unrelated key](../../tests/useSidebarState.test.tsx#L114)).
+    [validated by ignores a storage event for an unrelated key](../../tests/useSidebarState.test.tsx#L114),
+    [validated by a matching storage event after a toggle changes neither isOpen nor the stored value](../../tests/useSidebarState.test.tsx#L134)).
 - `useFocusTrap` — verbatim: first-element focus on open, Tab/Shift+Tab wrap at the ends while
   focus is inside, and pull focus back to an end when it sits outside the open trap (the
   2026-08-26 review's modal-only hardening), Escape closes, and focus returns to the trigger ref
