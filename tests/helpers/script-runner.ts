@@ -17,6 +17,21 @@ export const git = (repo: string, ...args: string[]): void => {
 export const gitOut = (repo: string, ...args: string[]): string =>
   execFileSync("git", args, { cwd: repo, encoding: "utf8" }).trim();
 
+export const initRepo = (repo: string): string => {
+  git(repo, "init", "-q", "-b", "main");
+
+  for (const [key, value] of [
+    ["user.email", "test@example.test"],
+    ["user.name", "Test"],
+    ["commit.gpgsign", "false"],
+    ["core.excludesFile", "/dev/null"],
+  ]) {
+    git(repo, "config", key, value);
+  }
+
+  return repo;
+};
+
 export const writeInRepo = (repo: string, path: string, content: string): void => {
   mkdirSync(join(repo, dirname(path)), { recursive: true });
   writeFileSync(join(repo, path), content);
