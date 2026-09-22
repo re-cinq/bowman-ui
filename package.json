@@ -50,6 +50,8 @@
     "check:spec-links": "node scripts/check-spec-links.mjs",
     "check:spec-status": "node scripts/check-spec-status.mjs",
     "check:at-pass": "node scripts/check-at-pass.mjs",
+    "reanchor": "node scripts/reanchor-spec-links.mjs",
+    "reanchor:check": "node scripts/reanchor-spec-links.mjs --check",
     "consumer": "scripts/consumer-app.sh",
     "rsc": "scripts/rsc-fixture.sh",
     "prettier": "prettier --write .",

@@ -91,10 +91,13 @@ are `In Progress`, all are `Shipped`. ADRs declare theirs as YAML frontmatter
 
 ## Spec Checks
 
-Four local commands run over the spec and ADR corpora, three gates and one report:
+Five local commands run over the spec and ADR corpora, four gates and one report:
 
 - `npm run check:spec-links` - every `[validated by]` link must sit in its
   statement's trailing parenthetical. Exit 1 on any finding.
+- `npm run reanchor:check` - no `#Lnn` link into a file the branch changed
+  may be stale, and none may land on a deleted, blank or missing line.
+  `npm run reanchor` heals the stale ones. Exit 1 on any finding.
 - `npm run lint` - every doc must open with a lead paragraph
   (`re-lint/require-intro-paragraph`) and a spec's status must parse and match
   its coverage (`re-lint/require-status-matches-coverage`).
@@ -110,13 +113,16 @@ Statements in `specs/*/spec.md` cite their validating tests with a trailing
 `([validated by](../../tests/X.test.tsx#Lnn))` parenthetical at the end of the
 statement (a list item is one statement; a paragraph counts per sentence).
 Anchors must land on the cited test's `it(`/`describe(` line or another
-content-carrying line. CI runs `node scripts/repoint-spec-anchors.mjs --check`
-against `origin/main`: it fails on anchors whose cited content moved (run the
-script without `--check` after editing any cited repository file - a test, a
-script, a doc, a workflow, a config - to re-point them) and on anchors landing on blank or
-closing-punctuation lines. An anchor whose line
-number a spec edit deliberately changed is accepted as authored and reported
-as `retargeted (not checked)` - reviewers must verify those targets by hand.
+content-carrying line. A link labelled `[validated by <test title>]` names the
+`it()`/`test()` it validates and is re-anchored to that declaration; every other
+link is mapped through the cited file's diff hunks since the merge base with
+`origin/main`. After editing any cited repository file - a test, a script, a
+doc, a workflow, a config - run `npm run reanchor` and commit the result. CI
+runs `npm run reanchor:check`: it fails when a link into a file the branch
+changed would move, when the branch deleted or rewrote a cited line (fix the
+link by hand), and on anchors landing on blank or closing-punctuation lines. A
+link whose href the branch edited by hand is kept as authored - reviewers
+verify those targets.
 A link only counts where it is trailing, so `npm run check:spec-links` is the
 local check for placement: it segments each spec with Lore's own segmentation,
 published in `@re-cinq/eslint-plugin-re-lint`, and reports every test link

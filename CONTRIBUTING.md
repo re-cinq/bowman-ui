@@ -36,16 +36,16 @@ CI runs these on every pull request, and they are the same commands you run loca
 - `npm test`, under a coverage floor of 100% lines, functions, statements and branches over
   `src/**`. The floor is never lowered casually.
 - The repository's own checks: `npm run check:markdown-safety`, `npm run check:duplication`,
-  `npm run check:spec-links`, `npm run check:spec-status`, and the client-directive and
-  forbidden-import scripts under `scripts/`.
+  `npm run check:spec-links`, `npm run check:spec-status`, `npm run reanchor:check`, and the
+  client-directive and forbidden-import scripts under `scripts/`.
 - The packed-tarball proofs: `npm run consumer` (the Vite example under a real browser) and
   `npm run rsc` (the App Router fixture).
 
 Two habits the checks will otherwise teach you the slow way:
 
 - After editing any file a spec cites - a test, a script, a doc, a workflow, a config - run
-  `node scripts/repoint-spec-anchors.mjs` so the `[validated by](...#Lnn)` anchors in
-  `specs/*/spec.md` follow the lines they point at. CI runs it with `--check`.
+  `npm run reanchor` so the `[validated by](...#Lnn)` anchors in `specs/*/spec.md` follow the
+  lines they point at, and commit the result. CI runs `npm run reanchor:check`.
 - The public API is a committed snapshot (`tests/fixtures/public-api.json`). A test failing
   against it is telling you a surface changed; regenerating the snapshot is a release decision,
   not a fix.

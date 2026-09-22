@@ -211,7 +211,7 @@ documented, not yet verified by a human listener.
 
 The issue asks the script to "ship a fixture record that makes it go red", the
 standard `014` and `032` hold their own check scripts to. It does - built in a
-temporary git repository per test, exactly as `tests/repoint-spec-anchors.test.ts`
+temporary git repository per test, exactly as `tests/reanchor-spec-links.test.ts`
 and `tests/security/` do, never committed under `docs/accessibility/`. A red
 record committed to that directory would be indistinguishable from a real one
 to a reader, would be the newest record the gate validates, and would be

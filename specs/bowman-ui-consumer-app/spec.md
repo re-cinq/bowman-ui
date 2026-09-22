@@ -12,19 +12,14 @@ source tree, never the registry
 chat screen in a real Chromium. It proves what no jsdom test can: the
 package's eight major components in one document, compiled by a real Tailwind v4
 build, laid out by a real browser. The whole proof is one command,
-`npm run consumer` ([validated by](../../package.json#L53)), documented in the
+`npm run consumer` ([validated by](../../package.json#L55)), documented in the
 README's Worked consumer section ([validated by](../../README.md#L202)).
 
-Anchor caveat: `scripts/repoint-spec-anchors.mjs` tracks
-`(../)+tests/*.ts(x)` anchors, `(../)+examples/*/tests/*.ts(x)` anchors since
-the composer-resize-browser change, `scripts/`, `README.md` and `docs/`
-markdown anchors since issue 32, and since issue 37 any repo-relative path
-carrying a file extension, so this spec's links into `examples/`,
-`package.json` files, workflow files and root config files are repointed and
-rot-checked by CI along with the rest. Anchors into `ci.yml` and
-`publish.yml` cite a line unique to the job they describe, because the
-identical setup blocks those files repeat across jobs are a context tie the
-resolver refuses to guess at.
+Anchor caveat: `scripts/reanchor-spec-links.mjs` tracks every `(../)+path#Lnn` link, so this
+spec's links into `examples/`, `package.json` files, workflow files and root config files are
+re-anchored and rot-checked by CI along with the rest. A link into a file that is not a test
+is mapped through the diff hunks of that file since the merge base, so a line the branch
+rewrites is reported for a manual fix rather than guessed at.
 
 ## The demo app
 
@@ -358,17 +353,17 @@ source import a bundler tree-shakes away.
 The `consumer` job in `ci.yml` runs on every pull request (the workflow's
 unfiltered `pull_request` trigger), pins its actions to the same commit SHAs
 as the existing job with `persist-credentials: false`
-([validated by](../../.github/workflows/ci.yml#L133)), takes its setup from
+([validated by](../../.github/workflows/ci.yml#L134)), takes its setup from
 the shared `setup-node-install` composite action, which sets
 Node from `.nvmrc` via `node-version-file` ([validated by](../../.github/actions/setup-node-install/action.yml#L19)),
 runs `npm ci --ignore-scripts`
 ([validated by](../../.github/actions/setup-node-install/action.yml#L23)) and, because the job asks for it with
-`build: "true"` ([validated by](../../.github/workflows/ci.yml#L141)), an explicit
+`build: "true"` ([validated by](../../.github/workflows/ci.yml#L142)), an explicit
 `npm run build` before packing
 ([validated by](../../.github/actions/setup-node-install/action.yml#L27)), and runs the script as
 its `Consumer app check` step with no browser install step of its own - the
 script installs the demo's pinned Chromium itself
-([validated by](../../.github/workflows/ci.yml#L146)). It omits
+([validated by](../../.github/workflows/ci.yml#L147)). It omits
 `fetch-depth: 0` on purpose: that exists for the spec anchor check, which
 this job does not run.
 
