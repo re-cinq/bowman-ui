@@ -112,7 +112,7 @@ prop smuggled in with it fails. `ChatMessage` gains exactly one prop,
    `assistantName` passed with a `UserChatEntry` renders no name and leaves the
    user article's label alone
    ([validated by](../../tests/ChatMessage.test.tsx#L591),
-   [L548](../../tests/ChatMessage.test.tsx#L548),
+   [L547](../../tests/ChatMessage.test.tsx#L547),
    [with an avatar supplied](../../tests/ChatMessage.test.tsx#L600),
    [L557](../../tests/ChatMessage.test.tsx#L557)).
 
