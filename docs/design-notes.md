@@ -237,10 +237,10 @@ typed
 `Partial<ChatMessageListLabels> & Required<Pick<ChatMessageListLabels, "aiDisclosure">>`.
 `IconButton` (§ Styled primitives) is the second component whose `labels`
 prop is required, typed `labels: IconButtonLabels`: its single key
-`accessibleName` is required, so it ships no `defaultIconButtonLabels` - an
-empty frozen object exported for ceremony. Decision 2's optional `labels?`
-shape reads subject to these two exceptions; every other key still defaults
-per key.
+`accessibleName` is required, so no `defaultIconButtonLabels` ships; nothing
+of that name exists, and an empty frozen object would be ceremony. Decision
+2's optional `labels?` shape reads subject to these two exceptions; every
+other key still defaults per key.
 
 **The three `stringPropOnly` exceptions** (every other string-carrying export
 takes `labels`):
@@ -567,9 +567,9 @@ Decisions:
    `dist/index.js` re-exports nothing from it. The reasons are mechanical:
    the focus-ring string is over 100 characters and appears at four sites in
    `ChatMessage.tsx` alone, so inlining it would trip
-   `sonarjs/no-duplicate-string` (threshold 3) inside a file and the jscpd 4 %
-   gate across the eleven files that import it. The module carries no `"use client"` (no
-   trigger under decision 1) and one-line comments only.
+   `sonarjs/no-duplicate-string` (threshold 3) inside a file and the jscpd
+   zero-clone gate (decision 12) across its importers. The module carries no
+   `"use client"` (no trigger under decision 1) and one-line comments only.
 5. **Active-row emphasis has its own pair, `--bowman-active` and
    `--bowman-active-dark`, with slate defaults.** The default stays neutral
    and a theme may tint it. As first recorded only the two backgrounds were
@@ -877,7 +877,7 @@ cannot pass a function across the client boundary - `AppShell`
 (`renderNavLink`, `onNavigate`, a `SidebarNavItem`'s `icon`), `Button` and
 `IconButton` (`onClick`, and the `icon` component), `ChatComposer`
 (`onSubmit`), `ChatMessage` and `ChatMessageList` (`onCopy`, `onFeedback`, the
-`assistantMessageFrom` label),
+`assistantMessageFrom` label, and on `ChatMessageList` alone `renderEntryFooter` and `describeTool`),
 `ConversationList` (`renderLink`, `onSelect`, `onDelete`, the
 `deleteConversation` label), `ErrorBoundary` (`onError`), `PromptChips`
 (`onPick`), `SearchField` (`onChange`), `Toast` (`onClose`) and

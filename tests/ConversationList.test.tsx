@@ -30,6 +30,8 @@ const titleContainer = () => document.querySelector("span.whitespace-nowrap") as
 const charOpacities = () =>
   Array.from(titleContainer().children).map((c) => (c as HTMLElement).style.opacity);
 
+const charTexts = () => Array.from(titleContainer().children).map((c) => c.textContent);
+
 afterEach(() => {
   vi.useRealTimers();
 });
@@ -442,6 +444,48 @@ describe("ConversationList", () => {
         Array.from(secondTitle.children).every((c) => (c as HTMLElement).style.opacity === "1")
       ).toBe(true);
       expect(vi.getTimerCount()).toBe(0);
+    });
+
+    it('the title "📦 Booking" renders nine spans, one per code point, never a lone surrogate', () => {
+      render(<ConversationList items={[makeItem({ title: "📦 Booking" })]} />);
+
+      expect(charTexts()).toEqual(Array.from("📦 Booking"));
+      expect(titleContainer().textContent).toBe("📦 Booking");
+    });
+
+    it('animating from the placeholder "🧳 New thread" to "📦 Booking 4711" fades twelve then fourteen code-point spans', () => {
+      vi.useFakeTimers();
+      const { rerender } = render(
+        <ConversationList
+          items={[makeItem({ title: "🧳 New thread", isPlaceholderTitle: true })]}
+        />
+      );
+
+      rerender(
+        <ConversationList
+          items={[makeItem({ title: "📦 Booking 4711", isPlaceholderTitle: false })]}
+        />
+      );
+      act(() => {
+        vi.advanceTimersByTime(25);
+      });
+      expect(charTexts()).toEqual(Array.from("🧳 New thread"));
+
+      act(() => {
+        vi.advanceTimersByTime((12 + 14) * 25);
+      });
+      expect(charTexts()).toEqual(Array.from("📦 Booking 4711"));
+      expectSettledTitle("📦 Booking 4711");
+    });
+
+    it('a one-pass replacement from "Booking 4711" to "📦 Booking" settles on nine code-point spans', () => {
+      vi.useFakeTimers();
+      const { rerender } = render(<ConversationList items={[makeItem()]} />);
+
+      rerender(<ConversationList items={[makeItem({ title: "📦 Booking" })]} />);
+
+      expect(charTexts()).toEqual(Array.from("📦 Booking"));
+      expectSettledTitle("📦 Booking");
     });
   });
 });

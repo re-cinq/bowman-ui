@@ -833,3 +833,21 @@ describe("markdown link policy (076)", () => {
     expect(container.textContent).toContain("alt text");
   });
 });
+
+// 132's wrap classes, appended after the 076 suite for the same anchor reason.
+describe("long unbroken strings (132)", () => {
+  it("the user bubble keeps whitespace-pre-wrap and carries break-words", () => {
+    render(<ChatMessage entry={makeUserEntry()} userInitials="LM" />);
+
+    expect(screen.getByText("Ver pedido 4711")).toHaveClass("whitespace-pre-wrap", "break-words");
+  });
+
+  it("the assistant prose container keeps overflow-x-auto and carries break-words", () => {
+    render(<ChatMessage entry={makeEntry()} userInitials="LM" />);
+
+    expect(screen.getByText("Pedido 4711 confirmado").parentElement).toHaveClass(
+      "overflow-x-auto",
+      "break-words"
+    );
+  });
+});

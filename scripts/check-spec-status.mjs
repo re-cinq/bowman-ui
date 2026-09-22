@@ -5,61 +5,30 @@
 // re-lint/require-status-matches-coverage; the statement-link report behind
 // --coverage is never a gate (docs/design-notes.md § Lint guardrails decision 11).
 
-import { readFileSync, readdirSync } from "node:fs";
-import { join, relative, resolve } from "node:path";
+import { relative, resolve } from "node:path";
 import process from "node:process";
 import { parseDocStatus } from "@re-cinq/eslint-plugin-re-lint/spec/spec-status.js";
 import { unlinkedTestableStatements } from "@re-cinq/eslint-plugin-re-lint/spec/spec-status-coverage.js";
+import { emitReport, parseFlags } from "./lib/cli-args.mjs";
 import { root } from "./lib/repo-root.mjs";
+import { listSpecDocs, readRepoFileOrExit } from "./lib/spec-corpus.mjs";
 
 const USAGE =
   "usage: check-spec-status.mjs [--coverage] [--json] [doc-path ...]\n" +
   "doc paths resolve against the repo root, not the working directory; an absolute path is taken as given";
 
-const args = process.argv.slice(2);
-const flags = args.filter((arg) => arg.startsWith("--"));
-const docArgs = args.filter((arg) => !arg.startsWith("--"));
-
-const usageExit = () => {
-  process.stderr.write(`${USAGE}\n`);
-  process.exit(2);
-};
-
-for (const flag of flags) {
-  if (flag === "--json" || flag === "--coverage") {
-    continue;
-  }
-  usageExit();
-}
-
+const { flags, positional: docArgs } = parseFlags(
+  process.argv.slice(2),
+  ["--json", "--coverage"],
+  USAGE
+);
 const asJson = flags.includes("--json");
 const asCoverage = flags.includes("--coverage");
 
-const markdownIn = (dir) =>
-  readdirSync(join(root, dir), { withFileTypes: true })
-    .filter((entry) => entry.isFile() && entry.name.endsWith(".md"))
-    .map((entry) => `${dir}/${entry.name}`)
-    .sort();
-
-const specDocs = () =>
-  readdirSync(join(root, "specs"), { withFileTypes: true })
-    .filter((entry) => entry.isDirectory())
-    .map((entry) => `specs/${entry.name}/spec.md`)
-    .sort();
-
-const discoverDocs = () => [...specDocs(), ...markdownIn("adrs")];
-
 const docPaths =
-  docArgs.length > 0 ? docArgs.map((path) => relative(root, resolve(root, path))) : discoverDocs();
-
-const readDoc = (docPath) => {
-  try {
-    return readFileSync(join(root, docPath), "utf8");
-  } catch (error) {
-    process.stderr.write(`cannot read doc ${docPath}: ${error.message}\n`);
-    process.exit(2);
-  }
-};
+  docArgs.length > 0
+    ? docArgs.map((path) => relative(root, resolve(root, path)))
+    : listSpecDocs(root, { includeAdrs: true });
 
 // The corpus folders lore's rules assume by default, matched at any depth so fixtures qualify.
 const docKind = (docPath) => {
@@ -117,7 +86,7 @@ const findings = [];
 const docsWithFindings = new Set();
 
 for (const docPath of docPaths) {
-  const content = readDoc(docPath);
+  const content = readRepoFileOrExit(root, docPath, "doc");
   const kind = docKind(docPath);
 
   if (kind === null) {
@@ -147,8 +116,9 @@ const reportLines = () => [
   summary(),
 ];
 
-// process.exitCode, not process.exit: exiting truncates a large piped write.
-process.exitCode = asCoverage || findings.length === 0 ? 0 : 1;
-process.stdout.write(
-  asJson ? `${JSON.stringify(findings, null, 2)}\n` : `${reportLines().join("\n")}\n`
-);
+emitReport({
+  asJson,
+  findings,
+  lines: reportLines,
+  exitCode: asCoverage || findings.length === 0 ? 0 : 1,
+});

@@ -39,6 +39,17 @@ exports entry for a consumer ([validated by](../../tests/hooks-dist.test.ts#L61)
   [L61](../../tests/useSidebarState.test.tsx#L61),
   [L69](../../tests/useSidebarState.test.tsx#L69),
   [types](../../tests/hooks-dist.test.ts#L32)).
+  - `isHydrated` is `false` in a server render and `true` once the client has hydrated, and a
+    server render ignores any stored value and reports `defaultOpen`, so a consumer can avoid a
+    flash of the wrong state
+    ([validated by](../../tests/useSidebarState.test.tsx#L125),
+    [L23](../../tests/useSidebarState.test.tsx#L23)).
+  - A window `storage` event whose key is the stored key, or `null` (a whole-store clear),
+    re-reads storage, so a cross-tab write is reflected while the consumer has not yet set the
+    value locally (the post-set half is issue 169's job); an event for any other key is ignored
+    ([validated by](../../tests/useSidebarState.test.tsx#L87),
+    [L100](../../tests/useSidebarState.test.tsx#L100),
+    [L114](../../tests/useSidebarState.test.tsx#L114)).
 - `useFocusTrap` — verbatim: first-element focus on open, Tab/Shift+Tab wrap at the ends while
   focus is inside, and pull focus back to an end when it sits outside the open trap (the
   2026-08-26 review's modal-only hardening), Escape closes, and focus returns to the trigger ref
@@ -92,13 +103,19 @@ string survives in `src/`
 - **Storage prefix is consumer-owned.** No default: two apps on one origin must not collide, and
   a baked-in default would silently brand the package's storage keys.
 - **Dead `typeof window === "undefined"` guards dropped.** Every file is `"use client"`; the
-  guards could never fire in the environments the directive admits.
+  guards could never fire in the environments the directive admits (`useReducedMotion` keeps
+  its guard: see issue 170).
 - **English strings stay as per-component props for now.** The repo-wide labels convention
   (defaults + `resolveLabels`) is issue 022's contract; these components adopt it there.
-- **Directive-checker gap recorded.** `scripts/check-client-directives.mjs`'s client-API regex
-  matches hooks and `createContext` but not class-component APIs; `ErrorBoundary` is caught only
-  via its `onClick=` JSX handler. Widening the trigger list is issue 128's job.
+- **Directive-checker gap closed.** `scripts/check-client-directives.mjs`'s class rule matches
+  `extends Component`/`PureComponent`, bare or through a namespace import (docs/design-notes.md
+  decision 1, rule 3; the
+  [client-API trigger-list spec](../bowman-ui-client-api-trigger-list/spec.md) owns the
+  statement), so a class component such as `ErrorBoundary` needs no `onClick=` handler to be
+  caught ([validated by](../../tests/client-directives.test.ts#L50)).
 - **Visibility test.** `useFocusTrap` treats `display: none` and `visibility: hidden` as hidden (the states that also leave the tab order) and deliberately not opacity: an `opacity-0` element stays tabbable in browsers, and the package's own reveal-on-focus buttons rely on that. Where `checkVisibility` is missing, the `offsetParent` fallback misreports fixed-position descendants as hidden; it is all older engines offer.
 - **jsdom limits.** jsdom reports `offsetParent: null` for everything (stubbed in the focus
   tests) and performs no real focus traversal; these tests pin the handler contract and DOM
-  effects. Verification against a real assistive technology is issue 071's job.
+  effects. Verification against a real assistive technology is issue 071's job. A `storage`
+  event never reaches the document that wrote the value, so the sidebar tests dispatch it by
+  hand; a real second tab is not exercised.
