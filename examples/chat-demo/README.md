@@ -59,7 +59,7 @@ invented company, Copperline Bicycles: `src/themes.tsx` picks the theme from the
 query, and `src/custom-theme.css` sets the library's forty-four `--bowman-*`
 theming tokens on the `.custom-theme` wrapper. The overview page's Theming
 section renders the default and the themed components side by side, and
-`tests/theming.spec.ts` measures both in Chromium.
+`tests/theming.spec.ts` measures both in Chromium and in WebKit.
 
 ## The hero screenshot
 

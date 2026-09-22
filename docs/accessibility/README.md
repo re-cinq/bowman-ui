@@ -102,8 +102,8 @@ there is of the wrong page.
 
 **A local build**, needed only for the two local-only sub-steps (A6 step 3 and
 A7b). It requires a clone with Node 22, bash, a completed `npm ci` at the root,
-and patience: the script installs Chromium and runs the demo's whole Playwright
-suite before it prints the temp directory line.
+and patience: the script installs Chromium and WebKit and runs the demo's whole
+Playwright suite in both before it prints the temp directory line.
 
 ```
 scripts/consumer-app.sh --keep     # prints "Keeping temp directory: <dir>"

@@ -220,12 +220,13 @@ export const SearchField: ForwardRefExoticComponent<
   [validated by `the SearchIcon is an aria-hidden, pointer-events-none absolute <svg> inside a relative wrapper`](../../tests/SearchField.test.tsx#L64), [validated by `the forwarded ref reaches the <input>`](../../tests/SearchField.test.tsx#L54),
   [validated by labels={{ searchInput: "Søg i samtaler", searchPlaceholder: "Søg..." }} renders both overrides with no "Search" left in the DOM](../../tests/SearchField.test.tsx#L84), [validated by labels={{ searchInput: undefined }} falls back to the "Search" default](../../tests/SearchField.test.tsx#L100)).
 - The input is controlled: it renders `value`, and every change calls `onChange` with the
-  input's new value verbatim. In Chromium, `type="search"` brings the browser's own clear
-  control and `Escape`-to-clear, and both empty the controlled field through `onChange("")`
-  - measured on the demo's `search-field` documentation page (issue 151)
-    ([validated by value="4711" renders as the input's value](../../tests/SearchField.test.tsx#L25),
-    [validated by a change to " Hvor " calls onChange once with " Hvor " untrimmed](../../tests/SearchField.test.tsx#L31),
-    [browser](../../examples/chat-demo/tests/docs.spec.ts#L175)).
+  input's new value verbatim. `type="search"` brings the browser's own clear control, which
+  empties the controlled field through `onChange("")` in Chromium and WebKit alike;
+  `Escape`-to-clear is Chromium's own, and WebKit leaves the value (issue 218) - measured on
+  the demo's `search-field` documentation page (issue 151)
+  ([validated by value="4711" renders as the input's value](../../tests/SearchField.test.tsx#L25),
+  [validated by a change to " Hvor " calls onChange once with " Hvor " untrimmed](../../tests/SearchField.test.tsx#L31),
+  [browser](../../examples/chat-demo/tests/docs.spec.ts#L176)).
 - `disabled` renders the native attribute ([validated by disabled renders the native disabled attribute](../../tests/SearchField.test.tsx#L42),
   [validated by the input is enabled when disabled is omitted](../../tests/SearchField.test.tsx#L48)).
 - No clear button, no submit, no debounce: filtering as the user types is the consumer's, and

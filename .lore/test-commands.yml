@@ -20,14 +20,14 @@
   cwd: .
   description: >-
     The real-browser consumer suite (examples/chat-demo, Playwright against
-    Chromium). scripts/consumer-app.sh builds and packs the library, installs
-    the tarball into a temp copy of examples/chat-demo outside the repo tree,
-    typechecks and vite-builds it, and runs the Playwright suite against vite
-    preview - it exercises the packed tarball rather than the working tree.
-    Needs Chromium: the run itself executes "npx playwright install
-    --with-deps chromium" before the tests (on Linux --with-deps also installs
-    OS packages); CI adds no install step of its own. The
-    suite runs whole: a {selector} is accepted and ignored - the run command
+    Chromium and WebKit). scripts/consumer-app.sh builds and packs the
+    library, installs the tarball into a temp copy of examples/chat-demo
+    outside the repo tree, typechecks and vite-builds it, and runs the
+    Playwright suite against vite preview - it exercises the packed tarball
+    rather than the working tree. Needs Chromium and WebKit: the run itself
+    executes "npx playwright install --with-deps chromium webkit" before the
+    tests (on Linux --with-deps also installs OS packages); CI adds no
+    install step of its own. The suite runs whole: a {selector} is accepted and ignored - the run command
     contains no placeholder, so nothing is interpolated, and the script takes
     no argument but --keep. No list command, since the suite is not
     addressable per-test through this interface, and no coverage_format,

@@ -296,16 +296,16 @@ renders the Marginalia Books sidebar with no theme mark
 markup identical to what they drove before the theme dimension existed
 ([validated by the send button and the active row resolve to the palette colours the library shipped with](../../examples/chat-demo/tests/theming.spec.ts#L111)).
 
-### The Chromium proof
+### The browser proof
 
-`examples/chat-demo/tests/theming.spec.ts` executed green on 2026-09-08 against the packed
-tarball via `npm run consumer` (30 passed across the chat, docs and theming suites, exit 0); the
-link target is the whole file
+`examples/chat-demo/tests/theming.spec.ts` executed green on 2026-09-22 against the packed
+tarball via `npm run consumer`, in Chromium and WebKit alike since issue 200 (98 passed across
+the chat, docs and theming suites in both projects, exit 0); the link target is the whole file
 ([validated by](../../examples/chat-demo/tests/theming.spec.ts#L1)). Every colour is read through
 `getComputedStyle`, and the default screen is never compared to a pinned oklch string: the suite
 paints a probe element with the palette variable itself (`var(--color-blue-500)`,
 `var(--color-slate-100)`, ...), guards the probe against resolving transparent, and asserts the
-token site serialises identically - so a Tailwind release that changes how Chromium serialises a
+token site serialises identically - so a Tailwind release that changes how an engine serialises a
 palette colour cannot fail the suite, and a consumer build that stops emitting the variable into
 `:root` cannot pass it vacuously
 ([validated by the send button and the active row resolve to the palette colours the library shipped with](../../examples/chat-demo/tests/theming.spec.ts#L111)).
@@ -347,10 +347,10 @@ asserted ([validated by the send button and the active row take the wrapper's to
 [validated by the composer's text takes the wrapper's strong text token](../../examples/chat-demo/tests/theming.spec.ts#L210),
 [validated by the copy button's rest text takes the wrapper's subtle text token](../../examples/chat-demo/tests/theming.spec.ts#L216),
 [validated by the selected thumbs-up takes the wrapper's success tokens](../../examples/chat-demo/tests/theming.spec.ts#L237)). Under the dark colour scheme
-(issue 151) Chromium measures two of the `-dark` fallbacks: the enabled send button's
+(issue 151) both engines measure two of the `-dark` fallbacks: the enabled send button's
 `--bowman-accent-dark` (`blue-600`) and the composer surface's `--bowman-surface-dark`
 (`slate-900`), each shown to differ from the light shade the tests above read
-([validated by the send button and the composer's surface resolve to the dark palette fallbacks](../../examples/chat-demo/tests/theming.spec.ts#L298)). Not measured in Chromium
+([validated by the send button and the composer's surface resolve to the dark palette fallbacks](../../examples/chat-demo/tests/theming.spec.ts#L298)). Not measured in a browser
 are the other nineteen `-dark` tokens and the light ones no test reads, among them
 `--bowman-accent-hover` and `--bowman-pulse-outline` - Playwright never hovers a control -
 which the jsdom class-string tests above pin alone

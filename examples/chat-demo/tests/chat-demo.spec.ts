@@ -25,6 +25,11 @@ const send = async (page: Page, question: string): Promise<void> => {
   await composer.press("Enter");
 };
 
+// Sequential focus navigation as the user presses it: WebKit's plain Tab skips links and
+// buttons unless the Option modifier is held (issue 200), so the WebKit project sends Alt+Tab.
+const tabForward = (page: Page, browserName: string): Promise<void> =>
+  page.keyboard.press(browserName === "webkit" ? "Alt+Tab" : "Tab");
+
 test.describe("full screen structure", () => {
   test("renders sidebar, navigation, conversations, transcript and composer by role", async ({
     page,
@@ -387,6 +392,7 @@ test.describe("long unbroken strings", () => {
 test.describe("focus after send", () => {
   test("Tab to send then Enter or Space appends the entry and returns focus to the textarea", async ({
     page,
+    browserName,
   }) => {
     await page.goto("/?view=chat");
     const composer = page.getByRole("textbox", { name: chatComposerLabels.composerInput });
@@ -394,7 +400,7 @@ test.describe("focus after send", () => {
     const userArticles = page.getByRole("article", { name: chatMessageListLabels.userMessage });
 
     await composer.fill("An invented question sent with Enter");
-    await page.keyboard.press("Tab");
+    await tabForward(page, browserName);
     await expect(sendButton).toBeFocused();
     await page.keyboard.press("Enter");
 
@@ -403,7 +409,7 @@ test.describe("focus after send", () => {
     await expect(composer).toBeFocused();
 
     await composer.fill("An invented question sent with Space");
-    await page.keyboard.press("Tab");
+    await tabForward(page, browserName);
     await expect(sendButton).toBeFocused();
     await page.keyboard.press("Space");
 
@@ -548,6 +554,7 @@ test.describe("hover and focus reveal", () => {
 test.describe("skip link", () => {
   test("Tab reaches the skip link first, and Enter on it sends the next Tab inside main", async ({
     page,
+    browserName,
   }) => {
     await page.goto("/?view=chat");
 
@@ -556,13 +563,13 @@ test.describe("skip link", () => {
     await expect(
       page.getByRole("textbox", { name: chatComposerLabels.composerInput })
     ).toBeVisible();
-    await page.keyboard.press("Tab");
+    await tabForward(page, browserName);
     await expect(skipLink).toBeFocused();
 
     await page.keyboard.press("Enter");
     await expect(page).toHaveURL(/#main-content$/);
 
-    await page.keyboard.press("Tab");
+    await tabForward(page, browserName);
     await expect(skipLink).not.toBeFocused();
     expect(await page.evaluate(() => Boolean(document.activeElement?.closest("main")))).toBe(true);
   });
@@ -570,7 +577,7 @@ test.describe("skip link", () => {
 
 // issue 151: the trap's keydown listener outlives a rotate to desktop; with the drawer
 // display:none it must let Tab walk the page rather than pull focus into a hidden dialog.
-// Chromium keeps the sequential focus start at the hidden drawer, so Tab enters main.
+// Both engines keep the sequential focus start at the hidden drawer, so Tab enters main.
 test.describe("drawer open across a rotate to desktop", () => {
   test.use({ viewport: { width: 375, height: 667 } });
 

@@ -85,9 +85,9 @@ and no `<ul>` ([validated by isLoading renders a role="status" element named "Lo
 [validated by onDelete omitted renders no TrashIcon and no delete button](../../tests/ConversationList.test.tsx#L273)).
 
 The delete button is `opacity-0` until its row is hovered or focused within;
-measured in Chromium, its computed opacity is `0` at rest and `1` on focus,
+measured in Chromium and WebKit, its computed opacity is `0` at rest and `1` on focus,
 and `Enter` then removes the row from the demo's list (issue 151)
-([validated by the current conversation's delete button is invisible at rest, revealed on focus, and Enter removes the row and moves the current mark](../../examples/chat-demo/tests/chat-demo.spec.ts#L514)).
+([validated by the current conversation's delete button is invisible at rest, revealed on focus, and Enter removes the row and moves the current mark](../../examples/chat-demo/tests/chat-demo.spec.ts#L520)).
 
 ## The characterization suite
 
