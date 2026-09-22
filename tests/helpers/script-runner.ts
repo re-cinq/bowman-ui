@@ -4,8 +4,12 @@ import { dirname, join } from "node:path";
 
 export type RunResult = { status: number | null; stdout: string; stderr: string };
 
-export const runScript = (script: string, args: string[], { cwd }: { cwd: string }): RunResult => {
-  const result = spawnSync(process.execPath, [script, ...args], { cwd, encoding: "utf8" });
+export const runScript = (
+  script: string,
+  args: string[],
+  { cwd, env }: { cwd: string; env?: NodeJS.ProcessEnv }
+): RunResult => {
+  const result = spawnSync(process.execPath, [script, ...args], { cwd, env, encoding: "utf8" });
 
   return { status: result.status, stdout: result.stdout, stderr: result.stderr };
 };
