@@ -30,7 +30,6 @@ function focusFirstElement(group: HTMLElement): void {
 
     return;
   }
-  // If no focusable element, make the group itself focusable temporarily
   const hadTabIndexAttribute = group.hasAttribute("tabindex");
   const originalTabIndex = group.tabIndex;
 

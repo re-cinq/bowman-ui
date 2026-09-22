@@ -102,7 +102,7 @@ export function useFocusTrap<T extends HTMLElement = HTMLDivElement>(
 
       const returnTarget = triggerRef?.current || previousActiveElement.current;
 
-      if (returnTarget instanceof HTMLElement) {
+      if (returnTarget instanceof HTMLElement || returnTarget instanceof SVGElement) {
         returnTarget.focus();
       }
     };
