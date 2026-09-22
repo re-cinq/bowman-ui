@@ -96,7 +96,7 @@ which is the request a `fetch` spy would never see
 ([validated by](../../tests/markdown/urlPolicy.test.tsx#L263)). Suite-wide,
 `tests/setup.ts` records any `fetch` or `XMLHttpRequest` call and fails the
 test that triggered it, alongside 023's console trap
-([validated by](../../tests/setup.ts#L18)). Neither markdown source file
+([validated by](../../tests/setup.ts#L52)). Neither markdown source file
 references `console.`, storage APIs, `fetch` or `sendBeacon`
 ([validated by](../../tests/markdown/urlPolicy.test.tsx#L293)). Raw HTML
 still renders as escaped text - no `rehype` anywhere
