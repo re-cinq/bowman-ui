@@ -68,7 +68,10 @@ only; `Toast` keeps its centring in its own dedicated rule
 
 `@media (prefers-reduced-motion: reduce)` sets `animation: none` on all four
 utility classes, with no `data-animations` attribute in any selector
-([validated by](../../tests/styles.test.ts#L89)). No
+([validated by](../../tests/styles.test.ts#L89)). Rendered in Chromium under
+that preference, a thinking dot's computed `animation-name` is `none`, against
+`bowman-fade-dot` without the emulation (issue 151)
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L624)). No
 `NEXT_PUBLIC_FLAG_ANIMATIONS` escape hatch exists: flag plumbing belongs to
 a consumer ([validated by](../../tests/hooks-dist.test.ts#L66)).
 

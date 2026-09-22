@@ -10,6 +10,7 @@ import {
   defaultChatComposerLabels,
   defaultChatMessageListLabels,
   defaultConversationListLabels,
+  defaultSearchFieldLabels,
 } from "@re-cinq/bowman-ui";
 import type {
   AppShellLabels,
@@ -17,6 +18,7 @@ import type {
   ChatComposerLabels,
   ChatMessageListLabels,
   ConversationListLabels,
+  SearchFieldLabels,
 } from "@re-cinq/bowman-ui";
 
 export const appShellLabels: AppShellLabels = defaultAppShellLabels;
@@ -24,6 +26,8 @@ export const appShellLabels: AppShellLabels = defaultAppShellLabels;
 export const appSidebarLabels: AppSidebarLabels = defaultAppSidebarLabels;
 
 export const conversationListLabels: ConversationListLabels = defaultConversationListLabels;
+
+export const searchFieldLabels: SearchFieldLabels = defaultSearchFieldLabels;
 
 export const chatMessageListLabels: ChatMessageListLabels = {
   ...defaultChatMessageListLabels,
