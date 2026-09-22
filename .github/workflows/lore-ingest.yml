@@ -1,4 +1,4 @@
-# lore-ingest-version: 4
+# lore-ingest-version: 5
 # The curl hardening (auth-file token, status handling, body prefixing) lives in
 # scripts/lore-post.sh, shared by both jobs below. See issue #38.
 # LORE_INGEST_URL is a repository secret, not a variable, although it holds no
