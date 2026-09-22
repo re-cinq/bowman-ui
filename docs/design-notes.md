@@ -1151,8 +1151,8 @@ Decisions:
     copies now live once, in `tests/helpers/`, `scripts/lib/` and the
     `setup-node-install` composite action (issue 157 later folded three more
     directory walks and the Lore scripts' Vitest report runner into the same
-    homes, and issue 153 the `tsc --ignoreConfig` spawn behind ten of the
-    twelve `tests/types/*-type-assertions.*` compiles, a clone jscpd never
+    homes, and issue 153 the `tsc --ignoreConfig` spawn behind all twelve
+    `tests/types/*-type-assertions.*` compiles, a clone jscpd never
     saw because each copy sat under its floor), and the gate holds the tree
     there: `path` is the repo, `threshold` is 0, and a red check is fixed only
     by extracting a helper. Three inputs are ignored because they are not code
