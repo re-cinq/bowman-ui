@@ -50,7 +50,7 @@ in this package - so the member list is read from
 `dist/index.d.ts` is asserted separately to export the name. The criterion's
 other half, that `dist/index.d.ts` carries no `describeAssistant`,
 `renderAttribution` or `renderEntry`, is asserted literally on both files
-([validated by](../../tests/chat-message-list-dist.test.ts#L59)).
+([validated by](../../tests/chat-message-list-dist.test.ts#L66)).
 
 `ChatMessageListProps` gains `attribution?: Readonly<Record<string, ChatAttribution>>`
 and nothing else; the built member list is pinned in full order, so a second
@@ -162,8 +162,10 @@ recorded where a future reader will look for it
 
 `ChatAttribution` is an addition - a minor, never a rename or a removal - so
 `tests/fixtures/public-api.json` was regenerated with
-`npm run build && node scripts/write-public-api.mjs`, never hand-edited: 53
-runtime values unchanged, 41 type exports (was 40)
+`npm run build && node scripts/write-public-api.mjs`, never hand-edited: at
+the time, 53 runtime values unchanged and 41 type exports (was 40). Later
+additions have grown both lists, and the two `it()` titles derive today's
+counts from the fixture rather than repeating them here
 ([validated by](../../tests/public-api.test.ts#L47)).
 
 ## The RSC fixture
@@ -234,11 +236,15 @@ touched the console or the network
   value exports only - see the type-only note above.
 - The issue's `071` criterion says `scripts/check-at-pass.mjs --freshness`
   exits non-zero after this merge. Neither that script nor `docs/accessibility/`
-  exists in this tree; a later issue builds them, and this PR deliberately
-  creates neither and fabricates no AT-pass record. The criterion's intent is
-  recorded instead: the AT-pass record authored later must list
-  `ChatMessage.tsx` and `ChatMessageList.tsx` in its `covers` set, and must
-  postdate this merge - re-answering A7 with two personas rendered.
+  existed in the tree when this shipped, and this change deliberately created
+  neither and fabricated no AT-pass record. Both have since been built
+  (`specs/bowman-ui-assistive-technology-pass/spec.md`): with no
+  `docs/accessibility/at-pass-<date>.md` record present, `--freshness` exits 1
+  exactly as the criterion intended, and `docs/accessibility/README.md`
+  requires the record authored later to list `ChatMessage.tsx` and
+  `ChatMessageList.tsx` in its `covers` set and to postdate this merge -
+  re-answering A7 with two personas rendered
+  ([validated by](../../tests/check-at-pass.test.ts#L154)).
 
 ## Out of scope
 

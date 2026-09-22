@@ -88,7 +88,7 @@ value ([validated by](../../tests/theming-tokens-dist.test.ts#L286),
   skip link, hamburger and close button
   ([validated by](../../tests/ChatMessage.test.tsx#L486),
   [L152](../../tests/ConversationList.test.tsx#L152),
-  [L137](../../tests/AppSidebar.test.tsx#L137), [L400](../../tests/AppShell.test.tsx#L400)).
+  [L137](../../tests/AppSidebar.test.tsx#L137), [L420](../../tests/AppShell.test.tsx#L420)).
 - `ErrorBoundary`'s retry button keeps `focus-visible:ring-2` beside the `--bowman-focus-ring`
   colour and gains no dark ring, because it had none
   ([validated by](../../tests/ErrorBoundary.test.tsx#L181)).
@@ -138,9 +138,9 @@ utility fails ([validated by](../../tests/theming-tokens-dist.test.ts#L246)).
 - The `AppShell` mobile header row, drawer close-button row and main region and the `AppSidebar`
   brand row, children scroll region and footer region read `--bowman-text-body`, so a plain string
   the library lays out for consumer content is painted instead of inheriting the page colour
-  ([validated by](../../tests/AppShell.test.tsx#L441),
-  [L507](../../tests/AppShell.test.tsx#L507),
-  [L515](../../tests/AppShell.test.tsx#L515),
+  ([validated by](../../tests/AppShell.test.tsx#L461),
+  [L527](../../tests/AppShell.test.tsx#L527),
+  [L535](../../tests/AppShell.test.tsx#L535),
   [L268](../../tests/AppSidebar.test.tsx#L268),
   [L277](../../tests/AppSidebar.test.tsx#L277),
   [L286](../../tests/AppSidebar.test.tsx#L286)).
