@@ -196,9 +196,10 @@ The typecheck script is `typecheck`, not `type-check`.
     properties, read only through `var()` fallbacks that equal today's palette — no `:root`
     block, no `@theme`. The class strings live once in the internal `src/theme/tokens.ts`.
     Enforced by tests/theming-tokens-dist.test.ts (the stylesheet comment block, the design-notes
-    table and the dist reads must agree). Never add a brand-palette utility (`blue-*`) in `src/`
-    outside the tokens module's fallbacks, and never a neutral `slate-*`/`white` utility at a site
-    whose light and dark shades equal one of the role pairs of decision 6 (read the role).
+    table and the dist reads must agree; the 44 above is hand-kept, bump it in the same PR).
+    Never add a brand-palette utility (`blue-*`) in `src/` outside the tokens module's fallbacks,
+    and never a neutral `slate-*`/`white` utility at a site whose light and dark shades equal one
+    of the role pairs of decision 6 (read the role).
 
 ## Landmines checklist (never do)
 
