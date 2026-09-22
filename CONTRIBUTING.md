@@ -33,8 +33,8 @@ npm test
 CI runs these on every pull request, and they are the same commands you run locally:
 
 - `npm run lint` at zero warnings, `npm run prettier:check`, `npm run typecheck`.
-- `npm test`, under a coverage floor of 100% lines, functions and statements and 90% branches
-  over `src/**`. The floor is never lowered casually.
+- `npm test`, under a coverage floor of 100% lines, functions, statements and branches over
+  `src/**`. The floor is never lowered casually.
 - The repository's own checks: `npm run check:markdown-safety`, `npm run check:duplication`,
   `npm run check:spec-links`, `npm run check:spec-status`, and the client-directive and
   forbidden-import scripts under `scripts/`.

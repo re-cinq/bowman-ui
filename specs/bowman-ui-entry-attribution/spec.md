@@ -111,10 +111,10 @@ prop smuggled in with it fails. `ChatMessage` gains exactly one prop,
    `"Assistant response"` exactly - and exactly one element fewer renders.
    `assistantName` passed with a `UserChatEntry` renders no name and leaves the
    user article's label alone
-   ([validated by](../../tests/ChatMessage.test.tsx#L591),
-   [L548](../../tests/ChatMessage.test.tsx#L548),
-   [with an avatar supplied](../../tests/ChatMessage.test.tsx#L600),
-   [L557](../../tests/ChatMessage.test.tsx#L557)).
+   ([validated by](../../tests/ChatMessage.test.tsx#L607),
+   [L564](../../tests/ChatMessage.test.tsx#L564),
+   [with an avatar supplied](../../tests/ChatMessage.test.tsx#L616),
+   [L573](../../tests/ChatMessage.test.tsx#L573)).
 
 ## The label
 
@@ -127,8 +127,8 @@ as `Readonly<Required<ChatMessageLabels>>`
 [the override](../../tests/types/chat-message-type-assertions.tsx#L48)), the
 default is a function of one string, and a supplied `assistantMessageFrom`
 returning `"Respuesta de " + name` produces `"Respuesta de Facturación"`
-([validated by](../../tests/ChatMessage.test.tsx#L571),
-[L584](../../tests/ChatMessage.test.tsx#L584)).
+([validated by](../../tests/ChatMessage.test.tsx#L587),
+[L600](../../tests/ChatMessage.test.tsx#L600)).
 
 `resolveLabels` needed no change: it is generic over `object` and copies a
 function value by reference like any other. The `no-restricted-syntax` labels
@@ -204,14 +204,14 @@ Zero retention holds by source grep and by the suite-wide spy: neither changed
 component calls `console.*`, `localStorage`, `sessionStorage`, `fetch` or
 `navigator.sendBeacon`, and `tests/setup.ts` fails any test whose render
 touched the console or the network
-([validated by](../../tests/ChatMessage.test.tsx#L733),
+([validated by](../../tests/ChatMessage.test.tsx#L749),
 [the list](../../tests/ChatMessageList.test.tsx#L929)).
 
 ## Gates
 
 - `npm run lint`, `npm run typecheck`, `npm run test:coverage` and
   `npm run build` all pass from a clean `npm ci`; the `014` coverage floor
-  (100/100/100/90 over `src/**`) holds unchanged.
+  (100/100/100/100 over `src/**`) holds unchanged.
 - `examples/chat-demo/src/labels.ts` supplies a complete
   `ChatMessageListLabels` object, so the new key had to be added there in the
   same change or the `consumer` CI job's typecheck would fail (TS2739). (The

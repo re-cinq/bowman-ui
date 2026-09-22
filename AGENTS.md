@@ -227,7 +227,7 @@ The gate commands run and their results (`npm run lint`, `npm run typecheck`, `n
 - The `build-test`, `consumer` and `rsc` checks must pass
 - TypeScript errors block merge
 - Linting errors block merge
-- Coverage floor: 100% lines, functions and statements, 90% branches over `src/**`
+- Coverage floor: 100% lines, functions, statements and branches over `src/**`
 
 ## Compliance Constraints
 
@@ -290,7 +290,7 @@ The gate commands run and their results (`npm run lint`, `npm run typecheck`, `n
 ### Testing
 
 - Unit tests for all exported components
-- Coverage floor: 100% lines, functions and statements, 90% branches over `src/**`
+- Coverage floor: 100% lines, functions, statements and branches over `src/**`
 - Tests use React Testing Library (not Enzyme)
 - No snapshot tests without justification
 

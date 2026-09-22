@@ -156,6 +156,22 @@ describe("ChatMessage", () => {
     });
   });
 
+  describe("the user bubble", () => {
+    it('a user entry "**Ver** pedido\\n[4711](https://example.test)" renders as literal whitespace-pre-wrap text: no <strong>, no <a>, the newline kept', () => {
+      const content = "**Ver** pedido\n[4711](https://example.test)";
+      const { container } = render(
+        <ChatMessage entry={makeUserEntry({ content })} userInitials="LM" />
+      );
+
+      const bubbleText = container.querySelector("p");
+
+      expect(container.querySelector("strong")).toBeNull();
+      expect(container.querySelector("a")).toBeNull();
+      expect(bubbleText?.textContent).toBe(content);
+      expect(bubbleText).toHaveClass("whitespace-pre-wrap");
+    });
+  });
+
   describe("keyboard copy", () => {
     it('Cmd+C copies the entry content, shows "Copied!", and hides it 2000ms later', () => {
       vi.useFakeTimers();

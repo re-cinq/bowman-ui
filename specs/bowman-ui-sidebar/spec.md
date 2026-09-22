@@ -135,7 +135,7 @@ component calls no `console.*`, no `fetch`, no `navigator.sendBeacon` and no
 `localStorage` or `sessionStorage`, and stores nothing outside React state -
 asserted by a source grep
 ([validated by](../../tests/AppSidebar.test.tsx#L301)). The suite-wide
-console spy stays at zero calls ([spy](../../tests/setup.ts#L29)).
+console spy stays at zero calls ([spy](../../tests/setup.ts#L58)).
 
 ## Build contract
 

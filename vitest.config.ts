@@ -19,10 +19,11 @@ export default defineConfig({
       exclude: ["src/index.ts", "src/types/**"],
       // The floor starts high rather than low-and-ratcheting: C-17 puts
       // characterization tests before each component lands, so every file
-      // arrives covered. If a real component cannot hold 90 on branches,
-      // lower it once, in that PR, with the number and reason recorded - and
-      // never again.
-      thresholds: { lines: 100, functions: 100, statements: 100, branches: 90 },
+      // arrives covered, and branches joined the other three at 100 once
+      // every src/** branch was exercised (issue 152). If a real component
+      // cannot hold 100, lower it once, in that PR, with the number and
+      // reason recorded - and never again.
+      thresholds: { lines: 100, functions: 100, statements: 100, branches: 100 },
     },
   },
 });

@@ -9,7 +9,7 @@
 reasoning - shipped as `src/components/ThinkingTrace.tsx` (`ThinkingTrace`,
 `ThinkingTraceProps`, `ThinkingTraceLabels`, `defaultThinkingTraceLabels`) and
 exported from `src/index.ts`
-([validated by](../../tests/ThinkingTrace.test.tsx#L172)). It is the fourth and
+([validated by](../../tests/ThinkingTrace.test.tsx#L179)). It is the fourth and
 last of HAL's entry roles to get a renderer: `086` widened the message list to
 three roles and left a `@ts-expect-error` pinning the fourth as rejected, and
 this issue deletes it. HAL produces these entries by parsing literal
@@ -20,7 +20,7 @@ This is not `024`'s `ThinkingIndicator`, which renders no entry at all (an
 avatar, "Thinking", three fading dots, mounted while `busy` is true).
 `ThinkingTrace` renders a persisted entry's `content`. The two share the
 internal `ThinkingDots` component, imported and never re-exported
-([validated by](../../tests/ThinkingTrace.test.tsx#L172)).
+([validated by](../../tests/ThinkingTrace.test.tsx#L179)).
 
 ## The public surface
 
@@ -28,8 +28,8 @@ internal `ThinkingDots` component, imported and never re-exported
 nothing else. `ThinkingTraceLabels` is one key, `thinkingTrace` (the
 `<summary>` text, `"Reasoning"`), with `defaultThinkingTraceLabels` frozen over
 the single English string, resolved per key by the convention's `resolveLabels`
-([validated by](../../tests/ThinkingTrace.test.tsx#L122),
-[L129](../../tests/ThinkingTrace.test.tsx#L129)).
+([validated by](../../tests/ThinkingTrace.test.tsx#L129),
+[L136](../../tests/ThinkingTrace.test.tsx#L136)).
 
 ## The decisions
 
@@ -37,13 +37,16 @@ the single English string, resolved per key by the convention's `resolveLabels`
    `<details>`/`<summary>` closed by default, whose summary is exactly the
    label and carries no word of the content as a preview. Expanding reveals
    the full content string. No prop and no entry state sets `open`: neither
-   `isStreaming` value does, and the source assigns the attribute nowhere
-   ([validated by](../../tests/ThinkingTrace.test.tsx#L155),
-   [L32](../../tests/ThinkingTrace.test.tsx#L32),
-   [L41](../../tests/ThinkingTrace.test.tsx#L41),
-   [L53](../../tests/ThinkingTrace.test.tsx#L53),
-   [L88](../../tests/ThinkingTrace.test.tsx#L88),
-   [resting](../../tests/ThinkingTrace.test.tsx#L98)).
+   `isStreaming` value does, and the source assigns the attribute nowhere;
+   the reader opens it - clicking the summary opens the section and a second
+   click closes it again
+   ([validated by](../../tests/ThinkingTrace.test.tsx#L162),
+   [L33](../../tests/ThinkingTrace.test.tsx#L33),
+   [L42](../../tests/ThinkingTrace.test.tsx#L42),
+   [L60](../../tests/ThinkingTrace.test.tsx#L60),
+   [L95](../../tests/ThinkingTrace.test.tsx#L95),
+   [resting](../../tests/ThinkingTrace.test.tsx#L105),
+   [toggle](../../tests/ThinkingTrace.test.tsx#L52)).
 2. **Plain text, never markdown.** The content renders as `whitespace-pre-wrap`
    text, so `"see [here](javascript:alert(1)) <img src=x onerror=alert(1)>"`
    produces no `<a>` and no `<img>` and leaves both literal strings in the
@@ -51,26 +54,26 @@ the single English string, resolved per key by the convention's `resolveLabels`
    `react-markdown` or `remark-`. HAL's parser escapes nothing and nobody
    reviews the shape of this text the way an assistant answer is reviewed, so
    interpreting it would be the library choosing to trust unreviewed model
-   output ([validated by](../../tests/ThinkingTrace.test.tsx#L69),
-   [L138](../../tests/ThinkingTrace.test.tsx#L138)).
+   output ([validated by](../../tests/ThinkingTrace.test.tsx#L76),
+   [L145](../../tests/ThinkingTrace.test.tsx#L145)).
 3. **The dots mark streaming, inside the summary.** While `entry.isStreaming`
    is true, `ThinkingDots` renders in the `<summary>` next to the label; with
    it false no dot is in the document
-   ([validated by](../../tests/ThinkingTrace.test.tsx#L98),
-   [L88](../../tests/ThinkingTrace.test.tsx#L88)).
+   ([validated by](../../tests/ThinkingTrace.test.tsx#L105),
+   [L95](../../tests/ThinkingTrace.test.tsx#L95)).
 4. **`reducedMotion` goes through `021`'s hook.** The prop is forwarded to
    `useReducedMotion`, never to a `matchMedia` read of the component's own;
    true strips the `bowman-fade-dot` animation class from the three dots and
    false keeps the class with `024`'s staggered delays. `ThinkingDots` gains
    an optional `reducedMotion` prop for this, defaulting false, so the two
    indicators' markup is unchanged
-   ([validated by](../../tests/ThinkingTrace.test.tsx#L142),
-   [L107](../../tests/ThinkingTrace.test.tsx#L107),
-   [L114](../../tests/ThinkingTrace.test.tsx#L114)).
+   ([validated by](../../tests/ThinkingTrace.test.tsx#L149),
+   [L114](../../tests/ThinkingTrace.test.tsx#L114),
+   [L121](../../tests/ThinkingTrace.test.tsx#L121)).
 5. **It is not a message.** `ThinkingTraceProps` declares none of `onCopy`,
    `onFeedback`, `showFeedback` or `assistantAvatar` - internal deliberation
    is not an answer to copy or rate
-   ([validated by](../../tests/ThinkingTrace.test.tsx#L147)).
+   ([validated by](../../tests/ThinkingTrace.test.tsx#L154)).
 
 ## In the message list
 
@@ -116,8 +119,8 @@ checks before turning it on. The reasoning is recorded in docs/design-notes.md
 Zero retention holds as elsewhere: `ThinkingTrace.tsx` makes no `console` call
 and touches no `localStorage`, `sessionStorage` or `IndexedDB`, and rendering
 the fixture entry expanded leaves `localStorage.length` at `0`
-([validated by](../../tests/ThinkingTrace.test.tsx#L161),
-[L151](../../tests/ThinkingTrace.test.tsx#L151)).
+([validated by](../../tests/ThinkingTrace.test.tsx#L168),
+[L158](../../tests/ThinkingTrace.test.tsx#L158)).
 
 ## The suppression-path gap (hal-engine, not fixed here)
 

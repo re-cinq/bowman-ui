@@ -79,15 +79,24 @@ exports entry for a consumer ([validated by](../../tests/hooks-dist.test.ts#L45)
   and rendering a thrown error writes nothing to the console and nothing to localStorage — the
   GDPR zero-retention rider on the error text. The three English strings became
   `labels?: Partial<ErrorBoundaryLabels>` merged over English defaults; a `fallback` node wins
-  over labels; retry re-renders children
-  ([validated by](../../tests/ErrorBoundary.test.tsx#L198),
-  [L47](../../tests/ErrorBoundary.test.tsx#L47),
-  [L122](../../tests/ErrorBoundary.test.tsx#L122),
-  [L134](../../tests/ErrorBoundary.test.tsx#L134)).
+  over labels; retry re-renders children and moves focus to the first focusable element among
+  them - the nodes standing where the fallback stood, its former siblings excluded, the host
+  node React reuses for a same-typed child included - so a keyboard user whose retry button
+  just unmounted does not land on `body`; recovered content with no focusable element leaves
+  focus where the browser put it and writes no `tabindex` into the consumer's DOM
+  ([validated by](../../tests/ErrorBoundary.test.tsx#L205),
+  [L65](../../tests/ErrorBoundary.test.tsx#L65),
+  [L140](../../tests/ErrorBoundary.test.tsx#L140),
+  [L152](../../tests/ErrorBoundary.test.tsx#L152),
+  [L243](../../tests/ErrorBoundary.test.tsx#L243),
+  [L273](../../tests/ErrorBoundary.test.tsx#L273),
+  [L254](../../tests/ErrorBoundary.test.tsx#L254),
+  [L160](../../tests/ErrorBoundary.test.tsx#L160),
+  [L262](../../tests/ErrorBoundary.test.tsx#L262)).
 - The error icon circle and glyph read the danger role - `--bowman-danger-soft` background,
   `--bowman-danger` glyph - rather than the `red-*` palette classes, the circle's dark fill
   joining the collapsed `rgba()` soft-dark fallback per § Theming decision 6
-  ([validated by](../../tests/ErrorBoundary.test.tsx#L73),
+  ([validated by](../../tests/ErrorBoundary.test.tsx#L91),
   [readers](../../tests/theming-tokens-dist.test.ts#L245)).
 
 No built file reads `process.env`, and no `NEXT_PUBLIC_FLAG_ANIMATIONS`
@@ -114,6 +123,20 @@ string survives in `src/`
   statement), so a class component such as `ErrorBoundary` needs no `onClick=` handler to be
   caught ([validated by](../../tests/client-directives.test.ts#L50)).
 - **Visibility test.** `useFocusTrap` treats `display: none` and `visibility: hidden` as hidden (the states that also leave the tab order) and deliberately not opacity: an `opacity-0` element stays tabbable in browsers, and the package's own reveal-on-focus buttons rely on that. Where `checkVisibility` is missing, the `offsetParent` fallback misreports fixed-position descendants as hidden; it is all older engines offer.
+- **Retry refocus targets the recovered children only.** `handleRetry` reads the fallback
+  root's neighbours, commits the recovery with `flushSync`, and focuses the first
+  `FOCUSABLE_SELECTOR` match inside the nodes now standing between those neighbours (issue 152).
+  A set difference of the container's children would miss the host node React reuses when the
+  recovered content is rooted in a `<div>` like the fallback. The happy-path DOM gains no
+  wrapper, and - unlike `useFocusGroups`' transient `tabindex="-1"` - the boundary writes
+  nothing into a consumer's element when the recovered content has no focusable: that case
+  stays on `body` until issue 199 decides otherwise, and an `autoFocus` element among the
+  recovered children keeps the focus it took during the commit. A child that throws again
+  lands focus on the freshly rendered retry button, since the new fallback stands in the same
+  range. Known limitation: the range is bounded by the fallback's former siblings, so a consumer
+  that unmounts one of them in the same commit as the retry (a banner shown only while errored)
+  shortens or empties the range; no test pins that shape. A custom `fallback` drives its own
+  recovery and is untouched.
 - **jsdom limits.** jsdom reports `offsetParent: null` for everything (stubbed in the focus
   tests) and performs no real focus traversal; these tests pin the handler contract and DOM
   effects. Verification against a real assistive technology is issue 071's job. A `storage`

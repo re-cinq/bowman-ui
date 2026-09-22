@@ -1,6 +1,8 @@
 "use client";
 
-import { Component, type ErrorInfo, type ReactNode } from "react";
+import { Component, type ErrorInfo, type MouseEvent, type ReactNode } from "react";
+import { flushSync } from "react-dom";
+import { FOCUSABLE_SELECTOR } from "../hooks/focusableSelector.js";
 import { WarningIcon } from "../icons/index.js";
 import { resolveLabels } from "../labels.js";
 import {
@@ -38,6 +40,50 @@ interface State {
   hasError: boolean;
 }
 
+// A mounted node always has a parent: React inserts the DOM before it runs any handler.
+const parentOf = (node: Node): ParentNode => node.parentNode as ParentNode;
+
+// The siblings around the fallback root outlive the swap; the recovered children stand between them.
+interface FallbackNeighbours {
+  container: ParentNode;
+  before: ChildNode | null;
+  after: ChildNode | null;
+}
+
+const neighboursOf = (fallbackRoot: Node): FallbackNeighbours => ({
+  container: parentOf(fallbackRoot),
+  before: fallbackRoot.previousSibling,
+  after: fallbackRoot.nextSibling,
+});
+
+// React reuses the fallback's host node for a same-typed child, so a set difference would miss it.
+const nodesBetween = ({ container, before, after }: FallbackNeighbours): Node[] => {
+  const nodes: Node[] = [];
+  let node = before ? before.nextSibling : container.firstChild;
+
+  while (node && node !== after) {
+    nodes.push(node);
+    node = node.nextSibling;
+  }
+
+  return nodes;
+};
+
+// Focuses the first focusable element among the recovered children unless one already holds focus (autoFocus); none leaves focus alone.
+const focusRecoveredChildren = (neighbours: FallbackNeighbours) => {
+  const recovered = nodesBetween(neighbours);
+  const holdsFocus = (node: Node) => node.contains(document.activeElement);
+
+  if (recovered.some(holdsFocus)) {
+    return;
+  }
+  const focusable = Array.from(
+    neighbours.container.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)
+  ).find((element) => recovered.some((node) => node.contains(element)));
+
+  focusable?.focus();
+};
+
 export class ErrorBoundary extends Component<ErrorBoundaryProps, State> {
   constructor(props: ErrorBoundaryProps) {
     super(props);
@@ -52,8 +98,12 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, State> {
     this.props.onError?.(error, errorInfo);
   }
 
-  handleRetry = () => {
-    this.setState({ hasError: false });
+  // The button sits directly under the fallback root; the neighbours are read before the swap.
+  handleRetry = (event: MouseEvent<HTMLButtonElement>) => {
+    const neighbours = neighboursOf(parentOf(event.currentTarget));
+
+    flushSync(() => this.setState({ hasError: false }));
+    focusRecoveredChildren(neighbours);
   };
 
   render() {

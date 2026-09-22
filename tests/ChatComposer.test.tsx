@@ -8,6 +8,7 @@ import { act, fireEvent, render, screen } from "@testing-library/react";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { createRef } from "react";
+import type { Mock } from "vitest";
 import { ChatComposer } from "../src/index.js";
 import type { ChatComposerHandle } from "../src/index.js";
 import { expectImportHygiene, expectNoEgress, listFiles } from "./helpers/source-hygiene.js";
@@ -27,9 +28,17 @@ const typeDraft = (text: string) => {
   fireEvent.change(textareaOf(), { target: { value: text } });
 };
 
+const expectSubmittedOnceAndCleared = (onSubmit: Mock, text: string) => {
+  expect(onSubmit).toHaveBeenCalledTimes(1);
+  expect(onSubmit).toHaveBeenCalledWith(text);
+  expect(textareaOf()).toMatchObject({ value: "" });
+  expect(textareaOf().style.height).toBe("auto");
+  expect(sendButtonOf()).toBeDisabled();
+};
+
 describe("ChatComposer", () => {
   describe("submitting", () => {
-    it('typing "Hvor er min booking?" and clicking send calls onSubmit once with exactly that string, then the draft is "" and the height is back to auto', () => {
+    it('typing "Hvor er min booking?" and clicking send calls onSubmit once with exactly that string, then the draft is "", the height is back to auto and send is disabled again', () => {
       const onSubmit = vi.fn();
 
       render(<ChatComposer onSubmit={onSubmit} />);
@@ -37,10 +46,7 @@ describe("ChatComposer", () => {
       typeDraft("Hvor er min booking?");
       fireEvent.click(sendButtonOf());
 
-      expect(onSubmit).toHaveBeenCalledTimes(1);
-      expect(onSubmit).toHaveBeenCalledWith("Hvor er min booking?");
-      expect(textareaOf()).toMatchObject({ value: "" });
-      expect(textareaOf().style.height).toBe("auto");
+      expectSubmittedOnceAndCleared(onSubmit, "Hvor er min booking?");
     });
 
     it('"  Ja  " submits as "Ja" - trimmed, with no length floor', () => {
@@ -77,7 +83,7 @@ describe("ChatComposer", () => {
   });
 
   describe("the keyboard", () => {
-    it("Enter submits the trimmed draft once", () => {
+    it('Enter submits the trimmed draft once, then the draft is "", the height is back to auto and send is disabled again', () => {
       const onSubmit = vi.fn();
 
       render(<ChatComposer onSubmit={onSubmit} />);
@@ -85,8 +91,7 @@ describe("ChatComposer", () => {
       typeDraft("Hvor er min booking?");
       fireEvent.keyDown(textareaOf(), { key: "Enter" });
 
-      expect(onSubmit).toHaveBeenCalledTimes(1);
-      expect(onSubmit).toHaveBeenCalledWith("Hvor er min booking?");
+      expectSubmittedOnceAndCleared(onSubmit, "Hvor er min booking?");
     });
 
     it("Enter on a whitespace-only draft calls onSubmit zero times", () => {
@@ -178,6 +183,22 @@ describe("ChatComposer", () => {
       expect(textareaOf()).toBeDisabled();
       expect(sendButtonOf()).toBeDisabled();
       expect(container.querySelector(".bowman-pulse-subtle")).toBeNull();
+    });
+
+    it('a draft typed before busy survives the toggle: "Hvor er min booking?" and the enabled send button return once busy is false', () => {
+      const { rerender } = render(<ChatComposer onSubmit={vi.fn()} />);
+
+      typeDraft("Hvor er min booking?");
+      rerender(<ChatComposer onSubmit={vi.fn()} busy />);
+
+      expect(textareaOf()).toBeDisabled();
+      expect(sendButtonOf()).toBeDisabled();
+
+      rerender(<ChatComposer onSubmit={vi.fn()} />);
+
+      expect(textareaOf()).toMatchObject({ value: "Hvor er min booking?" });
+      expect(textareaOf()).toBeEnabled();
+      expect(sendButtonOf()).toBeEnabled();
     });
   });
 
