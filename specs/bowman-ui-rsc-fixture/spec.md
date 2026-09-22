@@ -305,9 +305,9 @@ instead reachable the same way `consumer` is, as a `package.json` script
   thresholds ([validated by](../../vitest.config.ts#L25)); vitest's
   `exclude` already covered `examples/**`
   ([validated by](../../vitest.config.ts#L12)).
-- `npm pack --dry-run` ships `dist/`, `package.json`, `LICENSE`, `README.md`
-  and nothing from `examples/`, executable-asserted on every consumer run
-  ([validated by](../../scripts/consumer-app.sh#L60)).
+- `npm pack --dry-run` ships `dist/`, `package.json`, `LICENSE`, `README.md`,
+  `THIRD-PARTY-NOTICES.md` and nothing from `examples/`, executable-asserted on
+  every consumer run ([validated by](../../scripts/consumer-app.sh#L60)).
 - Next's build artifacts cannot leak into the gates: `.next/`,
   `next-env.d.ts` and `tsconfig.tsbuildinfo` are git-ignored
   ([validated by](../../.gitignore#L6), through
