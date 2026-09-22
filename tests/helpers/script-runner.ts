@@ -25,6 +25,7 @@ export const initRepo = (repo: string): string => {
     ["user.name", "Test"],
     ["commit.gpgsign", "false"],
     ["core.excludesFile", "/dev/null"],
+    ["gc.auto", "0"],
   ]) {
     git(repo, "config", key, value);
   }
