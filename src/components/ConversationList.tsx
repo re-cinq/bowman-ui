@@ -62,6 +62,9 @@ export interface ConversationListProps {
   labels?: Partial<ConversationListLabels>;
 }
 
+// Array.from splits by code point, so an emoji stays one span instead of two lone surrogates.
+const settledChars = (text: string) => Array.from(text).map((ch) => ({ ch, opacity: 1 }));
+
 // Animates only when a title replaces a previous placeholder render; no literal sniffing, so any locale works.
 function TypewriterTitle({
   text,
@@ -72,9 +75,7 @@ function TypewriterTitle({
   isPlaceholder: boolean;
   reducedMotion: boolean;
 }) {
-  const [chars, setChars] = useState<Array<{ ch: string; opacity: number }>>(() =>
-    text.split("").map((ch) => ({ ch, opacity: 1 }))
-  );
+  const [chars, setChars] = useState(() => settledChars(text));
   const [isAnimating, setIsAnimating] = useState(false);
   const previousRef = useRef({ text, isPlaceholder });
 
@@ -88,15 +89,15 @@ function TypewriterTitle({
     }
 
     if (!previous.isPlaceholder || reducedMotion) {
-      setChars(text.split("").map((ch) => ({ ch, opacity: 1 })));
+      setChars(settledChars(text));
 
       return;
     }
 
     setIsAnimating(true);
 
-    const oldChars = previous.text.split("").map((ch) => ({ ch, opacity: 1 }));
-    const newChars = text.split("");
+    const oldChars = settledChars(previous.text);
+    const newChars = Array.from(text);
     let phase = 1;
     let i = 0;
 
