@@ -35,7 +35,8 @@ the version under test is always the tarball `npm pack` just produced,
 executable-asserted before every run
 ([validated by](../../scripts/rsc-fixture.sh#L54)). `react` and `react-dom`
 are pinned at exactly `19.3.0`
-([validated by](../../examples/rsc-fixture/package.json#L11)), the version
+([validated by](../../examples/rsc-fixture/package.json#L11),
+[L12](../../examples/rsc-fixture/package.json#L12)), the version
 docs/design-notes.md decision 4 records as the one CI installs and the only
 one tested; the pin is held equal to that record, the README's claim, the
 root lockfile and the chat-demo pin by the version-consistency test
@@ -45,11 +46,11 @@ React build for parts of the App Router render, so the pin is a claim about
 what the fixture installs, not proof that stock `react@19.3.0` executed every
 server frame.
 
-`next` is pinned at exactly `16.3.3`
-([validated by](../../examples/rsc-fixture/package.json#L18)) - the latest
-`16.x` on the registry at implementation time, with no `^`.
+`next` is pinned at exactly `16.3.5`
+([validated by](../../examples/rsc-fixture/package.json#L18)) - `16.3.3` at
+implementation time, since moved by Dependabot's grouped bump, with no `^`.
 Turbopack is Next 16's default bundler and the fixture does not opt out: the
-measured build banner reads `Next.js 16.3.3 (Turbopack)`, and the config
+measured build banner reads `Next.js 16.3.5 (Turbopack)`, and the config
 carries no `--webpack`-equivalent nor any bundler key
 ([validated by](../../examples/rsc-fixture/next.config.ts#L3)). `typescript` is
 pinned at `7.0.2`, the same version `examples/chat-demo` pins; `next build`'s
