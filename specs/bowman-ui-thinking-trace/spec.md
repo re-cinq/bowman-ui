@@ -82,7 +82,7 @@ roles - and `086`'s `@ts-expect-error` is replaced by a positive assertion that
 a `ThinkingChatEntry` array now compiles
 ([validated by](../../tests/types/chat-message-list-type-assertions.tsx#L49),
 compiled by
-[chat-message-list-dist](../../tests/chat-message-list-dist.test.ts#L81)).
+[chat-message-list-dist](../../tests/chat-message-list-dist.test.ts#L84)).
 
 `showThinking` gates the mount, not the visibility, and defaults `false`: with
 the flag absent, `[user, thinking, assistant]` renders no `<details>` and none

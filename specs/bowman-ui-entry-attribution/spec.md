@@ -38,8 +38,8 @@ public-API snapshot records it. The built shape is asserted member by member,
 the barrel's type export by name, and a fourth member is a compile error from
 outside the package
 ([validated by](../../tests/types/chat-message-list-type-assertions.tsx#L39),
-[validated by ChatAttribution declares exactly name and avatar](../../tests/chat-message-list-dist.test.ts#L35),
-[validated by dist/index.d.ts exports ChatAttribution as a type](../../tests/chat-message-list-dist.test.ts#L26)).
+[validated by ChatAttribution declares exactly name and avatar](../../tests/chat-message-list-dist.test.ts#L38),
+[validated by dist/index.d.ts exports ChatAttribution as a type](../../tests/chat-message-list-dist.test.ts#L29)).
 
 Deviation from the issue's wording, recorded rather than papered over: the
 criterion asks for a test that "greps `dist/index.d.ts` and fails on any third
@@ -50,13 +50,13 @@ in this package - so the member list is read from
 `dist/index.d.ts` is asserted separately to export the name. The criterion's
 other half, that `dist/index.d.ts` carries no `describeAssistant`,
 `renderAttribution` or `renderEntry`, is asserted literally on both files
-([validated by dist/index.d.ts declares no describeAssistant, renderAttribution or renderEntry](../../tests/chat-message-list-dist.test.ts#L66)).
+([validated by dist/index.d.ts declares no describeAssistant, renderAttribution or renderEntry](../../tests/chat-message-list-dist.test.ts#L69)).
 
 `ChatMessageListProps` gains `attribution?: Readonly<Record<string, ChatAttribution>>`
 and nothing else; the built member list is pinned in full order, so a second
 prop smuggled in with it fails. `ChatMessage` gains exactly one prop,
 `assistantName?: string`
-([validated by ChatMessageListProps gains attribution and nothing else](../../tests/chat-message-list-dist.test.ts#L39)).
+([validated by ChatMessageListProps gains attribution and nothing else](../../tests/chat-message-list-dist.test.ts#L42)).
 
 ## The decisions
 
@@ -72,7 +72,7 @@ prop smuggled in with it fails. `ChatMessage` gains exactly one prop,
    ([validated by](../../tests/types/chat-message-list-type-assertions.tsx#L35),
    [the prop](../../tests/types/chat-message-list-type-assertions.tsx#L97),
    compiled by
-   [chat-message-list-dist](../../tests/chat-message-list-dist.test.ts#L81)).
+   [chat-message-list-dist](../../tests/chat-message-list-dist.test.ts#L84)).
 2. **The list resolves, the message renders.** `ChatMessageList` performs the
    lookup per entry - `entry.persona ? attribution?.[entry.persona] : undefined`,
    written as a pure `attributionFor` helper outside the component because a

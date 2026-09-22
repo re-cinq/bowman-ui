@@ -27,7 +27,7 @@ without a default fails the build, pinned from outside by an
 `@ts-expect-error` fixture
 ([validated by](../../tests/types/thinking-indicator-type-assertions.tsx#L19),
 compiled by
-[thinking-indicator-dist](../../tests/thinking-indicator-dist.test.ts#L17)).
+[thinking-indicator-dist](../../tests/thinking-indicator-dist.test.ts#L20)).
 
 `ThinkingDots` is deliberately not exported: an `@ts-expect-error` import in
 the same fixture pins it out of the public type surface
@@ -128,12 +128,12 @@ shipped layout since 022
 - Both new files carry `"use client"` as the first statement of their `dist/`
   output, per 018 decision 1's positional check and
   `scripts/check-client-directives.mjs`
-  ([validated by each built thinking indicator file opens with "use client"; as its first statement](../../tests/thinking-indicator-dist.test.ts#L7)).
+  ([validated by each built thinking indicator file opens with "use client"; as its first statement](../../tests/thinking-indicator-dist.test.ts#L10)).
 - Neither file references a client-only API today; docs/design-notes.md decision 1's
   recorded exception ([docs/design-notes.md](../../docs/design-notes.md#L83), amended in this
   issue) covers the chat surface's presentational components and the private
   subcomponents they compose, extending 023's shipped `InlineThinkingIndicator`
-  precedent ([validated by each built thinking indicator file opens with "use client"; as its first statement](../../tests/thinking-indicator-dist.test.ts#L7)).
+  precedent ([validated by each built thinking indicator file opens with "use client"; as its first statement](../../tests/thinking-indicator-dist.test.ts#L10)).
 - **GDPR.** The component renders only its own labels - no customer data
   reaches it.
   - Neither file references `console.`, `localStorage`, `sessionStorage`,
@@ -143,7 +143,7 @@ shipped layout since 022
     test that writes to the console
     ([validated by `GDPR: neither file calls console.*, localStorage, sessionStorage, fetch or sendBeacon`](../../tests/ThinkingIndicator.test.tsx#L128)).
 - `npm pack --dry-run` ships both built files with their `d.ts` counterparts
-  ([validated by npm pack --dry-run ships both files with their d.ts counterparts](../../tests/thinking-indicator-dist.test.ts#L13)).
+  ([validated by npm pack --dry-run ships both files with their d.ts counterparts](../../tests/thinking-indicator-dist.test.ts#L16)).
 
 ## Amended by 078
 

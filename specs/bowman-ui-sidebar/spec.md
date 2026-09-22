@@ -62,7 +62,7 @@ sentinel render with both labels set to sentinels
      `href` - `SidebarNavItem` has no `href` field, pinned by a
      `@ts-expect-error` fixture compiled against the built package
      ([validated by](../../tests/types/app-sidebar-type-assertions.tsx#L26),
-     [compiled by](../../tests/app-sidebar-dist.test.ts#L15)).
+     [compiled by](../../tests/app-sidebar-dist.test.ts#L18)).
    - The consumer's element must spread every prop it is handed -
      docs/design-notes.md § renderNavLink states it, pinned together with the anchor
      round-trip and the dropped-`onClick` failure mode
@@ -143,8 +143,8 @@ The file imports nothing from `@clerk`, `swr`, `next-intl`, `next/`,
 `@/` or `lucide-react`, and every relative import ends in `.js`.
 `dist/components/AppSidebar.js` carries `"use client"` as its first statement
 and ships with its `.d.ts`
-([validated by dist/components/AppSidebar.js opens with "use client"; as its first statement](../../tests/app-sidebar-dist.test.ts#L7),
-[validated by npm pack --dry-run ships dist/components/AppSidebar.js with its d.ts](../../tests/app-sidebar-dist.test.ts#L11),
+([validated by dist/components/AppSidebar.js opens with "use client"; as its first statement](../../tests/app-sidebar-dist.test.ts#L10),
+[validated by npm pack --dry-run ships dist/components/AppSidebar.js with its d.ts](../../tests/app-sidebar-dist.test.ts#L14),
 [validated by no @clerk, swr, next-intl, next/, @/ or lucide-react import, and every relative import ends in .js](../../tests/AppSidebar.test.tsx#L305)). A key added to
 `AppSidebarLabels` without a default cannot satisfy
 `Readonly<Required<AppSidebarLabels>>`

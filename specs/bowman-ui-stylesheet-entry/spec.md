@@ -73,7 +73,7 @@ that preference, a thinking dot's computed `animation-name` is `none`, against
 `bowman-fade-dot` without the emulation (issue 151)
 ([validated by the thinking dots animate by default and stop under prefers-reduced-motion](../../examples/chat-demo/tests/chat-demo.spec.ts#L624)). No
 `NEXT_PUBLIC_FLAG_ANIMATIONS` escape hatch exists: flag plumbing belongs to
-a consumer ([validated by `no built file reads process.env and no NEXT_PUBLIC flag string survives in src/`](../../tests/hooks-dist.test.ts#L66)).
+a consumer ([validated by `no built file reads process.env and no NEXT_PUBLIC flag string survives in src/`](../../tests/hooks-dist.test.ts#L44)).
 
 ## The typography-plugin replacement
 

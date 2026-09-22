@@ -11,7 +11,7 @@ barrel `src/index.ts` - no `./icons` subpath, since `014` pinned `exports` to a
 single `"."` entry. `src/icons/index.tsx` exports exactly 23 icon components,
 enumerated by name so a dropped icon fails the build rather than the consumer
 ([validated by exports exactly the 23 icon components plus IconWrapper and getAccessibleIconProps](../../tests/icons.test.tsx#L56),
-[validated by tsc accepts icon-type-assertions.tsx against dist via the '.' exports entry](../../tests/icons-dist.test.ts#L52)). Path data is pinned
+[validated by tsc accepts icon-type-assertions.tsx against dist via the '.' exports entry](../../tests/icons-dist.test.ts#L51)). Path data is pinned
 byte-for-byte, asserted attribute-by-attribute against a golden-master
 fixture copy rather than by `outerHTML` string - attribute order in `outerHTML`
 follows JSX order and changes when the element moves into `IconWrapper`
@@ -35,7 +35,7 @@ DevTools and ErrorBoundary componentStack frames read component names from
 `forwardRef` stays exactly as-is per
 docs/design-notes.md decision 4 - rewriting it away would turn the `^19.0.0` peer range from a
 testing claim into a hard React 19 floor; the icons still take no `ref` prop
-([validated by tsc accepts icon-type-assertions.tsx against dist via the '.' exports entry](../../tests/icons-dist.test.ts#L52),
+([validated by tsc accepts icon-type-assertions.tsx against dist via the '.' exports entry](../../tests/icons-dist.test.ts#L51),
 [L138](../../tests/icons.test.tsx#L138),
 [L148](../../tests/icons.test.tsx#L148)).
 
@@ -63,10 +63,10 @@ not touch it ([validated by has default ariaLabel 'Loading'](../../tests/icons.t
 The icons share one public, exported `IconProps = {className?: string;
 ariaLabel?: string;
 strokeWidth?: number}`, and every one of the 23 icons is typed with it
-([validated by tsc accepts icon-type-assertions.tsx against dist via the '.' exports entry](../../tests/icons-dist.test.ts#L52)). A
+([validated by tsc accepts icon-type-assertions.tsx against dist via the '.' exports entry](../../tests/icons-dist.test.ts#L51)). A
 type-level test compiles `const Wrapped = (p: IconProps) => <SendIcon {...p} />`
 against the built `dist` types through the self-referencing package import
-([validated by tsc accepts icon-type-assertions.tsx against dist via the '.' exports entry](../../tests/icons-dist.test.ts#L52), assertions at
+([validated by tsc accepts icon-type-assertions.tsx against dist via the '.' exports entry](../../tests/icons-dist.test.ts#L51), assertions at
 [tests/types/icon-type-assertions.tsx](../../tests/types/icon-type-assertions.tsx#L15)).
 
 No `{name: string}` registry-lookup `IconProps` shape exists in `src/` -
@@ -79,8 +79,8 @@ and `IconSvgProps` as a type - `getAccessibleIconProps` returns a `Pick` of it
 ([validated by exports exactly the 23 icon components plus IconWrapper and getAccessibleIconProps](../../tests/icons.test.tsx#L56)).
 All four resolve through the `"."` exports entry. `npm pack --dry-run`
 ships `dist/icons/Icon.{js,d.ts}` and `dist/icons/index.{js,d.ts}`
-([validated by npm pack --dry-run ships dist/icons/Icon and dist/icons/index with their d.ts files](../../tests/icons-dist.test.ts#L77),
-[validated by tsc accepts icon-type-assertions.tsx against dist via the '.' exports entry](../../tests/icons-dist.test.ts#L52)).
+([validated by npm pack --dry-run ships dist/icons/Icon and dist/icons/index with their d.ts files](../../tests/icons-dist.test.ts#L55),
+[validated by tsc accepts icon-type-assertions.tsx against dist via the '.' exports entry](../../tests/icons-dist.test.ts#L51)).
 
 ## Accessibility contract
 
