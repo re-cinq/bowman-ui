@@ -51,6 +51,10 @@ const extractBlock = (opener: string): string[] => {
 
   const closerIndex = lines.findIndex((line, index) => index > openerIndex && line === "");
 
+  if (closerIndex === -1) {
+    throw new Error(`block has no closing blank line in workflow: ${opener}`);
+  }
+
   return lines.slice(openerIndex + 1, closerIndex);
 };
 
