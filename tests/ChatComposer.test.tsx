@@ -397,6 +397,24 @@ describe("ChatComposer", () => {
       expect(sendButtonOf()).toBeDisabled();
       expect(document.activeElement).toBe(textareaOf());
     });
+
+    it("an onSubmit that focuses an outside button wins: that button is document.activeElement after send", () => {
+      const elsewhereOf = (): HTMLButtonElement =>
+        screen.getByRole("button", { name: "Elsewhere" });
+
+      render(
+        <>
+          <button type="button">Elsewhere</button>
+          <ChatComposer onSubmit={() => elsewhereOf().focus()} />
+        </>
+      );
+
+      typeDraft("Hvor er min booking?");
+      fireEvent.click(sendButtonOf());
+
+      expect(sendButtonOf()).toBeDisabled();
+      expect(document.activeElement).toBe(elsewhereOf());
+    });
   });
 });
 

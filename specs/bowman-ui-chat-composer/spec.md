@@ -17,7 +17,7 @@ baseline: the tests in
 `autoFocus`, `maxHeightPx`, `attachSlot`, `labels` - with an uncontrolled
 draft: the source grep shows `onChange=` once (the textarea's own binding)
 and no `value=` or `onValueChange` prop
-([validated by](../../tests/ChatComposer.test.tsx#L407)). External writes go
+([validated by](../../tests/ChatComposer.test.tsx#L425)). External writes go
 through `ChatComposerHandle` (`focus()`, `setValue()`) via
 `forwardRef` + `useImperativeHandle`, covering the only two outside
 writes a consumer needs: clear-on-send and a text-injection helper
@@ -97,6 +97,7 @@ no `busy`, proves Tab to send then `Enter` and then `Space` in a real
 Chromium)
 ([validated by](../../tests/ChatComposer.test.tsx#L376),
 [L390](../../tests/ChatComposer.test.tsx#L390),
+[L401](../../tests/ChatComposer.test.tsx#L401),
 [L358](../../examples/chat-demo/tests/chat-demo.spec.ts#L358)).
 
 ## Auto-resize
@@ -115,7 +116,7 @@ proves the arithmetic, never real browser layout.
 
 No attach button ships and no paperclip glyph exists in `src/` or `dist/`
 (docs/design-notes.md decision 2 - the attach affordance is decorative,
-so no button ships without a slot to fill it) ([validated by](../../tests/ChatComposer.test.tsx#L412)).
+so no button ships without a slot to fill it) ([validated by](../../tests/ChatComposer.test.tsx#L430)).
 With no `attachSlot`, send is the only button; a supplied slot
 renders left of send
 ([validated by](../../tests/ChatComposer.test.tsx#L298),
@@ -169,9 +170,9 @@ and addresses (`003-support-conversation-data-flow-record`). The component
 calls no `console.*`, `localStorage`, `sessionStorage`, `fetch`,
 `sendBeacon` or analytics, asserted by source grep and by the
 suite-wide console trap in `tests/setup.ts`
-([validated by](../../tests/ChatComposer.test.tsx#L424)). There is no draft persistence
+([validated by](../../tests/ChatComposer.test.tsx#L442)). There is no draft persistence
 and no autosave: an unsent support question does not survive on the
-customer's device ([validated by](../../tests/ChatComposer.test.tsx#L424)).
+customer's device ([validated by](../../tests/ChatComposer.test.tsx#L442)).
 
 ## Source purity and the build
 
@@ -181,7 +182,7 @@ No `@clerk`, `swr`, `next-intl`, `next/`, `@/` or
 statement per 018 Decision 1's positional check, and `npm pack` ships it
 with its `.d.ts`
 ([validated by](../../tests/chat-composer-dist.test.ts#L7),
-[L428](../../tests/ChatComposer.test.tsx#L428)).
+[L446](../../tests/ChatComposer.test.tsx#L446)).
 
 ## Recorded deviations from the issue text
 
