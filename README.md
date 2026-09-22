@@ -223,7 +223,7 @@ A React server component cannot pass a function across the client boundary - `Ap
 (`renderSidebar`, `onMobileSidebarOpenChange`), `AppSidebar` (`renderNavLink`, `onNavigate`, a
 `SidebarNavItem`'s `icon`), `Button` and `IconButton` (`onClick`, and the `icon` component),
 `ChatComposer` (`onSubmit`), `ChatMessage` and `ChatMessageList` (`onCopy`, `onFeedback`, the
-`assistantMessageFrom` label), `ConversationList` (`renderLink`, `onSelect`, `onDelete`, the
+`assistantMessageFrom` label, and on `ChatMessageList` alone `renderEntryFooter` and `describeTool`), `ConversationList` (`renderLink`, `onSelect`, `onDelete`, the
 `deleteConversation` label), `ErrorBoundary` (`onError`), `PromptChips` (`onPick`), `SearchField`
 (`onChange`), `Toast` (`onClose`) and `ToolActivity` (`describeTool`) accept function-valued props,
 so an App Router consumer supplies those props from a `"use client"` file (measured on Next 16.3.3;
