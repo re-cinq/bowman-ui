@@ -1,13 +1,14 @@
 # Deviations from the onboarding template, kept on regeneration (issue 137):
 # push runs on main only (pull_request already covers every branch); the fetch
-# step skips with a warning when no LORE_INGEST_URL is configured (a fork's
-# pull request carries no secrets, and `secrets` cannot be read from an `if:`);
-# the binary is checked against LORE_CODE_TRACE_SHA256 below instead of the
-# checksums.txt served beside it. A mismatch never runs the binary: it warns on
-# a pull request and fails on main. To bump the pin, download both
-# /dist/lore-code-trace/linux-amd64 and /dist/lore-code-trace/checksums.txt
-# from the ingest origin, confirm `sha256sum -c checksums.txt` agrees with an
-# independent download, then paste the linux-amd64 digest.
+# step checks for LORE_INGEST_URL in its script (a fork's pull request carries
+# no secrets, and `secrets` cannot be read from an `if:`); the binary is checked
+# against LORE_CODE_TRACE_SHA256 below instead of the checksums.txt served
+# beside it. A missing URL, a failed download or a mismatch never runs the
+# binary: each warns on a pull request and fails on main. To bump the pin,
+# download both /dist/lore-code-trace/linux-amd64 and
+# /dist/lore-code-trace/checksums.txt from the ingest origin, confirm
+# `sha256sum -c checksums.txt` agrees with an independent download, then paste
+# the linux-amd64 digest.
 name: Lore Test Report
 
 on:
@@ -35,11 +36,13 @@ jobs:
         run: |
           if [ -z "${LORE_INGEST_URL}" ]; then
             echo "::warning::LORE_INGEST_URL is not configured - Lore test ingest skipped"
-            exit 0
+            [ "${GITHUB_EVENT_NAME}" = "pull_request" ] && exit 0
+            exit 1
           fi
           if ! curl -fsSL "${LORE_INGEST_URL}/dist/lore-code-trace/linux-amd64" -o lore-code-trace; then
             echo "::warning::lore-code-trace could not be downloaded - Lore test ingest skipped"
-            exit 0
+            [ "${GITHUB_EVENT_NAME}" = "pull_request" ] && exit 0
+            exit 1
           fi
           ACTUAL_SHA256=$(sha256sum lore-code-trace | cut -d " " -f 1)
           if [ "${ACTUAL_SHA256}" != "${LORE_CODE_TRACE_SHA256}" ]; then

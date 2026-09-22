@@ -116,6 +116,30 @@ describe("lore-tests.yml fetch step", () => {
     expect(output).toBe("");
   });
 
+  fetchIt("exits 1 without downloading when LORE_INGEST_URL is empty in a push", () => {
+    const { result, output, binaryExists } = runFetch({
+      LORE_INGEST_URL: "",
+      GITHUB_EVENT_NAME: "push",
+    });
+
+    expect(result.status).toBe(1);
+    expect(result.stdout).toMatch(/^::warning::/m);
+    expect(binaryExists).toBe(false);
+    expect(output).toBe("");
+  });
+
+  fetchIt("exits 1 when the download fails with curl exit 7 in a push", () => {
+    const { result, output, isExecutable } = runFetch({
+      CURL_STUB_EXIT: "7",
+      GITHUB_EVENT_NAME: "push",
+    });
+
+    expect(result.status).toBe(1);
+    expect(result.stdout).toMatch(/^::warning::/m);
+    expect(output).toBe("");
+    expect(isExecutable).toBe(false);
+  });
+
   fetchIt("exits 0 with ::error and no executable on a sha256 mismatch in a pull_request", () => {
     const { result, output, isExecutable } = runFetch({});
 
