@@ -1189,7 +1189,9 @@ typecheck` now runs `typescript7` twice: `tsconfig.json`, then
     (`npm run reanchor`) heals it deterministically. A link labelled
     `[validated by <test title>]` into a test file moves to the line of the
     one `it()`/`test()` carrying that title, because a title survives every
-    edit to the test body that a line number does not. Every other link -
+    edit to the test body that a line number does not. An anchor on a line
+    inside the test's body is first mapped through the hunks below and kept
+    there while it still lies inside the test. Every other link -
     the untitled `[validated by]`, `[Lnnn]` and descriptive labels, and every
     link into a script, README, doc, workflow or config - is paired with its
     copy in the merge base's markdown (lines compared with their line numbers

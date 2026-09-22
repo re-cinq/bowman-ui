@@ -5,8 +5,8 @@
 // search (docs/design-notes.md § Lint guardrails decision 14):
 //
 // - A link labelled `[validated by <title>]` into a test file moves to the
-//   line of the one `it()`/`test()` carrying that title, unless the anchor
-//   already lies inside that test's span. A title two tests carry is reported;
+//   line of the one `it()`/`test()` carrying that title, unless the anchor,
+//   mapped through the hunks below, still lies inside that test's span. A title two tests carry is reported;
 //   a title no test carries falls through to the hunk mapping below.
 // - Every other link - the untitled `[validated by]`, `[Lnnn]` and
 //   descriptive forms, and every link into a non-test file (a script, README,
@@ -172,8 +172,8 @@ const titleOf = (label) => {
   return match ? normalizeTitle(match[1]) : null;
 };
 
-// Title lookup: the declaration's line, the unchanged anchor when it already
-// lies inside that test, a failure for a shared title, or null to fall through.
+// Title lookup: the anchor mapped through the hunks when it still lies inside that
+// test, else the declaration's line; a failure for a shared title, null to fall through.
 const byTitle = (link) => {
   const title = titleOf(link.label);
 
@@ -192,8 +192,10 @@ const byTitle = (link) => {
   }
   const start = declarations[index].line;
   const end = declarations[index + 1]?.line ?? Infinity;
+  const mapped = byHunks(link);
+  const intended = mapped.authored ? link.line : (mapped.line ?? start);
 
-  return { line: link.line >= start && link.line < end ? link.line : start };
+  return { line: intended >= start && intended < end ? intended : start };
 };
 
 const byHunks = (link) => {

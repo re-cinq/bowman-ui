@@ -95,52 +95,55 @@ decision 14).
   ([validated by moves a titled link from L5 to its test declaration on L7 when two lines are inserted above](../../tests/reanchor-spec-links.test.ts#L89)).
 - It moves to that declaration too when the cited assertion itself is rewritten
   ([validated by moves a titled link from L3 to its test declaration on L5 when its cited assertion is rewritten in place](../../tests/reanchor-spec-links.test.ts#L100)).
+- A titled link on a line inside its test's body is mapped through the diff hunks and stays on
+  that line when it is still inside the test
+  ([validated by maps a titled link on the L3 assertion to the L5 assertion when two lines are inserted above](../../tests/reanchor-spec-links.test.ts#L122)).
 - A titled link already inside its test's span stays where it is
-  ([validated by keeps a titled link on L3 that already lies inside the span of its test](../../tests/reanchor-spec-links.test.ts#L122)).
+  ([validated by keeps a titled link on L3 that already lies inside the span of its test](../../tests/reanchor-spec-links.test.ts#L131)).
 - A title two tests carry is reported and exits 1
-  ([validated by reports a title two tests carry and exits 1](../../tests/reanchor-spec-links.test.ts#L314)).
+  ([validated by reports a title two tests carry and exits 1](../../tests/reanchor-spec-links.test.ts#L323)).
 - Every other link is paired with its copy in the merge base's markdown and mapped through the
   cited file's `git diff -U0` hunks, in feature specs, the system spec and ADRs alike
-  ([validated by maps untitled links on L6 and L3 to L8 and L5 in a spec, the system spec and an ADR](../../tests/reanchor-spec-links.test.ts#L132)).
+  ([validated by maps untitled links on L6 and L3 to L8 and L5 in a spec, the system spec and an ADR](../../tests/reanchor-spec-links.test.ts#L141)).
 - A titled link whose title no test carries falls back to the same hunk mapping
-  ([validated by maps a titled link whose title no test carries through the hunks, L6 to L8](../../tests/reanchor-spec-links.test.ts#L154)).
+  ([validated by maps a titled link whose title no test carries through the hunks, L6 to L8](../../tests/reanchor-spec-links.test.ts#L163)).
 - A link into a file that is not a test, such as a README line, is mapped through the hunks
   whatever its label says
-  ([validated by maps a link into README.md, titled or not, from L2 to L3 through the hunks](../../tests/reanchor-spec-links.test.ts#L274)).
+  ([validated by maps a link into README.md, titled or not, from L2 to L3 through the hunks](../../tests/reanchor-spec-links.test.ts#L283)).
 - A link whose cited line the branch deleted is reported, rewrites nothing and exits 1 in both
-  modes ([validated by reports an untitled link on a deleted line and exits 1 in both modes, rewriting nothing](../../tests/reanchor-spec-links.test.ts#L163)).
+  modes ([validated by reports an untitled link on a deleted line and exits 1 in both modes, rewriting nothing](../../tests/reanchor-spec-links.test.ts#L172)).
 - A cited line rewritten in place is reported the same way, because no line number maps to it
-  ([validated by reports an untitled link whose cited line was rewritten in place](../../tests/reanchor-spec-links.test.ts#L178)).
+  ([validated by reports an untitled link whose cited line was rewritten in place](../../tests/reanchor-spec-links.test.ts#L187)).
 - A link whose href the branch edited by hand has no base anchor to map from and is kept as
-  authored ([validated by keeps a link whose href this branch edited by hand as authored](../../tests/reanchor-spec-links.test.ts#L188)).
+  authored ([validated by keeps a link whose href this branch edited by hand as authored](../../tests/reanchor-spec-links.test.ts#L197)).
 - A link the branch added is kept as authored, and the links around it still map
-  ([validated by keeps a link this branch added above as authored and still maps L6 below it to L8](../../tests/reanchor-spec-links.test.ts#L199)).
+  ([validated by keeps a link this branch added above as authored and still maps L6 below it to L8](../../tests/reanchor-spec-links.test.ts#L208)).
 - A statement the branch reworded keeps its link paired with the merge-base copy
-  ([validated by maps a link on a statement this branch reworded, L6 to L8](../../tests/reanchor-spec-links.test.ts#L215)).
+  ([validated by maps a link on a statement this branch reworded, L6 to L8](../../tests/reanchor-spec-links.test.ts#L224)).
 - A second run against the same merge base changes nothing, because the pairing reads the
   merge-base markdown rather than the working copy
-  ([validated by a second run against the same merge base changes nothing](../../tests/reanchor-spec-links.test.ts#L227)).
+  ([validated by a second run against the same merge base changes nothing](../../tests/reanchor-spec-links.test.ts#L236)).
 - `--check` rewrites nothing and exits 1 naming each link that would move, and exits 0 once a
   plain run has healed them
-  ([validated by --check exits 1 naming a stale link and rewrites nothing, then exits 0 after a run](../../tests/reanchor-spec-links.test.ts#L240)).
+  ([validated by --check exits 1 naming a stale link and rewrites nothing, then exits 0 after a run](../../tests/reanchor-spec-links.test.ts#L249)).
 - Only links into files the branch changed are re-anchored, and `--all` extends the title
   lookup to every link
-  ([validated by leaves a titled link into a test file this branch did not change alone, and --all moves it](../../tests/reanchor-spec-links.test.ts#L259)).
+  ([validated by leaves a titled link into a test file this branch did not change alone, and --all moves it](../../tests/reanchor-spec-links.test.ts#L268)).
 - A bare `[Lnnn]` label follows its href when the href moves
-  ([validated by an L6 line label follows its href to L8](../../tests/reanchor-spec-links.test.ts#L288)).
+  ([validated by an L6 line label follows its href to L8](../../tests/reanchor-spec-links.test.ts#L297)).
 - A bare `[Lnnn]` label that disagrees with its href fails `--check` and is synced by a plain
-  run ([validated by an L9 line label on an L6 href fails --check as mislabelled and a run syncs it to L6](../../tests/reanchor-spec-links.test.ts#L298)).
+  run ([validated by an L9 line label on an L6 href fails --check as mislabelled and a run syncs it to L6](../../tests/reanchor-spec-links.test.ts#L307)).
 - In either mode and whatever the scope, an anchor on a blank or closing line, past the end of
   its file, or into a missing file is rotten and exits 1
-  ([validated by an anchor on a blank line or into a missing file is rotten in both modes](../../tests/reanchor-spec-links.test.ts#L328)).
+  ([validated by an anchor on a blank line or into a missing file is rotten in both modes](../../tests/reanchor-spec-links.test.ts#L337)).
 - A fragment that is not a line number, and a web URL, are never touched
-  ([validated by leaves a link whose fragment is not a line number, and a web URL, untouched](../../tests/reanchor-spec-links.test.ts#L348)).
+  ([validated by leaves a link whose fragment is not a line number, and a web URL, untouched](../../tests/reanchor-spec-links.test.ts#L357)).
 - The base ref defaults to `origin/main`
-  ([validated by defaults the base ref to origin/main](../../tests/reanchor-spec-links.test.ts#L361)).
+  ([validated by defaults the base ref to origin/main](../../tests/reanchor-spec-links.test.ts#L370)).
 - An unknown flag or a second base ref exits 2 with the usage line
-  ([validated by an unknown flag or a second base ref exits 2 with usage](../../tests/reanchor-spec-links.test.ts#L376)).
+  ([validated by an unknown flag or a second base ref exits 2 with usage](../../tests/reanchor-spec-links.test.ts#L385)).
 - A base ref that does not resolve exits 2 naming the ref
-  ([validated by an unknown base ref exits 2 naming the ref](../../tests/reanchor-spec-links.test.ts#L383)).
+  ([validated by an unknown base ref exits 2 naming the ref](../../tests/reanchor-spec-links.test.ts#L392)).
 
 ## CI
 

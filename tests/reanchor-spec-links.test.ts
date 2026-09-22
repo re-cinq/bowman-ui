@@ -110,12 +110,21 @@ describe("reanchor-spec-links", () => {
           "  });",
           '  it("adds numbers", () => {',
           "    expect(add(1, 1)).toBe(2);",
-        ]).filter((_, index) => index !== 5)
+        ]).filter((_, index) => index !== 6)
       )
     );
     const result = run(repo, "main");
 
     expect(result).toMatchObject({ status: 0 });
+    expect(read(repo, SPEC_PATH)).toEqual(asSpec(link("validated by adds numbers", "5")));
+  });
+
+  it("maps a titled link on the L3 assertion to the L5 assertion when two lines are inserted above", () => {
+    const repo = repoWith(asSpec(link("validated by adds numbers", "3")));
+
+    prependIntro(repo);
+    run(repo, "main");
+
     expect(read(repo, SPEC_PATH)).toEqual(asSpec(link("validated by adds numbers", "5")));
   });
 
