@@ -89,6 +89,7 @@ export function ChatComposer({
     if (!text) {
       return;
     }
+    textarea.focus();
     onSubmit(text);
     textarea.value = "";
     textarea.style.height = "auto";
