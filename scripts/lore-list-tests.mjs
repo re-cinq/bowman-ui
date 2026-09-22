@@ -7,11 +7,25 @@
 // stderr so stdout stays pure. The id is "<repo-relative-file>::<full test
 // name>" - stable across runs, and exactly what the run command's
 // {selector} splits back apart.
+// --report <file> maps a report that already exists instead of building and
+// running the suite again; CI feeds it the coverage gate's own report.
+import { readFileSync } from "node:fs";
 import { relative } from "node:path";
 import process from "node:process";
+import { splitArgs } from "./lib/cli-args.mjs";
 import { collectVitestReport } from "./lib/vitest-report.mjs";
 
-const { report } = collectVitestReport([], "ignore");
+const { flags, positional } = splitArgs(process.argv.slice(2));
+const listOnly = flags.includes("--report");
+
+if (flags.some((flag) => flag !== "--report") || positional.length !== (listOnly ? 1 : 0)) {
+  process.stderr.write("usage: lore-list-tests.mjs [--report <vitest-json-report>]\n");
+  process.exit(2);
+}
+
+const report = listOnly
+  ? JSON.parse(readFileSync(positional[0], "utf8"))
+  : collectVitestReport([], "ignore").report;
 const tests = report.testResults.flatMap((suite) => {
   const file = relative(process.cwd(), suite.name);
 
