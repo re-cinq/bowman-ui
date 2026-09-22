@@ -1,9 +1,9 @@
 import { render } from "@testing-library/react";
-import { spawnSync } from "node:child_process";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
 import { createMarkdownComponents, createUrlTransform } from "../src/index.js";
+import { expectTypeAssertionsCompile } from "./helpers/built-package.js";
 
 const fixtureMarkdown = `
 # Heading one
@@ -91,26 +91,5 @@ describe("rendering the fixture through react-markdown with remark-gfm", () => {
 });
 
 it("tsc accepts markdown-type-assertions.ts, proving the map is assignable to react-markdown's Components", () => {
-  const result = spawnSync(
-    "node",
-    [
-      "node_modules/typescript7/bin/tsc",
-      "--ignoreConfig",
-      "--noEmit",
-      "--strict",
-      "--target",
-      "es2022",
-      "--module",
-      "nodenext",
-      "--moduleResolution",
-      "nodenext",
-      "--jsx",
-      "react-jsx",
-      "--skipLibCheck",
-      "tests/types/markdown-type-assertions.ts",
-    ],
-    { cwd: process.cwd(), encoding: "utf8" }
-  );
-
-  expect(result).toMatchObject({ status: 0, stderr: "" });
+  expectTypeAssertionsCompile("tests/types/markdown-type-assertions.ts");
 });

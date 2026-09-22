@@ -1,6 +1,5 @@
-import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
-import { expectPackedWithTypes } from "./helpers/built-package.js";
+import { expectPackedWithTypes, expectTypeAssertionsCompile } from "./helpers/built-package.js";
 import { listFiles } from "./helpers/source-hygiene.js";
 
 const BUILT_FILES = [
@@ -14,28 +13,7 @@ const BUILT_FILES = [
 
 describe("the built hook surface", () => {
   it("tsc accepts hooks-type-assertions.tsx against dist via the '.' exports entry", () => {
-    const result = spawnSync(
-      "node",
-      [
-        "node_modules/typescript7/bin/tsc",
-        "--ignoreConfig",
-        "--noEmit",
-        "--strict",
-        "--target",
-        "es2022",
-        "--module",
-        "nodenext",
-        "--moduleResolution",
-        "nodenext",
-        "--skipLibCheck",
-        "--jsx",
-        "react-jsx",
-        "tests/types/hooks-type-assertions.tsx",
-      ],
-      { cwd: process.cwd(), encoding: "utf8" }
-    );
-
-    expect(result).toMatchObject({ status: 0, stderr: "" });
+    expectTypeAssertionsCompile("tests/types/hooks-type-assertions.tsx");
   });
 
   it("npm pack --dry-run ships the five hooks and ErrorBoundary with their d.ts files", () => {

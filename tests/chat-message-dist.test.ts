@@ -1,7 +1,10 @@
-import { spawnSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { expectClientDirectiveFirst, expectPackedWithTypes } from "./helpers/built-package.js";
+import {
+  expectClientDirectiveFirst,
+  expectPackedWithTypes,
+  expectTypeAssertionsCompile,
+} from "./helpers/built-package.js";
 
 const BUILT_FILES = [
   "dist/components/ChatMessage.js",
@@ -20,28 +23,7 @@ describe("the built chat message surface", () => {
   });
 
   it("tsc accepts chat-message-type-assertions.tsx against dist via the '.' exports entry, pinning both @ts-expect-error fixtures", () => {
-    const result = spawnSync(
-      "node",
-      [
-        "node_modules/typescript7/bin/tsc",
-        "--ignoreConfig",
-        "--noEmit",
-        "--strict",
-        "--target",
-        "es2022",
-        "--module",
-        "nodenext",
-        "--moduleResolution",
-        "nodenext",
-        "--skipLibCheck",
-        "--jsx",
-        "react-jsx",
-        "tests/types/chat-message-type-assertions.tsx",
-      ],
-      { cwd: process.cwd(), encoding: "utf8" }
-    );
-
-    expect(result).toMatchObject({ status: 0, stderr: "" });
+    expectTypeAssertionsCompile("tests/types/chat-message-type-assertions.tsx");
   });
 });
 

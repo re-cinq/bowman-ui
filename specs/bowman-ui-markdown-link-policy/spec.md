@@ -182,7 +182,7 @@ renders as alt text
   - The `@ts-expect-error` completeness fixture omits `linkOpensInNewTab`
     (and, since 121, `assistantMessageFrom`)
     ([validated by](../../tests/types/chat-message-type-assertions.tsx#L60),
-    compiled by [chat-message-dist](../../tests/chat-message-dist.test.ts#L22)).
+    compiled by [chat-message-dist](../../tests/chat-message-dist.test.ts#L25)).
   - 019's map-keys test counts nineteen entries, a necessary consequence of
     the `img` gate
     ([validated by covers exactly the eighteen tags 019 named plus 076's img gate](../../tests/markdown-components.test.tsx#L55)).

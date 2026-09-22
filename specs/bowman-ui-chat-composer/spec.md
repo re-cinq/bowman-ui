@@ -161,7 +161,7 @@ compiled against `dist/` (fixture at
 covers it ([partition](../../tests/labelled-exports.test.tsx#L84),
 [harness](../../tests/labelled-exports.test.tsx#L453),
 [coverage](../../tests/labelled-exports.test.tsx#L591),
-[validated by tsc accepts chat-composer-type-assertions.tsx against dist via the '.' exports entry, pinning the @ts-expect-error fixture](../../tests/chat-composer-dist.test.ts#L15)).
+[validated by tsc accepts chat-composer-type-assertions.tsx against dist via the '.' exports entry, pinning the @ts-expect-error fixture](../../tests/chat-composer-dist.test.ts#L18)).
 
 **Note - one placeholder default.** The single `composerPlaceholder`
 default (`"Reply..."`) is the mid-conversation reply prompt, the composer's
@@ -195,7 +195,7 @@ No `@clerk`, `swr`, `next-intl`, `next/`, `@/` or
 `dist/components/ChatComposer.js` opens with `"use client";` as its first
 statement per 018 Decision 1's positional check, and `npm pack` ships it
 with its `.d.ts`
-([validated by dist/components/ChatComposer.js opens with "use client"; as its first statement](../../tests/chat-composer-dist.test.ts#L7),
+([validated by dist/components/ChatComposer.js opens with "use client"; as its first statement](../../tests/chat-composer-dist.test.ts#L10),
 [validated by no @clerk, swr, next-intl, next/, @/ or lucide-react import, and every relative import ends in .js](../../tests/ChatComposer.test.tsx#L467)).
 
 ## Recorded deviations from the issue text

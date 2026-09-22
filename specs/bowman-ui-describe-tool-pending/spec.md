@@ -41,7 +41,7 @@ re-exports.
    [validated by takes a one-parameter callback unchanged, ignoring the pending argument](../../tests/ToolActivity.test.tsx#L167),
    [validated by tsc accepts tool-activity-type-assertions.tsx against dist, with no @ts-expect-error in it](../../tests/ToolActivity.test.tsx#L300),
    compiled by
-   [chat-message-list-dist](../../tests/chat-message-list-dist.test.ts#L81)).
+   [chat-message-list-dist](../../tests/chat-message-list-dist.test.ts#L84)).
 2. **One source of truth for the flag.** The value passed is the prop
    `ToolActivity` already resolved (default `false`), so a caller using the
    component directly and one going through `ChatMessageList` see identical

@@ -1,9 +1,9 @@
 import { render, screen } from "@testing-library/react";
-import { spawnSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { ToolActivity, defaultToolActivityLabels } from "../src/index.js";
 import type { ToolChatEntry } from "../src/index.js";
+import { expectTypeAssertionsCompile } from "./helpers/built-package.js";
 import { expectSummaryClickToggles } from "./helpers/expect-summary-toggle.js";
 import { expectTextSecondary } from "./helpers/expect-theme-tokens.js";
 
@@ -305,28 +305,7 @@ describe("ToolActivity", () => {
 
       expect(assertions).not.toContain("@ts-expect-error");
 
-      const result = spawnSync(
-        "node",
-        [
-          "node_modules/typescript7/bin/tsc",
-          "--ignoreConfig",
-          "--noEmit",
-          "--strict",
-          "--target",
-          "es2022",
-          "--module",
-          "nodenext",
-          "--moduleResolution",
-          "nodenext",
-          "--skipLibCheck",
-          "--jsx",
-          "react-jsx",
-          "tests/types/tool-activity-type-assertions.tsx",
-        ],
-        { cwd: process.cwd(), encoding: "utf8" }
-      );
-
-      expect(result).toMatchObject({ status: 0, stderr: "" });
+      expectTypeAssertionsCompile("tests/types/tool-activity-type-assertions.tsx");
     });
   });
 });
