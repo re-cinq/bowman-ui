@@ -20,6 +20,8 @@ const write = (root: string, path: string, content: string) => {
 
 const FROZEN_SCHEMES = 'Object.freeze(["https", "mailto", "tel"])';
 
+const EXACT_SET_MESSAGE = 'allowedSchemes literals must be exactly ["https", "mailto", "tel"]';
+
 const cleanPolicy = `export const defaultMarkdownPolicy = Object.freeze({
   allowedSchemes: ${FROZEN_SCHEMES},
   allowRelativeUrls: false,
@@ -119,6 +121,38 @@ describe("check-markdown-safety", () => {
     expect(result.stderr).toContain("allowImages");
   });
 
+  it("exits 1 when the default allowlist admits http", () => {
+    write(root, "src/markdown/urlPolicy.ts", cleanPolicy.replace('"tel"', '"tel", "http"'));
+
+    const result = run(root);
+
+    expect(result).toMatchObject({ status: 1 });
+    expect(result.stderr).toContain(EXACT_SET_MESSAGE);
+    expect(result.stderr).toContain('"http"');
+  });
+
+  it("exits 1 when the default allowlist drops tel", () => {
+    write(root, "src/markdown/urlPolicy.ts", cleanPolicy.replace(', "tel"', ""));
+
+    const result = run(root);
+
+    expect(result).toMatchObject({ status: 1 });
+    expect(result.stderr).toContain(EXACT_SET_MESSAGE);
+  });
+
+  it("exits 1 when the default allowlist joins https and mailto into one literal", () => {
+    write(
+      root,
+      "src/markdown/urlPolicy.ts",
+      cleanPolicy.replace('"https", "mailto"', '"https,mailto"')
+    );
+
+    const result = run(root);
+
+    expect(result).toMatchObject({ status: 1 });
+    expect(result.stderr).toContain(`${EXACT_SET_MESSAGE}, found ["https,mailto", "tel"]`);
+  });
+
   it.each(["javascript", "data", "vbscript", "file"])(
     "exits 1 when the default allowlist admits the %s scheme",
     (scheme) => {
@@ -127,7 +161,8 @@ describe("check-markdown-safety", () => {
       const result = run(root);
 
       expect(result).toMatchObject({ status: 1 });
-      expect(result.stderr).toContain(scheme);
+      expect(result.stderr).toContain(EXACT_SET_MESSAGE);
+      expect(result.stderr).toContain(`"${scheme}"`);
     }
   );
 
@@ -135,6 +170,7 @@ describe("check-markdown-safety", () => {
     ["a bare array", '["https", "mailto", "tel"]'],
     ["a bare array as const", '["https", "mailto", "tel"] as const'],
     ["a frozen array as const", 'Object.freeze(["https", "mailto", "tel"] as const)'],
+    ["a reordered array", '["tel", "https", "mailto"]'],
   ])("exits 0 when the default allowlist is %s", (_, value) => {
     write(root, "src/markdown/urlPolicy.ts", cleanPolicy.replace(FROZEN_SCHEMES, value));
 
@@ -190,7 +226,7 @@ describe("check-markdown-safety", () => {
     }
   );
 
-  it("exits 1 and reports a banned literal beside a spread in the default allowlist", () => {
+  it("exits 1 and reports the literals beside a spread in the default allowlist", () => {
     write(
       root,
       "src/markdown/urlPolicy.ts",
@@ -203,19 +239,22 @@ describe("check-markdown-safety", () => {
     expect(result.stderr).toContain(
       "allowedSchemes must be an inline array of quoted string literals"
     );
-    expect(result.stderr).toContain('admits the dangerous scheme "javascript"');
+    expect(result.stderr).toContain(
+      `${EXACT_SET_MESSAGE}, found ["javascript", "https", "mailto", "tel"]`
+    );
   });
 
-  it.each([
-    ["a hex escape", String.raw`"javascr\x69pt"`],
-    ["a unicode escape", String.raw`"javascr\u0069pt"`],
-  ])("exits 1 when the default allowlist hides javascript behind %s", (_, literal) => {
+  it("exits 1 when the default allowlist hides javascript behind a unicode escape", () => {
+    const literal = String.raw`"java\u0073cript"`;
+
     write(root, "src/markdown/urlPolicy.ts", cleanPolicy.replace('"tel"', `"tel", ${literal}`));
 
     const result = run(root);
 
     expect(result).toMatchObject({ status: 1 });
-    expect(result.stderr).toContain("allowedSchemes must not contain escape sequences");
+    expect(result.stderr).toContain(
+      `${EXACT_SET_MESSAGE}, found ["https", "mailto", "tel", ${literal}]`
+    );
   });
 
   it("exits 0 when the default allowlist key is quoted", () => {
@@ -244,7 +283,8 @@ describe("check-markdown-safety", () => {
     const result = run(root);
 
     expect(result).toMatchObject({ status: 1 });
-    expect(result.stderr).toContain('admits the dangerous scheme "javascript"');
+    expect(result.stderr).toContain(EXACT_SET_MESSAGE);
+    expect(result.stderr).toContain('"javascript"');
   });
 
   it("exits 1 when only a prefixed key declares the default allowlist", () => {

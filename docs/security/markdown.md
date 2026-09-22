@@ -64,9 +64,11 @@ build when any standing invariant regresses:
    `dangerouslySetInnerHTML`, or re-enables raw HTML with `skipHtml={false}`.
 3. `defaultMarkdownPolicy.allowImages` is not literally `false`.
 4. `defaultMarkdownPolicy.allowedSchemes` is declared more than once, is not an
-   inline array of quoted string literals free of escape sequences (so the gate
-   reads the runtime value; the key may be bare or quoted), or admits
-   `javascript`, `data`, `vbscript`, or `file`.
+   inline array of quoted string literals (so the gate reads the runtime value;
+   the key may be bare or quoted), or its literals are not exactly `https`,
+   `mailto` and `tel` as source text, in any order. An admitted `http`, a
+   dropped `tel`, or an escaped literal such as `"java\u0073cript"` that spells
+   a dangerous scheme only at runtime all fail, without any escape handling.
 
 It runs on `pull_request` in `ci.yml` and before `npm publish` in `publish.yml`,
 and is self-tested by `tests/security/check-markdown-safety.test.ts`, which
