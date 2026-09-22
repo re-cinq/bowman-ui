@@ -15,8 +15,9 @@
 //      dangerouslySetInnerHTML, or re-enables raw HTML via skipHtml={false}.
 //   3. defaultMarkdownPolicy.allowImages is literally false.
 //   4. defaultMarkdownPolicy.allowedSchemes is declared once as an inline array
-//      of quoted string literals (so the gate can read it) admitting none of
-//      javascript / data / vbscript / file.
+//      of quoted string literals without escape sequences (so the gate reads
+//      the runtime value) admitting none of javascript / data / vbscript / file.
+//      The key matches bare or quoted, never as the suffix of a longer name.
 //
 // Runs against process.cwd() by default; a directory argument points it at
 // another tree so the corpus test can prove it trips on crafted bad inputs and
@@ -77,8 +78,13 @@ const scanPackageJson = (root) => {
 
 const QUOTED_LITERAL = /["']([^"']*)["']/g;
 
-const ALLOWED_SCHEMES_ARRAY =
-  /allowedSchemes:\s*(?:Object\.freeze\(\s*)?\[([^\]]*)\]\s*(?:as const\s*)?\)?\s*[,}]/;
+const SCHEMES_KEY = String.raw`(?<![\w$])["']?allowedSchemes["']?\s*:`;
+
+const SCHEMES_KEYS = new RegExp(SCHEMES_KEY, "g");
+
+const ALLOWED_SCHEMES_ARRAY = new RegExp(
+  String.raw`${SCHEMES_KEY}\s*(?:Object\.freeze\(\s*)?\[([^\]]*)\]\s*(?:as const\s*)?\)?\s*[,}]`
+);
 
 const isInlineStringArray = (list) => list.replace(QUOTED_LITERAL, "").replace(/[\s,]/g, "") === "";
 
@@ -105,7 +111,7 @@ const scanPolicy = (root) => {
   if (allowImages === null || allowImages[1] !== "false") {
     violations.push("defaultMarkdownPolicy.allowImages must be literally false");
   }
-  const declaredOnce = (block.match(/allowedSchemes:/g) ?? []).length === 1;
+  const declaredOnce = (block.match(SCHEMES_KEYS) ?? []).length === 1;
   const list = declaredOnce ? block.match(ALLOWED_SCHEMES_ARRAY)?.[1] : undefined;
 
   if (!declaredOnce) {
@@ -114,6 +120,8 @@ const scanPolicy = (root) => {
     violations.push(
       "defaultMarkdownPolicy.allowedSchemes must be an inline array of quoted string literals"
     );
+  } else if (list.includes("\\")) {
+    violations.push("defaultMarkdownPolicy.allowedSchemes must not contain escape sequences");
   }
   const declared = [...(list ?? "").matchAll(QUOTED_LITERAL)].map((m) => m[1].toLowerCase());
 

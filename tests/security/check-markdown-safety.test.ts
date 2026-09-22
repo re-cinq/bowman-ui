@@ -206,6 +206,60 @@ describe("check-markdown-safety", () => {
     expect(result.stderr).toContain('admits the dangerous scheme "javascript"');
   });
 
+  it.each([
+    ["a hex escape", String.raw`"javascr\x69pt"`],
+    ["a unicode escape", String.raw`"javascr\u0069pt"`],
+  ])("exits 1 when the default allowlist hides javascript behind %s", (_, literal) => {
+    write(root, "src/markdown/urlPolicy.ts", cleanPolicy.replace('"tel"', `"tel", ${literal}`));
+
+    const result = run(root);
+
+    expect(result).toMatchObject({ status: 1 });
+    expect(result.stderr).toContain("allowedSchemes must not contain escape sequences");
+  });
+
+  it("exits 0 when the default allowlist key is quoted", () => {
+    write(
+      root,
+      "src/markdown/urlPolicy.ts",
+      cleanPolicy.replace("allowedSchemes:", '"allowedSchemes":')
+    );
+
+    expect(run(root)).toMatchObject({ status: 0 });
+  });
+
+  it.each([
+    ["a quoted key", `"allowedSchemes": ${FROZEN_SCHEMES.replace('"tel"', '"javascript"')}`],
+    [
+      "a quoted key after a prefixed key",
+      `unallowedSchemes: ${FROZEN_SCHEMES},\n  "allowedSchemes": ["javascript"]`,
+    ],
+  ])("exits 1 when %s admits javascript", (_, property) => {
+    write(
+      root,
+      "src/markdown/urlPolicy.ts",
+      cleanPolicy.replace(`allowedSchemes: ${FROZEN_SCHEMES}`, property)
+    );
+
+    const result = run(root);
+
+    expect(result).toMatchObject({ status: 1 });
+    expect(result.stderr).toContain('admits the dangerous scheme "javascript"');
+  });
+
+  it("exits 1 when only a prefixed key declares the default allowlist", () => {
+    write(
+      root,
+      "src/markdown/urlPolicy.ts",
+      cleanPolicy.replace("allowedSchemes:", "unallowedSchemes:")
+    );
+
+    const result = run(root);
+
+    expect(result).toMatchObject({ status: 1 });
+    expect(result.stderr).toContain("allowedSchemes must be declared exactly once");
+  });
+
   it("exits 2 when the tree has no urlPolicy.ts", () => {
     rmSync(join(root, "src/markdown/urlPolicy.ts"));
 

@@ -64,7 +64,8 @@ build when any standing invariant regresses:
    `dangerouslySetInnerHTML`, or re-enables raw HTML with `skipHtml={false}`.
 3. `defaultMarkdownPolicy.allowImages` is not literally `false`.
 4. `defaultMarkdownPolicy.allowedSchemes` is declared more than once, is not an
-   inline array of quoted string literals the gate can read, or admits
+   inline array of quoted string literals free of escape sequences (so the gate
+   reads the runtime value; the key may be bare or quoted), or admits
    `javascript`, `data`, `vbscript`, or `file`.
 
 It runs on `pull_request` in `ci.yml` and before `npm publish` in `publish.yml`,
