@@ -227,4 +227,14 @@ describe("useFocusTrap", () => {
 
     expect(outside).toHaveFocus();
   });
+
+  it("closing after opening with no active element and no trigger ref moves focus nowhere", () => {
+    const activeElement = vi.spyOn(document, "activeElement", "get").mockReturnValue(null);
+    const { rerender } = render(<Harness isOpen onClose={vi.fn()} />);
+
+    activeElement.mockRestore();
+    rerender(<Harness isOpen={false} onClose={vi.fn()} />);
+
+    expect(screen.getByRole("button", { name: "first" })).toHaveFocus();
+  });
 });

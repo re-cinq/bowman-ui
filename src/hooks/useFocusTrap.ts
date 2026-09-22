@@ -1,8 +1,21 @@
 "use client";
 
-import { useEffect, useRef, useCallback, type RefObject } from "react";
+import { useEffect, useRef, type RefObject } from "react";
 
 import { FOCUSABLE_SELECTOR } from "./focusableSelector.js";
+
+function getFocusableElements(container: HTMLElement | null): HTMLElement[] {
+  if (!container) {
+    return [];
+  }
+
+  // display:none and visibility:hidden leave the tab order; opacity-0 stays tabbable and is untested on purpose.
+  return Array.from(container.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)).filter((el) =>
+    typeof el.checkVisibility === "function"
+      ? el.checkVisibility({ visibilityProperty: true })
+      : el.offsetParent !== null
+  );
+}
 
 /** Traps Tab within the container while isOpen; Escape calls onClose and refocuses triggerRef. Modal only. */
 export function useFocusTrap<T extends HTMLElement = HTMLDivElement>(
@@ -11,33 +24,15 @@ export function useFocusTrap<T extends HTMLElement = HTMLDivElement>(
   triggerRef?: RefObject<HTMLElement | null>
 ): RefObject<T | null> {
   const containerRef = useRef<T | null>(null);
-  const previousActiveElement = useRef<HTMLElement | null>(null);
+  const previousActiveElement = useRef<Element | null>(null);
   const hasBeenOpen = useRef(false);
 
-  // Get all focusable elements within the container
-  const getFocusableElements = useCallback((): HTMLElement[] => {
-    if (!containerRef.current) {
-      return [];
-    }
-
-    // display:none and visibility:hidden leave the tab order; opacity-0 stays tabbable and is untested on purpose.
-    return Array.from(
-      containerRef.current.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)
-    ).filter((el) =>
-      typeof el.checkVisibility === "function"
-        ? el.checkVisibility({ visibilityProperty: true })
-        : el.offsetParent !== null
-    );
-  }, []);
-
-  // Handle keyboard navigation
   useEffect(() => {
     if (!isOpen) {
       return;
     }
 
     const handleKeyDown = (event: KeyboardEvent) => {
-      // Close on Escape
       if (event.key === "Escape") {
         event.preventDefault();
         onClose();
@@ -45,11 +40,10 @@ export function useFocusTrap<T extends HTMLElement = HTMLDivElement>(
         return;
       }
 
-      // Trap focus on Tab
       if (event.key !== "Tab") {
         return;
       }
-      const focusableElements = getFocusableElements();
+      const focusableElements = getFocusableElements(containerRef.current);
 
       if (focusableElements.length === 0) {
         return;
@@ -79,17 +73,14 @@ export function useFocusTrap<T extends HTMLElement = HTMLDivElement>(
     document.addEventListener("keydown", handleKeyDown);
 
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [isOpen, onClose, getFocusableElements]);
+  }, [isOpen, onClose]);
 
-  // Focus management on open/close
   useEffect(() => {
     const focusFirstElementOnOpen = () => {
       hasBeenOpen.current = true;
-      // Store current focus
-      previousActiveElement.current = document.activeElement as HTMLElement;
+      previousActiveElement.current = document.activeElement;
 
-      // Focus first focusable element in container
-      const focusableElements = getFocusableElements();
+      const focusableElements = getFocusableElements(containerRef.current);
 
       if (focusableElements.length === 0) {
         return undefined;
@@ -109,10 +100,9 @@ export function useFocusTrap<T extends HTMLElement = HTMLDivElement>(
         return;
       }
 
-      // Return focus to trigger or previous element
       const returnTarget = triggerRef?.current || previousActiveElement.current;
 
-      if (returnTarget && typeof returnTarget.focus === "function") {
+      if (returnTarget instanceof HTMLElement) {
         returnTarget.focus();
       }
     };
@@ -123,7 +113,7 @@ export function useFocusTrap<T extends HTMLElement = HTMLDivElement>(
     returnFocusOnClose();
 
     return undefined;
-  }, [isOpen, triggerRef, getFocusableElements]);
+  }, [isOpen, triggerRef]);
 
   return containerRef;
 }

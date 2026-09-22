@@ -12,13 +12,10 @@ export type MarkdownElementProps = HTMLAttributes<HTMLElement> & {
   node?: unknown;
 };
 
-type MarkdownAnchorProps = AnchorHTMLAttributes<HTMLAnchorElement> & {
-  node?: unknown;
-};
+type MarkdownAnchorProps = AnchorHTMLAttributes<HTMLAnchorElement> &
+  Pick<MarkdownElementProps, "node">;
 
-type MarkdownImageProps = ImgHTMLAttributes<HTMLImageElement> & {
-  node?: unknown;
-};
+type MarkdownImageProps = ImgHTMLAttributes<HTMLImageElement> & Pick<MarkdownElementProps, "node">;
 
 export interface MarkdownComponentsLabels {
   linkOpensInNewTab: string;
