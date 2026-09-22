@@ -76,7 +76,7 @@ asserted as "every statement is an `ExportDeclaration`" on the built AST
 
 ## Browser-global table, measured on the CI Node
 
-CI's `node-version: "22"` floats to the latest 22.x on every run; at measurement time it
+CI's `node-version-file: .nvmrc` (which holds `22`) floats to the latest 22.x on every run; at measurement time it
 resolved to **v22.23.2** (read from the CI setup-node log of the latest `main` run), and every
 probe below was run with `node -e` on exactly v22.23.2, not a developer default. The float is
 harmless to the trigger list: a name a future 22.x defines gets kept as a silent-divergence

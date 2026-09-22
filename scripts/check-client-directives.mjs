@@ -42,7 +42,7 @@ const HOOK_NAME = /^use[A-Z]/;
 const JSX_HANDLER = /^on[A-Z]/;
 
 // Measured with `node -e 'console.log(typeof <name>)'` probes: all eighteen
-// are undefined on Node v20.19.5. On v22.23.2 (what CI's node-version: "22"
+// are undefined on Node v20.19.5. On v22.23.2 (what CI's node-version-file: .nvmrc
 // resolves to today) navigator and WebSocket are defined - kept anyway as
 // silent-divergence cases: a server render that reaches them throws nothing,
 // which is exactly why the static check must carry them. DOM type names

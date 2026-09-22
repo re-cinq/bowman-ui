@@ -7,10 +7,11 @@ name: Guard main pushes
 # (issue 1062): a stolen token pushed commits straight to an unprotected
 # main, authored as github-actions[bot], with no PR anywhere.
 #
-# It matters more here than in a service repo. publish.yml fires on `v*` tags
-# and authenticates to npm through OIDC trusted publishing with no stored
-# secret to revoke - so push access to main is, transitively, the ability to
-# publish @re-cinq/bowman-ui as this org.
+# It matters more here than in a service repo. publish.yml fires when a
+# GitHub Release is published (its vX.Y.Z tag names the version) and
+# authenticates to npm through OIDC trusted publishing with no stored secret
+# to revoke - so push access to main is, transitively, the ability to publish
+# @re-cinq/bowman-ui as this org.
 
 on:
   push:
@@ -33,6 +34,7 @@ jobs:
           AFTER: ${{ github.event.after }}
           PUSHER: ${{ github.actor }}
           CREATED: ${{ github.event.created }}
+          FORCED: ${{ github.event.forced }}
           COMMIT_IDS: ${{ toJson(github.event.commits.*.id) }}
         run: |
           set -euo pipefail
@@ -41,6 +43,42 @@ jobs:
           if [ "$CREATED" = "true" ]; then
             echo "main was just created - nothing to compare."
             exit 0
+          fi
+
+          # Loud on every channel: the issue is the durable alarm, the red
+          # check is the visible one. The issue must open even when the label
+          # is unavailable: fall back to an unlabeled issue rather than dying
+          # on "'security' not found".
+          raise_alarm() {
+            local title="$1" detail="$2" body
+            body=$(printf 'Push by `%s` to `main` (`%s`..`%s`) %s\n\nThis repo publishes to npm from a published GitHub Release via OIDC trusted publishing, so push access to `main` is transitively publish access.\n\nIf this was an intentional admin action, close this issue. Otherwise investigate immediately, treat every reachable credential as exposed, and rotate.' "$PUSHER" "${BEFORE:0:12}" "${AFTER:0:12}" "$detail")
+            gh label create security --repo "$REPO" --color D93F0B --description "Security" 2>/dev/null || true
+            gh issue create --repo "$REPO" --label security --title "$title" --body "$body" \
+              || gh issue create --repo "$REPO" --title "$title" --body "$body"
+            exit 1
+          }
+
+          # A force push rewrites history the PR trail cannot account for, and
+          # its payload lists none of the commits it dropped - a rewind arrives
+          # with an empty list. It is an alarm in itself, before any lookup.
+          if [ "$FORCED" = "true" ]; then
+            echo "::error title=Force push to main::${BEFORE:0:12} was rewritten to ${AFTER:0:12}"
+            raise_alarm "Force push to main: ${AFTER:0:12}" "was a **force push**; any commits it dropped are not in this payload."
+          fi
+
+          # Every commit below costs up to five API calls (four PR-lookup passes
+          # and an author lookup) against GITHUB_TOKEN's 1000/hour, and GitHub
+          # caps the payload's commit list, so a push this guard cannot inspect
+          # in full is not inspected at all: one alarm names the range. 100
+          # commits spend at most half the budget; a squash merge is one commit
+          # and a merge-commit merge of a longer branch trips this alarm by
+          # design, its issue closed by hand. An empty list on a non-forced
+          # push is no state this guard understands and gets the same treatment.
+          MAX_INSPECTED=100
+          commit_count=$(echo "$COMMIT_IDS" | jq 'length // 0')
+          if [ "$commit_count" -eq 0 ] || [ "$commit_count" -gt "$MAX_INSPECTED" ]; then
+            echo "::error title=Uninspectable push to main::payload lists $commit_count commit(s)"
+            raise_alarm "Uninspectable push to main: ${AFTER:0:12}" "lists **${commit_count} commit(s)** in its payload - none, or more than the ${MAX_INSPECTED} this guard resolves to pull requests one by one."
           fi
 
           # A commit that arrived via a merged PR resolves to that PR here; one
@@ -97,13 +135,5 @@ jobs:
             suspicious="${suspicious}- \`${sha}\` - author \`${author}\`, no associated PR"$'\n'
           done
 
-          title="Direct/unattributed push to main: ${AFTER:0:12}"
-          body=$(printf 'Push by `%s` to `main` (`%s`..`%s`) contains commit(s) with **no associated pull request** - a direct push or an unattributed bot commit.\n\n%s\nThis repo publishes to npm from a `v*` tag via OIDC trusted publishing, so push access to `main` is transitively publish access.\n\nIf this was an intentional admin action, close this issue. Otherwise investigate immediately, treat every reachable credential as exposed, and rotate.' "$PUSHER" "${BEFORE:0:12}" "${AFTER:0:12}" "$suspicious")
-          gh label create security --repo "$REPO" --color D93F0B --description "Security" 2>/dev/null || true
-          # The alarm must fire even when the label is unavailable: fall back to
-          # an unlabeled issue rather than dying on "'security' not found".
-          gh issue create --repo "$REPO" --label security --title "$title" --body "$body" \
-            || gh issue create --repo "$REPO" --title "$title" --body "$body"
-          # Loud on every channel: the issue is the durable alarm, the red check
-          # is the visible one.
-          exit 1
+          detail=$(printf 'contains commit(s) with **no associated pull request** - a direct push or an unattributed bot commit.\n\n%s' "$suspicious")
+          raise_alarm "Direct/unattributed push to main: ${AFTER:0:12}" "$detail"
