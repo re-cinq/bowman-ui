@@ -70,7 +70,7 @@ only; `Toast` keeps its centring in its own dedicated rule
 utility classes, with no `data-animations` attribute in any selector
 ([validated by](../../tests/styles.test.ts#L89)). No
 `NEXT_PUBLIC_FLAG_ANIMATIONS` escape hatch exists: flag plumbing belongs to
-a consumer ([validated by](../../tests/hooks-dist.test.ts#L71)).
+a consumer ([validated by](../../tests/hooks-dist.test.ts#L66)).
 
 ## The typography-plugin replacement
 

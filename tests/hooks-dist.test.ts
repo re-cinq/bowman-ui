@@ -1,7 +1,7 @@
 import { spawnSync } from "node:child_process";
-import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
-import { join } from "node:path";
+import { existsSync, readFileSync } from "node:fs";
 import { expectPackedWithTypes } from "./helpers/built-package.js";
+import { listFiles } from "./helpers/source-hygiene.js";
 
 const BUILT_FILES = [
   "dist/hooks/useDebounce.js",
@@ -11,22 +11,6 @@ const BUILT_FILES = [
   "dist/hooks/useSidebarState.js",
   "dist/components/ErrorBoundary.js",
 ];
-
-const walk = (dir: string): string[] => {
-  const files: string[] = [];
-
-  for (const entry of readdirSync(dir)) {
-    const fullPath = join(dir, entry);
-
-    if (statSync(fullPath).isDirectory()) {
-      files.push(...walk(fullPath));
-      continue;
-    }
-    files.push(fullPath);
-  }
-
-  return files;
-};
 
 describe("the built hook surface", () => {
   it("tsc accepts hooks-type-assertions.tsx against dist via the '.' exports entry", () => {
@@ -68,13 +52,13 @@ describe("the built hook surface", () => {
   });
 
   it("no built file reads process.env and no NEXT_PUBLIC flag string survives in src/", () => {
-    const distSources = walk("dist").filter((file) => file.endsWith(".js"));
+    const distSources = listFiles("dist").filter((file) => file.endsWith(".js"));
 
     for (const file of distSources) {
       expect(readFileSync(file, "utf8")).not.toMatch(/process\.env/);
     }
 
-    const srcSources = walk("src");
+    const srcSources = listFiles("src");
 
     for (const file of srcSources) {
       const content = readFileSync(file, "utf8");

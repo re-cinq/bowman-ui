@@ -1129,7 +1129,9 @@ Decisions:
     fixture linting, focus-environment stubs), two scripts each carried their
     own `listSourceFiles`, and the workflow jobs repeated one setup block. The
     copies now live once, in `tests/helpers/`, `scripts/lib/` and the
-    `setup-node-install` composite action, and the gate holds the tree there:
+    `setup-node-install` composite action (issue 157 later folded three more
+    directory walks and the Lore scripts' Vitest report runner into the same
+    homes), and the gate holds the tree there:
     `path` is the repo, `threshold` is 0, and a red check is fixed only by
     extracting a helper. Three inputs are ignored because they are not code
     and cannot be deduplicated: `**/package-lock.json` (generated, the same
