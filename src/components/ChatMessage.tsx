@@ -1,14 +1,6 @@
 "use client";
 
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  type KeyboardEvent,
-  type ReactNode,
-} from "react";
+import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { CheckIcon, CopyIcon, ThumbsDownIcon, ThumbsUpIcon } from "../icons/index.js";
@@ -114,6 +106,21 @@ const isCopyChord = (e: KeyboardEvent<HTMLElement>): boolean =>
 const hasModifier = (e: KeyboardEvent<HTMLElement>): boolean =>
   e.metaKey || e.ctrlKey || e.shiftKey || e.altKey;
 
+const feedbackButtons = [
+  {
+    type: "up",
+    Icon: ThumbsUpIcon,
+    labelKey: "feedbackPositive",
+    selected: `${SUCCESS_SOFT} ${SUCCESS}`,
+  },
+  {
+    type: "down",
+    Icon: ThumbsDownIcon,
+    labelKey: "feedbackNegative",
+    selected: `${DANGER_SOFT} ${DANGER}`,
+  },
+] as const;
+
 export function ChatMessage({
   entry,
   userInitials,
@@ -140,63 +147,54 @@ export function ChatMessage({
     };
   }, []);
 
-  const copyToClipboard = useCallback(
-    (text: string, entryId: string) => {
-      // Insecure contexts lack navigator.clipboard and denials reject: swallow both, onCopy reports either way.
-      navigator.clipboard?.writeText(text)?.catch?.(() => {});
-      setCopiedId(entryId);
+  const copyToClipboard = (text: string, entryId: string) => {
+    // Insecure contexts lack navigator.clipboard and denials reject: swallow both, onCopy reports either way.
+    navigator.clipboard?.writeText(text)?.catch?.(() => {});
+    setCopiedId(entryId);
 
-      // A rapid second copy replaces the pending timer, so the first cannot dismiss the new notice early.
-      if (copiedTimerRef.current !== null) {
-        clearTimeout(copiedTimerRef.current);
-      }
-      copiedTimerRef.current = setTimeout(() => setCopiedId(null), 2000);
-      onCopy?.(text, entryId);
-    },
-    [onCopy]
-  );
+    // A rapid second copy replaces the pending timer, so the first cannot dismiss the new notice early.
+    if (copiedTimerRef.current !== null) {
+      clearTimeout(copiedTimerRef.current);
+    }
+    copiedTimerRef.current = setTimeout(() => setCopiedId(null), 2000);
+    onCopy?.(text, entryId);
+  };
 
-  const handleFeedback = useCallback(
-    (entryId: string, type: "up" | "down") => {
-      setFeedbackId({ id: entryId, type });
-      onFeedback?.(entryId, type);
-    },
-    [onFeedback]
-  );
+  const handleFeedback = (entryId: string, type: "up" | "down") => {
+    setFeedbackId({ id: entryId, type });
+    onFeedback?.(entryId, type);
+  };
 
-  const handleKeyDown = useCallback(
-    (e: KeyboardEvent<HTMLElement>) => {
-      if (entry.role !== "assistant" || entry.isStreaming) {
-        return;
-      }
+  const handleKeyDown = (e: KeyboardEvent<HTMLElement>) => {
+    if (entry.role !== "assistant" || entry.isStreaming) {
+      return;
+    }
 
-      // Cmd/Ctrl + C stays unconditional: it steals no navigation key and yields to an active text selection.
-      if (isCopyChord(e) && !window.getSelection()?.toString()) {
-        e.preventDefault();
-        copyToClipboard(entry.content, entry.id);
-      }
+    // Cmd/Ctrl + C stays unconditional: it steals no navigation key and yields to an active text selection.
+    if (isCopyChord(e) && !window.getSelection()?.toString()) {
+      e.preventDefault();
+      copyToClipboard(entry.content, entry.id);
+    }
 
-      // Both terms: showFeedback off must silence the keyboard path too, not just hide the thumbs.
-      if (!showFeedback || !arrowKeyFeedback) {
-        return;
-      }
+    // Both terms: showFeedback off must silence the keyboard path too, not just hide the thumbs.
+    if (!showFeedback || !arrowKeyFeedback) {
+      return;
+    }
 
-      if (hasModifier(e)) {
-        return;
-      }
+    if (hasModifier(e)) {
+      return;
+    }
 
-      if (e.key === "ArrowUp") {
-        e.preventDefault();
-        handleFeedback(entry.id, "up");
-      }
+    if (e.key === "ArrowUp") {
+      e.preventDefault();
+      handleFeedback(entry.id, "up");
+    }
 
-      if (e.key === "ArrowDown") {
-        e.preventDefault();
-        handleFeedback(entry.id, "down");
-      }
-    },
-    [entry, showFeedback, arrowKeyFeedback, copyToClipboard, handleFeedback]
-  );
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      handleFeedback(entry.id, "down");
+    }
+  };
 
   const ariaLabel = resolveArticleLabel(entry, assistantName, resolved);
 
@@ -240,7 +238,7 @@ function UserMessage({ content, userInitials }: UserMessageProps) {
         {userInitials}
       </div>
       <div className="relative max-w-[80%] rounded-3xl bg-slate-100 px-5 py-3.5 dark:bg-slate-800">
-        <p className="whitespace-pre-wrap text-sm leading-6">{content}</p>
+        <p className="whitespace-pre-wrap break-words text-sm leading-6">{content}</p>
       </div>
     </div>
   );
@@ -305,6 +303,9 @@ function AssistantMessage({
     latch.current.hasReceivedContent = true;
   }
 
+  const isCopied = copiedId === entry.id;
+  const pressed = feedbackId?.id === entry.id ? feedbackId.type : null;
+
   return (
     <div className="flex w-full items-start gap-4">
       <div
@@ -316,7 +317,7 @@ function AssistantMessage({
         {assistantName && (
           <span className={`pt-1 text-sm font-medium ${TEXT_SECONDARY}`}>{assistantName}</span>
         )}
-        <div className="max-w-none overflow-x-auto pt-1 text-sm leading-6">
+        <div className="max-w-none overflow-x-auto break-words pt-1 text-sm leading-6">
           {entry.toolStatus && (
             <div className={`flex items-center gap-2 text-sm ${TEXT_MUTED}`}>
               <div className="h-3.5 w-3.5 animate-spin rounded-full border border-slate-300 border-t-slate-600 dark:border-slate-600 dark:border-t-slate-300" />
@@ -343,15 +344,15 @@ function AssistantMessage({
               type="button"
               className={`rounded p-1.5 ${TEXT_SUBTLE} ring-offset-2 transition-colors ${CONTROL_HOVER} ${TEXT_SECONDARY_HOVER} focus:outline-none focus:ring-2 ${FOCUS_RING_COLOR} dark:ring-offset-slate-950`}
               onClick={() => onCopy(entry.content, entry.id)}
-              aria-label={copiedId === entry.id ? resolved.copied : resolved.copy}
+              aria-label={isCopied ? resolved.copied : resolved.copy}
             >
-              {copiedId === entry.id ? (
+              {isCopied ? (
                 <CheckIcon className={`h-4 w-4 ${SUCCESS}`} />
               ) : (
                 <CopyIcon className="h-4 w-4" />
               )}
             </button>
-            {copiedId === entry.id && (
+            {isCopied && (
               <span className={`bowman-fade-in text-xs ${TEXT_SUBTLE}`}>
                 {resolved.copiedNotice}
               </span>
@@ -359,33 +360,23 @@ function AssistantMessage({
 
             {showFeedback && (
               <>
-                <button
-                  type="button"
-                  className={`rounded p-1.5 ring-offset-2 transition-colors focus:outline-none focus:ring-2 ${FOCUS_RING_COLOR} dark:ring-offset-slate-950 ${
-                    feedbackId?.id === entry.id && feedbackId.type === "up"
-                      ? `${SUCCESS_SOFT} ${SUCCESS}`
-                      : `${TEXT_SUBTLE} ${CONTROL_HOVER} ${TEXT_SECONDARY_HOVER}`
-                  }`}
-                  onClick={() => onFeedback(entry.id, "up")}
-                  aria-label={resolved.feedbackPositive}
-                  aria-pressed={feedbackId?.id === entry.id && feedbackId.type === "up"}
-                >
-                  <ThumbsUpIcon className="h-4 w-4" />
-                </button>
-                <button
-                  type="button"
-                  className={`rounded p-1.5 ring-offset-2 transition-colors focus:outline-none focus:ring-2 ${FOCUS_RING_COLOR} dark:ring-offset-slate-950 ${
-                    feedbackId?.id === entry.id && feedbackId.type === "down"
-                      ? `${DANGER_SOFT} ${DANGER}`
-                      : `${TEXT_SUBTLE} ${CONTROL_HOVER} ${TEXT_SECONDARY_HOVER}`
-                  }`}
-                  onClick={() => onFeedback(entry.id, "down")}
-                  aria-label={resolved.feedbackNegative}
-                  aria-pressed={feedbackId?.id === entry.id && feedbackId.type === "down"}
-                >
-                  <ThumbsDownIcon className="h-4 w-4" />
-                </button>
-                {feedbackId?.id === entry.id && (
+                {feedbackButtons.map(({ type, Icon, labelKey, selected }) => (
+                  <button
+                    key={type}
+                    type="button"
+                    className={`rounded p-1.5 ring-offset-2 transition-colors focus:outline-none focus:ring-2 ${FOCUS_RING_COLOR} dark:ring-offset-slate-950 ${
+                      pressed === type
+                        ? selected
+                        : `${TEXT_SUBTLE} ${CONTROL_HOVER} ${TEXT_SECONDARY_HOVER}`
+                    }`}
+                    onClick={() => onFeedback(entry.id, type)}
+                    aria-label={resolved[labelKey]}
+                    aria-pressed={pressed === type}
+                  >
+                    <Icon className="h-4 w-4" />
+                  </button>
+                ))}
+                {pressed !== null && (
                   <span className={`bowman-fade-in ml-1 text-xs ${TEXT_SUBTLE}`}>
                     {resolved.feedbackNotice}
                   </span>
