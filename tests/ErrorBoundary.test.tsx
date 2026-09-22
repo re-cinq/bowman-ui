@@ -270,6 +270,30 @@ describe("ErrorBoundary", () => {
       expect(document.activeElement).toBe(screen.getByRole("textbox", { name: "Reintentar con" }));
     });
 
+    it("a sibling after the boundary that unmounts in the same commit does not extend the range: the consumer's later button stays unfocused", async () => {
+      const Banner = ({ recovered }: { recovered: ReactNode }) => {
+        const [attempt, setAttempt] = useState(0);
+
+        return (
+          <div onClickCapture={() => setAttempt((count) => count + 1)}>
+            <ErrorBoundary>
+              {attempt === 0 ? <Bomb error={new Error("first render")} /> : recovered}
+            </ErrorBoundary>
+            {attempt === 0 && <p>only while errored</p>}
+            <button type="button">after</button>
+          </div>
+        );
+      };
+      const user = userEvent.setup();
+
+      render(<Banner recovered={<p>second attempt</p>} />, silenced);
+
+      await user.click(screen.getByRole("button", { name: "Try again" }));
+
+      expect(screen.queryByText("only while errored")).not.toBeInTheDocument();
+      expect(document.activeElement).toBe(document.body);
+    });
+
     it("recovered children rooted in a <div> - the host node React reuses from the fallback - still get the focus", async () => {
       await retryInto(
         <div>

@@ -193,9 +193,9 @@ with its `.d.ts`
 
 ## Recorded deviations from the issue text
 
-| #   | Issue text                                   | Reality                                                                                                                                               |
-| --- | -------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| a   | `src/__tests__/labelled-exports.tsx`         | The partition/sentinel file is `tests/labelled-exports.test.tsx`; no `src/__tests__/` directory exists in this repo                                   |
-| b   | `tests/components/ChatComposer.test.tsx`     | The suite lives flat as `tests/ChatComposer.test.tsx`, matching every existing component suite (`tests/ChatMessage.test.tsx`, `tests/Toast.test.tsx`) |
-| c   | coverage "at the 100 / 100 / 100 thresholds" | The committed floor is lines 100 / functions 100 / statements 100 / **branches 90** (`vitest.config.ts`); this change holds 100 / 100 / 100 / 99.41   |
-| d   | wrapper carries `animate-pulse-subtle`       | `bowman-pulse-subtle` - 019's package-prefix rename, same as 023's recorded deviation                                                                 |
+| #   | Issue text                                   | Reality                                                                                                                                                        |
+| --- | -------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| a   | `src/__tests__/labelled-exports.tsx`         | The partition/sentinel file is `tests/labelled-exports.test.tsx`; no `src/__tests__/` directory exists in this repo                                            |
+| b   | `tests/components/ChatComposer.test.tsx`     | The suite lives flat as `tests/ChatComposer.test.tsx`, matching every existing component suite (`tests/ChatMessage.test.tsx`, `tests/Toast.test.tsx`)          |
+| c   | coverage "at the 100 / 100 / 100 thresholds" | The floor was lines 100 / functions 100 / statements 100 / **branches 90** when this landed (100 on all four since issue 152); it held 100 / 100 / 100 / 99.41 |
+| d   | wrapper carries `animate-pulse-subtle`       | `bowman-pulse-subtle` - 019's package-prefix rename, same as 023's recorded deviation                                                                          |

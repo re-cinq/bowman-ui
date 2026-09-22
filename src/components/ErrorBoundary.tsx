@@ -43,25 +43,28 @@ interface State {
 // A mounted node always has a parent: React inserts the DOM before it runs any handler.
 const parentOf = (node: Node): ParentNode => node.parentNode as ParentNode;
 
-// The siblings around the fallback root outlive the swap; the recovered children stand between them.
+// The recovered children stand after the fallback's previous sibling and before any sibling that outlives the swap.
 interface FallbackNeighbours {
   container: ParentNode;
   before: ChildNode | null;
-  after: ChildNode | null;
+  siblings: Set<Node>;
 }
 
-const neighboursOf = (fallbackRoot: Node): FallbackNeighbours => ({
-  container: parentOf(fallbackRoot),
-  before: fallbackRoot.previousSibling,
-  after: fallbackRoot.nextSibling,
-});
+const neighboursOf = (fallbackRoot: Node): FallbackNeighbours => {
+  const container = parentOf(fallbackRoot);
+  const siblings = new Set<Node>(container.childNodes);
+
+  siblings.delete(fallbackRoot);
+
+  return { container, before: fallbackRoot.previousSibling, siblings };
+};
 
 // React reuses the fallback's host node for a same-typed child, so a set difference would miss it.
-const nodesBetween = ({ container, before, after }: FallbackNeighbours): Node[] => {
+const nodesBetween = ({ container, before, siblings }: FallbackNeighbours): Node[] => {
   const nodes: Node[] = [];
   let node = before ? before.nextSibling : container.firstChild;
 
-  while (node && node !== after) {
+  while (node && !siblings.has(node)) {
     nodes.push(node);
     node = node.nextSibling;
   }

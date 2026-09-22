@@ -89,6 +89,7 @@ exports entry for a consumer ([validated by](../../tests/hooks-dist.test.ts#L45)
   [L140](../../tests/ErrorBoundary.test.tsx#L140),
   [L152](../../tests/ErrorBoundary.test.tsx#L152),
   [L243](../../tests/ErrorBoundary.test.tsx#L243),
+  [L297](../../tests/ErrorBoundary.test.tsx#L297),
   [L273](../../tests/ErrorBoundary.test.tsx#L273),
   [L254](../../tests/ErrorBoundary.test.tsx#L254),
   [L160](../../tests/ErrorBoundary.test.tsx#L160),
@@ -124,8 +125,9 @@ string survives in `src/`
   caught ([validated by](../../tests/client-directives.test.ts#L50)).
 - **Visibility test.** `useFocusTrap` treats `display: none` and `visibility: hidden` as hidden (the states that also leave the tab order) and deliberately not opacity: an `opacity-0` element stays tabbable in browsers, and the package's own reveal-on-focus buttons rely on that. Where `checkVisibility` is missing, the `offsetParent` fallback misreports fixed-position descendants as hidden; it is all older engines offer.
 - **Retry refocus targets the recovered children only.** `handleRetry` reads the fallback
-  root's neighbours, commits the recovery with `flushSync`, and focuses the first
-  `FOCUSABLE_SELECTOR` match inside the nodes now standing between those neighbours (issue 152).
+  root's previous sibling and the set of its siblings, commits the recovery with `flushSync`,
+  and focuses the first `FOCUSABLE_SELECTOR` match inside the nodes now standing after that
+  previous sibling and before the first sibling that outlived the swap (issue 152).
   A set difference of the container's children would miss the host node React reuses when the
   recovered content is rooted in a `<div>` like the fallback. The happy-path DOM gains no
   wrapper, and - unlike `useFocusGroups`' transient `tabindex="-1"` - the boundary writes
@@ -133,10 +135,12 @@ string survives in `src/`
   stays on `body` until issue 199 decides otherwise, and an `autoFocus` element among the
   recovered children keeps the focus it took during the commit. A child that throws again
   lands focus on the freshly rendered retry button, since the new fallback stands in the same
-  range. Known limitation: the range is bounded by the fallback's former siblings, so a consumer
-  that unmounts one of them in the same commit as the retry (a banner shown only while errored)
-  shortens or empties the range; no test pins that shape. A custom `fallback` drives its own
-  recovery and is untouched.
+  range. A sibling after the boundary that unmounts in the same commit cannot extend the range
+  past the boundary: the walk stops at the next surviving sibling or the container's end. Known
+  limitation: the range starts at the fallback's former previous sibling, so a consumer that
+  unmounts that one node in the same commit as the retry (a banner shown only while errored,
+  placed directly before the boundary) empties the range and no focus moves; no test pins that
+  shape. A custom `fallback` drives its own recovery and is untouched.
 - **jsdom limits.** jsdom reports `offsetParent: null` for everything (stubbed in the focus
   tests) and performs no real focus traversal; these tests pin the handler contract and DOM
   effects. Verification against a real assistive technology is issue 071's job. A `storage`
