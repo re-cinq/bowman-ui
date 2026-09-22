@@ -9,7 +9,7 @@
 reasoning - shipped as `src/components/ThinkingTrace.tsx` (`ThinkingTrace`,
 `ThinkingTraceProps`, `ThinkingTraceLabels`, `defaultThinkingTraceLabels`) and
 exported from `src/index.ts`
-([validated by](../../tests/ThinkingTrace.test.tsx#L179)). It is the fourth and
+([validated by the barrel exports ThinkingTrace and its labels but never ThinkingDots](../../tests/ThinkingTrace.test.tsx#L179)). It is the fourth and
 last of HAL's entry roles to get a renderer: `086` widened the message list to
 three roles and left a `@ts-expect-error` pinning the fourth as rejected, and
 this issue deletes it. HAL produces these entries by parsing literal
@@ -20,7 +20,7 @@ This is not `024`'s `ThinkingIndicator`, which renders no entry at all (an
 avatar, "Thinking", three fading dots, mounted while `busy` is true).
 `ThinkingTrace` renders a persisted entry's `content`. The two share the
 internal `ThinkingDots` component, imported and never re-exported
-([validated by](../../tests/ThinkingTrace.test.tsx#L179)).
+([validated by the barrel exports ThinkingTrace and its labels but never ThinkingDots](../../tests/ThinkingTrace.test.tsx#L179)).
 
 ## The public surface
 
@@ -28,8 +28,8 @@ internal `ThinkingDots` component, imported and never re-exported
 nothing else. `ThinkingTraceLabels` is one key, `thinkingTrace` (the
 `<summary>` text, `"Reasoning"`), with `defaultThinkingTraceLabels` frozen over
 the single English string, resolved per key by the convention's `resolveLabels`
-([validated by](../../tests/ThinkingTrace.test.tsx#L129),
-[L136](../../tests/ThinkingTrace.test.tsx#L136)).
+([validated by resolves an override over the English default](../../tests/ThinkingTrace.test.tsx#L129),
+[validated by defaultThinkingTraceLabels is frozen and holds exactly thinkingTrace: "Reasoning"](../../tests/ThinkingTrace.test.tsx#L136)).
 
 ## The decisions
 
@@ -40,11 +40,11 @@ the single English string, resolved per key by the convention's `resolveLabels`
    `isStreaming` value does, and the source assigns the attribute nowhere;
    the reader opens it - clicking the summary opens the section and a second
    click closes it again
-   ([validated by](../../tests/ThinkingTrace.test.tsx#L162),
-   [L33](../../tests/ThinkingTrace.test.tsx#L33),
-   [L42](../../tests/ThinkingTrace.test.tsx#L42),
-   [L60](../../tests/ThinkingTrace.test.tsx#L60),
-   [L95](../../tests/ThinkingTrace.test.tsx#L95),
+   ([validated by never sets the details element's open attribute](../../tests/ThinkingTrace.test.tsx#L162),
+   [validated by renders a closed details whose summary is exactly the Reasoning label](../../tests/ThinkingTrace.test.tsx#L33),
+   [validated by keeps every word of the content out of the summary](../../tests/ThinkingTrace.test.tsx#L42),
+   [validated by reveals the full content string as whitespace-pre-wrap text](../../tests/ThinkingTrace.test.tsx#L60),
+   [validated by true puts the three fading dots inside the summary without opening the section](../../tests/ThinkingTrace.test.tsx#L95),
    [resting](../../tests/ThinkingTrace.test.tsx#L105),
    [toggle](../../tests/ThinkingTrace.test.tsx#L52)).
 2. **Plain text, never markdown.** The content renders as `whitespace-pre-wrap`
@@ -54,26 +54,26 @@ the single English string, resolved per key by the convention's `resolveLabels`
    `react-markdown` or `remark-`. HAL's parser escapes nothing and nobody
    reviews the shape of this text the way an assistant answer is reviewed, so
    interpreting it would be the library choosing to trust unreviewed model
-   output ([validated by](../../tests/ThinkingTrace.test.tsx#L76),
-   [L145](../../tests/ThinkingTrace.test.tsx#L145)).
+   output ([validated by renders markdown and HTML payloads as inert literal text](../../tests/ThinkingTrace.test.tsx#L76),
+   [validated by references no dangerouslySetInnerHTML, react-markdown or remark-](../../tests/ThinkingTrace.test.tsx#L145)).
 3. **The dots mark streaming, inside the summary.** While `entry.isStreaming`
    is true, `ThinkingDots` renders in the `<summary>` next to the label; with
    it false no dot is in the document
-   ([validated by](../../tests/ThinkingTrace.test.tsx#L105),
-   [L95](../../tests/ThinkingTrace.test.tsx#L95)).
+   ([validated by false renders no dots and leaves the section closed](../../tests/ThinkingTrace.test.tsx#L105),
+   [validated by true puts the three fading dots inside the summary without opening the section](../../tests/ThinkingTrace.test.tsx#L95)).
 4. **`reducedMotion` goes through `021`'s hook.** The prop is forwarded to
    `useReducedMotion`, never to a `matchMedia` read of the component's own;
    true strips the `bowman-fade-dot` animation class from the three dots and
    false keeps the class with `024`'s staggered delays. `ThinkingDots` gains
    an optional `reducedMotion` prop for this, defaulting false, so the two
    indicators' markup is unchanged
-   ([validated by](../../tests/ThinkingTrace.test.tsx#L149),
-   [L114](../../tests/ThinkingTrace.test.tsx#L114),
-   [L121](../../tests/ThinkingTrace.test.tsx#L121)).
+   ([validated by imports useReducedMotion instead of reading matchMedia itself](../../tests/ThinkingTrace.test.tsx#L149),
+   [validated by true keeps the three dots but strips the bowman-fade-dot animation class](../../tests/ThinkingTrace.test.tsx#L114),
+   [validated by false keeps the animation class and the staggered delays](../../tests/ThinkingTrace.test.tsx#L121)).
 5. **It is not a message.** `ThinkingTraceProps` declares none of `onCopy`,
    `onFeedback`, `showFeedback` or `assistantAvatar` - internal deliberation
    is not an answer to copy or rate
-   ([validated by](../../tests/ThinkingTrace.test.tsx#L154)).
+   ([validated by declares none of onCopy, onFeedback, showFeedback or assistantAvatar](../../tests/ThinkingTrace.test.tsx#L154)).
 
 ## In the message list
 
@@ -87,13 +87,13 @@ compiled by
 `showThinking` gates the mount, not the visibility, and defaults `false`: with
 the flag absent, `[user, thinking, assistant]` renders no `<details>` and none
 of the thinking content while the user and assistant entries render unchanged
-([validated by](../../tests/ChatMessageList.test.tsx#L1095),
-[L1085](../../tests/ChatMessageList.test.tsx#L1085)). With it true the same
+([validated by showThinking absent leaves the user and assistant entries untouched](../../tests/ChatMessageList.test.tsx#L1095),
+[validated by showThinking absent renders no details and none of the thinking content](../../tests/ChatMessageList.test.tsx#L1085)). With it true the same
 array renders exactly one collapsed `ThinkingTrace` between them.
 `reducedMotion` forwards to the trace, as does the resolved `thinkingTrace`
-label ([validated by](../../tests/ChatMessageList.test.tsx#L1153),
-[L1107](../../tests/ChatMessageList.test.tsx#L1107),
-[L1138](../../tests/ChatMessageList.test.tsx#L1138)).
+label ([validated by forwards the resolved thinkingTrace label so a Danish catalogue reaches the trace](../../tests/ChatMessageList.test.tsx#L1153),
+[validated by showThinking true renders one collapsed trace between the two messages](../../tests/ChatMessageList.test.tsx#L1107),
+[validated by forwards reducedMotion, stripping the streaming dots' animation class](../../tests/ChatMessageList.test.tsx#L1138)).
 
 `ChatMessageListLabels` gains `thinkingTrace` as a defaulted key, colliding
 with no key of `ChatMessageLabels`, `ThinkingIndicatorLabels` (`thinking`,
@@ -106,7 +106,7 @@ key.
 A reasoning trace is not a disclosure and does not substitute for one: a list
 holding a single thinking entry with `showThinking` true still renders the
 `aiDisclosure` band
-([validated by](../../tests/ChatMessageList.test.tsx#L1125)).
+([validated by a list holding a single thinking entry with showThinking still renders the aiDisclosure band](../../tests/ChatMessageList.test.tsx#L1125)).
 
 ## GDPR
 
@@ -119,8 +119,8 @@ checks before turning it on. The reasoning is recorded in docs/design-notes.md
 Zero retention holds as elsewhere: `ThinkingTrace.tsx` makes no `console` call
 and touches no `localStorage`, `sessionStorage` or `IndexedDB`, and rendering
 the fixture entry expanded leaves `localStorage.length` at `0`
-([validated by](../../tests/ThinkingTrace.test.tsx#L168),
-[L158](../../tests/ThinkingTrace.test.tsx#L158)).
+([validated by writes nothing to localStorage when the fixture entry is rendered expanded](../../tests/ThinkingTrace.test.tsx#L168),
+[validated by makes no console call and touches no client storage](../../tests/ThinkingTrace.test.tsx#L158)).
 
 ## The suppression-path gap (hal-engine, not fixed here)
 
@@ -152,7 +152,7 @@ finding that `processToolUseChunk` ignores suppression outright.
 
 `ThinkingTrace` sits in the `labelsProp` bucket with its own sentinel harness,
 and its sentinel labels cover every `defaultThinkingTraceLabels` key
-([validated by](../../tests/labelled-exports.test.tsx#L579),
+([validated by ThinkingTrace's sentinel labels cover every defaultThinkingTraceLabels key](../../tests/labelled-exports.test.tsx#L579),
 [L82](../../tests/labelled-exports.test.tsx#L82),
 [L416](../../tests/labelled-exports.test.tsx#L416)).
 

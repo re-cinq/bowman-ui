@@ -53,8 +53,8 @@ consequence is documented instead: with `duration={null}` and no close
 button, dismissal is entirely the consumer unmounting the element, and a
 toast a consumer forgets to unmount occupies the
 `fixed bottom-8 left-1/2 z-50` overlay for the life of the page
-([validated by](../../tests/Toast.test.tsx#L138),
-[L89](../../tests/Toast.test.tsx#L89)).
+([validated by duration={null} calls onClose zero times after 60000ms and never invokes setTimeout](../../tests/Toast.test.tsx#L138),
+[validated by the visible pill carries bowman-toast-fade-in and the fixed bottom-8 left-1/2 z-50 -translate-x-1/2 positioning, and is not the live region](../../tests/Toast.test.tsx#L89)).
 
 ## What deliberately did not change
 
@@ -62,10 +62,10 @@ toast a consumer forgets to unmount occupies the
   acceptance criteria assert the PR's `git diff --stat` touches no file
   there. `ToastProps` remains `message`, `onClose`, `duration`; `Toast`
   remains in the `stringPropOnly` list; the partition test passes
-  unchanged ([validated by](../../tests/labelled-exports.test.tsx#L158)).
+  unchanged ([validated by labelsProp, stringPropOnly and noStrings together are exactly src/index.ts's value exports](../../tests/labelled-exports.test.tsx#L158)).
 - The 2000ms default: 015's characterization suite pins it (uncalled at
   1999ms, called once at 2000ms) and removing it is not this issue's call
-  ([validated by](../../tests/Toast.test.tsx#L51)).
+  ([validated by with no duration prop, onClose is uncalled at 1999ms and called once at 2000ms](../../tests/Toast.test.tsx#L51)).
 - 044's two call sites still omit `duration`: making them actually pass
   `duration={null}` is 098's work, in the support agent repo.
 
