@@ -1,6 +1,6 @@
-import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
+import { expectTypeAssertionsCompile } from "../helpers/built-package.js";
 
 import type {
   AssistantChatEntry,
@@ -73,26 +73,7 @@ const droppedFields = (entry: FixtureEntry, mapped: ChatEntry): string[] =>
 
 describe("type-level assertions", () => {
   it("tsc accepts chat-type-assertions.ts, proving a fifth role and a streamless assistant entry fail to typecheck", () => {
-    const result = spawnSync(
-      "node",
-      [
-        "node_modules/typescript7/bin/tsc",
-        "--ignoreConfig",
-        "--noEmit",
-        "--strict",
-        "--target",
-        "es2022",
-        "--module",
-        "nodenext",
-        "--moduleResolution",
-        "nodenext",
-        "--skipLibCheck",
-        "tests/types/chat-type-assertions.ts",
-      ],
-      { cwd: process.cwd(), encoding: "utf8" }
-    );
-
-    expect(result).toMatchObject({ status: 0, stderr: "" });
+    expectTypeAssertionsCompile("tests/types/chat-type-assertions.ts");
   });
 });
 

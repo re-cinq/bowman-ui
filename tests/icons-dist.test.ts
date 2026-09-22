@@ -1,9 +1,8 @@
-import { spawnSync } from "node:child_process";
 import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { rolldown } from "rolldown";
-import { packedPaths } from "./helpers/built-package.js";
+import { expectTypeAssertionsCompile, packedPaths } from "./helpers/built-package.js";
 
 // The tree-shaking guarantee lives in the bundle, not in the module: a
 // consumer that imports one icon must not ship the other 21. sideEffects only
@@ -50,28 +49,7 @@ describe("the built icon surface tree-shakes to the imported icons", () => {
 
 describe("the built icon surface", () => {
   it("tsc accepts icon-type-assertions.tsx against dist via the '.' exports entry", () => {
-    const result = spawnSync(
-      "node",
-      [
-        "node_modules/typescript7/bin/tsc",
-        "--ignoreConfig",
-        "--noEmit",
-        "--strict",
-        "--target",
-        "es2022",
-        "--module",
-        "nodenext",
-        "--moduleResolution",
-        "nodenext",
-        "--skipLibCheck",
-        "--jsx",
-        "react-jsx",
-        "tests/types/icon-type-assertions.tsx",
-      ],
-      { cwd: process.cwd(), encoding: "utf8" }
-    );
-
-    expect(result).toMatchObject({ status: 0, stderr: "" });
+    expectTypeAssertionsCompile("tests/types/icon-type-assertions.tsx");
   });
 
   it("npm pack --dry-run ships dist/icons/Icon and dist/icons/index with their d.ts files", () => {
