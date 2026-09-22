@@ -146,6 +146,26 @@ describe("AppShell", () => {
 
       expect(getDrawer()).toHaveClass("-translate-x-full");
     });
+
+    it('calling close() from the "desktop" slot context while closed re-reports false and leaves the drawer closed', () => {
+      const onOpenChange = vi.fn();
+      const closeButton = ({ variant, close }: SidebarSlotContext) => (
+        <button data-testid={`close-${variant}`} onClick={close}>
+          close 4711
+        </button>
+      );
+
+      render(
+        <AppShell onMobileSidebarOpenChange={onOpenChange} renderSidebar={closeButton}>
+          content
+        </AppShell>
+      );
+
+      fireEvent.click(screen.getByTestId("close-desktop"));
+
+      expect(onOpenChange).toHaveBeenCalledExactlyOnceWith(false);
+      expect(getDrawer()).toHaveAttribute("inert");
+    });
   });
 
   describe("controlled open state", () => {
@@ -250,7 +270,7 @@ describe("AppShell", () => {
   });
 
   describe("focus management", () => {
-    // Shared with tests/useFocusTrap.test.tsx - removing it makes the three assertions below fail.
+    // Shared with tests/useFocusTrap.test.tsx - removing it makes two of the four tests below fail.
     stubFocusEnvironment();
 
     it("opening the drawer moves focus to the close button", () => {
