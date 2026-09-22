@@ -5,7 +5,7 @@ import { runScript } from "./helpers/script-runner.js";
 // Issue 140: tests were never compiled by tsc - the root config includes src/
 // only and vitest transpiles without checking. The second config closes that
 // gap; the script must keep invoking both with the typescript7 binary.
-const root = process.cwd();
+const root = process.cwd().replace(/\\/g, "/");
 const scripts = (
   JSON.parse(readFileSync(resolve(root, "package.json"), "utf8")) as {
     scripts: Record<string, string>;
@@ -14,6 +14,7 @@ const scripts = (
 
 const testFilesOnDisk = (): string[] =>
   readdirSync(resolve(root, "tests"), { recursive: true, encoding: "utf8" })
+    .map((name) => name.replace(/\\/g, "/"))
     .filter((name) => /\.test\.tsx?$/.test(name) && !name.startsWith("fixtures/"))
     .map((name) => `tests/${name}`)
     .sort();
