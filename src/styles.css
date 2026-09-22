@@ -37,6 +37,10 @@
 /* --bowman-danger-dark: var(--color-red-400) - the same danger text (dark) */
 /* --bowman-danger-soft: var(--color-red-100) - selected thumbs-down chip and error-icon circle background (light) */
 /* --bowman-danger-soft-dark: rgba(127, 29, 29, 0.3) - the same danger surfaces (dark) */
+/* --bowman-success: var(--color-green-600) - copied check mark and selected thumbs-up text (light) */
+/* --bowman-success-dark: var(--color-green-400) - the same success text (dark) */
+/* --bowman-success-soft: var(--color-green-100) - selected thumbs-up fill (light) */
+/* --bowman-success-soft-dark: rgba(20,83,45,0.3) - the same fill (dark) */
 
 @keyframes bowman-fade-in {
   from {

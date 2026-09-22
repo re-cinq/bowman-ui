@@ -16,6 +16,8 @@ import {
   expectDanger,
   expectDangerSoft,
   expectFocusRing,
+  expectSuccess,
+  expectSuccessSoft,
   expectTextSecondary,
   expectTextSecondaryHover,
   expectTextStrong,
@@ -522,6 +524,22 @@ describe("ChatMessage", () => {
         expectTextSubtle(control);
         expectTextSecondaryHover(control);
       }
+    });
+
+    it("the copied check and the selected thumbs-up read the success role, retiring the green literals", () => {
+      render(
+        <ChatMessage entry={makeEntry()} userInitials="LM" onFeedback={vi.fn()} onCopy={vi.fn()} />
+      );
+
+      fireEvent.click(screen.getByRole("button", { name: "Copy message" }));
+      expectSuccess(screen.getByRole("button", { name: "Copied" }).querySelector("svg"));
+
+      fireEvent.click(screen.getByRole("button", { name: "Good response" }));
+
+      const thumbsUp = screen.getByRole("button", { name: "Good response" });
+
+      expectSuccess(thumbsUp);
+      expectSuccessSoft(thumbsUp);
     });
   });
 

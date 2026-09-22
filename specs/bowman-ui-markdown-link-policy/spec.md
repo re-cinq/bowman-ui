@@ -117,14 +117,14 @@ result stays assignable to `react-markdown`'s `Components`
 `ChatMessage` merges its `markdown` prop over `defaultMarkdownPolicy` (via
 `resolveLabels`, so an explicit `undefined` field cannot clobber a default)
 and passes the factory's map plus `createUrlTransform`'s result to
-`ReactMarkdown` ([validated by](../../tests/ChatMessage.test.tsx#L740),
-[L769](../../tests/ChatMessage.test.tsx#L769),
-[L781](../../tests/ChatMessage.test.tsx#L781)). A rejected link renders as a
-span ([validated by](../../tests/ChatMessage.test.tsx#L756)). An image
+`ReactMarkdown` ([validated by](../../tests/ChatMessage.test.tsx#L758),
+[L787](../../tests/ChatMessage.test.tsx#L787),
+[L799](../../tests/ChatMessage.test.tsx#L799)). A rejected link renders as a
+span ([validated by](../../tests/ChatMessage.test.tsx#L774)). An image
 renders as alt text
-([validated by](../../tests/ChatMessage.test.tsx#L806)). The
+([validated by](../../tests/ChatMessage.test.tsx#L824)). The
 `linkOpensInNewTab` override reaches the notice
-([validated by](../../tests/ChatMessage.test.tsx#L794)).
+([validated by](../../tests/ChatMessage.test.tsx#L812)).
 
 ## Recorded decisions, interpretations and deviations
 
@@ -133,7 +133,7 @@ renders as alt text
   criterion, the "merged over `defaultMarkdownPolicy`" wording and the
   one-line `http` opt-in all require field-level merging - so the fields
   carry `?` and the prop stays the issue's literal `markdown?: MarkdownPolicy`
-  ([validated by](../../tests/ChatMessage.test.tsx#L769)).
+  ([validated by](../../tests/ChatMessage.test.tsx#L787)).
 - **The transform never decodes.** `java&#x09;script:` reaches the transform
   percent-encoded as `java%09script:`; comparing the raw scheme keeps the
   bypass closed, and a later `decodeURIComponent` "cleanup" would reopen it
