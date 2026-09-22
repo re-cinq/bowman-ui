@@ -1,7 +1,18 @@
+# Deviations from the onboarding template, kept on regeneration (issue 137):
+# push runs on main only (pull_request already covers every branch); the fetch
+# step skips with a warning when no LORE_INGEST_URL is configured (a fork's
+# pull request carries no secrets, and `secrets` cannot be read from an `if:`);
+# the binary is checked against LORE_CODE_TRACE_SHA256 below instead of the
+# checksums.txt served beside it. A mismatch never runs the binary: it warns on
+# a pull request and fails on main. To bump the pin, download both
+# /dist/lore-code-trace/linux-amd64 and /dist/lore-code-trace/checksums.txt
+# from the ingest origin, confirm `sha256sum -c checksums.txt` agrees with an
+# independent download, then paste the linux-amd64 digest.
 name: Lore Test Report
 
 on:
   push:
+    branches: [main]
   pull_request:
 
 permissions:
@@ -15,22 +26,39 @@ jobs:
         with:
           persist-credentials: false
 
-      - uses: ./.github/actions/setup-node-install
-
-      - name: Install Playwright (Chromium, with OS deps)
-        run: npx playwright install --with-deps chromium
-
       - name: Fetch lore-code-trace
+        id: fetch
+        shell: bash
         env:
           LORE_INGEST_URL: ${{ secrets.LORE_INGEST_URL || vars.LORE_INGEST_URL }}
+          LORE_CODE_TRACE_SHA256: 239ebb7ddc7bccbfd4cae1f9a3c5be272a808ab9eecb62cc3c10880391597468
         run: |
-          curl -fsSL "${LORE_INGEST_URL}/dist/lore-code-trace/linux-amd64" -o linux-amd64
-          curl -fsSL "${LORE_INGEST_URL}/dist/lore-code-trace/checksums.txt" -o lore-code-trace-checksums.txt
-          sha256sum --ignore-missing -c lore-code-trace-checksums.txt
-          mv linux-amd64 lore-code-trace
+          if [ -z "${LORE_INGEST_URL}" ]; then
+            echo "::warning::LORE_INGEST_URL is not configured - Lore test ingest skipped"
+            exit 0
+          fi
+          if ! curl -fsSL "${LORE_INGEST_URL}/dist/lore-code-trace/linux-amd64" -o lore-code-trace; then
+            echo "::warning::lore-code-trace could not be downloaded - Lore test ingest skipped"
+            exit 0
+          fi
+          ACTUAL_SHA256=$(sha256sum lore-code-trace | cut -d " " -f 1)
+          if [ "${ACTUAL_SHA256}" != "${LORE_CODE_TRACE_SHA256}" ]; then
+            echo "::error::lore-code-trace sha256 ${ACTUAL_SHA256} does not match the pinned LORE_CODE_TRACE_SHA256 - Lore test ingest skipped; verify the new binary and bump the pin"
+            [ "${GITHUB_EVENT_NAME}" = "pull_request" ] && exit 0
+            exit 1
+          fi
           chmod +x lore-code-trace
+          echo "fetched=true" >> "$GITHUB_OUTPUT"
+
+      - uses: ./.github/actions/setup-node-install
+        if: steps.fetch.outputs.fetched == 'true'
+
+      - name: Install Playwright (Chromium, with OS deps)
+        if: steps.fetch.outputs.fetched == 'true'
+        run: npx playwright install --with-deps chromium
 
       - name: Run and ingest test report
+        if: steps.fetch.outputs.fetched == 'true'
         env:
           LORE_WEBHOOK_URL: ${{ vars.LORE_WEBHOOK_URL }}
           LORE_INGEST_TOKEN: ${{ secrets.LORE_INGEST_TOKEN }}
