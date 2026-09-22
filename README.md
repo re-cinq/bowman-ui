@@ -24,7 +24,7 @@ Every version is published from this repository's CI with npm provenance, so `np
 
 ## Requirements
 
-- React and React DOM `^19.0.0` as peer dependencies. That range is what the components are tested against (React 19.2) - it is not a claim of React 18 support.
+- React and React DOM `^19.0.0` as peer dependencies. That range is what the components are tested against (React 19.3.0) - it is not a claim of React 18 support.
 - Node.js `>=20.9.0` to consume the package (its published `engines` floor). Developing this repo needs `>=22`, pinned in `.nvmrc` and CI.
 
 ## Styles

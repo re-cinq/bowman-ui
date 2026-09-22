@@ -36,7 +36,7 @@ test is always the tarball `npm pack` just produced
 are pinned at exactly `19.3.0`
 ([validated by](../../examples/chat-demo/package.json#L15)), the version
 docs/design-notes.md decision 4 records as the one CI installs and the only one tested
-([validated by](../../tests/react-version-consistency.test.ts#L42)).
+([validated by](../../tests/react-version-consistency.test.ts#L54)).
 
 The Tailwind dependency is `tailwindcss@4.3.3` with the matching
 `@tailwindcss/vite@4.3.3` Vite adapter
