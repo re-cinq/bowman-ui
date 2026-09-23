@@ -106,8 +106,8 @@ default ([validated by labels with only aiDisclosure resolves every other label 
    [append while pinned](../../tests/ChatMessageList.test.tsx#L637),
    [validated by a scroll event at 32px from the bottom stays pinned; one at 33px unpins](../../tests/ChatMessageList.test.tsx#L744),
    [validated by downward scroll events fired by an in-flight smooth scroll do not unpin; an upward one does](../../tests/ChatMessageList.test.tsx#L760),
-   [browser](../../examples/chat-demo/tests/chat-demo.spec.ts#L431),
-   [validated by a reader left at the bottom is still at the bottom when the reply commits](../../examples/chat-demo/tests/chat-demo.spec.ts#L468)).
+   [browser](../../examples/chat-demo/tests/chat-demo.spec.ts#L446),
+   [validated by a reader left at the bottom is still at the bottom when the reply commits](../../examples/chat-demo/tests/chat-demo.spec.ts#L483)).
 3. **Smooth on append, instant on delta, always instant under reduced
    motion.** `behavior: "smooth"` when `entries.length` grew, `"auto"` when
    only content changed, and `useReducedMotion(reducedMotion)` (021's hook)

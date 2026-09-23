@@ -59,6 +59,10 @@ export interface ChatComposerHandle {
   setValue(value: string): void;
 }
 
+// Shift or Alt with Enter asks for a newline; Ctrl and Meta with Enter send, like plain Enter.
+const isNewlineChord = (event: KeyboardEvent<HTMLTextAreaElement>): boolean =>
+  event.shiftKey || event.altKey;
+
 // Uncontrolled draft (outside writes use the ref handle); the isComposing guard keeps an IME commit from sending.
 export const ChatComposer = forwardRef<ChatComposerHandle, ChatComposerProps>(function ChatComposer(
   {
@@ -106,7 +110,7 @@ export const ChatComposer = forwardRef<ChatComposerHandle, ChatComposerProps>(fu
   };
 
   const handleKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
-    if (event.key !== "Enter" || event.shiftKey || event.nativeEvent.isComposing) {
+    if (event.key !== "Enter" || isNewlineChord(event) || event.nativeEvent.isComposing) {
       return;
     }
     event.preventDefault();
