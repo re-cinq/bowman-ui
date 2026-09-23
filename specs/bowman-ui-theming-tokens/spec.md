@@ -68,18 +68,18 @@ value ([validated by no built component carries a --bowman- literal; the class s
 
 - `ChatComposer`'s send button reads `--bowman-accent` for its background and
   `--bowman-accent-hover` on hover, light and dark
-  ([validated by the send button reads --bowman-accent for its background and --bowman-accent-hover on hover, light and dark](../../tests/ChatComposer.test.tsx#L260)).
+  ([validated by the send button reads --bowman-accent for its background and --bowman-accent-hover on hover, light and dark](../../tests/ChatComposer.test.tsx#L280)).
 - `ChatComposer`'s send button and the primary `Button`/`IconButton` variant paint their text
   with `--bowman-text-on-accent`, one `white` value in both modes, so a consumer with a pale
-  accent can darken it ([validated by the send button reads --bowman-text-on-accent for its text, one value in both modes](../../tests/ChatComposer.test.tsx#L278),
+  accent can darken it ([validated by the send button reads --bowman-text-on-accent for its text, one value in both modes](../../tests/ChatComposer.test.tsx#L298),
   [primary](../../tests/Button.test.tsx#L96), [icon](../../tests/IconButton.test.tsx#L96)).
 - `ChatComposer`'s disabled send button reads `--bowman-text-subtle` for its text and
   `--bowman-active` for its background under a `disabled:` prefix, light and dark - two existing
   roles, no role of its own (docs/design-notes.md decision 6, issue 106)
-  ([validated by the disabled send button reads --bowman-text-subtle for its text and --bowman-active for its background, light and dark](../../tests/ChatComposer.test.tsx#L296)).
+  ([validated by the disabled send button reads --bowman-text-subtle for its text and --bowman-active for its background, light and dark](../../tests/ChatComposer.test.tsx#L316)).
 - `ChatComposer`'s wrapper keeps `focus-within:ring-2` beside the `--bowman-focus-ring` ring
   at `/50` and the `--bowman-accent-glow` shadow, light and dark
-  ([validated by the wrapper keeps focus-within:ring-2 beside the --bowman-focus-ring /50 ring and the --bowman-accent-glow shadow](../../tests/ChatComposer.test.tsx#L284)).
+  ([validated by the wrapper keeps focus-within:ring-2 beside the --bowman-focus-ring /50 ring and the --bowman-accent-glow shadow](../../tests/ChatComposer.test.tsx#L304)).
 - `ChatMessage`'s streaming avatar circle reads `--bowman-accent-border` and
   `--bowman-accent-soft`, light and dark
   ([validated by while isStreaming the circle reads --bowman-accent-border and --bowman-accent-soft, light and dark](../../tests/ChatMessage.test.tsx#L494)).
@@ -205,7 +205,7 @@ because a `/30` alpha modifier cannot ride a token.
 - The ring width, offset and outline classes - `focus:ring-2`, `ring-offset-2`,
   `focus:outline-none` - render at every site untouched beside the colour tokens; at the offset-ring
   sites the outline and width ride in `FOCUS_RING` (`src/theme/focusRing.ts`, issue 155) with
-  `ring-offset-2` left in place ([validated by the wrapper keeps focus-within:ring-2 beside the --bowman-focus-ring /50 ring and the --bowman-accent-glow shadow](../../tests/ChatComposer.test.tsx#L284),
+  `ring-offset-2` left in place ([validated by the wrapper keeps focus-within:ring-2 beside the --bowman-focus-ring /50 ring and the --bowman-accent-glow shadow](../../tests/ChatComposer.test.tsx#L304),
   [validated by every variant keeps focus:ring-2 ring-offset-2 beside the --bowman-focus-ring and --bowman-ring-offset colours and carries the disabled pair](../../tests/Button.test.tsx#L120), [validated by a chip keeps focus:ring-2 ring-offset-2 focus:outline-none beside the --bowman-focus-ring and --bowman-ring-offset colours](../../tests/PromptChips.test.tsx#L134),
   [validated by `dist/theme/focusRing.js composes FOCUS_RING from the tokens module's ring colour and offset, and exactly the five offset-ring components import it`](../../tests/theming-tokens-dist.test.ts#L312)).
 - Every neutral site that matches a role pair on one side only keeps its palette classes on
@@ -235,7 +235,7 @@ it without the package choosing; the package adds no media query and no selector
    Tailwind cannot pre-mix a `var()`. That branch is unreachable on Tailwind v4's own browser
    floor - Safari 16.4, Chrome 111 and Firefox 128 all support `color-mix()` - so the
    byte-for-byte claim holds on every supported engine
-   ([validated by the wrapper keeps focus-within:ring-2 beside the --bowman-focus-ring /50 ring and the --bowman-accent-glow shadow](../../tests/ChatComposer.test.tsx#L284)).
+   ([validated by the wrapper keeps focus-within:ring-2 beside the --bowman-focus-ring /50 ring and the --bowman-accent-glow shadow](../../tests/ChatComposer.test.tsx#L304)).
 2. **The active row's backgrounds have their own pair; its label rides the strong text
    role.** `--bowman-active` and `--bowman-active-dark` colour the surface. As first recorded
    the label colours stayed palette-mapped. **Amended by 146:** issue 102 moved the sidebar
@@ -367,5 +367,5 @@ asserted ([validated by the send button and the active row take the wrapper's to
 are the other nineteen `-dark` tokens and the light ones no test reads, among them
 `--bowman-accent-hover` and `--bowman-pulse-outline` - Playwright never hovers a control -
 which the jsdom class-string tests above pin alone
-([validated by the send button reads --bowman-accent for its background and --bowman-accent-hover on hover, light and dark](../../tests/ChatComposer.test.tsx#L260),
+([validated by the send button reads --bowman-accent for its background and --bowman-accent-hover on hover, light and dark](../../tests/ChatComposer.test.tsx#L280),
 [L71](../../tests/styles.test.ts#L71), [validated by while isStreaming the circle reads --bowman-accent-border and --bowman-accent-soft, light and dark](../../tests/ChatMessage.test.tsx#L494)).
