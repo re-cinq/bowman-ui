@@ -21,8 +21,9 @@ and no `value=` or `onValueChange` prop
 through `ChatComposerHandle` (`focus()`, `setValue()`) via
 `forwardRef` + `useImperativeHandle`, covering the only two outside
 writes a consumer needs: clear-on-send and a text-injection helper
-([validated by](../../tests/ChatComposer.test.tsx#L244),
-[L277](../../tests/ChatComposer.test.tsx#L277)).
+([validated by](../../tests/ChatComposer.test.tsx#L257),
+[L290](../../tests/ChatComposer.test.tsx#L290),
+[validated by ChatComposer is a forwardRef<ChatComposerHandle, ChatComposerProps> component - never ref-as-prop](../../tests/ChatComposer.test.tsx#L486)).
 
 **Note - first `useImperativeHandle` in the repo.** 018 Decision 4's idiom is
 `forwardRef` (preserved here); `useImperativeHandle` itself has no prior use
@@ -77,7 +78,7 @@ and never remounts, so its value and the enabled send button return once
 The wrapper also carries `aria-busy`: `"true"` while `busy`, `"false"` when
 idle and when merely `disabled`, so assistive technology hears the pulse the
 sighted reader sees
-([validated by busy disables the textarea and the send button, Enter calls onSubmit zero times, and the wrapper pulses](../../tests/ChatComposer.test.tsx#L163)).
+([validated by busy disables the textarea and the send button, Enter calls onSubmit zero times, and the wrapper pulses](../../tests/ChatComposer.test.tsx#L168)).
 
 **Note - pulse class.** The wrapper carries `bowman-pulse-subtle`, not the
 issue text's `animate-pulse-subtle`: 019 renamed every package animation
@@ -92,9 +93,9 @@ blank write keeps send disabled; a
 handle retained past unmount is a no-op. `focus()` makes the
 textarea `document.activeElement`; `autoFocus` does
 the same on mount and defaults to false
-([validated by](../../tests/ChatComposer.test.tsx#L277),
+([validated by](../../tests/ChatComposer.test.tsx#L290),
 [validated by autoFocus focuses the textarea on mount, and its default is false](../../tests/ChatComposer.test.tsx#L300),
-[L244](../../tests/ChatComposer.test.tsx#L244),
+[L257](../../tests/ChatComposer.test.tsx#L257),
 [validated by setValue with a blank string leaves the send button disabled](../../tests/ChatComposer.test.tsx#L270),
 [validated by setValue on a handle retained past unmount is a no-op, not a crash](../../tests/ChatComposer.test.tsx#L280)).
 
@@ -149,7 +150,7 @@ Three flat keys per 022 Decision 2: `composerInput` (the textarea's
 `composerInput` while showing the `composerPlaceholder`; the send button's
 accessible name is the resolved `send` label with its `SendIcon`
 `aria-hidden` per 020's `getAccessibleIconProps` contract
-([validated by the textarea's accessible name is the resolved composerInput label, distinct from the "Responder..." placeholder](../../tests/ChatComposer.test.tsx#L377), defaults
+([validated by the textarea's accessible name is the resolved composerInput label, distinct from the "Responder..." placeholder](../../tests/ChatComposer.test.tsx#L378), defaults
 [validated by the defaults name the textarea "Your message" with placeholder "Reply..."](../../tests/ChatComposer.test.tsx#L391),
 [validated by the send button's accessible name is the resolved send label and its SendIcon is aria-hidden](../../tests/ChatComposer.test.tsx#L400)).
 
@@ -177,6 +178,10 @@ The send button paints its glyph with `--bowman-text-on-accent`, a single `white
 modes, so a consumer who sets a pale `--bowman-accent` can darken the icon to keep it legible;
 the rest of the composer's palette is covered by `specs/bowman-ui-theming-tokens/spec.md`
 ([validated by the send button reads --bowman-text-on-accent for its text, one value in both modes](../../tests/ChatComposer.test.tsx#L229)).
+Disabled - no draft, `busy` or `disabled` - the button reads `--bowman-text-subtle` for its
+glyph and `--bowman-active` for its surface under a `disabled:` prefix, two existing roles and
+none of its own
+([validated by the disabled send button reads --bowman-text-subtle for its text and --bowman-active for its background, light and dark](../../tests/ChatComposer.test.tsx#L247)).
 
 ## GDPR
 

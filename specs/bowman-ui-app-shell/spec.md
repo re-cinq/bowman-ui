@@ -49,8 +49,8 @@ slot idiom as `ConversationList`'s `renderLink`. `close` is handed to
 both variants, not just the drawer: from the desktop rail it re-reports the
 already-closed state - `onMobileSidebarOpenChange` receives `false` once and
 the drawer stays `inert` - which keeps one shared `renderSidebar` safe to wire
-to either position ([validated by](../../tests/AppShell.test.tsx#L131),
-[desktop](../../tests/AppShell.test.tsx#L150)).
+to either position ([validated by](../../tests/AppShell.test.tsx#L135),
+[desktop](../../tests/AppShell.test.tsx#L154)).
 
 `brand` renders inside the mobile header row with the centring spacer;
 omitted, the header shows the hamburger and no spacer, and the component
@@ -65,6 +65,12 @@ colour ([validated by the mobile header row carries the body text token, so a pl
 The drawer close-button row owns its text colour the same way: it reads
 `--bowman-text-body`, so plain-string content the shell lays out in the drawer
 reads on the dark surface ([validated by the drawer close-button row carries the body text token, so plain-string drawer content reads on the dark surface](../../tests/AppShell.test.tsx#L531)).
+
+The two wrappers around `renderSidebar` output - the desktop rail and the mobile
+drawer container - read `--bowman-text-body` as well, so content a consumer
+returns directly from `renderSidebar` reads on the dark surface instead of
+inheriting the page colour (docs/design-notes.md § Theming decision 6, issue 109)
+([validated by the desktop rail and the mobile drawer wrappers carry the body text token, so plain-string renderSidebar content reads on the dark surface](../../tests/AppShell.test.tsx#L548)).
 
 The main region reads `--bowman-text-body` on the element that wraps
 `children`, so a plain string reads on the dark surface instead of inheriting
@@ -84,7 +90,7 @@ and the `"mobile"` slot's `close()` each return it to closed
 ([validated by clicking the openSidebar button puts the drawer in the open state and the closeSidebar button returns it to closed](../../tests/AppShell.test.tsx#L100),
 [validated by pressing Escape closes the open drawer](../../tests/AppShell.test.tsx#L117),
 [validated by clicking the backdrop closes the open drawer](../../tests/AppShell.test.tsx#L126),
-[L131](../../tests/AppShell.test.tsx#L131)).
+[L135](../../tests/AppShell.test.tsx#L135)).
 
 Controlled: with `mobileSidebarOpen={false}`, clicking the hamburger calls
 `onMobileSidebarOpenChange` once with `true` and the drawer stays closed;
@@ -169,13 +175,13 @@ is `0s`, against `0.3s` without the emulation (issue 151)
 The suite stubs nothing: the rail, drawer and header are asserted as real
 DOM, and the deliberate decisions below are each pinned by a test.
 
-| #   | Decision                                                                                                                                                                                                                                                                                                         | Reason                                                                                    |
-| --- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
-| a   | Children render in `<main id="main-content">`, and `mainContentId` makes the id a prop ([validated by `renders children inside <main id="main-content"> by default`](../../tests/AppShell.test.tsx#L28))                                                                                                         | The landing region stays addressable for skip links without hardcoding the id             |
-| b   | The `renderSidebar` slot is called twice (rail and drawer) while the shell owns the header and drawer chrome ([validated by renderSidebar is called exactly twice per render, once with variant "desktop" and once with "mobile", and both trees are in the document](../../tests/AppShell.test.tsx#L78))        | The slot is the dependency boundary; the shell ships without auth, i18n or router imports |
+| #   | Decision                                                                                                                                                                                                                                                                                                          | Reason                                                                                    |
+| --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| a   | Children render in `<main id="main-content">`, and `mainContentId` makes the id a prop ([validated by `renders children inside <main id="main-content"> by default`](../../tests/AppShell.test.tsx#L28))                                                                                                          | The landing region stays addressable for skip links without hardcoding the id             |
+| b   | The `renderSidebar` slot is called twice (rail and drawer) while the shell owns the header and drawer chrome ([validated by renderSidebar is called exactly twice per render, once with variant "desktop" and once with "mobile", and both trees are in the document](../../tests/AppShell.test.tsx#L78))         | The slot is the dependency boundary; the shell ships without auth, i18n or router imports |
 | c   | The drawer's open/close cycle is asserted on observable DOM state (`translate-x-0`/`inert`) through the menu-click / close-click sequence ([validated by clicking the openSidebar button puts the drawer in the open state and the closeSidebar button returns it to closed](../../tests/AppShell.test.tsx#L100)) | Real DOM state, not a stub attribute, is what a consumer's user experiences               |
-| d   | The closed drawer carries `inert` ([validated by the closed drawer wrapper carries inert so its focusables are out of the tab order; the open wrapper carries none](../../tests/AppShell.test.tsx#L258))                                                                                                         | `aria-hidden` over still-tabbable content is the defect `inert` exists to prevent         |
-| e   | The scroll lock restores the prior `document.body.style.overflow` value ([validated by with body overflow pre-set to "scroll", opening sets "hidden" and closing restores "scroll"](../../tests/AppShell.test.tsx#L332))                                                                                         | Clobbering the value to `""` breaks a consumer that manages body overflow itself          |
+| d   | The closed drawer carries `inert` ([validated by the closed drawer wrapper carries inert so its focusables are out of the tab order; the open wrapper carries none](../../tests/AppShell.test.tsx#L258))                                                                                                          | `aria-hidden` over still-tabbable content is the defect `inert` exists to prevent         |
+| e   | The scroll lock restores the prior `document.body.style.overflow` value ([validated by with body overflow pre-set to "scroll", opening sets "hidden" and closing restores "scroll"](../../tests/AppShell.test.tsx#L332))                                                                                          | Clobbering the value to `""` breaks a consumer that manages body overflow itself          |
 
 ## Mechanical invariants
 
