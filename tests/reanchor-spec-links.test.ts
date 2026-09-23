@@ -44,6 +44,16 @@ const commit = (repo: string, message: string) => {
   git(repo, "commit", "-q", "-m", message);
 };
 
+// Both modes exit 1 naming the finding on stderr, and the rewrite leaves the spec as it was.
+const expectReportedInBothModes = (repo: string, spec: string, finding: string) => {
+  const check = run(repo, "--check", "main");
+  const rewrite = run(repo, "main");
+
+  expect([check.status, rewrite.status]).toEqual([1, 1]);
+  expect(rewrite.stderr).toContain(finding);
+  expect(read(repo, SPEC_PATH)).toEqual(spec);
+};
+
 const SYSTEM_SPEC = "System statement. ([validated by](../tests/Maths.test.ts#L3))\n";
 const ADR = "Decision. ([validated by](../tests/Maths.test.ts#L6))\n";
 
@@ -160,13 +170,17 @@ describe("reanchor-spec-links", () => {
     ]);
   });
 
-  it("maps a titled link whose title no test carries through the hunks, L6 to L8", () => {
-    const repo = repoWith(asSpec(link("validated by a test since renamed", "6")));
+  it("reports a titled link whose title no test carries and exits 1 in both modes, rewriting nothing", () => {
+    const spec = asSpec(link("validated by a test since renamed", "6"));
+    const repo = repoWith(spec);
 
     prependIntro(repo);
-    run(repo, "main");
 
-    expect(read(repo, SPEC_PATH)).toEqual(asSpec(link("validated by a test since renamed", "8")));
+    expectReportedInBothModes(
+      repo,
+      spec,
+      'unmapped specs/maths/spec.md: ../../tests/Maths.test.ts#L6 -> no test in tests/Maths.test.ts carries the title "a test since renamed"'
+    );
   });
 
   it("reports an untitled link on a deleted line and exits 1 in both modes, rewriting nothing", () => {
@@ -174,14 +188,12 @@ describe("reanchor-spec-links", () => {
     const repo = repoWith(spec);
 
     write(repo, TEST_PATH, asFile(replaceLine(MATHS_TEST, 6, [])));
-    const check = run(repo, "--check", "main");
-    const rewrite = run(repo, "main");
 
-    expect([check.status, rewrite.status]).toEqual([1, 1]);
-    expect(rewrite.stderr).toContain(
+    expectReportedInBothModes(
+      repo,
+      spec,
       "unmapped specs/maths/spec.md: ../../tests/Maths.test.ts#L6 -> #L6 was deleted or rewritten on this branch"
     );
-    expect(read(repo, SPEC_PATH)).toEqual(spec);
   });
 
   it("reports an untitled link whose cited line was rewritten in place", () => {

@@ -1242,8 +1242,11 @@ typecheck` now runs `typescript7` twice: `tsconfig.json`, then
     pre-merge merge base, every link the merged side had already moved read
     as hand-edited and went unchecked. A link
     whose cited line the branch deleted or rewrote is reported for a manual
-    fix; a link the branch added, or whose href the branch edited by hand, is
-    kept as authored. Only links into files the branch changed are touched,
+    fix, and so is a titled link whose title no test in the cited file
+    carries (issue 247; until then it fell through to the hunk mapping, so a
+    stale label on an untouched body line passed the check); a link the
+    branch added, or whose href the branch edited by hand, is kept as
+    authored. Only links into files the branch changed are touched,
     so a pull request never carries unrelated spec churn; `--all` sweeps
     every titled link for a deliberate cleanup. The rot check (issue 46) and
     the `[Lnnn]` label sync (issue 18) carry over unchanged and ignore scope.
