@@ -1,13 +1,13 @@
 "use client";
 
 import {
+  forwardRef,
   useImperativeHandle,
   useRef,
   useState,
   type ChangeEvent,
   type KeyboardEvent,
   type ReactNode,
-  type Ref,
 } from "react";
 import { SendIcon } from "../icons/index.js";
 import { resolveLabels } from "../labels.js";
@@ -60,16 +60,18 @@ export interface ChatComposerHandle {
 }
 
 // Uncontrolled draft (outside writes use the ref handle); the isComposing guard keeps an IME commit from sending.
-export function ChatComposer({
-  onSubmit,
-  busy = false,
-  disabled = false,
-  autoFocus = false,
-  maxHeightPx = 200,
-  attachSlot,
-  labels,
-  ref,
-}: ChatComposerProps & { ref?: Ref<ChatComposerHandle> }) {
+export const ChatComposer = forwardRef<ChatComposerHandle, ChatComposerProps>(function ChatComposer(
+  {
+    onSubmit,
+    busy = false,
+    disabled = false,
+    autoFocus = false,
+    maxHeightPx = 200,
+    attachSlot,
+    labels,
+  },
+  ref
+) {
   const resolved = resolveLabels(defaultChatComposerLabels, labels);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [hasDraft, setHasDraft] = useState(false);
@@ -157,4 +159,4 @@ export function ChatComposer({
       </div>
     </div>
   );
-}
+});

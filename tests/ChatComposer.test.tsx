@@ -481,3 +481,12 @@ describe("the authored source (grep acceptance criteria)", () => {
     expectImportHygiene(content);
   });
 });
+
+describe("decision 4's forwardRef idiom", () => {
+  it("ChatComposer is a forwardRef<ChatComposerHandle, ChatComposerProps> component - never ref-as-prop", () => {
+    const source = readFileSync(resolve(process.cwd(), "src/components/ChatComposer.tsx"), "utf8");
+
+    expect(source).toMatch(/forwardRef<ChatComposerHandle, ChatComposerProps>\(/);
+    expect(ChatComposer.$$typeof).toBe(Symbol.for("react.forward_ref"));
+  });
+});
