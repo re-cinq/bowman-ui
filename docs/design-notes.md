@@ -737,6 +737,9 @@ Decisions:
     and `dist/styles.css`, and every read must carry a non-empty fallback -
     so the block cannot drift from the code. A forty-fifth token is a table
     row here, a comment line there and a constant in the module, in one PR.
+    Amended 2026-09-22 under issue 186: the count CLAUDE.md invariant 13
+    quotes is read by the same dist test and must equal the block, so that
+    sentence cannot lag a token PR either.
 11. **The styled primitives read the same tokens.** `Button`, `IconButton`,
     `PromptChips` and `SearchField` (§ Styled primitives) landed on `main`
     first with their own `focus:ring-blue-500` string in `buttonStyles.ts`,
@@ -1277,6 +1280,24 @@ Considered and rejected:
   upstreaming those three detections and then retiring the ports is the
   eventual fix. `no-inline-styles` passed the same probe and moved
   (decision 6).
+
+## Coverage floor
+
+`vitest.config.ts` commits the floor inline: 100 lines, 100 functions, 100
+statements and 100 branches over `src/**`, with two exclusions - `src/index.ts`,
+which only re-exports, and `src/types/**`, which emits no statements for v8 to
+count. The floor starts high rather than low-and-ratcheting because
+characterization tests land before each component does, so every file arrives
+covered; branches joined the other three at 100 under issue 152, once every
+`src/**` branch was exercised. If a real component cannot hold 100, the floor
+is lowered once, in that PR, with the number and reason recorded in this
+section - and never again. `tests/system-contract.test.ts` (`the committed
+coverage floor is at least 80 on every threshold`) reads the four numbers off
+that config line and fails if the line vanishes or any number sinks below 80,
+so the floor cannot disappear or collapse silently. The one-shot allowance
+itself is prose: a second lowering that stays at or above 80 is a review-time
+catch, not a test failure, which is why it is recorded here and not only in
+the config comment.
 
 ## Seams left open on purpose
 
