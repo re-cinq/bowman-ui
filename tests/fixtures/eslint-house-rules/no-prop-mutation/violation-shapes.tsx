@@ -85,8 +85,6 @@ export const Named = function NamedBadge(props: Props) {
   return null;
 };
 
-// Left alone: a computed mutator callee, a computed wrapper callee, a lowercase
-// function, a non-mutating method, and a second parameter.
 export const ComputedMutator = (props: Props) => {
   props.counts["push"](0);
 
@@ -98,6 +96,20 @@ export const ComputedWrapper = React["memo"]((props: Props) => {
 
   return null;
 });
+
+export const ComputedChain = (props: Props) => {
+  props["counts"]["push"](0);
+
+  return null;
+};
+
+// Left alone: a computed callee whose property is not a string literal, a
+// lowercase function, a non-mutating method, and a second parameter.
+export const TemplateMutator = (props: Props) => {
+  props.counts[`push`](0);
+
+  return null;
+};
 
 export const helper = (props: Props) => {
   props.counts.push(0);
