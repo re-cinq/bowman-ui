@@ -13,7 +13,8 @@ import {
 // would rm -rf dist under the *-dist tests, and the child vitest would collect
 // this very file and recurse. The fixture's node_modules is a symlink to the
 // repo's, so `npx vitest` resolves locally; npm_config_offline turns any
-// resolution miss into a failure instead of a registry install. The listed id
+// resolution miss into a failure instead of a registry install, and NO_COLOR
+// keeps the child's summary line free of the escapes CI's FORCE_COLOR adds. The listed id
 // joins describe titles with " > ", Vitest's own full-name separator - the JSON
 // reporter's fullName uses a plain space, which is what issue 183 tripped on -
 // and this file is what catches a Vitest upgrade flipping either side.
@@ -75,9 +76,10 @@ const createFixtureProject = (): string => {
 };
 
 const runInFixture = (projectDir: string, script: string, args: string[]): RunResult => {
-  const env: NodeJS.ProcessEnv = { ...process.env, npm_config_offline: "true" };
+  const env: NodeJS.ProcessEnv = { ...process.env, npm_config_offline: "true", NO_COLOR: "1" };
 
   delete env.NODE_V8_COVERAGE;
+  delete env.FORCE_COLOR;
 
   return runScript(script, args, { cwd: projectDir, env });
 };
