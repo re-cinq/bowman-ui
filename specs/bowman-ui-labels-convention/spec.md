@@ -56,12 +56,12 @@ string-carrying component already in the repo - it adds no new component.
   every label a unique `⟦sentinel⟧` and asserts no run of three or more Latin letters survives in
   `textContent` or in `aria-label`/`aria-placeholder`/`aria-roledescription`/`aria-valuetext`/
   `title`/`placeholder`/`alt` outside the sentinels, with the sentinel set pinned to
-  the default-labels keys ([validated by no run of three Latin letters survives outside the sentinels for any labelsProp member](../../tests/labelled-exports.test.tsx#L637),
-  [validated by ErrorBoundary's sentinel labels cover every defaultErrorBoundaryLabels key](../../tests/labelled-exports.test.tsx#L549)).
+  the default-labels keys ([validated by no run of three Latin letters survives outside the sentinels for any labelsProp member](../../tests/labelled-exports.test.tsx#L638),
+  [validated by ErrorBoundary's sentinel labels cover every defaultErrorBoundaryLabels key](../../tests/labelled-exports.test.tsx#L550)).
 - **The check's own proof:** reverting 021's `labels` prop to a hardcoded
   `"Something went wrong"` makes the sentinel test fail - the stray English survives sentinel
   stripping and matches the Latin-run regex
-  ([validated by no run of three Latin letters survives outside the sentinels for any labelsProp member](../../tests/labelled-exports.test.tsx#L637)).
+  ([validated by no run of three Latin letters survives outside the sentinels for any labelsProp member](../../tests/labelled-exports.test.tsx#L638)).
 - `docs/design-notes.md § Labels` - Decisions 1-5, the flat-union key-naming rule, the function form for
   interpolation, the three `stringPropOnly` exceptions with reasons, and `aiDisclosure` documented
   as required-with-no-default under the EU AI Act.

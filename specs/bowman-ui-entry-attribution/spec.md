@@ -142,14 +142,14 @@ sentinel values as `Object.values(...)`, which is `string[]` only while every
 label is a string; with a function label present the harness lists the
 computed sentinel beside the plain ones, exactly as `029`'s
 `ConversationList` harness already did, through a shared `plainSentinels`
-filter ([validated by no run of three Latin letters survives outside the sentinels for any labelsProp member](../../tests/labelled-exports.test.tsx#L637)). The
+filter ([validated by no run of three Latin letters survives outside the sentinels for any labelsProp member](../../tests/labelled-exports.test.tsx#L638)). The
 `ChatMessage` harness renders an `assistantName` and the `ChatMessageList`
 harness renders a persona'd entry with a matching `attribution` row, so the
 label is covered through both paths and a hardcoded string on either cannot
 hide from the Latin-run check
 ([validated by](../../tests/labelled-exports.test.tsx#L207),
-[L345](../../tests/labelled-exports.test.tsx#L345),
-[L394](../../tests/labelled-exports.test.tsx#L394)).
+[L346](../../tests/labelled-exports.test.tsx#L346),
+[L395](../../tests/labelled-exports.test.tsx#L395)).
 
 `ChatAttribution` is a **type-only** export, so it appears in none of the
 export-partition buckets: `labelsProp`, `stringPropOnly` and `noStrings`
