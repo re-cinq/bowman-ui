@@ -293,27 +293,27 @@ in `specs/bowman-ui-theming-tokens/spec.md`, the reveals in
 - A reader who scrolls the transcript to the top mid-stream is still at the
   top when the reply commits, and a reader left at the bottom is within a
   pixel of it - real `scrollHeight`, real `scrollTo`
-  ([validated by a reader who scrolls to the top mid-stream is still at the top when the reply commits](../../examples/chat-demo/tests/chat-demo.spec.ts#L446),
-  [validated by a reader left at the bottom is still at the bottom when the reply commits](../../examples/chat-demo/tests/chat-demo.spec.ts#L483)).
+  ([validated by a reader who scrolls to the top mid-stream is still at the top when the reply commits](../../examples/chat-demo/tests/chat-demo.spec.ts#L452),
+  [validated by a reader left at the bottom is still at the bottom when the reply commits](../../examples/chat-demo/tests/chat-demo.spec.ts#L489)).
 - An assistant entry's action row and a conversation row's delete button have
   computed opacity `0` at rest and `1` on hover or when focus enters them; the
   demo wires `ConversationList`'s `onDelete`, so `Enter` on the revealed
   delete button removes the row and its entries, and deleting the current
-  conversation makes the first remaining one current ([validated by an assistant entry's action row is invisible at rest and revealed by hover or by focus](../../examples/chat-demo/tests/chat-demo.spec.ts#L504),
-  [validated by the current conversation's delete button is invisible at rest, revealed on focus, and Enter removes the row and moves the current mark](../../examples/chat-demo/tests/chat-demo.spec.ts#L529),
+  conversation makes the first remaining one current ([validated by an assistant entry's action row is invisible at rest and revealed by hover or by focus](../../examples/chat-demo/tests/chat-demo.spec.ts#L510),
+  [validated by the current conversation's delete button is invisible at rest, revealed on focus, and Enter removes the row and moves the current mark](../../examples/chat-demo/tests/chat-demo.spec.ts#L535),
   [App](../../examples/chat-demo/src/App.tsx#L196)).
 - `Tab` on a fresh load reaches the skip link first, and `Enter` on it sends
   the next `Tab` inside `main`
-  ([validated by Tab reaches the skip link first, and Enter on it sends the next Tab inside main](../../examples/chat-demo/tests/chat-demo.spec.ts#L564)).
+  ([validated by Tab reaches the skip link first, and Enter on it sends the next Tab inside main](../../examples/chat-demo/tests/chat-demo.spec.ts#L570)).
 - With the drawer open at 375px and the viewport then grown to 1024px, three
   `Tab`s each move focus forward through `main` and never into the hidden
   drawer
-  ([validated by after the viewport grows to desktop, three Tabs advance through main, never the drawer](../../examples/chat-demo/tests/chat-demo.spec.ts#L602)).
+  ([validated by after the viewport grows to desktop, three Tabs advance through main, never the drawer](../../examples/chat-demo/tests/chat-demo.spec.ts#L609)).
 - Under `prefers-reduced-motion: reduce` a thinking dot's computed
   `animation-name` is `none` and the drawer's `transition-duration` is `0s`,
   against `bowman-fade-dot` and `0.3s` without the emulation
-  ([validated by the thinking dots animate by default and stop under prefers-reduced-motion](../../examples/chat-demo/tests/chat-demo.spec.ts#L639),
-  [L653](../../examples/chat-demo/tests/chat-demo.spec.ts#L653)).
+  ([validated by the thinking dots animate by default and stop under prefers-reduced-motion](../../examples/chat-demo/tests/chat-demo.spec.ts#L646),
+  [L660](../../examples/chat-demo/tests/chat-demo.spec.ts#L660)).
 - Under the dark colour scheme the enabled send button and the composer
   surface resolve to the `-dark` fallbacks, which differ from the light shades
   ([validated by the send button and the composer's surface resolve to the dark palette fallbacks](../../examples/chat-demo/tests/theming.spec.ts#L310)).
@@ -358,8 +358,8 @@ first run and are recorded rather than hidden:
   trap-driven `Tab` of the mobile drawer and the three `Tab`s of the rotate
   test pass unchanged in both engines, as they are handled by the trap's own
   listener or land on a textarea
-  ([validated by Tab to send then Enter or Space appends the entry and returns focus to the textarea](../../examples/chat-demo/tests/chat-demo.spec.ts#L393),
-  [validated by Tab reaches the skip link first, and Enter on it sends the next Tab inside main](../../examples/chat-demo/tests/chat-demo.spec.ts#L555),
+  ([validated by Tab to send then Enter or Space appends the entry and returns focus to the textarea](../../examples/chat-demo/tests/chat-demo.spec.ts#L408),
+  [validated by Tab reaches the skip link first, and Enter on it sends the next Tab inside main](../../examples/chat-demo/tests/chat-demo.spec.ts#L570),
   [helper](../../examples/chat-demo/tests/chat-demo.spec.ts#L30)).
 - WebKit's search input has no `Escape`-to-clear, so the search-field test
   expects `""` after `Escape` in Chromium and the typed value in WebKit - an
