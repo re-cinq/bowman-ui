@@ -1008,13 +1008,15 @@ Decisions:
    lint rule is the review-time backstop that names the violation before a
    test ever runs. Denylisted channels: `fetch` (bare or via
    window/globalThis/self), `new WebSocket/EventSource/XMLHttpRequest`,
-   `navigator.sendBeacon`. A member is read by its identifier or by its
-   computed string spelling, which reports under the identifier form
-   (`new window["WebSocket"]` reports `new window.WebSocket`; issue 211).
-   Any other computed property (a template literal, ``window[`fetch`]``)
-   and a private name pass the rule; the template-literal spelling and a
-   private name are pinned as unreported by the fixture - a recorded limit,
-   with the runtime traps behind it (issue 237).
+   `navigator.sendBeacon`. A member is read by its identifier, by its
+   computed string spelling or by a computed template literal without
+   substitutions, each reporting under the identifier form
+   (`new window["WebSocket"]` reports `new window.WebSocket`, issue 211;
+   ``window[`fetch`]`` reports `fetch`, issue 237). A computed property of
+   any other shape (a template with substitutions, ``window[`fe${"tch"}`]``,
+   an identifier, a number) and a private name pass the rule; the
+   substitution template and a private name are pinned as unreported by the
+   fixture - a recorded limit, with the runtime traps behind it.
 5. **Props are read-only** (`bowman/no-prop-mutation`). Data flows down as
    arguments; changes flow up via callback props. Scope-based, so a local
    sharing a prop's name never trips it; only the first parameter is props,
@@ -1023,8 +1025,10 @@ Decisions:
    wrapper callee (`props.items["push"](0)`, `React["memo"](...)`) is
    reported like its identifier spelling, and the mutated expression is
    printed as written (`props["counts"]["push"](0)` reports
-   `props["counts"]`; issue 211); a template-literal callee and a private
-   name pass and are pinned as unreported by the fixture (issue 237).
+   `props["counts"]`; issue 211), and so is a substitution-free template
+   callee (``props.counts[`push`](0)``; issue 237); a template callee with
+   substitutions and a private name pass and are pinned as unreported by
+   the fixture.
 6. **Styling lives in the stylesheet** (`re-lint/no-inline-styles`), with one
    passing shape - an object of nothing but CSS custom properties, because
    the styling rules then still live in the stylesheet reading the variable.
