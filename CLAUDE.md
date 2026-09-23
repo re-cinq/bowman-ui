@@ -121,7 +121,8 @@ title>]` link follows its `it()`; every other link is mapped through the cited f
   `next` may appear).
 - `scripts/` — 16 enforcement scripts.
 - `tools/eslint-plugin-bowman/` — repo-local ESLint rules (no package.json; loaded by relative
-  import in eslint.config.mjs). See invariant 11.
+  import in eslint.config.mjs) plus `ast.mjs`, which holds the member-expression readers the
+  egress and prop-mutation rules share. See invariant 11.
 - `@re-cinq/eslint-plugin-re-lint` (devDependency, plugin key `re-lint`) — re-cinq's generic
   rules and the vendored spec domain (`/spec/*.js`), replacing the mirror trees that lived under
   `tools/` until 2026-09-08. See invariant 11.
@@ -163,9 +164,10 @@ title>]` link follows its `it()`; every other link is mapped through the cited f
    relative import ends in `.js` (NodeNext). The compiler is the enforcement.
 7. **Forbidden imports in `src/`** (scripts/check-forbidden-imports.mjs): `next`, `next-intl`,
    `swr`, `lucide-react`, `@clerk/*`, `@/*`.
-8. **Coverage floor** (vitest.config.ts:26): 100 lines / 100 functions / 100 statements / 100
-   branches over `src/**` (branches rose from 90 in issue 152). Lower it only once, in the PR
-   that needs it, with the number and reason recorded — and never again.
+8. **Coverage floor** (docs/design-notes.md § Coverage floor; vitest.config.ts:26): 100 lines /
+   100 functions / 100 statements / 100 branches over `src/**` (branches rose from 90 in
+   issue 152). Lower it only once, in the PR that needs it, with the number and reason recorded
+   in that section — and never again; tests/system-contract.test.ts pins the >= 80 guard.
 9. **One icon system** (docs/design-notes.md decisions 2-3). The local 23-icon set only, no `lucide-react`.
    `SendIcon` is deliberately unused; NO paperclip icon is authored; no bundled default/brand
    mark ships.
@@ -212,7 +214,7 @@ title>]` link follows its `it()`; every other link is mapped through the cited f
     `src/theme/focusRing.ts` composes the shared focus-ring fragment from two of them and
     declares no token (§ Theming decision 12).
     Enforced by tests/theming-tokens-dist.test.ts (the stylesheet comment block, the design-notes
-    table and the dist reads must agree; the 44 above is hand-kept, bump it in the same PR).
+    table, the dist reads and the count above must agree, so bump the count in the same PR).
     Never add a brand-palette utility (`blue-*`) in `src/` outside the tokens module's fallbacks,
     and never a neutral `slate-*`/`white` utility at a site whose light and dark shades equal one
     of the role pairs of decision 6 (read the role).

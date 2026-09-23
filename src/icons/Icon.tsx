@@ -15,9 +15,6 @@ export function IconWrapper({
   ref,
   className,
   children,
-  "aria-hidden": ariaHidden,
-  role,
-  "aria-label": ariaLabel,
   ...props
 }: IconSvgProps & { children: ReactNode; ref?: Ref<SVGSVGElement> }) {
   return (
@@ -27,9 +24,6 @@ export function IconWrapper({
       fill="none"
       stroke="currentColor"
       viewBox="0 0 24 24"
-      aria-hidden={ariaHidden}
-      role={role}
-      aria-label={ariaLabel}
       {...props}
     >
       {children}

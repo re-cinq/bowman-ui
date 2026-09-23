@@ -117,6 +117,22 @@ export const expectTextSubtle = (element: Element | null) =>
     ["text-slate-400"]
   );
 
+export const expectTextSubtleDisabled = (element: Element | null) =>
+  expectPair(
+    element,
+    "disabled:text-(--bowman-text-subtle,var(--color-slate-400))",
+    "dark:disabled:text-(--bowman-text-subtle-dark,var(--color-slate-500))",
+    ["disabled:text-slate-400", "dark:disabled:text-slate-500"]
+  );
+
+export const expectActiveBackgroundDisabled = (element: Element | null) =>
+  expectPair(
+    element,
+    "disabled:bg-(--bowman-active,var(--color-slate-100))",
+    "dark:disabled:bg-(--bowman-active-dark,var(--color-slate-800))",
+    ["disabled:bg-slate-100", "dark:disabled:bg-slate-800"]
+  );
+
 // The strong sites shipped a slate-900 light side but split dark (white / slate-100 / slate-200);
 // the role unifies the dark side to slate-100, so every retired literal is checked gone.
 const RETIRED_STRONG = [
