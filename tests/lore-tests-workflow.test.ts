@@ -44,7 +44,7 @@ const suiteRunBlock = runBlockOf(runStep);
 const postRunBlock = runBlockOf(postStep);
 const pinnedSha256 = workflow.match(/^ {10}LORE_CODE_TRACE_SHA256: ([0-9a-f]{64})$/m)?.[1];
 const fetchedGate = "if: steps.fetch.outputs.fetched == 'true'";
-const reportGate = "if: steps.run.outputs.report == 'true'";
+const reportGate = "if: always() && steps.run.outputs.report == 'true'";
 const tokenBinding = "LORE_INGEST_TOKEN: ${{ secrets.LORE_INGEST_TOKEN }}";
 const hasTool = (tool: string): boolean => spawnSync(tool, ["--version"]).status === 0;
 const fetchIt = it.skipIf(!hasTool("sha256sum"));
@@ -184,7 +184,9 @@ describe("lore-tests.yml token scoping (issue 166)", () => {
     expect(uploadStep).toContain("\n          overwrite: true\n");
     expect(vitestJob).toContain("\n    outputs:\n      report: ${{ steps.run.outputs.report }}\n");
     expect(ingestJob).toContain("\n    needs: lore-tests-vitest\n");
-    expect(ingestJob).toContain("\n    if: needs.lore-tests-vitest.outputs.report == 'true'\n");
+    expect(ingestJob).toContain(
+      "\n    if: always() && needs.lore-tests-vitest.outputs.report == 'true'\n"
+    );
     expect(stepContaining("uses: actions/download-artifact@")).toContain(
       "\n          name: lore-test-report\n"
     );
@@ -277,10 +279,10 @@ describe("lore-tests.yml fetch step", () => {
 const report = { commit: "0123abc", branch: "feature/example", tests: [], results: [] };
 const reportJson = `${JSON.stringify(report)}\n`;
 
-const runSuite = (traceExit: number, eventName: string) => {
+const runSuite = (traceExit: number, eventName: string, stdout = reportJson) => {
   const traceStub = `#!/usr/bin/env bash
 echo "[lore-code-trace] running" >&2
-printf '%s' '${reportJson}'
+printf '%s' '${stdout}'
 exit ${traceExit}
 `;
   const { workDir, result, output } = runStepScript({
@@ -309,20 +311,31 @@ describe("lore-tests.yml suite step", () => {
     expect(reportFile).toBe(reportJson);
   });
 
-  it("warns and exits 0 without an output when lore-code-trace fails in a pull_request", () => {
-    const { result, output } = runSuite(1, "pull_request");
+  it("warns and exits 0 still marking report=true when lore-code-trace fails in a pull_request", () => {
+    const { result, output, reportFile } = runSuite(1, "pull_request");
 
     expect(result.status).toBe(0);
     expect(result.stdout).toMatch(/^::warning::Lore test run failed/m);
-    expect(output).toBe("");
+    expect(output).toBe("report=true\n");
+    expect(reportFile).toBe(reportJson);
   });
 
-  it("warns and exits 1 when lore-code-trace fails in a push", () => {
-    const { result, output } = runSuite(1, "push");
+  it("warns and exits 1 still marking report=true when lore-code-trace fails in a push", () => {
+    const { result, output, reportFile } = runSuite(1, "push");
+
+    expect(result.status).toBe(1);
+    expect(result.stdout).toMatch(/^::warning::Lore test run failed/m);
+    expect(output).toBe("report=true\n");
+    expect(reportFile).toBe(reportJson);
+  });
+
+  it("marks no output when lore-code-trace fails having written an empty report", () => {
+    const { result, output, reportFile } = runSuite(1, "push", "");
 
     expect(result.status).toBe(1);
     expect(result.stdout).toMatch(/^::warning::Lore test run failed/m);
     expect(output).toBe("");
+    expect(reportFile).toBe("");
   });
 });
 
