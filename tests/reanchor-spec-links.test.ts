@@ -50,6 +50,7 @@ const expectReportedInBothModes = (repo: string, spec: string, finding: string) 
   const rewrite = run(repo, "main");
 
   expect([check.status, rewrite.status]).toEqual([1, 1]);
+  expect(check.stderr).toContain(finding);
   expect(rewrite.stderr).toContain(finding);
   expect(read(repo, SPEC_PATH)).toEqual(spec);
 };

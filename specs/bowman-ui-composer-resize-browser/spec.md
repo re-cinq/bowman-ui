@@ -31,11 +31,11 @@ widest form: any `(../)+path#Lnn` link
 ([regex](../../scripts/reanchor-spec-links.mjs#L45)), so root config files, workflow files,
 `package.json` files and `examples/` sources are re-anchored and rot-checked like every other
 cited file
-([validated by maps a link into README.md, titled or not, from L2 to L3 through the hunks](../../tests/reanchor-spec-links.test.ts#L295)). The
+([validated by maps a link into README.md, titled or not, from L2 to L3 through the hunks](../../tests/reanchor-spec-links.test.ts#L296)). The
 assistive-technology spec's placeholder links carry `#A1`-style fragments and a `<date>`
 placeholder, so the checker never matches them; a real `docs/accessibility/at-pass-*.md` cited
 with `#L` anchors becomes tracked the moment it exists
-([validated by leaves a link whose fragment is not a line number, and a web URL, untouched](../../tests/reanchor-spec-links.test.ts#L369)).
+([validated by leaves a link whose fragment is not a line number, and a web URL, untouched](../../tests/reanchor-spec-links.test.ts#L370)).
 
 ## Baseline
 

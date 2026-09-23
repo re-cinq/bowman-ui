@@ -62,7 +62,12 @@ build when any standing invariant regresses:
 1. `rehype-raw` appears in `package.json`.
 2. A file under `src/` mentions `rehype`, imports `remark-html`, sets
    `dangerouslySetInnerHTML`, or re-enables raw HTML with `skipHtml={false}`.
-3. `defaultMarkdownPolicy.allowImages` is not literally `false`.
+3. `defaultMarkdownPolicy.allowImages` is not declared exactly once as
+   literally `true` or `false`, reading `false`. The declaration is read with
+   line comments blanked, so a decoy comment spelling `allowImages: false`
+   neither hides a real `true` nor counts as a second declaration; a second
+   `allowImages` property, bare or quoted, fails. The key matches bare or
+   quoted, never as the suffix of a longer name such as `disallowImages`.
 4. `defaultMarkdownPolicy.allowedSchemes` is declared more than once, is not an
    inline array of quoted string literals (so the gate reads the runtime value;
    the key may be bare or quoted), or its literals are not exactly `https`,
@@ -80,6 +85,13 @@ build when any standing invariant regresses:
    `/*` inside one opens nothing: a `});` line inside a comment or template
    cannot end the block early, and a template or comment above the real
    declaration that spells a clean one cannot be read in its place.
+6. The same declaration, again read with line comments blanked so a trailing
+   comment cannot mask the delimiter, carries a computed key: a `[` that
+   follows `{` or `,` across whitespace sits at property position, and as the
+   last property a `[key]: value` would override a checked key at runtime
+   while the literals the gate reads stay clean. A `[` that follows `:` or
+   `(`, as in a wrapped `allowedSchemes` array, is a value, not a key, and
+   passes.
 
 It runs on `pull_request` in `ci.yml` and before `npm publish` in `publish.yml`,
 and is self-tested by `tests/security/check-markdown-safety.test.ts`, which
@@ -96,7 +108,7 @@ a large, conspicuous diff, not a silent one-line regression, and the corpus in
 `tests/security/markdown-xss.test.tsx` still exercises it at the `ChatMessage`
 level - it would have to pass the same fixtures to land.
 
-The lexer behind gate items 3 to 5 recognises block comments, template
+The lexer behind gate items 3 to 6 recognises block comments, template
 literals, line comments and quoted strings (backslash continuations included),
 nothing else. An unterminated backtick or `/*` matches nothing and blanks
 nothing. Blanking removes only the lexeme's own text, so a comment or template
@@ -113,7 +125,11 @@ holding a `});` line, or a nested template body holding one, lets a spread
 after it go unread. A regex literal or a nested template inside the
 declaration - which `Readonly<Required<MarkdownPolicy>>` admits as no value,
 only inside one - are the constructs review must still refuse. Blanking also
-makes a block comment inside the declaration invisible to the spread and
-declared-once checks, while a line comment there still counts for both, so a
-`// ...` or `// allowedSchemes:` inside the literal is a bogus red, not a
-bypass.
+makes a block comment inside the declaration invisible to the spread,
+declared-once and computed-key checks. A line comment there still counts for
+the spread and `allowedSchemes` checks, so a `// ...` or `// allowedSchemes:`
+inside the literal is a bogus red, not a bypass; the `allowImages` and
+computed-key checks blank line comments first, because a trailing comment
+between the `,` and a `[` would otherwise hide the computed key. A quoted
+string counts for all four, so a `"allowImages: true"` or `", ["` value inside
+the literal is a bogus red as well.
