@@ -16,6 +16,8 @@
  * down, which needs human judgment.
  */
 
+import { identifierName, memberPropertyName } from "../ast.mjs";
+
 const MUTATORS = new Set([
   "push",
   "pop",
@@ -52,29 +54,13 @@ function isComponentName(name) {
 
 const COMPONENT_WRAPPERS = new Set(["memo", "forwardRef"]);
 
-function calleeName(callee) {
-  if (callee.type === "Identifier") {
-    return callee.name;
-  }
-
-  if (
-    callee.type === "MemberExpression" &&
-    !callee.computed &&
-    callee.property.type === "Identifier"
-  ) {
-    return callee.property.name;
-  }
-
-  return null;
-}
-
 function isWrappedComponent(node) {
   const parent = node.parent;
 
   return (
     parent?.type === "CallExpression" &&
     parent.arguments.includes(node) &&
-    COMPONENT_WRAPPERS.has(calleeName(parent.callee) ?? "")
+    COMPONENT_WRAPPERS.has(identifierName(parent.callee) ?? memberPropertyName(parent.callee))
   );
 }
 
@@ -163,15 +149,8 @@ export default {
         }
       },
       CallExpression(node) {
-        const callee = node.callee;
-
-        if (
-          callee.type === "MemberExpression" &&
-          !callee.computed &&
-          callee.property.type === "Identifier" &&
-          MUTATORS.has(callee.property.name)
-        ) {
-          flagIfProp(callee.object, node);
+        if (MUTATORS.has(memberPropertyName(node.callee))) {
+          flagIfProp(node.callee.object, node);
         }
       },
     };

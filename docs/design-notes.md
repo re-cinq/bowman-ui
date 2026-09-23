@@ -957,7 +957,13 @@ published `@re-cinq/eslint-plugin-re-lint` package for re-cinq's generic
 rules (decision 9), plus a handful of core-ESLint entries (decisions 1-7). Those are validated against committed
 fixtures by `tests/eslint-house-rules.test.ts`, judged by the exact committed
 config via `--no-ignore` (the same mechanism the Labels and duplication
-fixtures use). Decision 8's third-party `react-hooks` rules carry no such
+fixtures use). `tools/**` sits outside the coverage include
+(`vitest.config.ts`), so those fixtures are the rules' only proof: the
+egress and prop-mutation fixtures pin the exact reported line and api or
+name per shape, absence included, which is what let the member-expression readers
+(`identifierName`, `memberPropertyName`) move into the one shared
+`tools/eslint-plugin-bowman/ast.mjs` with the fixtures untouched (issue
+184). Decision 8's third-party `react-hooks` rules carry no such
 fixture: they are validated by the three exempt components' own behavioural
 tests.
 
@@ -991,11 +997,17 @@ Decisions:
    lint rule is the review-time backstop that names the violation before a
    test ever runs. Denylisted channels: `fetch` (bare or via
    window/globalThis/self), `new WebSocket/EventSource/XMLHttpRequest`,
-   `navigator.sendBeacon`.
+   `navigator.sendBeacon`. Only non-computed member access is read: the
+   computed spelling (`window["fetch"]`) and a private name pass the rule
+   and are pinned as unreported by the fixture - a recorded limit, with the
+   runtime traps behind it (issue 211).
 5. **Props are read-only** (`bowman/no-prop-mutation`). Data flows down as
    arguments; changes flow up via callback props. Scope-based, so a local
    sharing a prop's name never trips it; only the first parameter is props,
    leaving a `forwardRef` second argument and its `.current` writes alone.
+   Reads members the same way as decision 4: a computed mutator or wrapper
+   callee (`props.items["push"](0)`, `React["memo"](...)`) passes and is
+   pinned as unreported by the fixture (issue 211).
 6. **Styling lives in the stylesheet** (`re-lint/no-inline-styles`), with one
    passing shape - an object of nothing but CSS custom properties, because
    the styling rules then still live in the stylesheet reading the variable.

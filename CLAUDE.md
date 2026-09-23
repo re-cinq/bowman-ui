@@ -121,7 +121,8 @@ title>]` link follows its `it()`; every other link is mapped through the cited f
   `next` may appear).
 - `scripts/` — 16 enforcement scripts.
 - `tools/eslint-plugin-bowman/` — repo-local ESLint rules (no package.json; loaded by relative
-  import in eslint.config.mjs). See invariant 11.
+  import in eslint.config.mjs) plus `ast.mjs`, which holds the member-expression readers the
+  egress and prop-mutation rules share. See invariant 11.
 - `@re-cinq/eslint-plugin-re-lint` (devDependency, plugin key `re-lint`) — re-cinq's generic
   rules and the vendored spec domain (`/spec/*.js`), replacing the mirror trees that lived under
   `tools/` until 2026-09-08. See invariant 11.
