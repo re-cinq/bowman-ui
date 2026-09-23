@@ -18,7 +18,7 @@ a node script because CI and development both run on POSIX shells.
 ([validated by lists dist/styles.css in npm pack --dry-run](../../tests/styles.test.ts#L121),
 [validated by `sideEffects includes "*.css"`](../../tests/styles.test.ts#L113),
 [validated by exports gains "./styles.css" alongside the unchanged "." entry](../../tests/styles.test.ts#L106)). The leading `rm -rf dist` is
-load-bearing - `tsc` never cleans, and `files: ["dist"]` would ship whatever
+load-bearing - `tsc` never cleans, and `files` packs `dist/` wholesale, so it would ship whatever
 stale artifact survived - so every built file must trace back to a source
 file ([validated by every built file traces back to a source file - no stale artifacts ship](../../tests/dist-is-clean.test.ts#L36)).
 
@@ -133,8 +133,10 @@ classes like `language-js` are merged rather than clobbered, and the
   directory (the real `package.json` and the real built `dist/styles.css`
   "installed" under `node_modules/@re-cinq/bowman-ui`, `tailwindcss`
   symlinked) and runs the real Tailwind v4 CLI (`tailwindcss` +
-  `@tailwindcss/cli`, devDependencies). `files: ["dist"]` keeps all of it out
-  of the tarball ([validated by with the @source line, the compiled CSS contains the bg-slate-800 rule from the installed dist](../../tests/tailwind-build.test.ts#L75)).
+  `@tailwindcss/cli`, devDependencies)
+  ([validated by with the @source line, the compiled CSS contains the bg-slate-800 rule from the installed dist](../../tests/tailwind-build.test.ts#L75)).
+- **The fixture never ships.** `files: ["dist", "THIRD-PARTY-NOTICES.md"]` keeps it and every
+  other file under `tests/` out of the tarball.
 
 ## The real-build verification the issue demanded
 
@@ -155,5 +157,4 @@ Both results, from Tailwind v4.3.3 compiling the fixture consumer:
 The README's Styles section documents the two consumer lines, names Tailwind
 v4 as required and says why (the package ships only what Tailwind cannot
 generate; the utilities on the components come from the consumer's own build
-scanning the installed `dist`)
-([validated by with the @source line, the compiled CSS contains the bg-slate-800 rule from the installed dist](../../tests/tailwind-build.test.ts#L75)).
+scanning the installed `dist`).
