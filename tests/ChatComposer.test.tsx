@@ -117,6 +117,55 @@ describe("ChatComposer", () => {
       expect(textareaOf()).toMatchObject({ value: "linje 1" });
     });
 
+    it("Ctrl+Enter submits the trimmed draft once and clears the box like plain Enter", () => {
+      const onSubmit = vi.fn();
+
+      render(<ChatComposer onSubmit={onSubmit} />);
+
+      typeDraft("Hvor er min booking?");
+      const notPrevented = fireEvent.keyDown(textareaOf(), { key: "Enter", ctrlKey: true });
+
+      expect(notPrevented).toBe(false);
+      expectSubmittedOnceAndCleared(onSubmit, "Hvor er min booking?");
+    });
+
+    it("Meta+Enter submits the trimmed draft once and clears the box like plain Enter", () => {
+      const onSubmit = vi.fn();
+
+      render(<ChatComposer onSubmit={onSubmit} />);
+
+      typeDraft("Er pakken sendt?");
+      const notPrevented = fireEvent.keyDown(textareaOf(), { key: "Enter", metaKey: true });
+
+      expect(notPrevented).toBe(false);
+      expectSubmittedOnceAndCleared(onSubmit, "Er pakken sendt?");
+    });
+
+    it("Alt+Enter does not submit, does not preventDefault and leaves the draft in the box", () => {
+      const onSubmit = vi.fn();
+
+      render(<ChatComposer onSubmit={onSubmit} />);
+
+      typeDraft("linje 1");
+      const notPrevented = fireEvent.keyDown(textareaOf(), { key: "Enter", altKey: true });
+
+      expect(onSubmit).not.toHaveBeenCalled();
+      expect(notPrevented).toBe(true);
+      expect(textareaOf()).toMatchObject({ value: "linje 1" });
+    });
+
+    it("Ctrl+Shift+Enter does not submit: Shift wins over Ctrl", () => {
+      const onSubmit = vi.fn();
+
+      render(<ChatComposer onSubmit={onSubmit} />);
+
+      typeDraft("to linjer");
+      fireEvent.keyDown(textareaOf(), { key: "Enter", ctrlKey: true, shiftKey: true });
+
+      expect(onSubmit).not.toHaveBeenCalled();
+      expect(textareaOf()).toMatchObject({ value: "to linjer" });
+    });
+
     it("Enter while isComposing does not submit and does not preventDefault - the IME guard the inline copies lack", () => {
       const onSubmit = vi.fn();
 
