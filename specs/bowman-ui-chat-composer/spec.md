@@ -23,7 +23,7 @@ through `ChatComposerHandle` (`focus()`, `setValue()`) via
 writes a consumer needs: clear-on-send and a text-injection helper
 ([validated by](../../tests/ChatComposer.test.tsx#L326),
 [L359](../../tests/ChatComposer.test.tsx#L359),
-[validated by ChatComposer is a forwardRef<ChatComposerHandle, ChatComposerProps> component - never ref-as-prop](../../tests/ChatComposer.test.tsx#L555)).
+[validated by ChatComposer is a forwardRef<ChatComposerHandle, ChatComposerProps> component - never ref-as-prop](../../tests/ChatComposer.test.tsx#L561)).
 
 **Note - first `useImperativeHandle` in the repo.** 018 Decision 4's idiom is
 `forwardRef` (preserved here); `useImperativeHandle` itself has no prior use
@@ -167,7 +167,8 @@ accessible name is the resolved `send` label with its `SendIcon`
 `aria-hidden` per 020's `getAccessibleIconProps` contract
 ([validated by the textarea's accessible name is the resolved composerInput label, distinct from the "Responder..." placeholder](../../tests/ChatComposer.test.tsx#L446), defaults
 [validated by the defaults name the textarea "Your message" with placeholder "Reply..."](../../tests/ChatComposer.test.tsx#L460),
-[validated by the send button's accessible name is the resolved send label and its SendIcon is aria-hidden](../../tests/ChatComposer.test.tsx#L469)).
+[validated by the send button's accessible name is the resolved send label and its SendIcon is aria-hidden](../../tests/ChatComposer.test.tsx#L469),
+[validated by the send button renders the set's SendIcon](../../tests/ChatComposer.test.tsx#L545)).
 
 `defaultChatComposerLabels` is `Readonly<Required<ChatComposerLabels>>`; a
 key added without a default fails `npm run typecheck`, pinned by the
@@ -205,9 +206,9 @@ and addresses (`003-support-conversation-data-flow-record`). The component
 calls no `console.*`, `localStorage`, `sessionStorage`, `fetch`,
 `sendBeacon` or analytics, asserted by source grep and by the
 suite-wide console trap in `tests/setup.ts`
-([validated by `GDPR: the file calls no console.*, localStorage, sessionStorage, fetch, sendBeacon or analytics, and holds no draft persistence`](../../tests/ChatComposer.test.tsx#L545)). There is no draft persistence
+([validated by `GDPR: the file calls no console.*, localStorage, sessionStorage, fetch, sendBeacon or analytics, and holds no draft persistence`](../../tests/ChatComposer.test.tsx#L551)). There is no draft persistence
 and no autosave: an unsent support question does not survive on the
-customer's device ([validated by `GDPR: the file calls no console.*, localStorage, sessionStorage, fetch, sendBeacon or analytics, and holds no draft persistence`](../../tests/ChatComposer.test.tsx#L545)).
+customer's device ([validated by `GDPR: the file calls no console.*, localStorage, sessionStorage, fetch, sendBeacon or analytics, and holds no draft persistence`](../../tests/ChatComposer.test.tsx#L551)).
 
 ## Source purity and the build
 
@@ -217,7 +218,7 @@ No `@clerk`, `swr`, `next-intl`, `next/`, `@/` or
 statement per 018 Decision 1's positional check, and `npm pack` ships it
 with its `.d.ts`
 ([validated by dist/components/ChatComposer.js opens with "use client"; as its first statement](../../tests/chat-composer-dist.test.ts#L10),
-[validated by no @clerk, swr, next-intl, next/, @/ or lucide-react import, and every relative import ends in .js](../../tests/ChatComposer.test.tsx#L549)).
+[validated by no @clerk, swr, next-intl, next/, @/ or lucide-react import, and every relative import ends in .js](../../tests/ChatComposer.test.tsx#L555)).
 
 ## Recorded deviations from the issue text
 
