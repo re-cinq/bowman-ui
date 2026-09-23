@@ -121,9 +121,9 @@ exact per-icon provenance is not tracked.
 
 Consequences, recorded so no cleanup PR "fixes" them:
 
-- `SendIcon` exists but no shipped component renders it. Which glyph a send
-  button shows is a product choice; the set carries the icon so a consumer
-  can make it without adding a dependency.
+- The composer's send glyph is the set's own `SendIcon`, rendered inside the
+  send button in `src/components/ChatComposer.tsx`. The export stays public
+  all the same, so a consumer's own send button can reuse it dependency-free.
 - There is no paperclip icon in the set and none gets authored: the attach
   affordance is decorative in the surfaces this package targets. The
   composer takes an attachment slot instead.
