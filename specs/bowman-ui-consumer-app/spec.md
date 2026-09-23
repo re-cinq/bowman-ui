@@ -317,6 +317,9 @@ in `specs/bowman-ui-theming-tokens/spec.md`, the reveals in
 - Under the dark colour scheme the enabled send button and the composer
   surface resolve to the `-dark` fallbacks, which differ from the light shades
   ([validated by the send button and the composer's surface resolve to the dark palette fallbacks](../../examples/chat-demo/tests/theming.spec.ts#L310)).
+- Under the dark colour scheme the focused conversation row's ring offset
+  shadow resolves to the `--color-slate-900` probe and not to white
+  ([validated by the focused conversation row's ring offset resolves to the dark palette fallback](../../examples/chat-demo/tests/theming.spec.ts#L328)).
 - The documentation gains a `search-field` page with a `SearchFieldExample`,
   and the engine's native clear control empties the controlled field through
   `onChange("")` in both engines; `Escape` does so in Chromium only, and the

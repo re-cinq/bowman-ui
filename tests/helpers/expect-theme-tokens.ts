@@ -81,7 +81,7 @@ export const expectRingOffset = (element: Element | null) =>
   expectPair(
     element,
     "focus:ring-offset-(--bowman-ring-offset,var(--color-white))",
-    "dark:ring-offset-(--bowman-ring-offset-dark,var(--color-slate-900))",
+    "dark:focus:ring-offset-(--bowman-ring-offset-dark,var(--color-slate-900))",
     ["focus:ring-offset-white", "dark:ring-offset-slate-900"]
   );
 
