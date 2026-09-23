@@ -54,15 +54,16 @@ exports entry for a consumer ([validated by each built hook and ErrorBoundary op
   focus is inside, and pull focus back to an end when it sits outside the open trap (the
   2026-08-26 review's modal-only hardening), Escape closes, and focus returns to the trigger ref
   or the previously active element
-  ([validated by focuses the first focusable element when opened](../../tests/useFocusTrap.test.tsx#L57),
-  [validated by Tab on the last element wraps to the first](../../tests/useFocusTrap.test.tsx#L63),
-  [validated by Shift+Tab on the first element wraps to the last](../../tests/useFocusTrap.test.tsx#L72), [validated by Tab in the middle of the list is not intercepted](../../tests/useFocusTrap.test.tsx#L81),
-  [validated by Shift+Tab in the middle of the list is not intercepted](../../tests/useFocusTrap.test.tsx#L130),
-  [validated by Tab while focus sits outside the open trap pulls it to the first element](../../tests/useFocusTrap.test.tsx#L203),
-  [validated by Shift+Tab while focus sits outside the open trap pulls it to the last element](../../tests/useFocusTrap.test.tsx#L211),
-  [validated by Escape calls onClose](../../tests/useFocusTrap.test.tsx#L99),
-  [validated by closing returns focus to the trigger ref when one is given](../../tests/useFocusTrap.test.tsx#L109),
-  [validated by closing returns focus to the previously active element without a trigger ref](../../tests/useFocusTrap.test.tsx#L117)).
+  ([validated by focuses the first focusable element when opened](../../tests/useFocusTrap.test.tsx#L65),
+  [validated by Tab on the last element wraps to the first](../../tests/useFocusTrap.test.tsx#L71),
+  [validated by Shift+Tab on the first element wraps to the last](../../tests/useFocusTrap.test.tsx#L80), [validated by Tab in the middle of the list is not intercepted](../../tests/useFocusTrap.test.tsx#L89),
+  [validated by Shift+Tab in the middle of the list is not intercepted](../../tests/useFocusTrap.test.tsx#L134),
+  [validated by Tab while focus sits outside the open trap pulls it to the first element](../../tests/useFocusTrap.test.tsx#L207),
+  [validated by Shift+Tab while focus sits outside the open trap pulls it to the last element](../../tests/useFocusTrap.test.tsx#L215),
+  [validated by Escape calls onClose](../../tests/useFocusTrap.test.tsx#L107),
+  [validated by closing returns focus to the trigger ref when one is given](../../tests/useFocusTrap.test.tsx#L117),
+  [validated by closing returns focus to the previously active element without a trigger ref](../../tests/useFocusTrap.test.tsx#L125),
+  [validated by `closing returns focus to a previously active <svg tabindex="0"> without a trigger ref`](../../tests/useFocusTrap.test.tsx#L235)).
 - `useFocusGroups({announce})` — the hardcoded English `Moved to ${groupName}` and the Tailwind
   `sr-only` class are both gone from the contract: `announce` maps a group name to the
   announcement (English default preserved, `null` suppresses), and the live region is hidden

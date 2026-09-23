@@ -149,7 +149,7 @@ export function ChatMessage({
 
   const copyToClipboard = (text: string, entryId: string) => {
     // Insecure contexts lack navigator.clipboard and denials reject: swallow both, onCopy reports either way.
-    navigator.clipboard?.writeText(text)?.catch?.(() => {});
+    navigator.clipboard?.writeText(text).catch(() => {});
     setCopiedId(entryId);
 
     // A rapid second copy replaces the pending timer, so the first cannot dismiss the new notice early.

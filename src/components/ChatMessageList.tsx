@@ -251,19 +251,15 @@ export const ChatMessageList = forwardRef<ChatMessageListHandle, ChatMessageList
         );
       }
 
-      if (entry.role === "thinking" && !showThinking) {
-        return null;
-      }
-
       if (entry.role === "thinking") {
-        return (
+        return showThinking ? (
           <ThinkingTrace
             key={entry.id}
             entry={entry}
             reducedMotion={reducedMotion}
             labels={{ thinkingTrace: resolved.thinkingTrace }}
           />
-        );
+        ) : null;
       }
       const attributed = attributionFor(entry, attribution);
 
