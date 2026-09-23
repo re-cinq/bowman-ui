@@ -12,6 +12,8 @@
  * legitimately touch plenty of other globals.
  */
 
+import { identifierName, memberPropertyName } from "../ast.mjs";
+
 const NETWORK_CONSTRUCTORS = new Set(["WebSocket", "EventSource", "XMLHttpRequest"]);
 const GLOBAL_HOSTS = new Set(["window", "globalThis", "self"]);
 
@@ -36,44 +38,42 @@ export default {
 
     return {
       NewExpression(node) {
-        if (node.callee.type === "Identifier" && NETWORK_CONSTRUCTORS.has(node.callee.name)) {
-          report(node, `new ${node.callee.name}`);
+        const callee = node.callee;
+
+        if (NETWORK_CONSTRUCTORS.has(identifierName(callee))) {
+          report(node, `new ${callee.name}`);
 
           return;
         }
 
         // The same constructors reached through a global host - new window.WebSocket(...).
+        const constructorName = memberPropertyName(callee);
+
         if (
-          node.callee.type === "MemberExpression" &&
-          !node.callee.computed &&
-          node.callee.property.type === "Identifier" &&
-          NETWORK_CONSTRUCTORS.has(node.callee.property.name) &&
-          node.callee.object.type === "Identifier" &&
-          GLOBAL_HOSTS.has(node.callee.object.name)
+          NETWORK_CONSTRUCTORS.has(constructorName) &&
+          GLOBAL_HOSTS.has(identifierName(callee.object))
         ) {
-          report(node, `new ${node.callee.object.name}.${node.callee.property.name}`);
+          report(node, `new ${callee.object.name}.${constructorName}`);
         }
       },
       CallExpression(node) {
         const callee = node.callee;
 
-        if (callee.type === "Identifier" && callee.name === "fetch") {
+        if (identifierName(callee) === "fetch") {
           report(node, "fetch");
 
           return;
         }
 
-        if (
-          callee.type !== "MemberExpression" ||
-          callee.computed ||
-          callee.property.type !== "Identifier"
-        ) {
+        const property = memberPropertyName(callee);
+
+        if (property === null) {
           return;
         }
 
-        const host = callee.object.type === "Identifier" ? callee.object.name : null;
+        const host = identifierName(callee.object);
 
-        if (callee.property.name === "fetch" && GLOBAL_HOSTS.has(host)) {
+        if (property === "fetch" && GLOBAL_HOSTS.has(host)) {
           report(node, "fetch");
 
           return;
@@ -82,14 +82,10 @@ export default {
         // navigator.sendBeacon, bare or reached through a global host
         // (window.navigator.sendBeacon).
         const viaGlobalHost =
-          callee.object.type === "MemberExpression" &&
-          !callee.object.computed &&
-          callee.object.property.type === "Identifier" &&
-          callee.object.property.name === "navigator" &&
-          callee.object.object.type === "Identifier" &&
-          GLOBAL_HOSTS.has(callee.object.object.name);
+          memberPropertyName(callee.object) === "navigator" &&
+          GLOBAL_HOSTS.has(identifierName(callee.object.object));
 
-        if (callee.property.name === "sendBeacon" && (host === "navigator" || viaGlobalHost)) {
+        if (property === "sendBeacon" && (host === "navigator" || viaGlobalHost)) {
           report(node, "navigator.sendBeacon");
         }
       },

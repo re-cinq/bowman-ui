@@ -31,6 +31,9 @@ a fallback or the order departs from the declaration block
 - The set of tokens read across `dist/theme/tokens.js` and `dist/styles.css` is exactly the
   forty-four the comment block declares - no forty-fifth name in the code, no orphan in the block
   ([validated by the tokens read in dist/theme/tokens.js and dist/styles.css are exactly the forty-four declared ones](../../tests/theming-tokens-dist.test.ts#L197)).
+- CLAUDE.md invariant 13 quotes the count as a literal, and the same dist test reads that digit
+  and fails when it lags the block
+  ([validated by CLAUDE.md invariant 13 states the same token count as the stylesheet's declaration block](../../tests/theming-tokens-dist.test.ts#L338)).
 
 ## The fallback rule
 

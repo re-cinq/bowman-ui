@@ -15,13 +15,22 @@ const lint = (): LintResult[] =>
     `${fixtureDir}/no-catch-as-control-flow/violation.ts`,
     `${fixtureDir}/no-catch-as-control-flow/violation-property.ts`,
     `${fixtureDir}/no-network-egress/violation.ts`,
+    `${fixtureDir}/no-network-egress/violation-channels.ts`,
     `${fixtureDir}/no-prop-mutation/violation.tsx`,
     `${fixtureDir}/no-prop-mutation/violation-memo.tsx`,
+    `${fixtureDir}/no-prop-mutation/violation-shapes.tsx`,
     `${fixtureDir}/no-inline-styles/violation.tsx`,
     `${fixtureDir}/default-export/component.tsx`,
     `${fixtureDir}/house-style/violation.ts`,
     `${fixtureDir}/clean/clean.tsx`,
   ]);
+
+// ESLint's JSON output carries the interpolated message, not the report data,
+// so the api/name a rule reported for a line is pinned through the quoted text.
+const reported = (line: number, quoted: string) => ({
+  line,
+  message: expect.stringContaining(quoted) as string,
+});
 
 describe("the house-rule lint guardrails", () => {
   let results: LintResult[];
@@ -29,6 +38,11 @@ describe("the house-rule lint guardrails", () => {
   beforeAll(() => {
     results = lint();
   });
+
+  const reportedBy = (fixture: string, ruleId: string) =>
+    messagesFor(results, fixture)
+      .filter((m) => m.ruleId === ruleId)
+      .map((m) => ({ line: m.line, message: m.message }));
 
   it("a condition chaining three boolean operators fails with bowman/max-boolean-operators", () => {
     expect(
@@ -75,10 +89,52 @@ describe("the house-rule lint guardrails", () => {
     ).toContain("bowman/no-network-egress");
   });
 
+  it("every egress channel is reported with its api - fetch via window/globalThis/self and optional chaining, the three constructors bare and via a global host, sendBeacon on navigator bare and via a global host - while computed members, private names, non-global hosts and other constructors are not", () => {
+    expect(
+      reportedBy(`no-network-egress${sep}violation-channels.ts`, "bowman/no-network-egress")
+    ).toEqual([
+      reported(7, "'fetch'"),
+      reported(8, "'fetch'"),
+      reported(9, "'fetch'"),
+      reported(10, "'fetch'"),
+      reported(11, "'fetch'"),
+      reported(12, "'new WebSocket'"),
+      reported(13, "'new EventSource'"),
+      reported(14, "'new XMLHttpRequest'"),
+      reported(15, "'new window.WebSocket'"),
+      reported(16, "'new globalThis.EventSource'"),
+      reported(17, "'new self.XMLHttpRequest'"),
+      reported(18, "'navigator.sendBeacon'"),
+      reported(19, "'navigator.sendBeacon'"),
+      reported(20, "'navigator.sendBeacon'"),
+      reported(21, "'navigator.sendBeacon'"),
+    ]);
+  });
+
   it("pushing into an array received as props fails with bowman/no-prop-mutation", () => {
     expect(
       messagesFor(results, `no-prop-mutation${sep}violation.tsx`).map((m) => m.ruleId)
     ).toContain("bowman/no-prop-mutation");
+  });
+
+  it("every mutation shape is reported with the mutated expression - assignment, update, delete, nested member, mutating method, computed root, optional call, destructured prop, React.memo, React.forwardRef and forwardRef wrappers, a function declaration and a named function expression - while computed callees, private names, a lowercase function, a non-mutating method and a second parameter are not", () => {
+    expect(
+      reportedBy(`no-prop-mutation${sep}violation-shapes.tsx`, "bowman/no-prop-mutation")
+    ).toEqual([
+      reported(11, "('props.count')"),
+      reported(17, "('props.count')"),
+      reported(23, "('props.count')"),
+      reported(29, "('props.nested.depth')"),
+      reported(35, "('props.tags')"),
+      reported(41, "('props[\"counts\"]')"),
+      reported(47, "('props.counts')"),
+      reported(53, "('counts')"),
+      reported(59, "('props.counts')"),
+      reported(65, "('props.counts')"),
+      reported(71, "('props.counts')"),
+      reported(77, "('props.count')"),
+      reported(83, "('props.count')"),
+    ]);
   });
 
   it("a computed width in a style prop fails with re-lint/no-inline-styles", () => {
