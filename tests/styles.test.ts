@@ -121,6 +121,17 @@ describe("package.json stylesheet contract", () => {
   it("lists dist/styles.css in npm pack --dry-run", () => {
     expect(packedPaths()).toContain("dist/styles.css");
   });
+
+  it("packs dist/ plus exactly package.json, LICENSE, README.md and THIRD-PARTY-NOTICES.md", () => {
+    const outsideDist = packedPaths().filter((path) => !path.startsWith("dist/"));
+
+    expect(outsideDist.sort()).toEqual([
+      "LICENSE",
+      "README.md",
+      "THIRD-PARTY-NOTICES.md",
+      "package.json",
+    ]);
+  });
 });
 
 const sourceFiles = (dir: string): string[] =>

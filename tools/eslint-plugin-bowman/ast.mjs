@@ -8,11 +8,20 @@ export function identifierName(node) {
   return node?.type === "Identifier" ? node.name : null;
 }
 
-// The property name of a non-computed `object.property`; null for a computed
-// member (`object["property"]`) or a private name (`object.#property`).
+function stringLiteralValue(node) {
+  return node?.type === "Literal" && typeof node.value === "string" ? node.value : null;
+}
+
+// The property name of `object.property` or of its computed string spelling
+// `object["property"]`; null for any other computed property (an identifier,
+// a template literal) or a private name (`object.#property`).
 export function memberPropertyName(node) {
-  if (node?.type !== "MemberExpression" || node.computed) {
+  if (node?.type !== "MemberExpression") {
     return null;
+  }
+
+  if (node.computed) {
+    return stringLiteralValue(node.property);
   }
 
   return identifierName(node.property);

@@ -40,7 +40,7 @@ export const defaultChatComposerLabels: Readonly<Required<ChatComposerLabels>> =
 export interface ChatComposerProps {
   /** Receives the trimmed draft; the component clears itself after calling it. */
   onSubmit: (text: string) => void;
-  /** Disables the composer and pulses it - the agent is thinking. Default false. */
+  /** Pulses the composer and blocks sending while the agent is thinking; the input stays editable. Default false. */
   busy?: boolean;
   /** Disables the composer without the pulse. Default false. */
   disabled?: boolean;
@@ -144,7 +144,7 @@ export const ChatComposer = forwardRef<ChatComposerHandle, ChatComposerProps>(fu
         className={`block w-full resize-none bg-transparent px-4 py-4 text-base ${TEXT_STRONG} ${PLACEHOLDER_SUBTLE} focus:outline-none`}
         onChange={handleChange}
         onKeyDown={handleKeyDown}
-        disabled={inactive}
+        disabled={disabled}
         autoFocus={autoFocus}
       />
       <div

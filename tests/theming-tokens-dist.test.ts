@@ -186,15 +186,78 @@ const documentedTokens = (): Record<string, string> =>
       .map((match) => [match[1], match[2].replace(/\s+/g, "")])
   );
 
+const ONES = [
+  "zero",
+  "one",
+  "two",
+  "three",
+  "four",
+  "five",
+  "six",
+  "seven",
+  "eight",
+  "nine",
+  "ten",
+  "eleven",
+  "twelve",
+  "thirteen",
+  "fourteen",
+  "fifteen",
+  "sixteen",
+  "seventeen",
+  "eighteen",
+  "nineteen",
+];
+const TENS = ["", "", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety"];
+
+// The docs spell the count as a word; the test derives that word from the block.
+const inWords = (count: number): string => {
+  if (count < 20) {
+    return ONES[count];
+  }
+  const units = count % 10;
+
+  return `${TENS[Math.floor(count / 10)]}${units === 0 ? "" : `-${ONES[units]}`}`;
+};
+
+const SPELLED_COUNTS: Record<string, RegExp[]> = {
+  "docs/design-notes.md": [
+    /^([a-z-]+) `--bowman-\*` custom properties are the package's whole theming/gim,
+    /theme tokens, ([a-z-]+)\s+with the neutral roles/gim,
+    /The ([a-z-]+)-line comment block at the top of `src\/styles\.css`/gim,
+  ],
+  ".specify/spec.md": [/through ([a-z-]+) `--bowman-\*` semantic tokens/gim],
+  "specs/bowman-ui-theming-tokens/spec.md": [
+    /this file pins the ([a-z-]+) names/gim,
+    /^([a-z-]+) tokens - fifteen theme tokens/gim,
+    /is exactly the\s+([a-z-]+) the comment block declares/gim,
+    /sets all ([a-z-]+) tokens/gim,
+  ],
+};
+
+const spelledCounts = (file: string, patterns: RegExp[]): string[] => {
+  const text = read(file);
+
+  return patterns.map((pattern) => {
+    const matches = [...text.matchAll(pattern)];
+
+    if (matches.length !== 1) {
+      throw new Error(`${file} carries ${matches.length} sentences matching ${pattern.source}`);
+    }
+
+    return matches[0][1].toLowerCase();
+  });
+};
+
 describe("the built theming tokens", () => {
-  it("dist/styles.css opens with one comment line per token, forty-four in all, each stating its default", () => {
+  it("dist/styles.css opens with one comment line per token, each stating its default", () => {
     const declared = declaredTokens();
 
     expect([...declared.keys()]).toEqual(Object.keys(EXPECTED_FALLBACKS));
     expect(Object.fromEntries(declared)).toEqual(EXPECTED_FALLBACKS);
   });
 
-  it("the tokens read in dist/theme/tokens.js and dist/styles.css are exactly the forty-four declared ones", () => {
+  it("the tokens read in dist/theme/tokens.js and dist/styles.css are exactly the declared ones", () => {
     const used = new Set(allUsages().map((usage) => usage.token));
 
     expect([...used].sort()).toEqual([...declaredTokens().keys()].sort());
@@ -279,7 +342,7 @@ describe("the built theming tokens", () => {
     expect(read("dist/index.js")).not.toMatch(/theme\/tokens/);
   });
 
-  it("the token table in docs/design-notes.md § Theming lists the same forty-four names and fallbacks, in the declared order", () => {
+  it("the token table in docs/design-notes.md § Theming lists the same names and fallbacks, in the declared order", () => {
     expect(Object.entries(documentedTokens())).toEqual(Object.entries(EXPECTED_FALLBACKS));
   });
 
@@ -342,5 +405,21 @@ describe("the built theming tokens", () => {
     );
 
     expect(counts).toEqual([declaredTokens().size]);
+  });
+
+  it("the spelled token counts in docs/design-notes.md § Theming, .specify/spec.md and the theming spec equal the declaration block", () => {
+    const expected = inWords(declaredTokens().size);
+    const stated = Object.fromEntries(
+      Object.entries(SPELLED_COUNTS).map(([file, patterns]) => [
+        file,
+        spelledCounts(file, patterns),
+      ])
+    );
+
+    expect(stated).toEqual({
+      "docs/design-notes.md": [expected, expected, expected],
+      ".specify/spec.md": [expected],
+      "specs/bowman-ui-theming-tokens/spec.md": [expected, expected, expected, expected],
+    });
   });
 });

@@ -19,6 +19,12 @@
 # still controls, so the post accepts exactly one JSON object. A same-repo
 # pull request edits this file too, so the guard test pins the shape against
 # drift, not against a write-access author.
+# Issue 216: the template's Playwright install step is dropped. The binary
+# honours only the manifest's first entry, the vitest suite, so the consumer
+# entry never runs here, and its own run installs Chromium and WebKit itself
+# anyway; the root `npx playwright install` it ran also resolved the latest
+# playwright from the registry against no pin, the rule ci.yml's consumer job
+# already records.
 name: Lore Test Report
 
 on:
@@ -67,10 +73,6 @@ jobs:
 
       - uses: ./.github/actions/setup-node-install
         if: steps.fetch.outputs.fetched == 'true'
-
-      - name: Install Playwright (Chromium, with OS deps)
-        if: steps.fetch.outputs.fetched == 'true'
-        run: npx playwright install --with-deps chromium
 
       - name: Run test suite
         id: run
