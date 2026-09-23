@@ -184,7 +184,7 @@ contended runner otherwise
 ## The Playwright suite
 
 All statements below executed green on 2026-09-22 against the packed tarball
-in both projects (98 passed - the 49 tests of the chat, docs and theming
+in both projects (100 passed - the 50 tests of the chat, docs and theming
 suites in each of Chromium and WebKit - exit 0), re-run for the WebKit
 project of issue 200; a statement holds in both engines unless it says
 otherwise. See

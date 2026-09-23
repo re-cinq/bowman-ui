@@ -88,10 +88,7 @@ const focusRecoveredChildren = (neighbours: FallbackNeighbours) => {
 };
 
 export class ErrorBoundary extends Component<ErrorBoundaryProps, State> {
-  constructor(props: ErrorBoundaryProps) {
-    super(props);
-    this.state = { hasError: false };
-  }
+  state: State = { hasError: false };
 
   static getDerivedStateFromError(): State {
     return { hasError: true };

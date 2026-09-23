@@ -1,25 +1,27 @@
 "use client";
 
 import {
+  forwardRef,
   useImperativeHandle,
   useRef,
   useState,
   type ChangeEvent,
   type KeyboardEvent,
   type ReactNode,
-  type Ref,
 } from "react";
 import { SendIcon } from "../icons/index.js";
 import { resolveLabels } from "../labels.js";
 import {
   ACCENT_BG,
   ACCENT_BG_HOVER,
+  ACTIVE_BG_DISABLED,
   BORDER,
   FOCUS_WITHIN_RING_COLOR,
   PLACEHOLDER_SUBTLE,
   SURFACE,
   TEXT_ON_ACCENT,
   TEXT_STRONG,
+  TEXT_SUBTLE_DISABLED,
 } from "../theme/tokens.js";
 
 export interface ChatComposerLabels {
@@ -58,16 +60,18 @@ export interface ChatComposerHandle {
 }
 
 // Uncontrolled draft (outside writes use the ref handle); the isComposing guard keeps an IME commit from sending.
-export function ChatComposer({
-  onSubmit,
-  busy = false,
-  disabled = false,
-  autoFocus = false,
-  maxHeightPx = 200,
-  attachSlot,
-  labels,
-  ref,
-}: ChatComposerProps & { ref?: Ref<ChatComposerHandle> }) {
+export const ChatComposer = forwardRef<ChatComposerHandle, ChatComposerProps>(function ChatComposer(
+  {
+    onSubmit,
+    busy = false,
+    disabled = false,
+    autoFocus = false,
+    maxHeightPx = 200,
+    attachSlot,
+    labels,
+  },
+  ref
+) {
   const resolved = resolveLabels(defaultChatComposerLabels, labels);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [hasDraft, setHasDraft] = useState(false);
@@ -148,11 +152,11 @@ export function ChatComposer({
           onClick={submit}
           disabled={!hasDraft || inactive}
           aria-label={resolved.send}
-          className={`cursor-pointer rounded-lg ${ACCENT_BG} p-1.5 ${TEXT_ON_ACCENT} ${ACCENT_BG_HOVER} disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400 disabled:opacity-50 dark:disabled:bg-slate-800 dark:disabled:text-slate-500`}
+          className={`cursor-pointer rounded-lg ${ACCENT_BG} p-1.5 ${TEXT_ON_ACCENT} ${ACCENT_BG_HOVER} disabled:cursor-not-allowed ${ACTIVE_BG_DISABLED} ${TEXT_SUBTLE_DISABLED} disabled:opacity-50`}
         >
           <SendIcon className="h-4 w-4" />
         </button>
       </div>
     </div>
   );
-}
+});

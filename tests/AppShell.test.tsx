@@ -3,7 +3,11 @@ import { resolve } from "node:path";
 import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import { AppShell, type SidebarSlotContext } from "../src/index.js";
 import { stubFocusEnvironment } from "./helpers/focus-environment.js";
-import { expectFocusRing, expectTextStrongFocus } from "./helpers/expect-theme-tokens.js";
+import {
+  expectFocusRing,
+  expectTextBody,
+  expectTextStrongFocus,
+} from "./helpers/expect-theme-tokens.js";
 
 const source = readFileSync(resolve(process.cwd(), "src/components/AppShell.tsx"), "utf8");
 
@@ -539,6 +543,18 @@ describe("AppShell", () => {
 
       expect(mainRegion.classList).toContain("overflow-auto");
       expect(mainRegion.className).toContain("--bowman-text-body");
+    });
+
+    it("the desktop rail and the mobile drawer wrappers carry the body text token, so plain-string renderSidebar content reads on the dark surface", () => {
+      render(<AppShell renderSidebar={sidebarWithLink}>content</AppShell>);
+
+      const rail = screen.getByTestId("sidebar-desktop").parentElement;
+      const drawer = screen.getByTestId("sidebar-mobile").parentElement;
+
+      expect(rail).toHaveClass("hidden", "md:flex");
+      expect(drawer).toBe(getDrawer());
+      expectTextBody(rail);
+      expectTextBody(drawer);
     });
   });
 });

@@ -37,7 +37,9 @@ docs/design-notes.md decision 4 - rewriting it away would turn the `^19.0.0` pee
 testing claim into a hard React 19 floor; the icons still take no `ref` prop
 ([validated by tsc accepts icon-type-assertions.tsx against dist via the '.' exports entry](../../tests/icons-dist.test.ts#L51),
 [L138](../../tests/icons.test.tsx#L138),
-[L148](../../tests/icons.test.tsx#L148)).
+[L148](../../tests/icons.test.tsx#L148),
+[validated by IconWrapper is a forwardRef<SVGSVGElement, ...> component in src/icons/Icon.tsx - never ref-as-prop](../../tests/icons.test.tsx#L351),
+[validated by a ref passed to IconWrapper reaches the root <svg>](../../tests/icons.test.tsx#L358)).
 
 `LoadingIcon` is the explicit exception and keeps its own `<svg>`:
 `IconWrapper` hardcodes `stroke="currentColor"` on the root, which would put a

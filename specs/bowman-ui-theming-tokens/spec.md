@@ -299,7 +299,7 @@ markup identical to what they drove before the theme dimension existed
 ### The browser proof
 
 `examples/chat-demo/tests/theming.spec.ts` executed green on 2026-09-22 against the packed
-tarball via `npm run consumer`, in Chromium and WebKit alike since issue 200 (98 passed across
+tarball via `npm run consumer`, in Chromium and WebKit alike since issue 200 (100 passed across
 the chat, docs and theming suites in both projects, exit 0); the link target is the whole file
 ([validated by](../../examples/chat-demo/tests/theming.spec.ts#L1)). Every colour is read through
 `getComputedStyle`, and the default screen is never compared to a pinned oklch string: the suite

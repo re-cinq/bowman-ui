@@ -2,7 +2,7 @@
 
 import type { ReactElement } from "react";
 
-import { getAccessibleIconProps, IconWrapper, type IconSvgProps } from "./Icon.js";
+import { getAccessibleIconProps, IconWrapper } from "./Icon.js";
 
 export type { IconSvgProps } from "./Icon.js";
 export { IconWrapper, getAccessibleIconProps } from "./Icon.js";
@@ -13,26 +13,17 @@ export interface IconProps {
   strokeWidth?: number;
 }
 
-function createSvgProps(props: IconProps): IconSvgProps {
-  const { className, ariaLabel, strokeWidth = 2 } = props;
-
-  return {
-    className,
-    strokeWidth,
-    ...getAccessibleIconProps(ariaLabel),
-  };
-}
-
 function createUniformIcon(
   displayName: string,
   pathData: string[],
-  defaultStrokeWidth?: number
+  defaultStrokeWidth = 2
 ): (props: IconProps) => ReactElement {
-  function UniformIcon(props: IconProps): ReactElement {
-    const svgProps = createSvgProps({
-      ...props,
-      strokeWidth: props.strokeWidth ?? defaultStrokeWidth,
-    });
+  function UniformIcon({
+    className,
+    ariaLabel,
+    strokeWidth = defaultStrokeWidth,
+  }: IconProps): ReactElement {
+    const svgProps = { className, strokeWidth, ...getAccessibleIconProps(ariaLabel) };
 
     return (
       <IconWrapper {...svgProps}>
@@ -41,7 +32,7 @@ function createUniformIcon(
             key={d}
             strokeLinecap="round"
             strokeLinejoin="round"
-            strokeWidth={svgProps.strokeWidth}
+            strokeWidth={strokeWidth}
             d={d}
           />
         ))}
