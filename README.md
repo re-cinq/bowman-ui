@@ -377,7 +377,7 @@ const animationDuration = prefersReducedMotion ? 0 : 300;
 
 const debouncedQuery = useDebounce(query, 300);
 
-const { isOpen, setIsOpen, toggle, open, close, isHydrated } = useSidebarState("chat", { storagePrefix: "olt-" }); // stored under `${storagePrefix}${key}`
+const { isOpen, setIsOpen, toggle, open, close, isHydrated } = useSidebarState("chat", { storagePrefix: "olt-" }); // stored under `${storagePrefix}${key}`; cross-tab writes apply until the first local set
 ```
 
 ## Development

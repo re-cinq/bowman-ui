@@ -121,9 +121,9 @@ exact per-icon provenance is not tracked.
 
 Consequences, recorded so no cleanup PR "fixes" them:
 
-- `SendIcon` exists but no shipped component renders it. Which glyph a send
-  button shows is a product choice; the set carries the icon so a consumer
-  can make it without adding a dependency.
+- The composer's send glyph is the set's own `SendIcon`, rendered inside the
+  send button in `src/components/ChatComposer.tsx`. The export stays public
+  all the same, so a consumer's own send button can reuse it dependency-free.
 - There is no paperclip icon in the set and none gets authored: the attach
   affordance is decorative in the surfaces this package targets. The
   composer takes an attachment slot instead.
@@ -476,8 +476,8 @@ the name and fallback columns are the contract, not an illustration.
 | `--bowman-accent-glow-dark`    | `rgba(96,165,250,0.1)`   | composer `focus-within` shadow (dark)                                                                                                                                                                  |
 | `--bowman-focus-ring`          | `var(--color-blue-500)`  | every `focus:ring`, `ErrorBoundary`'s `focus-visible:ring`, the composer's `focus-within:ring` at `/50` (light)                                                                                        |
 | `--bowman-focus-ring-dark`     | `var(--color-blue-400)`  | the same rings (dark); `ErrorBoundary` has no dark ring today and gains none                                                                                                                           |
-| `--bowman-active`              | `var(--color-slate-100)` | active conversation row background; active sidebar item background (light)                                                                                                                             |
-| `--bowman-active-dark`         | `var(--color-slate-800)` | active conversation row and sidebar item background (dark)                                                                                                                                             |
+| `--bowman-active`              | `var(--color-slate-100)` | active conversation row background; active sidebar item background; the disabled send button's background (light)                                                                                      |
+| `--bowman-active-dark`         | `var(--color-slate-800)` | active conversation row, sidebar item and disabled send button background (dark)                                                                                                                       |
 | `--bowman-pulse-outline`       | `rgba(59,130,246,0.5)`   | `bowman-pulse-subtle` outline (both modes)                                                                                                                                                             |
 | `--bowman-surface`             | `var(--color-white)`     | panel, sidebar, drawer, composer, search field, prompt chip and secondary `Button`/`IconButton` background (light)                                                                                     |
 | `--bowman-surface-dark`        | `var(--color-slate-900)` | the same surfaces (dark)                                                                                                                                                                               |
@@ -497,8 +497,8 @@ the name and fallback columns are the contract, not an illustration.
 | `--bowman-text-secondary-dark` | `var(--color-slate-400)` | the same text (dark)                                                                                                                                                                                   |
 | `--bowman-text-muted`          | `var(--color-slate-500)` | timestamps, the disclosure band, thinking and tool labels (light)                                                                                                                                      |
 | `--bowman-text-muted-dark`     | `var(--color-slate-400)` | the same labels (dark)                                                                                                                                                                                 |
-| `--bowman-text-subtle`         | `var(--color-slate-400)` | faint timestamps, empty-state hints, the search icon, composer and search placeholders, `ChatMessage` copy/thumb buttons and `ConversationList` delete button at rest (light)                          |
-| `--bowman-text-subtle-dark`    | `var(--color-slate-500)` | the same hints and placeholders (dark)                                                                                                                                                                 |
+| `--bowman-text-subtle`         | `var(--color-slate-400)` | faint timestamps, empty-state hints, the search icon, composer and search placeholders, `ChatMessage` copy/thumb and `ConversationList` delete buttons at rest, disabled send button (light)           |
+| `--bowman-text-subtle-dark`    | `var(--color-slate-500)` | the same hints, placeholders, controls and disabled button (dark)                                                                                                                                      |
 | `--bowman-text-on-accent`      | `var(--color-white)`     | send button and primary `Button`/`IconButton` text (one value, both modes)                                                                                                                             |
 | `--bowman-danger`              | `var(--color-red-600)`   | selected thumbs-down and `ErrorBoundary` icon glyph text, `ConversationList` delete-button hover (light)                                                                                               |
 | `--bowman-danger-dark`         | `var(--color-red-400)`   | the same danger text (dark)                                                                                                                                                                            |
@@ -597,7 +597,13 @@ Decisions:
    scroll region and footer row - each carried no text utility before. Only
    the body text is painted; these regions' backgrounds stay palette-mapped by
    the rule below (the main region's `bg-white` / `dark:bg-slate-950` is listed
-   there). The ten pairs: `--bowman-surface` (`bg-white` /
+   there). Amended 2026-09-22 under issue 109: the two `AppShell` wrappers
+   around `renderSidebar` output - the desktop rail and the mobile drawer
+   container - join the list, so content a consumer returns directly from
+   `renderSidebar` reads too; `AppSidebar` paints its own regions either way.
+   The drawer container is the painted element rather than a new wrapper
+   around the slot, because `AppSidebar` fills the drawer as its direct
+   `flex-1 min-h-0` child. The ten pairs: `--bowman-surface` (`bg-white` /
    `dark:bg-slate-900`), `--bowman-surface-hover` (`hover:bg-slate-50` /
    `dark:hover:bg-slate-800`), `--bowman-control-hover` (`hover:bg-slate-100`
    / `dark:hover:bg-slate-800`), `--bowman-border` (`border-slate-200` /
@@ -737,6 +743,9 @@ Decisions:
     and `dist/styles.css`, and every read must carry a non-empty fallback -
     so the block cannot drift from the code. A forty-fifth token is a table
     row here, a comment line there and a constant in the module, in one PR.
+    Amended 2026-09-22 under issue 186: the count CLAUDE.md invariant 13
+    quotes is read by the same dist test and must equal the block, so that
+    sentence cannot lag a token PR either.
 11. **The styled primitives read the same tokens.** `Button`, `IconButton`,
     `PromptChips` and `SearchField` (§ Styled primitives) landed on `main`
     first with their own `focus:ring-blue-500` string in `buttonStyles.ts`,
@@ -954,7 +963,13 @@ published `@re-cinq/eslint-plugin-re-lint` package for re-cinq's generic
 rules (decision 9), plus a handful of core-ESLint entries (decisions 1-7). Those are validated against committed
 fixtures by `tests/eslint-house-rules.test.ts`, judged by the exact committed
 config via `--no-ignore` (the same mechanism the Labels and duplication
-fixtures use). Decision 8's third-party `react-hooks` rules carry no such
+fixtures use). `tools/**` sits outside the coverage include
+(`vitest.config.ts`), so those fixtures are the rules' only proof: the
+egress and prop-mutation fixtures pin the exact reported line and api or
+name per shape, absence included, which is what let the member-expression readers
+(`identifierName`, `memberPropertyName`) move into the one shared
+`tools/eslint-plugin-bowman/ast.mjs` with the fixtures untouched (issue
+184). Decision 8's third-party `react-hooks` rules carry no such
 fixture: they are validated by the three exempt components' own behavioural
 tests.
 
@@ -988,11 +1003,17 @@ Decisions:
    lint rule is the review-time backstop that names the violation before a
    test ever runs. Denylisted channels: `fetch` (bare or via
    window/globalThis/self), `new WebSocket/EventSource/XMLHttpRequest`,
-   `navigator.sendBeacon`.
+   `navigator.sendBeacon`. Only non-computed member access is read: the
+   computed spelling (`window["fetch"]`) and a private name pass the rule
+   and are pinned as unreported by the fixture - a recorded limit, with the
+   runtime traps behind it (issue 211).
 5. **Props are read-only** (`bowman/no-prop-mutation`). Data flows down as
    arguments; changes flow up via callback props. Scope-based, so a local
    sharing a prop's name never trips it; only the first parameter is props,
    leaving a `forwardRef` second argument and its `.current` writes alone.
+   Reads members the same way as decision 4: a computed mutator or wrapper
+   callee (`props.items["push"](0)`, `React["memo"](...)`) passes and is
+   pinned as unreported by the fixture (issue 211).
 6. **Styling lives in the stylesheet** (`re-lint/no-inline-styles`), with one
    passing shape - an object of nothing but CSS custom properties, because
    the styling rules then still live in the stylesheet reading the variable.
@@ -1265,6 +1286,24 @@ Considered and rejected:
   upstreaming those three detections and then retiring the ports is the
   eventual fix. `no-inline-styles` passed the same probe and moved
   (decision 6).
+
+## Coverage floor
+
+`vitest.config.ts` commits the floor inline: 100 lines, 100 functions, 100
+statements and 100 branches over `src/**`, with two exclusions - `src/index.ts`,
+which only re-exports, and `src/types/**`, which emits no statements for v8 to
+count. The floor starts high rather than low-and-ratcheting because
+characterization tests land before each component does, so every file arrives
+covered; branches joined the other three at 100 under issue 152, once every
+`src/**` branch was exercised. If a real component cannot hold 100, the floor
+is lowered once, in that PR, with the number and reason recorded in this
+section - and never again. `tests/system-contract.test.ts` (`the committed
+coverage floor is at least 80 on every threshold`) reads the four numbers off
+that config line and fails if the line vanishes or any number sinks below 80,
+so the floor cannot disappear or collapse silently. The one-shot allowance
+itself is prose: a second lowering that stays at or above 80 is a review-time
+catch, not a test failure, which is why it is recorded here and not only in
+the config comment.
 
 ## Seams left open on purpose
 

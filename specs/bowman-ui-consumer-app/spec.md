@@ -174,7 +174,7 @@ otherwise ([validated by](../../examples/chat-demo/playwright.config.ts#L8)).
 ## The Playwright suite
 
 All statements below executed green on 2026-09-22 against the packed tarball
-(49 passed across the chat, docs and theming suites, exit 0), re-run for the
+(50 passed across the chat, docs and theming suites, exit 0), re-run for the
 issue 151 browser-behaviour block below. See
 `specs/bowman-ui-theming-tokens/spec.md` § The demo for the theming suite,
 `tests/theming.spec.ts`, which this spec does not restate.
@@ -303,7 +303,7 @@ in `specs/bowman-ui-theming-tokens/spec.md`, the reveals in
   [L653](../../examples/chat-demo/tests/chat-demo.spec.ts#L653)).
 - Under the dark colour scheme the enabled send button and the composer
   surface resolve to the `-dark` fallbacks, which differ from the light shades
-  ([validated by the send button and the composer's surface resolve to the dark palette fallbacks](../../examples/chat-demo/tests/theming.spec.ts#L298)).
+  ([validated by the send button and the composer's surface resolve to the dark palette fallbacks](../../examples/chat-demo/tests/theming.spec.ts#L310)).
 - The documentation gains a `search-field` page with a `SearchFieldExample`,
   and Chromium's native clear control and `Escape` both empty the controlled
   field through `onChange("")`

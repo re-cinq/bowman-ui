@@ -125,7 +125,9 @@ export function AppShell({
         </a>
       )}
 
-      <div className="hidden md:flex">{renderSidebar?.({ variant: "desktop", close })}</div>
+      <div className={`hidden md:flex ${TEXT_BODY}`}>
+        {renderSidebar?.({ variant: "desktop", close })}
+      </div>
 
       <div
         data-testid="app-shell-backdrop"
@@ -141,7 +143,7 @@ export function AppShell({
         aria-label={isOpen ? resolved.sidebarDialog : undefined}
         data-testid="app-shell-drawer"
         inert={!isOpen}
-        className={`fixed inset-y-0 left-0 z-50 flex w-72 max-w-[85vw] flex-col border-r ${BORDER} ${SURFACE} md:hidden${drawerMotionClass} ${drawerStateClass}`}
+        className={`fixed inset-y-0 left-0 z-50 flex w-72 max-w-[85vw] flex-col border-r ${BORDER} ${SURFACE} ${TEXT_BODY} md:hidden${drawerMotionClass} ${drawerStateClass}`}
       >
         <div className={`flex h-14 items-center justify-end border-b ${BORDER} ${TEXT_BODY} px-4`}>
           <button
