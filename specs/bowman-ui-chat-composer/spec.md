@@ -23,7 +23,7 @@ through `ChatComposerHandle` (`focus()`, `setValue()`) via
 writes a consumer needs: clear-on-send and a text-injection helper
 ([validated by](../../tests/ChatComposer.test.tsx#L257),
 [L290](../../tests/ChatComposer.test.tsx#L290),
-[validated by ChatComposer is a forwardRef<ChatComposerHandle, ChatComposerProps> component - never ref-as-prop](../../tests/ChatComposer.test.tsx#L473)).
+[validated by ChatComposer is a forwardRef<ChatComposerHandle, ChatComposerProps> component - never ref-as-prop](../../tests/ChatComposer.test.tsx#L486)).
 
 **Note - first `useImperativeHandle` in the repo.** 018 Decision 4's idiom is
 `forwardRef` (preserved here); `useImperativeHandle` itself has no prior use
