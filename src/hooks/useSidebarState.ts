@@ -63,7 +63,7 @@ export function useSidebarState(key: string, options: SidebarStateOptions) {
 
   const storedOpen = storedValue === null ? defaultOpen : storedValue === "true";
 
-  // Once the consumer changes the value it is the source of truth; the persisted read only seeds and syncs cross-tab.
+  // The consumer's first set becomes the source of truth; before it, isOpen follows the persisted read and cross-tab events.
   const [userValue, setUserValue] = useState<boolean | null>(null);
   const isOpen = userValue === null ? storedOpen : userValue;
 

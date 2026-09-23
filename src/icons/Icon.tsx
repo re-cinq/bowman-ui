@@ -12,10 +12,7 @@ export interface IconSvgProps {
 
 /** Base wrapper for SVG icons with accessibility support. */
 export const IconWrapper = forwardRef<SVGSVGElement, IconSvgProps & { children: ReactNode }>(
-  function IconWrapper(
-    { className, children, "aria-hidden": ariaHidden, role, "aria-label": ariaLabel, ...props },
-    ref
-  ) {
+  function IconWrapper({ className, children, ...props }, ref) {
     return (
       <svg
         ref={ref}
@@ -23,9 +20,6 @@ export const IconWrapper = forwardRef<SVGSVGElement, IconSvgProps & { children: 
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"
-        aria-hidden={ariaHidden}
-        role={role}
-        aria-label={ariaLabel}
         {...props}
       >
         {children}

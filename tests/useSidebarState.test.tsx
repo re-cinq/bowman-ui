@@ -130,4 +130,32 @@ describe("useSidebarState", () => {
     expect(html).toContain('data-open="true"');
     expect(html).toContain('data-hydrated="false"');
   });
+
+  it("a matching storage event after a toggle changes neither isOpen nor the stored value", () => {
+    const { result } = renderChatSidebar();
+
+    act(() => {
+      result.current.toggle();
+    });
+    expect(result.current.isOpen).toBe(false);
+
+    const observer = renderChatSidebar();
+
+    expect(observer.result.current.isOpen).toBe(false);
+
+    act(() => {
+      localStorage.setItem("olt-chat", "true");
+      window.dispatchEvent(new StorageEvent("storage", { key: "olt-chat" }));
+    });
+    expect(observer.result.current.isOpen).toBe(true);
+    expect(result.current.isOpen).toBe(false);
+    expect(localStorage.getItem("olt-chat")).toBe("true");
+
+    act(() => {
+      localStorage.clear();
+      window.dispatchEvent(new StorageEvent("storage", { key: null }));
+    });
+    expect(result.current.isOpen).toBe(false);
+    expect(localStorage.getItem("olt-chat")).toBeNull();
+  });
 });
