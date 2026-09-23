@@ -49,7 +49,7 @@ describe("decision 4's forwardRef idiom across the built package", () => {
     const root = process.cwd();
     const declaringFiles = listFiles(resolve(root, "src"))
       .filter((file) => /\bforwardRef[<(]/.test(readFileSync(file, "utf8")))
-      .map((file) => relative(root, file))
+      .map((file) => relative(root, file).replaceAll("\\", "/"))
       .sort();
 
     expect(declaringFiles).toEqual(Object.values(committed).sort());
