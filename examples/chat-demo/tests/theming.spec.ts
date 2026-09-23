@@ -75,7 +75,7 @@ const boxShadowOf = (locator: Locator): Promise<string> =>
 const composerOf = (scope: Page | Locator): Locator =>
   scope.getByRole("textbox", { name: chatComposerLabels.composerInput });
 
-// The send button is disabled - and slate - until there is a draft.
+// The send button is disabled until there is a draft.
 const enabledSendButton = async (scope: Page | Locator): Promise<Locator> => {
   await composerOf(scope).fill("An invented draft");
   const sendButton = scope.getByRole("button", { name: chatComposerLabels.send });
@@ -220,6 +220,18 @@ test.describe("the Copperline Bicycles chat screen", () => {
 
     await expect(copyButton).toHaveCount(1);
     expect(await textColorOf(copyButton)).toBe(copperTextSubtle);
+  });
+
+  test("the disabled send button takes the wrapper's active surface and subtle text tokens", async ({
+    page,
+  }) => {
+    await page.goto(themedChatUrl);
+
+    const sendButton = page.getByRole("button", { name: chatComposerLabels.send });
+
+    await expect(sendButton).toBeDisabled();
+    expect(await backgroundOf(sendButton)).toBe(copperActiveRow);
+    expect(await textColorOf(sendButton)).toBe(copperTextSubtle);
   });
 
   test("the focused composer glows in the theme's accent", async ({ page }) => {

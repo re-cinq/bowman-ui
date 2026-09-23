@@ -19,7 +19,7 @@ export interface InlineThinkingIndicatorProps {
   labels?: Partial<InlineThinkingIndicatorLabels>;
 }
 
-// Streaming placeholder inside a message before content arrives; private because ChatMessage is its only call site.
+// Streaming placeholder inside a message before content arrives; a public export, though ChatMessage is its only in-tree call site.
 export function InlineThinkingIndicator({ labels }: InlineThinkingIndicatorProps) {
   const resolved = resolveLabels(defaultInlineThinkingIndicatorLabels, labels);
 
