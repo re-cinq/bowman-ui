@@ -113,9 +113,13 @@ string survives in `src/`
   plumbing stays in the consumer; the hook takes the already-resolved boolean.
 - **Storage prefix is consumer-owned.** No default: two apps on one origin must not collide, and
   a baked-in default would silently brand the package's storage keys.
-- **Dead `typeof window === "undefined"` guards dropped.** Every file is `"use client"`; the
-  guards could never fire in the environments the directive admits (`useReducedMotion` keeps
-  its guard: see issue 170).
+- **Browser reads sit behind server snapshots or a capability check.** A `"use client"` file
+  still prerenders once on the server, so `useSidebarState` hands `useSyncExternalStore` a
+  server snapshot and reads storage only on the client, and `useReducedMotion` keeps a
+  `matchMedia` capability check and reports `false` where the environment lacks it, instead of
+  throwing
+  ([validated by server render falls back to the default and reports not hydrated](../../tests/useSidebarState.test.tsx#L125),
+  [validated by an environment without matchMedia reports false and does not throw](../../tests/useReducedMotion.test.tsx#L89)).
 - **English strings stay as per-component props for now.** The repo-wide labels convention
   (defaults + `resolveLabels`) is issue 022's contract; these components adopt it there.
 - **Directive-checker gap closed.** `scripts/check-client-directives.mjs`'s class rule matches

@@ -3,7 +3,7 @@
 // it never renders markdown - and fails the build when the one change that
 // would void the whole XSS corpus (tests/security/markdown-xss.test.tsx)
 // lands: raw HTML rendering is re-enabled, the image gate's default is
-// flipped, or a dangerous scheme is admitted to the default allowlist.
+// flipped, or the default allowlist no longer equals https / mailto / tel.
 //
 // The load-bearing invariant, stated where a future maintainer will see it:
 // bowman-ui never adds rehype-raw or otherwise renders raw HTML from entry
@@ -15,9 +15,11 @@
 //      dangerouslySetInnerHTML, or re-enables raw HTML via skipHtml={false}.
 //   3. defaultMarkdownPolicy.allowImages is literally false.
 //   4. defaultMarkdownPolicy.allowedSchemes is declared once as an inline array
-//      of quoted string literals without escape sequences (so the gate reads
-//      the runtime value) admitting none of javascript / data / vbscript / file.
-//      The key matches bare or quoted, never as the suffix of a longer name.
+//      of quoted string literals (so the gate reads the runtime value) whose
+//      raw source text is exactly "https", "mailto" and "tel" in any order: an
+//      admitted http, a dropped tel or an escaped literal that spells
+//      javascript at runtime all fail without any escape handling. The key
+//      matches bare or quoted, never as the suffix of a longer name.
 //
 // Runs against process.cwd() by default; a directory argument points it at
 // another tree so the corpus test can prove it trips on crafted bad inputs and
@@ -42,7 +44,7 @@ const SRC_TOKENS = [
   },
 ];
 
-const BANNED_SCHEMES = ["javascript", "data", "vbscript", "file"];
+const DEFAULT_SCHEMES = ["https", "mailto", "tel"];
 
 const scanSource = (root) => {
   const srcDir = join(root, "src");
@@ -88,6 +90,11 @@ const ALLOWED_SCHEMES_ARRAY = new RegExp(
 
 const isInlineStringArray = (list) => list.replace(QUOTED_LITERAL, "").replace(/[\s,]/g, "") === "";
 
+const isDefaultSchemeSet = (declared) =>
+  JSON.stringify([...declared].sort()) === JSON.stringify(DEFAULT_SCHEMES);
+
+const quoteList = (literals) => `[${literals.map((literal) => `"${literal}"`).join(", ")}]`;
+
 const defaultPolicyBlock = (source) => {
   const match = source.match(/defaultMarkdownPolicy[\s\S]*?\}\)/);
 
@@ -120,17 +127,13 @@ const scanPolicy = (root) => {
     violations.push(
       "defaultMarkdownPolicy.allowedSchemes must be an inline array of quoted string literals"
     );
-  } else if (list.includes("\\")) {
-    violations.push("defaultMarkdownPolicy.allowedSchemes must not contain escape sequences");
   }
-  const declared = [...(list ?? "").matchAll(QUOTED_LITERAL)].map((m) => m[1].toLowerCase());
+  const declared = [...(list ?? "").matchAll(QUOTED_LITERAL)].map((m) => m[1]);
 
-  for (const banned of BANNED_SCHEMES) {
-    if (declared.includes(banned)) {
-      violations.push(
-        `defaultMarkdownPolicy.allowedSchemes admits the dangerous scheme "${banned}"`
-      );
-    }
+  if (list !== undefined && !isDefaultSchemeSet(declared)) {
+    violations.push(
+      `defaultMarkdownPolicy.allowedSchemes literals must be exactly ${quoteList(DEFAULT_SCHEMES)}, found ${quoteList(declared)}`
+    );
   }
 
   return { violations };
