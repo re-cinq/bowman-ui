@@ -13,7 +13,11 @@
 //   1. rehype-raw appears nowhere in package.json.
 //   2. No file under src/ mentions rehype, imports remark-html, sets
 //      dangerouslySetInnerHTML, or re-enables raw HTML via skipHtml={false}.
-//   3. defaultMarkdownPolicy.allowImages is literally false.
+//   3. defaultMarkdownPolicy.allowImages is declared exactly once, as literally
+//      false, read with line comments blanked so a decoy comment spelling the
+//      value neither hides a real true nor counts as a second declaration;
+//      a second property, bare or quoted, fails. The key matches bare or
+//      quoted, never as the suffix of a longer name.
 //   4. defaultMarkdownPolicy.allowedSchemes is declared once as an inline array
 //      of quoted string literals (so the gate reads the runtime value) whose
 //      raw source text is exactly "https", "mailto" and "tel" in any order: an
@@ -29,6 +33,11 @@
 //      and quoted strings (backslash continuations included) are lexed so a
 //      stray backtick or "/*" inside one opens nothing, and kept verbatim so
 //      the literals stay readable.
+//   6. The same block, again with line comments blanked so a trailing comment
+//      cannot mask the delimiter, contains no computed key: a "[" that follows
+//      "{" or "," across whitespace sits at property position and, as the last
+//      property, would override a checked key at runtime while its literal
+//      reads clean.
 //
 // Runs against process.cwd() by default; a directory argument points it at
 // another tree so the corpus test can prove it trips on crafted bad inputs and
@@ -112,7 +121,14 @@ const isBlankedLexeme = (lexeme) => lexeme.startsWith("/*") || lexeme.startsWith
 const withoutCommentsAndTemplates = (source) =>
   source.replace(HIDING_LEXEMES, (lexeme) => (isBlankedLexeme(lexeme) ? "" : lexeme));
 
+const withoutLineComments = (source) =>
+  source.replace(HIDING_LEXEMES, (lexeme) => (lexeme.startsWith("//") ? "" : lexeme));
+
 const DEFAULT_POLICY_BLOCK = /^export const defaultMarkdownPolicy[\s\S]*?^[ \t]*\}\);$/m;
+
+const ALLOW_IMAGES_VALUES = /(?<![\w$])["']?allowImages["']?\s*:\s*(true|false)/g;
+
+const COMPUTED_KEY = /[{,]\s*\[/;
 
 const defaultPolicyBlock = (source) => {
   const match = withoutCommentsAndTemplates(source).match(DEFAULT_POLICY_BLOCK);
@@ -132,10 +148,19 @@ const scanPolicy = (root) => {
     return { fatal: "defaultMarkdownPolicy declaration not found in src/markdown/urlPolicy.ts" };
   }
   const violations = [];
-  const allowImages = block.match(/allowImages:\s*(true|false)/);
+  const code = withoutLineComments(block);
+  const allowImages = [...code.matchAll(ALLOW_IMAGES_VALUES)].map((m) => m[1]);
 
-  if (allowImages === null || allowImages[1] !== "false") {
-    violations.push("defaultMarkdownPolicy.allowImages must be literally false");
+  if (allowImages.length !== 1 || allowImages[0] !== "false") {
+    violations.push(
+      "defaultMarkdownPolicy.allowImages must be declared exactly once as literally false"
+    );
+  }
+
+  if (COMPUTED_KEY.test(code)) {
+    violations.push(
+      "defaultMarkdownPolicy must not use a computed key (a computed key can override the values the gate reads)"
+    );
   }
 
   if (block.includes("...")) {

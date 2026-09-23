@@ -25,10 +25,11 @@ export const computedBeaconHost = () => window["navigator"].sendBeacon(url);
 export const computedBeacon = () => navigator["sendBeacon"](url);
 export const optionalComputedFetch = () => window?.["fetch"](url);
 export const computedBeaconChain = () => window["navigator"]["sendBeacon"](url);
-
-// Outside the denylist: a computed member whose property is not a string
-// literal, non-global hosts, other constructors.
 export const templateFetch = () => window[`fetch`](url);
+
+// Outside the denylist: a computed member whose property is a template with
+// substitutions, non-global hosts, other constructors.
+export const substitutionFetch = () => window[`fe${"tch"}`](url);
 export const localFetch = () => courier.fetch(url);
 export const calledFetch = () => getCourier().fetch(url);
 export const localSocket = new courier.WebSocket();

@@ -103,10 +103,16 @@ export const ComputedChain = (props: Props) => {
   return null;
 };
 
-// Left alone: a computed callee whose property is not a string literal, a
-// lowercase function, a non-mutating method, and a second parameter.
 export const TemplateMutator = (props: Props) => {
   props.counts[`push`](0);
+
+  return null;
+};
+
+// Left alone: a computed callee whose property is a template with substitutions,
+// a lowercase function, a non-mutating method, and a second parameter.
+export const SubstitutionMutator = (props: Props) => {
+  props.counts[`pu${"sh"}`](0);
 
   return null;
 };

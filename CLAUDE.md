@@ -84,8 +84,9 @@ The typecheck script is `typecheck`, not `type-check`.
   cited repository file (a test, a script, README.md, a docs/ markdown file, a workflow, a
   config), run `npm run reanchor` and commit the result or CI reds. A `[validated by <test
 title>]` link follows its `it()`; every other link is mapped through the cited file's diff
-  hunks from the merge base with `origin/main`. A cited line the branch deleted is reported,
-  exit 1. CI runs `reanchor:check` only, never a bot commit. See docs/design-notes.md § Lint
+  hunks from the merge base with `origin/main`. A cited line the branch deleted, or a titled
+  link whose title no test in the cited file carries, is reported, exit 1. CI runs
+  `reanchor:check` only, never a bot commit. See docs/design-notes.md § Lint
   guardrails decision 14.
 - `node scripts/write-public-api.mjs` — only after deliberately deciding a surface change is
   intended (see invariant 3).

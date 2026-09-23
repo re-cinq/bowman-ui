@@ -24,6 +24,10 @@ const EXACT_SET_MESSAGE = 'allowedSchemes literals must be exactly ["https", "ma
 
 const SPREAD_MESSAGE = "defaultMarkdownPolicy must not spread another object";
 
+const ALLOW_IMAGES_MESSAGE = "allowImages must be declared exactly once as literally false";
+
+const COMPUTED_KEY_MESSAGE = "defaultMarkdownPolicy must not use a computed key";
+
 const cleanPolicy = `export const defaultMarkdownPolicy = Object.freeze({
   allowedSchemes: ${FROZEN_SCHEMES},
   allowRelativeUrls: false,
@@ -425,6 +429,121 @@ describe("check-markdown-safety", () => {
       root,
       "src/markdown/urlPolicy.ts",
       `// the \`tel scheme is opaque\n${cleanPolicy}\nexport const hint = \`https, mailto, tel\`;\n`
+    );
+
+    expect(run(root)).toMatchObject({ status: 0 });
+  });
+
+  it("exits 1 when a line comment spelling allowImages false precedes allowImages true in the default policy", () => {
+    write(
+      root,
+      "src/markdown/urlPolicy.ts",
+      cleanPolicy.replace(
+        "allowImages: false,",
+        "// allowImages: false is the shipped default\n  allowImages: true,"
+      )
+    );
+
+    const result = run(root);
+
+    expect(result).toMatchObject({ status: 1 });
+    expect(result.stderr).toContain(ALLOW_IMAGES_MESSAGE);
+  });
+
+  it("exits 1 when the default policy declares allowImages twice", () => {
+    write(
+      root,
+      "src/markdown/urlPolicy.ts",
+      cleanPolicy.replace("allowImages: false,", "allowImages: false,\n  allowImages: true,")
+    );
+
+    const result = run(root);
+
+    expect(result).toMatchObject({ status: 1 });
+    expect(result.stderr).toContain(ALLOW_IMAGES_MESSAGE);
+  });
+
+  it("exits 1 when a computed key is the last property of the default policy", () => {
+    write(
+      root,
+      "src/markdown/urlPolicy.ts",
+      cleanPolicy.replace(
+        "allowImages: false,",
+        "allowImages: false,\n  [OVERRIDE_KEY]: OVERRIDE_VALUE,"
+      )
+    );
+
+    const result = run(root);
+
+    expect(result).toMatchObject({ status: 1 });
+    expect(result.stderr).toContain(COMPUTED_KEY_MESSAGE);
+  });
+
+  it("exits 1 when a quoted allowImages key follows the bare one in the default policy", () => {
+    write(
+      root,
+      "src/markdown/urlPolicy.ts",
+      cleanPolicy.replace("allowImages: false,", 'allowImages: false,\n  "allowImages": true,')
+    );
+
+    const result = run(root);
+
+    expect(result).toMatchObject({ status: 1 });
+    expect(result.stderr).toContain(ALLOW_IMAGES_MESSAGE);
+  });
+
+  it.each([
+    [
+      "the last property after a trailing line comment",
+      cleanPolicy.replace(
+        "allowImages: false,",
+        "allowImages: false, // the shipped default\n  [OVERRIDE_KEY]: OVERRIDE_VALUE,"
+      ),
+    ],
+    [
+      "a property between two checked keys",
+      cleanPolicy.replace('linkTarget: "_blank",', "[OVERRIDE_KEY]: OVERRIDE_VALUE,"),
+    ],
+    [
+      "the first property on the opening line",
+      cleanPolicy.replace("Object.freeze({\n", "Object.freeze({ [OVERRIDE_KEY]: OVERRIDE_VALUE,\n"),
+    ],
+  ])("exits 1 when a computed key is %s of the default policy", (_, source) => {
+    write(root, "src/markdown/urlPolicy.ts", source);
+
+    const result = run(root);
+
+    expect(result).toMatchObject({ status: 1 });
+    expect(result.stderr).toContain(COMPUTED_KEY_MESSAGE);
+  });
+
+  it.each([
+    [
+      "a line comment spelling allowImages false beside the real false",
+      cleanPolicy.replace("allowImages: false,", "allowImages: false, // allowImages: false"),
+    ],
+    [
+      "a key ending in allowImages",
+      cleanPolicy.replace("allowImages: false,", "allowImages: false,\n  disallowImages: true,"),
+    ],
+    [
+      "a line comment holding a bracket after a comma",
+      cleanPolicy.replace('linkTarget: "_blank",', 'linkTarget: "_blank", // https, mailto, [tel]'),
+    ],
+  ])("exits 0 when %s sits in the default policy", (_, source) => {
+    write(root, "src/markdown/urlPolicy.ts", source);
+
+    expect(run(root)).toMatchObject({ status: 0 });
+  });
+
+  it("exits 0 when the default allowlist array is wrapped onto its own lines", () => {
+    write(
+      root,
+      "src/markdown/urlPolicy.ts",
+      cleanPolicy.replace(
+        FROZEN_SCHEMES,
+        'Object.freeze([\n    "https",\n    "mailto",\n    "tel",\n  ])'
+      )
     );
 
     expect(run(root)).toMatchObject({ status: 0 });

@@ -233,7 +233,28 @@ const SPELLED_COUNTS: Record<string, RegExp[]> = {
     /is exactly the\s+([a-z-]+) the comment block declares/gim,
     /sets all ([a-z-]+) tokens/gim,
   ],
+  "README.md": [
+    /\(of the ([a-z-]+) the package exposes\)/gim,
+    /§ Theming lists all ([a-z-]+) with the fallback each ships/gim,
+    /a worked example that sets all ([a-z-]+)\./gim,
+  ],
+  "examples/chat-demo/README.md": [/sets the library's ([a-z-]+) `--bowman-\*`/gim],
+  "examples/chat-demo/src/custom-theme.css": [/Every one of the library's ([a-z-]+) tokens is/gim],
+  "examples/chat-demo/src/themes.tsx": [/carries the ([a-z-]+) --bowman-\* overrides/gim],
+  "examples/chat-demo/src/docs/ThemingSection.tsx": [
+    /overrides the ([a-z-]+) --bowman-\* tokens/gim,
+    /The library reads ([a-z-]+) <code>--bowman-\*<\/code>/gim,
+  ],
 };
+
+// The same two sentences break the total down by group; the words must still add up.
+const SPELLED_BREAKDOWNS: Record<string, RegExp> = {
+  "docs/design-notes.md":
+    /([a-z-]+) theme tokens \(issue 210\), ([a-z-]+) neutral chrome\s+roles[\s\S]*?and ([a-z-]+) semantic-colour roles/,
+  "specs/bowman-ui-theming-tokens/spec.md":
+    /([a-z-]+) theme tokens named for a role and a shade, ([a-z-]+) neutral\s+chrome roles[\s\S]*?and ([a-z-]+) semantic-colour\s+roles/,
+};
+const COUNT_BY_WORD = new Map(Array.from({ length: 100 }, (_, count) => [inWords(count), count]));
 
 const spelledCounts = (file: string, patterns: RegExp[]): string[] => {
   const text = read(file);
@@ -407,7 +428,7 @@ describe("the built theming tokens", () => {
     expect(counts).toEqual([declaredTokens().size]);
   });
 
-  it("the spelled token counts in docs/design-notes.md § Theming, .specify/spec.md and the theming spec equal the declaration block", () => {
+  it("the spelled token counts in docs/design-notes.md § Theming, .specify/spec.md, the theming spec, README.md and the demo sources equal the declaration block", () => {
     const expected = inWords(declaredTokens().size);
     const stated = Object.fromEntries(
       Object.entries(SPELLED_COUNTS).map(([file, patterns]) => [
@@ -420,6 +441,30 @@ describe("the built theming tokens", () => {
       "docs/design-notes.md": [expected, expected, expected],
       ".specify/spec.md": [expected],
       "specs/bowman-ui-theming-tokens/spec.md": [expected, expected, expected, expected],
+      "README.md": [expected, expected, expected],
+      "examples/chat-demo/README.md": [expected],
+      "examples/chat-demo/src/custom-theme.css": [expected],
+      "examples/chat-demo/src/themes.tsx": [expected],
+      "examples/chat-demo/src/docs/ThemingSection.tsx": [expected, expected],
     });
+  });
+
+  it("the group breakdown spelled in docs/design-notes.md § Theming and the theming spec sums to the declaration block", () => {
+    for (const [file, pattern] of Object.entries(SPELLED_BREAKDOWNS)) {
+      const groups = (read(file).match(pattern) ?? [])
+        .slice(1)
+        .map((word) => COUNT_BY_WORD.get(word) ?? NaN);
+
+      expect(
+        groups.reduce((sum, count) => sum + count, 0),
+        file
+      ).toBe(declaredTokens().size);
+    }
+  });
+
+  it("examples/chat-demo/src/custom-theme.css sets exactly the declared tokens", () => {
+    const set = new Set(bowmanTokenNamesIn(read("examples/chat-demo/src/custom-theme.css")));
+
+    expect([...set].sort()).toEqual([...declaredTokens().keys()].sort());
   });
 });

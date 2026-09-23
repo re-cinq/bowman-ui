@@ -21,23 +21,31 @@ Forty-four tokens - fifteen theme tokens named for a role and a shade, twenty-on
 chrome roles added under docs/design-notes.md § Theming decision 12, and eight semantic-colour
 roles (the danger and success pairs with their soft surfaces, issues 108 and 107, under
 decision 6) - each with its default recorded once in a comment line at the top of
-`src/styles.css` ([validated by dist/styles.css opens with one comment line per token, each stating its default](../../tests/theming-tokens-dist.test.ts#L253)).
+`src/styles.css` ([validated by dist/styles.css opens with one comment line per token, each stating its default](../../tests/theming-tokens-dist.test.ts#L274)).
 
 The names and their fallbacks are tabled once, in docs/design-notes.md § Theming, and that
 table is the contract rather than a copy: the dist test parses it and fails the moment a name,
 a fallback or the order departs from the declaration block
-([validated by the token table in docs/design-notes.md § Theming lists the same names and fallbacks, in the declared order](../../tests/theming-tokens-dist.test.ts#L345)).
+([validated by the token table in docs/design-notes.md § Theming lists the same names and fallbacks, in the declared order](../../tests/theming-tokens-dist.test.ts#L366)).
 
 - The set of tokens read across `dist/theme/tokens.js` and `dist/styles.css` is exactly the
   forty-four the comment block declares - no extra name in the code, no orphan in the block
-  ([validated by the tokens read in dist/theme/tokens.js and dist/styles.css are exactly the declared ones](../../tests/theming-tokens-dist.test.ts#L260)).
+  ([validated by the tokens read in dist/theme/tokens.js and dist/styles.css are exactly the declared ones](../../tests/theming-tokens-dist.test.ts#L281)).
 - CLAUDE.md invariant 13 quotes the count as a literal, and the same dist test reads that digit
   and fails when it lags the block
-  ([validated by CLAUDE.md invariant 13 states the same token count as the stylesheet's declaration block](../../tests/theming-tokens-dist.test.ts#L402)).
+  ([validated by CLAUDE.md invariant 13 states the same token count as the stylesheet's declaration block](../../tests/theming-tokens-dist.test.ts#L423)).
 - The count the prose spells - this file's four sentences, three in docs/design-notes.md
-  § Theming and the Styling row of .specify/spec.md - is read by the same test against the word
-  the block's size spells, so a sentence left at the old number reds a token PR
-  ([validated by the spelled token counts in docs/design-notes.md § Theming, .specify/spec.md and the theming spec equal the declaration block](../../tests/theming-tokens-dist.test.ts#L410)).
+  § Theming, the Styling row of .specify/spec.md, three in README.md and five across the demo's
+  README, stylesheet and sources - is read by the same test against the word the block's size
+  spells, so a sentence left at the old number reds a token PR
+  ([validated by the spelled token counts in docs/design-notes.md § Theming, .specify/spec.md, the theming spec, README.md and the demo sources equal the declaration block](../../tests/theming-tokens-dist.test.ts#L431)).
+- The breakdown by group that this file's opening sentence and docs/design-notes.md § Theming
+  spell - theme tokens, neutral chrome roles, semantic-colour roles - is summed by the same test
+  against the block, so a token PR that bumps the total and forgets a group reds too
+  ([validated by the group breakdown spelled in docs/design-notes.md § Theming and the theming spec sums to the declaration block](../../tests/theming-tokens-dist.test.ts#L452)).
+- The demo stylesheet `examples/chat-demo/src/custom-theme.css` sets exactly the declared names,
+  so the "sets all" sentences above stay true after a token PR only when the demo file moved too
+  ([validated by examples/chat-demo/src/custom-theme.css sets exactly the declared tokens](../../tests/theming-tokens-dist.test.ts#L465)).
 
 ## The fallback rule
 
@@ -46,24 +54,24 @@ Every token ships a default, and the default lives only in the `var()` fallback:
 ([validated by](../../tests/styles.test.ts#L100), [validated by contains no @theme block, no @import "tailwindcss" and no @plugin line](../../tests/styles.test.ts#L55)).
 
 - Every `--bowman-*` occurrence outside the declaration block is a `var()` read carrying a
-  non-empty fallback ([validated by](../../tests/theming-tokens-dist.test.ts#L267)).
+  non-empty fallback ([validated by](../../tests/theming-tokens-dist.test.ts#L288)).
 - A token falls back to the same palette value at every site that reads it, and that value is
   the one its comment line declares
-  ([validated by each token falls back to the same palette value at every site, matching the declared default](../../tests/theming-tokens-dist.test.ts#L281)).
+  ([validated by each token falls back to the same palette value at every site, matching the declared default](../../tests/theming-tokens-dist.test.ts#L302)).
 - No bare `blue-` palette utility survives in any built component, the tokens module or the
   stylesheet - the only `blue` left in `dist` sits inside a `var()` fallback
-  ([validated by no bare blue- palette utility survives in any built component, the tokens module or the stylesheet](../../tests/theming-tokens-dist.test.ts#L329)).
+  ([validated by no bare blue- palette utility survives in any built component, the tokens module or the stylesheet](../../tests/theming-tokens-dist.test.ts#L350)).
 
 ## Where the classes live
 
 The class strings live once, in the internal module `src/theme/tokens.ts` - one `export const`
 per string, each naming its token and fallback - and the components import the constants: no
 built component carries a `--bowman-` literal, and no file in `dist` assigns a `--bowman-*`
-value ([validated by no built component carries a --bowman- literal; the class strings live only in dist/theme/tokens.js](../../tests/theming-tokens-dist.test.ts#L350),
-[validated by `no dist file assigns a --bowman-* value: every occurrence outside the stylesheet's comment block is a read`](../../tests/theming-tokens-dist.test.ts#L361)).
+value ([validated by no built component carries a --bowman- literal; the class strings live only in dist/theme/tokens.js](../../tests/theming-tokens-dist.test.ts#L371),
+[validated by `no dist file assigns a --bowman-* value: every occurrence outside the stylesheet's comment block is a read`](../../tests/theming-tokens-dist.test.ts#L382)).
 
 - `dist/theme/tokens.js` carries no `"use client"` directive, and `dist/index.js` re-exports
-  nothing from it ([validated by dist/theme/tokens.js carries no "use client" directive and dist/index.js re-exports nothing from it](../../tests/theming-tokens-dist.test.ts#L341)).
+  nothing from it ([validated by dist/theme/tokens.js carries no "use client" directive and dist/index.js re-exports nothing from it](../../tests/theming-tokens-dist.test.ts#L362)).
 - The public runtime and type export lists equal the committed snapshot, which carries none of
   the module's names ([validated by](../../tests/public-api.test.ts#L40),
   [L46](../../tests/public-api.test.ts#L46)).
@@ -111,7 +119,7 @@ value ([validated by no built component carries a --bowman- literal; the class s
 - `bowman-pulse-subtle`'s 50 % stop reads `--bowman-accent-glow` and `--bowman-pulse-outline`
   with today's literals as fallbacks, while its zero stop stays literal
   ([validated by](../../tests/styles.test.ts#L71),
-  [validated by the keyframe's 50% stop reads --bowman-accent-glow and --bowman-pulse-outline while its zero stop stays literal](../../tests/theming-tokens-dist.test.ts#L298)).
+  [validated by the keyframe's 50% stop reads --bowman-accent-glow and --bowman-pulse-outline while its zero stop stays literal](../../tests/theming-tokens-dist.test.ts#L319)).
 - `Button`'s and `IconButton`'s `primary` variant carries the `--bowman-accent` background and
   hover, and every variant of both keeps `focus:ring-2 ring-offset-2` beside the
   `--bowman-focus-ring` colour ([validated by variant="primary" carries the --bowman-accent background and hover, --bowman-text-on-accent text and no border-slate-200](../../tests/Button.test.tsx#L96),
@@ -129,7 +137,7 @@ Ten neutral role pairs join the theme tokens (docs/design-notes.md § Theming de
 `--bowman-text-muted` and `--bowman-text-subtle`, each with a `-dark` twin. A site reads a role
 only when its light and dark utilities both equal the pair's fallbacks; the dist test pins
 which built component imports which role constant, so a site drifting back to a palette
-utility fails ([validated by each neutral role constant is imported by exactly the built components recorded for it](../../tests/theming-tokens-dist.test.ts#L310)).
+utility fails ([validated by each neutral role constant is imported by exactly the built components recorded for it](../../tests/theming-tokens-dist.test.ts#L331)).
 
 - `Button`'s `secondary` variant reads `--bowman-border`, `--bowman-surface`,
   `--bowman-surface-hover` and `--bowman-text-body` beside its `border` class; `ghost` reads
@@ -162,11 +170,11 @@ utility fails ([validated by each neutral role constant is imported by exactly t
   `Button` hover and the focused `AppShell` skip link read the same role through its `hover:` and
   `focus:` variants, so a consumer recolours every strong-text site at once - the message body
   joining `--bowman-text-strong` rather than `--bowman-text-body` per decision 6
-  ([validated by each neutral role constant is imported by exactly the built components recorded for it](../../tests/theming-tokens-dist.test.ts#L310), [validated by the message body reads the strong text token, joining text-strong rather than text-body per decision 6](../../tests/ChatMessage.test.tsx#L511)).
+  ([validated by each neutral role constant is imported by exactly the built components recorded for it](../../tests/theming-tokens-dist.test.ts#L331), [validated by the message body reads the strong text token, joining text-strong rather than text-body per decision 6](../../tests/ChatMessage.test.tsx#L511)).
 - `ChatMessage`'s assistant name, the `ThinkingTrace` trace content and the `ToolActivity` tool
   name read `--bowman-text-secondary`, folding the slate-600 / slate-300 label pair into the
   existing role per decision 6, the dark side dimming one step to `slate-400`
-  ([validated by each neutral role constant is imported by exactly the built components recorded for it](../../tests/theming-tokens-dist.test.ts#L310),
+  ([validated by each neutral role constant is imported by exactly the built components recorded for it](../../tests/theming-tokens-dist.test.ts#L331),
   [validated by the assistant name reads the secondary text token, folding the label pair per decision 6](../../tests/ChatMessage.test.tsx#L528),
   [validated by reads the secondary text token, folding the label pair per decision 6](../../tests/ThinkingTrace.test.tsx#L70),
   [validated by true reads the tool name in the secondary text token, folding the label pair per decision 6](../../tests/ToolActivity.test.tsx#L43)).
@@ -174,7 +182,7 @@ utility fails ([validated by each neutral role constant is imported by exactly t
   `--bowman-text-secondary` on hover through its `hover:` variant, the semantic promotion of
   decision 6, while `ConversationList`'s delete button reads `--bowman-text-subtle` at rest with
   its danger hover left to the danger role; dark rest dims one step to slate-500 and dark hover to
-  slate-400 ([validated by each neutral role constant is imported by exactly the built components recorded for it](../../tests/theming-tokens-dist.test.ts#L310),
+  slate-400 ([validated by each neutral role constant is imported by exactly the built components recorded for it](../../tests/theming-tokens-dist.test.ts#L331),
   [validated by copy and both thumb buttons read text-subtle at rest and promote to text-secondary on hover](../../tests/ChatMessage.test.tsx#L534),
   [validated by the delete button reads text-subtle at rest, its danger hover left to the danger role](../../tests/ConversationList.test.tsx#L165)).
 - The selected thumbs-down chip and text, the `ErrorBoundary` icon circle and glyph, and the
@@ -182,14 +190,14 @@ utility fails ([validated by each neutral role constant is imported by exactly t
   `--bowman-danger-soft` and their `-dark` twins - so a consumer recolours every negative-state
   site at once; the delete hover moves from a lone `red-500` to the role's `red-600`, and the two
   dark soft fills (`red-900/30` and `/20`) collapse to one `rgba()` fallback, per decision 6
-  ([validated by each neutral role constant is imported by exactly the built components recorded for it](../../tests/theming-tokens-dist.test.ts#L309),
+  ([validated by each neutral role constant is imported by exactly the built components recorded for it](../../tests/theming-tokens-dist.test.ts#L330),
   [validated by a selected thumbs-down reads the danger role's soft surface and text, not the red palette classes](../../tests/ChatMessage.test.tsx#L517),
   [validated by the delete button's hover reads the danger role, not the lone red-500](../../tests/ConversationList.test.tsx#L159),
   [validated by the error icon circle and glyph read the danger role, not the red palette classes](../../tests/ErrorBoundary.test.tsx#L91)).
 - The twenty-one role fallbacks are declared in the stylesheet block and the design-notes table
   in the same order as the code reads them, and every read carries the declared fallback
-  ([validated by dist/styles.css opens with one comment line per token, each stating its default](../../tests/theming-tokens-dist.test.ts#L253),
-  [validated by the token table in docs/design-notes.md § Theming lists the same names and fallbacks, in the declared order](../../tests/theming-tokens-dist.test.ts#L345)).
+  ([validated by dist/styles.css opens with one comment line per token, each stating its default](../../tests/theming-tokens-dist.test.ts#L274),
+  [validated by the token table in docs/design-notes.md § Theming lists the same names and fallbacks, in the declared order](../../tests/theming-tokens-dist.test.ts#L366)).
 
 ## Semantic colour roles
 
@@ -202,7 +210,7 @@ because a `/30` alpha modifier cannot ride a token.
   selected thumbs-up reads `--bowman-success-soft` for its fill; `ChatMessage` is the only component
   the dist test pins as importing either, and adopting the role retires the check's lone `green-500`
   for `green-600` (`green-400` in dark) per decision 6
-  ([validated by each neutral role constant is imported by exactly the built components recorded for it](../../tests/theming-tokens-dist.test.ts#L310), [validated by the copied check and the selected thumbs-up read the success role, retiring the green literals](../../tests/ChatMessage.test.tsx#L545)).
+  ([validated by each neutral role constant is imported by exactly the built components recorded for it](../../tests/theming-tokens-dist.test.ts#L331), [validated by the copied check and the selected thumbs-up read the success role, retiring the green literals](../../tests/ChatMessage.test.tsx#L545)).
 
 ## What stays palette-mapped
 
@@ -211,7 +219,7 @@ because a `/30` alpha modifier cannot ride a token.
   sites the outline and width ride in `FOCUS_RING` (`src/theme/focusRing.ts`, issue 155) with
   `ring-offset-2` left in place ([validated by the wrapper keeps focus-within:ring-2 beside the --bowman-focus-ring /50 ring and the --bowman-accent-glow shadow](../../tests/ChatComposer.test.tsx#L304),
   [validated by every variant keeps focus:ring-2 ring-offset-2 beside the --bowman-focus-ring and --bowman-ring-offset colours and carries the disabled pair](../../tests/Button.test.tsx#L120), [validated by a chip keeps focus:ring-2 ring-offset-2 focus:outline-none beside the --bowman-focus-ring and --bowman-ring-offset colours](../../tests/PromptChips.test.tsx#L134),
-  [validated by `dist/theme/focusRing.js composes FOCUS_RING from the tokens module's ring colour and offset, and exactly the five offset-ring components import it`](../../tests/theming-tokens-dist.test.ts#L375)).
+  [validated by `dist/theme/focusRing.js composes FOCUS_RING from the tokens module's ring colour and offset, and exactly the five offset-ring components import it`](../../tests/theming-tokens-dist.test.ts#L396)).
 - Every neutral site that matches a role pair on one side only keeps its palette classes on
   both sides, so no site is half-themed: the shell ground and main region, the avatar circles'
   rest state, the user avatar and code chips, the inverse surfaces of `Toast` and
@@ -252,13 +260,13 @@ it without the package choosing; the package adds no media query and no selector
 3. **The keyframe's zero stop stays the literal `rgba(59, 130, 246, 0)`.** A review finding
    asked for a token there too; rejected because CSS Color 4 interpolates premultiplied, so the
    hue of a fully transparent stop is inert
-   ([validated by the keyframe's 50% stop reads --bowman-accent-glow and --bowman-pulse-outline while its zero stop stays literal](../../tests/theming-tokens-dist.test.ts#L298)).
+   ([validated by the keyframe's 50% stop reads --bowman-accent-glow and --bowman-pulse-outline while its zero stop stays literal](../../tests/theming-tokens-dist.test.ts#L319)).
 4. **`--bowman-accent` falls back to blue-500 in light mode and blue-600 in dark, with the hover
    pair the other way round.** The issue described the accent as "today blue-600"; the
    components said otherwise, and the byte-for-byte rule forced the table to follow the code.
    The rejected alternative was eight tokens, one name per role with a mode-specific fallback
    on each side: a consumer could then set only one value per role without writing its own dark
-   selector ([validated by each token falls back to the same palette value at every site, matching the declared default](../../tests/theming-tokens-dist.test.ts#L281)).
+   selector ([validated by each token falls back to the same palette value at every site, matching the declared default](../../tests/theming-tokens-dist.test.ts#L302)).
 
 ## The demo
 

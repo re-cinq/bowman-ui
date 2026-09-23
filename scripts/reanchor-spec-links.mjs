@@ -6,8 +6,8 @@
 //
 // - A link labelled `[validated by <title>]` into a test file moves to the
 //   line of the one `it()`/`test()` carrying that title, unless the anchor,
-//   mapped through the hunks below, still lies inside that test's span. A title two tests carry is reported;
-//   a title no test carries falls through to the hunk mapping below.
+//   mapped through the hunks below, still lies inside that test's span. A title two tests carry,
+//   or one no test in the cited file carries, is reported.
 // - Every other link - the untitled `[validated by]`, `[Lnnn]` and
 //   descriptive forms, and every link into a non-test file (a script, README,
 //   a doc, a workflow, a config) - is paired with its copy in the merge base's
@@ -176,7 +176,8 @@ const titleOf = (label) => {
 };
 
 // Title lookup: the anchor mapped through the hunks when it still lies inside that
-// test, else the declaration's line; a failure for a shared title, null to fall through.
+// test, else the declaration's line; a failure for a shared or unknown title, null
+// for a link that carries no title or cites no test file.
 const byTitle = (link) => {
   const title = titleOf(link.label);
 
@@ -187,7 +188,7 @@ const byTitle = (link) => {
   const index = declarations.findIndex((declaration) => declaration.title === title);
 
   if (index === -1) {
-    return null;
+    return { failure: `no test in ${link.target} carries the title "${title}"` };
   }
 
   if (declarations.some((declaration, other) => other !== index && declaration.title === title)) {

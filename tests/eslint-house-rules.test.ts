@@ -89,7 +89,7 @@ describe("the house-rule lint guardrails", () => {
     ).toContain("bowman/no-network-egress");
   });
 
-  it("every egress channel is reported with its api - fetch via window/globalThis/self and optional chaining, the three constructors bare and via a global host, sendBeacon on navigator bare and via a global host, and each computed string spelling - while a computed template literal, private names, non-global hosts and other constructors are not", () => {
+  it("every egress channel is reported with its api - fetch via window/globalThis/self and optional chaining, the three constructors bare and via a global host, sendBeacon on navigator bare and via a global host, and each computed string or template spelling - while a substitution template, private names, non-global hosts and other constructors are not", () => {
     expect(
       reportedBy(`no-network-egress${sep}violation-channels.ts`, "bowman/no-network-egress")
     ).toEqual([
@@ -114,6 +114,7 @@ describe("the house-rule lint guardrails", () => {
       reported(25, "'navigator.sendBeacon'"),
       reported(26, "'fetch'"),
       reported(27, "'navigator.sendBeacon'"),
+      reported(28, "'fetch'"),
     ]);
   });
 
@@ -123,7 +124,7 @@ describe("the house-rule lint guardrails", () => {
     ).toContain("bowman/no-prop-mutation");
   });
 
-  it("every mutation shape is reported with the mutated expression - assignment, update, delete, nested member, mutating method, computed root, optional call, destructured prop, React.memo, React.forwardRef and forwardRef wrappers, a function declaration, a named function expression, and computed string mutator, wrapper and chained callees - while a computed template callee, private names, a lowercase function, a non-mutating method and a second parameter are not", () => {
+  it("every mutation shape is reported with the mutated expression - assignment, update, delete, nested member, mutating method, computed root, optional call, destructured prop, React.memo, React.forwardRef and forwardRef wrappers, a function declaration, a named function expression, computed string mutator, wrapper and chained callees, and a computed template callee - while a substitution-template callee, private names, a lowercase function, a non-mutating method and a second parameter are not", () => {
     expect(
       reportedBy(`no-prop-mutation${sep}violation-shapes.tsx`, "bowman/no-prop-mutation")
     ).toEqual([
@@ -143,6 +144,7 @@ describe("the house-rule lint guardrails", () => {
       reported(89, "('props.counts')"),
       reported(95, "('props.counts')"),
       reported(101, "('props[\"counts\"]')"),
+      reported(107, "('props.counts')"),
     ]);
   });
 
