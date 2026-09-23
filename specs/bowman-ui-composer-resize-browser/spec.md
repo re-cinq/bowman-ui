@@ -50,8 +50,8 @@ Each of the three tests opens a fresh page and measures its own baseline in
 the same run rather than sharing one through `beforeAll`: the suite runs
 `fullyParallel` with two CI retries, so cross-test state would either
 serialize the suite or leak between a retry and a fresh worker
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L313),
-[L336](../../examples/chat-demo/tests/chat-demo.spec.ts#L336)). A font or
+([validated by three Shift+Enter presses keep the draft, append no entry and grow the box](../../examples/chat-demo/tests/chat-demo.spec.ts#L308),
+[validated by a twelve-line fill caps the box at exactly 200px, the draft scrolls, and Enter sends and restores the baseline](../../examples/chat-demo/tests/chat-demo.spec.ts#L330)). A font or
 line-height change moves the baseline and the grown heights together, so
 growth and shrink assertions cannot go red for the wrong reason.
 
