@@ -97,7 +97,8 @@ Five local commands run over the spec and ADR corpora, four gates and one report
   statement's trailing parenthetical. Exit 1 on any finding.
 - `npm run reanchor:check` - no `#Lnn` link into a file the branch changed
   may be stale, no `[validated by <test title>]` link anywhere may sit outside
-  its test (`--all`), and none may land on a deleted, blank or missing line.
+  its test or name a title no test in the cited file carries (`--all`), and
+  none may land on a deleted, blank or missing line.
   `npm run reanchor` heals the stale ones. Exit 1 on any finding.
 - `npm run lint` - every doc must open with a lead paragraph
   (`re-lint/require-intro-paragraph`) and a spec's status must parse and match

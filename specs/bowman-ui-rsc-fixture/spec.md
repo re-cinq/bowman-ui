@@ -295,9 +295,10 @@ which CI already gated on the same commit, and a release run should not
 spend a second `next build` re-proving the guard rather than the release.
 
 `.lore/test-commands.yml` is untouched on purpose: the manifest is
-hand-maintained in this repository, and the directory is prettier-ignored
-because an external tool reads it. The `rsc` command is instead reachable the
-same way `consumer` is, as a `package.json` script
+hand-maintained in this repository and lists the test suites an external tool
+runs, which the fixture's build check is not; the directory is
+prettier-ignored because that tool reads it. The `rsc` command is instead
+reachable the same way `consumer` is, as a `package.json` script
 ([validated by](../../package.json#L56)).
 
 ## Gates preserved
