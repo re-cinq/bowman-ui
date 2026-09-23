@@ -522,6 +522,12 @@ describe("the authored source (grep acceptance criteria)", () => {
     }
   });
 
+  it("the send button renders the set's SendIcon", () => {
+    expect(content).toMatch(/import \{[^}]*\bSendIcon\b[^}]*\} from "\.\.\/icons\/index\.js"/);
+    expect(content).not.toMatch(/\bas SendIcon\b/);
+    expect(content).toMatch(/aria-label=\{resolved\.send\}[^<>]*[^/<>]>\s*<SendIcon\b/);
+  });
+
   it("GDPR: the file calls no console.*, localStorage, sessionStorage, fetch, sendBeacon or analytics, and holds no draft persistence", () => {
     expectNoEgress(content);
   });
