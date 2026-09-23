@@ -50,7 +50,7 @@ exports entry for a consumer ([validated by each built hook and ErrorBoundary op
     `isOpen`, and this tab does not write back to storage in response to the event; an event
     for any other key is ignored
     ([validated by reflects a cross-tab write when the storage event key matches](../../tests/useSidebarState.test.tsx#L87),
-    [L100](../../tests/useSidebarState.test.tsx#L100),
+    [validated by re-reads on a whole-store clear (storage event with a null key)](../../tests/useSidebarState.test.tsx#L100),
     [validated by ignores a storage event for an unrelated key](../../tests/useSidebarState.test.tsx#L114),
     [validated by a matching storage event after a toggle changes neither isOpen nor the stored value](../../tests/useSidebarState.test.tsx#L134)).
 - `useFocusTrap` — verbatim: first-element focus on open, Tab/Shift+Tab wrap at the ends while
