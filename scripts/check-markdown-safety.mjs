@@ -20,6 +20,10 @@
 //      admitted http, a dropped tel or an escaped literal that spells
 //      javascript at runtime all fail without any escape handling. The key
 //      matches bare or quoted, never as the suffix of a longer name.
+//   5. The defaultMarkdownPolicy declaration - read from its exported line to
+//      the "});" line that closes it - contains no "..." token: a spread
+//      placed after the checked keys would replace their values at runtime
+//      while the literals the gate reads stay clean.
 //
 // Runs against process.cwd() by default; a directory argument points it at
 // another tree so the corpus test can prove it trips on crafted bad inputs and
@@ -96,7 +100,7 @@ const isDefaultSchemeSet = (declared) =>
 const quoteList = (literals) => `[${literals.map((literal) => `"${literal}"`).join(", ")}]`;
 
 const defaultPolicyBlock = (source) => {
-  const match = source.match(/defaultMarkdownPolicy[\s\S]*?\}\)/);
+  const match = source.match(/^export const defaultMarkdownPolicy[\s\S]*?^[ \t]*\}\);$/m);
 
   return match === null ? undefined : match[0];
 };
@@ -117,6 +121,12 @@ const scanPolicy = (root) => {
 
   if (allowImages === null || allowImages[1] !== "false") {
     violations.push("defaultMarkdownPolicy.allowImages must be literally false");
+  }
+
+  if (block.includes("...")) {
+    violations.push(
+      "defaultMarkdownPolicy must not spread another object (a spread can override the values the gate reads)"
+    );
   }
   const declaredOnce = (block.match(SCHEMES_KEYS) ?? []).length === 1;
   const list = declaredOnce ? block.match(ALLOWED_SCHEMES_ARRAY)?.[1] : undefined;

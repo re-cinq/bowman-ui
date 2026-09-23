@@ -37,8 +37,13 @@ The build holds the default at exactly that set as source text:
 `scripts/check-markdown-safety.mjs` fails when
 `defaultMarkdownPolicy.allowedSchemes` admits `http` or hides `javascript`
 behind an escape sequence
-([validated by exits 1 when the default allowlist admits http](../../tests/security/check-markdown-safety.test.ts#L124),
-[validated by exits 1 when the default allowlist hides javascript behind a unicode escape](../../tests/security/check-markdown-safety.test.ts#L247)).
+([validated by exits 1 when the default allowlist admits http](../../tests/security/check-markdown-safety.test.ts#L126),
+[validated by exits 1 when the default allowlist hides javascript behind a unicode escape](../../tests/security/check-markdown-safety.test.ts#L249)).
+A spread in the declaration is refused as well: the gate fails when the
+`defaultMarkdownPolicy` declaration, read from its exported line to the `});`
+line that closes it, carries a `...` token anywhere, since a later spread
+would replace the allowlist at runtime while the array still reads clean
+([validated by exits 1 when the default policy spreads another object after the allowlist](../../tests/security/check-markdown-safety.test.ts#L314)).
 
 The allowlist is data, not a hardcoded branch:
 `allowedSchemes: ["https", "http"]` renders the `http` anchor. `[]`

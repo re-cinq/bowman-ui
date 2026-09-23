@@ -69,6 +69,12 @@ build when any standing invariant regresses:
    `mailto` and `tel` as source text, in any order. An admitted `http`, a
    dropped `tel`, or an escaped literal such as `"java\u0073cript"` that spells
    a dangerous scheme only at runtime all fail, without any escape handling.
+5. The `defaultMarkdownPolicy` declaration, read from its exported line to
+   the `});` line that closes it, carries a `...` spread token anywhere. A
+   spread placed after the checked keys replaces their values at runtime while
+   the literals the gate reads stay clean, so the whole declaration is
+   refused; a comment above the declaration lies outside the block, and a
+   `({})` inside a value does not end it early.
 
 It runs on `pull_request` in `ci.yml` and before `npm publish` in `publish.yml`,
 and is self-tested by `tests/security/check-markdown-safety.test.ts`, which
@@ -84,3 +90,10 @@ with a hand-built hast pipeline (`mdast-util-to-hast` + `hast-util-raw` +
 a large, conspicuous diff, not a silent one-line regression, and the corpus in
 `tests/security/markdown-xss.test.tsx` still exercises it at the `ChatMessage`
 level - it would have to pass the same fixtures to land.
+
+The declaration block that gate items 3 to 5 read ends at the first `});`
+line, so a `});` on its own line inside a comment or a string in the literal
+would end it early and hide a spread after it. Neither lands silently: a
+multi-line comment in `src/` fails `re-lint/max-comment-lines`, and a string
+under a key `MarkdownPolicy` does not declare fails the declaration's
+`Readonly<Required<MarkdownPolicy>>` type.
