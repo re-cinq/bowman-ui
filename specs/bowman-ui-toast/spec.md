@@ -102,17 +102,17 @@ the animated `transform` would otherwise overwrite the element's static
 `-translate-x-1/2` centring for its 0.2s run, `bowman-fade-in` stays
 `translateX`-free while
 the new `bowman-toast-fade-in` keyframe restates `translateX(-50%)` in
-both stops ([validated by animates opacity and translateY only in bowman-fade-in - no translateX](../../tests/styles.test.ts#L63),
-[L80](../../tests/styles.test.ts#L80)). The keyframe count grows to
+both stops ([validated by animates opacity and translateY only in bowman-fade-in - no translateX](../../tests/styles.test.ts#L64),
+[L81](../../tests/styles.test.ts#L81)). The keyframe count grows to
 four with a paired utility rule; the
 `prefers-reduced-motion: reduce` block from 019 Decision 5 covers
 `.bowman-toast-fade-in` and touches no `transform`, so the element stays
 positioned when animation is off.
 `grep -rn "animate-fade-in" src/` returns nothing
 ([validated by grep for "animate-fade-in" in src/ returns nothing](../../tests/Toast.test.tsx#L166),
-[validated by declares exactly the four keyframes bowman-fade-in, bowman-toast-fade-in, bowman-fade-dot and bowman-pulse-subtle](../../tests/styles.test.ts#L31),
-[validated by pairs each keyframe with a utility rule of the same name](../../tests/styles.test.ts#L42),
-[validated by neutralises all four animations under prefers-reduced-motion, touching no transform, with no data-animations selector](../../tests/styles.test.ts#L89)).
+[validated by declares exactly the four keyframes bowman-fade-in, bowman-toast-fade-in, bowman-fade-dot and bowman-pulse-subtle](../../tests/styles.test.ts#L32),
+[validated by pairs each keyframe with a utility rule of the same name](../../tests/styles.test.ts#L43),
+[validated by neutralises all four animations under prefers-reduced-motion, touching no transform, with no data-animations selector](../../tests/styles.test.ts#L90)).
 
 ## The partition amendment
 
