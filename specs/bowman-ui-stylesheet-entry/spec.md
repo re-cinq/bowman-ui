@@ -32,7 +32,7 @@ markdown element styling, the `bowman-sr-only` rule and an unconditional
 reduced-motion rule
 ([validated by declares exactly the four keyframes bowman-fade-in, bowman-toast-fade-in, bowman-fade-dot and bowman-pulse-subtle](../../tests/styles.test.ts#L31),
 [validated by pairs each keyframe with a utility rule of the same name](../../tests/styles.test.ts#L42),
-[validated by styles.css declares the bowman-sr-only rule the markdown notice, Toast, ConversationList and useFocusGroups depend on](../../tests/styles.test.ts#L149)). All class and
+[validated by styles.css declares the bowman-sr-only rule the markdown notice, Toast, ConversationList and useFocusGroups depend on](../../tests/styles.test.ts#L160)). All class and
 keyframe names carry the `bowman-` prefix so they cannot collide with a
 consumer's own `animate-*` utilities; the issue prescribed `.bowman-fade-in`
 for the split fade and the other three follow the same convention
@@ -41,7 +41,7 @@ unlayered, so they win on plain specificity without depending on a
 consumer's `@layer` order. Since issue 210 the copied `dist/styles.css` opens with a
 comment block declaring, one line per `--bowman-*` theming token, that token and
 its default
-([validated by dist/styles.css opens with one comment line per token, forty-four in all, each stating its default](../../tests/theming-tokens-dist.test.ts#L190)). The 50 % stop of
+([validated by dist/styles.css opens with one comment line per token, each stating its default](../../tests/theming-tokens-dist.test.ts#L253)). The 50 % stop of
 `bowman-pulse-subtle` reads `--bowman-accent-glow` and `--bowman-pulse-outline` with today's
 literals as fallbacks - the zero stop stays literal
 ([validated by](../../tests/styles.test.ts#L71)).
@@ -81,7 +81,7 @@ a consumer ([validated by `no built file reads process.env and no NEXT_PUBLIC fl
 file contains
 the string the plugin's classes are built from
 ([validated by mentions @tailwindcss/typography in no field](../../tests/styles.test.ts#L117),
-[validated by grep for "prose" in src/ returns nothing](../../tests/styles.test.ts#L132)). Instead, `markdownComponents`
+[validated by grep for "prose" in src/ returns nothing](../../tests/styles.test.ts#L143)). Instead, `markdownComponents`
 is a named export from the package root: a `react-markdown` `components` map
 covering exactly `p`, `a`, `ul`, `ol`, `li`, `code`, `pre`, `blockquote`,
 `h1`-`h3`, `table`, `thead`, `th`, `td`, `hr`, `strong`, `em`
@@ -136,7 +136,9 @@ classes like `language-js` are merged rather than clobbered, and the
   `@tailwindcss/cli`, devDependencies)
   ([validated by with the @source line, the compiled CSS contains the bg-slate-800 rule from the installed dist](../../tests/tailwind-build.test.ts#L75)).
 - **The fixture never ships.** `files: ["dist", "THIRD-PARTY-NOTICES.md"]` keeps it and every
-  other file under `tests/` out of the tarball.
+  other file under `tests/` out of the tarball
+  ([validated by packs dist/ plus exactly package.json, LICENSE, README.md and THIRD-PARTY-NOTICES.md](../../tests/styles.test.ts#L125),
+  [validated by](../../scripts/consumer-app.sh#L66)).
 
 ## The real-build verification the issue demanded
 
@@ -157,4 +159,6 @@ Both results, from Tailwind v4.3.3 compiling the fixture consumer:
 The README's Styles section documents the two consumer lines, names Tailwind
 v4 as required and says why (the package ships only what Tailwind cannot
 generate; the utilities on the components come from the consumer's own build
-scanning the installed `dist`).
+scanning the installed `dist`)
+([validated by shows exactly two consumer lines: @import "@re-cinq/bowman-ui/styles.css" and the @source line](../../tests/readme-styles.test.ts#L12),
+[validated by names Tailwind CSS v4 as required, ships only what Tailwind cannot generate, and scans the installed dist](../../tests/readme-styles.test.ts#L20)).

@@ -139,10 +139,10 @@ describe("lore-tests.yml triggers and wiring", () => {
     expect([fetchRunBlock, suiteRunBlock, postRunBlock].join("\n")).not.toContain("${{");
   });
 
-  it("gates install, Playwright and the suite run on the fetch output", () => {
+  it("gates the node install and the suite run on the fetch output and installs no browsers", () => {
     expect(stepContaining("uses: ./.github/actions/setup-node-install")).toContain(fetchedGate);
-    expect(stepContaining("- name: Install Playwright")).toContain(fetchedGate);
     expect(runStep).toContain(fetchedGate);
+    expect(vitestJob).not.toMatch(/playwright/i);
   });
 
   it("pins every action to a 40-hex commit with its version, or uses a local action", () => {

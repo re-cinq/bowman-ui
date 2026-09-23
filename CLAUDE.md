@@ -215,7 +215,8 @@ title>]` link follows its `it()`; every other link is mapped through the cited f
     `src/theme/focusRing.ts` composes the shared focus-ring fragment from two of them and
     declares no token (§ Theming decision 12).
     Enforced by tests/theming-tokens-dist.test.ts (the stylesheet comment block, the design-notes
-    table, the dist reads and the count above must agree, so bump the count in the same PR).
+    table, the dist reads, the count above and the count spelled in design-notes § Theming, the
+    theming spec and .specify/spec.md must agree, so bump the count in the same PR).
     Never add a brand-palette utility (`blue-*`) in `src/` outside the tokens module's fallbacks,
     and never a neutral `slate-*`/`white` utility at a site whose light and dark shades equal one
     of the role pairs of decision 6 (read the role).
