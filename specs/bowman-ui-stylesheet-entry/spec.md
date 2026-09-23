@@ -32,7 +32,7 @@ markdown element styling, the `bowman-sr-only` rule and an unconditional
 reduced-motion rule
 ([validated by declares exactly the four keyframes bowman-fade-in, bowman-toast-fade-in, bowman-fade-dot and bowman-pulse-subtle](../../tests/styles.test.ts#L32),
 [validated by pairs each keyframe with a utility rule of the same name](../../tests/styles.test.ts#L43),
-[validated by styles.css declares the bowman-sr-only rule the markdown notice, Toast, ConversationList and useFocusGroups depend on](../../tests/styles.test.ts#L156)). All class and
+[validated by styles.css declares the bowman-sr-only rule the markdown notice, Toast, ConversationList, ChatComposer and useFocusGroups depend on](../../tests/styles.test.ts#L156)). All class and
 keyframe names carry the `bowman-` prefix so they cannot collide with a
 consumer's own `animate-*` utilities; the issue prescribed `.bowman-fade-in`
 for the split fade and the other three follow the same convention

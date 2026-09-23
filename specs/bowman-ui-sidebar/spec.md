@@ -33,8 +33,8 @@ sits in the `labelsProp` partition bucket
 [validated by `renders one <aside> named "Sidebar" containing one <nav> named "Main navigation" by default`](../../tests/AppSidebar.test.tsx#L22),
 [validated by labels={{sidebar: "Panel lateral", mainNavigation: "Navegación principal"}} names both landmarks](../../tests/AppSidebar.test.tsx#L33)). It passes the
 sentinel render with both labels set to sentinels
-([harness](../../tests/labelled-exports.test.tsx#L478),
-[coverage](../../tests/labelled-exports.test.tsx#L609)).
+([harness](../../tests/labelled-exports.test.tsx#L479),
+[coverage](../../tests/labelled-exports.test.tsx#L610)).
 
 ## The decisions
 

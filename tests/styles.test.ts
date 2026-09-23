@@ -153,7 +153,7 @@ describe("the typography-plugin replacement", () => {
     expect(hits).toEqual([]);
   });
 
-  it("styles.css declares the bowman-sr-only rule the markdown notice, Toast, ConversationList and useFocusGroups depend on", () => {
+  it("styles.css declares the bowman-sr-only rule the markdown notice, Toast, ConversationList, ChatComposer and useFocusGroups depend on", () => {
     expect(readFileSync(resolve(process.cwd(), "src/styles.css"), "utf8")).toMatch(
       /\.bowman-sr-only \{/
     );

@@ -265,6 +265,8 @@ describe("workflow wiring", () => {
       "specs",
       "teams",
       ".specify",
+      "tests",
+      "examples/chat-demo/tests",
     ]);
     expect(extractRunBlock("Get changed files")).toContain(`-- ${triggerPaths.join(" ")}`);
   });
@@ -324,5 +326,18 @@ describe("Get changed files step", () => {
     commitFile(repo, ".specify/spec.md");
 
     expect(runChangedFilesStep(repo, zeroSha)).toEqual([".specify/spec.md", "specs/a/spec.md"]);
+  });
+
+  it("lists changed files under tests/ and examples/chat-demo/tests/, still ignoring src/", () => {
+    const before = commitFile(repo, "specs/a/spec.md");
+
+    commitFile(repo, "tests/added.test.ts");
+    commitFile(repo, "examples/chat-demo/tests/added.spec.ts");
+    commitFile(repo, "src/index.ts");
+
+    expect(runChangedFilesStep(repo, before)).toEqual([
+      "examples/chat-demo/tests/added.spec.ts",
+      "tests/added.test.ts",
+    ]);
   });
 });
