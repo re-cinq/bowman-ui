@@ -21,9 +21,14 @@
 //      javascript at runtime all fail without any escape handling. The key
 //      matches bare or quoted, never as the suffix of a longer name.
 //   5. The defaultMarkdownPolicy declaration - read from its exported line to
-//      the "});" line that closes it - contains no "..." token: a spread
-//      placed after the checked keys would replace their values at runtime
-//      while the literals the gate reads stay clean.
+//      the "});" line that closes it, after block comments and template
+//      literals are blanked so neither can end the block early or spoof a
+//      clean declaration above the real one - contains no "..." token: a
+//      spread placed after the checked keys would replace their values at
+//      runtime while the literals the gate reads stay clean. Line comments
+//      and quoted strings (backslash continuations included) are lexed so a
+//      stray backtick or "/*" inside one opens nothing, and kept verbatim so
+//      the literals stay readable.
 //
 // Runs against process.cwd() by default; a directory argument points it at
 // another tree so the corpus test can prove it trips on crafted bad inputs and
@@ -99,8 +104,18 @@ const isDefaultSchemeSet = (declared) =>
 
 const quoteList = (literals) => `[${literals.map((literal) => `"${literal}"`).join(", ")}]`;
 
+const HIDING_LEXEMES =
+  /\/\*[\s\S]*?\*\/|`(?:\\[\s\S]|[^`\\])*`|\/\/[^\n]*|"(?:\\[\s\S]|[^"\\\n])*"|'(?:\\[\s\S]|[^'\\\n])*'/g;
+
+const isBlankedLexeme = (lexeme) => lexeme.startsWith("/*") || lexeme.startsWith("`");
+
+const withoutCommentsAndTemplates = (source) =>
+  source.replace(HIDING_LEXEMES, (lexeme) => (isBlankedLexeme(lexeme) ? "" : lexeme));
+
+const DEFAULT_POLICY_BLOCK = /^export const defaultMarkdownPolicy[\s\S]*?^[ \t]*\}\);$/m;
+
 const defaultPolicyBlock = (source) => {
-  const match = source.match(/^export const defaultMarkdownPolicy[\s\S]*?^[ \t]*\}\);$/m);
+  const match = withoutCommentsAndTemplates(source).match(DEFAULT_POLICY_BLOCK);
 
   return match === null ? undefined : match[0];
 };

@@ -74,7 +74,12 @@ build when any standing invariant regresses:
    spread placed after the checked keys replaces their values at runtime while
    the literals the gate reads stay clean, so the whole declaration is
    refused; a comment above the declaration lies outside the block, and a
-   `({})` inside a value does not end it early.
+   `({})` inside a value does not end it early. Block comments and template
+   literals are blanked before the block is read, in one left-to-right pass
+   that also lexes line comments and quoted strings so a stray backtick or
+   `/*` inside one opens nothing: a `});` line inside a comment or template
+   cannot end the block early, and a template or comment above the real
+   declaration that spells a clean one cannot be read in its place.
 
 It runs on `pull_request` in `ci.yml` and before `npm publish` in `publish.yml`,
 and is self-tested by `tests/security/check-markdown-safety.test.ts`, which
@@ -91,9 +96,24 @@ a large, conspicuous diff, not a silent one-line regression, and the corpus in
 `tests/security/markdown-xss.test.tsx` still exercises it at the `ChatMessage`
 level - it would have to pass the same fixtures to land.
 
-The declaration block that gate items 3 to 5 read ends at the first `});`
-line, so a `});` on its own line inside a comment or a string in the literal
-would end it early and hide a spread after it. Neither lands silently: a
-multi-line comment in `src/` fails `re-lint/max-comment-lines`, and a string
-under a key `MarkdownPolicy` does not declare fails the declaration's
-`Readonly<Required<MarkdownPolicy>>` type.
+The lexer behind gate items 3 to 5 recognises block comments, template
+literals, line comments and quoted strings (backslash continuations included),
+nothing else. An unterminated backtick or `/*` matches nothing and blanks
+nothing. Blanking removes only the lexeme's own text, so a comment or template
+whose closer ends the line above the declaration leaves it on its own line; a
+closer on the declaration's own line (`*/ export const defaultMarkdownPolicy`)
+joins it to that text, the `^export const` anchor misses and the gate exits 2,
+before and after the lexer pass. What remains is the regex literal, which is
+not lexed: a quote, backtick, `//` or `/*` inside one opens a phantom string
+(bounded by its line), line comment, template or comment that runs to the next
+closer. A template whose `${}` nests another template mis-pairs the same way,
+surfacing the nested body as code. A phantom comment or template that swallows
+the declaration exits 2; a phantom that shadows a real comment or template
+holding a `});` line, or a nested template body holding one, lets a spread
+after it go unread. A regex literal or a nested template inside the
+declaration - which `Readonly<Required<MarkdownPolicy>>` admits as no value,
+only inside one - are the constructs review must still refuse. Blanking also
+makes a block comment inside the declaration invisible to the spread and
+declared-once checks, while a line comment there still counts for both, so a
+`// ...` or `// allowedSchemes:` inside the literal is a bogus red, not a
+bypass.
