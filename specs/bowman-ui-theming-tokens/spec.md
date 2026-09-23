@@ -35,9 +35,17 @@ a fallback or the order departs from the declaration block
   and fails when it lags the block
   ([validated by CLAUDE.md invariant 13 states the same token count as the stylesheet's declaration block](../../tests/theming-tokens-dist.test.ts#L402)).
 - The count the prose spells - this file's four sentences, three in docs/design-notes.md
-  § Theming and the Styling row of .specify/spec.md - is read by the same test against the word
-  the block's size spells, so a sentence left at the old number reds a token PR
-  ([validated by the spelled token counts in docs/design-notes.md § Theming, .specify/spec.md and the theming spec equal the declaration block](../../tests/theming-tokens-dist.test.ts#L410)).
+  § Theming, the Styling row of .specify/spec.md, three in README.md and five across the demo's
+  README, stylesheet and sources - is read by the same test against the word the block's size
+  spells, so a sentence left at the old number reds a token PR
+  ([validated by the spelled token counts in docs/design-notes.md § Theming, .specify/spec.md, the theming spec, README.md and the demo sources equal the declaration block](../../tests/theming-tokens-dist.test.ts#L431)).
+- The breakdown by group that this file's opening sentence and docs/design-notes.md § Theming
+  spell - theme tokens, neutral chrome roles, semantic-colour roles - is summed by the same test
+  against the block, so a token PR that bumps the total and forgets a group reds too
+  ([validated by the group breakdown spelled in docs/design-notes.md § Theming and the theming spec sums to the declaration block](../../tests/theming-tokens-dist.test.ts#L452)).
+- The demo stylesheet `examples/chat-demo/src/custom-theme.css` sets exactly the declared names,
+  so the "sets all" sentences above stay true after a token PR only when the demo file moved too
+  ([validated by examples/chat-demo/src/custom-theme.css sets exactly the declared tokens](../../tests/theming-tokens-dist.test.ts#L465)).
 
 ## The fallback rule
 
