@@ -64,7 +64,7 @@ issue is cited for it.
   [validated by Alt+Enter does not submit, does not preventDefault and leaves the draft in the box](../../tests/ChatComposer.test.tsx#L149),
   [validated by Shift+Enter does not submit and leaves the draft in the box](../../tests/ChatComposer.test.tsx#L113),
   [validated by Ctrl+Shift+Enter does not submit: Shift wins over Ctrl](../../tests/ChatComposer.test.tsx#L162),
-  [validated by Alt+Enter appends no entry and keeps the draft in the box](../../examples/chat-demo/tests/chat-demo.spec.ts#L367)).
+  [validated by Alt+Enter appends no entry and keeps the draft in the box](../../examples/chat-demo/tests/chat-demo.spec.ts#L372)).
 - **The IME guard is the fix this component adds.** `Enter` with
   `nativeEvent.isComposing` neither submits nor preventDefaults. None of the
   three inline copies checks it. Verified by mutation: removing the
@@ -121,11 +121,12 @@ that sets `busy` there disables the field in the same commit, as the section
 above records - and before the re-render disables send, so a keyboard user
 who tabbed to send never lands on `body` (issue 131; the demo, which passes
 no `busy`, proves Tab to send then `Enter` and then `Space` in a real
-Chromium)
+Chromium and, with `Alt+Tab` standing in for WebKit's control-skipping `Tab`,
+in a real WebKit - issue 200)
 ([validated by clicking the focused send button submits, disables send, and leaves the textarea as document.activeElement](../../tests/ChatComposer.test.tsx#L459),
 [validated by Enter keeps the textarea as document.activeElement after the submit](../../tests/ChatComposer.test.tsx#L473),
 [validated by an onSubmit that focuses an outside button wins: that button is document.activeElement after send](../../tests/ChatComposer.test.tsx#L484),
-[validated by Tab to send then Enter or Space appends the entry and returns focus to the textarea](../../examples/chat-demo/tests/chat-demo.spec.ts#L403)).
+[validated by Tab to send then Enter or Space appends the entry and returns focus to the textarea](../../examples/chat-demo/tests/chat-demo.spec.ts#L408)).
 
 ## Auto-resize
 

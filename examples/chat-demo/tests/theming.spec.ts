@@ -31,7 +31,7 @@ const streamWindowMs = 10_000;
 
 type ColorProperty = "backgroundColor" | "borderColor" | "color";
 
-// A probe element painted with the palette variable itself: whatever Chromium
+// A probe element painted with the palette variable itself: whatever the engine
 // serialises that colour as, the token site must serialise identically. The
 // transparent guard catches a dropped variable for a paint property; for a text
 // colour that fell back to inherit, the caller's expected-shade assertion catches it.

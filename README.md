@@ -202,7 +202,7 @@ the visible text; styling the control is the consumer's job, as
 
 ## Worked consumer
 
-`examples/chat-demo` is the worked consumer: a standalone Vite app that installs this package from a freshly packed tarball (never the source tree, never the registry) and composes `AppShell`, `AppSidebar`, `ConversationList`, `ChatMessageList`, `ChatComposer` and `Toast` into a full chat screen, verified by a real-Chromium Playwright suite. One command builds the package, packs it, installs the tarball into a temp copy outside the repo tree and runs the whole proof:
+`examples/chat-demo` is the worked consumer: a standalone Vite app that installs this package from a freshly packed tarball (never the source tree, never the registry) and composes `AppShell`, `AppSidebar`, `ConversationList`, `ChatMessageList`, `ChatComposer` and `Toast` into a full chat screen, verified by a Playwright suite that runs in a real Chromium and a real WebKit. One command builds the package, packs it, installs the tarball into a temp copy outside the repo tree and runs the whole proof:
 
 ```sh
 npm run consumer

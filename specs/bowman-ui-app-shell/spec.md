@@ -23,10 +23,11 @@ first focusable element in the rendered tree and carries the resolved
 `skipToMainContent` label; `skipLink={false}` opts
 out for a consumer with its own
 ([validated by the skip link is the first focusable element in the rendered tree](../../tests/AppShell.test.tsx#L54),
-[validated by skipLink={false} renders no anchor pointing at mainContentId](../../tests/AppShell.test.tsx#L66)). In Chromium, `Tab` on a fresh load
+[validated by skipLink={false} renders no anchor pointing at mainContentId](../../tests/AppShell.test.tsx#L66)). In Chromium, and in WebKit with
+`Alt+Tab` standing in for its link-skipping `Tab` (issue 200), `Tab` on a fresh load
 reaches the skip link first and `Enter` on it moves the sequential focus start
 to `main`, so the next `Tab` lands inside `main` with no `tabIndex` on it
-(issue 151) ([validated by Tab reaches the skip link first, and Enter on it sends the next Tab inside main](../../examples/chat-demo/tests/chat-demo.spec.ts#L564)).
+(issue 151) ([validated by Tab reaches the skip link first, and Enter on it sends the next Tab inside main](../../examples/chat-demo/tests/chat-demo.spec.ts#L570)).
 
 `AppShellLabels` has four defaulted keys - `openSidebar`, `closeSidebar`,
 `skipToMainContent`, and `sidebarDialog` (the open drawer dialog's accessible
@@ -158,16 +159,16 @@ wraps to the first, and closing returns focus to the hamburger
 open across a rotate to desktop - `md:hidden` hides it while the trap's
 listener stays mounted - each `Tab` moves focus forward through `main` and
 never into the hidden drawer (issue 151)
-([validated by after the viewport grows to desktop, three Tabs advance through main, never the drawer](../../examples/chat-demo/tests/chat-demo.spec.ts#L602)).
+([validated by after the viewport grows to desktop, three Tabs advance through main, never the drawer](../../examples/chat-demo/tests/chat-demo.spec.ts#L609)).
 
 `reducedMotion={true}` omits `transition-transform` and `transition-opacity`
 from the drawer and backdrop; omitted, 021's `useReducedMotion` tracks
 `prefers-reduced-motion` and a non-matching `matchMedia` keeps both classes
 ([validated by reducedMotion={true} renders the drawer and the backdrop with no transition classes](../../tests/AppShell.test.tsx#L397),
-[validated by reducedMotion omitted with matchMedia matching nothing renders both transition classes](../../tests/AppShell.test.tsx#L404)). Rendered in Chromium under
+[validated by reducedMotion omitted with matchMedia matching nothing renders both transition classes](../../tests/AppShell.test.tsx#L404)). Rendered in Chromium and WebKit under
 `prefers-reduced-motion: reduce`, the drawer's computed `transition-duration`
 is `0s`, against `0.3s` without the emulation (issue 151)
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L653)).
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L660)).
 
 ## The characterization suite
 

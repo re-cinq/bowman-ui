@@ -96,8 +96,8 @@ jobs:
       # Issue 82: the last executable proof before the package goes public and
       # immutable - the packed tarball from this tagged commit must render the
       # full chat screen in the standalone Vite consumer. The script installs
-      # the demo's pinned Chromium itself; a root install would resolve the
-      # latest playwright from the registry.
+      # the demo's pinned Chromium and WebKit itself; a root install would
+      # resolve the latest playwright from the registry.
       - name: Consumer app check
         run: ./scripts/consumer-app.sh
       # Issue 100: the App Router client-boundary proof against the tarball

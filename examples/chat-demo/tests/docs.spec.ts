@@ -169,11 +169,13 @@ test.describe("the default screen", () => {
   });
 });
 
-// issue 151: the search field in a browser, where type="search" brings Chromium's native
-// clear control - a click on it, or Escape, must reach the controlled onChange with "".
+// issue 151: the search field in a browser, where type="search" brings the engine's native
+// clear control - a click on it must reach the controlled onChange with "". Escape does too in
+// Chromium; WebKit's search input has no Escape-to-clear (issue 218), so there the value stays.
 test.describe("the search field page", () => {
-  test("typing narrows the example's count, and the native clear control and Escape empty the field through onChange", async ({
+  test("typing narrows the example's count, the native clear control empties the field through onChange, and Escape does so in Chromium only", async ({
     page,
+    browserName,
   }) => {
     await page.goto("/?view=docs&component=search-field");
 
@@ -200,14 +202,21 @@ test.describe("the search field page", () => {
     });
 
     await input.click({ position: clearControl });
-    await expect(input, "the click must land on Chromium's native cancel control").toHaveValue("");
+    await expect(input, "the click must land on the engine's native cancel control").toHaveValue(
+      ""
+    );
     await expect(summary).toHaveText("Matching 3 of 3 conversations");
 
     await input.fill("first edition");
     await expect(summary).toHaveText("Matching 1 of 3 conversations");
 
+    // WebKit's search input has no Escape-to-clear and the library adds none (issue 218).
+    const escapeClears = browserName !== "webkit";
+
     await input.press("Escape");
-    await expect(input).toHaveValue("");
-    await expect(summary).toHaveText("Matching 3 of 3 conversations");
+    await expect(input).toHaveValue(escapeClears ? "" : "first edition");
+    await expect(summary).toHaveText(
+      escapeClears ? "Matching 3 of 3 conversations" : "Matching 1 of 3 conversations"
+    );
   });
 });

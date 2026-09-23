@@ -4,8 +4,8 @@
 # examples/chat-demo to a temp directory outside the repo tree, installs the
 # tarball by file path (never the registry), and runs typecheck, vite build,
 # vite preview (started by Playwright's webServer) and the Playwright suite
-# against a real Chromium. --keep retains the temp directory and tarball and
-# prints their paths for debugging.
+# against a real Chromium and a real WebKit. --keep retains the temp directory
+# and tarball and prints their paths for debugging.
 set -euo pipefail
 
 KEEP_TEMP=0
@@ -82,6 +82,12 @@ if grep -q "executablePath" "$REPO_ROOT/examples/chat-demo/playwright.config.ts"
   echo "examples/chat-demo/playwright.config.ts must not hardcode an executablePath" >&2
   exit 1
 fi
+for project in chromium webkit; do
+  if ! grep -q "name: \"$project\"" "$REPO_ROOT/examples/chat-demo/playwright.config.ts"; then
+    echo "examples/chat-demo/playwright.config.ts must declare the $project project" >&2
+    exit 1
+  fi
+done
 
 copy_example_to_temp chat-demo
 
@@ -102,8 +108,8 @@ npm run typecheck
 echo "==> Building the consumer with vite"
 npm run build
 
-echo "==> Installing Chromium (and OS deps on Linux) for the pinned @playwright/test"
-npx playwright install --with-deps chromium
+echo "==> Installing Chromium and WebKit (and OS deps on Linux) for the pinned @playwright/test"
+npx playwright install --with-deps chromium webkit
 
 echo "==> Running the Playwright suite against vite preview"
 npx playwright test

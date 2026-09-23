@@ -128,8 +128,8 @@ jobs:
 
   # Issue 82: the packed-tarball consumer proof. Builds the package, packs it,
   # installs the tarball into a temp copy of examples/chat-demo outside the
-  # repo tree and runs the real-Chromium Playwright suite against vite
-  # preview. No fetch-depth: 0 - this job runs no spec anchor check.
+  # repo tree and runs the Playwright suite in Chromium and WebKit against
+  # vite preview. No fetch-depth: 0 - this job runs no spec anchor check.
   # Required status check on main: branch protection names this job, so a
   # rename silently drops the gate.
   consumer:
@@ -142,9 +142,9 @@ jobs:
         with:
           build: "true"
       # No browser install step here: the script runs `npx playwright install
-      # --with-deps chromium` itself against the demo's pinned @playwright/test,
-      # OS-level dependencies included. A root install would resolve the latest
-      # playwright from the registry and install a second Chromium.
+      # --with-deps chromium webkit` itself against the demo's pinned
+      # @playwright/test, OS-level dependencies included. A root install would
+      # resolve the latest playwright from the registry and install them twice.
       - name: Consumer app check
         run: ./scripts/consumer-app.sh
 
