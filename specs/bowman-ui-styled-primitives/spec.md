@@ -34,10 +34,10 @@ Every value export lands in one bucket of `tests/labelled-exports.test.tsx`
 ([validated by](../../tests/labelled-exports.test.tsx#L88),
 [L89](../../tests/labelled-exports.test.tsx#L89),
 [L90](../../tests/labelled-exports.test.tsx#L90),
-[validated by IconButton's sentinel labels are exactly the one required key accessibleName](../../tests/labelled-exports.test.tsx#L621),
-[validated by PromptChips' sentinel labels cover every defaultPromptChipsLabels key](../../tests/labelled-exports.test.tsx#L625),
-[validated by SearchField's sentinel labels cover every defaultSearchFieldLabels key](../../tests/labelled-exports.test.tsx#L631),
-[validated by no run of three Latin letters survives outside the sentinels for any labelsProp member](../../tests/labelled-exports.test.tsx#L637)). The `noStrings` bucket holds `Button`,
+[validated by IconButton's sentinel labels are exactly the one required key accessibleName](../../tests/labelled-exports.test.tsx#L622),
+[validated by PromptChips' sentinel labels cover every defaultPromptChipsLabels key](../../tests/labelled-exports.test.tsx#L626),
+[validated by SearchField's sentinel labels cover every defaultSearchFieldLabels key](../../tests/labelled-exports.test.tsx#L632),
+[validated by no run of three Latin letters survives outside the sentinels for any labelsProp member](../../tests/labelled-exports.test.tsx#L638)). The `noStrings` bucket holds `Button`,
 `defaultPromptChipsLabels` and `defaultSearchFieldLabels`
 ([validated by](../../tests/labelled-exports.test.tsx#L132),
 [L144](../../tests/labelled-exports.test.tsx#L144),
@@ -141,13 +141,13 @@ export const IconButton: ForwardRefExoticComponent<
 - `labels` is required and `IconButtonLabels` has no defaults object: the accessible name is the
   component's only string and no English default may stand in for it, the same reasoning as
   `aiDisclosure` (docs/design-notes.md § Labels decision 5). Omitting `labels` is a compile
-  error against the built package ([validated by IconButton's sentinel labels are exactly the one required key accessibleName](../../tests/labelled-exports.test.tsx#L621),
+  error against the built package ([validated by IconButton's sentinel labels are exactly the one required key accessibleName](../../tests/labelled-exports.test.tsx#L622),
   [L55](../../tests/types/primitives-type-assertions.tsx#L55),
   [validated by tsc accepts primitives-type-assertions.tsx against dist via the '.' exports entry, pinning every @ts-expect-error fixture](../../tests/primitives-dist.test.ts#L42)).
 - The accessible name goes through `labels`, never a string prop, so `IconButton` is a
   `labelsProp` member and the closed `stringPropOnly` list is untouched
   ([validated by](../../tests/labelled-exports.test.tsx#L88),
-  [validated by no run of three Latin letters survives outside the sentinels for any labelsProp member](../../tests/labelled-exports.test.tsx#L637)).
+  [validated by no run of three Latin letters survives outside the sentinels for any labelsProp member](../../tests/labelled-exports.test.tsx#L638)).
 
 ### `PromptChips`
 
@@ -289,7 +289,7 @@ by](../../tests/public-api.test.ts#L40),
 2. **`IconButton` ships no `defaultIconButtonLabels`.** Its one key is required, so the defaults
    object would be an empty frozen object exported for ceremony. `IconButton` therefore joins
    `ChatMessageList` as a component whose `labels` prop is itself required; docs/design-notes.md
-   § Labels records both ([validated by IconButton's sentinel labels are exactly the one required key accessibleName](../../tests/labelled-exports.test.tsx#L621),
+   § Labels records both ([validated by IconButton's sentinel labels are exactly the one required key accessibleName](../../tests/labelled-exports.test.tsx#L622),
    [L55](../../tests/types/primitives-type-assertions.tsx#L55),
    [validated by tsc accepts primitives-type-assertions.tsx against dist via the '.' exports entry, pinning every @ts-expect-error fixture](../../tests/primitives-dist.test.ts#L42)).
 3. **The `prompts` slot stays `ReactNode`.** Folding the chips into `ChatMessageList` (a

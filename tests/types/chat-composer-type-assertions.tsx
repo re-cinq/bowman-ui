@@ -16,7 +16,7 @@ import {
 const completeDefaults = defaultChatComposerLabels satisfies Readonly<Required<ChatComposerLabels>>;
 
 // @ts-expect-error -- a ChatComposerLabels key without a default must not
-// compile: an object missing `send` (the third key) is not a
+// compile: an object missing `send` and `composerBusyHint` is not a
 // Readonly<Required<ChatComposerLabels>>. This is what "adding a key without
 // extending defaultChatComposerLabels fails npm run typecheck" looks like
 // from outside.

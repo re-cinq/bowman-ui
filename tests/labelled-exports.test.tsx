@@ -255,6 +255,7 @@ const chatComposerSentinels = {
   composerInput: "⟦composerInput⟧",
   composerPlaceholder: "⟦composerPlaceholder⟧",
   send: "⟦send⟧",
+  composerBusyHint: "⟦composerBusyHint⟧",
 } satisfies Required<ChatComposerLabels>;
 
 // deleteConversation is the package's first function-form label in this
@@ -453,7 +454,7 @@ const sentinelHarnesses: Record<
   ChatComposer: {
     sentinels: Object.values(chatComposerSentinels),
     renderContainer: () =>
-      render(<ChatComposer onSubmit={() => {}} labels={chatComposerSentinels} />).container,
+      render(<ChatComposer onSubmit={() => {}} busy labels={chatComposerSentinels} />).container,
   },
   AppShell: {
     sentinels: Object.values(appShellSentinels),

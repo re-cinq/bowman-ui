@@ -327,6 +327,7 @@ const catalogue: { composer: ChatComposerLabels; conversationList: ConversationL
     composerInput: "Tu mensaje",
     composerPlaceholder: "Responder...",
     send: "Enviar mensaje",
+    composerBusyHint: "Puedes seguir escribiendo. El envío espera a que el asistente termine.",
   },
   conversationList: {
     conversations: "Conversaciones",
