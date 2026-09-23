@@ -50,7 +50,7 @@ it through ([validated by `renders its own strokeless <svg>: no root stroke, ani
 `class` containing `animate-spin`, `<path fill="currentColor">` with no stroke.
 `animate-spin` is a Tailwind
 core utility, not one of the four keyframes the package stylesheet ships (019's three plus
-025's `bowman-toast-fade-in`) ([validated by declares exactly the four keyframes bowman-fade-in, bowman-toast-fade-in, bowman-fade-dot and bowman-pulse-subtle](../../tests/styles.test.ts#L31)). No rule for it
+025's `bowman-toast-fade-in`) ([validated by declares exactly the four keyframes bowman-fade-in, bowman-toast-fade-in, bowman-fade-dot and bowman-pulse-subtle](../../tests/styles.test.ts#L32)). No rule for it
 lands in `src/styles.css`; a consumer's Tailwind build generates it by scanning the installed `dist`.
 `LoadingIcon`'s English `ariaLabel` default `"Loading"`
 is the icon set's only user-visible string, prop-overridable per

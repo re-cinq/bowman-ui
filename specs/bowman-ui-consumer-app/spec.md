@@ -321,7 +321,11 @@ in `specs/bowman-ui-theming-tokens/spec.md`, the reveals in
 - Under the dark colour scheme every token with a `-dark` twin resolves to that twin at its
   chat-screen site, shown to differ from the light shade, on the default theme and inside the
   wrapper alike; the matrix is `specs/bowman-ui-theming-tokens/spec.md` § The browser proof
-  ([validated by](../../examples/chat-demo/tests/theming.spec.ts#L353)).
+  ([validated by](../../examples/chat-demo/tests/theming.spec.ts#L366)).
+- Under the dark colour scheme the focused conversation row's ring offset
+  shadow resolves to the `--color-slate-900` probe, shown to differ from the
+  white light offset, and inside the wrapper to its `--bowman-ring-offset-dark`
+  ([validated by](../../examples/chat-demo/tests/theming.spec.ts#L240)).
 - The documentation gains a `search-field` page with a `SearchFieldExample`,
   and the engine's native clear control empties the controlled field through
   `onChange("")` in both engines; `Escape` does so in Chromium only, and the

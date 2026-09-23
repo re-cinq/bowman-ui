@@ -21,7 +21,7 @@ consumer's own Tailwind build generates their CSS by scanning the installed `dis
 `@source` line README § Styles prescribes. `src/styles.css` gains nothing - the primitives need
 no keyframe and no rule Tailwind cannot generate - so `dist/styles.css` still declares exactly
 the four keyframes and the stylesheet tests are unchanged
-([validated by declares exactly the four keyframes bowman-fade-in, bowman-toast-fade-in, bowman-fade-dot and bowman-pulse-subtle](../../tests/styles.test.ts#L31)).
+([validated by declares exactly the four keyframes bowman-fade-in, bowman-toast-fade-in, bowman-fade-dot and bowman-pulse-subtle](../../tests/styles.test.ts#L32)).
 
 ## What ships
 

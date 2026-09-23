@@ -245,15 +245,11 @@ const focusSites: ReadonlyArray<TokenSite> = [
     locate: activeRowLink,
     act: focus,
   },
-  // The offset stays the light token under the dark scheme: focus:ring-offset-* outranks the
-  // media-query-only dark:ring-offset-*, so --bowman-ring-offset-dark never paints (see
-  // unreachableTokens). This site reds the day the library prefixes the dark offset with focus:.
   {
     token: "--bowman-ring-offset",
     site: "the focused row link's ring offset",
     property: "boxShadow",
     locate: activeRowLink,
-    ignoresScheme: true,
   },
   {
     token: "--bowman-accent-glow",
@@ -367,10 +363,6 @@ const siteGroups: ReadonlyArray<{ title: string; sites: ReadonlyArray<TokenSite>
 
 const chatSites = siteGroups.flatMap((group) => group.sites);
 
-// Declared, set by the wrapper, and never painted: the dark ring offset loses to the light one's
-// focus: specificity at every FOCUS_RING site. A library change, not a demo gap.
-const unreachableTokens = ["--bowman-ring-offset-dark"];
-
 const themeRuns: ReadonlyArray<ThemeRun> = [
   {
     title: "the default chat screen",
@@ -406,10 +398,10 @@ const assistantEntryCount = initialEntriesByConversation[conversations[0].id].fi
   (entry) => entry.role === "assistant"
 ).length;
 
-test("the chat matrix reaches every token the installed stylesheet declares but the unreachable dark offset, and the wrapper sets the same set", () => {
+test("the chat matrix reaches every token the installed stylesheet declares, and the wrapper sets the same set", () => {
   const declared = [...declaredFallbacks.keys()].sort();
 
-  expect([...tokensMeasuredBy(chatSites), ...unreachableTokens].sort()).toEqual(declared);
+  expect(tokensMeasuredBy(chatSites)).toEqual(declared);
   expect([...copperlineValues.keys()].sort()).toEqual(declared);
 });
 
