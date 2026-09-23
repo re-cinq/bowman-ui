@@ -51,7 +51,7 @@ a fallback or the order departs from the declaration block
 
 Every token ships a default, and the default lives only in the `var()` fallback:
 `dist/styles.css` declares no `:root` block and still contains no `@theme`
-([validated by](../../tests/styles.test.ts#L100), [validated by contains no @theme block, no @import "tailwindcss" and no @plugin line](../../tests/styles.test.ts#L55)).
+([validated by](../../tests/styles.test.ts#L101), [validated by contains no @theme block, no @import "tailwindcss" and no @plugin line](../../tests/styles.test.ts#L56)).
 
 - Every `--bowman-*` occurrence outside the declaration block is a `var()` read carrying a
   non-empty fallback ([validated by](../../tests/theming-tokens-dist.test.ts#L288)).
@@ -118,7 +118,7 @@ value ([validated by no built component carries a --bowman- literal; the class s
   ([validated by the isActive item reads --bowman-active with the strong text token, an inactive item takes the strong hover token, and every item keeps focus:ring-2 beside the --bowman-focus-ring colour](../../tests/AppSidebar.test.tsx#L137)).
 - `bowman-pulse-subtle`'s 50 % stop reads `--bowman-accent-glow` and `--bowman-pulse-outline`
   with today's literals as fallbacks, while its zero stop stays literal
-  ([validated by](../../tests/styles.test.ts#L71),
+  ([validated by](../../tests/styles.test.ts#L72),
   [validated by the keyframe's 50% stop reads --bowman-accent-glow and --bowman-pulse-outline while its zero stop stays literal](../../tests/theming-tokens-dist.test.ts#L319)).
 - `Button`'s and `IconButton`'s `primary` variant carries the `--bowman-accent` background and
   hover, and every variant of both keeps `focus:ring-2 ring-offset-2` beside the
@@ -380,4 +380,4 @@ are the other nineteen `-dark` tokens and the light ones no test reads, among th
 `--bowman-accent-hover` and `--bowman-pulse-outline` - Playwright never hovers a control -
 which the jsdom class-string tests above pin alone
 ([validated by the send button reads --bowman-accent for its background and --bowman-accent-hover on hover, light and dark](../../tests/ChatComposer.test.tsx#L280),
-[L71](../../tests/styles.test.ts#L71), [validated by while isStreaming the circle reads --bowman-accent-border and --bowman-accent-soft, light and dark](../../tests/ChatMessage.test.tsx#L494)).
+[L72](../../tests/styles.test.ts#L72), [validated by while isStreaming the circle reads --bowman-accent-border and --bowman-accent-soft, light and dark](../../tests/ChatMessage.test.tsx#L494)).

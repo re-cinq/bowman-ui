@@ -7,7 +7,7 @@
 
 `src/styles.css` is the package's only stylesheet: it ships what a consumer's
 Tailwind v4 build cannot generate from a class name, and nothing else
-([validated by declares exactly the four keyframes bowman-fade-in, bowman-toast-fade-in, bowman-fade-dot and bowman-pulse-subtle](../../tests/styles.test.ts#L31)). The
+([validated by declares exactly the four keyframes bowman-fade-in, bowman-toast-fade-in, bowman-fade-dot and bowman-pulse-subtle](../../tests/styles.test.ts#L32)). The
 `"./styles.css"` export resolves to `dist/styles.css`, which the build script
 copies verbatim: `tsc` emits no assets, so `build` is
 `rm -rf dist && node node_modules/typescript7/bin/tsc -p tsconfig.json && cp src/styles.css dist/styles.css`
@@ -15,9 +15,9 @@ copies verbatim: `tsc` emits no assets, so `build` is
 a node script because CI and development both run on POSIX shells.
 `dist/styles.css` ships in the tarball under the `sideEffects:
 ["*.css"]` seam `018` left open - already present, not re-added
-([validated by lists dist/styles.css in npm pack --dry-run](../../tests/styles.test.ts#L121),
-[validated by `sideEffects includes "*.css"`](../../tests/styles.test.ts#L113),
-[validated by exports gains "./styles.css" alongside the unchanged "." entry](../../tests/styles.test.ts#L106)). The leading `rm -rf dist` is
+([validated by lists dist/styles.css in npm pack --dry-run](../../tests/styles.test.ts#L122),
+[validated by `sideEffects includes "*.css"`](../../tests/styles.test.ts#L114),
+[validated by exports gains "./styles.css" alongside the unchanged "." entry](../../tests/styles.test.ts#L107)). The leading `rm -rf dist` is
 load-bearing - `tsc` never cleans, and `files` packs `dist/` wholesale, so it would ship whatever
 stale artifact survived - so every built file must trace back to a source
 file ([validated by every built file traces back to a source file - no stale artifacts ship](../../tests/dist-is-clean.test.ts#L36)).
@@ -30,13 +30,13 @@ Exactly four keyframes with their utility rules - `bowman-fade-in`,
 `specs/bowman-ui-toast/spec.md` § The stylesheet) - alongside the `bowman-md-*`
 markdown element styling, the `bowman-sr-only` rule and an unconditional
 reduced-motion rule
-([validated by declares exactly the four keyframes bowman-fade-in, bowman-toast-fade-in, bowman-fade-dot and bowman-pulse-subtle](../../tests/styles.test.ts#L31),
-[validated by pairs each keyframe with a utility rule of the same name](../../tests/styles.test.ts#L42),
-[validated by styles.css declares the bowman-sr-only rule the markdown notice, Toast, ConversationList and useFocusGroups depend on](../../tests/styles.test.ts#L160)). All class and
+([validated by declares exactly the four keyframes bowman-fade-in, bowman-toast-fade-in, bowman-fade-dot and bowman-pulse-subtle](../../tests/styles.test.ts#L32),
+[validated by pairs each keyframe with a utility rule of the same name](../../tests/styles.test.ts#L43),
+[validated by styles.css declares the bowman-sr-only rule the markdown notice, Toast, ConversationList and useFocusGroups depend on](../../tests/styles.test.ts#L156)). All class and
 keyframe names carry the `bowman-` prefix so they cannot collide with a
 consumer's own `animate-*` utilities; the issue prescribed `.bowman-fade-in`
 for the split fade and the other three follow the same convention
-([validated by declares exactly the four keyframes bowman-fade-in, bowman-toast-fade-in, bowman-fade-dot and bowman-pulse-subtle](../../tests/styles.test.ts#L31)). All rules are
+([validated by declares exactly the four keyframes bowman-fade-in, bowman-toast-fade-in, bowman-fade-dot and bowman-pulse-subtle](../../tests/styles.test.ts#L32)). All rules are
 unlayered, so they win on plain specificity without depending on a
 consumer's `@layer` order. Since issue 210 the copied `dist/styles.css` opens with a
 comment block declaring, one line per `--bowman-*` theming token, that token and
@@ -44,14 +44,14 @@ its default
 ([validated by dist/styles.css opens with one comment line per token, each stating its default](../../tests/theming-tokens-dist.test.ts#L274)). The 50 % stop of
 `bowman-pulse-subtle` reads `--bowman-accent-glow` and `--bowman-pulse-outline` with today's
 literals as fallbacks - the zero stop stays literal
-([validated by](../../tests/styles.test.ts#L71)).
+([validated by](../../tests/styles.test.ts#L72)).
 
 Absent on purpose: no `pulse-icon` keyframe, no `.no-scrollbar` utility and
 no `@theme` tokens - the theming tokens are custom properties read through `var()` fallbacks
 and declared nowhere (docs/design-notes.md § Theming decision 1), so the sentence still
 holds. The file contains no `@theme`, no
 `@import` of any kind and no `@plugin`, so a non-Tailwind consumer can import
-it as plain CSS ([validated by contains no @theme block, no @import "tailwindcss" and no @plugin line](../../tests/styles.test.ts#L55)).
+it as plain CSS ([validated by contains no @theme block, no @import "tailwindcss" and no @plugin line](../../tests/styles.test.ts#L56)).
 
 ## The fadeIn split
 
@@ -62,26 +62,26 @@ uncentred confirmation spans in `ChatMessage` it would make them slide half
 their
 width left and snap back. `bowman-fade-in` animates opacity and `translateY`
 only; `Toast` keeps its centring in its own dedicated rule
-([validated by animates opacity and translateY only in bowman-fade-in - no translateX](../../tests/styles.test.ts#L63)).
+([validated by animates opacity and translateY only in bowman-fade-in - no translateX](../../tests/styles.test.ts#L64)).
 
 ## Reduced motion
 
 `@media (prefers-reduced-motion: reduce)` sets `animation: none` on all four
 utility classes, with no `data-animations` attribute in any selector
-([validated by neutralises all four animations under prefers-reduced-motion, touching no transform, with no data-animations selector](../../tests/styles.test.ts#L89)). Rendered in Chromium and WebKit under
+([validated by neutralises all four animations under prefers-reduced-motion, touching no transform, with no data-animations selector](../../tests/styles.test.ts#L90)). Rendered in Chromium and WebKit under
 that preference, a thinking dot's computed `animation-name` is `none`, against
 `bowman-fade-dot` without the emulation (issue 151)
 ([validated by the thinking dots animate by default and stop under prefers-reduced-motion](../../examples/chat-demo/tests/chat-demo.spec.ts#L646)). No
 `NEXT_PUBLIC_FLAG_ANIMATIONS` escape hatch exists: flag plumbing belongs to
-a consumer ([validated by `no built file reads process.env and no NEXT_PUBLIC flag string survives in src/`](../../tests/hooks-dist.test.ts#L44)).
+a consumer ([validated by `no built file reads process.env and no NEXT_PUBLIC flag string survives in src/`](../../tests/hooks-dist.test.ts#L45)).
 
 ## The typography-plugin replacement
 
 `@tailwindcss/typography` appears in no `package.json` field and no `src/`
 file contains
 the string the plugin's classes are built from
-([validated by mentions @tailwindcss/typography in no field](../../tests/styles.test.ts#L117),
-[validated by grep for "prose" in src/ returns nothing](../../tests/styles.test.ts#L143)). Instead, `markdownComponents`
+([validated by mentions @tailwindcss/typography in no field](../../tests/styles.test.ts#L118),
+[validated by grep for "prose" in src/ returns nothing](../../tests/styles.test.ts#L139)). Instead, `markdownComponents`
 is a named export from the package root: a `react-markdown` `components` map
 covering exactly `p`, `a`, `ul`, `ol`, `li`, `code`, `pre`, `blockquote`,
 `h1`-`h3`, `table`, `thead`, `th`, `td`, `hr`, `strong`, `em`
@@ -137,7 +137,7 @@ classes like `language-js` are merged rather than clobbered, and the
   ([validated by with the @source line, the compiled CSS contains the bg-slate-800 rule from the installed dist](../../tests/tailwind-build.test.ts#L75)).
 - **The fixture never ships.** `files: ["dist", "THIRD-PARTY-NOTICES.md"]` keeps it and every
   other file under `tests/` out of the tarball
-  ([validated by packs dist/ plus exactly package.json, LICENSE, README.md and THIRD-PARTY-NOTICES.md](../../tests/styles.test.ts#L125),
+  ([validated by packs dist/ plus exactly package.json, LICENSE, README.md and THIRD-PARTY-NOTICES.md](../../tests/styles.test.ts#L126),
   [validated by](../../scripts/consumer-app.sh#L66)).
 
 ## The real-build verification the issue demanded

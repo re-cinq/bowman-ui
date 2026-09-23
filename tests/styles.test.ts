@@ -1,6 +1,7 @@
-import { existsSync, readFileSync, readdirSync } from "node:fs";
-import { join, resolve } from "node:path";
+import { existsSync, readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { packedPaths } from "./helpers/built-package.js";
+import { listFiles } from "./helpers/source-hygiene.js";
 
 const stylesPath = resolve(process.cwd(), "dist/styles.css");
 
@@ -134,14 +135,9 @@ describe("package.json stylesheet contract", () => {
   });
 });
 
-const sourceFiles = (dir: string): string[] =>
-  readdirSync(dir, { withFileTypes: true }).flatMap((entry) =>
-    entry.isDirectory() ? sourceFiles(join(dir, entry.name)) : [join(dir, entry.name)]
-  );
-
 describe("the typography-plugin replacement", () => {
   it('grep for "prose" in src/ returns nothing', () => {
-    const hits = sourceFiles(resolve(process.cwd(), "src")).filter((file) =>
+    const hits = listFiles(resolve(process.cwd(), "src")).filter((file) =>
       readFileSync(file, "utf8").includes("prose")
     );
 
@@ -150,7 +146,7 @@ describe("the typography-plugin replacement", () => {
 
   it("no src file hand-writes a visually-hidden clip; bowman-sr-only is the one definition", () => {
     const handWrittenClip = /rect\(\s*0\s*,\s*0\s*,\s*0\s*,\s*0\s*\)|\.style\.clip\b|clipPath/;
-    const hits = sourceFiles(resolve(process.cwd(), "src")).filter((file) =>
+    const hits = listFiles(resolve(process.cwd(), "src")).filter((file) =>
       handWrittenClip.test(readFileSync(file, "utf8"))
     );
 

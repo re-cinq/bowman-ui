@@ -1,5 +1,9 @@
-import { existsSync, readFileSync } from "node:fs";
-import { expectPackedWithTypes, expectTypeAssertionsCompile } from "./helpers/built-package.js";
+import { readFileSync } from "node:fs";
+import {
+  expectClientDirectiveFirst,
+  expectPackedWithTypes,
+  expectTypeAssertionsCompile,
+} from "./helpers/built-package.js";
 import { listFiles } from "./helpers/source-hygiene.js";
 
 const BUILT_FILES = [
@@ -22,10 +26,7 @@ describe("the built hook surface", () => {
 
   it('each built hook and ErrorBoundary opens with "use client"; as its first statement', () => {
     for (const built of BUILT_FILES) {
-      expect(existsSync(built)).toBe(true);
-      const firstStatement = readFileSync(built, "utf8").trimStart();
-
-      expect(firstStatement.startsWith('"use client";')).toBe(true);
+      expectClientDirectiveFirst(built);
     }
   });
 

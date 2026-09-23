@@ -111,7 +111,7 @@ circle carries `bowman-pulse-subtle`, never a bare
 every package animation class under the `bowman-` prefix (its spec: names
 "cannot collide with a consumer's own `animate-*` utilities")
 ([validated by while isStreaming the circle carries bowman-pulse-subtle; not streaming it does not](../../tests/ChatMessage.test.tsx#L481),
-[keyframes](../../tests/styles.test.ts#L31)). That is the
+[keyframes](../../tests/styles.test.ts#L32)). That is the
 same rename the confirmation spans (`bowman-fade-in`) and the indicator dots
 (`bowman-fade-dot`) received
 ([validated by the copy and feedback confirmation spans carry the bowman-fade-in class](../../tests/ChatMessage.test.tsx#L675),
