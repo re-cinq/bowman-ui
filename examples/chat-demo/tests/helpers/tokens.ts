@@ -3,7 +3,7 @@
 // the stylesheets themselves - the installed package's declaration block for the defaults and
 // src/custom-theme.css for the Copperline Bicycles wrapper - so neither can drift from the test.
 
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { expect, type Locator, type Page } from "@playwright/test";
 import {
   boxShadowOf,
@@ -15,10 +15,17 @@ import {
 
 export type TokenValues = ReadonlyMap<string, string>;
 
-const readTokenDeclarations = (path: URL, pattern: RegExp): TokenValues =>
-  new Map(
+const readTokenDeclarations = (path: URL, pattern: RegExp): TokenValues => {
+  if (!existsSync(path)) {
+    // The installed package is what the sweep measures against: run the suite through
+    // `npm run consumer`, which packs and installs it, not `npx playwright test` on its own.
+    throw new Error(`token declarations not found at ${path.pathname}; run npm run consumer`);
+  }
+
+  return new Map(
     Array.from(readFileSync(path, "utf8").matchAll(pattern), ([, name, value]) => [name, value])
   );
+};
 
 // One comment line per token in the installed dist/styles.css, its fallback before the " - ".
 export const declaredFallbacks = readTokenDeclarations(

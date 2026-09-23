@@ -732,7 +732,12 @@ test.describe("component states", () => {
       .poll(() => styleOf(visibleTitle, "textOverflow"), { timeout: pollWindowMs })
       .toBe("ellipsis");
     await expect(visibleTitle).toHaveText(settledTitle);
-    expect(new Set(await characterOpacities(visibleTitle))).toEqual(new Set(["1"]));
+    // Each character fades over 100ms and the last one is still in flight when the text settles.
+    await expect
+      .poll(async () => [...new Set(await characterOpacities(visibleTitle))], {
+        timeout: pollWindowMs,
+      })
+      .toEqual(["1"]);
   });
 
   test("under prefers-reduced-motion the settled title lands at once, every character opaque and nothing clipped", async ({

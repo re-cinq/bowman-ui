@@ -371,27 +371,30 @@ statement below runs in both engines.
   [validated by the chat message list variants render every role with its persona, the busy status with a pending tool row, and the empty greeting](../../examples/chat-demo/tests/docs.spec.ts#L606),
   [validated by the composer example takes a draft through the ref handle and reports the sent text, and the busy, disabled and grown variants show their states](../../examples/chat-demo/tests/docs.spec.ts#L633),
   [validated by the conversation list example moves the current mark on select, removes a row on delete, and the loading and empty variants render their states](../../examples/chat-demo/tests/docs.spec.ts#L670),
-  [validated by the search field variants carry the filled value and the disabled state](../../examples/chat-demo/tests/docs.spec.ts#L755),
-  [validated by the sidebar example moves aria-current to the clicked nav item and draws an icon in each](../../examples/chat-demo/tests/docs.spec.ts#L764),
-  [validated by the shell example renders the desktop copy of its sidebar and the inline thinking indicator its label and dots](../../examples/chat-demo/tests/docs.spec.ts#L781),
-  [validated by the toast example shows the pill, announces the message in its live region, and dismisses itself](../../examples/chat-demo/tests/docs.spec.ts#L793),
-  [validated by the consumer-supplied fallback replaces the built-in alert, retry button included](../../examples/chat-demo/tests/docs.spec.ts#L810),
-  [validated by the icons page lists the whole set, every glyph aria-hidden beside its name](../../examples/chat-demo/tests/docs.spec.ts#L823),
-  [validated by the back link on a component page returns to the index](../../examples/chat-demo/tests/docs.spec.ts#L835)).
+  [validated by the search field variants carry the filled value and the disabled state](../../examples/chat-demo/tests/docs.spec.ts#L760),
+  [validated by the sidebar example moves aria-current to the clicked nav item and draws an icon in each](../../examples/chat-demo/tests/docs.spec.ts#L769),
+  [validated by the shell example renders the desktop copy of its sidebar and the inline thinking indicator its label and dots](../../examples/chat-demo/tests/docs.spec.ts#L786),
+  [validated by the toast example shows the pill, announces the message in its live region, and dismisses itself](../../examples/chat-demo/tests/docs.spec.ts#L798),
+  [validated by the consumer-supplied fallback replaces the built-in alert, retry button included](../../examples/chat-demo/tests/docs.spec.ts#L815),
+  [validated by the icons page lists the whole set, every glyph aria-hidden beside its name](../../examples/chat-demo/tests/docs.spec.ts#L828),
+  [validated by the back link on a component page returns to the index](../../examples/chat-demo/tests/docs.spec.ts#L840)).
 - The conversation list example gains a button that gives the placeholder row its real title -
   the producer's move the typewriter waits for - so the animation runs in a real browser: the
   hidden span carries the settled title at once, the visible span clips mid-animation and ends
   settled, and under `prefers-reduced-motion` it lands at once with nothing clipped
   ([validated by settling the placeholder title runs the typewriter: the visible title clips mid-animation and ends settled at the new title](../../examples/chat-demo/tests/docs.spec.ts#L720),
-  [validated by under prefers-reduced-motion the settled title lands at once, every character opaque and nothing clipped](../../examples/chat-demo/tests/docs.spec.ts#L738)).
+  [validated by under prefers-reduced-motion the settled title lands at once, every character opaque and nothing clipped](../../examples/chat-demo/tests/docs.spec.ts#L743)).
 - At a phone width the documentation's own drawer opens from the hamburger and a nav anchor -
   the `renderNavLink` seam - loads that component's page
-  ([validated by the hamburger opens the drawer and a nav anchor loads that component's page](../../examples/chat-demo/tests/docs.spec.ts#L849)).
+  ([validated by the hamburger opens the drawer and a nav anchor loads that component's page](../../examples/chat-demo/tests/docs.spec.ts#L854)).
 - The documentation pages carry token sites the chat has none of, measured under both schemes:
   the danger family on the error boundary's icon, the thinking dots and indicator circle, the
   tool name and arguments, the trace content, the search field's frame, icon and ring, the row
   title and timestamp, the sidebar example's active and hovered items, and the message body
-  and assistant name ([validated by](../../examples/chat-demo/tests/docs.spec.ts#L268)).
+  and assistant name, each against the token's declared fallback - the demo themes the chat view
+  alone, so the proof that a site reads `var(--bowman-...)` rather than a hardcoded light/dark
+  pair is the chat matrix's Copperline runs, never a documentation page
+  ([validated by](../../examples/chat-demo/tests/docs.spec.ts#L268)).
 
 Out of the demo's reach, and left so: `Button`, `IconButton` and `PromptChips` have no
 documentation page and no chat-screen site, so no browser measures them; the demo does not

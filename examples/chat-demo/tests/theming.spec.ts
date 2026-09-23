@@ -88,14 +88,33 @@ const sendMessage = async (circle: Locator, page: Page): Promise<void> => {
   await expect(circle).toBeVisible({ timeout: pollWindowMs });
 };
 
+// The reply commits after streamStartDelayMs + (streamStepCount + 1) * streamStepIntervalMs and
+// the circle unmounts with it, so every streaming site sends again rather than racing one stream.
+const ensureStreaming = async (circle: Locator, page: Page): Promise<void> => {
+  if ((await circle.count()) > 0) {
+    return;
+  }
+
+  await sendMessage(circle, page);
+};
+
 // Pause the keyframe at its 50% stop, where the outline and shadow carry the tokens exactly.
 const pauseAtHalf = (circle: Locator): Promise<void> =>
   circle.evaluate((element) => {
     const [animation] = element.getAnimations();
 
+    if (animation === undefined) {
+      throw new Error("the streaming circle carries no animation to pause");
+    }
     animation.pause();
     animation.currentTime = 750;
   });
+
+// A re-sent stream paints a fresh, unpaused circle, so the 50% stop is re-applied per site.
+const ensurePausedAtHalf = async (circle: Locator, page: Page): Promise<void> => {
+  await ensureStreaming(circle, page);
+  await pauseAtHalf(circle);
+};
 
 const restSites: ReadonlyArray<TokenSite> = [
   {
@@ -251,26 +270,28 @@ const streamingSites: ReadonlyArray<TokenSite> = [
     site: "the streaming avatar circle",
     property: "borderColor",
     locate: streamingCircle,
-    act: sendMessage,
+    act: ensureStreaming,
   },
   {
     token: "--bowman-accent-soft",
     site: "the streaming avatar circle",
     property: "backgroundColor",
     locate: streamingCircle,
+    act: ensureStreaming,
   },
   {
     token: "--bowman-pulse-outline",
     site: "the pulse keyframe's 50% outline",
     property: "outlineColor",
     locate: streamingCircle,
-    act: pauseAtHalf,
+    act: ensurePausedAtHalf,
   },
   {
     token: "--bowman-accent-glow",
     site: "the pulse keyframe's 50% shadow",
     property: "boxShadow",
     locate: streamingCircle,
+    act: ensurePausedAtHalf,
     ignoresScheme: true,
   },
 ];
@@ -445,12 +466,15 @@ test.describe("the Overview page's Theming section", () => {
       page,
       declaredValue(copperlineValues, "--bowman-accent")
     );
-    const defaultBackground = await backgroundOf(await enabledSendButton(defaultPreview));
-    const customBackground = await backgroundOf(await enabledSendButton(customPreview));
+    // Both buttons carry transition-colors, so every read polls past the fade.
+    const defaultButton = await enabledSendButton(defaultPreview);
+    const customButton = await enabledSendButton(customPreview);
 
-    expect(defaultBackground).toBe(blue500);
-    expect(customBackground).toBe(copperAccent);
-    expect(defaultBackground).not.toBe(customBackground);
+    await expect.poll(() => backgroundOf(defaultButton), { timeout: pollWindowMs }).toBe(blue500);
+    await expect
+      .poll(() => backgroundOf(customButton), { timeout: pollWindowMs })
+      .toBe(copperAccent);
+    expect(blue500).not.toBe(copperAccent);
     await expect(customPreview.locator("svg[data-theme-mark]")).toHaveCount(1);
     await expect(defaultPreview.locator("[data-theme-mark]")).toHaveCount(0);
   });
