@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import type { ComponentType } from "react";
+import { createRef, type ComponentType } from "react";
 
 import * as icons from "../src/icons/index.js";
 import type { IconProps } from "../src/icons/index.js";
@@ -345,4 +345,25 @@ describe("uniform icon identity", () => {
       });
     }
   );
+});
+
+describe("decision 4's forwardRef idiom", () => {
+  it("IconWrapper is a forwardRef<SVGSVGElement, ...> component in src/icons/Icon.tsx - never ref-as-prop", () => {
+    const source = readFileSync(resolve(process.cwd(), "src/icons/Icon.tsx"), "utf8");
+
+    expect(source).toMatch(/forwardRef<SVGSVGElement, /);
+    expect(icons.IconWrapper.$$typeof).toBe(Symbol.for("react.forward_ref"));
+  });
+
+  it("a ref passed to IconWrapper reaches the root <svg>", () => {
+    const ref = createRef<SVGSVGElement>();
+
+    render(
+      <icons.IconWrapper ref={ref}>
+        <path d="M0 0" />
+      </icons.IconWrapper>
+    );
+
+    expect(ref.current?.tagName.toLowerCase()).toBe("svg");
+  });
 });
