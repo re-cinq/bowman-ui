@@ -22,6 +22,8 @@ const FROZEN_SCHEMES = 'Object.freeze(["https", "mailto", "tel"])';
 
 const EXACT_SET_MESSAGE = 'allowedSchemes literals must be exactly ["https", "mailto", "tel"]';
 
+const SPREAD_MESSAGE = "defaultMarkdownPolicy must not spread another object";
+
 const cleanPolicy = `export const defaultMarkdownPolicy = Object.freeze({
   allowedSchemes: ${FROZEN_SCHEMES},
   allowRelativeUrls: false,
@@ -29,6 +31,11 @@ const cleanPolicy = `export const defaultMarkdownPolicy = Object.freeze({
   allowImages: false,
 });
 `;
+
+const spreadPolicy = cleanPolicy.replace(
+  "allowImages: false,",
+  "allowImages: false,\n  ...OVERRIDES,"
+);
 
 const makeTree = (): string => {
   const root = mkdtempSync(join(tmpdir(), "check-markdown-safety-"));
@@ -307,5 +314,119 @@ describe("check-markdown-safety", () => {
 
     expect(result).toMatchObject({ status: 2 });
     expect(result.stderr).toContain("urlPolicy.ts");
+  });
+
+  it("exits 1 when the default policy spreads another object after the allowlist", () => {
+    write(root, "src/markdown/urlPolicy.ts", spreadPolicy);
+
+    const result = run(root);
+
+    expect(result).toMatchObject({ status: 1 });
+    expect(result.stderr).toContain(SPREAD_MESSAGE);
+  });
+
+  it("exits 1 when the default policy spreads another object before the allowlist", () => {
+    write(
+      root,
+      "src/markdown/urlPolicy.ts",
+      cleanPolicy.replace("allowedSchemes:", "...OVERRIDES,\n  allowedSchemes:")
+    );
+
+    const result = run(root);
+
+    expect(result).toMatchObject({ status: 1 });
+    expect(result.stderr).toContain(SPREAD_MESSAGE);
+  });
+
+  it("exits 1 when a call with an empty object precedes the spread in the default policy", () => {
+    write(
+      root,
+      "src/markdown/urlPolicy.ts",
+      cleanPolicy.replace(
+        'linkTarget: "_blank",\n  allowImages: false,',
+        "allowImages: false,\n  linkTarget: resolveTarget({}),\n  ...OVERRIDES,"
+      )
+    );
+
+    const result = run(root);
+
+    expect(result).toMatchObject({ status: 1 });
+    expect(result.stderr).toContain(SPREAD_MESSAGE);
+  });
+
+  it("exits 0 when a comment naming defaultMarkdownPolicy with an ellipsis precedes it", () => {
+    write(
+      root,
+      "src/markdown/urlPolicy.ts",
+      `// defaultMarkdownPolicy: https, mailto, tel and nothing else...\n${cleanPolicy}`
+    );
+
+    expect(run(root)).toMatchObject({ status: 0 });
+  });
+
+  it("exits 0 when the default policy literal is wrapped onto its own indented lines", () => {
+    write(
+      root,
+      "src/markdown/urlPolicy.ts",
+      `export const defaultMarkdownPolicy: Readonly<Required<MarkdownPolicyDefaults>> =
+  Object.freeze({
+    allowedSchemes: ${FROZEN_SCHEMES},
+    allowRelativeUrls: false,
+    linkTarget: "_blank",
+    allowImages: false,
+  });
+`
+    );
+
+    expect(run(root)).toMatchObject({ status: 0 });
+  });
+
+  it("exits 1 when a template literal spoofing a clean declaration precedes the default policy with a spread", () => {
+    write(
+      root,
+      "src/markdown/urlPolicy.ts",
+      `const spoof = \`\n${cleanPolicy}\`;\n${spreadPolicy}`
+    );
+
+    const result = run(root);
+
+    expect(result).toMatchObject({ status: 1 });
+    expect(result.stderr).toContain(SPREAD_MESSAGE);
+  });
+
+  it.each([
+    [
+      "a block comment spoofing a clean declaration above it",
+      `/*\n${cleanPolicy}*/\n${spreadPolicy}`,
+    ],
+    [
+      "a block comment closing with }); inside it",
+      spreadPolicy.replace("...OVERRIDES,", "/* closes below\n});\n  */\n  ...OVERRIDES,"),
+    ],
+    [
+      "a template literal closing with }); inside it",
+      spreadPolicy.replace("...OVERRIDES,", "note: `closes below\n});\n`,\n  ...OVERRIDES,"),
+    ],
+    [
+      "a backslash-continued string shadowing a block comment inside it",
+      spreadPolicy.replace("...OVERRIDES,", 'note: "_bl\\\nank", /* "\n});\n*/\n  ...OVERRIDES,'),
+    ],
+  ])("exits 1 when %s hides a spread in the default policy", (_, source) => {
+    write(root, "src/markdown/urlPolicy.ts", source);
+
+    const result = run(root);
+
+    expect(result).toMatchObject({ status: 1 });
+    expect(result.stderr).toContain(SPREAD_MESSAGE);
+  });
+
+  it("exits 0 when a line comment holds one backtick above the default policy and a template literal follows it", () => {
+    write(
+      root,
+      "src/markdown/urlPolicy.ts",
+      `// the \`tel scheme is opaque\n${cleanPolicy}\nexport const hint = \`https, mailto, tel\`;\n`
+    );
+
+    expect(run(root)).toMatchObject({ status: 0 });
   });
 });
