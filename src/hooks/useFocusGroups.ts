@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 
 import { FOCUSABLE_SELECTOR } from "./focusableSelector.js";
+import { focusWithTransientTabIndex } from "./focusWithTransientTabIndex.js";
 
 export interface FocusGroupsOptions {
   /** Maps a group name to its screen-reader announcement; null suppresses it. Default: `Moved to ${groupName}`. */
@@ -30,20 +31,7 @@ function focusFirstElement(group: HTMLElement): void {
 
     return;
   }
-  const hadTabIndexAttribute = group.hasAttribute("tabindex");
-  const originalTabIndex = group.tabIndex;
-
-  group.tabIndex = -1;
-  group.focus();
-  // An element that carried no tabindex gets it removed again, not a permanent tabindex="-1".
-  requestAnimationFrame(() => {
-    if (hadTabIndexAttribute) {
-      group.tabIndex = originalTabIndex;
-
-      return;
-    }
-    group.removeAttribute("tabindex");
-  });
+  focusWithTransientTabIndex(group);
 }
 
 /** F6 / Shift+F6 cycles focus through [data-focus-group] sections, by data-focus-group-order then DOM order. */
