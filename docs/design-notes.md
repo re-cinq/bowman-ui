@@ -152,7 +152,9 @@ include React 18 requires a CI matrix that actually installs and runs green
 against it, not a manifest edit - and must resolve the `inert` reliance below.
 
 - No cleanup may rewrite `forwardRef` away: that would turn this testing
-  claim into a hard React 19 floor.
+  claim into a hard React 19 floor. tests/forward-ref-components.test.ts pins
+  the closed set of `forwardRef` exports against the committed list in
+  tests/fixtures/forward-ref-components.json; shrinking it is this rewrite.
 - The one genuine React 19 reliance is `AppShell`'s closed drawer, which
   renders the boolean `inert` prop (`AppShell.tsx`). React 19 applies it as a
   real boolean attribute; React 18 does not know `inert` and drops the
@@ -1202,7 +1204,8 @@ typecheck` now runs `typescript7` twice: `tsconfig.json`, then
     tests share as `expectTypeAssertionsCompile` in `tests/helpers/`,
     `@ts-expect-error` fixtures included). No test may import
     `dist/` by a literal specifier: CI typechecks before it builds, so
-    tests/public-api.test.ts loads the built barrel through a runtime path.
+    tests/public-api.test.ts and tests/forward-ref-components.test.ts load the
+    built barrel through a runtime path.
     src's compile environment is unchanged - `tsconfig.json` declares no
     `types`, and neither compiler auto-includes `@types/*`.
     tests/typecheck-contract.test.ts pins the script and checks the compiled

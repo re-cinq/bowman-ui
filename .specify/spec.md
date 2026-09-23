@@ -87,7 +87,7 @@ Other public data shapes are consumer-supplied and rendered as-is: `Conversation
 
 ### Dependency Management
 
-1. **React ^19** — Peer ranges are `^19.0.0`; `AppShell` relies on React 19's boolean `inert` prop. ([validated by](../tests/system-contract.test.ts#L26))
+1. **React ^19** — Peer ranges are `^19.0.0` as a testing claim, not a floor: the ref-taking components stay `forwardRef` (decision 4), and `AppShell` relies on React 19's boolean `inert` prop. ([validated by](../tests/system-contract.test.ts#L26), [validated by the built exports that are forwardRef exotic components are exactly the committed forwardRef components](../tests/forward-ref-components.test.ts#L38))
 2. **No Breaking Dependency Shifts** — Major dependency updates (e.g., a React major) are coordinated and communicated.
 3. **Lock File Committed** — `package-lock.json` is versioned in Git for reproducible installs. ([validated by commits package-lock.json for reproducible installs](../tests/system-contract.test.ts#L43))
 4. **Security Updates Prioritized** — npm audit findings addressed promptly; dependabot alerts monitored.
