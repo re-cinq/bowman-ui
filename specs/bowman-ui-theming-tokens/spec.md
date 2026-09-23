@@ -65,14 +65,14 @@ value ([validated by no built component carries a --bowman- literal; the class s
 
 - `ChatComposer`'s send button reads `--bowman-accent` for its background and
   `--bowman-accent-hover` on hover, light and dark
-  ([validated by the send button reads --bowman-accent for its background and --bowman-accent-hover on hover, light and dark](../../tests/ChatComposer.test.tsx#L206)).
+  ([validated by the send button reads --bowman-accent for its background and --bowman-accent-hover on hover, light and dark](../../tests/ChatComposer.test.tsx#L211)).
 - `ChatComposer`'s send button and the primary `Button`/`IconButton` variant paint their text
   with `--bowman-text-on-accent`, one `white` value in both modes, so a consumer with a pale
-  accent can darken it ([validated by the send button reads --bowman-text-on-accent for its text, one value in both modes](../../tests/ChatComposer.test.tsx#L224),
+  accent can darken it ([validated by the send button reads --bowman-text-on-accent for its text, one value in both modes](../../tests/ChatComposer.test.tsx#L229),
   [primary](../../tests/Button.test.tsx#L96), [icon](../../tests/IconButton.test.tsx#L96)).
 - `ChatComposer`'s wrapper keeps `focus-within:ring-2` beside the `--bowman-focus-ring` ring
   at `/50` and the `--bowman-accent-glow` shadow, light and dark
-  ([validated by the wrapper keeps focus-within:ring-2 beside the --bowman-focus-ring /50 ring and the --bowman-accent-glow shadow](../../tests/ChatComposer.test.tsx#L230)).
+  ([validated by the wrapper keeps focus-within:ring-2 beside the --bowman-focus-ring /50 ring and the --bowman-accent-glow shadow](../../tests/ChatComposer.test.tsx#L235)).
 - `ChatMessage`'s streaming avatar circle reads `--bowman-accent-border` and
   `--bowman-accent-soft`, light and dark
   ([validated by while isStreaming the circle reads --bowman-accent-border and --bowman-accent-soft, light and dark](../../tests/ChatMessage.test.tsx#L494)).
@@ -88,7 +88,7 @@ value ([validated by no built component carries a --bowman- literal; the class s
   skip link, hamburger and close button
   ([validated by the article, the copy button and both thumb buttons keep focus:ring-2 beside the --bowman-focus-ring colour](../../tests/ChatMessage.test.tsx#L502),
   [validated by the row link and the delete button keep focus:ring-2 beside the --bowman-focus-ring colour](../../tests/ConversationList.test.tsx#L152),
-  [validated by the isActive item reads --bowman-active with the strong text token, an inactive item takes the strong hover token, and every item keeps focus:ring-2 beside the --bowman-focus-ring colour](../../tests/AppSidebar.test.tsx#L137), [validated by the skip link, the hamburger and the close button keep focus:ring-2 beside the --bowman-focus-ring colour](../../tests/AppShell.test.tsx#L420)).
+  [validated by the isActive item reads --bowman-active with the strong text token, an inactive item takes the strong hover token, and every item keeps focus:ring-2 beside the --bowman-focus-ring colour](../../tests/AppSidebar.test.tsx#L137), [validated by the skip link, the hamburger and the close button keep focus:ring-2 beside the --bowman-focus-ring colour](../../tests/AppShell.test.tsx#L424)).
 - `ErrorBoundary`'s retry button keeps `focus-visible:ring-2` beside the `--bowman-focus-ring`
   colour and gains no dark ring, because it had none
   ([validated by the retry button keeps focus-visible:ring-2 beside the --bowman-focus-ring colour, with no dark ring](../../tests/ErrorBoundary.test.tsx#L188)).
@@ -138,9 +138,9 @@ utility fails ([validated by each neutral role constant is imported by exactly t
 - The `AppShell` mobile header row, drawer close-button row and main region and the `AppSidebar`
   brand row, children scroll region and footer region read `--bowman-text-body`, so a plain string
   the library lays out for consumer content is painted instead of inheriting the page colour
-  ([validated by the mobile header row carries the body text token, so a plain-string brand reads on the dark surface](../../tests/AppShell.test.tsx#L461),
-  [validated by the drawer close-button row carries the body text token, so plain-string drawer content reads on the dark surface](../../tests/AppShell.test.tsx#L527),
-  [validated by the main region carries the body text token, so plain-string content reads on the dark surface](../../tests/AppShell.test.tsx#L535),
+  ([validated by the mobile header row carries the body text token, so a plain-string brand reads on the dark surface](../../tests/AppShell.test.tsx#L465),
+  [validated by the drawer close-button row carries the body text token, so plain-string drawer content reads on the dark surface](../../tests/AppShell.test.tsx#L531),
+  [validated by the main region carries the body text token, so plain-string content reads on the dark surface](../../tests/AppShell.test.tsx#L539),
   [validated by the brand row carries the body text token, so a plain-string brand reads on the dark surface](../../tests/AppSidebar.test.tsx#L268),
   [validated by the children scroll region carries the body text token, so plain-string children read on the dark surface](../../tests/AppSidebar.test.tsx#L277),
   [validated by the footer region carries the body text token, so a plain-string footer reads on the dark surface](../../tests/AppSidebar.test.tsx#L286)).
@@ -169,7 +169,7 @@ utility fails ([validated by each neutral role constant is imported by exactly t
   `--bowman-danger-soft` and their `-dark` twins - so a consumer recolours every negative-state
   site at once; the delete hover moves from a lone `red-500` to the role's `red-600`, and the two
   dark soft fills (`red-900/30` and `/20`) collapse to one `rgba()` fallback, per decision 6
-  ([validated by each neutral role constant is imported by exactly the built components recorded for it](../../tests/theming-tokens-dist.test.ts#L245),
+  ([validated by each neutral role constant is imported by exactly the built components recorded for it](../../tests/theming-tokens-dist.test.ts#L246),
   [validated by a selected thumbs-down reads the danger role's soft surface and text, not the red palette classes](../../tests/ChatMessage.test.tsx#L517),
   [validated by the delete button's hover reads the danger role, not the lone red-500](../../tests/ConversationList.test.tsx#L159),
   [validated by the error icon circle and glyph read the danger role, not the red palette classes](../../tests/ErrorBoundary.test.tsx#L91)).
@@ -196,9 +196,9 @@ because a `/30` alpha modifier cannot ride a token.
 - The ring width, offset and outline classes - `focus:ring-2`, `ring-offset-2`,
   `focus:outline-none` - render at every site untouched beside the colour tokens; at the offset-ring
   sites the outline and width ride in `FOCUS_RING` (`src/theme/focusRing.ts`, issue 155) with
-  `ring-offset-2` left in place ([validated by the wrapper keeps focus-within:ring-2 beside the --bowman-focus-ring /50 ring and the --bowman-accent-glow shadow](../../tests/ChatComposer.test.tsx#L230),
+  `ring-offset-2` left in place ([validated by the wrapper keeps focus-within:ring-2 beside the --bowman-focus-ring /50 ring and the --bowman-accent-glow shadow](../../tests/ChatComposer.test.tsx#L235),
   [validated by every variant keeps focus:ring-2 ring-offset-2 beside the --bowman-focus-ring and --bowman-ring-offset colours and carries the disabled pair](../../tests/Button.test.tsx#L120), [validated by a chip keeps focus:ring-2 ring-offset-2 focus:outline-none beside the --bowman-focus-ring and --bowman-ring-offset colours](../../tests/PromptChips.test.tsx#L134),
-  [validated by `dist/theme/focusRing.js composes FOCUS_RING from the tokens module's ring colour and offset, and exactly the five offset-ring components import it`](../../tests/theming-tokens-dist.test.ts#L311)).
+  [validated by `dist/theme/focusRing.js composes FOCUS_RING from the tokens module's ring colour and offset, and exactly the five offset-ring components import it`](../../tests/theming-tokens-dist.test.ts#L312)).
 - Every neutral site that matches a role pair on one side only keeps its palette classes on
   both sides, so no site is half-themed: the shell ground and main region, the avatar circles'
   rest state, the user avatar and code chips, the inverse surfaces of `Toast` and
@@ -226,7 +226,7 @@ it without the package choosing; the package adds no media query and no selector
    Tailwind cannot pre-mix a `var()`. That branch is unreachable on Tailwind v4's own browser
    floor - Safari 16.4, Chrome 111 and Firefox 128 all support `color-mix()` - so the
    byte-for-byte claim holds on every supported engine
-   ([validated by the wrapper keeps focus-within:ring-2 beside the --bowman-focus-ring /50 ring and the --bowman-accent-glow shadow](../../tests/ChatComposer.test.tsx#L230)).
+   ([validated by the wrapper keeps focus-within:ring-2 beside the --bowman-focus-ring /50 ring and the --bowman-accent-glow shadow](../../tests/ChatComposer.test.tsx#L235)).
 2. **The active row's backgrounds have their own pair; its label rides the strong text
    role.** `--bowman-active` and `--bowman-active-dark` colour the surface. As first recorded
    the label colours stayed palette-mapped. **Amended by 146:** issue 102 moved the sidebar
@@ -253,7 +253,7 @@ The consumer app (`examples/chat-demo`, specified in `specs/bowman-ui-consumer-a
 renders the chat fixture twice over: the Marginalia Books default at `?view=chat`, and at
 `?view=chat&theme=copperline` the same fixture as a second, invented company, Copperline Bicycles
 (a web search found no such company), named as such in the sidebar
-([validated by the sidebar names the theme](../../examples/chat-demo/tests/theming.spec.ts#L243)). The module
+([validated by the sidebar names the theme](../../examples/chat-demo/tests/theming.spec.ts#L255)). The module
 `src/themes.tsx` resolves the theme from the query, and `ChatScreen` wraps the whole fragment, `AppShell` and `Toast`
 alike, in `<div class="custom-theme">` and passes the theme's chainring mark (an `aria-hidden`
 SVG carrying `data-theme-mark="copperline"`) as `ChatMessageList`'s `assistantAvatar`, so the
@@ -266,7 +266,7 @@ mark fills the streaming avatar circle
 `ChatComposer` and `ConversationList` twice from one preview component,
 `data-theming-preview="default"` beside `data-theming-preview="custom"` (the issue's "shows both
 side by side"), so the two columns cannot drift apart
-([validated by the two previews render the same send button in different colours](../../examples/chat-demo/tests/theming.spec.ts#L251),
+([validated by the two previews render the same send button in different colours](../../examples/chat-demo/tests/theming.spec.ts#L263),
 [preview](../../examples/chat-demo/src/docs/ThemingSection.tsx#L24)).
 
 The override lives in `examples/chat-demo/src/custom-theme.css`, which sets all forty-four tokens
@@ -279,7 +279,7 @@ from that wrapper alone
 show the default and the themed look side by side, and it is the fallback rule (decision 1 in
 docs/design-notes.md § Theming) doing its job: the package declares nothing, so an override on
 any wrapper wins on inheritance alone, with no cascade-order fight against `dist/styles.css`
-([validated by the two previews render the same send button in different colours](../../examples/chat-demo/tests/theming.spec.ts#L251)). The demo commits touched
+([validated by the two previews render the same send button in different colours](../../examples/chat-demo/tests/theming.spec.ts#L263)). The demo commits touched
 nothing under the library's `src/` - the one statement in this section with no executable
 anchor: its proof is the diff itself, reviewable but not re-runnable.
 
@@ -322,18 +322,18 @@ palette colour cannot fail the suite, and a consumer build that stops emitting t
   ([validated by the streaming avatar circle carries the theme's border and its chainring mark](../../examples/chat-demo/tests/theming.spec.ts#L181)).
 - With the composer focused, its wrapper's `box-shadow` contains `rgba(183, 65, 14, 0.12)` -
   `--bowman-accent-glow`
-  ([validated by the focused composer glows in the theme's accent](../../examples/chat-demo/tests/theming.spec.ts#L225)).
+  ([validated by the focused composer glows in the theme's accent](../../examples/chat-demo/tests/theming.spec.ts#L237)).
 - The sidebar names Copperline Bicycles
-  ([validated by the sidebar names the theme](../../examples/chat-demo/tests/theming.spec.ts#L243)).
+  ([validated by the sidebar names the theme](../../examples/chat-demo/tests/theming.spec.ts#L255)).
 - On the Overview page both previews render exactly once; the default preview's send button
   equals the `--color-blue-500` probe, the custom preview's is `rgb(183, 65, 14)`, the two
   differ, and only the custom preview carries the mark
-  ([validated by the two previews render the same send button in different colours](../../examples/chat-demo/tests/theming.spec.ts#L251)).
+  ([validated by the two previews render the same send button in different colours](../../examples/chat-demo/tests/theming.spec.ts#L263)).
 - The previews' entry streams forever, so their circles need no polling window: the default
   circle's border and background equal the `--color-blue-200` and `--color-blue-50` probes, the
   custom circle's are `rgb(244, 201, 168)` and `rgb(255, 241, 230)` - `--bowman-accent-border`
   and `--bowman-accent-soft`
-  ([validated by the two previews' streaming circles take their border and surface from the tokens](../../examples/chat-demo/tests/theming.spec.ts#L272)).
+  ([validated by the two previews' streaming circles take their border and surface from the tokens](../../examples/chat-demo/tests/theming.spec.ts#L284)).
 
 Twelve tokens are measured in the browser - `--bowman-accent`, `--bowman-text-on-accent`,
 `--bowman-active`, `--bowman-accent-border`, `--bowman-accent-soft`, `--bowman-accent-glow`,
@@ -341,18 +341,18 @@ Twelve tokens are measured in the browser - `--bowman-accent`, `--bowman-text-on
 `--bowman-success` and `--bowman-success-soft` - while `--bowman-focus-ring` rides along inside
 the same `box-shadow` string as the glow, through the `/50` ring's `oklab` entry, without being
 asserted ([validated by the send button and the active row take the wrapper's tokens](../../examples/chat-demo/tests/theming.spec.ts#L171),
-[validated by the two previews' streaming circles take their border and surface from the tokens](../../examples/chat-demo/tests/theming.spec.ts#L272),
-[validated by the focused composer glows in the theme's accent](../../examples/chat-demo/tests/theming.spec.ts#L225),
+[validated by the two previews' streaming circles take their border and surface from the tokens](../../examples/chat-demo/tests/theming.spec.ts#L284),
+[validated by the focused composer glows in the theme's accent](../../examples/chat-demo/tests/theming.spec.ts#L237),
 [validated by the composer's surface and border take the wrapper's neutral role tokens](../../examples/chat-demo/tests/theming.spec.ts#L200),
 [validated by the composer's text takes the wrapper's strong text token](../../examples/chat-demo/tests/theming.spec.ts#L210),
 [validated by the copy button's rest text takes the wrapper's subtle text token](../../examples/chat-demo/tests/theming.spec.ts#L216),
-[validated by the selected thumbs-up takes the wrapper's success tokens](../../examples/chat-demo/tests/theming.spec.ts#L237)). Under the dark colour scheme
+[validated by the selected thumbs-up takes the wrapper's success tokens](../../examples/chat-demo/tests/theming.spec.ts#L249)). Under the dark colour scheme
 (issue 151) both engines measure two of the `-dark` fallbacks: the enabled send button's
 `--bowman-accent-dark` (`blue-600`) and the composer surface's `--bowman-surface-dark`
 (`slate-900`), each shown to differ from the light shade the tests above read
-([validated by the send button and the composer's surface resolve to the dark palette fallbacks](../../examples/chat-demo/tests/theming.spec.ts#L298)). Not measured in a browser
+([validated by the send button and the composer's surface resolve to the dark palette fallbacks](../../examples/chat-demo/tests/theming.spec.ts#L310)). Not measured in a browser
 are the other nineteen `-dark` tokens and the light ones no test reads, among them
 `--bowman-accent-hover` and `--bowman-pulse-outline` - Playwright never hovers a control -
 which the jsdom class-string tests above pin alone
-([validated by the send button reads --bowman-accent for its background and --bowman-accent-hover on hover, light and dark](../../tests/ChatComposer.test.tsx#L206),
+([validated by the send button reads --bowman-accent for its background and --bowman-accent-hover on hover, light and dark](../../tests/ChatComposer.test.tsx#L211),
 [L71](../../tests/styles.test.ts#L71), [validated by while isStreaming the circle reads --bowman-accent-border and --bowman-accent-soft, light and dark](../../tests/ChatMessage.test.tsx#L494)).
