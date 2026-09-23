@@ -21,7 +21,7 @@ and no `value=` or `onValueChange` prop
 through `ChatComposerHandle` (`focus()`, `setValue()`) via
 `forwardRef` + `useImperativeHandle`, covering the only two outside
 writes a consumer needs: clear-on-send and a text-injection helper
-([validated by](../../tests/ChatComposer.test.tsx#L325),
+([validated by](../../tests/ChatComposer.test.tsx#L326),
 [L359](../../tests/ChatComposer.test.tsx#L359),
 [validated by ChatComposer is a forwardRef<ChatComposerHandle, ChatComposerProps> component - never ref-as-prop](../../tests/ChatComposer.test.tsx#L555)).
 
@@ -110,7 +110,7 @@ textarea `document.activeElement`; `autoFocus` does
 the same on mount and defaults to false
 ([validated by](../../tests/ChatComposer.test.tsx#L359),
 [validated by autoFocus focuses the textarea on mount, and its default is false](../../tests/ChatComposer.test.tsx#L369),
-[L325](../../tests/ChatComposer.test.tsx#L325),
+[L326](../../tests/ChatComposer.test.tsx#L326),
 [validated by setValue with a blank string leaves the send button disabled](../../tests/ChatComposer.test.tsx#L339),
 [validated by setValue on a handle retained past unmount is a no-op, not a crash](../../tests/ChatComposer.test.tsx#L349)).
 
