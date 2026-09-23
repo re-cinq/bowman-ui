@@ -41,6 +41,14 @@ const Harness = ({
   );
 };
 
+const openThenCloseTrapAfterFocusing = (previouslyFocused: HTMLElement | SVGElement) => {
+  previouslyFocused.focus();
+
+  const { rerender } = render(<Harness isOpen onClose={vi.fn()} />);
+
+  rerender(<Harness isOpen={false} onClose={vi.fn()} />);
+};
+
 const focusOutsideAnOpenTrap = () => {
   render(<button>outside</button>);
   render(<Harness isOpen onClose={vi.fn()} />);
@@ -118,11 +126,7 @@ describe("useFocusTrap", () => {
     render(<button>outside</button>);
     const outside = screen.getByRole("button", { name: "outside" });
 
-    outside.focus();
-
-    const { rerender } = render(<Harness isOpen onClose={vi.fn()} />);
-
-    rerender(<Harness isOpen={false} onClose={vi.fn()} />);
+    openThenCloseTrapAfterFocusing(outside);
 
     expect(outside).toHaveFocus();
   });
@@ -226,5 +230,23 @@ describe("useFocusTrap", () => {
     fireEvent.keyDown(document, { key: "Tab" });
 
     expect(outside).toHaveFocus();
+  });
+
+  it('closing returns focus to a previously active <svg tabindex="0"> without a trigger ref', () => {
+    render(<svg tabIndex={0} data-testid="glyph" />);
+    const glyph = screen.getByTestId("glyph");
+
+    openThenCloseTrapAfterFocusing(glyph);
+
+    expect(glyph).toHaveFocus();
+  });
+
+  it("closing after opening with a null active element and no trigger ref does not throw", () => {
+    const activeElement = vi.spyOn(document, "activeElement", "get").mockReturnValue(null);
+    const { rerender } = render(<Harness isOpen onClose={vi.fn()} />);
+
+    activeElement.mockRestore();
+
+    expect(() => rerender(<Harness isOpen={false} onClose={vi.fn()} />)).not.toThrow();
   });
 });

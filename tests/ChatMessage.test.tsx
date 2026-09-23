@@ -24,7 +24,7 @@ import {
   expectTextSubtle,
 } from "./helpers/expect-theme-tokens.js";
 
-const writeTextMock = vi.fn();
+const writeTextMock = vi.fn(() => Promise.resolve());
 
 const makeEntry = (overrides?: Partial<AssistantChatEntry>): AssistantChatEntry => ({
   id: "entry-1",

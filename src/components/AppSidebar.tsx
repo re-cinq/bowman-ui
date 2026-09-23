@@ -72,7 +72,7 @@ const asideClassName = `flex min-h-0 flex-1 flex-col ${SURFACE} md:h-full md:w-6
 
 export function AppSidebar({
   brand,
-  navItems,
+  navItems = [],
   onNavigate,
   renderNavLink = defaultRenderNavLink,
   children,
@@ -90,12 +90,13 @@ export function AppSidebar({
           {brand}
         </div>
       )}
-      {navItems !== undefined && navItems.length > 0 && (
+      {navItems.length > 0 && (
         <nav aria-label={resolved.mainNavigation} className="flex-shrink-0 space-y-1 px-3 py-3">
           {navItems.map((navItem) => {
             const Icon = navItem.icon;
+            const isActive = navItem.isActive === true;
             const linkProps: SidebarNavLinkProps = {
-              className: navLinkClassName(navItem.isActive === true),
+              className: navLinkClassName(isActive),
               children: (
                 <>
                   {Icon && <Icon className="h-5 w-5" />}
@@ -103,7 +104,7 @@ export function AppSidebar({
                 </>
               ),
               onClick: () => onNavigate?.(navItem.key),
-              "aria-current": navItem.isActive === true ? "page" : undefined,
+              "aria-current": isActive ? "page" : undefined,
             };
 
             return <Fragment key={navItem.key}>{renderNavLink(navItem, linkProps)}</Fragment>;

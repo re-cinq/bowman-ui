@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useCallback, useRef } from "react";
+import { useEffect, useRef } from "react";
 
 import { FOCUSABLE_SELECTOR } from "./focusableSelector.js";
 import { focusWithTransientTabIndex } from "./focusWithTransientTabIndex.js";
@@ -12,32 +12,32 @@ export interface FocusGroupsOptions {
 
 const defaultAnnounce = (groupName: string): string => `Moved to ${groupName}`;
 
+function getFocusGroups(): HTMLElement[] {
+  const groups = Array.from(document.querySelectorAll<HTMLElement>("[data-focus-group]"));
+
+  // Stable sort of a DOM-ordered list: equal orders need no tiebreak, and an indexOf tiebreak mid-sort is unsafe.
+  return groups.sort(
+    (a, b) =>
+      parseInt(a.dataset.focusGroupOrder || "999", 10) -
+      parseInt(b.dataset.focusGroupOrder || "999", 10)
+  );
+}
+
+function focusFirstElement(group: HTMLElement): void {
+  const focusable = group.querySelector<HTMLElement>(FOCUSABLE_SELECTOR);
+
+  if (focusable) {
+    focusable.focus();
+
+    return;
+  }
+  focusWithTransientTabIndex(group);
+}
+
 /** F6 / Shift+F6 cycles focus through [data-focus-group] sections, by data-focus-group-order then DOM order. */
 export function useFocusGroups(options: FocusGroupsOptions = {}): void {
   const { announce = defaultAnnounce } = options;
   const currentGroupIndex = useRef(0);
-
-  const getFocusGroups = useCallback((): HTMLElement[] => {
-    const groups = Array.from(document.querySelectorAll<HTMLElement>("[data-focus-group]"));
-
-    // Stable sort of a DOM-ordered list: equal orders need no tiebreak, and an indexOf tiebreak mid-sort is unsafe.
-    return groups.sort(
-      (a, b) =>
-        parseInt(a.dataset.focusGroupOrder || "999", 10) -
-        parseInt(b.dataset.focusGroupOrder || "999", 10)
-    );
-  }, []);
-
-  const focusFirstElement = useCallback((group: HTMLElement) => {
-    const focusable = group.querySelector<HTMLElement>(FOCUSABLE_SELECTOR);
-
-    if (focusable) {
-      focusable.focus();
-
-      return;
-    }
-    focusWithTransientTabIndex(group);
-  }, []);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -54,7 +54,6 @@ export function useFocusGroups(options: FocusGroupsOptions = {}): void {
 
       event.preventDefault();
 
-      // Determine direction
       const direction = event.shiftKey ? -1 : 1;
 
       // Step from the group that actually holds focus; the stored index only covers focus outside every group.
@@ -62,15 +61,12 @@ export function useFocusGroups(options: FocusGroupsOptions = {}): void {
       const activeIndex = groups.findIndex((group) => group === activeGroup);
       const fromIndex = activeIndex === -1 ? currentGroupIndex.current : activeIndex;
 
-      // Calculate next index with wrapping
       currentGroupIndex.current = (fromIndex + direction + groups.length) % groups.length;
 
-      // Focus the target group
       const targetGroup = groups[currentGroupIndex.current];
 
       focusFirstElement(targetGroup);
 
-      // Announce for screen readers
       const groupName = targetGroup.dataset.focusGroup;
 
       if (!groupName) {
@@ -86,7 +82,7 @@ export function useFocusGroups(options: FocusGroupsOptions = {}): void {
     document.addEventListener("keydown", handleKeyDown);
 
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [getFocusGroups, focusFirstElement, announce]);
+  }, [announce]);
 }
 
 /** Announces to screen readers through a live region hidden by the stylesheet's bowman-sr-only class. */
@@ -104,7 +100,6 @@ function announceToScreenReader(message: string): void {
     announcement.textContent = message;
   });
 
-  // Remove after announcement
   setTimeout(() => {
     document.body.removeChild(announcement);
   }, 1000);

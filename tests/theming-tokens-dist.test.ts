@@ -110,6 +110,7 @@ const NEUTRAL_ROLE_READERS: Record<string, string[]> = {
   ],
   TEXT_SUBTLE: ["ChatMessage", "ConversationList", "SearchField"],
   PLACEHOLDER_SUBTLE: ["ChatComposer", "SearchField"],
+  TEXT_SUBTLE_DISABLED: ["ChatComposer"],
   TEXT_ON_ACCENT: ["ChatComposer", "buttonStyles"],
   DANGER: ["ChatMessage", "ErrorBoundary"],
   DANGER_HOVER: ["ConversationList"],
@@ -333,5 +334,13 @@ describe("the built theming tokens", () => {
       "PromptChips",
       "buttonStyles",
     ]);
+  });
+
+  it("CLAUDE.md invariant 13 states the same token count as the stylesheet's declaration block", () => {
+    const counts = [...read("CLAUDE.md").matchAll(/Exactly (\d+) `--bowman-\*`/g)].map((match) =>
+      Number(match[1])
+    );
+
+    expect(counts).toEqual([declaredTokens().size]);
   });
 });

@@ -6,7 +6,10 @@
 // dynamic test name); vitest's own stdout is dropped and progress goes to
 // stderr so stdout stays pure. The id is "<repo-relative-file>::<full test
 // name>" - stable across runs, and exactly what the run command's
-// {selector} splits back apart.
+// {selector} splits back apart. The full test name joins the describe titles
+// and the test title with " > ", the separator Vitest's -t filter matches
+// against (createTaskName); the reporter's own fullName joins them with a
+// plain space, which -t never matches for a nested test (issue 183).
 // --report <file> maps a report that already exists instead of building and
 // running the suite again; CI feeds it the coverage gate's own report.
 import { readFileSync } from "node:fs";
@@ -26,14 +29,15 @@ if (flags.some((flag) => flag !== "--report") || positional.length !== (listOnly
 const report = listOnly
   ? JSON.parse(readFileSync(positional[0], "utf8"))
   : collectVitestReport([], "ignore").report;
+const vitestNameSeparator = " > ";
 const tests = report.testResults.flatMap((suite) => {
   const file = relative(process.cwd(), suite.name);
 
-  return suite.assertionResults.map((assertion) => ({
-    id: `${file}::${assertion.fullName}`,
-    name: assertion.fullName,
-    file,
-  }));
+  return suite.assertionResults.map((assertion) => {
+    const name = [...assertion.ancestorTitles, assertion.title].join(vitestNameSeparator);
+
+    return { id: `${file}::${name}`, name, file };
+  });
 });
 
 process.stdout.write(`${JSON.stringify(tests)}\n`);
