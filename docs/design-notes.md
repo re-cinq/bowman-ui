@@ -741,11 +741,16 @@ Decisions:
     CSS, and the dist test parses the block - the token set it declares must
     equal the set of `var(--bowman-...)` reads across `dist/theme/tokens.js`
     and `dist/styles.css`, and every read must carry a non-empty fallback -
-    so the block cannot drift from the code. A forty-fifth token is a table
+    so the block cannot drift from the code. A new token is a table
     row here, a comment line there and a constant in the module, in one PR.
     Amended 2026-09-22 under issue 186: the count CLAUDE.md invariant 13
     quotes is read by the same dist test and must equal the block, so that
-    sentence cannot lag a token PR either.
+    sentence cannot lag a token PR either. Amended 2026-09-23 under issue
+    212: the same test derives the count's word from the block and reads it
+    where the prose spells it - this section's opening sentence, decision 3
+    and this decision, the theming spec's four sentences and the Styling row
+    of .specify/spec.md - so those cannot lag either; the breakdown by group
+    is still hand-kept, and the three `it` titles no longer carry the number.
 11. **The styled primitives read the same tokens.** `Button`, `IconButton`,
     `PromptChips` and `SearchField` (§ Styled primitives) landed on `main`
     first with their own `focus:ring-blue-500` string in `buttonStyles.ts`,
