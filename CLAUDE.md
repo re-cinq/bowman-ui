@@ -105,8 +105,9 @@ title>]` link follows its `it()`; every other link is mapped through the cited f
   PromptChips, SearchField, ThinkingDots, ThinkingIndicator, ThinkingTrace, Toast, ToolActivity)
   plus `buttonStyles.ts`, the one private, non-exported class-map module (shared by Button and
   IconButton; no `"use client"`).
-- `src/hooks/` — `focusableSelector` + 5 hooks (useDebounce, useFocusGroups, useFocusTrap,
-  useReducedMotion, useSidebarState).
+- `src/hooks/` — `focusableSelector` + `focusWithTransientTabIndex` (the internal
+  transient-`tabindex="-1"` focus primitive shared by useFocusGroups and ErrorBoundary) + 5
+  hooks (useDebounce, useFocusGroups, useFocusTrap, useReducedMotion, useSidebarState).
 - `src/icons/` — `Icon.tsx` primitive + `index.tsx` (23 icons; see invariant 9).
 - `src/markdown/` — `components.tsx`, `urlPolicy.ts`.
 - `src/types/chat.ts`.

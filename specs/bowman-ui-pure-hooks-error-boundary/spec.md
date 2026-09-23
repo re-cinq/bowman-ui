@@ -82,18 +82,25 @@ exports entry for a consumer ([validated by each built hook and ErrorBoundary op
   over labels; retry re-renders children and moves focus to the first focusable element among
   them - the nodes standing where the fallback stood, its former siblings excluded, the host
   node React reuses for a same-typed child included - so a keyboard user whose retry button
-  just unmounted does not land on `body`; recovered content with no focusable element leaves
-  focus where the browser put it and writes no `tabindex` into the consumer's DOM
+  just unmounted does not land on `body`; recovered content with no focusable element gets
+  focus on its first element node through a `tabindex="-1"` the next animation frame removes
+  (or restores to the value the element carried) - the transient-tabindex idiom
+  `useFocusGroups` uses, shared through `src/hooks/focusWithTransientTabIndex.ts` - a text
+  node before that element is skipped, and text-only recovered content leaves focus where the
+  browser put it and writes no `tabindex` into the consumer's DOM
   ([validated by reports only through onError and writes nothing to the console or localStorage](../../tests/ErrorBoundary.test.tsx#L205),
   [validated by a throwing child renders the role=alert fallback with the three English defaults](../../tests/ErrorBoundary.test.tsx#L65),
   [validated by a fallback node wins over labels](../../tests/ErrorBoundary.test.tsx#L140),
   [validated by the retry button re-renders children](../../tests/ErrorBoundary.test.tsx#L152),
-  [validated by clicking "Try again" moves focus to the first focusable element of the recovered children, past the focusable siblings before and after the boundary](../../tests/ErrorBoundary.test.tsx#L243),
-  [validated by `recovered children rooted in a <div> - the host node React reuses from the fallback - still get the focus`](../../tests/ErrorBoundary.test.tsx#L297),
-  [validated by a sibling after the boundary that unmounts in the same commit does not extend the range: the consumer's later button stays unfocused](../../tests/ErrorBoundary.test.tsx#L273),
-  [validated by recovered children without a focusable element leave document.activeElement on body and write no tabindex into the consumer's DOM](../../tests/ErrorBoundary.test.tsx#L254),
+  [validated by clicking "Try again" moves focus to the first focusable element of the recovered children, past the focusable siblings before and after the boundary](../../tests/ErrorBoundary.test.tsx#L264),
+  [validated by `recovered children rooted in a <div> - the host node React reuses from the fallback - still get the focus`](../../tests/ErrorBoundary.test.tsx#L362),
+  [validated by a sibling after the boundary that unmounts in the same commit does not extend the range: the consumer's later button stays unfocused](../../tests/ErrorBoundary.test.tsx#L337),
+  [validated by `recovered children without a focusable element get focus on their first element node through a tabindex="-1" that the next frame removes`](../../tests/ErrorBoundary.test.tsx#L275),
+  [validated by a text node before the first recovered element is skipped: the element, not the text, takes the transient tabindex](../../tests/ErrorBoundary.test.tsx#L288),
+  [validated by several recovered nodes without a focusable element: only the first element node gets the transient tabindex](../../tests/ErrorBoundary.test.tsx#L300),
+  [validated by text-only recovered children leave document.activeElement on body and write no tabindex into the consumer's DOM](../../tests/ErrorBoundary.test.tsx#L318),
   [validated by the retry button inside a consumer form retries without submitting it, and a child that throws again leaves focus on the fresh retry button](../../tests/ErrorBoundary.test.tsx#L160),
-  [validated by an autoFocus input among the recovered children keeps the focus it took during the commit](../../tests/ErrorBoundary.test.tsx#L262)).
+  [validated by an autoFocus input among the recovered children keeps the focus it took during the commit](../../tests/ErrorBoundary.test.tsx#L326)).
 - The error icon circle and glyph read the danger role - `--bowman-danger-soft` background,
   `--bowman-danger` glyph - rather than the `red-*` palette classes, the circle's dark fill
   joining the collapsed `rgba()` soft-dark fallback per § Theming decision 6
@@ -134,9 +141,15 @@ string survives in `src/`
   previous sibling and before the first sibling that outlived the swap (issue 152).
   A set difference of the container's children would miss the host node React reuses when the
   recovered content is rooted in a `<div>` like the fallback. The happy-path DOM gains no
-  wrapper, and - unlike `useFocusGroups`' transient `tabindex="-1"` - the boundary writes
-  nothing into a consumer's element when the recovered content has no focusable: that case
-  stays on `body` until issue 199 decides otherwise, and an `autoFocus` element among the
+  wrapper. When the recovered content has no focusable, the boundary focuses the first
+  element node of the range - a leading text node is skipped, later nodes are untouched - with
+  the transient `tabindex="-1"` that `useFocusGroups` gives a group with no focusable (issue
+  199, option A): the attribute is removed on the next animation frame, or restored to its
+  prior value when the element carried one, so a screen reader lands on the new content and
+  nothing permanent is written into the consumer's DOM. The idiom lives once in
+  `src/hooks/focusWithTransientTabIndex.ts`, an internal `"use client"` module both sites
+  import and the barrel does not export. Text-only recovered content has no element node to
+  focus and leaves focus where the browser put it. An `autoFocus` element among the
   recovered children keeps the focus it took during the commit. A child that throws again
   lands focus on the freshly rendered retry button, since the new fallback stands in the same
   range. A sibling after the boundary that unmounts in the same commit cannot extend the range
