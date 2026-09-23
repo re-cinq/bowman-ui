@@ -27,10 +27,14 @@
     rather than the working tree. Needs Chromium and WebKit: the run itself
     executes "npx playwright install --with-deps chromium webkit" before the
     tests (on Linux --with-deps also installs OS packages); CI adds no
-    install step of its own. The suite runs whole: a {selector} is accepted and ignored - the run command
-    contains no placeholder, so nothing is interpolated, and the script takes
-    no argument but --keep. No list command, since the suite is not
-    addressable per-test through this interface, and no coverage_format,
+    install step of its own. This entry serves the interactive test-command
+    interface (lore_run_test) only: lore-code-trace, run by
+    .github/workflows/lore-tests.yml, honours only the first manifest entry,
+    so that job never runs this suite and installs no browsers for it (issue
+    216). The suite runs whole: a {selector} is accepted and ignored - the
+    run command contains no placeholder, so nothing is interpolated, and the
+    script takes no argument but --keep. No list command, since the suite is
+    not addressable per-test through this interface, and no coverage_format,
     since the Playwright run against a preview build produces no coverage.
     Runs on every pull request as the "consumer" job in
     .github/workflows/ci.yml.
