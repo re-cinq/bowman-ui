@@ -7,7 +7,7 @@
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { createRef } from "react";
+import { createRef, useState } from "react";
 import type { Mock } from "vitest";
 import { ChatComposer } from "../src/index.js";
 import type { ChatComposerHandle } from "../src/index.js";
@@ -207,13 +207,13 @@ describe("ChatComposer", () => {
   });
 
   describe("busy and disabled", () => {
-    it("busy disables the textarea and the send button, Enter calls onSubmit zero times, and the wrapper pulses", () => {
+    it("busy keeps the textarea editable, disables the send button, Enter calls onSubmit zero times, and the wrapper pulses", () => {
       const onSubmit = vi.fn();
       const { container } = render(<ChatComposer onSubmit={onSubmit} busy />);
 
       fireEvent.keyDown(textareaOf(), { key: "Enter" });
 
-      expect(textareaOf()).toBeDisabled();
+      expect(textareaOf()).toBeEnabled();
       expect(sendButtonOf()).toBeDisabled();
       expect(onSubmit).not.toHaveBeenCalled();
       expect(container.querySelector(".bowman-pulse-subtle")).not.toBeNull();
@@ -245,7 +245,7 @@ describe("ChatComposer", () => {
       typeDraft("Hvor er min booking?");
       rerender(<ChatComposer onSubmit={vi.fn()} busy />);
 
-      expect(textareaOf()).toBeDisabled();
+      expect(textareaOf()).toBeEnabled();
       expect(sendButtonOf()).toBeDisabled();
 
       rerender(<ChatComposer onSubmit={vi.fn()} />);
@@ -253,6 +253,26 @@ describe("ChatComposer", () => {
       expect(textareaOf()).toMatchObject({ value: "Hvor er min booking?" });
       expect(textareaOf()).toBeEnabled();
       expect(sendButtonOf()).toBeEnabled();
+    });
+
+    it("keeps the textarea focused and editable after Enter when the consumer turns busy on", () => {
+      function Host() {
+        const [busy, setBusy] = useState(false);
+
+        return <ChatComposer onSubmit={() => setBusy(true)} busy={busy} />;
+      }
+
+      const { container } = render(<Host />);
+      const textarea = textareaOf();
+
+      textarea.focus();
+      typeDraft("Hvor er min booking?");
+      fireEvent.keyDown(textarea, { key: "Enter" });
+
+      expect(textarea).toBeEnabled();
+      // toBeEnabled is the regression guard; jsdom cannot blur-on-disable, so this only documents the intended focus.
+      expect(document.activeElement).toBe(textarea);
+      expect(container.querySelector(".bowman-pulse-subtle")).not.toBeNull();
     });
   });
 
