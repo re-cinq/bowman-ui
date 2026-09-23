@@ -41,7 +41,7 @@ unlayered, so they win on plain specificity without depending on a
 consumer's `@layer` order. Since issue 210 the copied `dist/styles.css` opens with a
 comment block declaring, one line per `--bowman-*` theming token, that token and
 its default
-([validated by dist/styles.css opens with one comment line per token, forty-four in all, each stating its default](../../tests/theming-tokens-dist.test.ts#L190)). The 50 % stop of
+([validated by dist/styles.css opens with one comment line per token, each stating its default](../../tests/theming-tokens-dist.test.ts#L253)). The 50 % stop of
 `bowman-pulse-subtle` reads `--bowman-accent-glow` and `--bowman-pulse-outline` with today's
 literals as fallbacks - the zero stop stays literal
 ([validated by](../../tests/styles.test.ts#L71)).
