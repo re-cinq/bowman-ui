@@ -9,6 +9,12 @@
 # checkout, scoped to the trigger's paths) where the template diffs HEAD~1,
 # which sees only the last commit of a rebase merge. See issue #136; a
 # template regen must keep it, and the two blocks below.
+# tests/** and examples/chat-demo/tests/** ride along in both lists: Lore's
+# spec-coverage validator resolves every spec's [validated by] link against the
+# chunked test files, so a test file has to be re-ingested whenever it changes,
+# or else a re-anchored spec is judged against a stale copy (issue #252; the
+# unscoped diff that #136 replaced had been posting them as a side effect). A
+# template regen must keep both entries too.
 name: Lore Context Ingest
 
 on:
@@ -22,12 +28,15 @@ on:
       - "specs/**"
       - "teams/**"
       - ".specify/**"
+      - "tests/**"
+      - "examples/chat-demo/tests/**"
 
 # One run at a time, in push order, so a slow run for an older push cannot
 # ingest stale content after a newer push's run. GitHub queues only the newest
 # pending run per group: a third quick push cancels the second's run, and that
-# push's CLAUDE.md, AGENTS.md, .specify deltas wait for their next touch (specs
-# and adrs self-heal, the graph job re-projects them in full every run).
+# push's CLAUDE.md, AGENTS.md, .specify and test-file deltas wait for their next
+# touch (specs and adrs self-heal, the graph job re-projects them in full every
+# run).
 concurrency:
   group: lore-ingest
   cancel-in-progress: false
@@ -68,7 +77,7 @@ jobs:
           # The pathspec mirrors on.push.paths: without it a whole-tree diff
           # would post src/ paths to the doc store.
           FILES=$(git diff --name-only --no-renames "${BEFORE}" "${AFTER}" \
-            -- CLAUDE.md AGENTS.md adrs runbooks specs teams .specify \
+            -- CLAUDE.md AGENTS.md adrs runbooks specs teams .specify tests examples/chat-demo/tests \
             | jq -R -s -c 'split("\n") | map(select(. != ""))')
           echo "files=${FILES}" >> "$GITHUB_OUTPUT"
 
