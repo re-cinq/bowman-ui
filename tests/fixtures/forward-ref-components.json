@@ -1,0 +1,8 @@
+{
+  "Button": "src/components/Button.tsx",
+  "ChatComposer": "src/components/ChatComposer.tsx",
+  "ChatMessageList": "src/components/ChatMessageList.tsx",
+  "IconButton": "src/components/IconButton.tsx",
+  "IconWrapper": "src/icons/Icon.tsx",
+  "SearchField": "src/components/SearchField.tsx"
+}
