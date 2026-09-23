@@ -1,162 +1,425 @@
 // The theming tokens (issue 210), proved in a real Chromium: a consumer
-// that sets nothing gets the palette colour the library shipped with - measured
-// against a probe element, never a pinned oklch serialisation - and a consumer
-// that sets every --bowman-* property on a wrapper (src/custom-theme.css)
-// recolours the send button, the active row, the streaming avatar circle and
-// the composer's focus glow inside that wrapper alone.
+// that sets nothing gets the palette colour the library shipped with, a consumer that sets every
+// --bowman-* property on a wrapper (src/custom-theme.css) gets the wrapper's colours, and both are
+// measured at a visible site of the chat screen for every token the installed stylesheet declares,
+// under the light and the dark scheme, in WebKit too. A colour is never compared to a pinned oklch
+// string: a probe painted with the expected value gives the engine's own serialisation
+// (tests/helpers/colors.ts), and every read polls past transition-colors.
 
 import { expect, test, type Locator, type Page } from "@playwright/test";
-import { chatComposerLabels, chatMessageListLabels, conversationListLabels } from "../src/labels";
+import {
+  chatComposerLabels,
+  chatMessageListLabels,
+  conversationListLabels,
+  navSettingsLabel,
+} from "../src/labels";
+import { conversations, initialEntriesByConversation } from "../src/fixtures";
+import {
+  backgroundOf,
+  borderColorOf,
+  computedPaletteColor,
+  serialisedColor,
+} from "./helpers/colors";
+import {
+  click,
+  copperlineValues,
+  declaredFallbacks,
+  declaredValue,
+  expectSite,
+  focus,
+  hover,
+  pollWindowMs,
+  tokensMeasuredBy,
+  type ThemeRun,
+  type TokenSite,
+} from "./helpers/tokens";
 
-// Kept as literals rather than imported from src/themes.tsx: Playwright's
-// transform resolves modules the way Node does, and would choke on the JSX.
+// Kept as literals rather than imported from src/themes.tsx: Playwright's transform resolves
+// modules the way Node does, and would choke on the JSX.
 const defaultThemeName = "Marginalia Books";
 const copperlineThemeName = "Copperline Bicycles";
 
 const themedChatUrl = "/?view=chat&theme=copperline";
-const copperAccent = "rgb(183, 65, 14)";
-const copperActiveRow = "rgb(253, 235, 220)";
-const copperCircleBorder = "rgb(244, 201, 168)";
-const copperCircleSurface = "rgb(255, 241, 230)";
-const copperGlow = "rgba(183, 65, 14, 0.12)";
-const copperTextOnAccent = "rgb(255, 241, 230)";
-const copperSurface = "rgb(255, 250, 245)";
-const copperBorder = "rgb(234, 219, 205)";
-const copperTextStrong = "rgb(51, 36, 26)";
-const copperTextSubtle = "rgb(171, 141, 120)";
-const copperSuccess = "rgb(46, 125, 79)";
-const copperSuccessSoft = "rgb(228, 243, 234)";
-const transparent = "rgba(0, 0, 0, 0)";
-const streamWindowMs = 10_000;
-
-type ColorProperty = "backgroundColor" | "borderColor" | "color";
-
-// A probe element painted with the palette variable itself: whatever the engine
-// serialises that colour as, the token site must serialise identically. The
-// transparent guard catches a dropped variable for a paint property; for a text
-// colour that fell back to inherit, the caller's expected-shade assertion catches it.
-const computedPaletteColor = async (
-  page: Page,
-  variable: string,
-  property: ColorProperty = "backgroundColor"
-): Promise<string> => {
-  const computed = await page.evaluate(
-    ([name, styleProperty]) => {
-      const probe = document.createElement("div");
-
-      probe.style[styleProperty] = `var(${name})`;
-      document.body.append(probe);
-      const value = getComputedStyle(probe)[styleProperty];
-
-      probe.remove();
-
-      return value;
-    },
-    [variable, property] as const
-  );
-
-  expect(computed, `the consumer build must emit ${variable} into :root`).not.toBe(transparent);
-
-  return computed;
-};
-
-const backgroundOf = (locator: Locator): Promise<string> =>
-  locator.evaluate((element) => getComputedStyle(element).backgroundColor);
-
-const borderColorOf = (locator: Locator): Promise<string> =>
-  locator.evaluate((element) => getComputedStyle(element).borderColor);
-
-const textColorOf = (locator: Locator): Promise<string> =>
-  locator.evaluate((element) => getComputedStyle(element).color);
-
-const boxShadowOf = (locator: Locator): Promise<string> =>
-  locator.evaluate((element) => getComputedStyle(element).boxShadow);
 
 const composerOf = (scope: Page | Locator): Locator =>
   scope.getByRole("textbox", { name: chatComposerLabels.composerInput });
 
+const composerFrame = (page: Page): Locator => composerOf(page).locator("..");
+
+const sendButtonOf = (scope: Page | Locator): Locator =>
+  scope.getByRole("button", { name: chatComposerLabels.send });
+
+const conversationRows = (page: Page): Locator =>
+  page.getByRole("list", { name: conversationListLabels.conversations }).getByRole("listitem");
+
+const activeConversationRow = (page: Page): Locator =>
+  conversationRows(page).filter({ has: page.locator('[aria-current="page"]') });
+
+const activeRowLink = (page: Page): Locator =>
+  activeConversationRow(page).locator('[aria-current="page"]');
+
+const lastAssistantArticle = (page: Page): Locator =>
+  page.getByRole("article", { name: chatMessageListLabels.assistantMessage }).last();
+
+const copyButtonOf = (page: Page): Locator =>
+  lastAssistantArticle(page).getByRole("button", { name: chatMessageListLabels.copy });
+
+const feedbackButton = (page: Page, label: string): Locator =>
+  lastAssistantArticle(page).getByRole("button", { name: label });
+
+const streamingCircle = (page: Page): Locator =>
+  lastAssistantArticle(page).locator(".bowman-pulse-subtle");
+
 // The send button is disabled until there is a draft.
 const enabledSendButton = async (scope: Page | Locator): Promise<Locator> => {
   await composerOf(scope).fill("An invented draft");
-  const sendButton = scope.getByRole("button", { name: chatComposerLabels.send });
+  const sendButton = sendButtonOf(scope);
 
   await expect(sendButton).toBeEnabled();
 
   return sendButton;
 };
 
-const activeConversationRow = (page: Page): Locator =>
-  page
-    .getByRole("list", { name: conversationListLabels.conversations })
-    .getByRole("listitem")
-    .filter({ has: page.locator('[aria-current="page"]') });
+const sendMessage = async (circle: Locator, page: Page): Promise<void> => {
+  const composer = composerOf(page);
 
-const lastAssistantArticle = (page: Page): Locator =>
-  page.getByRole("article", { name: chatMessageListLabels.assistantMessage }).last();
-
-// The feedback control carries transition-colors, so poll past the fade into the selected role.
-const expectSelectedThumbsUp = async (
-  page: Page,
-  text: string,
-  background: string
-): Promise<void> => {
-  const thumbsUp = lastAssistantArticle(page).getByRole("button", { name: "Good response" });
-
-  await thumbsUp.click();
-  await expect.poll(() => textColorOf(thumbsUp), { timeout: streamWindowMs }).toBe(text);
-  await expect.poll(() => backgroundOf(thumbsUp), { timeout: streamWindowMs }).toBe(background);
+  await composer.fill("Can I move my delivery to next week?");
+  await composer.press("Enter");
+  await expect(circle).toBeVisible({ timeout: pollWindowMs });
 };
 
-test.describe("the default chat screen", () => {
-  test("the send button and the active row resolve to the palette colours the library shipped with", async ({
-    page,
-  }) => {
-    await page.goto("/?view=chat");
+// Pause the keyframe at its 50% stop, where the outline and shadow carry the tokens exactly.
+const pauseAtHalf = (circle: Locator): Promise<void> =>
+  circle.evaluate((element) => {
+    const [animation] = element.getAnimations();
 
-    const blue500 = await computedPaletteColor(page, "--color-blue-500");
-    const slate100 = await computedPaletteColor(page, "--color-slate-100");
-    const white = await computedPaletteColor(page, "--color-white");
-
-    const sendButton = await enabledSendButton(page);
-
-    expect(await backgroundOf(sendButton)).toBe(blue500);
-    expect(await textColorOf(sendButton)).toBe(white);
-    expect(await backgroundOf(activeConversationRow(page))).toBe(slate100);
-    await expect(page.locator("[data-theme-mark]")).toHaveCount(0);
+    animation.pause();
+    animation.currentTime = 750;
   });
 
-  test("the composer's surface and border resolve to the palette neutrals the library shipped with", async ({
-    page,
-  }) => {
-    await page.goto("/?view=chat");
-    const composerFrame = page.getByRole("textbox").locator("..");
-    const white = await computedPaletteColor(page, "--color-white");
-    const slate200 = await computedPaletteColor(page, "--color-slate-200", "borderColor");
+const restSites: ReadonlyArray<TokenSite> = [
+  {
+    token: "--bowman-active",
+    site: "the active conversation row",
+    property: "backgroundColor",
+    locate: activeConversationRow,
+  },
+  {
+    token: "--bowman-surface",
+    site: "the composer frame",
+    property: "backgroundColor",
+    locate: composerFrame,
+  },
+  {
+    token: "--bowman-border",
+    site: "the composer frame",
+    property: "borderColor",
+    locate: composerFrame,
+  },
+  {
+    token: "--bowman-text-strong",
+    site: "the composer text",
+    property: "color",
+    locate: composerOf,
+  },
+  {
+    token: "--bowman-text-body",
+    site: "the sidebar brand row",
+    property: "color",
+    locate: (page, run) => page.getByRole("complementary").getByText(run.themeName),
+  },
+  {
+    token: "--bowman-text-secondary",
+    site: "the inactive nav item",
+    property: "color",
+    locate: (page) => page.getByRole("navigation").getByRole("button", { name: navSettingsLabel }),
+  },
+  {
+    token: "--bowman-text-muted",
+    site: "the disclosure band",
+    property: "color",
+    locate: (page) => page.getByText(chatMessageListLabels.aiDisclosure, { exact: true }),
+  },
+  {
+    token: "--bowman-text-subtle",
+    site: "the copy button at rest",
+    property: "color",
+    locate: copyButtonOf,
+  },
+];
 
-    expect(await backgroundOf(composerFrame)).toBe(white);
-    expect(await borderColorOf(composerFrame)).toBe(slate200);
+const sendButtonSites: ReadonlyArray<TokenSite> = [
+  {
+    token: "--bowman-active",
+    site: "the disabled send button",
+    property: "backgroundColor",
+    locate: sendButtonOf,
+  },
+  {
+    token: "--bowman-text-subtle",
+    site: "the disabled send button",
+    property: "color",
+    locate: sendButtonOf,
+  },
+  {
+    token: "--bowman-accent",
+    site: "the enabled send button",
+    property: "backgroundColor",
+    locate: sendButtonOf,
+    act: async (_sendButton, page) => {
+      await enabledSendButton(page);
+    },
+  },
+  {
+    token: "--bowman-text-on-accent",
+    site: "the enabled send button",
+    property: "color",
+    locate: sendButtonOf,
+  },
+  {
+    token: "--bowman-accent-hover",
+    site: "the hovered send button",
+    property: "backgroundColor",
+    locate: sendButtonOf,
+    act: hover,
+  },
+];
+
+const hoverSites: ReadonlyArray<TokenSite> = [
+  {
+    token: "--bowman-surface-hover",
+    site: "the hovered inactive row",
+    property: "backgroundColor",
+    locate: (page) => conversationRows(page).filter({ hasText: conversations[1].title }),
+    act: hover,
+  },
+  {
+    token: "--bowman-control-hover",
+    site: "the hovered copy button",
+    property: "backgroundColor",
+    locate: copyButtonOf,
+    act: hover,
+  },
+  {
+    token: "--bowman-text-secondary",
+    site: "the hovered copy button",
+    property: "color",
+    locate: copyButtonOf,
+  },
+  {
+    token: "--bowman-danger",
+    site: "the hovered delete button",
+    property: "color",
+    locate: (page) =>
+      activeConversationRow(page).getByRole("button", {
+        name: conversationListLabels.deleteConversation(conversations[0].title),
+      }),
+    act: hover,
+  },
+];
+
+const focusSites: ReadonlyArray<TokenSite> = [
+  {
+    token: "--bowman-focus-ring",
+    site: "the focused row link's ring",
+    property: "boxShadow",
+    locate: activeRowLink,
+    act: focus,
+  },
+  // The offset stays the light token under the dark scheme: focus:ring-offset-* outranks the
+  // media-query-only dark:ring-offset-*, so --bowman-ring-offset-dark never paints (see
+  // unreachableTokens). This site reds the day the library prefixes the dark offset with focus:.
+  {
+    token: "--bowman-ring-offset",
+    site: "the focused row link's ring offset",
+    property: "boxShadow",
+    locate: activeRowLink,
+    ignoresScheme: true,
+  },
+  {
+    token: "--bowman-accent-glow",
+    site: "the focused composer's glow",
+    property: "boxShadow",
+    locate: composerFrame,
+    act: (_frame, page) => composerOf(page).focus(),
+  },
+];
+
+const streamingSites: ReadonlyArray<TokenSite> = [
+  {
+    token: "--bowman-accent-border",
+    site: "the streaming avatar circle",
+    property: "borderColor",
+    locate: streamingCircle,
+    act: sendMessage,
+  },
+  {
+    token: "--bowman-accent-soft",
+    site: "the streaming avatar circle",
+    property: "backgroundColor",
+    locate: streamingCircle,
+  },
+  {
+    token: "--bowman-pulse-outline",
+    site: "the pulse keyframe's 50% outline",
+    property: "outlineColor",
+    locate: streamingCircle,
+    act: pauseAtHalf,
+  },
+  {
+    token: "--bowman-accent-glow",
+    site: "the pulse keyframe's 50% shadow",
+    property: "boxShadow",
+    locate: streamingCircle,
+    ignoresScheme: true,
+  },
+];
+
+const feedbackSites: ReadonlyArray<TokenSite> = [
+  {
+    token: "--bowman-success",
+    site: "the selected thumbs-up",
+    property: "color",
+    locate: (page) => feedbackButton(page, chatMessageListLabels.feedbackPositive),
+    act: click,
+  },
+  {
+    token: "--bowman-success-soft",
+    site: "the selected thumbs-up",
+    property: "backgroundColor",
+    locate: (page) => feedbackButton(page, chatMessageListLabels.feedbackPositive),
+  },
+  {
+    token: "--bowman-danger",
+    site: "the selected thumbs-down",
+    property: "color",
+    locate: (page) => feedbackButton(page, chatMessageListLabels.feedbackNegative),
+    act: click,
+  },
+  {
+    token: "--bowman-danger-soft",
+    site: "the selected thumbs-down",
+    property: "backgroundColor",
+    locate: (page) => feedbackButton(page, chatMessageListLabels.feedbackNegative),
+  },
+  {
+    token: "--bowman-success",
+    site: "the copied check mark",
+    property: "color",
+    locate: (page) =>
+      lastAssistantArticle(page)
+        .getByRole("button", { name: chatMessageListLabels.copied })
+        .locator("svg"),
+    act: (_check, page) => copyButtonOf(page).click(),
+  },
+];
+
+const siteGroups: ReadonlyArray<{ title: string; sites: ReadonlyArray<TokenSite> }> = [
+  {
+    title:
+      "at rest, the active row, the composer, the brand row, the nav item, the disclosure and the copy button paint their tokens",
+    sites: restSites,
+  },
+  {
+    title: "the send button paints its tokens disabled, enabled and hovered",
+    sites: sendButtonSites,
+  },
+  {
+    title:
+      "the hovered row, the hovered copy button and the hovered delete button paint their hover tokens",
+    sites: hoverSites,
+  },
+  {
+    title:
+      "the focused row link's ring and offset and the focused composer's glow paint their tokens",
+    sites: focusSites,
+  },
+  {
+    title: "the streaming avatar circle and its pulse keyframe paint their tokens",
+    sites: streamingSites,
+  },
+  {
+    title: "the selected thumbs and the copied check mark paint their semantic tokens",
+    sites: feedbackSites,
+  },
+];
+
+const chatSites = siteGroups.flatMap((group) => group.sites);
+
+// Declared, set by the wrapper, and never painted: the dark ring offset loses to the light one's
+// focus: specificity at every FOCUS_RING site. A library change, not a demo gap.
+const unreachableTokens = ["--bowman-ring-offset-dark"];
+
+const themeRuns: ReadonlyArray<ThemeRun> = [
+  {
+    title: "the default chat screen",
+    url: "/?view=chat",
+    themeName: defaultThemeName,
+    values: declaredFallbacks,
+    scheme: "light",
+  },
+  {
+    title: "the default chat screen under the dark scheme",
+    url: "/?view=chat",
+    themeName: defaultThemeName,
+    values: declaredFallbacks,
+    scheme: "dark",
+  },
+  {
+    title: "the Copperline Bicycles chat screen",
+    url: themedChatUrl,
+    themeName: copperlineThemeName,
+    values: copperlineValues,
+    scheme: "light",
+  },
+  {
+    title: "the Copperline Bicycles chat screen under the dark scheme",
+    url: themedChatUrl,
+    themeName: copperlineThemeName,
+    values: copperlineValues,
+    scheme: "dark",
+  },
+];
+
+const assistantEntryCount = initialEntriesByConversation[conversations[0].id].filter(
+  (entry) => entry.role === "assistant"
+).length;
+
+test("the chat matrix reaches every token the installed stylesheet declares but the unreachable dark offset, and the wrapper sets the same set", () => {
+  const declared = [...declaredFallbacks.keys()].sort();
+
+  expect([...tokensMeasuredBy(chatSites), ...unreachableTokens].sort()).toEqual(declared);
+  expect([...copperlineValues.keys()].sort()).toEqual(declared);
+});
+
+for (const run of themeRuns) {
+  test.describe(run.title, () => {
+    test.use({ colorScheme: run.scheme });
+
+    for (const group of siteGroups) {
+      test(group.title, async ({ page }) => {
+        await page.goto(run.url);
+
+        for (const site of group.sites) {
+          await expectSite(page, run, site);
+        }
+      });
+    }
+
+    test("the sidebar names the theme and the chainring mark fills every assistant circle inside the wrapper alone", async ({
+      page,
+    }) => {
+      await page.goto(run.url);
+
+      await expect(page.getByRole("complementary").getByText(run.themeName)).toBeVisible();
+      await expect(page.locator("[data-theme-mark]")).toHaveCount(
+        run.values === copperlineValues ? assistantEntryCount : 0
+      );
+    });
   });
+}
 
-  test("the composer's text resolves to the palette strong colour the library shipped with", async ({
-    page,
-  }) => {
-    await page.goto("/?view=chat");
-    const slate900 = await computedPaletteColor(page, "--color-slate-900", "color");
-
-    expect(await textColorOf(composerOf(page))).toBe(slate900);
-  });
-
-  test("the selected thumbs-up resolves to the palette success colours the library shipped with", async ({
-    page,
-  }) => {
-    await page.goto("/?view=chat");
-
-    const green600 = await computedPaletteColor(page, "--color-green-600", "color");
-    const green100 = await computedPaletteColor(page, "--color-green-100");
-
-    await expectSelectedThumbsUp(page, green600, green100);
-  });
-
+test.describe("the theme query", () => {
   test("a prototype name as the theme value still resolves to the default theme", async ({
     page,
   }) => {
@@ -164,98 +427,6 @@ test.describe("the default chat screen", () => {
 
     await expect(page.getByRole("complementary").getByText(defaultThemeName)).toBeVisible();
     await expect(page.locator("[data-theme-mark]")).toHaveCount(0);
-  });
-});
-
-test.describe("the Copperline Bicycles chat screen", () => {
-  test("the send button and the active row take the wrapper's tokens", async ({ page }) => {
-    await page.goto(themedChatUrl);
-
-    const sendButton = await enabledSendButton(page);
-
-    expect(await backgroundOf(sendButton)).toBe(copperAccent);
-    expect(await textColorOf(sendButton)).toBe(copperTextOnAccent);
-    expect(await backgroundOf(activeConversationRow(page))).toBe(copperActiveRow);
-  });
-
-  test("the streaming avatar circle carries the theme's border and its chainring mark", async ({
-    page,
-  }) => {
-    await page.goto(themedChatUrl);
-
-    const composer = composerOf(page);
-
-    await composer.fill("Can I move my delivery to next week?");
-    await composer.press("Enter");
-
-    const streamingCircle = lastAssistantArticle(page).locator(".bowman-pulse-subtle");
-
-    await expect(streamingCircle).toBeVisible({ timeout: streamWindowMs });
-    await expect
-      .poll(() => borderColorOf(streamingCircle), { timeout: streamWindowMs })
-      .toBe(copperCircleBorder);
-    await expect(streamingCircle.locator("svg[data-theme-mark]")).toHaveCount(1);
-  });
-
-  test("the composer's surface and border take the wrapper's neutral role tokens", async ({
-    page,
-  }) => {
-    await page.goto(themedChatUrl);
-    const composerFrame = page.getByRole("textbox").locator("..");
-
-    expect(await backgroundOf(composerFrame)).toBe(copperSurface);
-    expect(await borderColorOf(composerFrame)).toBe(copperBorder);
-  });
-
-  test("the composer's text takes the wrapper's strong text token", async ({ page }) => {
-    await page.goto(themedChatUrl);
-
-    expect(await textColorOf(composerOf(page))).toBe(copperTextStrong);
-  });
-
-  test("the copy button's rest text takes the wrapper's subtle text token", async ({ page }) => {
-    await page.goto(themedChatUrl);
-
-    const copyButton = lastAssistantArticle(page).getByRole("button", { name: "Copy message" });
-
-    await expect(copyButton).toHaveCount(1);
-    expect(await textColorOf(copyButton)).toBe(copperTextSubtle);
-  });
-
-  test("the disabled send button takes the wrapper's active surface and subtle text tokens", async ({
-    page,
-  }) => {
-    await page.goto(themedChatUrl);
-
-    const sendButton = page.getByRole("button", { name: chatComposerLabels.send });
-
-    await expect(sendButton).toBeDisabled();
-    expect(await backgroundOf(sendButton)).toBe(copperActiveRow);
-    expect(await textColorOf(sendButton)).toBe(copperTextSubtle);
-  });
-
-  test("the focused composer glows in the theme's accent", async ({ page }) => {
-    await page.goto(themedChatUrl);
-
-    const composer = composerOf(page);
-    const composerWrapper = composer.locator("..");
-
-    await composer.focus();
-    await expect
-      .poll(() => boxShadowOf(composerWrapper), { timeout: streamWindowMs })
-      .toContain(copperGlow);
-  });
-
-  test("the selected thumbs-up takes the wrapper's success tokens", async ({ page }) => {
-    await page.goto(themedChatUrl);
-
-    await expectSelectedThumbsUp(page, copperSuccess, copperSuccessSoft);
-  });
-
-  test("the sidebar names the theme", async ({ page }) => {
-    await page.goto(themedChatUrl);
-
-    await expect(page.getByRole("complementary").getByText(copperlineThemeName)).toBeVisible();
   });
 });
 
@@ -270,6 +441,10 @@ test.describe("the Overview page's Theming section", () => {
     await expect(customPreview).toHaveCount(1);
 
     const blue500 = await computedPaletteColor(page, "--color-blue-500");
+    const copperAccent = await serialisedColor(
+      page,
+      declaredValue(copperlineValues, "--bowman-accent")
+    );
     const defaultBackground = await backgroundOf(await enabledSendButton(defaultPreview));
     const customBackground = await backgroundOf(await enabledSendButton(customPreview));
 
@@ -294,34 +469,19 @@ test.describe("the Overview page's Theming section", () => {
 
     const blue200 = await computedPaletteColor(page, "--color-blue-200", "borderColor");
     const blue50 = await computedPaletteColor(page, "--color-blue-50");
+    const copperBorder = await serialisedColor(
+      page,
+      declaredValue(copperlineValues, "--bowman-accent-border"),
+      "borderColor"
+    );
+    const copperSoft = await serialisedColor(
+      page,
+      declaredValue(copperlineValues, "--bowman-accent-soft")
+    );
 
     expect(await borderColorOf(defaultCircle)).toBe(blue200);
     expect(await backgroundOf(defaultCircle)).toBe(blue50);
-    expect(await borderColorOf(customCircle)).toBe(copperCircleBorder);
-    expect(await backgroundOf(customCircle)).toBe(copperCircleSurface);
-  });
-});
-
-// issue 151: the dark scheme rendered, so two -dark fallbacks are measured rather than pinned
-// as class strings, and shown to differ from the light shades the tests above read.
-test.describe("the default chat screen under the dark scheme", () => {
-  test.use({ colorScheme: "dark" });
-
-  test("the send button and the composer's surface resolve to the dark palette fallbacks", async ({
-    page,
-  }) => {
-    await page.goto("/?view=chat");
-
-    const blue500 = await computedPaletteColor(page, "--color-blue-500");
-    const blue600 = await computedPaletteColor(page, "--color-blue-600");
-    const white = await computedPaletteColor(page, "--color-white");
-    const slate900 = await computedPaletteColor(page, "--color-slate-900");
-    const composerFrame = page.getByRole("textbox").locator("..");
-    const sendButton = await enabledSendButton(page);
-
-    await expect.poll(() => backgroundOf(sendButton), { timeout: streamWindowMs }).toBe(blue600);
-    expect(blue600).not.toBe(blue500);
-    expect(await backgroundOf(composerFrame)).toBe(slate900);
-    expect(slate900).not.toBe(white);
+    expect(await borderColorOf(customCircle)).toBe(copperBorder);
+    expect(await backgroundOf(customCircle)).toBe(copperSoft);
   });
 });

@@ -64,7 +64,7 @@ issue is cited for it.
   [validated by Alt+Enter does not submit, does not preventDefault and leaves the draft in the box](../../tests/ChatComposer.test.tsx#L149),
   [validated by Shift+Enter does not submit and leaves the draft in the box](../../tests/ChatComposer.test.tsx#L113),
   [validated by Ctrl+Shift+Enter does not submit: Shift wins over Ctrl](../../tests/ChatComposer.test.tsx#L162),
-  [validated by Alt+Enter appends no entry and keeps the draft in the box](../../examples/chat-demo/tests/chat-demo.spec.ts#L372)).
+  [validated by Alt+Enter appends no entry and keeps the draft in the box](../../examples/chat-demo/tests/chat-demo.spec.ts#L386)).
 - **The IME guard is the fix this component adds.** `Enter` with
   `nativeEvent.isComposing` neither submits nor preventDefaults. None of the
   three inline copies checks it. Verified by mutation: removing the
@@ -127,7 +127,7 @@ in a real WebKit - issue 200)
 ([validated by clicking the focused send button submits, disables send, and leaves the textarea as document.activeElement](../../tests/ChatComposer.test.tsx#L479),
 [validated by Enter keeps the textarea as document.activeElement after the submit](../../tests/ChatComposer.test.tsx#L493),
 [validated by an onSubmit that focuses an outside button wins: that button is document.activeElement after send](../../tests/ChatComposer.test.tsx#L504),
-[validated by Tab to send then Enter or Space appends the entry and returns focus to the textarea](../../examples/chat-demo/tests/chat-demo.spec.ts#L408)).
+[validated by Tab to send then Enter or Space appends the entry and returns focus to the textarea](../../examples/chat-demo/tests/chat-demo.spec.ts#L436)).
 
 ## Auto-resize
 

@@ -226,7 +226,7 @@ export const SearchField: ForwardRefExoticComponent<
   the demo's `search-field` documentation page (issue 151)
   ([validated by value="4711" renders as the input's value](../../tests/SearchField.test.tsx#L25),
   [validated by a change to " Hvor " calls onChange once with " Hvor " untrimmed](../../tests/SearchField.test.tsx#L31),
-  [browser](../../examples/chat-demo/tests/docs.spec.ts#L176)).
+  [browser](../../examples/chat-demo/tests/docs.spec.ts#L196)).
 - `disabled` renders the native attribute ([validated by disabled renders the native disabled attribute](../../tests/SearchField.test.tsx#L42),
   [validated by the input is enabled when disabled is omitted](../../tests/SearchField.test.tsx#L48)).
 - No clear button, no submit, no debounce: filtering as the user types is the consumer's, and

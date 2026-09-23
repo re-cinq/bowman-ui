@@ -57,10 +57,10 @@ at commit - the demo's only remaining state change.
 
 Sampling the entry's text length at two times shows it longer at 2.6 s than at
 0.9 s, and shorter at 0.9 s than the committed reply
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L98)). A
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L117)). A
 second test counts the distinct growth steps and the span they cover: at least
 20 steps over at least 3 seconds
-([validated by the reply grows in at least 20 distinct steps spanning at least 3 seconds](../../examples/chat-demo/tests/chat-demo.spec.ts#L125)). That
+([validated by the reply grows in at least 20 distinct steps spanning at least 3 seconds](../../examples/chat-demo/tests/chat-demo.spec.ts#L144)). That
 second test samples inside the page rather than across the Playwright wire,
 because a slow round trip would merge two real steps into one observation and
 under-count a stream that did emit 24.

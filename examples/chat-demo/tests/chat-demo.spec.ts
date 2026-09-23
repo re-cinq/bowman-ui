@@ -4,9 +4,18 @@ import {
   chatComposerLabels,
   chatMessageListLabels,
   conversationListLabels,
+  navConversationsLabel,
+  navSettingsLabel,
+  signOutLabel,
   toastCopiedMessage,
+  toastDemoOnlyMessage,
 } from "../src/labels";
-import { conversations, streamedReplyText } from "../src/fixtures";
+import {
+  conversations,
+  initialEntriesByConversation,
+  streamedReplyText,
+  unbrokenReferenceToken,
+} from "../src/fixtures";
 import { streamStepCount, streamStepIntervalMs } from "../src/streaming";
 import { staticDemoNote } from "../src/staticDemoNote";
 import { toastDurationMs } from "../src/toastDuration";
@@ -24,6 +33,16 @@ const send = async (page: Page, question: string): Promise<void> => {
   await composer.fill(question);
   await composer.press("Enter");
 };
+
+const overflowOf = (locator: Locator): Promise<number> =>
+  locator.evaluate((element) => element.scrollWidth - element.clientWidth);
+
+// Anchored: the wired delete button's name also contains the title.
+const conversationLink = (page: Page, title: string): Locator =>
+  page.getByRole("button", { name: new RegExp(`^${title}`) });
+
+const toastPill = (page: Page, message: string): Locator =>
+  page.locator("div[aria-hidden='true']").filter({ hasText: message });
 
 // Sequential focus navigation as the user presses it: WebKit's plain Tab skips links and
 // buttons unless the Option modifier is held (issue 200), so the WebKit project sends Alt+Tab.
@@ -181,11 +200,7 @@ test.describe("copy toast", () => {
 
     await page.getByRole("button", { name: chatMessageListLabels.copy }).first().click();
 
-    const toastPill = page
-      .locator("div[aria-hidden='true']")
-      .filter({ hasText: toastCopiedMessage });
-
-    await expect(toastPill).toBeVisible();
+    await expect(toastPill(page, toastCopiedMessage)).toBeVisible();
 
     const shownAt = Date.now();
 
@@ -241,8 +256,7 @@ test.describe("EU AI Act disclosure", () => {
   test("the disclosure is visible in the empty state", async ({ page }) => {
     await page.goto("/?view=chat");
 
-    // Anchored: the wired delete button's name also contains the title.
-    await page.getByRole("button", { name: /^New conversation/ }).click();
+    await conversationLink(page, conversations[2].title).click();
     await expect(page.getByText("How can we help you today?")).toBeVisible();
     await expect(page.getByText(aiDisclosure, { exact: true })).toBeVisible();
   });
@@ -396,9 +410,23 @@ test.describe("long unbroken strings", () => {
     const article = page.getByRole("article", { name: chatMessageListLabels.userMessage }).last();
 
     await expect(article).toContainText(token);
-    await expect
-      .poll(() => article.evaluate((element) => element.scrollWidth - element.clientWidth))
-      .toBeLessThanOrEqual(0);
+    await expect.poll(() => overflowOf(article)).toBeLessThanOrEqual(0);
+  });
+
+  // The markdown side: the fixture's second conversation carries the same token in an assistant
+  // reply, and neither the paragraph nor the article grows past its box.
+  test("a 300-character token in an assistant entry does not widen its paragraph or its article", async ({
+    page,
+  }) => {
+    await page.goto("/?view=chat");
+    await conversationLink(page, conversations[1].title).click();
+
+    const article = lastAssistantArticle(page);
+    const paragraph = article.getByText(unbrokenReferenceToken);
+
+    await expect(paragraph).toBeVisible();
+    await expect.poll(() => overflowOf(paragraph)).toBeLessThanOrEqual(0);
+    await expect.poll(() => overflowOf(article)).toBeLessThanOrEqual(0);
   });
 });
 
@@ -670,5 +698,143 @@ test.describe("reduced motion", () => {
 
     await page.emulateMedia({ reducedMotion: "reduce" });
     await expect.poll(() => transitionDurationOf(drawer)).toBe("0s");
+  });
+});
+
+// The keyboard paths the chat screen wires beyond Enter: the send chords, the copy chord on a
+// focused article, and the feedback thumbs - each read through what the screen shows, since a
+// headless clipboard has nothing to read back.
+test.describe("keyboard chords and notices", () => {
+  test("Ctrl+Enter or Meta+Enter sends the draft like plain Enter", async ({ page }) => {
+    await page.goto("/?view=chat");
+
+    const composer = page.getByRole("textbox", { name: chatComposerLabels.composerInput });
+    const userArticles = page.getByRole("article", { name: chatMessageListLabels.userMessage });
+
+    await composer.fill("An invented question sent with a chord");
+    await composer.press("ControlOrMeta+Enter");
+    await expect(userArticles).toHaveCount(5);
+    await expect(userArticles.last()).toContainText("An invented question sent with a chord");
+    await expect(composer).toHaveValue("");
+  });
+
+  test("Ctrl+C or Meta+C on a focused assistant article copies it: the label flips, the notice and the toast show, and the label reverts on its own", async ({
+    page,
+  }) => {
+    await page.goto("/?view=chat");
+
+    const article = lastAssistantArticle(page);
+
+    await article.focus();
+    await page.keyboard.press("ControlOrMeta+c");
+
+    await expect(article.getByRole("button", { name: chatMessageListLabels.copied })).toHaveCount(
+      1
+    );
+    await expect(article.getByText(chatMessageListLabels.copiedNotice)).toBeVisible();
+    await expect(toastPill(page, toastCopiedMessage)).toBeVisible();
+    await expect(article.getByRole("button", { name: chatMessageListLabels.copy })).toHaveCount(1, {
+      timeout: 5000,
+    });
+    await expect(article.getByText(chatMessageListLabels.copiedNotice)).toHaveCount(0);
+  });
+
+  test("a clicked thumb is pressed and thanks the reader; the other thumb takes over on its click", async ({
+    page,
+  }) => {
+    await page.goto("/?view=chat");
+
+    const article = lastAssistantArticle(page);
+    const thumbsUp = article.getByRole("button", { name: chatMessageListLabels.feedbackPositive });
+    const thumbsDown = article.getByRole("button", {
+      name: chatMessageListLabels.feedbackNegative,
+    });
+
+    await expect(thumbsUp).toHaveAttribute("aria-pressed", "false");
+    await thumbsUp.click();
+    await expect(thumbsUp).toHaveAttribute("aria-pressed", "true");
+    await expect(article.getByText(chatMessageListLabels.feedbackNotice)).toBeVisible();
+
+    await thumbsDown.click();
+    await expect(thumbsDown).toHaveAttribute("aria-pressed", "true");
+    await expect(thumbsUp).toHaveAttribute("aria-pressed", "false");
+  });
+
+  test("the toast announces its message in the live region as well as the pill", async ({
+    page,
+  }) => {
+    await page.goto("/?view=chat");
+
+    await page.getByRole("button", { name: chatMessageListLabels.copy }).first().click();
+    await expect(toastPill(page, toastCopiedMessage)).toBeVisible();
+    await expect(page.getByRole("status").filter({ hasText: toastCopiedMessage })).toHaveText(
+      toastCopiedMessage
+    );
+  });
+});
+
+test.describe("sidebar navigation", () => {
+  test("the Settings item raises the demo-only toast and leaves Conversations current", async ({
+    page,
+  }) => {
+    await page.goto("/?view=chat");
+
+    const navigation = page.getByRole("navigation", { name: "Main navigation" });
+
+    await navigation.getByRole("button", { name: navSettingsLabel }).click();
+    await expect(toastPill(page, toastDemoOnlyMessage)).toBeVisible();
+    await expect(navigation.getByRole("button", { name: navConversationsLabel })).toHaveAttribute(
+      "aria-current",
+      "page"
+    );
+  });
+
+  test("the sign-out footer button raises the demo-only toast", async ({ page }) => {
+    await page.goto("/?view=chat");
+
+    await page.getByRole("button", { name: signOutLabel }).click();
+    await expect(toastPill(page, toastDemoOnlyMessage)).toBeVisible();
+  });
+
+  test("selecting another conversation moves the current mark and shows that transcript", async ({
+    page,
+  }) => {
+    await page.goto("/?view=chat");
+
+    const selected = conversations[1];
+    const entries = initialEntriesByConversation[selected.id];
+
+    await conversationLink(page, selected.title).click();
+    await expect(conversationLink(page, selected.title)).toHaveAttribute("aria-current", "page");
+    await expect(conversationLink(page, conversations[0].title)).not.toHaveAttribute(
+      "aria-current",
+      "page"
+    );
+    await expect(
+      page.getByRole("article", { name: chatMessageListLabels.userMessage })
+    ).toHaveCount(entries.filter((entry) => entry.role === "user").length);
+    await expect(
+      page.getByRole("article", { name: chatMessageListLabels.assistantMessage })
+    ).toHaveCount(entries.filter((entry) => entry.role === "assistant").length);
+    await expect(page.getByText(entries[0].content)).toBeVisible();
+  });
+});
+
+// The third animated affordance, beside the dots and the drawer: the streaming circle's pulse.
+test.describe("reduced motion on the pulse", () => {
+  test("the streaming circle pulses by default and stops under prefers-reduced-motion", async ({
+    page,
+  }) => {
+    await page.goto("/?view=docs&component=overview");
+
+    const circle = page.locator(".bowman-pulse-subtle").first();
+    const animationNameOf = (): Promise<string> =>
+      circle.evaluate((element) => getComputedStyle(element).animationName);
+
+    await expect(circle).toHaveCount(1);
+    expect(await animationNameOf()).toBe("bowman-pulse-subtle");
+
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await expect.poll(animationNameOf).toBe("none");
   });
 });

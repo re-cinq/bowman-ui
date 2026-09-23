@@ -274,12 +274,12 @@ The consumer app (`examples/chat-demo`, specified in `specs/bowman-ui-consumer-a
 renders the chat fixture twice over: the Marginalia Books default at `?view=chat`, and at
 `?view=chat&theme=copperline` the same fixture as a second, invented company, Copperline Bicycles
 (a web search found no such company), named as such in the sidebar
-([validated by the sidebar names the theme](../../examples/chat-demo/tests/theming.spec.ts#L255)). The module
+([validated by the sidebar names the theme and the chainring mark fills every assistant circle inside the wrapper alone](../../examples/chat-demo/tests/theming.spec.ts#L409)). The module
 `src/themes.tsx` resolves the theme from the query, and `ChatScreen` wraps the whole fragment, `AppShell` and `Toast`
 alike, in `<div class="custom-theme">` and passes the theme's chainring mark (an `aria-hidden`
 SVG carrying `data-theme-mark="copperline"`) as `ChatMessageList`'s `assistantAvatar`, so the
-mark fills the streaming avatar circle
-([validated by the streaming avatar circle carries the theme's border and its chainring mark](../../examples/chat-demo/tests/theming.spec.ts#L181),
+mark fills every assistant avatar circle
+([validated by the sidebar names the theme and the chainring mark fills every assistant circle inside the wrapper alone](../../examples/chat-demo/tests/theming.spec.ts#L409),
 [wrapper](../../examples/chat-demo/src/App.tsx#L241),
 [avatar](../../examples/chat-demo/src/App.tsx#L210),
 [mark](../../examples/chat-demo/src/themes.tsx#L25)). The Overview page
@@ -287,97 +287,110 @@ mark fills the streaming avatar circle
 `ChatComposer` and `ConversationList` twice from one preview component,
 `data-theming-preview="default"` beside `data-theming-preview="custom"` (the issue's "shows both
 side by side"), so the two columns cannot drift apart
-([validated by the two previews render the same send button in different colours](../../examples/chat-demo/tests/theming.spec.ts#L263),
+([validated by the two previews render the same send button in different colours](../../examples/chat-demo/tests/theming.spec.ts#L434),
 [preview](../../examples/chat-demo/src/docs/ThemingSection.tsx#L24)).
 
 The override lives in `examples/chat-demo/src/custom-theme.css`, which sets all forty-four tokens
 under `.custom-theme` (scoped to the wrapper, not `:root`) and is imported from `main.tsx` after
 `./styles.css`, whose three documented lines are untouched; the themed screen takes its colours
 from that wrapper alone
-([validated by the send button and the active row take the wrapper's tokens](../../examples/chat-demo/tests/theming.spec.ts#L171),
+([validated by](../../examples/chat-demo/tests/theming.spec.ts#L353),
 [stylesheet](../../examples/chat-demo/src/custom-theme.css#L5),
 [import](../../examples/chat-demo/src/main.tsx#L5)). The wrapper scope is what lets one document
 show the default and the themed look side by side, and it is the fallback rule (decision 1 in
 docs/design-notes.md § Theming) doing its job: the package declares nothing, so an override on
 any wrapper wins on inheritance alone, with no cascade-order fight against `dist/styles.css`
-([validated by the two previews render the same send button in different colours](../../examples/chat-demo/tests/theming.spec.ts#L263)). The demo commits touched
+([validated by the two previews render the same send button in different colours](../../examples/chat-demo/tests/theming.spec.ts#L434)). The demo commits touched
 nothing under the library's `src/` - the one statement in this section with no executable
 anchor: its proof is the diff itself, reviewable but not re-runnable.
 
 The neutral roles ride the same wrapper: the composer's frame resolves to the palette's white
 surface and slate-200 border on the default screen and to Copperline's warm surface and border
-on the themed one ([validated by the composer's surface and border resolve to the palette neutrals the library shipped with](../../examples/chat-demo/tests/theming.spec.ts#L128),
-[validated by the composer's surface and border take the wrapper's neutral role tokens](../../examples/chat-demo/tests/theming.spec.ts#L200)).
+on the themed one ([validated by](../../examples/chat-demo/tests/theming.spec.ts#L100),
+[runs](../../examples/chat-demo/tests/theming.spec.ts#L353)).
 
 An unknown `theme` value falls back to the default: `resolveTheme` reads a `Map`, not a record,
 so a prototype name such as `constructor` cannot resolve to a function, and `?theme=constructor`
 renders the Marginalia Books sidebar with no theme mark
-([validated by a prototype name as the theme value still resolves to the default theme](../../examples/chat-demo/tests/theming.spec.ts#L160)). The unthemed
+([validated by a prototype name as the theme value still resolves to the default theme](../../examples/chat-demo/tests/theming.spec.ts#L423)). The unthemed
 `?view=chat` screen renders no wrapper and no mark, so the existing chat and docs suites drive
 markup identical to what they drove before the theme dimension existed
-([validated by the send button and the active row resolve to the palette colours the library shipped with](../../examples/chat-demo/tests/theming.spec.ts#L111)).
+([validated by the sidebar names the theme and the chainring mark fills every assistant circle inside the wrapper alone](../../examples/chat-demo/tests/theming.spec.ts#L409)).
 
 ### The browser proof
 
 `examples/chat-demo/tests/theming.spec.ts` executed green on 2026-09-23 against the packed
-tarball via `npm run consumer`, in Chromium and WebKit alike since issue 200 (102 passed across
+tarball via `npm run consumer`, in Chromium and WebKit alike since issue 200 (214 passed across
 the chat, docs and theming suites in both projects, exit 0); the link target is the whole file
 ([validated by](../../examples/chat-demo/tests/theming.spec.ts#L1)). Every colour is read through
-`getComputedStyle`, and the default screen is never compared to a pinned oklch string: the suite
-paints a probe element with the palette variable itself (`var(--color-blue-500)`,
-`var(--color-slate-100)`, ...), guards the probe against resolving transparent, and asserts the
-token site serialises identically - so a Tailwind release that changes how an engine serialises a
-palette colour cannot fail the suite, and a consumer build that stops emitting the variable into
-`:root` cannot pass it vacuously
-([validated by the send button and the active row resolve to the palette colours the library shipped with](../../examples/chat-demo/tests/theming.spec.ts#L111)).
+`getComputedStyle` and never compared to a pinned oklch string: `tests/helpers/colors.ts` paints
+a probe element with the expected value - the palette variable a default falls back to
+(`var(--color-blue-500)`, ...) or the wrapper's own value - guards a variable probe against
+resolving transparent, and the token site must serialise identically, so a Tailwind release that
+changes how an engine serialises a palette colour cannot fail the suite, and a consumer build
+that stops emitting the variable into `:root` cannot pass it vacuously
+([validated by](../../examples/chat-demo/tests/helpers/colors.ts#L35)). Every read polls: the
+interaction-gated sites carry `transition-colors`, and a one-shot read after a hover or a click
+catches the mid-fade colour ([validated by](../../examples/chat-demo/tests/helpers/tokens.ts#L81)).
 
-- On the default chat screen the enabled send button's background equals the `--color-blue-500`
-  probe, the active conversation row's equals the `--color-slate-100` probe, and no
-  `[data-theme-mark]` renders
-  ([validated by the send button and the active row resolve to the palette colours the library shipped with](../../examples/chat-demo/tests/theming.spec.ts#L111)).
-- On the Copperline screen the send button's background is `rgb(183, 65, 14)` -
-  `--bowman-accent` - and the active row's is `rgb(253, 235, 220)` - `--bowman-active`
-  ([validated by the send button and the active row take the wrapper's tokens](../../examples/chat-demo/tests/theming.spec.ts#L171)).
-- On the Copperline screen, before any draft, the disabled send button's background is
-  `rgb(253, 235, 220)` - `--bowman-active` - and its text is `rgb(171, 141, 120)` -
-  `--bowman-text-subtle`
-  ([validated by the disabled send button takes the wrapper's active surface and subtle text tokens](../../examples/chat-demo/tests/theming.spec.ts#L225)).
-- After a message is sent, the streaming avatar circle's border is `rgb(244, 201, 168)` -
-  `--bowman-accent-border` - and the circle contains exactly one chainring SVG
-  ([validated by the streaming avatar circle carries the theme's border and its chainring mark](../../examples/chat-demo/tests/theming.spec.ts#L181)).
-- With the composer focused, its wrapper's `box-shadow` contains `rgba(183, 65, 14, 0.12)` -
-  `--bowman-accent-glow`
-  ([validated by the focused composer glows in the theme's accent](../../examples/chat-demo/tests/theming.spec.ts#L237)).
-- The sidebar names Copperline Bicycles
-  ([validated by the sidebar names the theme](../../examples/chat-demo/tests/theming.spec.ts#L255)).
+The suite is a matrix, not a list of hand-picked sites. `tests/helpers/tokens.ts` reads the
+expected values from the stylesheets themselves - the declaration block of the installed
+`dist/styles.css` for the defaults, `src/custom-theme.css` for the wrapper - so neither can drift
+from the test ([validated by](../../examples/chat-demo/tests/helpers/tokens.ts#L24),
+[wrapper](../../examples/chat-demo/tests/helpers/tokens.ts#L29)), and
+`theming.spec.ts` runs six site groups on the chat screen under four runs: the default theme and
+the Copperline wrapper, each under the light and the dark colour scheme
+([validated by](../../examples/chat-demo/tests/theming.spec.ts#L353)). Under the dark scheme a
+site's expected value is the `-dark` twin where one is declared, and the twin is also asserted
+to differ from the light shade, so a `dark:` variant that silently stopped applying cannot pass
+([validated by](../../examples/chat-demo/tests/helpers/tokens.ts#L91)).
+
+- At rest: the active row's `--bowman-active`, the composer frame's `--bowman-surface` and
+  `--bowman-border`, the composer text's `--bowman-text-strong`, the sidebar brand row's
+  `--bowman-text-body`, the inactive nav item's `--bowman-text-secondary`, the disclosure band's
+  `--bowman-text-muted` and the copy button's `--bowman-text-subtle`
+  ([validated by](../../examples/chat-demo/tests/theming.spec.ts#L100)).
+- The send button: `--bowman-active` and `--bowman-text-subtle` while disabled, `--bowman-accent`
+  and `--bowman-text-on-accent` once a draft enables it, `--bowman-accent-hover` under the pointer
+  ([validated by](../../examples/chat-demo/tests/theming.spec.ts#L151)).
+- Hovered: the inactive row's `--bowman-surface-hover`, the copy button's `--bowman-control-hover`
+  and its promotion to `--bowman-text-secondary`, the delete button's `--bowman-danger`
+  ([validated by](../../examples/chat-demo/tests/theming.spec.ts#L188)).
+- Focused: the row link's ring carries `--bowman-focus-ring` and its offset `--bowman-ring-offset`
+  in the `box-shadow` list, and the composer frame's `--bowman-accent-glow`
+  ([validated by](../../examples/chat-demo/tests/theming.spec.ts#L221)).
+- Streaming: after a send, the avatar circle's `--bowman-accent-border` and `--bowman-accent-soft`,
+  then the `bowman-pulse-subtle` keyframe paused at its 50% stop through the Web Animations API,
+  where its outline is `--bowman-pulse-outline` and its shadow `--bowman-accent-glow`
+  ([validated by](../../examples/chat-demo/tests/theming.spec.ts#L248)).
+- Selected: the thumbs-up's `--bowman-success` and `--bowman-success-soft`, the thumbs-down's
+  `--bowman-danger` and `--bowman-danger-soft`, the copied check mark's `--bowman-success`
+  ([validated by](../../examples/chat-demo/tests/theming.spec.ts#L278)).
+- The sidebar names the theme, and the chainring mark fills one avatar circle per assistant entry
+  inside the wrapper and none outside it
+  ([validated by the sidebar names the theme and the chainring mark fills every assistant circle inside the wrapper alone](../../examples/chat-demo/tests/theming.spec.ts#L409)).
 - On the Overview page both previews render exactly once; the default preview's send button
-  equals the `--color-blue-500` probe, the custom preview's is `rgb(183, 65, 14)`, the two
-  differ, and only the custom preview carries the mark
-  ([validated by the two previews render the same send button in different colours](../../examples/chat-demo/tests/theming.spec.ts#L263)).
+  equals the `--color-blue-500` probe, the custom preview's is the wrapper's `--bowman-accent`,
+  the two differ, and only the custom preview carries the mark
+  ([validated by the two previews render the same send button in different colours](../../examples/chat-demo/tests/theming.spec.ts#L434)).
 - The previews' entry streams forever, so their circles need no polling window: the default
   circle's border and background equal the `--color-blue-200` and `--color-blue-50` probes, the
-  custom circle's are `rgb(244, 201, 168)` and `rgb(255, 241, 230)` - `--bowman-accent-border`
-  and `--bowman-accent-soft`
-  ([validated by the two previews' streaming circles take their border and surface from the tokens](../../examples/chat-demo/tests/theming.spec.ts#L284)).
+  custom circle's the wrapper's `--bowman-accent-border` and `--bowman-accent-soft`
+  ([validated by the two previews' streaming circles take their border and surface from the tokens](../../examples/chat-demo/tests/theming.spec.ts#L459)).
 
-Twelve tokens are measured in the browser - `--bowman-accent`, `--bowman-text-on-accent`,
-`--bowman-active`, `--bowman-accent-border`, `--bowman-accent-soft`, `--bowman-accent-glow`,
-`--bowman-surface`, `--bowman-border`, `--bowman-text-strong`, `--bowman-text-subtle`,
-`--bowman-success` and `--bowman-success-soft` - while `--bowman-focus-ring` rides along inside
-the same `box-shadow` string as the glow, through the `/50` ring's `oklab` entry, without being
-asserted ([validated by the send button and the active row take the wrapper's tokens](../../examples/chat-demo/tests/theming.spec.ts#L171),
-[validated by the two previews' streaming circles take their border and surface from the tokens](../../examples/chat-demo/tests/theming.spec.ts#L284),
-[validated by the focused composer glows in the theme's accent](../../examples/chat-demo/tests/theming.spec.ts#L237),
-[validated by the composer's surface and border take the wrapper's neutral role tokens](../../examples/chat-demo/tests/theming.spec.ts#L200),
-[validated by the composer's text takes the wrapper's strong text token](../../examples/chat-demo/tests/theming.spec.ts#L210),
-[validated by the copy button's rest text takes the wrapper's subtle text token](../../examples/chat-demo/tests/theming.spec.ts#L216),
-[validated by the selected thumbs-up takes the wrapper's success tokens](../../examples/chat-demo/tests/theming.spec.ts#L249)). Under the dark colour scheme
-(issue 151) both engines measure two of the `-dark` fallbacks: the enabled send button's
-`--bowman-accent-dark` (`blue-600`) and the composer surface's `--bowman-surface-dark`
-(`slate-900`), each shown to differ from the light shade the tests above read
-([validated by the send button and the composer's surface resolve to the dark palette fallbacks](../../examples/chat-demo/tests/theming.spec.ts#L310)). Not measured in a browser
-are the other nineteen `-dark` tokens and the light ones no test reads, among them
-`--bowman-accent-hover` and `--bowman-pulse-outline` - Playwright never hovers a control -
-which the jsdom class-string tests above pin alone
-([validated by the send button reads --bowman-accent for its background and --bowman-accent-hover on hover, light and dark](../../tests/ChatComposer.test.tsx#L280),
-[L71](../../tests/styles.test.ts#L71), [validated by while isStreaming the circle reads --bowman-accent-border and --bowman-accent-soft, light and dark](../../tests/ChatMessage.test.tsx#L494)).
+A guard test sums the tokens the six groups reach - each light token and the `-dark` twin the
+dark runs measure - and asserts the set equals the installed declaration block minus one name,
+and that the wrapper sets exactly the declared names: forty-three of the tokens are measured in
+a browser, on both themes and under both schemes, and the docs suite adds the danger family on
+the error boundary's icon, the thinking dots, the search field and every text tier at a
+documentation site the chat has none of
+([validated by the chat matrix reaches every token the installed stylesheet declares but the unreachable dark offset, and the wrapper sets the same set](../../examples/chat-demo/tests/theming.spec.ts#L388),
+[docs](../../examples/chat-demo/tests/docs.spec.ts#L268)).
+
+The one name is `--bowman-ring-offset-dark`. It is declared, the wrapper sets it, and it never
+paints: `focus:ring-offset-*` selects at `(0,2,0)` while `dark:ring-offset-*` rides a media query
+alone at `(0,1,0)`, so at every `FOCUS_RING` site the light offset wins the moment a ring renders.
+The dark runs record the light offset at the focused row link and go red the day the library
+prefixes the dark offset with `focus:`; the fix is a library change, outside the demo's reach,
+and until it lands the class-string tests above pin the dark class as authored
+([validated by](../../examples/chat-demo/tests/theming.spec.ts#L351)).
