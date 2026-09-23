@@ -48,7 +48,7 @@ would replace the allowlist at runtime while the array still reads clean
 The blanking is what keeps the block honest: a template literal above the
 declaration that spells a clean one is not read in its place, so the real
 declaration's spread still fails the gate
-([validated by exits 1 when a template literal spoofing a clean declaration precedes the default policy with a spread](../../tests/security/check-markdown-safety.test.ts#L388)).
+([validated by exits 1 when a template literal spoofing a clean declaration precedes the default policy with a spread](../../tests/security/check-markdown-safety.test.ts#L384)).
 
 The allowlist is data, not a hardcoded branch:
 `allowedSchemes: ["https", "http"]` renders the `http` anchor. `[]`
