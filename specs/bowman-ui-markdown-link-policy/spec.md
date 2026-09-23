@@ -33,6 +33,13 @@ clicked ([validated by](../../tests/markdown/urlPolicy.test.tsx#L61),
 and entity encoding do not get past the allowlist, asserted on the DOM
 ([validated by](../../tests/markdown/urlPolicy.test.tsx#L75)).
 
+The build holds the default at exactly that set as source text:
+`scripts/check-markdown-safety.mjs` fails when
+`defaultMarkdownPolicy.allowedSchemes` admits `http` or hides `javascript`
+behind an escape sequence
+([validated by exits 1 when the default allowlist admits http](../../tests/security/check-markdown-safety.test.ts#L124),
+[validated by exits 1 when the default allowlist hides javascript behind a unicode escape](../../tests/security/check-markdown-safety.test.ts#L247)).
+
 The allowlist is data, not a hardcoded branch:
 `allowedSchemes: ["https", "http"]` renders the `http` anchor. `[]`
 rejects everything.
