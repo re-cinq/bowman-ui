@@ -796,6 +796,17 @@ Decisions:
     back to a spelled-out ring is still a test failure. `ChatMessage`'s
     page-ground rings, `SearchField` and the skip link share no offset and stay
     as they are.
+13. **The dark offset rides `dark:focus:`, not `dark:` alone.** A `focus:`
+    utility selects at `(0,2,0)`; a `dark:` utility rides only a media query at
+    `(0,1,0)`, so with `focus:ring-offset-(--bowman-ring-offset,...)` beside
+    `dark:ring-offset-(--bowman-ring-offset-dark,...)` the light offset won at
+    every focused site under the dark scheme and `--bowman-ring-offset-dark`
+    never painted (found by the demo's token sweep, 2026-09-23). `RING_OFFSET`
+    now spells the dark half as `dark:focus:ring-offset-(...)`: same specificity,
+    later in the cascade, so the dark fallback and a wrapper's override both
+    resolve. The jsdom pin in `tests/helpers/expect-theme-tokens.ts` names the
+    stacked variant and the demo measures the focused row's offset shadow under
+    `colorScheme: "dark"`.
 
 ## Styled primitives
 

@@ -324,4 +324,19 @@ test.describe("the default chat screen under the dark scheme", () => {
     expect(await backgroundOf(composerFrame)).toBe(slate900);
     expect(slate900).not.toBe(white);
   });
+
+  test("the focused conversation row's ring offset resolves to the dark palette fallback", async ({
+    page,
+  }) => {
+    await page.goto("/?view=chat");
+
+    const white = await computedPaletteColor(page, "--color-white");
+    const slate900 = await computedPaletteColor(page, "--color-slate-900");
+    const rowLink = activeConversationRow(page).locator('[aria-current="page"]');
+
+    await rowLink.focus();
+
+    await expect.poll(() => boxShadowOf(rowLink), { timeout: streamWindowMs }).toContain(slate900);
+    expect(await boxShadowOf(rowLink)).not.toContain(white);
+  });
 });

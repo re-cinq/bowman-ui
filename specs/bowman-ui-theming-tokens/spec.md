@@ -235,6 +235,15 @@ See `specs/bowman-ui-stylesheet-entry/spec.md`: the dark-mode strategy stays the
 build decision, exactly as that spec left it. Each `-dark` token rides the `dark:`
 variant its site already carried, so the media-query default and a class strategy both resolve
 it without the package choosing; the package adds no media query and no selector of its own.
+The one exception in shape is the ring offset, per docs/design-notes.md § Theming decision 13.
+
+- The dark offset is `dark:focus:ring-offset-(...)` rather than `dark:` alone, because a `dark:`
+  utility rides a media query at `(0,1,0)` and loses to the `(0,2,0)` `focus:` light read at every
+  focused site, so `--bowman-ring-offset-dark` never painted; the stacked variant matches that
+  specificity and follows it in the cascade, and the focused conversation row's offset shadow
+  under the dark scheme resolves to the `--color-slate-900` probe
+  ([validated by the focused conversation row's ring offset resolves to the dark palette fallback](../../examples/chat-demo/tests/theming.spec.ts#L328)).
+
 `ErrorBoundary`'s retry button had no dark ring and gains none
 ([validated by the retry button keeps focus-visible:ring-2 beside the --bowman-focus-ring colour, with no dark ring](../../tests/ErrorBoundary.test.tsx#L188)).
 
@@ -320,7 +329,7 @@ markup identical to what they drove before the theme dimension existed
 ### The browser proof
 
 `examples/chat-demo/tests/theming.spec.ts` executed green on 2026-09-23 against the packed
-tarball via `npm run consumer`, in Chromium and WebKit alike since issue 200 (102 passed across
+tarball via `npm run consumer`, in Chromium and WebKit alike since issue 200 (104 passed across
 the chat, docs and theming suites in both projects, exit 0); the link target is the whole file
 ([validated by](../../examples/chat-demo/tests/theming.spec.ts#L1)). Every colour is read through
 `getComputedStyle`, and the default screen is never compared to a pinned oklch string: the suite
