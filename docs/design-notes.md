@@ -1003,17 +1003,23 @@ Decisions:
    lint rule is the review-time backstop that names the violation before a
    test ever runs. Denylisted channels: `fetch` (bare or via
    window/globalThis/self), `new WebSocket/EventSource/XMLHttpRequest`,
-   `navigator.sendBeacon`. Only non-computed member access is read: the
-   computed spelling (`window["fetch"]`) and a private name pass the rule
-   and are pinned as unreported by the fixture - a recorded limit, with the
-   runtime traps behind it (issue 211).
+   `navigator.sendBeacon`. A member is read by its identifier or by its
+   computed string spelling, which reports under the identifier form
+   (`new window["WebSocket"]` reports `new window.WebSocket`; issue 211).
+   Any other computed property (a template literal, ``window[`fetch`]``)
+   and a private name pass the rule; the template-literal spelling and a
+   private name are pinned as unreported by the fixture - a recorded limit,
+   with the runtime traps behind it (issue 237).
 5. **Props are read-only** (`bowman/no-prop-mutation`). Data flows down as
    arguments; changes flow up via callback props. Scope-based, so a local
    sharing a prop's name never trips it; only the first parameter is props,
    leaving a `forwardRef` second argument and its `.current` writes alone.
-   Reads members the same way as decision 4: a computed mutator or wrapper
-   callee (`props.items["push"](0)`, `React["memo"](...)`) passes and is
-   pinned as unreported by the fixture (issue 211).
+   Reads members the same way as decision 4: a computed string mutator or
+   wrapper callee (`props.items["push"](0)`, `React["memo"](...)`) is
+   reported like its identifier spelling, and the mutated expression is
+   printed as written (`props["counts"]["push"](0)` reports
+   `props["counts"]`; issue 211); a template-literal callee and a private
+   name pass and are pinned as unreported by the fixture (issue 237).
 6. **Styling lives in the stylesheet** (`re-lint/no-inline-styles`), with one
    passing shape - an object of nothing but CSS custom properties, because
    the styling rules then still live in the stylesheet reading the variable.
