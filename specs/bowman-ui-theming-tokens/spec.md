@@ -95,7 +95,7 @@ value ([validated by no built component carries a --bowman- literal; the class s
   skip link, hamburger and close button
   ([validated by the article, the copy button and both thumb buttons keep focus:ring-2 beside the --bowman-focus-ring colour](../../tests/ChatMessage.test.tsx#L502),
   [validated by the row link and the delete button keep focus:ring-2 beside the --bowman-focus-ring colour](../../tests/ConversationList.test.tsx#L152),
-  [validated by the isActive item reads --bowman-active with the strong text token, an inactive item takes the strong hover token, and every item keeps focus:ring-2 beside the --bowman-focus-ring colour](../../tests/AppSidebar.test.tsx#L137), [validated by the skip link, the hamburger and the close button keep focus:ring-2 beside the --bowman-focus-ring colour](../../tests/AppShell.test.tsx#L420)).
+  [validated by the isActive item reads --bowman-active with the strong text token, an inactive item takes the strong hover token, and every item keeps focus:ring-2 beside the --bowman-focus-ring colour](../../tests/AppSidebar.test.tsx#L137), [validated by the skip link, the hamburger and the close button keep focus:ring-2 beside the --bowman-focus-ring colour](../../tests/AppShell.test.tsx#L424)).
 - `ErrorBoundary`'s retry button keeps `focus-visible:ring-2` beside the `--bowman-focus-ring`
   colour and gains no dark ring, because it had none
   ([validated by the retry button keeps focus-visible:ring-2 beside the --bowman-focus-ring colour, with no dark ring](../../tests/ErrorBoundary.test.tsx#L188)).
@@ -142,12 +142,14 @@ utility fails ([validated by each neutral role constant is imported by exactly t
 - A `PromptChips` chip reads `--bowman-border`, `--bowman-surface`, `--bowman-surface-hover` and
   `--bowman-text-body` beside its pill classes
   ([validated by a chip carries the rounded-full pill classes beside the --bowman-border, --bowman-surface, --bowman-surface-hover and --bowman-text-body tokens](../../tests/PromptChips.test.tsx#L109)).
-- The `AppShell` mobile header row, drawer close-button row and main region and the `AppSidebar`
-  brand row, children scroll region and footer region read `--bowman-text-body`, so a plain string
-  the library lays out for consumer content is painted instead of inheriting the page colour
-  ([validated by the mobile header row carries the body text token, so a plain-string brand reads on the dark surface](../../tests/AppShell.test.tsx#L461),
-  [validated by the drawer close-button row carries the body text token, so plain-string drawer content reads on the dark surface](../../tests/AppShell.test.tsx#L527),
-  [validated by the main region carries the body text token, so plain-string content reads on the dark surface](../../tests/AppShell.test.tsx#L535),
+- The `AppShell` mobile header row, drawer close-button row, main region and the desktop rail and
+  mobile drawer wrappers around `renderSidebar` output, and the `AppSidebar` brand row, children
+  scroll region and footer region read `--bowman-text-body`, so a plain string the library lays
+  out for consumer content is painted instead of inheriting the page colour
+  ([validated by the mobile header row carries the body text token, so a plain-string brand reads on the dark surface](../../tests/AppShell.test.tsx#L465),
+  [validated by the drawer close-button row carries the body text token, so plain-string drawer content reads on the dark surface](../../tests/AppShell.test.tsx#L531),
+  [validated by the main region carries the body text token, so plain-string content reads on the dark surface](../../tests/AppShell.test.tsx#L539),
+  [validated by the desktop rail and the mobile drawer wrappers carry the body text token, so plain-string renderSidebar content reads on the dark surface](../../tests/AppShell.test.tsx#L548),
   [validated by the brand row carries the body text token, so a plain-string brand reads on the dark surface](../../tests/AppSidebar.test.tsx#L268),
   [validated by the children scroll region carries the body text token, so plain-string children read on the dark surface](../../tests/AppSidebar.test.tsx#L277),
   [validated by the footer region carries the body text token, so a plain-string footer reads on the dark surface](../../tests/AppSidebar.test.tsx#L286)).

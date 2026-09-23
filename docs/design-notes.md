@@ -597,7 +597,13 @@ Decisions:
    scroll region and footer row - each carried no text utility before. Only
    the body text is painted; these regions' backgrounds stay palette-mapped by
    the rule below (the main region's `bg-white` / `dark:bg-slate-950` is listed
-   there). The ten pairs: `--bowman-surface` (`bg-white` /
+   there). Amended 2026-09-22 under issue 109: the two `AppShell` wrappers
+   around `renderSidebar` output - the desktop rail and the mobile drawer
+   container - join the list, so content a consumer returns directly from
+   `renderSidebar` reads too; `AppSidebar` paints its own regions either way.
+   The drawer container is the painted element rather than a new wrapper
+   around the slot, because `AppSidebar` fills the drawer as its direct
+   `flex-1 min-h-0` child. The ten pairs: `--bowman-surface` (`bg-white` /
    `dark:bg-slate-900`), `--bowman-surface-hover` (`hover:bg-slate-50` /
    `dark:hover:bg-slate-800`), `--bowman-control-hover` (`hover:bg-slate-100`
    / `dark:hover:bg-slate-800`), `--bowman-border` (`border-slate-200` /
