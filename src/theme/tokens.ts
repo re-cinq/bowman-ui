@@ -14,6 +14,8 @@ export const FOCUS_WITHIN_RING_COLOR =
   "focus-within:ring-(--bowman-focus-ring,var(--color-blue-500))/50 focus-within:shadow-[0_0_0_4px_var(--bowman-accent-glow,rgba(59,130,246,0.1))] dark:focus-within:ring-(--bowman-focus-ring-dark,var(--color-blue-400))/50 dark:focus-within:shadow-[0_0_0_4px_var(--bowman-accent-glow-dark,rgba(96,165,250,0.1))]";
 export const ACTIVE_ROW_BG =
   "bg-(--bowman-active,var(--color-slate-100)) dark:bg-(--bowman-active-dark,var(--color-slate-800))";
+export const ACTIVE_BG_DISABLED =
+  "disabled:bg-(--bowman-active,var(--color-slate-100)) dark:disabled:bg-(--bowman-active-dark,var(--color-slate-800))";
 export const SURFACE =
   "bg-(--bowman-surface,var(--color-white)) dark:bg-(--bowman-surface-dark,var(--color-slate-900))";
 export const SURFACE_HOVER =
@@ -42,6 +44,8 @@ export const TEXT_SUBTLE =
   "text-(--bowman-text-subtle,var(--color-slate-400)) dark:text-(--bowman-text-subtle-dark,var(--color-slate-500))";
 export const PLACEHOLDER_SUBTLE =
   "placeholder-(--bowman-text-subtle,var(--color-slate-400)) dark:placeholder-(--bowman-text-subtle-dark,var(--color-slate-500))";
+export const TEXT_SUBTLE_DISABLED =
+  "disabled:text-(--bowman-text-subtle,var(--color-slate-400)) dark:disabled:text-(--bowman-text-subtle-dark,var(--color-slate-500))";
 export const TEXT_ON_ACCENT = "text-(--bowman-text-on-accent,var(--color-white))";
 export const DANGER =
   "text-(--bowman-danger,var(--color-red-600)) dark:text-(--bowman-danger-dark,var(--color-red-400))";
