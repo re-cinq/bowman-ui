@@ -169,8 +169,8 @@ title>]` link follows its `it()`; every other link is mapped through the cited f
    issue 152). Lower it only once, in the PR that needs it, with the number and reason recorded
    in that section — and never again; tests/system-contract.test.ts pins the >= 80 guard.
 9. **One icon system** (docs/design-notes.md decisions 2-3). The local 23-icon set only, no `lucide-react`.
-   `SendIcon` is deliberately unused; NO paperclip icon is authored; no bundled default/brand
-   mark ships.
+   The composer's send button renders the set's `SendIcon` (src/components/ChatComposer.tsx); NO
+   paperclip icon is authored; no bundled default/brand mark ships.
 10. **Never rewrite `forwardRef` away** (docs/design-notes.md decision 4) — that would turn the React-19 testing
     claim into a hard floor.
 11. **Lint guardrails** (docs/design-notes.md § Lint guardrails). Four repo-local rules from
