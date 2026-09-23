@@ -71,7 +71,7 @@ utility classes, with no `data-animations` attribute in any selector
 ([validated by neutralises all four animations under prefers-reduced-motion, touching no transform, with no data-animations selector](../../tests/styles.test.ts#L90)). Rendered in Chromium and WebKit under
 that preference, a thinking dot's computed `animation-name` is `none`, against
 `bowman-fade-dot` without the emulation (issue 151)
-([validated by the thinking dots animate by default and stop under prefers-reduced-motion](../../examples/chat-demo/tests/chat-demo.spec.ts#L646)). No
+([validated by the thinking dots animate by default and stop under prefers-reduced-motion](../../examples/chat-demo/tests/chat-demo.spec.ts#L674)). No
 `NEXT_PUBLIC_FLAG_ANIMATIONS` escape hatch exists: flag plumbing belongs to
 a consumer ([validated by `no built file reads process.env and no NEXT_PUBLIC flag string survives in src/`](../../tests/hooks-dist.test.ts#L45)).
 

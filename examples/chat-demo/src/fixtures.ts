@@ -27,6 +27,10 @@ const userEntry = (id: string, content: string): UserChatEntry => ({
   content,
 });
 
+// A reference with no break opportunity (issue 132): the browser suite proves the markdown side
+// wraps it inside the article, as it proves the user bubble does for the same token typed.
+export const unbrokenReferenceToken = "a1b2c3".repeat(50);
+
 export const initialEntriesByConversation: Record<string, ReadonlyArray<DemoEntry>> = {
   "conversation-1": [
     userEntry(
@@ -61,6 +65,11 @@ export const initialEntriesByConversation: Record<string, ReadonlyArray<DemoEntr
     assistantEntry(
       "c2-m2",
       "Sorry to hear that! We will send a replacement copy of *The Cartographer's Atlas* free of charge. There is no need to return the damaged one - keep it or pass it on."
+    ),
+    userEntry("c2-m3", "Thank you! Is there a reference I can quote if the courier asks?"),
+    assistantEntry(
+      "c2-m4",
+      `The dispatch reference for the replacement is ${unbrokenReferenceToken} and it is printed on the parcel label too.`
     ),
   ],
   "conversation-3": [],
