@@ -167,10 +167,11 @@ reply starts, hand `ChatMessageList` a new array on every delta, and flip the fl
 on commit; `examples/chat-demo` does exactly that over a canned reply.
 
 Two behaviours the components own so the adapter does not have to: `ChatComposer` submits on
-Enter and inserts a newline on Shift+Enter (a press during IME composition is ignored), and the
-copy button on each message writes to the clipboard itself, then shows a two-second
-confirmation. `onCopy` is a notification, fired whether or not the write succeeded - an insecure
-context has no clipboard - so use it for a toast, not for copying.
+Enter, Ctrl+Enter or Cmd+Enter and inserts a newline on Shift+Enter or Alt+Enter (a press
+during IME composition is ignored), and the copy button on each message writes to the
+clipboard itself, then shows a two-second confirmation. `onCopy` is a notification, fired
+whether or not the write succeeded - an insecure context has no clipboard - so use it for a
+toast, not for copying.
 
 The list has no "new conversation" control and no `onNew` prop: that control is yours, which is
 why the minimal app above has none. Put your own control above `ConversationList` inside

@@ -231,6 +231,27 @@ describe("ErrorBoundary", () => {
   });
 
   describe("focus after retry", () => {
+    let frames: FrameRequestCallback[];
+
+    beforeEach(() => {
+      frames = [];
+      vi.stubGlobal("requestAnimationFrame", (callback: FrameRequestCallback) => {
+        frames.push(callback);
+
+        return frames.length;
+      });
+    });
+
+    afterEach(() => {
+      vi.unstubAllGlobals();
+    });
+
+    const flushFrames = () => {
+      for (const frame of frames.splice(0)) {
+        frame(0);
+      }
+    };
+
     const retryInto = async (recovered: ReactNode): Promise<HTMLElement> => {
       const user = userEvent.setup();
       const { container } = render(<Recoverable recovered={recovered} />, silenced);
@@ -251,10 +272,53 @@ describe("ErrorBoundary", () => {
       expect(document.activeElement).toBe(screen.getByRole("button", { name: "recovered" }));
     });
 
-    it("recovered children without a focusable element leave document.activeElement on body and write no tabindex into the consumer's DOM", async () => {
+    it('recovered children without a focusable element get focus on their first element node through a tabindex="-1" that the next frame removes', async () => {
       const container = await retryInto(<p>second attempt</p>);
+      const paragraph = screen.getByText("second attempt");
 
-      expect(screen.getByText("second attempt")).toBeInTheDocument();
+      expect(paragraph).toHaveFocus();
+      expect(paragraph).toHaveAttribute("tabindex", "-1");
+
+      flushFrames();
+
+      expect(paragraph).toHaveFocus();
+      expect(container.querySelector("[tabindex]")).toBeNull();
+    });
+
+    it("a text node before the first recovered element is skipped: the element, not the text, takes the transient tabindex", async () => {
+      await retryInto(
+        <>
+          retrying
+          <p>second attempt</p>
+        </>
+      );
+
+      expect(screen.getByText("second attempt")).toHaveFocus();
+      expect(screen.getByText("second attempt")).toHaveAttribute("tabindex", "-1");
+    });
+
+    it("several recovered nodes without a focusable element: only the first element node gets the transient tabindex", async () => {
+      await retryInto(
+        <>
+          <p>first paragraph</p>
+          <p>second paragraph</p>
+        </>
+      );
+
+      expect(screen.getByText("first paragraph")).toHaveFocus();
+      expect(screen.getByText("first paragraph")).toHaveAttribute("tabindex", "-1");
+      expect(screen.getByText("second paragraph")).not.toHaveAttribute("tabindex");
+
+      flushFrames();
+
+      expect(screen.getByText("first paragraph")).not.toHaveAttribute("tabindex");
+      expect(screen.getByText("second paragraph")).not.toHaveAttribute("tabindex");
+    });
+
+    it("text-only recovered children leave document.activeElement on body and write no tabindex into the consumer's DOM", async () => {
+      const container = await retryInto("second attempt");
+
+      expect(container).toHaveTextContent("second attempt");
       expect(document.activeElement).toBe(document.body);
       expect(container.querySelector("[tabindex]")).toBeNull();
     });
@@ -291,7 +355,8 @@ describe("ErrorBoundary", () => {
       await user.click(screen.getByRole("button", { name: "Try again" }));
 
       expect(screen.queryByText("only while errored")).not.toBeInTheDocument();
-      expect(document.activeElement).toBe(document.body);
+      expect(screen.getByText("second attempt")).toHaveFocus();
+      expect(screen.getByRole("button", { name: "after" })).not.toHaveFocus();
     });
 
     it("recovered children rooted in a <div> - the host node React reuses from the fallback - still get the focus", async () => {

@@ -367,6 +367,21 @@ test.describe("composer auto-resize", () => {
     await expect(composer).toHaveValue("");
     await expect.poll(() => measuredHeight(composer)).toBe(baseline);
   });
+
+  // issue 135: Alt+Enter is a newline chord; whether the browser inserts the newline is its own business.
+  test("Alt+Enter appends no entry and keeps the draft in the box", async ({ page }) => {
+    await page.goto("/?view=chat");
+    const composer = composerOf(page);
+    const draft = "An invented draft held back by a modifier";
+
+    await composer.fill(draft);
+    await composer.press("Alt+Enter");
+
+    await expect(composer).toHaveValue(new RegExp(`^${draft}\\n?$`));
+    await expect(
+      page.getByRole("article", { name: chatMessageListLabels.userMessage })
+    ).toHaveCount(4);
+  });
 });
 
 // issue 132: a pasted token with no break opportunity must wrap inside the bubble.

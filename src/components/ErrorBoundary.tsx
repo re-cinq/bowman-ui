@@ -3,6 +3,7 @@
 import { Component, type ErrorInfo, type MouseEvent, type ReactNode } from "react";
 import { flushSync } from "react-dom";
 import { FOCUSABLE_SELECTOR } from "../hooks/focusableSelector.js";
+import { focusWithTransientTabIndex } from "../hooks/focusWithTransientTabIndex.js";
 import { WarningIcon } from "../icons/index.js";
 import { resolveLabels } from "../labels.js";
 import {
@@ -72,7 +73,10 @@ const nodesBetween = ({ container, before, siblings }: FallbackNeighbours): Node
   return nodes;
 };
 
-// Focuses the first focusable element among the recovered children unless one already holds focus (autoFocus); none leaves focus alone.
+const isElement = (node: Node): node is HTMLElement | SVGElement =>
+  node instanceof HTMLElement || node instanceof SVGElement;
+
+// Focuses the first focusable among the recovered children unless one already holds focus (autoFocus); none focuses their first element node.
 const focusRecoveredChildren = (neighbours: FallbackNeighbours) => {
   const recovered = nodesBetween(neighbours);
   const holdsFocus = (node: Node) => node.contains(document.activeElement);
@@ -84,7 +88,16 @@ const focusRecoveredChildren = (neighbours: FallbackNeighbours) => {
     neighbours.container.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)
   ).find((element) => recovered.some((node) => node.contains(element)));
 
-  focusable?.focus();
+  if (focusable) {
+    focusable.focus();
+
+    return;
+  }
+  const firstElement = recovered.find(isElement);
+
+  if (firstElement) {
+    focusWithTransientTabIndex(firstElement);
+  }
 };
 
 export class ErrorBoundary extends Component<ErrorBoundaryProps, State> {
