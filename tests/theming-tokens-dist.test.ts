@@ -110,6 +110,7 @@ const NEUTRAL_ROLE_READERS: Record<string, string[]> = {
   ],
   TEXT_SUBTLE: ["ChatMessage", "ConversationList", "SearchField"],
   PLACEHOLDER_SUBTLE: ["ChatComposer", "SearchField"],
+  TEXT_SUBTLE_DISABLED: ["ChatComposer"],
   TEXT_ON_ACCENT: ["ChatComposer", "buttonStyles"],
   DANGER: ["ChatMessage", "ErrorBoundary"],
   DANGER_HOVER: ["ConversationList"],
