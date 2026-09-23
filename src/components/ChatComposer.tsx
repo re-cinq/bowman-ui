@@ -2,6 +2,7 @@
 
 import {
   forwardRef,
+  useId,
   useImperativeHandle,
   useRef,
   useState,
@@ -29,12 +30,16 @@ export interface ChatComposerLabels {
   composerInput: string;
   composerPlaceholder: string;
   send: string;
+  /** Read to the textarea while busy: the draft stays editable, sending waits for the reply. */
+  composerBusyHint: string;
 }
 
 export const defaultChatComposerLabels: Readonly<Required<ChatComposerLabels>> = Object.freeze({
   composerInput: "Your message",
   composerPlaceholder: "Reply...",
   send: "Send message",
+  composerBusyHint:
+    "You can keep typing. Sending waits until the assistant has finished responding.",
 });
 
 export interface ChatComposerProps {
@@ -79,7 +84,9 @@ export const ChatComposer = forwardRef<ChatComposerHandle, ChatComposerProps>(fu
   const resolved = resolveLabels(defaultChatComposerLabels, labels);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [hasDraft, setHasDraft] = useState(false);
+  const busyHintId = useId();
   const inactive = busy || disabled;
+  const showBusyHint = busy && !disabled;
 
   const resize = (textarea: HTMLTextAreaElement) => {
     textarea.style.height = "auto";
@@ -139,6 +146,7 @@ export const ChatComposer = forwardRef<ChatComposerHandle, ChatComposerProps>(fu
       <textarea
         ref={textareaRef}
         aria-label={resolved.composerInput}
+        aria-describedby={showBusyHint ? busyHintId : undefined}
         placeholder={resolved.composerPlaceholder}
         rows={1}
         className={`block w-full resize-none bg-transparent px-4 py-4 text-base ${TEXT_STRONG} ${PLACEHOLDER_SUBTLE} focus:outline-none`}
@@ -147,6 +155,11 @@ export const ChatComposer = forwardRef<ChatComposerHandle, ChatComposerProps>(fu
         disabled={disabled}
         autoFocus={autoFocus}
       />
+      {showBusyHint && (
+        <span id={busyHintId} className="bowman-sr-only">
+          {resolved.composerBusyHint}
+        </span>
+      )}
       <div
         className={`flex items-center justify-between border-t border-dashed ${BORDER} px-2 py-2`}
       >

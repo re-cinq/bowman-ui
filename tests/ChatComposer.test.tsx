@@ -239,6 +239,48 @@ describe("ChatComposer", () => {
       expect(container.querySelector(".bowman-pulse-subtle")).toBeNull();
     });
 
+    it('busy describes the textarea through a bowman-sr-only element with the default composerBusyHint: "You can keep typing." followed by "Sending waits until the assistant has finished responding." and sets no aria-disabled', () => {
+      render(<ChatComposer onSubmit={vi.fn()} busy />);
+      const hint = document.getElementById(textareaOf().getAttribute("aria-describedby") ?? "");
+
+      expect(textareaOf()).toHaveAccessibleDescription(
+        "You can keep typing. Sending waits until the assistant has finished responding."
+      );
+      expect(textareaOf()).not.toHaveAttribute("aria-disabled");
+      expect(hint).toHaveClass("bowman-sr-only");
+    });
+
+    it("idle leaves the textarea without aria-describedby and without an accessible description", () => {
+      render(<ChatComposer onSubmit={vi.fn()} />);
+
+      expect(textareaOf()).not.toHaveAttribute("aria-describedby");
+      expect(textareaOf()).toHaveAccessibleDescription("");
+    });
+
+    it('busy with labels={{ composerBusyHint: "Du kan skrive videre; afsendelse venter." }} describes the textarea with that string', () => {
+      render(
+        <ChatComposer
+          onSubmit={vi.fn()}
+          busy
+          labels={{ composerBusyHint: "Du kan skrive videre; afsendelse venter." }}
+        />
+      );
+
+      expect(textareaOf()).toHaveAccessibleDescription("Du kan skrive videre; afsendelse venter.");
+    });
+
+    it("disabled renders no hint with or without busy: the textarea has no aria-describedby", () => {
+      const { rerender } = render(<ChatComposer onSubmit={vi.fn()} disabled />);
+
+      expect(textareaOf()).not.toHaveAttribute("aria-describedby");
+      expect(textareaOf()).toHaveAccessibleDescription("");
+
+      rerender(<ChatComposer onSubmit={vi.fn()} busy disabled />);
+
+      expect(textareaOf()).not.toHaveAttribute("aria-describedby");
+      expect(textareaOf()).toHaveAccessibleDescription("");
+    });
+
     it('a draft typed before busy survives the toggle: "Hvor er min booking?" and the enabled send button return once busy is false', () => {
       const { rerender } = render(<ChatComposer onSubmit={vi.fn()} />);
 

@@ -374,7 +374,7 @@ export const componentDocs: ReadonlyArray<ComponentDoc> = [
     id: "chat-composer",
     name: "ChatComposer",
     purpose:
-      "The input surface: an uncontrolled textarea that grows with the draft up to a cap and then scrolls, Enter, Ctrl+Enter or Cmd+Enter to send, Shift+Enter or Alt+Enter for a newline, and an IME guard so committing a candidate never sends a half-finished message. Write into it from outside through its ref handle, which exposes focus() and setValue(). Reach for busy while a reply streams and disabled when the whole surface is unavailable; both disable the field, and only busy pulses.",
+      "The input surface: an uncontrolled textarea that grows with the draft up to a cap and then scrolls, Enter, Ctrl+Enter or Cmd+Enter to send, Shift+Enter or Alt+Enter for a newline, and an IME guard so committing a candidate never sends a half-finished message. Write into it from outside through its ref handle, which exposes focus() and setValue(). Reach for busy while a reply streams and disabled when the whole surface is unavailable; disabled makes the field inert, while busy keeps it editable, describes it as waiting to send, and pulses.",
     importLine:
       'import { ChatComposer } from "@re-cinq/bowman-ui";\nimport type { ChatComposerHandle } from "@re-cinq/bowman-ui";',
     Example: ChatComposerExample,

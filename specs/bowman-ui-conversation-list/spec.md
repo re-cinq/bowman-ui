@@ -31,9 +31,9 @@ component reads no clock and no locale: no `Date` constructor,
 in the `labelsProp` partition bucket and passes the
 sentinel render across its list, empty and loading states, the function label
 included ([partition](../../tests/labelled-exports.test.tsx#L85),
-[harness](../../tests/labelled-exports.test.tsx#L505),
+[harness](../../tests/labelled-exports.test.tsx#L506),
 [validated by onDelete renders one button per row named "Delete conversation: Booking 4711"; clicking it calls onDelete with the id and onSelect zero times](../../tests/ConversationList.test.tsx#L248),
-[defaults](../../tests/labelled-exports.test.tsx#L597)).
+[defaults](../../tests/labelled-exports.test.tsx#L598)).
 
 ## The four decisions
 

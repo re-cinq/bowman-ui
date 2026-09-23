@@ -211,8 +211,8 @@ list.
   checked DOM. Its key-coverage check is the package's one asymmetric
   sentinel test - defaults keys **plus** `aiDisclosure` - because the
   required label is deliberately absent from `defaultChatMessageListLabels`
-  ([validated by ChatMessageList's sentinel labels cover every defaultChatMessageListLabels key plus the required aiDisclosure](../../tests/labelled-exports.test.tsx#L561),
-  [L366](../../tests/labelled-exports.test.tsx#L366)).
+  ([validated by ChatMessageList's sentinel labels cover every defaultChatMessageListLabels key plus the required aiDisclosure](../../tests/labelled-exports.test.tsx#L562),
+  [L367](../../tests/labelled-exports.test.tsx#L367)).
 
 ## Recorded decisions
 
