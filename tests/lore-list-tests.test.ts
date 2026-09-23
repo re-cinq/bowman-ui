@@ -42,18 +42,18 @@ const writeReport = (testResults: unknown[]): string => {
 };
 
 describe("lore-list-tests --report", () => {
-  it("maps every assertion of a report to {id, name, file} with repo-relative files", () => {
+  it("maps every assertion to {id, name, file} joining describe titles with ' > '", () => {
     const reportFile = writeReport([
       {
         name: join(process.cwd(), "tests/Alpha.test.tsx"),
         assertionResults: [
-          { fullName: "Alpha renders the title" },
-          { fullName: "Alpha nested handles a click" },
+          { ancestorTitles: ["Alpha"], title: "renders the title" },
+          { ancestorTitles: ["Alpha", "nested"], title: "handles a click" },
         ],
       },
       {
         name: join(process.cwd(), "tests/beta-dist.test.ts"),
-        assertionResults: [{ fullName: "dist ships styles.css" }],
+        assertionResults: [{ ancestorTitles: [], title: "dist ships styles.css" }],
       },
     ]);
 
@@ -63,13 +63,13 @@ describe("lore-list-tests --report", () => {
     expect(result.stdout.endsWith("\n")).toBe(true);
     expect(JSON.parse(result.stdout)).toEqual([
       {
-        id: "tests/Alpha.test.tsx::Alpha renders the title",
-        name: "Alpha renders the title",
+        id: "tests/Alpha.test.tsx::Alpha > renders the title",
+        name: "Alpha > renders the title",
         file: "tests/Alpha.test.tsx",
       },
       {
-        id: "tests/Alpha.test.tsx::Alpha nested handles a click",
-        name: "Alpha nested handles a click",
+        id: "tests/Alpha.test.tsx::Alpha > nested > handles a click",
+        name: "Alpha > nested > handles a click",
         file: "tests/Alpha.test.tsx",
       },
       {
@@ -106,7 +106,7 @@ describe("lore-list-tests --report", () => {
           testResults: [
             {
               name: join(workDir, "tests/Stub.test.ts"),
-              assertionResults: [{ fullName: "stub passes" }],
+              assertionResults: [{ ancestorTitles: [], title: "stub passes" }],
             },
           ],
         }),
