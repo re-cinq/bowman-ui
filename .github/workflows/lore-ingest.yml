@@ -1,10 +1,11 @@
-# lore-ingest-version: 5
+# lore-ingest-version: 6
 # The curl hardening (auth-file token, status handling, body prefixing) lives in
-# scripts/lore-post.sh, shared by both jobs below. See issue #38.
+# scripts/lore-post.sh, shared by the ingest job below. See issue #38.
 # LORE_INGEST_URL is a repository secret, not a variable, although it holds no
 # credential: the runner prints every step's env block in the public log and
 # masks only secrets, and the endpoint's hostname has no business in a public
-# log. The template's `vars.` form is a deliberate per-repo deviation.
+# log. The template's `vars.` form is a deliberate per-repo deviation, kept on
+# both jobs.
 # The changed-files step diffs the whole push (before..after over a full
 # checkout, scoped to the trigger's paths) where the template diffs HEAD~1,
 # which sees only the last commit of a rebase merge. See issue #136; a
@@ -35,8 +36,9 @@ on:
 # ingest stale content after a newer push's run. GitHub queues only the newest
 # pending run per group: a third quick push cancels the second's run, and that
 # push's CLAUDE.md, AGENTS.md, .specify and test-file deltas wait for their next
-# touch (specs and adrs self-heal, the graph job re-projects them in full every
-# run).
+# touch (specs and adrs self-heal: the graph job's delta is diffed from the
+# last commit Lore ingested, not from the cancelled run's own push, so the
+# next run picks them up).
 concurrency:
   group: lore-ingest
   cancel-in-progress: false
@@ -90,20 +92,67 @@ jobs:
         run: |
           scripts/lore-post.sh /api/ingest "{\"files\": ${FILES}, \"repo\": \"${{ github.repository }}\", \"commit\": \"${{ github.sha }}\"}" "context was NOT ingested"
 
+  # Posts the changed specs and ADRs as a delta through lore-code-trace
+  # (re-cinq/lore#2410) instead of asking Lore to clone this repo. The checkout
+  # pin and secret-only URL match the ingest job above (deliberate per-repo
+  # deviations, documented at the top of this file).
   graph:
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        kind: [specs, adrs]
     steps:
+      # Full history: the delta is a diff against the last commit Lore
+      # ingested, which a shallow clone cannot reach.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          fetch-depth: 0
           persist-credentials: false
 
-      - name: Project ${{ matrix.kind }} into the graph
+      - name: Fetch lore-code-trace
         env:
           LORE_INGEST_TOKEN: ${{ secrets.LORE_INGEST_TOKEN }}
           LORE_INGEST_URL: ${{ secrets.LORE_INGEST_URL }}
         run: |
-          scripts/lore-post.sh "/api/repos/${{ github.repository }}/ingest-graph" "{\"kinds\":[\"${{ matrix.kind }}\"],\"commit\":\"${{ github.sha }}\"}" "${{ matrix.kind }} were NOT projected"
+          # Misconfiguration (unset URL) is a hard error - a missing var must
+          # never silently fall back and report success.
+          if [ -z "${LORE_INGEST_URL}" ]; then
+            echo "::error::LORE_INGEST_URL repository secret is not set - specs and ADRs were NOT projected"
+            exit 1
+          fi
+          # Same class of misconfiguration: an unset token means every POST is
+          # rejected with 401, which must never pass as a green run.
+          if [ -z "${LORE_INGEST_TOKEN}" ]; then
+            echo "::error::LORE_INGEST_TOKEN repository secret is not set - specs and ADRs were NOT projected"
+            exit 1
+          fi
+          # The binary that posts the delta is served by Lore itself, so it
+          # always matches the server's ingest contract. A fetch that fails is
+          # plausibly transient - warn and rely on the next doc push, which
+          # diffs from the last commit Lore ingested and so catches up.
+          for artifact in linux-amd64 checksums.txt; do
+            if ! curl -fsSL "${LORE_INGEST_URL}/dist/lore-code-trace/${artifact}" -o "${artifact}"; then
+              echo "::warning::lore-code-trace (${artifact}) could not be fetched from Lore - specs and ADRs were NOT projected (transient - next doc push retries)"
+              rm -f linux-amd64 checksums.txt
+              exit 0
+            fi
+          done
+          # A binary that does not match its checksum is never run, and that
+          # is a failure, not a skip.
+          echo "$(awk '/ linux-amd64$/{print $1}' checksums.txt)  linux-amd64" | sha256sum -c -
+          mv linux-amd64 lore-code-trace
+          chmod +x lore-code-trace
+
+      # lore-code-trace posts the changed specs and ADRs, content inline, to
+      # Lore, which projects them in-process: no pod clones this repository.
+      - name: Project specs and ADRs into the graph
+        if: hashFiles('lore-code-trace') != ''
+        env:
+          LORE_INGEST_TOKEN: ${{ secrets.LORE_INGEST_TOKEN }}
+          LORE_API_URL: ${{ secrets.LORE_INGEST_URL }}
+        run: |
+          # A binary older than the docs subcommand ignores the argument and
+          # runs the repository's tests instead. Printing the selection proves
+          # the subcommand exists before anything is posted.
+          if ! ./lore-code-trace docs | grep '"specs"' > /dev/null; then
+            echo "::error::the lore-code-trace Lore serves has no docs subcommand - specs and ADRs were NOT projected"
+            exit 1
+          fi
+          ./lore-code-trace docs --post
