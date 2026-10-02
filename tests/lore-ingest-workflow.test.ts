@@ -1,5 +1,5 @@
 import { spawnSync } from "node:child_process";
-import { chmodSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { chmodSync, existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { git, gitOut, initRepo, writeInRepo } from "./helpers/script-runner.js";
@@ -225,15 +225,6 @@ describe("workflow wiring", () => {
     expect(runBlock).toContain("${{ github.sha }}");
   });
 
-  it("invokes scripts/lore-post.sh from the graph step with the ingest-graph endpoint and failure noun", () => {
-    const runBlock = extractRunBlock("Project ${{ matrix.kind }} into the graph");
-
-    expect(runBlock).toContain("scripts/lore-post.sh");
-    expect(runBlock).toContain("/api/repos/${{ github.repository }}/ingest-graph");
-    expect(runBlock).toContain("${{ matrix.kind }} were NOT projected");
-    expect(runBlock).toContain("${{ github.sha }}");
-  });
-
   it("declares LORE_INGEST_URL and LORE_INGEST_TOKEN as secrets, and FILES, on the ingest step", () => {
     const env = extractStepEnv("Notify Lore to ingest");
 
@@ -242,11 +233,28 @@ describe("workflow wiring", () => {
     expect(env).toContain("FILES: ${{ steps.changes.outputs.files }}");
   });
 
-  it("declares LORE_INGEST_URL and LORE_INGEST_TOKEN as secrets on the graph step", () => {
-    const env = extractStepEnv("Project ${{ matrix.kind }} into the graph");
+  it("fetches lore-code-trace with a secret-only URL, no vars fallback", () => {
+    const env = extractStepEnv("Fetch lore-code-trace");
+    const runBlock = extractRunBlock("Fetch lore-code-trace");
 
     expect(env).toContain("LORE_INGEST_TOKEN: ${{ secrets.LORE_INGEST_TOKEN }}");
     expect(env).toContain("LORE_INGEST_URL: ${{ secrets.LORE_INGEST_URL }}");
+    expect(env).not.toContain("vars.");
+    expect(runBlock).toContain("/dist/lore-code-trace/");
+    expect(runBlock).toContain("sha256sum -c -");
+  });
+
+  it("projects specs and ADRs with lore-code-trace docs --post, no longer posting to ingest-graph", () => {
+    const env = extractStepEnv("Project specs and ADRs into the graph");
+    const runBlock = extractRunBlock("Project specs and ADRs into the graph");
+
+    expect(env).toContain("LORE_API_URL: ${{ secrets.LORE_INGEST_URL }}");
+    expect(env).not.toContain("vars.");
+    expect(runBlock).toContain("./lore-code-trace docs --post");
+    expect(runBlock).not.toContain("ingest-graph");
+    expect(runBlock.indexOf("./lore-code-trace docs |")).toBeLessThan(
+      runBlock.indexOf("./lore-code-trace docs --post")
+    );
   });
 
   it("passes the push's before and after commits to the changed-files step", () => {
@@ -277,6 +285,12 @@ describe("workflow wiring", () => {
     expect(ingestJob).toContain("          fetch-depth: 0");
   });
 
+  it("checks the graph job out with the full history the delta diff needs", () => {
+    const graphJob = lines.slice(lines.indexOf("  graph:"));
+
+    expect(graphJob).toContain("          fetch-depth: 0");
+  });
+
   it("serialises runs in one lore-ingest concurrency group without cancelling the running one", () => {
     expect(extractBlock("concurrency:")).toEqual([
       "  group: lore-ingest",
@@ -296,6 +310,61 @@ describe("workflow wiring", () => {
     for (const line of uses) {
       expect(line).toMatch(/^\s+- uses: [\w.-]+\/[\w.-]+@[0-9a-f]{40} # v\d+\.\d+\.\d+$/);
     }
+  });
+});
+
+describe("the graph job's fetch step", () => {
+  const script = extractRunBlock("Fetch lore-code-trace");
+
+  const runFetchStep = (env: Record<string, string>) => {
+    const workDir = mkdtempSync(join(tmpdir(), "lore-ingest-fetch-test-"));
+    const stubPath = join(workDir, "curl");
+
+    writeFileSync(stubPath, curlStub);
+    chmodSync(stubPath, 0o755);
+
+    return {
+      workDir,
+      result: spawnSync("bash", ["-e", "-c", script], {
+        encoding: "utf8",
+        cwd: workDir,
+        env: {
+          PATH: `${workDir}:${process.env.PATH}`,
+          LORE_INGEST_URL: "https://lore.example.test",
+          LORE_INGEST_TOKEN: "test-ingest-token",
+          ...env,
+        },
+      }),
+    };
+  };
+
+  it("exits 1 with ::error when LORE_INGEST_URL is empty", () => {
+    const { result } = runFetchStep({ LORE_INGEST_URL: "" });
+
+    expect(result.status).toBe(1);
+    expect(result.stdout).toContain("::error::LORE_INGEST_URL");
+  });
+
+  it("exits 1 with ::error when LORE_INGEST_TOKEN is empty", () => {
+    const { result } = runFetchStep({ LORE_INGEST_TOKEN: "" });
+
+    expect(result.status).toBe(1);
+    expect(result.stdout).toContain("::error::LORE_INGEST_TOKEN");
+  });
+
+  it("exits 0 with ::warning and leaves no binary behind when Lore cannot be reached", () => {
+    const { result, workDir } = runFetchStep({ CURL_STUB_EXIT: "22" });
+
+    expect(result.status).toBe(0);
+    expect(result.stdout).toContain("::warning::");
+    expect(existsSync(join(workDir, "lore-code-trace"))).toBe(false);
+  });
+
+  it("fails and leaves no executable when the binary does not match its checksum", () => {
+    const { result, workDir } = runFetchStep({ CURL_STUB_BODY: "not a checksum list" });
+
+    expect(result.status).not.toBe(0);
+    expect(existsSync(join(workDir, "lore-code-trace"))).toBe(false);
   });
 });
 
