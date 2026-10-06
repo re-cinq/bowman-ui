@@ -16,7 +16,7 @@
 // build because dist is already newer than every source it is built from.
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync } from "node:fs";
+import { mkdirSync, readdirSync, readFileSync, rmSync, statSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import process from "node:process";
@@ -178,4 +178,17 @@ export const collectVitestReport = (vitestArgs, stdout) => {
   return { report, failed };
 };
 
-export const readIfPresent = (path) => (existsSync(path) ? readFileSync(path, "utf8") : "");
+// One syscall, and no window between the check and the read. Only a missing
+// file means "nothing to report": EACCES or EISDIR must surface rather than be
+// mistaken for a run that produced no coverage.
+export const readIfPresent = (path) => {
+  try {
+    return readFileSync(path, "utf8");
+  } catch (error) {
+    if (error.code === "ENOENT") {
+      return "";
+    }
+
+    throw error;
+  }
+};
