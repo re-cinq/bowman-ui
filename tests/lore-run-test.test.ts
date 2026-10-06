@@ -112,14 +112,27 @@ describe("lore-run-test against a describe-nested fixture", () => {
     const result = runInFixture(projectDir, runScriptPath, [nestedPassingId]);
 
     expect(result).toMatchObject({ status: 0 });
-    expect(result.stdout).toMatch(/Tests\s+1 passed/);
+    expect(result.stderr).toMatch(/Tests\s+1 passed/);
   }, 30_000);
 
   it("exits 1 when the selected describe-nested test fails", () => {
     const result = runInFixture(projectDir, runScriptPath, [nestedFailingId]);
 
     expect(result).toMatchObject({ status: 1 });
-    expect(result.stdout).toMatch(/Tests\s+1 failed/);
+    expect(result.stderr).toMatch(/Tests\s+1 failed/);
+  }, 30_000);
+
+  // The `coverage_format: lcov` contract: the report goes to stdout and Vitest's
+  // own summary must not, because lore-code-trace parses stdout as lcov.
+  it("keeps Vitest's summary off stdout, which carries lcov alone", () => {
+    const result = runInFixture(projectDir, runScriptPath, [nestedPassingId]);
+
+    expect(result.stdout).not.toMatch(/Tests\s+\d+ passed/);
+    expect(result.stdout).not.toMatch(/RUN\s+v\d/);
+
+    for (const line of result.stdout.split("\n").filter(Boolean)) {
+      expect(line).toMatch(/^(TN:|SF:|DA:|FN|LF:|LH:|BR[DFH]|end_of_record)/);
+    }
   }, 30_000);
 
   it("exits 1 naming the count when the selector matches two tests", () => {
@@ -137,9 +150,25 @@ describe("lore-run-test against a describe-nested fixture", () => {
     expect(result.stderr).toContain(`selector matched 0 tests, expected 1: ${selector}`);
   }, 30_000);
 
-  it("exits 2 with usage when the selector carries no ::", () => {
-    expectUsageError(run("tests/nested.test.mjs"));
-  });
+  // lore-code-trace groups the listed tests by file and passes the bare file as
+  // the selector, so a path with no :: runs the whole file rather than erroring.
+  // The fixture file holds a deliberately failing test, so the file fails.
+  it("runs the whole file when the selector carries no ::", () => {
+    const result = runInFixture(projectDir, runScriptPath, [fixtureFile]);
+
+    expect(result).toMatchObject({ status: 1 });
+    expect(result.stderr).toMatch(/Tests\s+1 failed \| 4 passed/);
+    expect(result.stderr).not.toContain("selector matched");
+  }, 30_000);
+
+  it("exits 1 naming the count when a whole-file selector matches no test", () => {
+    const result = runInFixture(projectDir, runScriptPath, ["tests/absent.test.mjs"]);
+
+    expect(result).toMatchObject({ status: 1 });
+    expect(result.stderr).toContain(
+      "selector matched 0 tests, expected at least 1: tests/absent.test.mjs"
+    );
+  }, 30_000);
 
   it("exits 2 with usage without a selector", () => {
     expectUsageError(run());

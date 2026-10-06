@@ -5,20 +5,122 @@
 // silently vanish from a listing without this. A failing test still produces
 // a full report, so a non-zero vitest exit is reported as `failed`, not
 // thrown - a missing report file is the real failure. The caller picks what
-// vitest's stdout does (`ignore` keeps the caller's own stdout pure).
+// vitest's stdout does (`ignore` keeps the caller's own stdout pure, and a
+// file descriptor such as 2 sends vitest's chatter to stderr instead).
+//
+// The build is guarded, because lore-code-trace runs the manifest's `run`
+// command over four files at a time (runConcurrency = 4): `npm run build`
+// opens with a load-bearing `rm -rf dist`, so four unguarded builds delete
+// dist from under each other's *-dist tests and every one of them fails. One
+// invocation builds while the others wait on the lock, then they skip the
+// build because dist is already newer than every source it is built from.
 import { execFileSync } from "node:child_process";
-import { readFileSync, rmSync } from "node:fs";
+import { createHash } from "node:crypto";
+import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import process from "node:process";
 
+// Long enough for a cold `tsc` plus a queue of waiters, short enough that a
+// lock left behind by a killed build is stolen rather than inherited forever.
+const lockDeadlineMs = 240_000;
+const lockPollMs = 100;
+
+// Per-project, so the test fixture's throwaway build cannot block the repo's.
+const lockPath = () =>
+  join(
+    tmpdir(),
+    `bowman-ui-build-${createHash("sha256").update(process.cwd()).digest("hex").slice(0, 16)}.lock`
+  );
+
+// Every caller of this module is a synchronous script, so the wait is too.
+const sleepSync = (ms) => {
+  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
+};
+
+const mtimeOf = (path) => {
+  try {
+    return statSync(path).mtimeMs;
+  } catch {
+    return 0;
+  }
+};
+
+// The newest mtime among the inputs a build reads. Missing inputs count as 0:
+// the fixture project has no src/, and a clean checkout has no dist/ either,
+// so both fall through to building.
+const newestInputMtime = () => {
+  let newest = Math.max(mtimeOf("package.json"), mtimeOf("tsconfig.json"));
+
+  try {
+    for (const entry of readdirSync("src", { recursive: true, withFileTypes: true })) {
+      if (entry.isFile()) {
+        newest = Math.max(newest, mtimeOf(join(entry.parentPath ?? entry.path, entry.name)));
+      }
+    }
+  } catch {
+    return newest;
+  }
+
+  return newest;
+};
+
+const distIsCurrent = () => {
+  const built = mtimeOf(join("dist", "index.js"));
+
+  return built > 0 && built >= newestInputMtime();
+};
+
+// Atomic mkdir as the mutex: it either creates the directory or throws EEXIST,
+// with no read-then-write window for a sibling to slip through.
+const acquireLock = (lock) => {
+  const deadline = Date.now() + lockDeadlineMs;
+
+  for (;;) {
+    try {
+      mkdirSync(lock);
+
+      return true;
+    } catch {
+      if (mtimeOf(lock) > 0 && Date.now() - mtimeOf(lock) > lockDeadlineMs) {
+        rmSync(lock, { recursive: true, force: true });
+        continue;
+      }
+
+      if (Date.now() > deadline) {
+        return false;
+      }
+      sleepSync(lockPollMs);
+    }
+  }
+};
+
+const buildOnce = () => {
+  if (distIsCurrent()) {
+    return;
+  }
+
+  const lock = lockPath();
+  const held = acquireLock(lock);
+
+  try {
+    if (!distIsCurrent()) {
+      execFileSync("npm", ["run", "build"], {
+        cwd: process.cwd(),
+        stdio: ["ignore", "ignore", "inherit"],
+      });
+    }
+  } finally {
+    if (held) {
+      rmSync(lock, { recursive: true, force: true });
+    }
+  }
+};
+
 export const collectVitestReport = (vitestArgs, stdout) => {
   const reportFile = join(tmpdir(), `bowman-ui-vitest-${process.pid}.json`);
 
-  execFileSync("npm", ["run", "build"], {
-    cwd: process.cwd(),
-    stdio: ["ignore", "ignore", "inherit"],
-  });
+  buildOnce();
 
   let failed = false;
 
@@ -38,3 +140,5 @@ export const collectVitestReport = (vitestArgs, stdout) => {
 
   return { report, failed };
 };
+
+export const readIfPresent = (path) => (existsSync(path) ? readFileSync(path, "utf8") : "");
