@@ -290,6 +290,20 @@ describe("the shared build gate", () => {
     expect(buildCount()).toBe(1);
   }, 60_000);
 
+  // The helper treats dist/styles.css as proof that a build COMPLETED, which
+  // holds only while copying the stylesheet is the build's LAST step: `rm -rf
+  // dist` has already removed the old copy, so a `tsc` that emits and then
+  // fails cannot leave one behind. A step added after the copy would end that
+  // silently, so it ends here loudly instead.
+  it("ends the build script with the stylesheet copy the completion check rests on", () => {
+    const manifest = readFileSync(join(process.cwd(), "package.json"), "utf8");
+    const steps = JSON.parse(manifest)
+      .scripts.build.split("&&")
+      .map((step: string) => step.trim());
+
+    expect(steps.at(-1)).toBe("cp src/styles.css dist/styles.css");
+  });
+
   it("rebuilds when a source file is edited after the build", () => {
     const source = join(projectDir, "src", "thing.ts");
 

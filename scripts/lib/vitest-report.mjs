@@ -113,6 +113,17 @@ const acquireLock = (lock) => {
   }
 };
 
+const enforceLock = (held, lock) => {
+  if (held) {
+    return;
+  }
+
+  throw new Error(
+    `could not take the build lock within ${lockDeadlineMs}ms and dist is still ` +
+      `incomplete - run \`npm run build\` first, or remove a stale ${lock}`
+  );
+};
+
 const buildOnce = () => {
   if (distIsCurrent()) {
     return;
@@ -122,12 +133,20 @@ const buildOnce = () => {
   const held = acquireLock(lock);
 
   try {
-    if (!distIsCurrent()) {
-      execFileSync("npm", ["run", "build"], {
-        cwd: process.cwd(),
-        stdio: ["ignore", "ignore", "inherit"],
-      });
+    // The holder may have built it while this process waited.
+    if (distIsCurrent()) {
+      return;
     }
+
+    // Failing to take the lock must not end in the dangerous branch: an
+    // unguarded `rm -rf dist` here would land under whatever the holder is
+    // doing. Say so instead and let the caller build once, up front.
+    enforceLock(held, lock);
+
+    execFileSync("npm", ["run", "build"], {
+      cwd: process.cwd(),
+      stdio: ["ignore", "ignore", "inherit"],
+    });
   } finally {
     if (held) {
       rmSync(lock, { recursive: true, force: true });
