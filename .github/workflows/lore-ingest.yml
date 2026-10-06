@@ -28,7 +28,9 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          # before..after needs the push's whole history, not the tip's parent.
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Get changed files
         id: changes
@@ -36,6 +38,9 @@ jobs:
           BEFORE: ${{ github.event.before }}
           AFTER: ${{ github.event.after }}
         run: |
+          # pipefail: a failed git diff (say, an unreachable before) must go
+          # red, not let jq turn it into an empty list and a green skip.
+          set -euo pipefail
           # --no-renames: a moved file must arrive as its old path (a delete)
           # plus its new path, or the old path's chunks outlive the file.
           if [ "${BEFORE}" = "0000000000000000000000000000000000000000" ]; then
