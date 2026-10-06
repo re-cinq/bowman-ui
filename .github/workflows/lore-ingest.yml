@@ -1,4 +1,21 @@
 # lore-ingest-version: 6
+# The curl hardening (auth-file token, status handling, body prefixing) lives in
+# scripts/lore-post.sh, shared by the ingest job below. See issue #38.
+# LORE_INGEST_URL is a repository secret, not a variable, although it holds no
+# credential: the runner prints every step's env block in the public log and
+# masks only secrets, and the endpoint's hostname has no business in a public
+# log. The template's `vars.` form is a deliberate per-repo deviation, kept on
+# both jobs.
+# The changed-files step diffs the whole push (before..after over a full
+# checkout, scoped to the trigger's paths) where the template diffs HEAD~1,
+# which sees only the last commit of a rebase merge. See issue #136; a
+# template regen must keep it, and the two blocks below.
+# tests/** and examples/chat-demo/tests/** ride along in both lists: Lore's
+# spec-coverage validator resolves every spec's [validated by] link against the
+# chunked test files, so a test file has to be re-ingested whenever it changes,
+# or else a re-anchored spec is judged against a stale copy (issue #252; the
+# unscoped diff that #136 replaced had been posting them as a side effect). A
+# template regen must keep both entries too.
 name: Lore Context Ingest
 
 on:
@@ -15,10 +32,20 @@ on:
       - "tests/**"
       - "examples/chat-demo/tests/**"
 
+# One run at a time, in push order, so a slow run for an older push cannot
+# ingest stale content after a newer push's run. GitHub queues only the newest
+# pending run per group: a third quick push cancels the second's run, and that
+# push's CLAUDE.md, AGENTS.md, .specify and test-file deltas wait for their next
+# touch (specs and adrs self-heal: the graph job's delta is diffed from the
+# last commit Lore ingested, not from the cancelled run's own push, so the
+# next run picks them up).
 concurrency:
   group: lore-ingest
   cancel-in-progress: false
 
+# actions/checkout fetches with github.token even with persist-credentials
+# false, and on a public repo contents: read grants nothing anonymous access
+# lacks, so this is the sibling workflows' floor rather than `{}`.
 permissions:
   contents: read
 
@@ -41,13 +68,19 @@ jobs:
           # pipefail: a failed git diff (say, an unreachable before) must go
           # red, not let jq turn it into an empty list and a green skip.
           set -euo pipefail
+          # push is the only trigger, so BEFORE is a commit or, on branch
+          # creation, all zeros: diff the empty tree then, so a recreated main
+          # ingests its whole corpus rather than its last commit.
+          if [ "${BEFORE}" = "0000000000000000000000000000000000000000" ]; then
+            BEFORE=$(git hash-object -t tree /dev/null)
+          fi
           # --no-renames: a moved file must arrive as its old path (a delete)
           # plus its new path, or the old path's chunks outlive the file.
-          if [ "${BEFORE}" = "0000000000000000000000000000000000000000" ]; then
-            FILES=$(git ls-files -- CLAUDE.md AGENTS.md adrs runbooks specs teams .specify tests examples/chat-demo/tests | jq -R -s -c 'split("\n") | map(select(. != ""))')
-          else
-            FILES=$(git diff --name-only --no-renames "${BEFORE}" "${AFTER}" -- CLAUDE.md AGENTS.md adrs runbooks specs teams .specify tests examples/chat-demo/tests | jq -R -s -c 'split("\n") | map(select(. != ""))')
-          fi
+          # The pathspec mirrors on.push.paths: without it a whole-tree diff
+          # would post src/ paths to the doc store.
+          FILES=$(git diff --name-only --no-renames "${BEFORE}" "${AFTER}" \
+            -- CLAUDE.md AGENTS.md adrs runbooks specs teams .specify tests examples/chat-demo/tests \
+            | jq -R -s -c 'split("\n") | map(select(. != ""))')
           echo "files=${FILES}" >> "$GITHUB_OUTPUT"
 
       - name: Notify Lore to ingest
@@ -61,6 +94,10 @@ jobs:
             "{\"files\": ${FILES}, \"repo\": \"${{ github.repository }}\", \"commit\": \"${{ github.sha }}\"}" \
             "context was NOT ingested"
 
+  # Posts the changed specs and ADRs as a delta through lore-code-trace
+  # (re-cinq/lore#2410) instead of asking Lore to clone this repo. The checkout
+  # pin and secret-only URL match the ingest job above (deliberate per-repo
+  # deviations, documented at the top of this file).
   graph:
     runs-on: ubuntu-latest
     steps:
@@ -79,7 +116,7 @@ jobs:
           # Misconfiguration (unset URL) is a hard error - a missing var must
           # never silently fall back and report success.
           if [ -z "${LORE_INGEST_URL}" ]; then
-            echo "::error::LORE_INGEST_URL repository variable or secret is not set - specs and ADRs were NOT projected"
+            echo "::error::LORE_INGEST_URL repository secret is not set - specs and ADRs were NOT projected"
             exit 1
           fi
           # Same class of misconfiguration: an unset token means every POST is
