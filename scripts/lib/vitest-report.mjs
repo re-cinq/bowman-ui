@@ -65,10 +65,22 @@ const newestInputMtime = () => {
   return newest;
 };
 
-const distIsCurrent = () => {
-  const built = mtimeOf(join("dist", "index.js"));
+// The build is `rm -rf dist && tsc && cp src/styles.css dist/styles.css`, so the
+// stylesheet is its LAST artifact: present and newer than every input, it proves
+// the whole build ran. Both are checked because tsconfig sets no noEmitOnError -
+// a failing tsc still writes dist/index.js, and index.js alone must never read as
+// a finished build, or a half-built dist turns sticky and every later invocation
+// skips the repair instead of making it.
+const distArtifacts = ["index.js", "styles.css"];
 
-  return built > 0 && built >= newestInputMtime();
+const distIsCurrent = () => {
+  const newest = newestInputMtime();
+
+  return distArtifacts.every((name) => {
+    const built = mtimeOf(join("dist", name));
+
+    return built > 0 && built >= newest;
+  });
 };
 
 // Atomic mkdir as the mutex: it either creates the directory or throws EEXIST,

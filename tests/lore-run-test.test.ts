@@ -1,4 +1,13 @@
-import { mkdirSync, mkdtempSync, realpathSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  realpathSync,
+  rmSync,
+  symlinkSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
@@ -23,11 +32,12 @@ const runScriptPath = join(process.cwd(), "scripts", "lore-run-test.mjs");
 const { run } = scriptRunner(runScriptPath);
 
 const fixtureTest = `import { describe, expect, it } from "vitest";
+import { twice } from "../covered.mjs";
 
 describe("outer suite", () => {
   describe("inner (group)", () => {
     it("passes with {braces} and a $ sign", () => {
-      expect(1).toBe(1);
+      expect(twice(1)).toBe(2);
     });
 
     it("fails on purpose", () => {
@@ -51,6 +61,14 @@ it("top-level passes", () => {
 });
 `;
 
+// The fixture test covers a module of its own so the run has something to
+// report coverage FOR: with nothing covered the lcov is empty, and an assertion
+// that stdout carries lcov and no Vitest chatter would pass on an empty string
+// whether the script honours the contract or not.
+const fixtureModule = `export const twice = (n) => n * 2;
+export const never = (n) => n * 3;
+`;
+
 const fixtureFile = "tests/nested.test.mjs";
 const nestedPassingId = `${fixtureFile}::outer suite > inner (group) > passes with {braces} and a $ sign`;
 const nestedFailingId = `${fixtureFile}::outer suite > inner (group) > fails on purpose`;
@@ -70,6 +88,7 @@ const createFixtureProject = (): string => {
     })
   );
   symlinkSync(join(process.cwd(), "node_modules"), join(projectDir, "node_modules"), "dir");
+  writeFileSync(join(projectDir, "covered.mjs"), fixtureModule);
   writeFileSync(join(projectDir, fixtureFile), fixtureTest);
 
   return projectDir;
@@ -123,14 +142,18 @@ describe("lore-run-test against a describe-nested fixture", () => {
   }, 30_000);
 
   // The `coverage_format: lcov` contract: the report goes to stdout and Vitest's
-  // own summary must not, because lore-code-trace parses stdout as lcov.
+  // own summary must not, because lore-code-trace parses stdout as lcov. The
+  // covered module has to appear, or this passes on an empty stdout.
   it("keeps Vitest's summary off stdout, which carries lcov alone", () => {
     const result = runInFixture(projectDir, runScriptPath, [nestedPassingId]);
+    const lines = result.stdout.split("\n").filter(Boolean);
 
-    expect(result.stdout).not.toMatch(/Tests\s+\d+ passed/);
-    expect(result.stdout).not.toMatch(/RUN\s+v\d/);
+    expect(result.stdout).toContain("SF:covered.mjs");
+    expect(result.stdout).toMatch(/^DA:\d+,[1-9]/m);
+    expect(result.stderr).toMatch(/Tests\s+1 passed/);
+    expect(lines.length).toBeGreaterThan(5);
 
-    for (const line of result.stdout.split("\n").filter(Boolean)) {
+    for (const line of lines) {
       expect(line).toMatch(/^(TN:|SF:|DA:|FN|LF:|LH:|BR[DFH]|end_of_record)/);
     }
   }, 30_000);
@@ -173,4 +196,80 @@ describe("lore-run-test against a describe-nested fixture", () => {
   it("exits 2 with usage without a selector", () => {
     expectUsageError(run());
   });
+});
+
+// The build the scripts share is skipped when dist is already newer than every
+// input, because lore-code-trace runs this command over four files at a time and
+// `npm run build` opens with `rm -rf dist`. The skip has to be conditioned on the
+// build's LAST artifact: `tsc` emits dist/index.js even when it fails, so keying
+// on index.js alone leaves a half-built dist looking finished, and every later
+// invocation skips the repair instead of making it - 73 files of bogus failures
+// with no diagnostic, which is the shape of degeneracy this whole contract guards.
+const buildFixtureFile = "tests/one.test.mjs";
+const buildFixtureTest = `import { expect, it } from "vitest";
+
+it("passes", () => {
+  expect(1).toBe(1);
+});
+`;
+
+// Mimics this repo's build: both artifacts, the stylesheet last, and a line per
+// run so the test can count how often it actually happened.
+const countingBuild = `import { appendFileSync, mkdirSync, writeFileSync } from "node:fs";
+
+mkdirSync("dist", { recursive: true });
+writeFileSync("dist/index.js", "");
+writeFileSync("dist/styles.css", "");
+appendFileSync("builds.log", "built\\n");
+`;
+
+describe("the shared build gate", () => {
+  let projectDir: string;
+  const buildCount = (): number =>
+    readFileSync(join(projectDir, "builds.log"), "utf8").split("\n").filter(Boolean).length;
+
+  beforeAll(() => {
+    projectDir = realpathSync(mkdtempSync(join(tmpdir(), "lore-build-gate-")));
+
+    mkdirSync(join(projectDir, "tests"));
+    writeFileSync(
+      join(projectDir, "package.json"),
+      JSON.stringify({
+        name: "fixture",
+        private: true,
+        type: "module",
+        scripts: { build: "node build.mjs" },
+      })
+    );
+    symlinkSync(join(process.cwd(), "node_modules"), join(projectDir, "node_modules"), "dir");
+    writeFileSync(join(projectDir, "build.mjs"), countingBuild);
+    writeFileSync(join(projectDir, buildFixtureFile), buildFixtureTest);
+    writeFileSync(join(projectDir, "builds.log"), "");
+  });
+
+  afterAll(() => {
+    rmSync(projectDir, { recursive: true, force: true });
+  });
+
+  it("builds once, then skips while dist stays current", () => {
+    expect(runInFixture(projectDir, runScriptPath, [buildFixtureFile])).toMatchObject({
+      status: 0,
+    });
+    expect(buildCount()).toBe(1);
+
+    expect(runInFixture(projectDir, runScriptPath, [buildFixtureFile])).toMatchObject({
+      status: 0,
+    });
+    expect(buildCount()).toBe(1);
+  }, 60_000);
+
+  it("rebuilds when the stylesheet the build writes last is missing", () => {
+    rmSync(join(projectDir, "dist", "styles.css"));
+
+    expect(runInFixture(projectDir, runScriptPath, [buildFixtureFile])).toMatchObject({
+      status: 0,
+    });
+    expect(buildCount()).toBe(2);
+    expect(existsSync(join(projectDir, "dist", "styles.css"))).toBe(true);
+  }, 60_000);
 });
