@@ -21,9 +21,12 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import process from "node:process";
 
-// Long enough for a cold `tsc` plus a queue of waiters, short enough that a
-// lock left behind by a killed build is stolen rather than inherited forever.
-const lockDeadlineMs = 240_000;
+// A cold build of this package measures 0.28s, so a wait this long means the
+// holder died rather than that it is slow. It also has to stay well under
+// lore-code-trace's own per-command timeout (LORE_TRACE_TIMEOUT_MS, 120s by
+// default): a waiter that outlives that is SIGKILLed and recorded as a file
+// that failed with no coverage, which is worse than building unguarded.
+const lockDeadlineMs = 60_000;
 const lockPollMs = 100;
 
 // Per-project, so the test fixture's throwaway build cannot block the repo's.
@@ -84,7 +87,10 @@ const distIsCurrent = () => {
 };
 
 // Atomic mkdir as the mutex: it either creates the directory or throws EEXIST,
-// with no read-then-write window for a sibling to slip through.
+// with no read-then-write window for a sibling to slip through. Only EEXIST is
+// a held lock - EACCES or ENOSPC must surface rather than be retried until the
+// deadline. A held lock is never stolen: a steal can take a live holder's lock,
+// and that holder's own release then deletes the thief's.
 const acquireLock = (lock) => {
   const deadline = Date.now() + lockDeadlineMs;
 
@@ -93,12 +99,12 @@ const acquireLock = (lock) => {
       mkdirSync(lock);
 
       return true;
-    } catch {
-      if (mtimeOf(lock) > 0 && Date.now() - mtimeOf(lock) > lockDeadlineMs) {
-        rmSync(lock, { recursive: true, force: true });
-        continue;
+    } catch (error) {
+      if (error.code !== "EEXIST") {
+        throw error;
       }
 
+      // Waiting out an orphaned lock costs one build; the caller builds anyway.
       if (Date.now() > deadline) {
         return false;
       }

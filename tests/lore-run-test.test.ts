@@ -6,6 +6,7 @@ import {
   realpathSync,
   rmSync,
   symlinkSync,
+  utimesSync,
   writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
@@ -67,6 +68,13 @@ it("top-level passes", () => {
 // whether the script honours the contract or not.
 const fixtureModule = `export const twice = (n) => n * 2;
 export const never = (n) => n * 3;
+`;
+
+const siblingTest = `import { expect, it } from "vitest";
+
+it("sibling", () => {
+  expect(1).toBe(1);
+});
 `;
 
 const fixtureFile = "tests/nested.test.mjs";
@@ -196,6 +204,23 @@ describe("lore-run-test against a describe-nested fixture", () => {
   it("exits 2 with usage without a selector", () => {
     expectUsageError(run());
   });
+
+  // Vitest's positional is a regex over paths: "tests/nested" matches both
+  // fixture files, and whichever ran would otherwise be reported as the result
+  // for the selector - a green run of the wrong test, which this mode must
+  // refuse exactly as the per-test mode refuses an ambiguous name.
+  it("exits 1 naming the count when a whole-file selector matches two files", () => {
+    writeFileSync(join(projectDir, "tests/nested-two.test.mjs"), siblingTest);
+
+    try {
+      const result = runInFixture(projectDir, runScriptPath, ["tests/nested"]);
+
+      expect(result).toMatchObject({ status: 1 });
+      expect(result.stderr).toContain("selector matched 2 files, expected 1: tests/nested");
+    } finally {
+      rmSync(join(projectDir, "tests/nested-two.test.mjs"));
+    }
+  }, 30_000);
 });
 
 // The build the scripts share is skipped when dist is already newer than every
@@ -232,6 +257,8 @@ describe("the shared build gate", () => {
     projectDir = realpathSync(mkdtempSync(join(tmpdir(), "lore-build-gate-")));
 
     mkdirSync(join(projectDir, "tests"));
+    mkdirSync(join(projectDir, "src"));
+    writeFileSync(join(projectDir, "src", "thing.ts"), "export const thing = 1;\n");
     writeFileSync(
       join(projectDir, "package.json"),
       JSON.stringify({
@@ -263,13 +290,30 @@ describe("the shared build gate", () => {
     expect(buildCount()).toBe(1);
   }, 60_000);
 
+  it("rebuilds when a source file is edited after the build", () => {
+    const source = join(projectDir, "src", "thing.ts");
+
+    expect(buildCount()).toBe(1);
+    writeFileSync(source, "export const thing = 2;\n");
+    // A same-second edit is invisible on a 1s-granularity filesystem, so stamp
+    // the edit a second into the future rather than racing the clock.
+    const ahead = new Date(Date.now() + 1_000);
+
+    utimesSync(source, ahead, ahead);
+
+    expect(runInFixture(projectDir, runScriptPath, [buildFixtureFile])).toMatchObject({
+      status: 0,
+    });
+    expect(buildCount()).toBe(2);
+  }, 60_000);
+
   it("rebuilds when the stylesheet the build writes last is missing", () => {
     rmSync(join(projectDir, "dist", "styles.css"));
 
     expect(runInFixture(projectDir, runScriptPath, [buildFixtureFile])).toMatchObject({
       status: 0,
     });
-    expect(buildCount()).toBe(2);
+    expect(buildCount()).toBe(3);
     expect(existsSync(join(projectDir, "dist", "styles.css"))).toBe(true);
   }, 60_000);
 });

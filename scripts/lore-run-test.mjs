@@ -16,9 +16,11 @@
 //
 //   "<file>" - the whole file, which is what the lore-code-trace binary passes:
 //     it groups the listed tests by file and runs this command once per file,
-//     attributing the file's result to every test in it. A file that runs no
-//     test at all is still a failure, for the same reason the per-test mode
-//     rejects a zero match.
+//     attributing the file's result to every test in it. Vitest's positional is
+//     a regex over paths, not an identity, so this mode checks that exactly one
+//     FILE ran as well as that it held at least one test - a path that matched
+//     two files, or none, would otherwise report the wrong file's result as
+//     this one's.
 //
 // Per the project-test-interface contract, a `coverage_format: lcov` entry must
 // emit "the coverage report on stdout", and the binary parses coverage from
@@ -76,11 +78,17 @@ try {
 
 const { report, failed } = result;
 const ran = report.numTotalTests - (report.numPendingTests ?? 0);
+const files = report.testResults.length;
 
 if (wholeFile ? ran < 1 : ran !== 1) {
   const expected = wholeFile ? "at least 1" : "1";
 
   process.stderr.write(`selector matched ${ran} tests, expected ${expected}: ${selector}\n`);
+  process.exit(1);
+}
+
+if (wholeFile && files !== 1) {
+  process.stderr.write(`selector matched ${files} files, expected 1: ${selector}\n`);
   process.exit(1);
 }
 process.exit(failed || report.numFailedTests > 0 ? 1 : 0);

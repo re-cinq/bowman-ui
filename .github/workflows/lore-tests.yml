@@ -19,6 +19,11 @@
 # still controls, so the post accepts exactly one JSON object. A same-repo
 # pull request edits this file too, so the guard test pins the shape against
 # drift, not against a write-access author.
+# The node install asks for the build (`build: "true"`, as ci.yml's consumer and
+# rsc jobs do) so dist/ exists before the binary starts. The binary runs the
+# manifest's `run` command over four files at a time and that command builds
+# when dist is missing or stale; building here means it never has to, so no
+# invocation's `rm -rf dist` can land under a sibling's test run.
 # Issue 216: the template's Playwright install step is dropped. The binary
 # honours only the manifest's first entry, the vitest suite, so the consumer
 # entry never runs here, and its own run installs Chromium and WebKit itself
@@ -73,6 +78,8 @@ jobs:
 
       - uses: ./.github/actions/setup-node-install
         if: steps.fetch.outputs.fetched == 'true'
+        with:
+          build: "true"
 
       - name: Run test suite
         id: run
