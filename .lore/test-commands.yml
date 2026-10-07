@@ -7,11 +7,19 @@
   description: >-
     The jsdom unit/contract suite (Vitest 4, coverage-v8). Runs on every pull
     request in .github/workflows/ci.yml as the "Test (coverage gate)" step.
-    Selectors are "<repo-relative-file>::<full test name>" as emitted by the
-    list command. Both commands build dist first (several tests assert the
-    built output, and one file cannot even collect without it), and the run
-    command zeroes the global coverage thresholds for the single-test run,
-    since the committed floor is only meaningful for the whole suite.
+    The run command takes either shape of selector: a listed id,
+    "<repo-relative-file>::<full test name>", which runs that one test and
+    fails on anything but exactly one match; or a bare "<repo-relative-file>",
+    which runs the file whole and is what lore-code-trace passes, since it
+    groups the listed tests by file and runs this command once per file. Per
+    the coverage_format contract the lcov goes to stdout and nothing else
+    does - Vitest's summary is on stderr - and each invocation writes coverage
+    to its own temp directory, because the binary runs four at a time. Both
+    commands build dist first (several tests assert the built output, and one
+    file cannot even collect without it), under a lock that builds once and
+    lets the other three skip it rather than deleting dist from under each
+    other. The run command zeroes the global coverage thresholds, since the
+    committed floor is only meaningful for the whole suite.
   list: node scripts/lore-list-tests.mjs
   run: node scripts/lore-run-test.mjs "{selector}"
   coverage_format: lcov
