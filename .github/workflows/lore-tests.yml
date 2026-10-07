@@ -10,15 +10,36 @@
 # /dist/lore-code-trace/checksums.txt from the ingest origin, confirm
 # `sha256sum -c checksums.txt` agrees with an independent download, then paste
 # the linux-amd64 digest.
-# Issue 166: the template's single `lore-code-trace --post` step ran the pull
-# request's own test code with LORE_INGEST_TOKEN in its environment. Here the
-# binary runs without --post and prints the report, which reaches a second job
-# as an artifact; only that job, which checks out nothing and runs no
-# repository code, holds the token and posts the report to the ci-tests
-# ingress itself, in one request. The artifact is the one input a pull request
-# still controls, so the post accepts exactly one JSON object. A same-repo
-# pull request edits this file too, so the guard test pins the shape against
-# drift, not against a write-access author.
+# The report is posted by the binary itself (`--post`), not by a curl step of
+# our own. The `POST /api/webhook/ci-tests` ingress such a step would target,
+# on the LORE_WEBHOOK_URL host, is gone: that host now answers /api/webhook/*
+# with a GitHub-deliveries route which authenticates by HMAC and ignores
+# Authorization, so the post came back 401 `missing x-hub-signature-256
+# header` whatever token it carried. The live sink is lore-api's incremental
+# handshake, a GET of the repo's ingest-state followed by a POST of the delta
+# the diff selects, and the binary is its only client. Hand-rolling it here is
+# not an option: lore-api caps a JSON body at 1 MiB and this suite's full
+# report is ~8 MB on the wire, so it has to ride the binary's {seq,total}
+# chunk envelope - the binary packs per test descriptor under a 900 KB budget,
+# and the delta is selected from `git diff --name-status
+# <ingested commit>..HEAD`, which needs the work tree.
+# Issue 166: --post therefore runs in the same job as the repository's own test
+# commands, so the token is bound on push to main only - code that reaches main
+# has been reviewed, a fork's pull request carries no secrets at all, and a
+# same-repo pull request author already has write access. A pull request runs
+# the binary with no token, no endpoint and no --post: it still proves the
+# manifest and the test-command scripts work, and its report is uploaded as an
+# artifact instead of posted. Posting one would in fact corrupt the graph - a
+# pull_request checkout is detached, so the report names branch "HEAD", which
+# lore-api reads as "not a branch" and projects into main's graph, advancing
+# main's ingested-commit pointer to a merge ref that exists nowhere.
+# What the single job costs: LORE_INGEST_TOKEN is lore-api's legacy token, which
+# resolves to every scope - admin included - with no database lookup, and the
+# binary runs each test command through `sh -c` with its own environment
+# inherited. So on a push that credential is readable by the build and by all
+# of the per-file runs, which means by the dependency tree at RUN time, where
+# `npm ci --ignore-scripts` does not reach. A repo-scoped token carrying
+# read+write would close that: the ingest route asks for write alone.
 # The node install asks for the build (`build: "true"`, as ci.yml's consumer and
 # rsc jobs do) so dist/ exists before the binary starts. The binary runs the
 # manifest's `run` command over four files at a time and that command builds
@@ -37,17 +58,34 @@ on:
     branches: [main]
   pull_request:
 
+# One in-flight run per ref, as ci.yml records. On main it also serialises the
+# ingest, so two quick merges cannot diff the same ingest-state and redden
+# whichever loses the CAS. `cancel-in-progress: false` protects the RUNNING
+# run only - GitHub keeps one pending run per group, so an intermediate main
+# commit's report can still be dropped (lore-ingest.yml records the same rule)
+# - but a pending run has started no chunk sequence, so none is abandoned.
+concurrency:
+  group: lore-tests-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
 permissions:
   contents: read
 
 jobs:
   lore-tests-vitest:
     runs-on: ubuntu-latest
-    outputs:
-      report: ${{ steps.run.outputs.report }}
+    # The bound on LORE_TRACE_TIMEOUT_MS below: 73 test files at four at a time
+    # could otherwise stall for hours against GitHub's 360-minute default, and
+    # on main a stalled run holds the concurrency group for all of it. The job
+    # measures ~3 minutes today; the first push after this lands also posts a
+    # full nine-chunk ingest, so the headroom is for that, not for the suite.
+    timeout-minutes: 90
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          # The delta is diffed from the commit Lore last ingested, which a
+          # shallow clone cannot reach - every push would post a full report.
+          fetch-depth: 0
           persist-credentials: false
 
       - name: Fetch lore-code-trace
@@ -85,16 +123,32 @@ jobs:
         id: run
         if: steps.fetch.outputs.fetched == 'true'
         shell: bash
+        env:
+          LORE_API_URL: ${{ github.event_name == 'push' && (secrets.LORE_INGEST_URL || vars.LORE_INGEST_URL) || '' }}
+          LORE_INGEST_TOKEN: ${{ github.event_name == 'push' && secrets.LORE_INGEST_TOKEN || '' }}
+          # The binary's per-command default is 120s, which a cold runner can
+          # exceed on the list command or a per-file run - and under
+          # coverage_format lcov a timed-out run is reported as a FAILING
+          # test, not as an error, so ten minutes buys the slack.
+          LORE_TRACE_TIMEOUT_MS: "600000"
         run: |
+          if [ "${GITHUB_EVENT_NAME}" = "push" ]; then
+            if [ -z "${LORE_API_URL}" ] || [ -z "${LORE_INGEST_TOKEN}" ]; then
+              echo "::error::LORE_API_URL or LORE_INGEST_TOKEN is not configured - Lore test ingest skipped"
+              exit 1
+            fi
+            if ! ./lore-code-trace --post; then
+              echo "::error::Lore test run or ingest failed - see the binary's output above"
+              exit 1
+            fi
+            exit 0
+          fi
           if ! ./lore-code-trace > lore-test-report.json; then
             echo "::warning::Lore test run failed - reporting the run it produced"
-            if [ -s lore-test-report.json ]; then
-              echo "report=true" >> "$GITHUB_OUTPUT"
-            fi
-            [ "${GITHUB_EVENT_NAME}" = "pull_request" ] && exit 0
-            exit 1
           fi
-          echo "report=true" >> "$GITHUB_OUTPUT"
+          if [ -s lore-test-report.json ]; then
+            echo "report=true" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Upload test report
         if: always() && steps.run.outputs.report == 'true'
@@ -104,54 +158,3 @@ jobs:
           path: lore-test-report.json
           retention-days: 1
           overwrite: true
-
-  lore-tests-ingest:
-    needs: lore-tests-vitest
-    if: always() && needs.lore-tests-vitest.outputs.report == 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
-        with:
-          name: lore-test-report
-
-      - name: Post test report
-        shell: bash
-        env:
-          LORE_WEBHOOK_URL: ${{ vars.LORE_WEBHOOK_URL }}
-          LORE_INGEST_TOKEN: ${{ secrets.LORE_INGEST_TOKEN }}
-        run: |
-          if [ -z "${LORE_WEBHOOK_URL}" ] || [ -z "${LORE_INGEST_TOKEN}" ]; then
-            echo "::warning::LORE_WEBHOOK_URL or LORE_INGEST_TOKEN is not configured - Lore test ingest skipped"
-            [ "${GITHUB_EVENT_NAME}" = "pull_request" ] && exit 0
-            exit 1
-          fi
-          if ! jq --slurp --arg repo "${GITHUB_REPOSITORY}" \
-            'if length == 1 and (.[0] | type) == "object" then .[0] + {repo: $repo} else error("expected one JSON object") end' \
-            lore-test-report.json > lore-test-body.json; then
-            echo "::warning::Lore test report is not one JSON object - Lore test ingest skipped"
-            [ "${GITHUB_EVENT_NAME}" = "pull_request" ] && exit 0
-            exit 1
-          fi
-          AUTH_FILE=$(mktemp)
-          RESPONSE_FILE=$(mktemp)
-          trap 'rm -f "${AUTH_FILE}" "${RESPONSE_FILE}"' EXIT
-          printf 'Authorization: Bearer %s\n' "${LORE_INGEST_TOKEN}" > "${AUTH_FILE}"
-          CURL_EXIT=0
-          HTTP_STATUS=$(curl -s -o "${RESPONSE_FILE}" -w '%{http_code}' --retry 3 --max-time 120 -X POST \
-            -H @"${AUTH_FILE}" -H "Content-Type: application/json" \
-            --data-binary @lore-test-body.json \
-            "${LORE_WEBHOOK_URL}/api/webhook/ci-tests") || CURL_EXIT=$?
-          echo "Lore ci-tests ingress returned HTTP ${HTTP_STATUS:-000} (curl exit ${CURL_EXIT})"
-          head -c 4096 "${RESPONSE_FILE}" | sed 's/^/| /'
-          echo
-          if [ "${CURL_EXIT}" = "3" ] || [ "${CURL_EXIT}" = "6" ]; then
-            echo "::error::Lore test ingest could not reach ${LORE_WEBHOOK_URL} (curl exit ${CURL_EXIT}) - check LORE_WEBHOOK_URL"
-          else
-            case "${HTTP_STATUS}" in
-              2??) exit 0 ;;
-              5??|408|429|000|"") echo "::warning::Lore test ingest failed (HTTP ${HTTP_STATUS:-000}, transient)" ;;
-              *) echo "::error::Lore test ingest rejected (HTTP ${HTTP_STATUS}) - check LORE_WEBHOOK_URL and LORE_INGEST_TOKEN" ;;
-            esac
-          fi
-          [ "${GITHUB_EVENT_NAME}" = "pull_request" ] && exit 0
-          exit 1

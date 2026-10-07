@@ -1141,13 +1141,13 @@ Decisions:
     agreement, `scripts/check-spec-links.mjs` imports `segmentStatements` and
     `findMisplacedCoverageLinks` from
     `@re-cinq/eslint-plugin-re-lint/spec/*.js`, the package's vendored copy
-    of lore's `libs/shared/src` domain, so the local verdict is lore's own by
+    of the upstream spec domain, so the local verdict is the platform's own by
     construction. It is the local counterpart of lore's spec-coverage-validate
     job: one line per misplaced citation, a `misplaced: N across M specs`
     summary, exit 1 on any finding. Until 2026-09-08 the domain was a
-    byte-exact mirror of lore's TypeScript under `tools/lore-shared/`, run
+    byte-exact mirror of the upstream TypeScript under `tools/lore-shared/`, run
     under `--experimental-strip-types` behind a module-resolve hook that
-    mapped lore's `.js` specifiers onto the `.ts` files; the package ships
+    mapped the upstream `.js` specifiers onto the `.ts` files; the package ships
     built JavaScript, so the hook, the flag and the Node 22.6 floor it
     implied are gone.
 

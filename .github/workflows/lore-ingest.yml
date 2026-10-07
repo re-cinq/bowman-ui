@@ -95,7 +95,7 @@ jobs:
             "context was NOT ingested"
 
   # Posts the changed specs and ADRs as a delta through lore-code-trace
-  # (re-cinq/lore#2410) instead of asking Lore to clone this repo. The checkout
+  # instead of asking Lore to clone this repo. The checkout
   # pin and secret-only URL match the ingest job above (deliberate per-repo
   # deviations, documented at the top of this file).
   graph:
