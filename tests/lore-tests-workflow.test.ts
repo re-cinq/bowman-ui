@@ -6,16 +6,27 @@ import { join, resolve } from "node:path";
 
 const workflow = readFileSync(resolve(process.cwd(), ".github/workflows/lore-tests.yml"), "utf8");
 
-const workflowBody = workflow.slice(workflow.indexOf("\nname: "));
-const ingestJobStart = workflowBody.indexOf("\n  lore-tests-ingest:\n");
+// A marker that has gone misses silently otherwise: indexOf returns -1 and
+// slice(-1) hands back the file's last character, against which every
+// not.toContain below would pass. Losing the deviation header - the template
+// regeneration this file exists to catch - takes "\nname: " with it.
+const sliceFrom = (marker: string): string => {
+  const at = workflow.indexOf(marker);
 
-if (ingestJobStart < 0) {
-  throw new Error("job not found in workflow: lore-tests-ingest");
-}
-const vitestJob = workflowBody.slice(0, ingestJobStart);
-const ingestJob = workflowBody.slice(ingestJobStart);
+  if (at < 0) {
+    throw new Error(`marker not found in workflow: ${marker}`);
+  }
 
-const steps = workflow.split(/\n(?= {6}- )/);
+  return workflow.slice(at);
+};
+
+const workflowBody = sliceFrom("\nname: ");
+const jobsBlock = sliceFrom("\njobs:\n");
+// Steps only, never the comment header: the header discusses --post, ci-tests
+// and the token, so a header chunk would satisfy the step assertions below.
+// What that drops is the job's OWN keys, which is where an ungated `env:`
+// would sit, so jobHeader keeps them in view.
+const [jobHeader, ...steps] = jobsBlock.split(/\n(?= {6}- )/);
 
 const stepContaining = (needle: string): string => {
   const step = steps.find((chunk) => chunk.includes(needle));
@@ -27,6 +38,8 @@ const stepContaining = (needle: string): string => {
   return step;
 };
 
+const stepsMentioning = (needle: string): string[] => steps.filter((step) => step.includes(needle));
+
 const runMarker = "run: |\n";
 
 const runBlockOf = (step: string): string =>
@@ -36,29 +49,29 @@ const runBlockOf = (step: string): string =>
     .map((line) => line.slice(10))
     .join("\n");
 
+const checkoutStep = stepContaining("uses: actions/checkout@");
 const fetchStep = stepContaining("- name: Fetch lore-code-trace");
 const runStep = stepContaining("- name: Run test suite");
-const postStep = stepContaining("- name: Post test report");
 const fetchRunBlock = runBlockOf(fetchStep);
 const suiteRunBlock = runBlockOf(runStep);
-const postRunBlock = runBlockOf(postStep);
 const pinnedSha256 = workflow.match(/^ {10}LORE_CODE_TRACE_SHA256: ([0-9a-f]{64})$/m)?.[1];
 const fetchedGate = "if: steps.fetch.outputs.fetched == 'true'";
 const reportGate = "if: always() && steps.run.outputs.report == 'true'";
-const tokenBinding = "LORE_INGEST_TOKEN: ${{ secrets.LORE_INGEST_TOKEN }}";
+const tokenBinding =
+  "LORE_INGEST_TOKEN: ${{ github.event_name == 'push' && secrets.LORE_INGEST_TOKEN || '' }}";
+const endpointBinding =
+  "LORE_API_URL: ${{ github.event_name == 'push' && " +
+  "(secrets.LORE_INGEST_URL || vars.LORE_INGEST_URL) || '' }}";
 const hasTool = (tool: string): boolean => spawnSync(tool, ["--version"]).status === 0;
 const fetchIt = it.skipIf(!hasTool("sha256sum"));
-const postIt = it.skipIf(!hasTool("jq"));
 
 const curlStub = `#!/usr/bin/env bash
-printf '%s\\n' "$@" > "\${CURL_STUB_ARGS:-/dev/null}"
+printf '%s\\n' "$@" > curl-args
 [ "\${CURL_STUB_EXIT:-0}" = "0" ] || exit "\${CURL_STUB_EXIT}"
 while [ $# -gt 1 ]; do
   [ "$1" = "-o" ] && printf '%s' "\${CURL_STUB_BODY:-}" > "$2"
-  [ "$1" = "--data-binary" ] && cp "\${2#@}" "\${CURL_STUB_SENT:-/dev/null}"
   shift
 done
-printf '%s' "\${CURL_STUB_STATUS:-}"
 exit 0
 `;
 
@@ -118,8 +131,15 @@ const runFetch = (env: Record<string, string>) => {
   });
   const binaryPath = join(workDir, "lore-code-trace");
   const isExecutable = existsSync(binaryPath) && (statSync(binaryPath).mode & 0o111) !== 0;
+  const argsPath = join(workDir, "curl-args");
 
-  return { result, output, binaryExists: existsSync(binaryPath), isExecutable };
+  return {
+    result,
+    output,
+    binaryExists: existsSync(binaryPath),
+    isExecutable,
+    curlArgs: existsSync(argsPath) ? readFileSync(argsPath, "utf8").split("\n") : null,
+  };
 };
 
 describe("lore-tests.yml triggers and wiring", () => {
@@ -127,28 +147,72 @@ describe("lore-tests.yml triggers and wiring", () => {
     expect(workflow).toContain("\non:\n  push:\n    branches: [main]\n  pull_request:\n\n");
   });
 
+  it("checks out the whole history the delta is diffed over, with no credentials", () => {
+    expect(checkoutStep).toContain("\n          fetch-depth: 0\n");
+    expect(checkoutStep).toContain("\n          persist-credentials: false\n");
+  });
+
   it("pins the lore-code-trace sha256 in the fetch step env and drops the sibling checksums file", () => {
     expect(fetchStep).toContain(`LORE_CODE_TRACE_SHA256: ${pinnedSha256}`);
     expect(fetchStep).toContain("\n        shell: bash\n");
     expect(fetchRunBlock).toContain("sha256sum");
     expect(fetchRunBlock).not.toContain("checksums.txt");
+    // Nothing in the script may reassign the pin - one `LORE_SKIP_PIN` line
+    // would make it bypassable from the runner - and the origin is a literal,
+    // so no override can redirect the download past the digest it is pinned to.
+    expect(fetchRunBlock).not.toMatch(/LORE_CODE_TRACE_SHA256=/);
+    expect(fetchRunBlock).toContain('"${LORE_INGEST_URL}/dist/lore-code-trace/linux-amd64"');
   });
 
   it("gives the fetch step the id the gates read and interpolates no expression into any script", () => {
     expect(fetchStep).toContain("\n        id: fetch\n");
-    expect([fetchRunBlock, suiteRunBlock, postRunBlock].join("\n")).not.toContain("${{");
+    expect([fetchRunBlock, suiteRunBlock].join("\n")).not.toContain("${{");
   });
 
   it("gates the node install and the suite run on the fetch output and installs no browsers", () => {
-    expect(stepContaining("uses: ./.github/actions/setup-node-install")).toContain(fetchedGate);
+    const install = stepContaining("uses: ./.github/actions/setup-node-install");
+
+    expect(install).toContain(fetchedGate);
+    expect(install).toContain('\n          build: "true"\n');
     expect(runStep).toContain(fetchedGate);
-    expect(vitestJob).not.toMatch(/playwright/i);
+    expect(runStep).toContain("\n        id: run\n");
+    expect(runStep).toContain("\n        shell: bash\n");
+    expect(workflowBody).not.toMatch(/playwright/i);
+  });
+
+  it("declares no key at the workflow or the job level beyond these", () => {
+    // A closed set beats hunting for spellings of `env:`: a trailing comment,
+    // a trailing space or flow style all defeat a pattern, and an ungated
+    // binding at either level reaches every step, a pull request's included.
+    expect(workflowBody.match(/^[\w-]+ *:/gm)).toEqual([
+      "name:",
+      "on:",
+      "concurrency:",
+      "permissions:",
+      "jobs:",
+    ]);
+    expect(jobHeader.match(/^ {4}[\w-]+ *:/gm)).toEqual([
+      "    runs-on:",
+      "    timeout-minutes:",
+      "    steps:",
+    ]);
+    expect(steps).toHaveLength(5);
+  });
+
+  it("grants contents: read, and serialises a ref's runs without cancelling main's", () => {
+    // The trailing blank line closes the block: id-token or pull-requests
+    // write would otherwise ride under it.
+    expect(workflow).toContain("\npermissions:\n  contents: read\n\n");
+    expect(workflow).toContain(
+      "\nconcurrency:\n  group: lore-tests-${{ github.ref }}\n" +
+        "  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}\n"
+    );
   });
 
   it("pins every action to a 40-hex commit with its version, or uses a local action", () => {
     const uses = workflow.split("\n").filter((line) => line.includes("uses:"));
 
-    expect(uses.length).toBeGreaterThanOrEqual(4);
+    expect(uses.length).toBeGreaterThanOrEqual(3);
 
     for (const line of uses) {
       expect(line).toMatch(
@@ -158,23 +222,83 @@ describe("lore-tests.yml triggers and wiring", () => {
   });
 });
 
+describe("lore-tests.yml ingest sink", () => {
+  it("lets the binary post the delta itself and posts nothing of its own", () => {
+    expect(suiteRunBlock).toContain("./lore-code-trace --post");
+    expect(workflowBody).not.toContain("ci-tests");
+    expect(workflowBody).not.toContain("LORE_WEBHOOK_URL");
+    // Not a pattern for one curl spelling: the only curl here downloads the
+    // binary, and `curl -d` posts without ever naming a method.
+    expect(stepsMentioning("curl")).toEqual([fetchStep]);
+    expect(stepsMentioning("lore-code-trace --post")).toEqual([runStep]);
+    expect(workflowBody).not.toContain("Authorization");
+    expect(workflowBody).not.toContain("Bearer");
+  });
+
+  it("downloads the pinned binary from the ingest origin and nowhere else", () => {
+    const { curlArgs } = runFetch({
+      CURL_STUB_BODY: "the pinned binary",
+      LORE_CODE_TRACE_SHA256: sha256Of("the pinned binary"),
+    });
+
+    expect(curlArgs).toContain("-fsSL");
+    expect(curlArgs).toContain("https://lore-api.example.test/dist/lore-code-trace/linux-amd64");
+    expect(curlArgs).toContain("-o");
+    expect(curlArgs).toContain("lore-code-trace");
+  });
+
+  it("runs the whole ingest in one job, so the delta sees the work tree", () => {
+    expect(jobsBlock.match(/^ {2}[\w-]+:$/gm)).toEqual(["  lore-tests-vitest:"]);
+    expect(workflowBody).not.toContain("needs:");
+    expect(workflowBody).not.toContain("download-artifact");
+  });
+});
+
 describe("lore-tests.yml token scoping (issue 166)", () => {
-  it("runs the binary without --post and with no env block in the suite step", () => {
-    expect(workflowBody).not.toContain("--post");
-    expect(runStep).toContain("\n        id: run\n");
-    expect(runStep).toContain("\n        shell: bash\n");
-    expect(runStep).not.toContain("env:");
-    expect(suiteRunBlock).toContain("./lore-code-trace > lore-test-report.json");
-  });
-
-  it("binds LORE_INGEST_TOKEN in the post step only, never at job level", () => {
+  it("binds the token and the endpoint on a push only, in the suite step alone", () => {
     expect(workflowBody.split(tokenBinding)).toHaveLength(2);
-    expect(postStep).toContain(tokenBinding);
-    expect(vitestJob).not.toContain("LORE_INGEST_TOKEN");
-    expect(workflowBody).not.toMatch(/^ {4}env:$/m);
+    expect(workflowBody.split(endpointBinding)).toHaveLength(2);
+    expect(runStep).toContain(tokenBinding);
+    expect(runStep).toContain(endpointBinding);
+    // No OTHER step may name either, however it binds them - the install step
+    // runs the repository's build, and a pull request reaches it too.
+    expect(stepsMentioning("LORE_INGEST_TOKEN")).toEqual([runStep]);
+    expect(stepsMentioning("LORE_API_URL")).toEqual([runStep]);
+    expect(stepsMentioning("env:")).toEqual([fetchStep, runStep]);
   });
 
-  it("hands the report to a separate job through an artifact gated on the suite output", () => {
+  it("reads these secrets and no others, under these names and no others", () => {
+    // The gated bindings being present says nothing about what rides beside
+    // them: a second secret under any other name - or toJSON(secrets) whole -
+    // is the same leak, since the binary runs the repository's test commands
+    // in this step. Both sets are closed.
+    expect(workflowBody.match(/secrets[.[]\w*/g)).toEqual([
+      "secrets.LORE_INGEST_URL",
+      "secrets.LORE_INGEST_URL",
+      "secrets.LORE_INGEST_TOKEN",
+    ]);
+    expect(workflowBody).not.toContain("toJSON");
+    expect(runStep.match(/^ {10}[\w-]+ *:/gm)).toEqual([
+      "          LORE_API_URL:",
+      "          LORE_INGEST_TOKEN:",
+      "          LORE_TRACE_TIMEOUT_MS:",
+    ]);
+  });
+
+  it("gives the binary headroom over the 120s default a cold runner exceeds", () => {
+    expect(runStep).toContain('\n          LORE_TRACE_TIMEOUT_MS: "600000"\n');
+  });
+
+  it("echoes nothing and traces nothing, so no channel carries the token", () => {
+    expect(suiteRunBlock).not.toMatch(/set -[a-z]*x/);
+    expect(suiteRunBlock).not.toContain("GITHUB_STEP_SUMMARY");
+    expect(suiteRunBlock).not.toMatch(/^ *(echo|printf).*\$\{?LORE_INGEST_TOKEN/m);
+    // The gate is the literal event, not its complement: a third trigger must
+    // not quietly inherit the push path.
+    expect(suiteRunBlock).toContain('if [ "${GITHUB_EVENT_NAME}" = "push" ]; then');
+  });
+
+  it("keeps the report of a run that posts nothing as an artifact instead", () => {
     const uploadStep = stepContaining("uses: actions/upload-artifact@");
 
     expect(uploadStep).toContain(reportGate);
@@ -182,23 +306,6 @@ describe("lore-tests.yml token scoping (issue 166)", () => {
     expect(uploadStep).toContain("\n          path: lore-test-report.json\n");
     expect(uploadStep).toContain("\n          retention-days: 1\n");
     expect(uploadStep).toContain("\n          overwrite: true\n");
-    expect(vitestJob).toContain("\n    outputs:\n      report: ${{ steps.run.outputs.report }}\n");
-    expect(ingestJob).toContain("\n    needs: lore-tests-vitest\n");
-    expect(ingestJob).toContain(
-      "\n    if: always() && needs.lore-tests-vitest.outputs.report == 'true'\n"
-    );
-    expect(stepContaining("uses: actions/download-artifact@")).toContain(
-      "\n          name: lore-test-report\n"
-    );
-  });
-
-  it("checks out nothing and runs no repository code in the ingest job", () => {
-    expect(ingestJob).not.toContain("actions/checkout");
-    expect(ingestJob).not.toContain("setup-node-install");
-    expect(ingestJob.match(/uses:/g)).toHaveLength(1);
-    expect(postRunBlock).not.toMatch(/\.\/|\bnode\b|\bnpm\b|\bnpx\b/);
-    expect(postStep).toContain("\n        shell: bash\n");
-    expect(postStep).toContain("LORE_WEBHOOK_URL: ${{ vars.LORE_WEBHOOK_URL }}");
   });
 });
 
@@ -278,9 +385,15 @@ describe("lore-tests.yml fetch step", () => {
 
 const report = { commit: "0123abc", branch: "feature/example", tests: [], results: [] };
 const reportJson = `${JSON.stringify(report)}\n`;
+const token = "example-ingest-token-0123456789";
 
-const runSuite = (traceExit: number, eventName: string, stdout = reportJson) => {
+const runSuite = (traceExit: number, env: Record<string, string>, stdout: string = reportJson) => {
+  // Appended, never truncated: with `>` only the LAST invocation survives, so a
+  // second call - a --post slipped into the pull_request path, say - would read
+  // as the only one.
   const traceStub = `#!/usr/bin/env bash
+printf 'call:%s\\n' "$*" >> trace-calls
+printf 'LORE_API_URL=%s LORE_INGEST_TOKEN=%s\\n' "\${LORE_API_URL:-}" "\${LORE_INGEST_TOKEN:-}" >> trace-env
 echo "[lore-code-trace] running" >&2
 printf '%s' '${stdout}'
 exit ${traceExit}
@@ -289,188 +402,106 @@ exit ${traceExit}
     prefix: "lore-tests-suite-",
     script: suiteRunBlock,
     stubs: { "lore-code-trace": traceStub },
-    env: { GITHUB_EVENT_NAME: eventName },
+    env: { LORE_API_URL: "https://lore-api.example.test", LORE_INGEST_TOKEN: token, ...env },
   });
-  const reportPath = join(workDir, "lore-test-report.json");
+  const read = (name: string): string | null => {
+    const path = join(workDir, name);
+
+    return existsSync(path) ? readFileSync(path, "utf8") : null;
+  };
 
   return {
     result,
     output,
-    reportFile: existsSync(reportPath) ? readFileSync(reportPath, "utf8") : null,
+    reportFile: read("lore-test-report.json"),
+    traceCalls: read("trace-calls"),
+    traceEnv: read("trace-env"),
   };
 };
 
-describe("lore-tests.yml suite step", () => {
-  it("writes the binary's stdout to lore-test-report.json and marks report=true on exit 0", () => {
-    const { result, output, reportFile } = runSuite(0, "push");
+describe("lore-tests.yml suite step on a push", () => {
+  const push = { GITHUB_EVENT_NAME: "push" };
+
+  it("posts the report through the binary and writes no report of its own", () => {
+    const { result, output, reportFile, traceCalls, traceEnv } = runSuite(0, push);
 
     expect(result.status).toBe(0);
     expect(result.stdout).not.toMatch(/::(warning|error)::/);
     expect(result.stderr).toContain("[lore-code-trace] running");
-    expect(output).toBe("report=true\n");
-    expect(reportFile).toBe(reportJson);
+    expect(traceCalls).toBe("call:--post\n");
+    expect(result.stdout + result.stderr).not.toContain(token);
+    expect(traceEnv).toBe(
+      `LORE_API_URL=https://lore-api.example.test LORE_INGEST_TOKEN=${token}\n`
+    );
+    expect(reportFile).toBeNull();
+    expect(output).toBe("");
   });
 
-  it("warns and exits 0 still marking report=true when lore-code-trace fails in a pull_request", () => {
-    const { result, output, reportFile } = runSuite(1, "pull_request");
-
-    expect(result.status).toBe(0);
-    expect(result.stdout).toMatch(/^::warning::Lore test run failed/m);
-    expect(output).toBe("report=true\n");
-    expect(reportFile).toBe(reportJson);
-  });
-
-  it("warns and exits 1 still marking report=true when lore-code-trace fails in a push", () => {
-    const { result, output, reportFile } = runSuite(1, "push");
+  it("errors and exits 1 when the binary fails to run or to post", () => {
+    const { result, output } = runSuite(1, push);
 
     expect(result.status).toBe(1);
+    expect(result.stdout).toMatch(/^::error::Lore test run or ingest failed/m);
+    expect(output).toBe("");
+  });
+
+  it("errors and exits 1 without running the binary when LORE_API_URL is empty", () => {
+    const { result, traceCalls } = runSuite(0, { ...push, LORE_API_URL: "" });
+
+    expect(result.status).toBe(1);
+    expect(result.stdout).toMatch(/^::error::LORE_API_URL or LORE_INGEST_TOKEN is not configured/m);
+    expect(traceCalls).toBeNull();
+  });
+
+  it("errors and exits 1 without running the binary when LORE_INGEST_TOKEN is empty", () => {
+    const { result, traceCalls } = runSuite(0, { ...push, LORE_INGEST_TOKEN: "" });
+
+    expect(result.status).toBe(1);
+    expect(result.stdout).toMatch(/^::error::LORE_API_URL or LORE_INGEST_TOKEN is not configured/m);
+    expect(traceCalls).toBeNull();
+  });
+});
+
+describe("lore-tests.yml suite step on a pull_request", () => {
+  const pull = { GITHUB_EVENT_NAME: "pull_request", LORE_API_URL: "", LORE_INGEST_TOKEN: "" };
+
+  it("runs the binary without --post and keeps its stdout as the report", () => {
+    const { result, output, reportFile, traceCalls, traceEnv } = runSuite(0, pull);
+
+    expect(result.status).toBe(0);
+    expect(result.stdout).not.toMatch(/::(warning|error)::/);
+    expect(traceCalls).toBe("call:\n");
+    expect(traceEnv).toBe("LORE_API_URL= LORE_INGEST_TOKEN=\n");
+    expect(reportFile).toBe(reportJson);
+    expect(output).toBe("report=true\n");
+  });
+
+  it("warns and exits 0 still marking report=true when lore-code-trace fails", () => {
+    const { result, output, reportFile } = runSuite(1, pull);
+
+    expect(result.status).toBe(0);
     expect(result.stdout).toMatch(/^::warning::Lore test run failed/m);
     expect(output).toBe("report=true\n");
     expect(reportFile).toBe(reportJson);
   });
 
   it("marks no output when lore-code-trace fails having written an empty report", () => {
-    const { result, output, reportFile } = runSuite(1, "push", "");
+    const { result, output, reportFile } = runSuite(1, pull, "");
 
-    expect(result.status).toBe(1);
+    expect(result.status).toBe(0);
     expect(result.stdout).toMatch(/^::warning::Lore test run failed/m);
     expect(output).toBe("");
     expect(reportFile).toBe("");
   });
-});
 
-const token = "example-ingest-token-0123456789";
-
-const runPost = (env: Record<string, string>, reportFile = reportJson) => {
-  const { workDir, result, output } = runStepScript({
-    prefix: "lore-tests-post-",
-    script: postRunBlock,
-    stubs: { curl: curlStub },
-    files: { "lore-test-report.json": reportFile },
-    env: {
-      LORE_WEBHOOK_URL: "https://lore-webhook.example.test",
+  it("posts nothing even when the token leaks into the environment", () => {
+    const { result, output, traceCalls } = runSuite(0, {
+      GITHUB_EVENT_NAME: "pull_request",
       LORE_INGEST_TOKEN: token,
-      GITHUB_REPOSITORY: "example-org/example-repo",
-      CURL_STUB_ARGS: "curl-args",
-      CURL_STUB_SENT: "sent-body.json",
-      CURL_STUB_STATUS: "202",
-      CURL_STUB_BODY: '{"ingested":1}',
-      ...env,
-    },
-  });
-  const argsPath = join(workDir, "curl-args");
-  const sentPath = join(workDir, "sent-body.json");
-  const args = existsSync(argsPath) ? readFileSync(argsPath, "utf8").split("\n") : null;
-
-  return {
-    result,
-    output,
-    args,
-    sent: existsSync(sentPath) ? JSON.parse(readFileSync(sentPath, "utf8")) : null,
-  };
-};
-
-describe("lore-tests.yml post step", () => {
-  postIt(
-    "posts the report plus the repo slug with the token in a header file, exit 0 on 202 in a push",
-    () => {
-      const { result, args, sent } = runPost({ GITHUB_EVENT_NAME: "push" });
-      const authArg = args?.find((arg) => arg.startsWith("@/"));
-
-      expect(result.status).toBe(0);
-      expect(result.stdout).not.toMatch(/::(warning|error)::/);
-      expect(sent).toEqual({ ...report, repo: "example-org/example-repo" });
-      expect(args).toContain("https://lore-webhook.example.test/api/webhook/ci-tests");
-      expect(args).toContain("--retry");
-      expect(args?.join("\n")).not.toContain(token);
-      expect(args?.[args.indexOf(authArg ?? "") - 1]).toBe("-H");
-      expect(existsSync((authArg ?? "@").slice(1))).toBe(false);
-    }
-  );
-
-  postIt("prints the response body prefixed so it cannot forge a workflow command", () => {
-    const { result } = runPost({ CURL_STUB_BODY: "::error::forged by the server" });
+    });
 
     expect(result.status).toBe(0);
-    expect(result.stdout).toContain("| ::error::forged by the server");
-    expect(result.stdout).not.toMatch(/^::error::/m);
-  });
-
-  postIt("warns and exits 0 on a 503 in a pull_request", () => {
-    const { result } = runPost({ CURL_STUB_STATUS: "503" });
-
-    expect(result.status).toBe(0);
-    expect(result.stdout).toMatch(/^::warning::Lore test ingest failed \(HTTP 503/m);
-  });
-
-  postIt("warns and exits 1 on a 503 in a push", () => {
-    const { result } = runPost({ CURL_STUB_STATUS: "503", GITHUB_EVENT_NAME: "push" });
-
-    expect(result.status).toBe(1);
-    expect(result.stdout).toMatch(/^::warning::Lore test ingest failed \(HTTP 503/m);
-  });
-
-  postIt("warns as transient when curl exits 7 without a status, exit 1 in a push", () => {
-    const { result } = runPost({ CURL_STUB_EXIT: "7", GITHUB_EVENT_NAME: "push" });
-
-    expect(result.status).toBe(1);
-    expect(result.stdout).toMatch(/^::warning::Lore test ingest failed \(HTTP 000/m);
-  });
-
-  postIt("reports curl exit 6 (unresolvable host) as ::error and exits 0 in a pull_request", () => {
-    const { result } = runPost({ CURL_STUB_EXIT: "6" });
-
-    expect(result.status).toBe(0);
-    expect(result.stdout).toMatch(/^::error::Lore test ingest could not reach .* \(curl exit 6\)/m);
-  });
-
-  postIt("reports a 401 as ::error and exits 0 in a pull_request", () => {
-    const { result } = runPost({ CURL_STUB_STATUS: "401" });
-
-    expect(result.status).toBe(0);
-    expect(result.stdout).toMatch(/^::error::Lore test ingest rejected \(HTTP 401/m);
-  });
-
-  postIt("reports a 401 as ::error and exits 1 in a push", () => {
-    const { result } = runPost({ CURL_STUB_STATUS: "401", GITHUB_EVENT_NAME: "push" });
-
-    expect(result.status).toBe(1);
-    expect(result.stdout).toMatch(/^::error::Lore test ingest rejected \(HTTP 401/m);
-  });
-
-  postIt("warns and exits 0 without calling curl when LORE_INGEST_TOKEN is empty", () => {
-    const { result, args } = runPost({ LORE_INGEST_TOKEN: "" });
-
-    expect(result.status).toBe(0);
-    expect(result.stdout).toMatch(
-      /^::warning::LORE_WEBHOOK_URL or LORE_INGEST_TOKEN is not configured/m
-    );
-    expect(args).toBeNull();
-  });
-
-  postIt("exits 1 without calling curl when LORE_WEBHOOK_URL is empty in a push", () => {
-    const { result, args } = runPost({ LORE_WEBHOOK_URL: "", GITHUB_EVENT_NAME: "push" });
-
-    expect(result.status).toBe(1);
-    expect(result.stdout).toMatch(
-      /^::warning::LORE_WEBHOOK_URL or LORE_INGEST_TOKEN is not configured/m
-    );
-    expect(args).toBeNull();
-  });
-
-  postIt("warns and exits 0 without calling curl when the report is not JSON", () => {
-    const { result, args } = runPost({}, "not json {");
-
-    expect(result.status).toBe(0);
-    expect(result.stdout).toMatch(/^::warning::Lore test report is not one JSON object/m);
-    expect(args).toBeNull();
-  });
-
-  postIt("exits 1 without calling curl when the report holds two JSON values in a push", () => {
-    const { result, args } = runPost({ GITHUB_EVENT_NAME: "push" }, `${reportJson}{"extra":1}\n`);
-
-    expect(result.status).toBe(1);
-    expect(result.stdout).toMatch(/^::warning::Lore test report is not one JSON object/m);
-    expect(args).toBeNull();
+    expect(traceCalls).toBe("call:\n");
+    expect(output).toBe("report=true\n");
   });
 });

@@ -22,10 +22,15 @@ import { join } from "node:path";
 import process from "node:process";
 
 // A cold build of this package measures 0.28s, so a wait this long means the
-// holder died rather than that it is slow. It also has to stay well under
-// lore-code-trace's own per-command timeout (LORE_TRACE_TIMEOUT_MS, 120s by
-// default): a waiter that outlives that is SIGKILLed and recorded as a file
-// that failed with no coverage, which is worse than building unguarded.
+// holder died rather than that it is slow. It also has to stay under
+// lore-code-trace's per-command timeout, because a waiter that outlives that
+// is SIGKILLed and recorded as a file that FAILED with no coverage - under
+// `coverage_format: lcov` the binary reads a timed-out command as a failing
+// test, not as an error - which is worse than building unguarded. That ceiling
+// is the binary's 120s default locally; .github/workflows/lore-tests.yml
+// raises it to 600s for CI, where a cold runner needs the headroom and where
+// the lock is never contended anyway (the job builds dist up front, so
+// distIsCurrent short-circuits). 60s is sized for the uncontended default.
 const lockDeadlineMs = 60_000;
 const lockPollMs = 100;
 
