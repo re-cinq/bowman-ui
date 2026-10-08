@@ -22,10 +22,10 @@ into the `Issue` row. ADRs declare their status as YAML frontmatter `status:` in
 - A doc's status is read from the `| Status |` cell for a spec and the frontmatter `status:`
   key for an ADR, and buckets into one of five values: every label in a bucket's row means that
   bucket, the two terminal buckets skip the check whatever the coverage, and a cell no parser
-  reads buckets to nothing ([validated by a spec tagged "In Review" with partial coverage buckets in-progress and passes](../../tests/eslint-spec-docs.test.ts#L80),
-  [validated by a spec tagged Accepted with partial coverage buckets shipped and is told to set "In Progress"](../../tests/eslint-spec-docs.test.ts#L84),
-  [validated by a spec tagged Retired or Rejected passes with no statement linked: terminal buckets skip the tier](../../tests/eslint-spec-docs.test.ts#L93),
-  [validated by a spec with no status row fails with re-lint/require-status-matches-coverage as untagged](../../tests/eslint-spec-docs.test.ts#L47)).
+  reads buckets to nothing ([validated by a spec tagged "In Review" with partial coverage buckets in-progress and passes](../../tests/eslint-spec-docs.test.ts#L91),
+  [validated by a spec tagged Accepted with partial coverage buckets shipped and is told to set "In Progress"](../../tests/eslint-spec-docs.test.ts#L95),
+  [validated by a spec tagged Retired or Rejected passes with no statement linked: terminal buckets skip the tier](../../tests/eslint-spec-docs.test.ts#L104),
+  [validated by a spec with no status row fails with re-lint/require-status-matches-coverage as untagged](../../tests/eslint-spec-docs.test.ts#L48)).
 
 | Written into the doc                                             | Bucket                       |
 | ---------------------------------------------------------------- | ---------------------------- |
@@ -36,7 +36,7 @@ into the `Issue` row. ADRs declare their status as YAML frontmatter `status:` in
 | `Rejected`, `Abandoned`                                          | `rejected` - skips the check |
 
 - The bucket every non-terminal spec is entitled to claim is its own link coverage, counted over
-  its testable statements alone ([validated by a spec tagged "In Progress" with partial coverage passes both rules](../../tests/eslint-spec-docs.test.ts#L72)).
+  its testable statements alone ([validated by a spec tagged "In Progress" with partial coverage passes both rules](../../tests/eslint-spec-docs.test.ts#L83)).
 
 | Testable statements linked | Tier      | Entitled to claim |
 | -------------------------- | --------- | ----------------- |
@@ -46,25 +46,25 @@ into the `Issue` row. ADRs declare their status as YAML frontmatter `status:` in
 | all                        | `full`    | `Shipped`         |
 
 - A spec whose status matches its coverage tier passes
-  ([validated by a spec tagged "In Progress" with partial coverage passes both rules](../../tests/eslint-spec-docs.test.ts#L72)).
+  ([validated by a spec tagged "In Progress" with partial coverage passes both rules](../../tests/eslint-spec-docs.test.ts#L83)).
 - A spec claiming a tier above its coverage is reported against its status row, naming the
   linked count, the testable count and the status the coverage entitles it to
-  ([validated by a spec tagged Shipped with one unlinked statement is told to set "In Progress"](../../tests/eslint-spec-docs.test.ts#L62)).
+  ([validated by a spec tagged Shipped with one unlinked statement is told to set "In Progress"](../../tests/eslint-spec-docs.test.ts#L63)).
 - A spec whose status no parser can read is reported as untagged against its status row when it
   has one - a `| Status | Banana |` row is reported at that row's line - and against line 1 only
   when the spec carries no status row at all
-  ([validated by a spec whose status row reads "Banana" fails as untagged at that row's line](../../tests/eslint-spec-docs.test.ts#L56), and
-  [validated by a spec with no status row fails with re-lint/require-status-matches-coverage as untagged](../../tests/eslint-spec-docs.test.ts#L47)).
+  ([validated by a spec whose status row reads "Banana" fails as untagged at that row's line](../../tests/eslint-spec-docs.test.ts#L57), and
+  [validated by a spec with no status row fails with re-lint/require-status-matches-coverage as untagged](../../tests/eslint-spec-docs.test.ts#L48)).
 - A spec that opens straight into a section, with no lead paragraph before the first `##`, is
-  reported against line 1 ([validated by a spec opening straight into a section fails with re-lint/require-intro-paragraph at line 1](../../tests/eslint-spec-docs.test.ts#L35)).
+  reported against line 1 ([validated by a spec opening straight into a section fails with re-lint/require-intro-paragraph at line 1](../../tests/eslint-spec-docs.test.ts#L36)).
 - An ADR with no lead paragraph is reported by the same rule
-  ([validated by an ADR with no lead paragraph fails with re-lint/require-intro-paragraph](../../tests/eslint-spec-docs.test.ts#L41)).
+  ([validated by an ADR with no lead paragraph fails with re-lint/require-intro-paragraph](../../tests/eslint-spec-docs.test.ts#L42)).
 
 ## The ADR exception
 
 - An ADR with `status: accepted`, a lead paragraph and no test links passes both rules, because
   the coverage rule's `files` glob names specs alone
-  ([validated by an accepted ADR with a lead paragraph and no test links passes: ADRs are exempt from the coverage tier](../../tests/eslint-spec-docs.test.ts#L76)).
+  ([validated by an accepted ADR with a lead paragraph and no test links passes: ADRs are exempt from the coverage tier](../../tests/eslint-spec-docs.test.ts#L87)).
 - The script carries the half of the status rule that glob leaves unspoken for ADRs: an ADR
   whose frontmatter `status:` no parser can read is reported as untagged against that line
   ([validated by an ADR whose frontmatter status reads "banana" reports untagged at that line](../../tests/check-spec-status.test.ts#L44)).

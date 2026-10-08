@@ -11,5 +11,5 @@ the floor it came off rather than carried across the yard.
 ## The rule
 
 - A net is hung the length of the loft and never folded to fit
-  ([validated by](../../../../../tests/check-at-pass.test.ts#L14)).
+  ([validated by](../../__tests__/fixture-evidence.ts#L1)).
 - A mended net is marked with the mender's tag before it leaves the loft.

@@ -11,5 +11,5 @@ up once in the autumn rather than on every visit.
 ## The rule
 
 - Oakum is weighed on the counter scale and never estimated by the handful
-  ([validated by](../../../../../tests/check-at-pass.test.ts#L14)).
+  ([validated by](../../__tests__/fixture-evidence.ts#L1)).
 - Pitch is sold by the sealed tin, so a part-used tin stays with the yard.

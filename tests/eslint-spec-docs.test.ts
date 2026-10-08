@@ -13,6 +13,7 @@ const lint = (): LintResult[] =>
     `${fixtureDir}/specs/untagged/spec.md`,
     `${fixtureDir}/specs/unreadable-status/spec.md`,
     `${fixtureDir}/specs/shipped-partial/spec.md`,
+    `${fixtureDir}/specs/shipped-ungrounded/spec.md`,
     `${fixtureDir}/specs/in-progress/spec.md`,
     `${fixtureDir}/specs/in-review-partial/spec.md`,
     `${fixtureDir}/specs/accepted-partial/spec.md`,
@@ -65,6 +66,16 @@ describe("the spec and ADR document lint guardrails", () => {
         ruleId: "re-lint/require-status-matches-coverage",
         line: 6,
         message: expect.stringContaining('set the status to "In Progress"'),
+      },
+    ]);
+  });
+
+  it("a link landing outside any it() is stale evidence, not coverage", () => {
+    expect(reLintMessages(results, `shipped-ungrounded${sep}spec.md`)).toMatchObject([
+      {
+        ruleId: "re-lint/require-status-matches-coverage",
+        line: 6,
+        message: expect.stringContaining("carry a link whose target file or line holds no test"),
       },
     ]);
   });
