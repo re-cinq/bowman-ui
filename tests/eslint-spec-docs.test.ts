@@ -70,7 +70,7 @@ describe("the spec and ADR document lint guardrails", () => {
     ]);
   });
 
-  it("a link landing outside any it() is stale evidence, not coverage", () => {
+  it("a link landing outside every test declaration is stale evidence", () => {
     expect(reLintMessages(results, `shipped-ungrounded${sep}spec.md`)).toMatchObject([
       {
         ruleId: "re-lint/require-status-matches-coverage",

@@ -45,6 +45,11 @@ into the `Issue` row. ADRs declare their status as YAML frontmatter `status:` in
 | some                       | `partial` | `In Progress`     |
 | all                        | `full`    | `Shipped`         |
 
+- A statement counts as linked only when its link is evidence: the target file resolves in the
+  repository and the `#Lnn` lands inside a test declaration. A link whose file is gone, or whose
+  line has drifted past every test, is reported as stale rather than counted as coverage, and the
+  report names how many links are in that state
+  ([validated by a link landing outside every test declaration is stale evidence](../../tests/eslint-spec-docs.test.ts#L73)).
 - A spec whose status matches its coverage tier passes
   ([validated by a spec tagged "In Progress" with partial coverage passes both rules](../../tests/eslint-spec-docs.test.ts#L83)).
 - A spec claiming a tier above its coverage is reported against its status row, naming the
