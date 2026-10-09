@@ -37,16 +37,19 @@ import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { join, posix } from "node:path";
 import process from "node:process";
+import {
+  DEFAULT_TEST_FILE_PATTERN as TEST_PATH,
+  claimsTitle,
+  declarationSpans,
+  findTestDeclarations,
+  titleOfLabel,
+} from "@re-cinq/eslint-plugin-re-lint/spec/spec-reanchor.js";
 import { parseFlags } from "./lib/cli-args.mjs";
 import { listSpecDocs } from "./lib/spec-corpus.mjs";
 
 const USAGE = "usage: reanchor-spec-links.mjs [--check] [--all] [base-ref]";
 
 const LINK = /\[([^\]]*)\]\(((?:\.\.\/)+[^)#\s]+)#L(\d+)\)/g;
-const DECLARATION =
-  /^\s*(?:it|test)(?:\.(?:only|skip|todo|concurrent|sequential|fails))?\s*\(\s*(['"`])((?:\\.|(?!\1).)*)\1/;
-const TEST_PATH = /\.(?:test|spec)\.[cm]?[jt]sx?$/;
-const TITLED_LABEL = /^validated by\s+(\S[\s\S]*)$/;
 const LINE_LABEL = /^L\d+$/;
 const CONTENTLESS = /^[)\]}>,;]*$/;
 
@@ -146,34 +149,43 @@ const mapLine = (line, hunks) => {
   return line + shift;
 };
 
+// Titles and spans both come from the plugin's vendored reader, so this script
+// and re-lint/no-stale-spec-links can never disagree about where a test begins
+// or ends (docs/design-notes.md § Lint guardrails decision 14).
+//
+// Citability is narrowed afterwards, and deliberately stays local: the reader
+// answers "is this a declaration", and a `test.describe("…")` is one, but a
+// suite runs no assertions, so naming it in `[validated by <title>]` would
+// count a statement as validated by a grouping construct. Which declarations
+// may stand as a statement's evidence is this repo's rule, not the reader's.
+const GROUPING = /\.(?:describe|suite|step)\b/;
+
+const runsAssertions = (declaration, sourceLines) => {
+  const text = sourceLines[declaration.line - 1] ?? "";
+
+  return !GROUPING.test(text.slice(0, text.indexOf("(")));
+};
+
 const declarationsCache = new Map();
 const declarationsIn = (path) => {
   if (!declarationsCache.has(path)) {
-    const found = lines(workingFile(path) ?? "").flatMap((text, index) => {
-      const match = DECLARATION.exec(text);
+    const source = workingFile(path) ?? "";
+    const sourceLines = lines(source);
 
-      return match
-        ? [{ title: normalizeTitle(match[2].replace(/\\(.)/g, "$1")), line: index + 1 }]
-        : [];
+    declarationsCache.set(path, {
+      declarations: findTestDeclarations(source).filter((declaration) =>
+        runsAssertions(declaration, sourceLines)
+      ),
+      spans: declarationSpans(source),
     });
-
-    declarationsCache.set(path, found);
   }
 
   return declarationsCache.get(path);
 };
 
-const normalizeTitle = (title) =>
-  title
-    .replace(/^`([\s\S]*)`$/, "$1")
-    .replace(/\s+/g, " ")
-    .trim();
-
-const titleOf = (label) => {
-  const match = TITLED_LABEL.exec(label.trim());
-
-  return match ? normalizeTitle(match[1]) : null;
-};
+// The reader treats any label as a title, so the "validated by" prefix is what
+// still distinguishes a titled link from a descriptive one such as `[docs]`.
+const titleOf = (label) => (claimsTitle(label) ? titleOfLabel(label) : null);
 
 // Title lookup: the anchor mapped through the hunks when it still lies inside that
 // test, else the declaration's line; a failure for a shared or unknown title, null
@@ -184,7 +196,7 @@ const byTitle = (link) => {
   if (title === null || !TEST_PATH.test(link.target)) {
     return null;
   }
-  const declarations = declarationsIn(link.target);
+  const { declarations, spans } = declarationsIn(link.target);
   const index = declarations.findIndex((declaration) => declaration.title === title);
 
   if (index === -1) {
@@ -195,7 +207,12 @@ const byTitle = (link) => {
     return { failure: `several tests carry the title "${title}"` };
   }
   const start = declarations[index].line;
-  const end = declarations[index + 1]?.line ?? Infinity;
+
+  // The span ends at the next declaration of ANY kind, suites included - not at
+  // the next one carrying a title this reader could parse. Taking it from the
+  // following titled declaration let a span swallow the `describe` and the
+  // table-driven tests between them, blessing an anchor that named one of those.
+  const end = spans.find((span) => span.start === start)?.end ?? Infinity;
   const mapped = byHunks(link);
   const intended = mapped.authored ? link.line : (mapped.line ?? start);
 
