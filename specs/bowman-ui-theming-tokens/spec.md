@@ -394,5 +394,5 @@ the declared names: every declared token is measured in a browser, on both theme
 both schemes, and the docs suite adds the danger family on
 the error boundary's icon, the thinking dots, the search field and every text tier at a
 documentation site the chat has none of
-([validated by the chat matrix reaches every token the installed stylesheet declares, and the wrapper sets the same set](../../examples/chat-demo/tests/theming.spec.ts#L409),
+([validated by the chat matrix reaches every token the installed stylesheet declares, and the wrapper sets the same set](../../examples/chat-demo/tests/theming.spec.ts#L401),
 [docs](../../examples/chat-demo/tests/docs.spec.ts#L268)).

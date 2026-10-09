@@ -49,6 +49,12 @@ markdown link must land on a file; specs and ADRs must open with a lead paragrap
 npm run lint -- --fix
 ```
 
+Read what the pass changed before committing it. `re-lint/require-status-matches-coverage`
+is autofixable, and its fix rewrites a spec's `| Status |` row to whatever its test-link
+coverage supports rather than reporting the mismatch — restore the row and link the
+statements instead of accepting the downgrade (docs/design-notes.md § Lint guardrails
+decision 15).
+
 ### Type Check
 
 ```bash

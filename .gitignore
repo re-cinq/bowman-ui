@@ -15,3 +15,8 @@ examples/rsc-fixture/tsconfig.tsbuildinfo
 
 # npm pack output from local consumer trials
 *.tgz
+
+# JetBrains IDE workspace. jscpd reads this file (.jscpd.json sets
+# "gitignore": true), so listing it keeps `npm run check:duplication` from
+# reporting the clones inside .idea/codeStyles/ for anyone using the IDE.
+.idea/

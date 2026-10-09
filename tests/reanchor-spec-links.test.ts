@@ -30,6 +30,22 @@ const MATHS_TEST = [
   "});",
 ];
 
+// A test whose title is a variable sits between the two titled ones, so the
+// span of "adds numbers" ends at a declaration no title reader can name.
+const DYNAMIC_TITLE_TEST = [
+  'describe("maths", () => {',
+  '  it("adds numbers", () => {',
+  "    expect(1 + 1).toBe(2);",
+  "  });",
+  "  it(dynamicTitle, () => {",
+  "    expect(true).toBe(true);",
+  "  });",
+  '  it("subtracts numbers", () => {',
+  "    expect(2 - 1).toBe(1);",
+  "  });",
+  "});",
+];
+
 const TEST_PATH = "tests/Maths.test.ts";
 const SPEC_PATH = "specs/maths/spec.md";
 const INTRO = ['import { describe } from "vitest";', 'import { add } from "./add.js";'];
@@ -147,6 +163,39 @@ describe("reanchor-spec-links", () => {
 
     expect(result).toMatchObject({ status: 0 });
     expect(result.stdout).toContain("stale: 0, up to date: 1");
+  });
+
+  it("pulls a titled link back off a test the title reader cannot name", () => {
+    const repo = repoWith(asSpec(link("validated by adds numbers", "6")), DYNAMIC_TITLE_TEST);
+
+    run(repo, "--all", "main");
+
+    expect(read(repo, SPEC_PATH)).toEqual(asSpec(link("validated by adds numbers", "2")));
+  });
+
+  // A suite bounds the test above it even though no link may cite it: the anchor
+  // on L6 sits inside the nested suite, past the end of "resizes on input" on L2.
+  // Taking the span end from the next CITABLE declaration instead would run L2's
+  // span to the test on L7 and bless this anchor - the Playwright shape of the
+  // case above, where the intervening declaration is one the reader can name.
+  it("ends a test's span at a suite it cannot cite", () => {
+    const repo = repoWith(asSpec(link("validated by resizes on input", "6")), [
+      'test.describe("outer", () => {',
+      '  test("resizes on input", () => {',
+      "    expect(1 + 1).toBe(2);",
+      "  });",
+      '  test.describe("nested", () => {',
+      "    // a note inside the suite",
+      '    test("inner", () => {',
+      "      expect(2).toBe(2);",
+      "    });",
+      "  });",
+      "});",
+    ]);
+
+    run(repo, "--all", "main");
+
+    expect(read(repo, SPEC_PATH)).toEqual(asSpec(link("validated by resizes on input", "2")));
   });
 
   it("maps untitled links on L6 and L3 to L8 and L5 in a spec, the system spec and an ADR", () => {
@@ -331,6 +380,37 @@ describe("reanchor-spec-links", () => {
     expect(specAfterCheck).toEqual(spec);
     expect(rewrite.stdout).toContain("relabelled: 1");
     expect(read(repo, SPEC_PATH)).toEqual(asSpec(link("L6", "6")));
+  });
+
+  it("reports a title carried only by a suite, which asserts nothing", () => {
+    const suite = [
+      'test.describe("the composer", () => {',
+      '  test("resizes on input", () => {',
+      "    expect(1 + 1).toBe(2);",
+      "  });",
+      "});",
+    ];
+    const repo = repoWith(asSpec(link("validated by the composer", "1")), suite);
+
+    const result = run(repo, "--all", "main");
+
+    expect(result).toMatchObject({ status: 1 });
+    expect(result.stderr).toContain(
+      'no test in tests/Maths.test.ts carries the title "the composer"'
+    );
+  });
+
+  // MATHS_TEST opens with a bare `describe("maths", …)`. The reader names only
+  // `it`/`test` calls, so "maths" is no declaration of its own and the citation
+  // is reported - the same verdict the qualified `test.describe` form gets, by a
+  // different route. Pinned because that route depends on the reader's prefix.
+  it("reports a title carried only by a bare suite", () => {
+    const repo = repoWith(asSpec(link("validated by maths", "1")));
+
+    const result = run(repo, "--all", "main");
+
+    expect(result).toMatchObject({ status: 1 });
+    expect(result.stderr).toContain('no test in tests/Maths.test.ts carries the title "maths"');
   });
 
   it("reports a title two tests carry and exits 1", () => {

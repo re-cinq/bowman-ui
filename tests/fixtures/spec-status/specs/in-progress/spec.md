@@ -11,5 +11,5 @@ whichever spool runs low first.
 ## The rule
 
 - Twine is sold by the metre and never by the spool
-  ([validated by](../../../../../tests/check-at-pass.test.ts#L14)).
+  ([validated by](../../__tests__/fixture-evidence.ts#L1)).
 - A kite is sold whole, so a broken spar is replaced rather than sold on its own.

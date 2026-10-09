@@ -199,8 +199,10 @@ title>]` link follows its `it()`; every other link is mapped through the cited f
     corpus, `require-intro-paragraph` (specs + ADRs) and `require-status-matches-coverage`
     (specs only — ADRs are exempt from the coverage tier, decision 11), pinned by
     tests/eslint-spec-docs.test.ts against `tests/fixtures/spec-status/`. The package's
-    `/spec/*.js` exports are lore's vendored spec domain and are what `npm run check:spec-links`
-    and `npm run check:spec-status` import — see docs/design-notes.md § Lint guardrails
+    `/spec/*.js` exports are lore's vendored spec domain and are what `npm run check:spec-links`,
+    `npm run check:spec-status` and `npm run reanchor` import — the last for test-declaration
+    titles and spans, so its spans and the plugin's cannot diverge; which declarations may be
+    cited stays its own rule. See docs/design-notes.md § Lint guardrails
     decisions 10 and 11. Spec `#Lnn` links are healed by `npm run reanchor` and only
     checked in CI (decision 14).
 12. **Publishing** is release-triggered CI only, via npm OIDC trusted publishing
