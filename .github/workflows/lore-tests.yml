@@ -93,7 +93,7 @@ jobs:
         shell: bash
         env:
           LORE_INGEST_URL: ${{ secrets.LORE_INGEST_URL || vars.LORE_INGEST_URL }}
-          LORE_CODE_TRACE_SHA256: f59762434117c53c874dc804e146f41daef5e3abdfc8639fc31a3de75f4a942e
+          LORE_CODE_TRACE_SHA256: a278a3e7fb556f4c5342a0d91fb3d3078e161ab529229ea85b686a9b0ccd07c1
         run: |
           if [ -z "${LORE_INGEST_URL}" ]; then
             echo "::warning::LORE_INGEST_URL is not configured - Lore test ingest skipped"
