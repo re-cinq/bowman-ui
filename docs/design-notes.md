@@ -1293,6 +1293,28 @@ typecheck` now runs `typescript7` twice: `tsconfig.json`, then
     must sit inside its test. Untitled links into unchanged files map through
     empty hunks, so the sweep adds no churn to a pull request.
 
+15. **`require-status-matches-coverage` autofixes the status row, and
+    `--fix` stays the documented command.** re-lint 1.8.0 made the rule
+    `fixable: "code"`; it carried no fixer in 1.4.1 through 1.7.0, and
+    upstream had withheld one deliberately. The fixer rewrites the `| Status |`
+    row to whatever the coverage supports and never touches a link, so one
+    `eslint --fix` turns `| Status | Shipped |` into `| Status | In Progress |`
+    with the column padding preserved and nothing else in the diff. It
+    resolves a mismatch by lowering the claim rather than by reporting that
+    the statements are under-linked, which is the signal the rule exists to
+    raise - a spec can therefore stop claiming `Shipped` without anyone
+    deciding that it should. No CI job runs `--fix`, so nothing is
+    auto-committed; the exposure is the local command AGENTS.md documents.
+
+    The recommendation stands rather than being withdrawn. The autofix is
+    what makes `curly`, the padding rule and the markdown rules cheap to
+    satisfy, ESLint offers no per-rule way to withhold a fixer from `--fix`,
+    and dropping it would cost every contributor that convenience to guard
+    one row. AGENTS.md carries the caution instead: read what a `--fix` pass
+    changed before committing it, and restore a status row it rewrote instead
+    of accepting the downgrade. Revisit if the fixer ever reaches a second
+    kind of line, where reading the diff stops being enough.
+
 Considered and rejected:
 
 - **Type-aware rules** (`no-floating-promises`, `no-misused-promises`,
