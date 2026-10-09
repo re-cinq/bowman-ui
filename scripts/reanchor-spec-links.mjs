@@ -158,7 +158,10 @@ const mapLine = (line, hunks) => {
 // suite runs no assertions, so naming it in `[validated by <title>]` would
 // count a statement as validated by a grouping construct. Which declarations
 // may stand as a statement's evidence is this repo's rule, not the reader's.
-const GROUPING = /\.(?:describe|suite|step)\b/;
+// Bare `describe(`/`suite(` reach this only if the reader's own prefix stops
+// requiring `it`/`test`; today they are span boundaries and never titled
+// declarations. Matched anyway, so the guarantee survives that change upstream.
+const GROUPING = /(?:^|[\s.])(?:describe|suite|step)\b/;
 
 const runsAssertions = (declaration, sourceLines) => {
   const text = sourceLines[declaration.line - 1] ?? "";

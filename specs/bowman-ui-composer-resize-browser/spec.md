@@ -35,7 +35,7 @@ cited file
 assistive-technology spec's placeholder links carry `#A1`-style fragments and a `<date>`
 placeholder, so the checker never matches them; a real `docs/accessibility/at-pass-*.md` cited
 with `#L` anchors becomes tracked the moment it exists
-([validated by leaves a link whose fragment is not a line number, and a web URL, untouched](../../tests/reanchor-spec-links.test.ts#L437)).
+([validated by leaves a link whose fragment is not a line number, and a web URL, untouched](../../tests/reanchor-spec-links.test.ts#L450)).
 
 ## Baseline
 

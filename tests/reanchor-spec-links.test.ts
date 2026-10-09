@@ -400,6 +400,19 @@ describe("reanchor-spec-links", () => {
     );
   });
 
+  // MATHS_TEST opens with a bare `describe("maths", …)`. The reader names only
+  // `it`/`test` calls, so "maths" is no declaration of its own and the citation
+  // is reported - the same verdict the qualified `test.describe` form gets, by a
+  // different route. Pinned because that route depends on the reader's prefix.
+  it("reports a title carried only by a bare suite", () => {
+    const repo = repoWith(asSpec(link("validated by maths", "1")));
+
+    const result = run(repo, "--all", "main");
+
+    expect(result).toMatchObject({ status: 1 });
+    expect(result.stderr).toContain('no test in tests/Maths.test.ts carries the title "maths"');
+  });
+
   it("reports a title two tests carry and exits 1", () => {
     const repo = repoWith(asSpec(link("validated by adds numbers", "3")), [
       ...MATHS_TEST.slice(0, 7),

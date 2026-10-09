@@ -105,12 +105,14 @@ decision 14).
   link onto a declaration the reader cannot name is pulled back to the test it claims
   ([validated by pulls a titled link back off a test the title reader cannot name](../../tests/reanchor-spec-links.test.ts#L168),
   [validated by ends a test's span at a suite it cannot cite](../../tests/reanchor-spec-links.test.ts#L181)).
-- A title only a suite carries is not evidence and is reported: a `test.describe("…")` is a
-  declaration the reader names, but it runs no assertions, so a statement citing one would read
-  as validated by a grouping construct
-  ([validated by reports a title carried only by a suite, which asserts nothing](../../tests/reanchor-spec-links.test.ts#L385)).
+- A title only a suite carries is not evidence and is reported, in either shape a suite takes: a
+  `test.describe("…")` is a declaration the reader names, filtered out here because it runs no
+  assertions, and a bare `describe("…")` the reader never names at all. Both would otherwise read
+  as a statement validated by a grouping construct
+  ([validated by reports a title carried only by a suite, which asserts nothing](../../tests/reanchor-spec-links.test.ts#L385),
+  [validated by reports a title carried only by a bare suite](../../tests/reanchor-spec-links.test.ts#L407)).
 - A title two tests carry is reported and exits 1
-  ([validated by reports a title two tests carry and exits 1](../../tests/reanchor-spec-links.test.ts#L403)).
+  ([validated by reports a title two tests carry and exits 1](../../tests/reanchor-spec-links.test.ts#L416)).
 - Every other link is paired with its copy in the merge base's markdown and mapped through the
   cited file's `git diff -U0` hunks, in feature specs, the system spec and ADRs alike
   ([validated by maps untitled links on L6 and L3 to L8 and L5 in a spec, the system spec and an ADR](../../tests/reanchor-spec-links.test.ts#L201)).
@@ -145,18 +147,18 @@ decision 14).
   run ([validated by an L9 line label on an L6 href fails --check as mislabelled and a run syncs it to L6](../../tests/reanchor-spec-links.test.ts#L369)).
 - In either mode and whatever the scope, an anchor on a blank or closing line, past the end of
   its file, or into a missing file is rotten and exits 1
-  ([validated by an anchor on a blank line or into a missing file is rotten in both modes](../../tests/reanchor-spec-links.test.ts#L417)).
+  ([validated by an anchor on a blank line or into a missing file is rotten in both modes](../../tests/reanchor-spec-links.test.ts#L430)).
 - A fragment that is not a line number, and a web URL, are never touched
-  ([validated by leaves a link whose fragment is not a line number, and a web URL, untouched](../../tests/reanchor-spec-links.test.ts#L437)).
+  ([validated by leaves a link whose fragment is not a line number, and a web URL, untouched](../../tests/reanchor-spec-links.test.ts#L450)).
 - During an uncommitted merge the baseline includes `MERGE_HEAD`, so links the merged side already
   moved are mapped only through this branch's own shift
-  ([validated by maps L6, an L6 label and setup L3 to L9, L9 and L5 during an uncommitted merge of main](../../tests/reanchor-spec-links.test.ts#L450)).
+  ([validated by maps L6, an L6 label and setup L3 to L9, L9 and L5 during an uncommitted merge of main](../../tests/reanchor-spec-links.test.ts#L463)).
 - The base ref defaults to `origin/main`
-  ([validated by defaults the base ref to origin/main](../../tests/reanchor-spec-links.test.ts#L475)).
+  ([validated by defaults the base ref to origin/main](../../tests/reanchor-spec-links.test.ts#L488)).
 - An unknown flag or a second base ref exits 2 with the usage line
-  ([validated by an unknown flag or a second base ref exits 2 with usage](../../tests/reanchor-spec-links.test.ts#L490)).
+  ([validated by an unknown flag or a second base ref exits 2 with usage](../../tests/reanchor-spec-links.test.ts#L503)).
 - A base ref that does not resolve exits 2 naming the ref
-  ([validated by an unknown base ref exits 2 naming the ref](../../tests/reanchor-spec-links.test.ts#L497)).
+  ([validated by an unknown base ref exits 2 naming the ref](../../tests/reanchor-spec-links.test.ts#L510)).
 
 ## CI
 
