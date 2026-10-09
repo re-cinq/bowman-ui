@@ -1341,6 +1341,50 @@ Considered and rejected:
   eventual fix. `no-inline-styles` passed the same probe and moved
   (decision 6).
 
+## Lore test ingest
+
+`.github/workflows/lore-tests.yml` runs this repository's own suite through the
+`lore-code-trace` binary Lore serves, and that binary posts the report Lore
+ingests. It is third-party code executed in CI with the ingest token in its
+environment, so how it is verified is a decision rather than a detail.
+
+1. **The binary is checked against the `checksums.txt` served beside it, not
+   against a digest committed here.** Issue 137's third deviation from the
+   onboarding template did commit one - a `LORE_CODE_TRACE_SHA256` literal, so
+   that a silently replaced binary would fail the build instead of running.
+   That is the stronger check, and this section is the record of giving it up
+   on 2026-10-09, because it does not survive how Lore publishes.
+
+   Lore rebuilds `lore-code-trace` from its own `main`, which merged twelve
+   times in the twelve hours around this change, and serves it from
+   `/dist/lore-code-trace/linux-amd64`: a path carrying no version, under
+   `cache-control: no-cache`, with no `ETag`. A committed digest goes stale
+   within hours, and did - `main` reddened on a rebuild, and the replacement
+   digest, verified by two independent downloads agreeing with the served
+   `checksums.txt`, was itself superseded eleven minutes later, before the pull
+   request bumping it had finished its own checks. A pin that cannot be landed
+   faster than it rots is not protection; it is a recurring red build that
+   teaches whoever is on call to bump it unread, which is worse than no pin at
+   all.
+
+   What the fallback buys, stated plainly: `checksums.txt` comes from the same
+   origin as the binary, so it catches a corrupted or truncated download and
+   nothing else. An origin serving a substituted binary serves a matching
+   checksum beside it. `lore-ingest.yml` has always verified this way, so the
+   two workflows now agree rather than only one carrying the weaker check.
+
+   Restore the pin if Lore ever serves immutable, versioned artifacts: a digest
+   means something again as soon as the path it names cannot change under it.
+
+2. **The digest is compared explicitly, never with `sha256sum -c`.** macOS
+   ships a `sha256sum` that exits 0 on a malformed check line, which
+   `tests/lore-ingest-workflow.test.ts` pins against the workflow that does use
+   `-c`, and which is the suite's one platform-dependent failure. Here the
+   expected digest is read out of `checksums.txt` with `awk` and compared with
+   `[ ... != ... ]`, which behaves the same on every platform. A `checksums.txt`
+   naming no `linux-amd64` leaves that digest empty and is reported as a
+   mismatch, rather than comparing against an empty string and passing.
+
 ## Coverage floor
 
 `vitest.config.ts` commits the floor inline: 100 lines, 100 functions, 100

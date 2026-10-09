@@ -54,7 +54,6 @@ const fetchStep = stepContaining("- name: Fetch lore-code-trace");
 const runStep = stepContaining("- name: Run test suite");
 const fetchRunBlock = runBlockOf(fetchStep);
 const suiteRunBlock = runBlockOf(runStep);
-const pinnedSha256 = workflow.match(/^ {10}LORE_CODE_TRACE_SHA256: ([0-9a-f]{64})$/m)?.[1];
 const fetchedGate = "if: steps.fetch.outputs.fetched == 'true'";
 const reportGate = "if: always() && steps.run.outputs.report == 'true'";
 const tokenBinding =
@@ -65,17 +64,35 @@ const endpointBinding =
 const hasTool = (tool: string): boolean => spawnSync(tool, ["--version"]).status === 0;
 const fetchIt = it.skipIf(!hasTool("sha256sum"));
 
+// The step fetches two artifacts, so the stub appends its arguments and serves
+// the checksums file its own body - one shared body could never disagree with
+// itself, which is the whole mismatch the step exists to catch.
 const curlStub = `#!/usr/bin/env bash
-printf '%s\\n' "$@" > curl-args
+printf '%s\\n' "$@" >> curl-args
 [ "\${CURL_STUB_EXIT:-0}" = "0" ] || exit "\${CURL_STUB_EXIT}"
 while [ $# -gt 1 ]; do
-  [ "$1" = "-o" ] && printf '%s' "\${CURL_STUB_BODY:-}" > "$2"
+  if [ "$1" = "-o" ]; then
+    case "$2" in
+    checksums.txt) printf '%s' "\${CURL_STUB_CHECKSUMS:-}" > "$2" ;;
+    *) printf '%s' "\${CURL_STUB_BODY:-}" > "$2" ;;
+    esac
+  fi
   shift
 done
 exit 0
 `;
 
 const sha256Of = (body: string): string => createHash("sha256").update(body).digest("hex");
+
+// What the origin serves beside the binary: the other platforms are present so
+// the step is seen picking its own line out of the list rather than reading the
+// first digest in the file.
+const checksumsFor = (body: string, name = "linux-amd64"): string =>
+  [
+    `${sha256Of("darwin-arm64 build")}  darwin-arm64`,
+    `${sha256Of(body)}  ${name}`,
+    `${sha256Of("linux-arm64 build")}  linux-arm64`,
+  ].join("\n");
 
 interface StepRun {
   prefix: string;
@@ -124,8 +141,8 @@ const runFetch = (env: Record<string, string>) => {
     stubs: { curl: curlStub },
     env: {
       LORE_INGEST_URL: "https://lore-api.example.test",
-      LORE_CODE_TRACE_SHA256: pinnedSha256 ?? "",
-      CURL_STUB_BODY: "not the pinned binary",
+      CURL_STUB_BODY: "not the binary the origin vouches for",
+      CURL_STUB_CHECKSUMS: checksumsFor("the binary the origin vouches for"),
       ...env,
     },
   });
@@ -152,16 +169,18 @@ describe("lore-tests.yml triggers and wiring", () => {
     expect(checkoutStep).toContain("\n          persist-credentials: false\n");
   });
 
-  it("pins the lore-code-trace sha256 in the fetch step env and drops the sibling checksums file", () => {
-    expect(fetchStep).toContain(`LORE_CODE_TRACE_SHA256: ${pinnedSha256}`);
+  it("takes the expected digest from the checksums file served beside the binary", () => {
     expect(fetchStep).toContain("\n        shell: bash\n");
     expect(fetchRunBlock).toContain("sha256sum");
-    expect(fetchRunBlock).not.toContain("checksums.txt");
-    // Nothing in the script may reassign the pin - one `LORE_SKIP_PIN` line
-    // would make it bypassable from the runner - and the origin is a literal,
-    // so no override can redirect the download past the digest it is pinned to.
-    expect(fetchRunBlock).not.toMatch(/LORE_CODE_TRACE_SHA256=/);
-    expect(fetchRunBlock).toContain('"${LORE_INGEST_URL}/dist/lore-code-trace/linux-amd64"');
+    expect(fetchRunBlock).toContain("checksums.txt");
+    // No digest is committed here any more (docs/design-notes.md § Lore test
+    // ingest): a 64-hex literal in this workflow would be a pin that goes
+    // stale, which is what this step was changed to stop doing.
+    expect(workflow).not.toMatch(/[0-9a-f]{64}/);
+    expect(fetchRunBlock).toContain('"${LORE_INGEST_URL}/dist/lore-code-trace/${artifact}"');
+    // The comparison is explicit, never `sha256sum -c`, whose exit code macOS
+    // does not report faithfully.
+    expect(fetchRunBlock).not.toMatch(/sha256sum\s+-c/);
   });
 
   it("gives the fetch step the id the gates read and interpolates no expression into any script", () => {
@@ -235,16 +254,18 @@ describe("lore-tests.yml ingest sink", () => {
     expect(workflowBody).not.toContain("Bearer");
   });
 
-  it("downloads the pinned binary from the ingest origin and nowhere else", () => {
+  it("downloads the binary and its checksums from the ingest origin and nowhere else", () => {
+    const body = "the binary the origin vouches for";
     const { curlArgs } = runFetch({
-      CURL_STUB_BODY: "the pinned binary",
-      LORE_CODE_TRACE_SHA256: sha256Of("the pinned binary"),
+      CURL_STUB_BODY: body,
+      CURL_STUB_CHECKSUMS: checksumsFor(body),
     });
 
     expect(curlArgs).toContain("-fsSL");
     expect(curlArgs).toContain("https://lore-api.example.test/dist/lore-code-trace/linux-amd64");
+    expect(curlArgs).toContain("https://lore-api.example.test/dist/lore-code-trace/checksums.txt");
     expect(curlArgs).toContain("-o");
-    expect(curlArgs).toContain("lore-code-trace");
+    expect(curlArgs?.filter((arg) => arg.startsWith("https:"))).toHaveLength(2);
   });
 
   it("runs the whole ingest in one job, so the delta sees the work tree", () => {
@@ -360,6 +381,23 @@ describe("lore-tests.yml fetch step", () => {
     expect(isExecutable).toBe(false);
   });
 
+  // An origin that serves a checksums file naming every platform but this one
+  // leaves the expected digest empty. Comparing an empty string would have
+  // matched nothing and skipped the guard, so it is a mismatch outright.
+  fetchIt("treats a checksums file with no linux-amd64 line as a mismatch", () => {
+    const body = "the binary the origin vouches for";
+    const { result, output, isExecutable } = runFetch({
+      CURL_STUB_BODY: body,
+      CURL_STUB_CHECKSUMS: checksumsFor(body, "linux-riscv64"),
+      GITHUB_EVENT_NAME: "push",
+    });
+
+    expect(result.status).toBe(1);
+    expect(result.stdout).toMatch(/^::error::.*absent/m);
+    expect(output).toBe("");
+    expect(isExecutable).toBe(false);
+  });
+
   fetchIt("exits 1 with ::error on a sha256 mismatch in a push", () => {
     const { result, output, isExecutable } = runFetch({ GITHUB_EVENT_NAME: "push" });
 
@@ -370,10 +408,10 @@ describe("lore-tests.yml fetch step", () => {
   });
 
   fetchIt("marks fetched=true and makes the binary executable when the sha256 matches", () => {
-    const body = "the pinned binary";
+    const body = "the binary the origin vouches for";
     const { result, output, isExecutable } = runFetch({
       CURL_STUB_BODY: body,
-      LORE_CODE_TRACE_SHA256: sha256Of(body),
+      CURL_STUB_CHECKSUMS: checksumsFor(body),
     });
 
     expect(result.status).toBe(0);
