@@ -1,15 +1,25 @@
 # Deviations from the onboarding template, kept on regeneration (issue 137):
 # push runs on main only (pull_request already covers every branch); the fetch
 # step checks for LORE_INGEST_URL in its script (a fork's pull request carries
-# no secrets, and `secrets` cannot be read from an `if:`); the binary is checked
-# against LORE_CODE_TRACE_SHA256 below instead of the checksums.txt served
-# beside it. A missing URL, a failed download or a mismatch never runs the
-# binary, and a failed run or ingest is reported the same way: each annotates
-# a pull request without failing it and fails on main. To bump the pin,
-# download both /dist/lore-code-trace/linux-amd64 and
-# /dist/lore-code-trace/checksums.txt from the ingest origin, confirm
-# `sha256sum -c checksums.txt` agrees with an independent download, then paste
-# the linux-amd64 digest.
+# no secrets, and `secrets` cannot be read from an `if:`). A missing URL, a
+# failed download or a checksum mismatch never runs the binary, and a failed
+# run or ingest is reported the same way: each annotates a pull request
+# without failing it and fails on main.
+# The binary is checked against the checksums.txt served beside it, not
+# against a digest committed here. The committed pin was this workflow's third
+# deviation until it proved unworkable: Lore rebuilds the binary from its own
+# main, which merges many times a day, and serves it from a path carrying no
+# version under `cache-control: no-cache`, so a pinned digest goes stale within
+# hours. It did - main reddened on a rebuild, and a replacement digest verified
+# by hand was superseded 11 minutes later, before its own pull request
+# finished. What that costs is real and is recorded in docs/design-notes.md
+# § Lore test ingest: checksums.txt shares the binary's origin, so this
+# detects a corrupted or truncated download but not a substituted binary.
+# Restore the pin if Lore ever serves immutable, versioned artifacts.
+# The digest is compared explicitly rather than with `sha256sum -c`, whose
+# exit code cannot be trusted across platforms - macOS ships a sha256sum that
+# exits 0 on a malformed check line, as tests/lore-ingest-workflow.test.ts
+# records for the workflow that does use `-c`.
 # The report is posted by the binary itself (`--post`), not by a curl step of
 # our own. The `POST /api/webhook/ci-tests` ingress such a step would target,
 # on the LORE_WEBHOOK_URL host, is gone: that host now answers /api/webhook/*
@@ -93,24 +103,29 @@ jobs:
         shell: bash
         env:
           LORE_INGEST_URL: ${{ secrets.LORE_INGEST_URL || vars.LORE_INGEST_URL }}
-          LORE_CODE_TRACE_SHA256: a278a3e7fb556f4c5342a0d91fb3d3078e161ab529229ea85b686a9b0ccd07c1
         run: |
           if [ -z "${LORE_INGEST_URL}" ]; then
             echo "::warning::LORE_INGEST_URL is not configured - Lore test ingest skipped"
             [ "${GITHUB_EVENT_NAME}" = "pull_request" ] && exit 0
             exit 1
           fi
-          if ! curl -fsSL "${LORE_INGEST_URL}/dist/lore-code-trace/linux-amd64" -o lore-code-trace; then
-            echo "::warning::lore-code-trace could not be downloaded - Lore test ingest skipped"
+          for artifact in linux-amd64 checksums.txt; do
+            if ! curl -fsSL "${LORE_INGEST_URL}/dist/lore-code-trace/${artifact}" -o "${artifact}"; then
+              echo "::warning::lore-code-trace (${artifact}) could not be downloaded - Lore test ingest skipped"
+              [ "${GITHUB_EVENT_NAME}" = "pull_request" ] && exit 0
+              exit 1
+            fi
+          done
+          # An empty expected digest means checksums.txt named no linux-amd64,
+          # so it is a mismatch rather than a reason to skip the comparison.
+          EXPECTED_SHA256=$(awk '/ linux-amd64$/{print $1}' checksums.txt)
+          ACTUAL_SHA256=$(sha256sum linux-amd64 | cut -d " " -f 1)
+          if [ -z "${EXPECTED_SHA256}" ] || [ "${ACTUAL_SHA256}" != "${EXPECTED_SHA256}" ]; then
+            echo "::error::lore-code-trace sha256 ${ACTUAL_SHA256} does not match the ${EXPECTED_SHA256:-absent} linux-amd64 entry in the checksums.txt served beside it - Lore test ingest skipped"
             [ "${GITHUB_EVENT_NAME}" = "pull_request" ] && exit 0
             exit 1
           fi
-          ACTUAL_SHA256=$(sha256sum lore-code-trace | cut -d " " -f 1)
-          if [ "${ACTUAL_SHA256}" != "${LORE_CODE_TRACE_SHA256}" ]; then
-            echo "::error::lore-code-trace sha256 ${ACTUAL_SHA256} does not match the pinned LORE_CODE_TRACE_SHA256 - Lore test ingest skipped; verify the new binary and bump the pin"
-            [ "${GITHUB_EVENT_NAME}" = "pull_request" ] && exit 0
-            exit 1
-          fi
+          mv linux-amd64 lore-code-trace
           chmod +x lore-code-trace
           echo "fetched=true" >> "$GITHUB_OUTPUT"
 
