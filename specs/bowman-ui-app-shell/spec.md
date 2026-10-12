@@ -168,7 +168,7 @@ from the drawer and backdrop; omitted, 021's `useReducedMotion` tracks
 [validated by reducedMotion omitted with matchMedia matching nothing renders both transition classes](../../tests/AppShell.test.tsx#L404)). Rendered in Chromium and WebKit under
 `prefers-reduced-motion: reduce`, the drawer's computed `transition-duration`
 is `0s`, against `0.3s` without the emulation (issue 151)
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L688)).
+([validated by the drawer slides over 0.3s by default and has no transition under prefers-reduced-motion](../../examples/chat-demo/tests/chat-demo.spec.ts#L688)).
 
 ## The characterization suite
 
