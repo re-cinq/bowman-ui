@@ -27,7 +27,7 @@ export const defaultChatCardLabels: Readonly<Required<ChatCardLabels>> = Object.
 
 export interface ChatCardProps {
   entry: CardChatEntry;
-  /** The card's body, from the consumer's own reading of entry.data; without it the cardUnavailable label shows. */
+  /** The card's body, from the consumer's own reading of entry.data; without it, or when it returns null or undefined, the cardUnavailable label shows. */
   describeCard?: (entry: CardChatEntry) => ReactNode;
   /** Shows the thumb buttons, rating this card alone. Default true, as on ChatMessage. */
   showFeedback?: boolean;
@@ -45,10 +45,12 @@ export function ChatCard({
   onFeedback,
 }: ChatCardProps) {
   const resolved = resolveLabels(defaultChatCardLabels, labels);
-  const [pressed, setPressed] = useState<FeedbackType | null>(null);
+  // Keyed by entry.id, as ChatMessage keys its own: a card handed another entry starts unrated.
+  const [feedbackId, setFeedbackId] = useState<{ id: string; type: FeedbackType } | null>(null);
+  const pressed = feedbackId?.id === entry.id ? feedbackId.type : null;
 
   const rate = (type: FeedbackType) => {
-    setPressed(type);
+    setFeedbackId({ id: entry.id, type });
     onFeedback?.(entry.id, type);
   };
 
@@ -57,9 +59,7 @@ export function ChatCard({
       aria-label={resolved.card}
       className={`group flex w-full flex-col gap-2 rounded-xl border ${BORDER} ${SURFACE} p-4 text-sm ${TEXT_STRONG}`}
     >
-      <div className="min-w-0 break-words">
-        {describeCard ? describeCard(entry) : resolved.cardUnavailable}
-      </div>
+      <div className="min-w-0 break-words">{describeCard?.(entry) ?? resolved.cardUnavailable}</div>
       {showFeedback && (
         <div className="-ml-1 flex items-center gap-2 opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100">
           <FeedbackButtons pressed={pressed} labels={resolved} onFeedback={rate} />

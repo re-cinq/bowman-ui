@@ -148,7 +148,7 @@ title>]` link follows its `it()`; every other link is mapped through the cited f
    presentational components carry it as a recorded exception. Enforced by
    scripts/check-client-directives.mjs + the rsc-fixture build.
 3. **Closed public API.** tests/public-api.test.ts asserts the built exports exactly equal the
-   committed snapshot tests/fixtures/public-api.json — currently 63 runtime + 54 type names; the
+   committed snapshot tests/fixtures/public-api.json — currently 65 runtime + 57 type names; the
    two `it()` titles derive their counts from that fixture. NEVER regenerate the snapshot to make
    the test pass; a removal or rename is a breaking major.
 4. **GDPR no-egress.** `src/` writes nothing to the console and performs no network egress

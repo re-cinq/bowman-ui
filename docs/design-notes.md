@@ -360,13 +360,15 @@ cleanup PR reverses them:
   card entries only, so it widens nothing else, and it is the counterpart of
   `describeTool`, not a `renderEntry`.
 - **`data` is opaque and never printed.** It is
-  `Readonly<Record<string, unknown>>`, and without `describeCard` the card
-  shows the `cardUnavailable` label rather than an empty row or a dump of
+  `Readonly<Record<string, unknown>>`, and without `describeCard`, or when it
+  returns `null` or `undefined` for a kind the consumer does not draw, the
+  card shows the `cardUnavailable` label rather than an empty row or a dump of
   `data`; `kind` is never rendered either. What `describeCard` puts in the
   DOM is the consumer's data-flow decision, as `showToolInput` is.
 - **Each card is rated alone.** A turn can hold many cards (one per shipment
   of an order), so the thumbs sit on every card and report its own id
-  through the list's existing `onFeedback`. They are `ChatMessage`'s thumbs,
+  through the list's existing `onFeedback`, the rating keyed by `entry.id`
+  as `ChatMessage` keys its own. They are `ChatMessage`'s thumbs,
   moved to the internal `FeedbackButtons` module both import, so a rated
   card and a rated message cannot drift apart.
 - **No attribution, no copy.** A card is a system answer, not model text, so
@@ -953,8 +955,8 @@ cannot pass a function across the client boundary - `AppShell`
 (`renderSidebar`, `onMobileSidebarOpenChange`), `AppSidebar`
 (`renderNavLink`, `onNavigate`, a `SidebarNavItem`'s `icon`), `Button` and
 `IconButton` (`onClick`, and the `icon` component), `ChatComposer`
-(`onSubmit`), `ChatMessage` and `ChatMessageList` (`onCopy`, `onFeedback`, the
-`assistantMessageFrom` label, and on `ChatMessageList` alone `renderEntryFooter` and `describeTool`),
+(`onSubmit`), `ChatCard` (`describeCard`, `onFeedback`), `ChatMessage` and `ChatMessageList` (`onCopy`, `onFeedback`, the
+`assistantMessageFrom` label, and on `ChatMessageList` alone `renderEntryFooter`, `describeTool` and `describeCard`),
 `ConversationList` (`renderLink`, `onSelect`, `onDelete`, the
 `deleteConversation` label), `ErrorBoundary` (`onError`), `PromptChips`
 (`onPick`), `SearchField` (`onChange`), `Toast` (`onClose`) and

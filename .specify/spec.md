@@ -6,7 +6,7 @@
 
 **Naming convention**: HAL is the conversational engine; Bowman is the presentational face (the UI).
 
-The public surface ships 63 named value exports from `src/index.ts`: 16 components, 5 hooks, a 23-icon set with two icon helpers, a markdown factory with its URL-policy pair, 13 label-defaults objects, and the `resolveLabels` merge helper, plus 54 type exports including the chat entry types ([validated by](../tests/public-api.test.ts#L40), [types](../tests/public-api.test.ts#L46)).
+The public surface ships 65 named value exports from `src/index.ts`: 17 components, 5 hooks, a 23-icon set with two icon helpers, a markdown factory with its URL-policy pair, 14 label-defaults objects, and the `resolveLabels` merge helper, plus 57 type exports including the chat entry types ([validated by](../tests/public-api.test.ts#L40), [types](../tests/public-api.test.ts#L46)).
 
 ## Key Capabilities
 
@@ -102,7 +102,7 @@ Other public data shapes are consumer-supplied and rendered as-is: `Conversation
 
 ## Rendering & Runtime Boundaries
 
-1. **`"use client"` Is Per-File** — The directive is added only to files triggering a client-only rule (a hook-shaped import, `createContext`, a `Component` subclass, a browser global, or an `on[A-Z]` JSX handler); 23 source files carry it and `src/index.ts` carries none. ([validated by exits zero against src/ and dist/](../tests/client-directives.test.ts#L90))
+1. **`"use client"` Is Per-File** — The directive is added only to files triggering a client-only rule (a hook-shaped import, `createContext`, a `Component` subclass, a browser global, or an `on[A-Z]` JSX handler); 25 source files carry it and `src/index.ts` carries none. ([validated by exits zero against src/ and dist/](../tests/client-directives.test.ts#L90))
 2. **Icons Are Server-Renderable** — The 23 icons are pure SVG and carry no directive, so they push no JS into consumer bundles. ([validated by no file under src/icons carries "use client"](../tests/icons.test.tsx#L124))
 3. **Next.js App Router Guarantee** — Because the boundary is per-file, a server component can import the package. ([validated by exits zero against src/ and dist/](../tests/client-directives.test.ts#L90))
 4. **Function-Valued Props Cross From `"use client"`** — The package accepts function props (`onSubmit`, `renderSidebar`, `renderLink`, and the rest); React's serialization boundary rejects passing them from a server component, so an App Router consumer supplies them from a `"use client"` file. The RSC fixture build is the executable proof (see docs/design-notes.md § RSC fixture).

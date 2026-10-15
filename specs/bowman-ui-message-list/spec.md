@@ -56,8 +56,10 @@ exactly decision 3's "unique by concept" rule - a future function-form
 `toolInputUnavailable`) and `ThinkingTraceLabels`'s `thinkingTrace`
 (`specs/bowman-ui-thinking-trace/spec.md`) add no further collision, and
 `assistantMessageFrom` (`specs/bowman-ui-entry-attribution/spec.md`) rides
-in through `ChatMessageLabels`. The union is therefore nineteen keys,
-eighteen in `defaultChatMessageListLabels`
+in through `ChatMessageLabels`. `ChatCardLabels`
+(`specs/bowman-ui-chat-card/spec.md`) adds `card` and `cardUnavailable`, its
+three feedback keys colliding by design with `ChatMessageLabels`'. The union
+is therefore twenty-one keys, twenty in `defaultChatMessageListLabels`
 ([validated by defaultChatMessageListLabels is frozen, carries no aiDisclosure, and unions the inherited defaults with transcript](../../tests/ChatMessageList.test.tsx#L233)).
 
 Because `aiDisclosure` has no default, `ChatMessageList` is the package's
@@ -222,9 +224,10 @@ list.
 - **Name.** `ChatMessageList`, not `MessageList`: the longer name states
   what the list holds and stays clear of the generic `MessageList` name a
   consumer app is likely to declare itself.
-- **Labels forwarding.** The resolved nineteen-key object is handed to
-  `ChatMessage` whole - structurally a valid `Partial<ChatMessageLabels>`
-  whose eight extra keys ride along harmlessly through `ChatMessage`'s own
+- **Labels forwarding.** The resolved twenty-one-key object is handed to
+  `ChatMessage` and `ChatCard` whole - structurally a valid
+  `Partial<ChatMessageLabels>` and `Partial<ChatCardLabels>`, whose extra keys
+  (ten for `ChatMessage`) ride along harmlessly through each one's own
   `resolveLabels` merge, decision 3's flat-union forwarding without an
   eleven-key copy - while `ThinkingIndicator`, `ThinkingTrace` and
   `ToolActivity` each receive their own keys explicitly.

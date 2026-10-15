@@ -53,6 +53,28 @@ describe("ChatCard", () => {
     }).toEqual({ ratings: [["c1", "up"]], pressed: "true", notice: "Thanks!" });
   });
 
+  it("shows the cardUnavailable label when describeCard returns null for a kind it does not draw", () => {
+    render(
+      <ChatCard entry={{ ...deliveryCard, kind: "invoice_card" }} describeCard={() => null} />
+    );
+
+    expect(screen.getByRole("article", { name: "Card" })).toHaveTextContent(
+      "This card could not be shown"
+    );
+  });
+
+  it("starts unrated when handed card c2 after card c1 was rated up", () => {
+    const { rerender } = render(<ChatCard entry={deliveryCard} describeCard={describeDelivery} />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Good response" }));
+    rerender(<ChatCard entry={{ ...deliveryCard, id: "c2" }} describeCard={describeDelivery} />);
+
+    expect({
+      pressed: screen.getByRole("button", { name: "Good response" }).getAttribute("aria-pressed"),
+      notice: screen.queryByText("Thanks!"),
+    }).toEqual({ pressed: "false", notice: null });
+  });
+
   it("renders no thumbs when showFeedback is false", () => {
     render(<ChatCard entry={deliveryCard} describeCard={describeDelivery} showFeedback={false} />);
 
