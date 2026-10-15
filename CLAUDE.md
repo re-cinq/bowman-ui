@@ -101,11 +101,12 @@ title>]` link follows its `it()`; every other link is mapped through the cited f
 - `src/theme/focusRing.ts` — `FOCUS_RING`, the offset focus-ring fragment composed from two token
   constants; imported by five files (four components and `buttonStyles.ts`), never exported from the
   barrel.
-- `src/components/` — 17 `.tsx` (AppShell, AppSidebar, Button, ChatComposer, ChatMessage,
-  ChatMessageList, ConversationList, ErrorBoundary, IconButton, InlineThinkingIndicator,
-  PromptChips, SearchField, ThinkingDots, ThinkingIndicator, ThinkingTrace, Toast, ToolActivity)
-  plus `buttonStyles.ts`, the one private, non-exported class-map module (shared by Button and
-  IconButton; no `"use client"`).
+- `src/components/` — 19 `.tsx` (AppShell, AppSidebar, Button, ChatCard, ChatComposer,
+  ChatMessage, ChatMessageList, ConversationList, ErrorBoundary, FeedbackButtons, IconButton,
+  InlineThinkingIndicator, PromptChips, SearchField, ThinkingDots, ThinkingIndicator,
+  ThinkingTrace, Toast, ToolActivity) plus `buttonStyles.ts`, the one private, non-exported
+  class-map module (shared by Button and IconButton; no `"use client"`). `FeedbackButtons` is
+  internal too: the thumbs ChatMessage and ChatCard share, never exported from the barrel.
 - `src/hooks/` — `focusableSelector` + `focusWithTransientTabIndex` (the internal
   transient-`tabindex="-1"` focus primitive shared by useFocusGroups and ErrorBoundary) + 5
   hooks (useDebounce, useFocusGroups, useFocusTrap, useReducedMotion, useSidebarState).
@@ -147,7 +148,7 @@ title>]` link follows its `it()`; every other link is mapped through the cited f
    presentational components carry it as a recorded exception. Enforced by
    scripts/check-client-directives.mjs + the rsc-fixture build.
 3. **Closed public API.** tests/public-api.test.ts asserts the built exports exactly equal the
-   committed snapshot tests/fixtures/public-api.json — currently 63 runtime + 54 type names; the
+   committed snapshot tests/fixtures/public-api.json — currently 65 runtime + 57 type names; the
    two `it()` titles derive their counts from that fixture. NEVER regenerate the snapshot to make
    the test pass; a removal or rename is a breaking major.
 4. **GDPR no-egress.** `src/` writes nothing to the console and performs no network egress

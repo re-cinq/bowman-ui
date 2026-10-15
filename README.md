@@ -223,8 +223,8 @@ Pass `-- --keep` to retain the temp directory and tarball, and `-- --expect-fail
 A React server component cannot pass a function across the client boundary - `AppShell`
 (`renderSidebar`, `onMobileSidebarOpenChange`), `AppSidebar` (`renderNavLink`, `onNavigate`, a
 `SidebarNavItem`'s `icon`), `Button` and `IconButton` (`onClick`, and the `icon` component),
-`ChatComposer` (`onSubmit`), `ChatMessage` and `ChatMessageList` (`onCopy`, `onFeedback`, the
-`assistantMessageFrom` label, and on `ChatMessageList` alone `renderEntryFooter` and `describeTool`), `ConversationList` (`renderLink`, `onSelect`, `onDelete`, the
+`ChatComposer` (`onSubmit`), `ChatCard` (`describeCard`, `onFeedback`), `ChatMessage` and `ChatMessageList` (`onCopy`, `onFeedback`, the
+`assistantMessageFrom` label, and on `ChatMessageList` alone `renderEntryFooter`, `describeTool` and `describeCard`), `ConversationList` (`renderLink`, `onSelect`, `onDelete`, the
 `deleteConversation` label), `ErrorBoundary` (`onError`), `PromptChips` (`onPick`), `SearchField`
 (`onChange`), `Toast` (`onClose`) and `ToolActivity` (`describeTool`) accept function-valued props,
 so an App Router consumer supplies those props from a `"use client"` file (measured on Next 16.3.3;
@@ -252,6 +252,19 @@ const isRenderable = (entry: ChatEntry): entry is UserChatEntry | AssistantChatE
 entries
   .filter(isRenderable)
   .map((entry) => <ChatMessage key={entry.id} entry={entry} userInitials="AB" />);
+```
+
+`ChatMessageList` also renders a `CardChatEntry` - a card your adapter builds from an entry a tool sent - framed by `ChatCard`, which owns the border, the accessible name and per-card thumbs. You draw the body with `describeCard`; without it the card shows the `cardUnavailable` label and nothing from `data`:
+
+```tsx
+<ChatMessageList
+  entries={entries}
+  userInitials="AB"
+  labels={{ aiDisclosure: "You are chatting with an AI assistant" }}
+  describeCard={(entry) =>
+    entry.kind === "delivery_card" ? <DeliveryCard {...entry.data} /> : null
+  }
+/>
 ```
 
 The components own no scroll position: keeping the transcript pinned to the newest message while a reply streams is the consumer's job.

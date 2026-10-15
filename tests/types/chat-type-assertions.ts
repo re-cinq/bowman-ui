@@ -3,14 +3,27 @@
 // compile, tsc reports the directive as unused and the test fails.
 import type {
   AssistantChatEntry,
+  CardChatEntry,
   ChatEntry,
   ThinkingChatEntry,
   ToolChatEntry,
   UserChatEntry,
 } from "../../src/types/chat.js";
 
-// @ts-expect-error -- a fifth role is not part of the ChatEntry union
-const fifthRole: ChatEntry = { id: "e1", role: "system", content: "nope" };
+// @ts-expect-error -- a sixth role is not part of the ChatEntry union
+const sixthRole: ChatEntry = { id: "e1", role: "system", content: "nope" };
+
+// @ts-expect-error -- a card entry names its kind
+const cardWithoutKind: CardChatEntry = { id: "c0", role: "card", data: {} };
+
+const cardWithPersona: CardChatEntry = {
+  id: "c1",
+  role: "card",
+  kind: "delivery_card",
+  data: {},
+  // @ts-expect-error -- persona is assistant-only: a card entry accepts none
+  persona: "olt-support",
+};
 
 // @ts-expect-error -- AssistantChatEntry requires isStreaming
 const assistantWithoutIsStreaming: AssistantChatEntry = {
@@ -45,7 +58,7 @@ const toolWithPersona: ToolChatEntry = {
   persona: "olt-support",
 };
 
-const allFourRolesCompile: ChatEntry[] = [
+const allFiveRolesCompile: ChatEntry[] = [
   { id: "u1", role: "user", content: "hello" },
   {
     id: "a1",
@@ -57,11 +70,14 @@ const allFourRolesCompile: ChatEntry[] = [
   },
   { id: "t1", role: "thinking", content: "", isStreaming: true },
   { id: "x1", role: "tool", toolName: "get_weather", toolInput: { location: "Berlin" } },
+  { id: "c2", role: "card", kind: "delivery_card", data: { statusCode: "LEVERET" } },
 ];
 
-void fifthRole;
+void sixthRole;
+void cardWithoutKind;
+void cardWithPersona;
 void assistantWithoutIsStreaming;
 void userWithPersona;
 void thinkingWithPersona;
 void toolWithPersona;
-void allFourRolesCompile;
+void allFiveRolesCompile;

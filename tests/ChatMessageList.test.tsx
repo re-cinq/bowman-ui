@@ -5,6 +5,7 @@ import { createRef } from "react";
 import { ACCENT_DOT_SELECTOR } from "./helpers/expect-theme-tokens.js";
 import {
   ChatMessageList,
+  defaultChatCardLabels,
   defaultChatMessageLabels,
   defaultChatMessageListLabels,
   defaultThinkingIndicatorLabels,
@@ -13,6 +14,7 @@ import {
 } from "../src/index.js";
 import type {
   AssistantChatEntry,
+  CardChatEntry,
   ChatMessageListHandle,
   ThinkingChatEntry,
   ToolChatEntry,
@@ -40,6 +42,16 @@ const toolEntry = (id: string): ToolChatEntry => ({
   toolName: "get_weather",
   toolInput: { location: "Berlin", units: "celsius" },
 });
+
+const cardEntry = (id: string, shipmentReference: string): CardChatEntry => ({
+  id,
+  role: "card",
+  kind: "delivery_card",
+  data: { shipmentReference, statusCode: "LEVERET" },
+});
+
+const describeDelivery = (entry: CardChatEntry) =>
+  `${String(entry.data.shipmentReference)} er leveret`;
 
 const thinkingEntry = (id: string, isStreaming = false): ThinkingChatEntry => ({
   id,
@@ -225,6 +237,7 @@ describe("ChatMessageList", () => {
         ...defaultThinkingIndicatorLabels,
         ...defaultThinkingTraceLabels,
         ...defaultToolActivityLabels,
+        ...defaultChatCardLabels,
         transcript: "Conversation",
       });
       expect(Object.keys(defaultChatMessageListLabels)).not.toContain("aiDisclosure");
@@ -1072,6 +1085,69 @@ describe("ChatMessageList", () => {
       );
 
       expect(screen.getByText("Consultando")).toBeInTheDocument();
+    });
+  });
+
+  describe("card entries", () => {
+    it("renders a question, a tool row and two cards, each drawing its describeCard body, in transcript order", () => {
+      const { container } = render(
+        <ChatMessageList
+          entries={[
+            userEntry("u1", "Hvornår leveres OLT-2026-0001?"),
+            toolEntry("t1"),
+            cardEntry("c1", "SHP-2026-000123"),
+            cardEntry("c2", "SHP-2026-000124"),
+          ]}
+          userInitials="LM"
+          describeCard={describeDelivery}
+          labels={{ aiDisclosure }}
+        />
+      );
+
+      const column = container.querySelector(".max-w-3xl");
+
+      expect(Array.from(column?.children ?? []).map((child) => child.textContent)).toEqual([
+        expect.stringContaining("Hvornår leveres OLT-2026-0001?"),
+        "Looked something up",
+        expect.stringContaining("SHP-2026-000123 er leveret"),
+        expect.stringContaining("SHP-2026-000124 er leveret"),
+      ]);
+    });
+
+    it("rates card c2 alone through onFeedback with its own id", () => {
+      const ratings: [string, string][] = [];
+
+      render(
+        <ChatMessageList
+          entries={[cardEntry("c1", "SHP-2026-000123"), cardEntry("c2", "SHP-2026-000124")]}
+          userInitials="LM"
+          describeCard={describeDelivery}
+          labels={{ aiDisclosure }}
+          onFeedback={(entryId, type) => ratings.push([entryId, type])}
+        />
+      );
+
+      const second = screen.getAllByRole("article", { name: "Card" })[1];
+
+      fireEvent.click(within(second).getByRole("button", { name: "Bad response" }));
+
+      expect(ratings).toEqual([["c2", "down"]]);
+    });
+
+    it("names each card and its fallback from the list's labels and shows no thumbs with showFeedback false", () => {
+      render(
+        <ChatMessageList
+          entries={[cardEntry("c1", "SHP-2026-000123")]}
+          userInitials="LM"
+          showFeedback={false}
+          labels={{ aiDisclosure, card: "Leveringskort", cardUnavailable: "Kortet kan ikke vises" }}
+        />
+      );
+
+      expect({
+        card: screen.getByRole("article", { name: "Leveringskort" }).textContent,
+        buttons: screen.queryAllByRole("button"),
+      }).toEqual({ card: "Kortet kan ikke vises", buttons: [] });
     });
   });
 

@@ -29,20 +29,20 @@ Four components, two defaults objects and nine types, all from the package root
 ([validated by](../../tests/public-api.test.ts#L40), [L46](../../tests/public-api.test.ts#L46),
 [validated by is frozen and equals { suggestedPrompts: "Suggested prompts" }](../../tests/PromptChips.test.tsx#L127), [validated by defaultSearchFieldLabels is frozen and equals { searchInput: "Search", searchPlaceholder: "Search..." }](../../tests/SearchField.test.tsx#L106)).
 Every value export lands in one bucket of `tests/labelled-exports.test.tsx`
-([validated by labelsProp, stringPropOnly and noStrings together are exactly src/index.ts's value exports](../../tests/labelled-exports.test.tsx#L158)). The `labelsProp` bucket holds
+([validated by labelsProp, stringPropOnly and noStrings together are exactly src/index.ts's value exports](../../tests/labelled-exports.test.tsx#L164)). The `labelsProp` bucket holds
 `IconButton`, `PromptChips` and `SearchField`, with a sentinel harness each
-([validated by](../../tests/labelled-exports.test.tsx#L88),
-[L89](../../tests/labelled-exports.test.tsx#L89),
-[L90](../../tests/labelled-exports.test.tsx#L90),
-[validated by IconButton's sentinel labels are exactly the one required key accessibleName](../../tests/labelled-exports.test.tsx#L622),
-[validated by PromptChips' sentinel labels cover every defaultPromptChipsLabels key](../../tests/labelled-exports.test.tsx#L626),
-[validated by SearchField's sentinel labels cover every defaultSearchFieldLabels key](../../tests/labelled-exports.test.tsx#L632),
-[validated by no run of three Latin letters survives outside the sentinels for any labelsProp member](../../tests/labelled-exports.test.tsx#L638)). The `noStrings` bucket holds `Button`,
+([validated by](../../tests/labelled-exports.test.tsx#L93),
+[L94](../../tests/labelled-exports.test.tsx#L94),
+[L95](../../tests/labelled-exports.test.tsx#L95),
+[validated by IconButton's sentinel labels are exactly the one required key accessibleName](../../tests/labelled-exports.test.tsx#L672),
+[validated by PromptChips' sentinel labels cover every defaultPromptChipsLabels key](../../tests/labelled-exports.test.tsx#L676),
+[validated by SearchField's sentinel labels cover every defaultSearchFieldLabels key](../../tests/labelled-exports.test.tsx#L682),
+[validated by no run of three Latin letters survives outside the sentinels for any labelsProp member](../../tests/labelled-exports.test.tsx#L688)). The `noStrings` bucket holds `Button`,
 `defaultPromptChipsLabels` and `defaultSearchFieldLabels`
-([validated by](../../tests/labelled-exports.test.tsx#L132),
-[L144](../../tests/labelled-exports.test.tsx#L144),
-[L145](../../tests/labelled-exports.test.tsx#L145)). The `stringPropOnly` list stays at its three
-closed members ([validated by labelsProp, stringPropOnly and noStrings together are exactly src/index.ts's value exports](../../tests/labelled-exports.test.tsx#L158)).
+([validated by](../../tests/labelled-exports.test.tsx#L137),
+[L150](../../tests/labelled-exports.test.tsx#L150),
+[L151](../../tests/labelled-exports.test.tsx#L151)). The `stringPropOnly` list stays at its three
+closed members ([validated by labelsProp, stringPropOnly and noStrings together are exactly src/index.ts's value exports](../../tests/labelled-exports.test.tsx#L164)).
 
 ### `Button`
 
@@ -97,8 +97,8 @@ export const Button: ForwardRefExoticComponent<ButtonProps & RefAttributes<HTMLB
 - `onClick` receives the click event; `disabled` renders the native attribute and the click never
   fires ([validated by clicking "Ny samtale" calls onClick once with the click event](../../tests/Button.test.tsx#L57), [validated by disabled renders the native attribute and the click never reaches onClick](../../tests/Button.test.tsx#L69)).
 - `Button` renders no string of its own - its text is `children` - so it sits in `noStrings` and
-  takes no `labels` prop ([validated by](../../tests/labelled-exports.test.tsx#L132),
-  [validated by labelsProp, stringPropOnly and noStrings together are exactly src/index.ts's value exports](../../tests/labelled-exports.test.tsx#L158)).
+  takes no `labels` prop ([validated by](../../tests/labelled-exports.test.tsx#L137),
+  [validated by labelsProp, stringPropOnly and noStrings together are exactly src/index.ts's value exports](../../tests/labelled-exports.test.tsx#L164)).
 
 ### `IconButton`
 
@@ -141,13 +141,13 @@ export const IconButton: ForwardRefExoticComponent<
 - `labels` is required and `IconButtonLabels` has no defaults object: the accessible name is the
   component's only string and no English default may stand in for it, the same reasoning as
   `aiDisclosure` (docs/design-notes.md § Labels decision 5). Omitting `labels` is a compile
-  error against the built package ([validated by IconButton's sentinel labels are exactly the one required key accessibleName](../../tests/labelled-exports.test.tsx#L622),
+  error against the built package ([validated by IconButton's sentinel labels are exactly the one required key accessibleName](../../tests/labelled-exports.test.tsx#L672),
   [L55](../../tests/types/primitives-type-assertions.tsx#L55),
   [validated by tsc accepts primitives-type-assertions.tsx against dist via the '.' exports entry, pinning every @ts-expect-error fixture](../../tests/primitives-dist.test.ts#L42)).
 - The accessible name goes through `labels`, never a string prop, so `IconButton` is a
   `labelsProp` member and the closed `stringPropOnly` list is untouched
-  ([validated by](../../tests/labelled-exports.test.tsx#L88),
-  [validated by no run of three Latin letters survives outside the sentinels for any labelsProp member](../../tests/labelled-exports.test.tsx#L638)).
+  ([validated by](../../tests/labelled-exports.test.tsx#L93),
+  [validated by no run of three Latin letters survives outside the sentinels for any labelsProp member](../../tests/labelled-exports.test.tsx#L688)).
 
 ### `PromptChips`
 
@@ -187,7 +187,7 @@ export function PromptChips(props: PromptChipsProps): ReactElement | null;
 - `PromptChips` is the intended content of `ChatMessageList`'s `prompts` slot, which stays typed
   `ReactNode`: the consumer renders `prompts={<PromptChips prompts={...} onPick={pick} />}` and
   wires `onPick` to `ChatComposerHandle.setValue` itself. The slot contract does not change
-  ([validated by](../../tests/ChatMessageList.test.tsx#L141)).
+  ([validated by](../../tests/ChatMessageList.test.tsx#L153)).
 
 ### `SearchField`
 
@@ -289,7 +289,7 @@ by](../../tests/public-api.test.ts#L40),
 2. **`IconButton` ships no `defaultIconButtonLabels`.** Its one key is required, so the defaults
    object would be an empty frozen object exported for ceremony. `IconButton` therefore joins
    `ChatMessageList` as a component whose `labels` prop is itself required; docs/design-notes.md
-   § Labels records both ([validated by IconButton's sentinel labels are exactly the one required key accessibleName](../../tests/labelled-exports.test.tsx#L622),
+   § Labels records both ([validated by IconButton's sentinel labels are exactly the one required key accessibleName](../../tests/labelled-exports.test.tsx#L672),
    [L55](../../tests/types/primitives-type-assertions.tsx#L55),
    [validated by tsc accepts primitives-type-assertions.tsx against dist via the '.' exports entry, pinning every @ts-expect-error fixture](../../tests/primitives-dist.test.ts#L42)).
 3. **The `prompts` slot stays `ReactNode`.** Folding the chips into `ChatMessageList` (a

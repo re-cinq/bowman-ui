@@ -190,9 +190,9 @@ key added without a default fails `npm run typecheck`, pinned by the
 compiled against `dist/` (fixture at
 [chat-composer-type-assertions](../../tests/types/chat-composer-type-assertions.tsx)).
 `ChatComposer` joins the `labelsProp` partition and the sentinel render
-covers it ([partition](../../tests/labelled-exports.test.tsx#L84),
-[harness](../../tests/labelled-exports.test.tsx#L454),
-[coverage](../../tests/labelled-exports.test.tsx#L592),
+covers it ([partition](../../tests/labelled-exports.test.tsx#L89),
+[harness](../../tests/labelled-exports.test.tsx#L498),
+[coverage](../../tests/labelled-exports.test.tsx#L642),
 [validated by tsc accepts chat-composer-type-assertions.tsx against dist via the '.' exports entry, pinning the @ts-expect-error fixture](../../tests/chat-composer-dist.test.ts#L18)).
 
 **Note - one placeholder default.** The single `composerPlaceholder`

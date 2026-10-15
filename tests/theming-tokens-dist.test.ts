@@ -64,12 +64,21 @@ const EXPECTED_FALLBACKS: Record<string, string> = {
 };
 
 const NEUTRAL_ROLE_READERS: Record<string, string[]> = {
-  SURFACE: ["AppShell", "AppSidebar", "ChatComposer", "PromptChips", "SearchField", "buttonStyles"],
+  SURFACE: [
+    "AppShell",
+    "AppSidebar",
+    "ChatCard",
+    "ChatComposer",
+    "PromptChips",
+    "SearchField",
+    "buttonStyles",
+  ],
   SURFACE_HOVER: ["AppSidebar", "ConversationList", "PromptChips", "buttonStyles"],
-  CONTROL_HOVER: ["AppShell", "ChatMessage"],
+  CONTROL_HOVER: ["AppShell", "ChatMessage", "FeedbackButtons"],
   BORDER: [
     "AppShell",
     "AppSidebar",
+    "ChatCard",
     "ChatComposer",
     "ChatMessageList",
     "PromptChips",
@@ -86,7 +95,14 @@ const NEUTRAL_ROLE_READERS: Record<string, string[]> = {
     "ToolActivity",
     "buttonStyles",
   ],
-  TEXT_STRONG: ["AppSidebar", "ChatComposer", "ChatMessage", "ErrorBoundary", "SearchField"],
+  TEXT_STRONG: [
+    "AppSidebar",
+    "ChatCard",
+    "ChatComposer",
+    "ChatMessage",
+    "ErrorBoundary",
+    "SearchField",
+  ],
   TEXT_STRONG_HOVER: ["AppSidebar", "buttonStyles"],
   TEXT_STRONG_FOCUS: ["AppShell"],
   TEXT_SECONDARY: [
@@ -98,7 +114,7 @@ const NEUTRAL_ROLE_READERS: Record<string, string[]> = {
     "ToolActivity",
     "buttonStyles",
   ],
-  TEXT_SECONDARY_HOVER: ["ChatMessage"],
+  TEXT_SECONDARY_HOVER: ["ChatMessage", "FeedbackButtons"],
   TEXT_MUTED: [
     "ChatMessage",
     "ChatMessageList",
@@ -108,15 +124,15 @@ const NEUTRAL_ROLE_READERS: Record<string, string[]> = {
     "ThinkingTrace",
     "ToolActivity",
   ],
-  TEXT_SUBTLE: ["ChatMessage", "ConversationList", "SearchField"],
+  TEXT_SUBTLE: ["ChatMessage", "ConversationList", "FeedbackButtons", "SearchField"],
   PLACEHOLDER_SUBTLE: ["ChatComposer", "SearchField"],
   TEXT_SUBTLE_DISABLED: ["ChatComposer"],
   TEXT_ON_ACCENT: ["ChatComposer", "buttonStyles"],
-  DANGER: ["ChatMessage", "ErrorBoundary"],
+  DANGER: ["ErrorBoundary", "FeedbackButtons"],
   DANGER_HOVER: ["ConversationList"],
-  DANGER_SOFT: ["ChatMessage", "ErrorBoundary"],
-  SUCCESS: ["ChatMessage"],
-  SUCCESS_SOFT: ["ChatMessage"],
+  DANGER_SOFT: ["ErrorBoundary", "FeedbackButtons"],
+  SUCCESS: ["ChatMessage", "FeedbackButtons"],
+  SUCCESS_SOFT: ["FeedbackButtons"],
 };
 
 const COMMENT_LINE = /^\/\* (--bowman-[a-z-]+): (.+?) - .+ \*\/$/;

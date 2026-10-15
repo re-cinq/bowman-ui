@@ -29,12 +29,12 @@ the sidebar twice, `hidden`/`md:hidden` on the positions and `inert` on the
 closed drawer keep one exposed at a time; a bare render contains exactly one
 `<nav>`. `AppSidebar`
 sits in the `labelsProp` partition bucket
-([partition](../../tests/labelled-exports.test.tsx#L87),
+([partition](../../tests/labelled-exports.test.tsx#L92),
 [validated by `renders one <aside> named "Sidebar" containing one <nav> named "Main navigation" by default`](../../tests/AppSidebar.test.tsx#L22),
 [validated by labels={{sidebar: "Panel lateral", mainNavigation: "Navegación principal"}} names both landmarks](../../tests/AppSidebar.test.tsx#L33)). It passes the
 sentinel render with both labels set to sentinels
-([harness](../../tests/labelled-exports.test.tsx#L479),
-[coverage](../../tests/labelled-exports.test.tsx#L610)).
+([harness](../../tests/labelled-exports.test.tsx#L523),
+[coverage](../../tests/labelled-exports.test.tsx#L660)).
 
 ## The decisions
 

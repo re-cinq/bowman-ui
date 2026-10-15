@@ -11,7 +11,14 @@ import {
 import { useReducedMotion } from "../hooks/useReducedMotion.js";
 import { resolveLabels } from "../labels.js";
 import type { MarkdownPolicy } from "../markdown/urlPolicy.js";
-import type { AssistantChatEntry, ChatEntry, ToolChatEntry, UserChatEntry } from "../types/chat.js";
+import type {
+  AssistantChatEntry,
+  CardChatEntry,
+  ChatEntry,
+  ToolChatEntry,
+  UserChatEntry,
+} from "../types/chat.js";
+import { ChatCard, defaultChatCardLabels, type ChatCardLabels } from "./ChatCard.js";
 import { ChatMessage, defaultChatMessageLabels, type ChatMessageLabels } from "./ChatMessage.js";
 import {
   ThinkingIndicator,
@@ -31,7 +38,12 @@ import {
 import { BORDER, TEXT_MUTED } from "../theme/tokens.js";
 
 export interface ChatMessageListLabels
-  extends ChatMessageLabels, ThinkingIndicatorLabels, ThinkingTraceLabels, ToolActivityLabels {
+  extends
+    ChatMessageLabels,
+    ThinkingIndicatorLabels,
+    ThinkingTraceLabels,
+    ToolActivityLabels,
+    ChatCardLabels {
   /** EU AI Act disclosure, outside the scroll region in every state; no default (design-notes § Labels decision 5). */
   aiDisclosure: string;
   /** The scroll region's accessible name. */
@@ -45,6 +57,8 @@ export const defaultChatMessageListLabels: Readonly<
   ...defaultThinkingIndicatorLabels,
   ...defaultThinkingTraceLabels,
   ...defaultToolActivityLabels,
+  card: defaultChatCardLabels.card,
+  cardUnavailable: defaultChatCardLabels.cardUnavailable,
   transcript: "Conversation",
 });
 
@@ -55,7 +69,7 @@ export interface ChatAttribution {
 }
 
 export interface ChatMessageListProps {
-  /** The conversation in order, all four entry roles; a delta must arrive as a new array. */
+  /** The conversation in order, all five entry roles; a delta must arrive as a new array. */
   entries: ReadonlyArray<ChatEntry>;
   userInitials: string;
   /** Required, unlike sibling components' labels: aiDisclosure has no default, so the prop cannot be omitted. */
@@ -85,6 +99,8 @@ export interface ChatMessageListProps {
   showToolInput?: boolean;
   /** Fills the icon slot of every `ToolActivity`. */
   toolIcon?: ReactNode;
+  /** Draws a card entry's body; the list frames it, rates it per card and never prints entry.data itself. */
+  describeCard?: (entry: CardChatEntry) => ReactNode;
   /** Mounts a ThinkingTrace per thinking entry; off by default, see design-notes § Thinking trace. */
   showThinking?: boolean;
   onCopy?: (text: string, entryId: string) => void;
@@ -152,6 +168,7 @@ export const ChatMessageList = forwardRef<ChatMessageListHandle, ChatMessageList
       showToolName,
       showToolInput,
       toolIcon,
+      describeCard,
       showThinking = false,
       onCopy,
       onFeedback,
@@ -260,6 +277,19 @@ export const ChatMessageList = forwardRef<ChatMessageListHandle, ChatMessageList
             labels={{ thinkingTrace: resolved.thinkingTrace }}
           />
         ) : null;
+      }
+
+      if (entry.role === "card") {
+        return (
+          <ChatCard
+            key={entry.id}
+            entry={entry}
+            describeCard={describeCard}
+            showFeedback={showFeedback}
+            labels={resolved}
+            onFeedback={onFeedback}
+          />
+        );
       }
       const attributed = attributionFor(entry, attribution);
 
