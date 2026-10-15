@@ -6,6 +6,7 @@ import remarkGfm from "remark-gfm";
 import {
   AppShell,
   AppSidebar,
+  ChatCard,
   ChatComposer,
   ChatMessage,
   ChatMessageList,
@@ -23,6 +24,7 @@ import {
   createUrlTransform,
   defaultAppShellLabels,
   defaultAppSidebarLabels,
+  defaultChatCardLabels,
   defaultChatComposerLabels,
   defaultChatMessageLabels,
   defaultChatMessageListLabels,
@@ -38,6 +40,8 @@ import {
 import type {
   AppShellLabels,
   AppSidebarLabels,
+  CardChatEntry,
+  ChatCardLabels,
   ChatComposerLabels,
   ChatMessageLabels,
   ChatMessageListLabels,
@@ -81,6 +85,7 @@ const labelsProp = [
   "ThinkingIndicator",
   "ThinkingTrace",
   "ToolActivity",
+  "ChatCard",
   "ChatComposer",
   "ConversationList",
   "AppShell",
@@ -141,6 +146,7 @@ const noStrings = [
   "defaultAppShellLabels",
   "defaultAppSidebarLabels",
   "defaultToolActivityLabels",
+  "defaultChatCardLabels",
   "defaultPromptChipsLabels",
   "defaultSearchFieldLabels",
 ];
@@ -229,10 +235,19 @@ const thinkingTraceSentinels = {
   thinkingTrace: "⟦thinkingTrace⟧",
 } satisfies Required<ThinkingTraceLabels>;
 
+const chatCardSentinels = {
+  card: "⟦card⟧",
+  cardUnavailable: "⟦cardUnavailable⟧",
+  feedbackPositive: chatMessageSentinels.feedbackPositive,
+  feedbackNegative: chatMessageSentinels.feedbackNegative,
+  feedbackNotice: chatMessageSentinels.feedbackNotice,
+} satisfies Required<ChatCardLabels>;
+
 const chatMessageListSentinels = {
   ...chatMessageSentinels,
   ...toolActivitySentinels,
   ...thinkingTraceSentinels,
+  ...chatCardSentinels,
   thinkingRegion: "⟦thinkingRegion⟧",
   aiDisclosure: "⟦aiDisclosure⟧",
   transcript: "⟦transcript⟧",
@@ -388,6 +403,7 @@ const sentinelHarnesses: Record<
               isStreaming: false,
               persona: "p-one",
             },
+            { id: "c1", role: "card", kind: "4711", data: { "4712": 4713 } },
           ]}
           userInitials="LM"
           busy
@@ -449,6 +465,34 @@ const sentinelHarnesses: Record<
           <ToolActivity entry={bigIntEntry} showToolInput labels={toolActivitySentinels} />
         </>
       ).container;
+    },
+  },
+  ChatCard: {
+    sentinels: Object.values(chatCardSentinels),
+    renderContainer: () => {
+      const entry = {
+        id: "c1",
+        role: "card",
+        kind: "4711",
+        data: { "4712": 4713 },
+      } satisfies CardChatEntry;
+      // The undescribed card surfaces cardUnavailable; the described one draws
+      // numeric content, and rating it surfaces feedbackNotice.
+      const { container, getAllByRole } = render(
+        <>
+          <ChatCard entry={entry} labels={chatCardSentinels} />
+          <ChatCard
+            entry={{ ...entry, id: "c2" }}
+            describeCard={() => numericContent}
+            labels={chatCardSentinels}
+          />
+        </>
+      );
+      const [thumbsUp] = getAllByRole("button");
+
+      fireEvent.click(thumbsUp);
+
+      return container;
     },
   },
   ChatComposer: {
@@ -586,6 +630,12 @@ describe("the sentinel render check", () => {
   it("ToolActivity's sentinel labels cover every defaultToolActivityLabels key", () => {
     expect(Object.keys(toolActivitySentinels).sort()).toEqual(
       Object.keys(defaultToolActivityLabels).sort()
+    );
+  });
+
+  it("ChatCard's sentinel labels cover every defaultChatCardLabels key", () => {
+    expect(Object.keys(chatCardSentinels).sort()).toEqual(
+      Object.keys(defaultChatCardLabels).sort()
     );
   });
 

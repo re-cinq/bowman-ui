@@ -344,6 +344,37 @@ action row. Three consequences the consumer owns:
   messages only, so a node returned for a user entry is dropped; filtering by
   role in the callback is the consumer's choice, not the library's.
 
+## Card entries
+
+`ChatCard` renders a `CardChatEntry`, the fifth `ChatEntry` role and the only
+one with no `hal-engine` counterpart: a consumer's adapter builds it from an
+entry a tool sent, which the engine forwards as-is (re-cinq/bowman-ui#280;
+Otto's delivery card is the first). This reverses
+`specs/bowman-ui-chat-entry-types/spec.md`'s "a fifth role does not
+typecheck", deliberately; a sixth role still does not. The decisions, so no
+cleanup PR reverses them:
+
+- **The library owns the frame, the consumer only the body.**
+  `describeCard(entry)` returns what goes inside; the article, its
+  accessible name, its tokens and its thumbs are `ChatCard`'s. It receives
+  card entries only, so it widens nothing else, and it is the counterpart of
+  `describeTool`, not a `renderEntry`.
+- **`data` is opaque and never printed.** It is
+  `Readonly<Record<string, unknown>>`, and without `describeCard` the card
+  shows the `cardUnavailable` label rather than an empty row or a dump of
+  `data`; `kind` is never rendered either. What `describeCard` puts in the
+  DOM is the consumer's data-flow decision, as `showToolInput` is.
+- **Each card is rated alone.** A turn can hold many cards (one per shipment
+  of an order), so the thumbs sit on every card and report its own id
+  through the list's existing `onFeedback`. They are `ChatMessage`'s thumbs,
+  moved to the internal `FeedbackButtons` module both import, so a rated
+  card and a rated message cannot drift apart.
+- **No attribution, no copy.** A card is a system answer, not model text, so
+  it carries no avatar or persona name; its body is a consumer node, so what
+  to copy from it is the consumer's call.
+- **No collapsing.** Each card is its own row in transcript order. How a long
+  run of cards presents is a later decision, recorded here when it is made.
+
 ## AppShell
 
 - **A consumer controlling `mobileSidebarOpen` owns closing it on
@@ -392,7 +423,9 @@ decision for that consumer's own compliance record, not one the library
 makes. `ToolActivity` is not a message: it carries no avatar, copy or
 feedback affordance, and no `renderEntry` escape hatch exists - the
 data-boundary default stays in the library rather than one deadline from a
-raw entry dump. When `JSON.stringify` cannot serialise the arguments - a
+raw entry dump. A card entry is not that hatch: § Card entries keeps the
+frame and the data boundary in the library and hands the consumer only the
+body. When `JSON.stringify` cannot serialise the arguments - a
 BigInt, a cycle, a `toJSON` that throws or yields `undefined` - the `<pre>`
 shows the `toolInputUnavailable` label instead, so one malformed entry never
 unmounts the list (issue 130).

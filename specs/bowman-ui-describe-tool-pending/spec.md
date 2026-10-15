@@ -41,7 +41,7 @@ re-exports.
    [validated by takes a one-parameter callback unchanged, ignoring the pending argument](../../tests/ToolActivity.test.tsx#L167),
    [validated by tsc accepts tool-activity-type-assertions.tsx against dist, with no @ts-expect-error in it](../../tests/ToolActivity.test.tsx#L300),
    compiled by
-   [chat-message-list-dist](../../tests/chat-message-list-dist.test.ts#L84)).
+   [chat-message-list-dist](../../tests/chat-message-list-dist.test.ts#L85)).
 2. **One source of truth for the flag.** The value passed is the prop
    `ToolActivity` already resolved (default `false`), so a caller using the
    component directly and one going through `ChatMessageList` see identical
@@ -52,7 +52,7 @@ re-exports.
    one its present-tense string, and with `busy` false both read past tense.
    Its prop type
    restates the signature inline and is kept identical to `ToolActivity`'s
-   ([validated by hands describeTool the same pending flag it derives for its own labels](../../tests/ChatMessageList.test.tsx#L1032)).
+   ([validated by hands describeTool the same pending flag it derives for its own labels](../../tests/ChatMessageList.test.tsx#L1045)).
 3. **Replacement semantics are untouched.** A supplied `describeTool` still
    replaces the tensed labels entirely and suppresses nothing else - with
    `showToolName` also set, the fixture's tool name is still in the document.

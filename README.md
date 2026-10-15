@@ -254,6 +254,19 @@ entries
   .map((entry) => <ChatMessage key={entry.id} entry={entry} userInitials="AB" />);
 ```
 
+`ChatMessageList` also renders a `CardChatEntry` - a card your adapter builds from an entry a tool sent - framed by `ChatCard`, which owns the border, the accessible name and per-card thumbs. You draw the body with `describeCard`; without it the card shows the `cardUnavailable` label and nothing from `data`:
+
+```tsx
+<ChatMessageList
+  entries={entries}
+  userInitials="AB"
+  labels={{ aiDisclosure: "You are chatting with an AI assistant" }}
+  describeCard={(entry) =>
+    entry.kind === "delivery_card" ? <DeliveryCard {...entry.data} /> : null
+  }
+/>
+```
+
 The components own no scroll position: keeping the transcript pinned to the newest message while a reply streams is the consumer's job.
 
 ## Links in model output

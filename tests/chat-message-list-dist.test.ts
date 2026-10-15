@@ -39,7 +39,7 @@ describe("ChatAttribution's built shape", () => {
     expect(declaredMembers(listDeclarations, "ChatAttribution")).toEqual(["name", "avatar"]);
   });
 
-  it("ChatMessageListProps gains attribution and nothing else", () => {
+  it("ChatMessageListProps gains attribution and describeCard and nothing else", () => {
     expect(declaredMembers(listDeclarations, "ChatMessageListProps")).toEqual([
       "entries",
       "userInitials",
@@ -58,6 +58,7 @@ describe("ChatAttribution's built shape", () => {
       "showToolName",
       "showToolInput",
       "toolIcon",
+      "describeCard",
       "showThinking",
       "onCopy",
       "onFeedback",

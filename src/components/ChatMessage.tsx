@@ -3,16 +3,13 @@
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { CheckIcon, CopyIcon, ThumbsDownIcon, ThumbsUpIcon } from "../icons/index.js";
+import { CheckIcon, CopyIcon } from "../icons/index.js";
 import { resolveLabels } from "../labels.js";
 import {
   ACCENT_SOFT_SURFACE,
   CONTROL_HOVER,
-  DANGER,
-  DANGER_SOFT,
   FOCUS_RING_COLOR,
   SUCCESS,
-  SUCCESS_SOFT,
   TEXT_MUTED,
   TEXT_SECONDARY,
   TEXT_SECONDARY_HOVER,
@@ -29,6 +26,7 @@ import {
   type MarkdownPolicy,
 } from "../markdown/urlPolicy.js";
 import type { AssistantChatEntry, UserChatEntry } from "../types/chat.js";
+import { FeedbackButtons } from "./FeedbackButtons.js";
 import { InlineThinkingIndicator } from "./InlineThinkingIndicator.js";
 
 export interface ChatMessageLabels {
@@ -105,21 +103,6 @@ const isCopyChord = (e: KeyboardEvent<HTMLElement>): boolean =>
 
 const hasModifier = (e: KeyboardEvent<HTMLElement>): boolean =>
   e.metaKey || e.ctrlKey || e.shiftKey || e.altKey;
-
-const feedbackButtons = [
-  {
-    type: "up",
-    Icon: ThumbsUpIcon,
-    labelKey: "feedbackPositive",
-    selected: `${SUCCESS_SOFT} ${SUCCESS}`,
-  },
-  {
-    type: "down",
-    Icon: ThumbsDownIcon,
-    labelKey: "feedbackNegative",
-    selected: `${DANGER_SOFT} ${DANGER}`,
-  },
-] as const;
 
 export function ChatMessage({
   entry,
@@ -359,29 +342,11 @@ function AssistantMessage({
             )}
 
             {showFeedback && (
-              <>
-                {feedbackButtons.map(({ type, Icon, labelKey, selected }) => (
-                  <button
-                    key={type}
-                    type="button"
-                    className={`rounded p-1.5 ring-offset-2 transition-colors focus:outline-none focus:ring-2 ${FOCUS_RING_COLOR} dark:ring-offset-slate-950 ${
-                      pressed === type
-                        ? selected
-                        : `${TEXT_SUBTLE} ${CONTROL_HOVER} ${TEXT_SECONDARY_HOVER}`
-                    }`}
-                    onClick={() => onFeedback(entry.id, type)}
-                    aria-label={resolved[labelKey]}
-                    aria-pressed={pressed === type}
-                  >
-                    <Icon className="h-4 w-4" />
-                  </button>
-                ))}
-                {pressed !== null && (
-                  <span className={`bowman-fade-in ml-1 text-xs ${TEXT_SUBTLE}`}>
-                    {resolved.feedbackNotice}
-                  </span>
-                )}
-              </>
+              <FeedbackButtons
+                pressed={pressed}
+                labels={resolved}
+                onFeedback={(type) => onFeedback(entry.id, type)}
+              />
             )}
           </div>
         )}

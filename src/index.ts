@@ -5,6 +5,7 @@ export type {
   AssistantChatEntry,
   ThinkingChatEntry,
   ToolChatEntry,
+  CardChatEntry,
   ChatStreamState,
   ChatErrorInfo,
 } from "./types/chat.js";
@@ -71,6 +72,8 @@ export { ThinkingTrace, defaultThinkingTraceLabels } from "./components/Thinking
 export type { ThinkingTraceLabels, ThinkingTraceProps } from "./components/ThinkingTrace.js";
 export { ToolActivity, defaultToolActivityLabels } from "./components/ToolActivity.js";
 export type { ToolActivityLabels, ToolActivityProps } from "./components/ToolActivity.js";
+export { ChatCard, defaultChatCardLabels } from "./components/ChatCard.js";
+export type { ChatCardLabels, ChatCardProps } from "./components/ChatCard.js";
 export { ChatComposer, defaultChatComposerLabels } from "./components/ChatComposer.js";
 export type {
   ChatComposerHandle,
