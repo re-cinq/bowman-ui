@@ -102,7 +102,7 @@ jobs:
         id: fetch
         shell: bash
         env:
-          LORE_INGEST_URL: ${{ secrets.LORE_INGEST_URL || vars.LORE_INGEST_URL }}
+          LORE_INGEST_URL: ${{ secrets.LORE_INGEST_URL || vars.LORE_INGEST_URL || vars.LORE_API_URL }}
         run: |
           if [ -z "${LORE_INGEST_URL}" ]; then
             echo "::warning::LORE_INGEST_URL is not configured - Lore test ingest skipped"
@@ -139,7 +139,7 @@ jobs:
         if: steps.fetch.outputs.fetched == 'true'
         shell: bash
         env:
-          LORE_API_URL: ${{ github.event_name == 'push' && (secrets.LORE_INGEST_URL || vars.LORE_INGEST_URL) || '' }}
+          LORE_API_URL: ${{ github.event_name == 'push' && (secrets.LORE_INGEST_URL || vars.LORE_INGEST_URL || vars.LORE_API_URL) || '' }}
           LORE_INGEST_TOKEN: ${{ github.event_name == 'push' && secrets.LORE_INGEST_TOKEN || '' }}
           # The binary's per-command default is 120s, which a cold runner can
           # exceed on the list command or a per-file run - and under
