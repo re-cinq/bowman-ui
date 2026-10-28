@@ -187,7 +187,7 @@ export const componentDocs: ReadonlyArray<ComponentDoc> = [
     id: "chat-message",
     name: "ChatMessage",
     purpose:
-      "One turn of a conversation. Reach for it when you are laying out messages yourself; reach for ChatMessageList when you want the whole transcript. It renders a user turn as a plain bubble and an assistant turn as markdown behind a link and image policy, with copy and feedback affordances that appear on hover or focus. Only user and assistant entries are renderable: handing it a thinking or tool entry is a compile error rather than a silent blank, so tool arguments cannot reach a customer's screen by accident.",
+      "One turn of a conversation. Reach for it when you are laying out messages yourself; reach for ChatMessageList when you want the whole transcript. It renders a user turn as a plain bubble and an assistant turn as markdown behind a link and image policy, with copy and feedback affordances that appear on hover or focus, and at rest on a device with no hover, such as a phone. Only user and assistant entries are renderable: handing it a thinking or tool entry is a compile error rather than a silent blank, so tool arguments cannot reach a customer's screen by accident.",
     importLine: 'import { ChatMessage } from "@re-cinq/bowman-ui";',
     Example: ChatMessageExample,
     exampleSource: chatMessageSource,
