@@ -187,7 +187,7 @@ export function PromptChips(props: PromptChipsProps): ReactElement | null;
 - `PromptChips` is the intended content of `ChatMessageList`'s `prompts` slot, which stays typed
   `ReactNode`: the consumer renders `prompts={<PromptChips prompts={...} onPick={pick} />}` and
   wires `onPick` to `ChatComposerHandle.setValue` itself. The slot contract does not change
-  ([validated by](../../tests/ChatMessageList.test.tsx#L154)).
+  ([validated by](../../tests/ChatMessageList.test.tsx#L165)).
 
 ### `SearchField`
 

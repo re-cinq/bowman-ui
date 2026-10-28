@@ -182,7 +182,6 @@ export const ChatMessageList = forwardRef<ChatMessageListHandle, ChatMessageList
     const prefersReducedMotion = useReducedMotion(reducedMotion);
     const regionRef = useRef<HTMLDivElement>(null);
     const pinnedRef = useRef(true);
-    const smoothScrollInFlightRef = useRef(false);
     const lastScrollTopRef = useRef(0);
     const previousLengthRef = useRef<number | null>(null);
 
@@ -192,7 +191,6 @@ export const ChatMessageList = forwardRef<ChatMessageListHandle, ChatMessageList
       previousLengthRef.current = entries.length;
 
       if (previousLength === null) {
-        smoothScrollInFlightRef.current = false;
         scrollRegionToBottom(regionRef.current, "auto");
 
         return;
@@ -204,7 +202,6 @@ export const ChatMessageList = forwardRef<ChatMessageListHandle, ChatMessageList
       const grew = entries.length > previousLength;
       const behavior: ScrollBehavior = prefersReducedMotion || !grew ? "auto" : "smooth";
 
-      smoothScrollInFlightRef.current = behavior === "smooth";
       scrollRegionToBottom(regionRef.current, behavior);
     }, [entries, busy, prefersReducedMotion]);
 
@@ -215,7 +212,6 @@ export const ChatMessageList = forwardRef<ChatMessageListHandle, ChatMessageList
           const behavior: ScrollBehavior = prefersReducedMotion ? "auto" : "smooth";
 
           pinnedRef.current = true;
-          smoothScrollInFlightRef.current = behavior === "smooth";
           scrollRegionToBottom(regionRef.current, behavior);
         },
         isPinnedToBottom: () => isNearBottom(regionRef.current),
@@ -223,25 +219,22 @@ export const ChatMessageList = forwardRef<ChatMessageListHandle, ChatMessageList
       [prefersReducedMotion]
     );
 
-    // Our smooth scroll's own downward events must not unpin the reader; the bottom or an upward move settles it.
+    // Only the reader moves the region up; the list's own scrolls move it down, and content can outgrow one before its event lands.
     const handleScroll = (event: UIEvent<HTMLDivElement>) => {
       const node = event.currentTarget;
-      const previousTop = lastScrollTopRef.current;
+      const movedUp = node.scrollTop < lastScrollTopRef.current;
 
       lastScrollTopRef.current = node.scrollTop;
 
       if (isNearBottom(node)) {
         pinnedRef.current = true;
-        smoothScrollInFlightRef.current = false;
 
         return;
       }
 
-      if (smoothScrollInFlightRef.current && node.scrollTop > previousTop) {
-        return;
+      if (movedUp) {
+        pinnedRef.current = false;
       }
-      pinnedRef.current = false;
-      smoothScrollInFlightRef.current = false;
     };
 
     const showEmptyState = entries.length === 0 && !busy;

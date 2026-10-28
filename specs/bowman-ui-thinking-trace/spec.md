@@ -87,13 +87,13 @@ compiled by
 `showThinking` gates the mount, not the visibility, and defaults `false`: with
 the flag absent, `[user, thinking, assistant]` renders no `<details>` and none
 of the thinking content while the user and assistant entries render unchanged
-([validated by showThinking absent leaves the user and assistant entries untouched](../../tests/ChatMessageList.test.tsx#L1195),
-[validated by showThinking absent renders no details and none of the thinking content](../../tests/ChatMessageList.test.tsx#L1185)). With it true the same
+([validated by showThinking absent leaves the user and assistant entries untouched](../../tests/ChatMessageList.test.tsx#L1212),
+[validated by showThinking absent renders no details and none of the thinking content](../../tests/ChatMessageList.test.tsx#L1202)). With it true the same
 array renders exactly one collapsed `ThinkingTrace` between them.
 `reducedMotion` forwards to the trace, as does the resolved `thinkingTrace`
-label ([validated by forwards the resolved thinkingTrace label so a Danish catalogue reaches the trace](../../tests/ChatMessageList.test.tsx#L1253),
-[validated by showThinking true renders one collapsed trace between the two messages](../../tests/ChatMessageList.test.tsx#L1207),
-[validated by forwards reducedMotion, stripping the streaming dots' animation class](../../tests/ChatMessageList.test.tsx#L1238)).
+label ([validated by forwards the resolved thinkingTrace label so a Danish catalogue reaches the trace](../../tests/ChatMessageList.test.tsx#L1270),
+[validated by showThinking true renders one collapsed trace between the two messages](../../tests/ChatMessageList.test.tsx#L1224),
+[validated by forwards reducedMotion, stripping the streaming dots' animation class](../../tests/ChatMessageList.test.tsx#L1255)).
 
 `ChatMessageListLabels` gains `thinkingTrace` as a defaulted key, colliding
 with no key of `ChatMessageLabels`, `ThinkingIndicatorLabels` (`thinking`,
@@ -106,7 +106,7 @@ key.
 A reasoning trace is not a disclosure and does not substitute for one: a list
 holding a single thinking entry with `showThinking` true still renders the
 `aiDisclosure` band
-([validated by a list holding a single thinking entry with showThinking still renders the aiDisclosure band](../../tests/ChatMessageList.test.tsx#L1225)).
+([validated by a list holding a single thinking entry with showThinking still renders the aiDisclosure band](../../tests/ChatMessageList.test.tsx#L1242)).
 
 ## GDPR
 

@@ -50,7 +50,7 @@ else, and its labels gain `card` and `cardUnavailable`
   `showFeedback={false}` renders no thumbs
   ([validated by starts unrated when handed card c2 after card c1 was rated up](../../tests/ChatCard.test.tsx#L66),
   [validated by rates card c1 up through onFeedback, presses that thumb and shows the notice](../../tests/ChatCard.test.tsx#L36),
-  [validated by rates card c2 alone through onFeedback with its own id](../../tests/ChatMessageList.test.tsx#L1141),
+  [validated by rates card c2 alone through onFeedback with its own id](../../tests/ChatMessageList.test.tsx#L1158),
   [validated by renders no thumbs when showFeedback is false](../../tests/ChatCard.test.tsx#L78)).
 - **The thumbs row reveals like `ChatMessage`'s.** Where the pointer can
   hover, the row is `opacity-0` at rest and shows on hover or when focus
@@ -61,7 +61,7 @@ else, and its labels gain `card` and `cardUnavailable`
 - **Strings come from the labels.** The article's name and the fallback
   follow the `labels` given to `ChatCard` or to `ChatMessageList`
   ([validated by names the article and the fallback from the labels it is given](../../tests/ChatCard.test.tsx#L84),
-  [validated by names each card and its fallback from the list's labels and shows no thumbs with showFeedback false](../../tests/ChatMessageList.test.tsx#L1161)).
+  [validated by names each card and its fallback from the list's labels and shows no thumbs with showFeedback false](../../tests/ChatMessageList.test.tsx#L1178)).
 - **Cards sit in transcript order.** `ChatMessageList` renders each card
   entry where it falls, after the tool row that produced it
-  ([validated by renders a question, a tool row and two cards, each drawing its describeCard body, in transcript order](../../tests/ChatMessageList.test.tsx#L1116)).
+  ([validated by renders a question, a tool row and two cards, each drawing its describeCard body, in transcript order](../../tests/ChatMessageList.test.tsx#L1133)).

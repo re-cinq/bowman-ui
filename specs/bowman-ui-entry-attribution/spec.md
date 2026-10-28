@@ -82,25 +82,25 @@ prop smuggled in with it fails. `ChatMessage` gains exactly one prop,
    personas: it takes a name and renders it. Two personas render two names and
    two faces in one conversation; a persona that resolves to a name but no
    avatar keeps the default face
-   ([validated by a persona resolving to a name but no avatar keeps the default assistantAvatar](../../tests/ChatMessageList.test.tsx#L654),
-   [validated by two assistant entries with two personas render two names and two faces in one conversation](../../tests/ChatMessageList.test.tsx#L547)).
+   ([validated by a persona resolving to a name but no avatar keeps the default assistantAvatar](../../tests/ChatMessageList.test.tsx#L665),
+   [validated by two assistant entries with two personas render two names and two faces in one conversation](../../tests/ChatMessageList.test.tsx#L558)).
 3. **An unknown id falls back and is never rendered.** A persisted or replayed
    session can name a persona the consumer has since retired, so an id absent
    from the table resolves to the default `assistantAvatar` with no name, and
    the raw id appears nowhere in `container.innerHTML`
-   ([validated by an entry whose persona "p-gone" is absent from attribution falls back to assistantAvatar, renders no name, and never prints the id](../../tests/ChatMessageList.test.tsx#L570)).
+   ([validated by an entry whose persona "p-gone" is absent from attribution falls back to assistantAvatar, renders no name, and never prints the id](../../tests/ChatMessageList.test.tsx#L581)).
 4. **The prop is inert for every existing consumer.** With `attribution`
    supplied and no entry carrying a `persona`, the render is byte-identical to
    the same render with the prop omitted; entries carrying a `persona` with
    `attribution` omitted are byte-identical to the same entries without one.
    Both are asserted as `innerHTML` equality, not as a spot check
-   ([validated by attribution supplied with no entry carrying a persona renders identically to attribution omitted](../../tests/ChatMessageList.test.tsx#L587),
-   [persona without a table](../../tests/ChatMessageList.test.tsx#L597)).
+   ([validated by attribution supplied with no entry carrying a persona renders identically to attribution omitted](../../tests/ChatMessageList.test.tsx#L598),
+   [persona without a table](../../tests/ChatMessageList.test.tsx#L608)).
 5. **The `busy` tail keeps the default avatar.** No entry - and therefore no
    persona - exists at the point the thinking indicator renders, so the tail
    takes `assistantAvatar` unchanged even when the last entry carries a
    persona with a matching table row
-   ([validated by with busy true, the thinking tail keeps the default assistantAvatar behind a trailing persona entry](../../tests/ChatMessageList.test.tsx#L622)).
+   ([validated by with busy true, the thinking tail keeps the default assistantAvatar behind a trailing persona entry](../../tests/ChatMessageList.test.tsx#L633)).
 6. **No "hide names until there are two personas" logic.** A consumer that
    wants no names omits the map. The package counts nothing and infers
    nothing.
@@ -200,14 +200,14 @@ system under Article 50(1) of the EU AI Act - a human first name and a face
 make the disclosure more necessary, not less - and points at
 `062-support-agent-ai-disclosure`. A render whose attribution supplies a human
 first name still shows `028`'s resolved `aiDisclosure`, and no prop removes it
-([validated by a human first name in attribution leaves the aiDisclosure line in place](../../tests/ChatMessageList.test.tsx#L640)).
+([validated by a human first name in attribution leaves the aiDisclosure line in place](../../tests/ChatMessageList.test.tsx#L651)).
 
 Zero retention holds by source grep and by the suite-wide spy: neither changed
 component calls `console.*`, `localStorage`, `sessionStorage`, `fetch` or
 `navigator.sendBeacon`, and `tests/setup.ts` fails any test whose render
 touched the console or the network
 ([validated by `GDPR: neither file calls console.*, localStorage, sessionStorage, fetch or sendBeacon`](../../tests/ChatMessage.test.tsx#L749),
-[the list](../../tests/ChatMessageList.test.tsx#L966)).
+[the list](../../tests/ChatMessageList.test.tsx#L983)).
 
 ## Gates
 
