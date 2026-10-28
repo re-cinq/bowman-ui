@@ -22,6 +22,7 @@ const uniformIconNames = [
   "DatabaseIcon",
   "ErrorIcon",
   "InfoIcon",
+  "LogOutIcon",
   "MenuIcon",
   "PlusIcon",
   "RefreshIcon",
@@ -53,16 +54,16 @@ const attributeMap = (element: Element): Record<string, string> =>
   Object.fromEntries([...element.attributes].map((attr) => [attr.name, attr.value]));
 
 describe("the icon set inventory", () => {
-  it("exports exactly the 23 icon components plus IconWrapper and getAccessibleIconProps", () => {
+  it("exports exactly the 24 icon components plus IconWrapper and getAccessibleIconProps", () => {
     expect(Object.keys(icons).sort()).toEqual(
       [...iconNames, "IconWrapper", "getAccessibleIconProps"].sort()
     );
   });
 
-  it("declares the 22 uniform icons as /*#__PURE__*/-annotated createUniformIcon calls over one IconWrapper site and only LoadingIcon as a raw <svg> - the annotation is what lets a bundler drop unused icons (#55)", () => {
+  it("declares the 23 uniform icons as /*#__PURE__*/-annotated createUniformIcon calls over one IconWrapper site and only LoadingIcon as a raw <svg> - the annotation is what lets a bundler drop unused icons (#55)", () => {
     const source = readFileSync(resolve(process.cwd(), "src/icons/index.tsx"), "utf8");
 
-    expect(source.match(/= \/\*#__PURE__\*\/ createUniformIcon\(/g)).toHaveLength(22);
+    expect(source.match(/= \/\*#__PURE__\*\/ createUniformIcon\(/g)).toHaveLength(23);
     expect(source.match(/<IconWrapper /g)).toHaveLength(1);
     expect(source.match(/<svg/g)).toHaveLength(1);
   });

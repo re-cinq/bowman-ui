@@ -4,6 +4,7 @@ import { resolve } from "node:path";
 import { createRef } from "react";
 import { ACCENT_DOT_SELECTOR } from "./helpers/expect-theme-tokens.js";
 import {
+  AppSidebar,
   ChatMessageList,
   defaultChatCardLabels,
   defaultChatMessageLabels,
@@ -241,6 +242,29 @@ describe("ChatMessageList", () => {
         transcript: "Conversation",
       });
       expect(Object.keys(defaultChatMessageListLabels)).not.toContain("aiDisclosure");
+    });
+
+    it("is at least as tall as AppSidebar's h-14 brand row, its text centred, so their bottom borders meet across the page", () => {
+      render(
+        <>
+          <AppSidebar brand={<span>OLT kundeservice</span>} />
+          <ChatMessageList entries={twoEntries} userInitials="LM" labels={{ aiDisclosure }} />
+        </>
+      );
+
+      const bandClasses = screen.getByText(aiDisclosure).className.split(" ");
+      const brandRowClasses = screen
+        .getByText("OLT kundeservice")
+        .parentElement?.className.split(" ");
+
+      expect({
+        band: ["min-h-14", "flex", "items-center", "border-b"].every((cls) =>
+          bandClasses.includes(cls)
+        ),
+        brandRow: ["h-14", "items-center", "border-b"].every((cls) =>
+          brandRowClasses?.includes(cls)
+        ),
+      }).toEqual({ band: true, brandRow: true });
     });
   });
 

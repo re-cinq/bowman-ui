@@ -110,7 +110,7 @@ title>]` link follows its `it()`; every other link is mapped through the cited f
 - `src/hooks/` — `focusableSelector` + `focusWithTransientTabIndex` (the internal
   transient-`tabindex="-1"` focus primitive shared by useFocusGroups and ErrorBoundary) + 5
   hooks (useDebounce, useFocusGroups, useFocusTrap, useReducedMotion, useSidebarState).
-- `src/icons/` — `Icon.tsx` primitive + `index.tsx` (23 icons; see invariant 9).
+- `src/icons/` — `Icon.tsx` primitive + `index.tsx` (24 icons; see invariant 9).
 - `src/markdown/` — `components.tsx`, `urlPolicy.ts`.
 - `src/types/chat.ts`.
 - `tests/` (test files flat at the top level): `<Component>.test.tsx` = behavior;
@@ -144,7 +144,7 @@ title>]` link follows its `it()`; every other link is mapped through the cited f
    ban on `next-intl` in eslint.config.mjs.
 2. **`"use client"` per-file** (docs/design-notes.md decision 1). Trigger list is AST-measured (four rules plus
    the `on[A-Z]` JSX-handler rule); NO escape-hatch pragma; the directive must be the first
-   statement of the built file. `src/index.ts` and the 23 icons carry none; the thinking-family
+   statement of the built file. `src/index.ts` and the 24 icons carry none; the thinking-family
    presentational components carry it as a recorded exception. Enforced by
    scripts/check-client-directives.mjs + the rsc-fixture build.
 3. **Closed public API.** tests/public-api.test.ts asserts the built exports exactly equal the
