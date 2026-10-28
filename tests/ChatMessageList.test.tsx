@@ -131,6 +131,17 @@ const appendThirdEntry = (rerender: ReturnType<typeof render>["rerender"]) => {
   rerender(<ChatMessageList entries={threeEntries} userInitials="LM" labels={{ aiDisclosure }} />);
 };
 
+const growLastEntry = (rerender: ReturnType<typeof render>["rerender"]) => {
+  scrollToMock.mockClear();
+  rerender(
+    <ChatMessageList
+      entries={[twoEntries[0], assistantEntry("a1", "Pedido 4711 encontrado y confirmado")]}
+      userInitials="LM"
+      labels={{ aiDisclosure }}
+    />
+  );
+};
+
 const expectSmoothScrollToBottom = () => {
   expect(scrollToMock).toHaveBeenCalledExactlyOnceWith({ top: 1200, behavior: "smooth" });
 };
@@ -680,9 +691,10 @@ describe("ChatMessageList", () => {
       expectSmoothScrollToBottom();
     });
 
-    it("unpinned after a scroll event at scrollTop 100, appending an entry calls scrollTo zero times", () => {
+    it("unpinned after scrolling up from the bottom to scrollTop 100, appending an entry calls scrollTo zero times", () => {
       const rerender = renderTwoEntriesWithGeometry();
 
+      scrollRegionTo(800);
       scrollRegionTo(100);
       appendThirdEntry(rerender);
 
@@ -692,6 +704,7 @@ describe("ChatMessageList", () => {
     it("a scroll event back to the bottom re-pins and the next append scrolls smooth again", () => {
       const rerender = renderTwoEntriesWithGeometry();
 
+      scrollRegionTo(800);
       scrollRegionTo(100);
       scrollRegionTo(800);
       appendThirdEntry(rerender);
@@ -702,14 +715,7 @@ describe("ChatMessageList", () => {
     it("growing the last entry's content without changing entries.length scrolls with behavior auto", () => {
       const rerender = renderTwoEntriesWithGeometry();
 
-      scrollToMock.mockClear();
-      rerender(
-        <ChatMessageList
-          entries={[twoEntries[0], assistantEntry("a1", "Pedido 4711 encontrado y confirmado")]}
-          userInitials="LM"
-          labels={{ aiDisclosure }}
-        />
-      );
+      growLastEntry(rerender);
 
       expect(scrollToMock).toHaveBeenCalledExactlyOnceWith({ top: 1200, behavior: "auto" });
     });
@@ -819,6 +825,15 @@ describe("ChatMessageList", () => {
       );
       expect(scrollToMock).toHaveBeenCalledTimes(0);
     });
+
+    it("a downward scroll event landing 55px short of the bottom, after a delta outgrew the list's own scroll, stays pinned and the next delta follows", () => {
+      const rerender = renderTwoEntriesWithGeometry();
+
+      scrollRegionTo(745);
+      growLastEntry(rerender);
+
+      expect(scrollToMock).toHaveBeenCalledExactlyOnceWith({ top: 1200, behavior: "auto" });
+    });
   });
 
   describe("the ref handle", () => {
@@ -857,6 +872,8 @@ describe("ChatMessageList", () => {
       );
 
       stubGeometry(regionOf());
+      regionOf().scrollTop = 800;
+      fireEvent.scroll(regionOf());
       regionOf().scrollTop = 100;
       fireEvent.scroll(regionOf());
       scrollToMock.mockClear();

@@ -83,7 +83,7 @@ key by the convention's `resolveLabels`
    `ChatMessageList` forwards it with them
    ([validated by](../../tests/ToolActivity.test.tsx#L89),
    [override](../../tests/ToolActivity.test.tsx#L112),
-   [forwarded](../../tests/ChatMessageList.test.tsx#L1050)).
+   [forwarded](../../tests/ChatMessageList.test.tsx#L1067)).
 
 ## In the message list
 
@@ -103,11 +103,11 @@ entry still shows the `aiDisclosure` band. `ChatMessageListLabels` gains
 `activity`, `activityDone` and `details` (and, since issue 130,
 `toolInputUnavailable`) as defaulted keys, so `aiDisclosure` stays its only
 required key
-([validated by](../../tests/ChatMessageList.test.tsx#L974),
-[validated by busy true makes a trailing tool entry pending and busy false makes it done](../../tests/ChatMessageList.test.tsx#L1002),
-[validated by a non-trailing tool entry stays done even while busy](../../tests/ChatMessageList.test.tsx#L1015),
-[validated by forwards describeTool, showToolName, showToolInput and toolIcon to the activity](../../tests/ChatMessageList.test.tsx#L1037),
-[validated by a list holding a single tool entry still renders the aiDisclosure band](../../tests/ChatMessageList.test.tsx#L1029)).
+([validated by](../../tests/ChatMessageList.test.tsx#L991),
+[validated by busy true makes a trailing tool entry pending and busy false makes it done](../../tests/ChatMessageList.test.tsx#L1019),
+[validated by a non-trailing tool entry stays done even while busy](../../tests/ChatMessageList.test.tsx#L1032),
+[validated by forwards describeTool, showToolName, showToolInput and toolIcon to the activity](../../tests/ChatMessageList.test.tsx#L1054),
+[validated by a list holding a single tool entry still renders the aiDisclosure band](../../tests/ChatMessageList.test.tsx#L1046)).
 
 ## GDPR zero retention
 
