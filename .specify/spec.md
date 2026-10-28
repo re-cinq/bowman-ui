@@ -6,7 +6,7 @@
 
 **Naming convention**: HAL is the conversational engine; Bowman is the presentational face (the UI).
 
-The public surface ships 65 named value exports from `src/index.ts`: 17 components, 5 hooks, a 23-icon set with two icon helpers, a markdown factory with its URL-policy pair, 14 label-defaults objects, and the `resolveLabels` merge helper, plus 57 type exports including the chat entry types ([validated by](../tests/public-api.test.ts#L40), [types](../tests/public-api.test.ts#L46)).
+The public surface ships 66 named value exports from `src/index.ts`: 17 components, 5 hooks, a 24-icon set with two icon helpers, a markdown factory with its URL-policy pair, 14 label-defaults objects, and the `resolveLabels` merge helper, plus 57 type exports including the chat entry types ([validated by](../tests/public-api.test.ts#L40), [types](../tests/public-api.test.ts#L46)).
 
 ## Key Capabilities
 

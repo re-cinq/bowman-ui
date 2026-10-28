@@ -31,7 +31,7 @@ icon's own `displayName` and `Function.name`, the two properties React
 DevTools and ErrorBoundary componentStack frames read component names from
 ([validated by](../../tests/icons.test.tsx#L338)). Each root
 `<svg>` carries
-`fill="none"`, `viewBox="0 0 24 24"` and, for the 22, `stroke="currentColor"`.
+`fill="none"`, `viewBox="0 0 24 24"` and, for the 23, `stroke="currentColor"`.
 `forwardRef` stays exactly as-is per
 docs/design-notes.md decision 4 - rewriting it away would turn the `^19.0.0` peer range from a
 testing claim into a hard React 19 floor; the icons still take no `ref` prop
@@ -107,7 +107,7 @@ The tested accessibility behaviour holds for every icon: no label →
 
 ## No brand mark ships
 
-No `LogoIcon` exists in the set: a brand mark is structurally unlike the 23
+No `LogoIcon` exists in the set: a brand mark is structurally unlike the 24
 icons (no stroke, a `fill="currentColor"`
 path, `strokeWidth` ignored), and docs/design-notes.md decision 3 forbids a bundled default
 mark. `grep -rn "LogoIcon" src/` returns nothing

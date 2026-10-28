@@ -571,7 +571,7 @@ export const componentDocs: ReadonlyArray<ComponentDoc> = [
     id: "icons",
     name: "Icons",
     purpose:
-      'Twenty-three stroke icons drawn in this repository rather than pulled from an icon package, so the published bundle carries no icon dependency. Every icon takes the same props: an icon given an ariaLabel becomes role="img" with that name, and one given none is aria-hidden, which is what a glyph beside a text label wants. IconWrapper and getAccessibleIconProps are exported too, for a consumer drawing an icon of its own that has to behave the same way.',
+      'Twenty-four stroke icons drawn in this repository rather than pulled from an icon package, so the published bundle carries no icon dependency. Every icon takes the same props: an icon given an ariaLabel becomes role="img" with that name, and one given none is aria-hidden, which is what a glyph beside a text label wants. IconWrapper and getAccessibleIconProps are exported too, for a consumer drawing an icon of its own that has to behave the same way.',
     importLine: 'import { SearchIcon, SendIcon } from "@re-cinq/bowman-ui";',
     Example: IconsExample,
     exampleSource: iconsSource,

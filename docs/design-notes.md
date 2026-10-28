@@ -99,7 +99,7 @@ directive of its own: `export ... from` is not a reference. It runs in
 only a Next.js consumer importing from a server component proves the
 boundary holds - that verification is the RSC fixture build.
 
-## 2. One icon system: an in-repo 23-icon set, no icon dependency
+## 2. One icon system: an in-repo 24-icon set, no icon dependency
 
 Two facts hold at once and must not be collapsed into one.
 

@@ -148,7 +148,7 @@ title>]` link follows its `it()`; every other link is mapped through the cited f
    presentational components carry it as a recorded exception. Enforced by
    scripts/check-client-directives.mjs + the rsc-fixture build.
 3. **Closed public API.** tests/public-api.test.ts asserts the built exports exactly equal the
-   committed snapshot tests/fixtures/public-api.json — currently 65 runtime + 57 type names; the
+   committed snapshot tests/fixtures/public-api.json — currently 66 runtime + 57 type names; the
    two `it()` titles derive their counts from that fixture. NEVER regenerate the snapshot to make
    the test pass; a removal or rename is a breaking major.
 4. **GDPR no-egress.** `src/` writes nothing to the console and performs no network egress
@@ -171,7 +171,7 @@ title>]` link follows its `it()`; every other link is mapped through the cited f
    100 functions / 100 statements / 100 branches over `src/**` (branches rose from 90 in
    issue 152). Lower it only once, in the PR that needs it, with the number and reason recorded
    in that section — and never again; tests/system-contract.test.ts pins the >= 80 guard.
-9. **One icon system** (docs/design-notes.md decisions 2-3). The local 23-icon set only, no `lucide-react`.
+9. **One icon system** (docs/design-notes.md decisions 2-3). The local 24-icon set only, no `lucide-react`.
    The composer's send button renders the set's `SendIcon` (src/components/ChatComposer.tsx); NO
    paperclip icon is authored; no bundled default/brand mark ships.
 10. **Never rewrite `forwardRef` away** (docs/design-notes.md decision 4) — that would turn the React-19 testing
