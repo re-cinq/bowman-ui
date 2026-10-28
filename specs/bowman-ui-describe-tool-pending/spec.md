@@ -52,7 +52,7 @@ re-exports.
    one its present-tense string, and with `busy` false both read past tense.
    Its prop type
    restates the signature inline and is kept identical to `ToolActivity`'s
-   ([validated by hands describeTool the same pending flag it derives for its own labels](../../tests/ChatMessageList.test.tsx#L1045)).
+   ([validated by hands describeTool the same pending flag it derives for its own labels](../../tests/ChatMessageList.test.tsx#L1069)).
 3. **Replacement semantics are untouched.** A supplied `describeTool` still
    replaces the tensed labels entirely and suppresses nothing else - with
    `showToolName` also set, the fixture's tool name is still in the document.

@@ -27,6 +27,7 @@ export {
   ErrorIcon,
   InfoIcon,
   LoadingIcon,
+  LogOutIcon,
   MenuIcon,
   PlusIcon,
   RefreshIcon,

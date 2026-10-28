@@ -51,24 +51,24 @@ string-carrying component already in the repo - it adds no new component.
 - `tests/labelled-exports.test.tsx` - the export-partition test: every value export of
   `src/index.ts` is classified into `labelsProp` / `stringPropOnly` / `noStrings`, and the sorted
   union must equal the sorted parsed export names; an unclassified export fails by name with a
-  pointer at `docs/design-notes.md § Labels` ([validated by labelsProp, stringPropOnly and noStrings together are exactly src/index.ts's value exports](../../tests/labelled-exports.test.tsx#L164)).
+  pointer at `docs/design-notes.md § Labels` ([validated by labelsProp, stringPropOnly and noStrings together are exactly src/index.ts's value exports](../../tests/labelled-exports.test.tsx#L165)).
 - The sentinel test renders every `labelsProp` member the partition test lists with
   every label a unique `⟦sentinel⟧` and asserts no run of three or more Latin letters survives in
   `textContent` or in `aria-label`/`aria-placeholder`/`aria-roledescription`/`aria-valuetext`/
   `title`/`placeholder`/`alt` outside the sentinels, with the sentinel set pinned to
-  the default-labels keys ([validated by no run of three Latin letters survives outside the sentinels for any labelsProp member](../../tests/labelled-exports.test.tsx#L688),
-  [validated by ErrorBoundary's sentinel labels cover every defaultErrorBoundaryLabels key](../../tests/labelled-exports.test.tsx#L594)).
+  the default-labels keys ([validated by no run of three Latin letters survives outside the sentinels for any labelsProp member](../../tests/labelled-exports.test.tsx#L689),
+  [validated by ErrorBoundary's sentinel labels cover every defaultErrorBoundaryLabels key](../../tests/labelled-exports.test.tsx#L595)).
 - **The check's own proof:** reverting 021's `labels` prop to a hardcoded
   `"Something went wrong"` makes the sentinel test fail - the stray English survives sentinel
   stripping and matches the Latin-run regex
-  ([validated by no run of three Latin letters survives outside the sentinels for any labelsProp member](../../tests/labelled-exports.test.tsx#L688)).
+  ([validated by no run of three Latin letters survives outside the sentinels for any labelsProp member](../../tests/labelled-exports.test.tsx#L689)).
 - `docs/design-notes.md § Labels` - Decisions 1-5, the flat-union key-naming rule, the function form for
   interpolation, the three `stringPropOnly` exceptions with reasons, and `aiDisclosure` documented
   as required-with-no-default under the EU AI Act.
 - Re-pinned prior behaviour (AC 39): `<LoadingIcon ariaLabel="Cargando" />` renders
   `aria-label="Cargando"` with `"Loading"` nowhere in the output; the translated `announce`
   assertion already existed and is referenced, not duplicated
-  ([validated by ariaLabel="Cargando" renders aria-label="Cargando" and "Loading" appears nowhere](../../tests/icons.test.tsx#L266),
+  ([validated by ariaLabel="Cargando" renders aria-label="Cargando" and "Loading" appears nowhere](../../tests/icons.test.tsx#L267),
   [announce](../../tests/useFocusGroups.test.tsx#L136)).
 
 ## Recorded decisions, interpretations and deviations
@@ -82,7 +82,7 @@ string-carrying component already in the repo - it adds no new component.
 - **Partition is over value exports.** The partition test statically parses `export { ... }`
   blocks of `src/index.ts`; `export type { ... }` names are excluded by design - a type carries
   no renderable string. Interfaces like `ErrorBoundaryLabels` are therefore not partition
-  members ([validated by labelsProp, stringPropOnly and noStrings together are exactly src/index.ts's value exports](../../tests/labelled-exports.test.tsx#L164)).
+  members ([validated by labelsProp, stringPropOnly and noStrings together are exactly src/index.ts's value exports](../../tests/labelled-exports.test.tsx#L165)).
 - **Test path deviation.** The issue names `src/__tests__/labelled-exports.tsx`; this repo keeps
   every test under `tests/` with a `.test.tsx` suffix (vitest's include pattern requires the
   suffix), so the file is `tests/labelled-exports.test.tsx`. Same content, repo-conventional
@@ -107,7 +107,7 @@ string-carrying component already in the repo - it adds no new component.
   `useFocusGroups`' `announce` are grandfathered per `docs/design-notes.md § Labels`; everything else with
   strings takes `labels`. Closed means an addition requires a `docs/design-notes.md § Labels` amendment
   in the PR that adds it - Toast's `message` (issue 025) did exactly this
-  ([validated by labelsProp, stringPropOnly and noStrings together are exactly src/index.ts's value exports](../../tests/labelled-exports.test.tsx#L164)).
+  ([validated by labelsProp, stringPropOnly and noStrings together are exactly src/index.ts's value exports](../../tests/labelled-exports.test.tsx#L165)).
 - **`aiDisclosure` is declared, not rendered.** The required label and its EU AI Act rationale
   live in `docs/design-notes.md § Labels`; the component that renders it and its reviewed wording belong to
   the message-list issue and the consumer's catalogue.

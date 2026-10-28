@@ -1,8 +1,8 @@
 /**
- * Golden-master snapshot of the 23 icon implementations, the equivalence
+ * Golden-master snapshot of the 24 icon implementations, the equivalence
  * oracle for tests/icons.test.tsx.
  *
- * Frozen straight-line copies of the 23 shipped icon functions, together
+ * Frozen straight-line copies of the 24 shipped icon functions, together
  * with private copies of getAccessibleIconProps and createSvgProps, written
  * without the createUniformIcon factory so the factory's output can be
  * proven against an implementation that never shares its code path. Every
@@ -142,6 +142,33 @@ export function PlusIcon(props: BaseIconProps) {
         strokeLinejoin="round"
         strokeWidth={svgProps.strokeWidth}
         d="M12 4v16m8-8H4"
+      />
+    </svg>
+  );
+}
+
+export function LogOutIcon(props: BaseIconProps) {
+  const svgProps = createSvgProps(props);
+
+  return (
+    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" {...svgProps}>
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={svgProps.strokeWidth}
+        d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"
+      />
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={svgProps.strokeWidth}
+        d="M16 17l5-5-5-5"
+      />
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={svgProps.strokeWidth}
+        d="M21 12H9"
       />
     </svg>
   );

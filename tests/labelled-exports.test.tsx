@@ -110,6 +110,7 @@ const stringPropOnly = [
   "ErrorIcon",
   "InfoIcon",
   "LoadingIcon",
+  "LogOutIcon",
   "MenuIcon",
   "PlusIcon",
   "RefreshIcon",

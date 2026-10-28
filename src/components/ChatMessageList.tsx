@@ -313,7 +313,9 @@ export const ChatMessageList = forwardRef<ChatMessageListHandle, ChatMessageList
 
     return (
       <div className="flex min-h-0 flex-1 flex-col">
-        <p className={`border-b ${BORDER} px-4 py-2 text-center text-xs ${TEXT_MUTED}`}>
+        <p
+          className={`flex min-h-14 items-center justify-center border-b ${BORDER} px-4 py-2 text-center text-xs ${TEXT_MUTED}`}
+        >
           {resolved.aiDisclosure}
         </p>
         <div

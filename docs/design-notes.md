@@ -73,7 +73,7 @@ Recorded shapes:
   boundary.
 - `icons/Icon.tsx` and `icons/index.tsx` are client-free by design:
   `forwardRef` is server-safe, and neither file uses a client-only API or
-  handler. They get **no** directive - and neither do the 23 icons, which
+  handler. They get **no** directive - and neither do the 24 icons, which
   are pure SVG; stamping a directive on them would push needless JS into
   consumers' browser bundles. If an icon file ever does use a client-only
   API, that file carries the directive and this section records the
@@ -99,7 +99,7 @@ directive of its own: `export ... from` is not a reference. It runs in
 only a Next.js consumer importing from a server component proves the
 boundary holds - that verification is the RSC fixture build.
 
-## 2. One icon system: an in-repo 23-icon set, no icon dependency
+## 2. One icon system: an in-repo 24-icon set, no icon dependency
 
 Two facts hold at once and must not be collapsed into one.
 
@@ -110,7 +110,7 @@ import and names this decision as the reason. The local set carries a tested
 accessibility contract (`getAccessibleIconProps`, WCAG 2.1 AA) that an icon
 dependency has no equivalent for.
 
-Second, the artwork: the 23 glyphs are not original. Their SVG path data is
+Second, the artwork: the 24 glyphs are not original. Their SVG path data is
 adapted from - and includes modified versions of - Lucide (ISC, with a
 Feather-derived subset under MIT) and Heroicons v1/v2 (MIT, Tailwind Labs).
 No runtime dependency contradicts this: only the path data was copied and
@@ -128,7 +128,7 @@ Consequences, recorded so no cleanup PR "fixes" them:
   affordance is decorative in the surfaces this package targets. The
   composer takes an attachment slot instead.
 
-The exported prop type for the 23 icons is public: `IconProps`
+The exported prop type for the 24 icons is public: `IconProps`
 (`{className?, ariaLabel?, strokeWidth?}`), exported from the package root.
 
 ## 3. The avatar slot is the glyph, not the circle
@@ -247,7 +247,7 @@ other key still defaults per key.
 **The three `stringPropOnly` exceptions** (every other string-carrying export
 takes `labels`):
 
-- **The icons' `ariaLabel` prop** (all 23 icons). An icon carries at most one
+- **The icons' `ariaLabel` prop** (all 24 icons). An icon carries at most one
   assistive string and is decorative - `aria-hidden` - unless the call site
   supplies one, so a one-key labels object would add ceremony without adding
   safety. `LoadingIcon`'s `"Loading"` destructuring default is the icon set's

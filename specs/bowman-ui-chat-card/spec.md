@@ -29,7 +29,7 @@ type for the consumer and is never rendered, and `data` is
 (default `"This card could not be shown"`) and the three feedback keys, which
 default to `ChatMessage`'s. `ChatMessageList` gains `describeCard` and nothing
 else, and its labels gain `card` and `cardUnavailable`
-([validated by ChatCard's sentinel labels cover every defaultChatCardLabels key](../../tests/labelled-exports.test.tsx#L636),
+([validated by ChatCard's sentinel labels cover every defaultChatCardLabels key](../../tests/labelled-exports.test.tsx#L637),
 [validated by ChatMessageListProps gains attribution and describeCard and nothing else](../../tests/chat-message-list-dist.test.ts#L42)).
 
 ## Behaviour
@@ -50,12 +50,12 @@ else, and its labels gain `card` and `cardUnavailable`
   `showFeedback={false}` renders no thumbs
   ([validated by starts unrated when handed card c2 after card c1 was rated up](../../tests/ChatCard.test.tsx#L66),
   [validated by rates card c1 up through onFeedback, presses that thumb and shows the notice](../../tests/ChatCard.test.tsx#L36),
-  [validated by rates card c2 alone through onFeedback with its own id](../../tests/ChatMessageList.test.tsx#L1117),
+  [validated by rates card c2 alone through onFeedback with its own id](../../tests/ChatMessageList.test.tsx#L1141),
   [validated by renders no thumbs when showFeedback is false](../../tests/ChatCard.test.tsx#L78)).
 - **Strings come from the labels.** The article's name and the fallback
   follow the `labels` given to `ChatCard` or to `ChatMessageList`
   ([validated by names the article and the fallback from the labels it is given](../../tests/ChatCard.test.tsx#L84),
-  [validated by names each card and its fallback from the list's labels and shows no thumbs with showFeedback false](../../tests/ChatMessageList.test.tsx#L1137)).
+  [validated by names each card and its fallback from the list's labels and shows no thumbs with showFeedback false](../../tests/ChatMessageList.test.tsx#L1161)).
 - **Cards sit in transcript order.** `ChatMessageList` renders each card
   entry where it falls, after the tool row that produced it
-  ([validated by renders a question, a tool row and two cards, each drawing its describeCard body, in transcript order](../../tests/ChatMessageList.test.tsx#L1092)).
+  ([validated by renders a question, a tool row and two cards, each drawing its describeCard body, in transcript order](../../tests/ChatMessageList.test.tsx#L1116)).
