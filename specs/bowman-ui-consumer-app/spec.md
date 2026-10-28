@@ -100,7 +100,7 @@ the whole file
 conversation's last reply carries a 300-character reference with no break
 opportunity, so the browser suite can prove the markdown side of issue 132
 against a fixture rather than a typed message
-([validated by a 300-character token in an assistant entry does not widen its paragraph or its article](../../examples/chat-demo/tests/chat-demo.spec.ts#L418)).
+([validated by a 300-character token in an assistant entry does not widen its paragraph or its article](../../examples/chat-demo/tests/chat-demo.spec.ts#L428)).
 
 ### Labels
 
@@ -200,17 +200,17 @@ The rendered screen exposes, by role query rather than CSS selector: one
 user and assistant entries, and the composer textarea. `AppShell` renders
 `renderSidebar` twice (desktop rail and mobile drawer); the counts are exact
 because role queries exclude the `display: none` copy at each viewport
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L58),
-[L59](../../examples/chat-demo/tests/chat-demo.spec.ts#L59),
-[L66](../../examples/chat-demo/tests/chat-demo.spec.ts#L66),
-[L68](../../examples/chat-demo/tests/chat-demo.spec.ts#L68),
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L68),
 [L69](../../examples/chat-demo/tests/chat-demo.spec.ts#L69),
-[L76](../../examples/chat-demo/tests/chat-demo.spec.ts#L76)).
+[L76](../../examples/chat-demo/tests/chat-demo.spec.ts#L76),
+[L78](../../examples/chat-demo/tests/chat-demo.spec.ts#L78),
+[L79](../../examples/chat-demo/tests/chat-demo.spec.ts#L79),
+[L86](../../examples/chat-demo/tests/chat-demo.spec.ts#L86)).
 
 Typing into the composer and pressing Enter appends a user entry, and the
 fixture reply appends an assistant entry, with no data layer between the
 composer's submit handler and the list's entries
-([validated by Enter appends the typed user entry and the fixture assistant reply follows](../../examples/chat-demo/tests/chat-demo.spec.ts#L92)).
+([validated by Enter appends the typed user entry and the fixture assistant reply follows](../../examples/chat-demo/tests/chat-demo.spec.ts#L102)).
 
 Clicking copy on an assistant entry shows the toast, and it disappears on its
 own - a real timer in a real event loop, no fake timers anywhere in the suite.
@@ -222,9 +222,9 @@ than 2.5 s later - so a slow click on a contended runner cannot eat the slack -
 and a toast dismissed at half the duration or lingering to twice it both fail
 where the former
 `toHaveCount(0, { timeout: 10_000 })` passed any duration under ten seconds
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L216),
-[L217](../../examples/chat-demo/tests/chat-demo.spec.ts#L217),
-[L203](../../examples/chat-demo/tests/chat-demo.spec.ts#L203)). The toast is
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L226),
+[L227](../../examples/chat-demo/tests/chat-demo.spec.ts#L227),
+[L213](../../examples/chat-demo/tests/chat-demo.spec.ts#L213)). The toast is
 located via its visible pill and its unmount, because `Toast` deliberately
 renders the message twice (an `aria-hidden` pill and a visually-hidden live
 region).
@@ -233,7 +233,7 @@ One `getComputedStyle` assertion proves the consumer's Tailwind build scanned
 the installed `dist`: the `aside`'s `lg:w-72` - a class only the library's
 built files carry, never written by the demo - resolves to a computed width
 of `288px`
-([validated by the consumer Tailwind build scanned the installed dist](../../examples/chat-demo/tests/chat-demo.spec.ts#L87)).
+([validated by the consumer Tailwind build scanned the installed dist](../../examples/chat-demo/tests/chat-demo.spec.ts#L97)).
 
 ### Zero English (superseded)
 
@@ -251,18 +251,18 @@ every labelled export.
 
 The resolved `aiDisclosure` is visible by exact text with entries present and
 in the empty state
-([validated by the disclosure is visible in the empty state](../../examples/chat-demo/tests/chat-demo.spec.ts#L256),
-[L229](../../examples/chat-demo/tests/chat-demo.spec.ts#L229)). The obligation
+([validated by the disclosure is visible in the empty state](../../examples/chat-demo/tests/chat-demo.spec.ts#L266),
+[L239](../../examples/chat-demo/tests/chat-demo.spec.ts#L239)). The obligation
 applies regardless of server location because the agent serves EU users. The
 disclosure sits outside the scrollable region - it is not a descendant of the
 `role="log"` region and stays in the viewport with the transcript scrolled to
 either end
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L248),
-[L233](../../examples/chat-demo/tests/chat-demo.spec.ts#L233)). The transcript
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L258),
+[L243](../../examples/chat-demo/tests/chat-demo.spec.ts#L243)). The transcript
 is first asserted to overflow (`scrollHeight > clientHeight`), so the two
 `scrollTop` writes move something rather than being no-ops on a fixture that
 fits the viewport
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L243)).
+([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L253)).
 
 ### Mobile drawer focus trap
 
@@ -270,15 +270,15 @@ At a 375x667 viewport the drawer starts closed, the hamburger opens it, `Tab`
 from the last focusable element inside it returns to the first, and `Escape`
 closes it and returns focus to the hamburger - the first execution of the focus
 trap where `offsetParent` is a real value rather than the jsdom shim
-([validated by the drawer starts closed, traps focus and closes on Escape](../../examples/chat-demo/tests/chat-demo.spec.ts#L279),
-[validated by the drawer starts closed, traps focus and closes on Escape](../../examples/chat-demo/tests/chat-demo.spec.ts#L283),
-[validated by the drawer starts closed, traps focus and closes on Escape](../../examples/chat-demo/tests/chat-demo.spec.ts#L294),
-[validated by the drawer starts closed, traps focus and closes on Escape](../../examples/chat-demo/tests/chat-demo.spec.ts#L297)). The test waits
+([validated by the drawer starts closed, traps focus and closes on Escape](../../examples/chat-demo/tests/chat-demo.spec.ts#L289),
+[validated by the drawer starts closed, traps focus and closes on Escape](../../examples/chat-demo/tests/chat-demo.spec.ts#L293),
+[validated by the drawer starts closed, traps focus and closes on Escape](../../examples/chat-demo/tests/chat-demo.spec.ts#L304),
+[validated by the drawer starts closed, traps focus and closes on Escape](../../examples/chat-demo/tests/chat-demo.spec.ts#L307)). The test waits
 for the trap to have focused the close button before moving focus itself: the
 trap focuses a frame after opening, and a test that focused the last element
 before that frame let the trap's own focus land second and the `Tab` move on
 past the close button - two of three local runs failed that way
-([validated by the drawer starts closed, traps focus and closes on Escape](../../examples/chat-demo/tests/chat-demo.spec.ts#L289)).
+([validated by the drawer starts closed, traps focus and closes on Escape](../../examples/chat-demo/tests/chat-demo.spec.ts#L299)).
 
 ### Browser-only behaviour (issue 151)
 
@@ -297,27 +297,33 @@ in `specs/bowman-ui-theming-tokens/spec.md`, the reveals in
 - A reader who scrolls the transcript to the top mid-stream is still at the
   top when the reply commits, and a reader left at the bottom is within a
   pixel of it - real `scrollHeight`, real `scrollTo`
-  ([validated by a reader who scrolls to the top mid-stream is still at the top when the reply commits](../../examples/chat-demo/tests/chat-demo.spec.ts#L480),
-  [validated by a reader left at the bottom is still at the bottom when the reply commits](../../examples/chat-demo/tests/chat-demo.spec.ts#L517)).
+  ([validated by a reader who scrolls to the top mid-stream is still at the top when the reply commits](../../examples/chat-demo/tests/chat-demo.spec.ts#L490),
+  [validated by a reader left at the bottom is still at the bottom when the reply commits](../../examples/chat-demo/tests/chat-demo.spec.ts#L527)).
 - An assistant entry's action row and a conversation row's delete button have
   computed opacity `0` at rest and `1` on hover or when focus enters them; the
   demo wires `ConversationList`'s `onDelete`, so `Enter` on the revealed
   delete button removes the row and its entries, and deleting the current
-  conversation makes the first remaining one current ([validated by an assistant entry's action row is invisible at rest and revealed by hover or by focus](../../examples/chat-demo/tests/chat-demo.spec.ts#L538),
-  [validated by the current conversation's delete button is invisible at rest, revealed on focus, and Enter removes the row and moves the current mark](../../examples/chat-demo/tests/chat-demo.spec.ts#L563),
+  conversation makes the first remaining one current ([validated by an assistant entry's action row is invisible at rest and revealed by hover or by focus](../../examples/chat-demo/tests/chat-demo.spec.ts#L545),
+  [validated by the current conversation's delete button is invisible at rest, revealed on focus, and Enter removes the row and moves the current mark](../../examples/chat-demo/tests/chat-demo.spec.ts#L581),
   [App](../../examples/chat-demo/src/App.tsx#L196)).
+- Under a touch device descriptor where `(hover: none)` matches, an assistant
+  entry's action row and a `ChatCard`'s thumbs row have computed opacity `1`
+  with no pointer interaction (issue 285)
+  ([validated by the device reports no hover](../../examples/chat-demo/tests/chat-demo.spec.ts#L617),
+  [validated by an assistant entry's action row shows at full opacity with no pointer interaction](../../examples/chat-demo/tests/chat-demo.spec.ts#L623),
+  [validated by a ChatCard's thumbs row shows at full opacity with no pointer interaction](../../examples/chat-demo/tests/chat-demo.spec.ts#L635)).
 - `Tab` on a fresh load reaches the skip link first, and `Enter` on it sends
   the next `Tab` inside `main`
-  ([validated by Tab reaches the skip link first, and Enter on it sends the next Tab inside main](../../examples/chat-demo/tests/chat-demo.spec.ts#L598)).
+  ([validated by Tab reaches the skip link first, and Enter on it sends the next Tab inside main](../../examples/chat-demo/tests/chat-demo.spec.ts#L647)).
 - With the drawer open at 375px and the viewport then grown to 1024px, three
   `Tab`s each move focus forward through `main` and never into the hidden
   drawer
-  ([validated by after the viewport grows to desktop, three Tabs advance through main, never the drawer](../../examples/chat-demo/tests/chat-demo.spec.ts#L637)).
+  ([validated by after the viewport grows to desktop, three Tabs advance through main, never the drawer](../../examples/chat-demo/tests/chat-demo.spec.ts#L686)).
 - Under `prefers-reduced-motion: reduce` a thinking dot's computed
   `animation-name` is `none` and the drawer's `transition-duration` is `0s`,
   against `bowman-fade-dot` and `0.3s` without the emulation
-  ([validated by the thinking dots animate by default and stop under prefers-reduced-motion](../../examples/chat-demo/tests/chat-demo.spec.ts#L674),
-  [L688](../../examples/chat-demo/tests/chat-demo.spec.ts#L688)).
+  ([validated by the thinking dots animate by default and stop under prefers-reduced-motion](../../examples/chat-demo/tests/chat-demo.spec.ts#L723),
+  [validated by the drawer slides over 0.3s by default and has no transition under prefers-reduced-motion](../../examples/chat-demo/tests/chat-demo.spec.ts#L737)).
 - Under the dark colour scheme every token with a `-dark` twin resolves to that twin at its
   chat-screen site, shown to differ from the light shade, on the default theme and inside the
   wrapper alike; the matrix is `specs/bowman-ui-theming-tokens/spec.md` § The browser proof
@@ -349,20 +355,20 @@ statement below runs in both engines.
 - The chat's keyboard chords beyond Enter: `Ctrl+Enter` or `Meta+Enter` sends the draft, and
   `Ctrl+C` or `Meta+C` on a focused assistant article copies it - the label flips to Copied, the
   notice and the toast show, and the label reverts on its own
-  ([validated by Ctrl+Enter or Meta+Enter sends the draft like plain Enter](../../examples/chat-demo/tests/chat-demo.spec.ts#L708),
-  [validated by Ctrl+C or Meta+C on a focused assistant article copies it: the label flips, the notice and the toast show, and the label reverts on its own](../../examples/chat-demo/tests/chat-demo.spec.ts#L721)).
+  ([validated by Ctrl+Enter or Meta+Enter sends the draft like plain Enter](../../examples/chat-demo/tests/chat-demo.spec.ts#L757),
+  [validated by Ctrl+C or Meta+C on a focused assistant article copies it: the label flips, the notice and the toast show, and the label reverts on its own](../../examples/chat-demo/tests/chat-demo.spec.ts#L770)).
 - A clicked thumb is `aria-pressed` and thanks the reader, the other takes over on its click,
   and the toast announces its message in its live region as well as the pill
-  ([validated by a clicked thumb is pressed and thanks the reader; the other thumb takes over on its click](../../examples/chat-demo/tests/chat-demo.spec.ts#L742),
-  [validated by the toast announces its message in the live region as well as the pill](../../examples/chat-demo/tests/chat-demo.spec.ts#L763)).
+  ([validated by a clicked thumb is pressed and thanks the reader; the other thumb takes over on its click](../../examples/chat-demo/tests/chat-demo.spec.ts#L791),
+  [validated by the toast announces its message in the live region as well as the pill](../../examples/chat-demo/tests/chat-demo.spec.ts#L812)).
 - The Settings item and the sign-out footer button raise the demo-only toast, and selecting
   another conversation moves the current mark and shows that transcript's entries
-  ([validated by the Settings item raises the demo-only toast and leaves Conversations current](../../examples/chat-demo/tests/chat-demo.spec.ts#L777),
-  [validated by the sign-out footer button raises the demo-only toast](../../examples/chat-demo/tests/chat-demo.spec.ts#L792),
-  [validated by selecting another conversation moves the current mark and shows that transcript](../../examples/chat-demo/tests/chat-demo.spec.ts#L799)).
+  ([validated by the Settings item raises the demo-only toast and leaves Conversations current](../../examples/chat-demo/tests/chat-demo.spec.ts#L826),
+  [validated by the sign-out footer button raises the demo-only toast](../../examples/chat-demo/tests/chat-demo.spec.ts#L841),
+  [validated by selecting another conversation moves the current mark and shows that transcript](../../examples/chat-demo/tests/chat-demo.spec.ts#L848)).
 - The streaming circle's pulse is the third animation shown to stop under
   `prefers-reduced-motion`, beside the dots and the drawer
-  ([validated by the streaming circle pulses by default and stops under prefers-reduced-motion](../../examples/chat-demo/tests/chat-demo.spec.ts#L825)).
+  ([validated by the streaming circle pulses by default and stops under prefers-reduced-motion](../../examples/chat-demo/tests/chat-demo.spec.ts#L874)).
 - Every documented state renders as its caption says: the tool activity variants, the thinking
   trace's collapsed, streaming and expanded states, the chat message's markdown table and
   policy-allowed link, the list's personas and busy row, the composer example's ref handle and
@@ -432,9 +438,9 @@ first run and are recorded rather than hidden:
   trap-driven `Tab` of the mobile drawer and the three `Tab`s of the rotate
   test pass unchanged in both engines, as they are handled by the trap's own
   listener or land on a textarea
-  ([validated by Tab to send then Enter or Space appends the entry and returns focus to the textarea](../../examples/chat-demo/tests/chat-demo.spec.ts#L436),
-  [validated by Tab reaches the skip link first, and Enter on it sends the next Tab inside main](../../examples/chat-demo/tests/chat-demo.spec.ts#L598),
-  [helper](../../examples/chat-demo/tests/chat-demo.spec.ts#L49)).
+  ([validated by Tab to send then Enter or Space appends the entry and returns focus to the textarea](../../examples/chat-demo/tests/chat-demo.spec.ts#L446),
+  [validated by Tab reaches the skip link first, and Enter on it sends the next Tab inside main](../../examples/chat-demo/tests/chat-demo.spec.ts#L647),
+  [helper](../../examples/chat-demo/tests/chat-demo.spec.ts#L59)).
 - WebKit's search input has no `Escape`-to-clear, so the search-field test
   expects `""` after `Escape` in Chromium and the typed value in WebKit - an
   executable record of issue 218 that goes red the day the engines agree,

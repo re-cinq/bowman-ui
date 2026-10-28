@@ -52,6 +52,12 @@ else, and its labels gain `card` and `cardUnavailable`
   [validated by rates card c1 up through onFeedback, presses that thumb and shows the notice](../../tests/ChatCard.test.tsx#L36),
   [validated by rates card c2 alone through onFeedback with its own id](../../tests/ChatMessageList.test.tsx#L1141),
   [validated by renders no thumbs when showFeedback is false](../../tests/ChatCard.test.tsx#L78)).
+- **The thumbs row reveals like `ChatMessage`'s.** Where the pointer can
+  hover, the row is `opacity-0` at rest and shows on hover or when focus
+  enters the card; on a device with no hover, `(hover: none)`, it shows at
+  rest (issue 285)
+  ([validated by a ChatCard's thumbs row is invisible at rest and revealed by hover](../../examples/chat-demo/tests/chat-demo.spec.ts#L570),
+  [validated by a ChatCard's thumbs row shows at full opacity with no pointer interaction](../../examples/chat-demo/tests/chat-demo.spec.ts#L635)).
 - **Strings come from the labels.** The article's name and the fallback
   follow the `labels` given to `ChatCard` or to `ChatMessageList`
   ([validated by names the article and the fallback from the labels it is given](../../tests/ChatCard.test.tsx#L84),

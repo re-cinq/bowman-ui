@@ -61,7 +61,7 @@ export function ChatCard({
     >
       <div className="min-w-0 break-words">{describeCard?.(entry) ?? resolved.cardUnavailable}</div>
       {showFeedback && (
-        <div className="-ml-1 flex items-center gap-2 opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100">
+        <div className="-ml-1 flex items-center gap-2 opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100 [@media(hover:none)]:opacity-100">
           <FeedbackButtons pressed={pressed} labels={resolved} onFeedback={rate} />
         </div>
       )}

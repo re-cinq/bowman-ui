@@ -16,6 +16,7 @@ import {
   streamedReplyText,
   unbrokenReferenceToken,
 } from "../src/fixtures";
+import { defaultChatCardLabels } from "@re-cinq/bowman-ui";
 import { streamStepCount, streamStepIntervalMs } from "../src/streaming";
 import { staticDemoNote } from "../src/staticDemoNote";
 import { toastDurationMs } from "../src/toastDuration";
@@ -26,6 +27,15 @@ const streamCommitTimeoutMs = 20_000;
 
 const lastAssistantArticle = (page: Page): Locator =>
   page.getByRole("article", { name: chatMessageListLabels.assistantMessage }).last();
+
+const opacityOf = (locator: Locator): Promise<string> =>
+  locator.evaluate((element) => getComputedStyle(element).opacity);
+
+const orderCardThumbsRow = (page: Page): Locator =>
+  page
+    .getByRole("article", { name: "Order status" })
+    .getByRole("button", { name: defaultChatCardLabels.feedbackPositive })
+    .locator("..");
 
 const send = async (page: Page, question: string): Promise<void> => {
   const composer = page.getByRole("textbox", { name: chatComposerLabels.composerInput });
@@ -532,9 +542,6 @@ test.describe("sticky scroll", () => {
 // issue 151: the action rows are opacity-0 until the pointer hovers or focus enters the group,
 // and the existing copy click succeeds on an invisible button, so the reveal is measured here.
 test.describe("hover and focus reveal", () => {
-  const opacityOf = (locator: Locator): Promise<string> =>
-    locator.evaluate((element) => getComputedStyle(element).opacity);
-
   test("an assistant entry's action row is invisible at rest and revealed by hover or by focus", async ({
     page,
   }) => {
@@ -558,6 +565,17 @@ test.describe("hover and focus reveal", () => {
 
     await page.getByRole("textbox", { name: chatComposerLabels.composerInput }).focus();
     await expect.poll(() => opacityOf(actionRow)).toBe("0");
+  });
+
+  test("a ChatCard's thumbs row is invisible at rest and revealed by hover", async ({ page }) => {
+    await page.goto("/?view=docs&component=chat-card");
+
+    const thumbsRow = orderCardThumbsRow(page);
+
+    expect(await opacityOf(thumbsRow)).toBe("0");
+
+    await page.getByRole("article", { name: "Order status" }).hover();
+    await expect.poll(() => opacityOf(thumbsRow)).toBe("1");
   });
 
   test("the current conversation's delete button is invisible at rest, revealed on focus, and Enter removes the row and moves the current mark", async ({
@@ -589,6 +607,37 @@ test.describe("hover and focus reveal", () => {
     await expect(
       rows.filter({ hasText: successor.title }).locator('[aria-current="page"]')
     ).toHaveCount(1);
+  });
+});
+
+// issue 285: a phone has no hover, so a row revealed only by hover would stay hidden there.
+test.describe("action rows where hover does not exist", () => {
+  test.use({ hasTouch: true, isMobile: true, viewport: { width: 390, height: 844 } });
+
+  test("the device reports no hover", async ({ page }) => {
+    await page.goto("/?view=chat");
+
+    expect(await page.evaluate(() => matchMedia("(hover: none)").matches)).toBe(true);
+  });
+
+  test("an assistant entry's action row shows at full opacity with no pointer interaction", async ({
+    page,
+  }) => {
+    await page.goto("/?view=chat");
+
+    const actionRow = lastAssistantArticle(page)
+      .getByRole("button", { name: chatMessageListLabels.copy })
+      .locator("..");
+
+    expect(await opacityOf(actionRow)).toBe("1");
+  });
+
+  test("a ChatCard's thumbs row shows at full opacity with no pointer interaction", async ({
+    page,
+  }) => {
+    await page.goto("/?view=docs&component=chat-card");
+
+    expect(await opacityOf(orderCardThumbsRow(page))).toBe("1");
   });
 });
 

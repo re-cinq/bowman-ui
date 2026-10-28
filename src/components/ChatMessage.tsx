@@ -322,7 +322,7 @@ function AssistantMessage({
         </div>
 
         {!entry.isStreaming && (
-          <div className="-ml-1 flex items-center gap-2 opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100">
+          <div className="-ml-1 flex items-center gap-2 opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100 [@media(hover:none)]:opacity-100">
             <button
               type="button"
               className={`rounded p-1.5 ${TEXT_SUBTLE} ring-offset-2 transition-colors ${CONTROL_HOVER} ${TEXT_SECONDARY_HOVER} focus:outline-none focus:ring-2 ${FOCUS_RING_COLOR} dark:ring-offset-slate-950`}
