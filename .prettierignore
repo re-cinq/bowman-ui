@@ -8,3 +8,9 @@
 # `prettier --check` outright rather than merely reporting a formatting
 # difference, and any draft it writes here again must not red the check.
 .lore/
+
+# Issue 286: HAL Engine's build-chain scripts, copied byte for byte from
+# re-cinq/HALEngine. Their style is HAL's, and formatting them would break the
+# identity the copy keeps.
+scripts/check-audit.mjs
+scripts/check-action-pins.mjs
