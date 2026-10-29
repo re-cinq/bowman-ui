@@ -201,7 +201,8 @@ Closes #42
 
 The body follows `.github/PULL_REQUEST_TEMPLATE.md`. Three of its headings are required:
 `.github/workflows/pr-description-check.yml` fails a pull request whose body lacks a line
-starting `## Why`, `## What Changed` or `## Testing`.
+starting `## Why`, `## What Changed` or `## Testing`. It skips a pull request Dependabot
+opened, since Dependabot writes its own body (issue 398).
 
 ```markdown
 ## Why
