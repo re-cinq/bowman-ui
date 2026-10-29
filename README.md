@@ -20,7 +20,7 @@ The component documentation, built from the packed package, is published at <htt
 npm install @re-cinq/bowman-ui
 ```
 
-Every version is published from this repository's CI with npm provenance, so `npm audit signatures` can verify that what you installed was built by `.github/workflows/publish.yml` from the tagged commit.
+That is the one supported install: from the npm registry, with neither `--legacy-peer-deps` nor `--force`. Every version is published from this repository's CI with npm provenance, so `npm audit signatures` can verify that what you installed was built by `.github/workflows/publish.yml` from the tagged commit.
 
 ## Requirements
 

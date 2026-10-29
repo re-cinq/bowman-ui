@@ -355,6 +355,10 @@ export default [
       "examples/chat-demo/playwright-report/**",
       "examples/rsc-fixture/.next/**",
       "examples/rsc-fixture/next-env.d.ts",
+      // Issue 286: HAL Engine's build-chain scripts, copied byte for byte. Their
+      // style is HAL's, and a lint fix would break the identity the copy keeps.
+      "scripts/check-audit.mjs",
+      "scripts/check-action-pins.mjs",
     ],
   },
 ];

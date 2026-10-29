@@ -476,7 +476,7 @@ unless every specifier the fixture carries trips - one allowed specifier
 sneaking in would rot the fixture's proof
 ([validated by](../../scripts/check-forbidden-imports.mjs#L88)). The check
 runs as the named `ci.yml` step "Forbidden import check"
-([validated by](../../.github/workflows/ci.yml#L54)). It is static on top of,
+([validated by](../../.github/workflows/ci.yml#L59)). It is static on top of,
 not instead of, the dynamic `node_modules` scan in `consumer-app.sh`: a grep
 misses a transitively pulled-in package, and a `node_modules` scan misses a
 source import a bundler tree-shakes away.
@@ -486,7 +486,7 @@ source import a bundler tree-shakes away.
 The `consumer` job in `ci.yml` runs on every pull request (the workflow's
 unfiltered `pull_request` trigger), pins its actions to the same commit SHAs
 as the existing job with `persist-credentials: false`
-([validated by](../../.github/workflows/ci.yml#L135)), takes its setup from
+([validated by](../../.github/workflows/ci.yml#L140)), takes its setup from
 the shared `setup-node-install` composite action, which sets
 Node from `.nvmrc` via `node-version-file` ([validated by](../../.github/actions/setup-node-install/action.yml#L19)),
 runs `npm ci --ignore-scripts`
@@ -497,7 +497,7 @@ runs `npm ci --ignore-scripts`
 ([validated by](../../.github/actions/setup-node-install/action.yml#L27)), and runs the script as
 its `Consumer app check` step with no browser install step of its own - the
 script installs the demo's pinned Chromium and WebKit itself
-([validated by](../../.github/workflows/ci.yml#L148)). It omits
+([validated by](../../.github/workflows/ci.yml#L153)). It omits
 `fetch-depth: 0` on purpose: that exists for the spec anchor check, which
 this job does not run.
 

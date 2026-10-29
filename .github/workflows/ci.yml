@@ -5,6 +5,11 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+  # Issue 286: an advisory published after a merge stays invisible until the
+  # next pull request, which can be days away. Monday 07:00 UTC, for the
+  # build-chain job; the rest of CI re-runs on main beside it.
+  schedule:
+    - cron: "0 7 * * 1"
 
 # One in-flight run per ref. A stacked PR chain fans a single push out across
 # every branch above it, and superseded runs were previously left to finish.
@@ -185,3 +190,26 @@ jobs:
       # scoped to examples/rsc-fixture.
       - name: node_modules scan (unchanged, beside the fixture)
         run: ./scripts/scan-forbidden-node-modules.sh "$PWD/node_modules"
+
+  # Issue 286: the build-chain audit. A job of its own rather than a step on
+  # build-test: it reads what the build chain pulls in, not what the code
+  # does, so a red audit never reads as a failing suite. It is the only job
+  # the weekly schedule runs, and it needs the tree installed but nothing
+  # built. publish.yml runs the same two checks before anything is staged.
+  build-chain:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup-node-install
+      # The full tree, dev included: those packages build dist/, and the
+      # publish job signs what they produce.
+      - name: Audit (high and above)
+        run: npm run check:audit
+      # A tag is a mutable pointer its owner can repoint under a job that
+      # holds the repository token.
+      - name: Action pins
+        run: npm run check:action-pins

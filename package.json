@@ -55,7 +55,10 @@
     "consumer": "scripts/consumer-app.sh",
     "rsc": "scripts/rsc-fixture.sh",
     "prettier": "prettier --write .",
-    "prettier:check": "prettier --check ."
+    "prettier:check": "prettier --check .",
+    "check:audit": "node scripts/check-audit.mjs",
+    "check:action-pins": "node scripts/check-action-pins.mjs",
+    "check:build-chain": "npm run check:audit && npm run check:action-pins"
   },
   "peerDependencies": {
     "react": "^19.0.0",
@@ -92,7 +95,8 @@
     "typescript": "~6.0.2",
     "typescript-eslint": "^8.69.0",
     "typescript7": "npm:typescript@~7.0.2",
-    "vitest": "^5.0.0"
+    "vitest": "^5.0.0",
+    "yaml": "^2.9.0"
   },
   "engines": {
     "node": ">=20.9.0"
