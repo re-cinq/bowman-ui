@@ -194,7 +194,7 @@ jobs:
   # Issue 286: the build-chain audit. A job of its own rather than a step on
   # build-test: it reads what the build chain pulls in, not what the code
   # does, so a red audit never reads as a failing suite. It is the only job
-  # the weekly schedule runs, and it needs the tree installed but nothing
+  # the weekly schedule exists for, and it needs the tree installed but nothing
   # built. publish.yml runs the same two checks before anything is staged.
   build-chain:
     runs-on: ubuntu-latest
