@@ -56,7 +56,7 @@
 # when dist is missing or stale; building here means it never has to, so no
 # invocation's `rm -rf dist` can land under a sibling's test run.
 # Issue 216: the template's Playwright install step is dropped. The binary
-# honours only the manifest's first entry, the vitest suite, so the consumer
+# skips an entry with no list command (re-cinq/lore#3974), so the consumer
 # entry never runs here, and its own run installs Chromium and WebKit itself
 # anyway; the root `npx playwright install` it ran also resolved the latest
 # playwright from the registry against no pin, the rule ci.yml's consumer job
