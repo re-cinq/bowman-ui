@@ -6,8 +6,8 @@ import { join, resolve } from "node:path";
 const script = resolve(process.cwd(), "scripts/check-audit.mjs");
 const workspaces: string[] = [];
 
-// A stub npm on PATH is the one seam: the script shells out for its report, and the stub keeps the arguments it was given.
-const workspace = (report: string, exitCode = 1): string => {
+// A stub npm on PATH is the one seam: it answers `audit` and `explain` and keeps the arguments each was given.
+const workspace = (report: string, exitCode = 1, explain = { answer: "", exitCode: 1 }): string => {
   const dir = mkdtempSync(join(tmpdir(), "check-audit-"));
   const stub = join(dir, "bin", "npm");
 
@@ -15,7 +15,7 @@ const workspace = (report: string, exitCode = 1): string => {
   mkdirSync(join(dir, "bin"));
   writeFileSync(
     stub,
-    `#!/bin/sh\nprintf '%s\\n' "$@" > "${join(dir, "npm-args")}"\ncat <<'REPORT'\n${report}\nREPORT\nexit ${exitCode}\n`
+    `#!/bin/sh\nif [ "$1" = explain ]; then\nprintf '%s\\n' "$@" > "${join(dir, "explain-args")}"\ncat <<'EXPLAIN'\n${explain.answer}\nEXPLAIN\nexit ${explain.exitCode}\nfi\nprintf '%s\\n' "$@" > "${join(dir, "npm-args")}"\ncat <<'REPORT'\n${report}\nREPORT\nexit ${exitCode}\n`
   );
   chmodSync(stub, 0o755);
 
@@ -288,24 +288,70 @@ it("keeps two advisories on one package apart when neither carries a GHSA url", 
   expect(run(dir).stderr).toContain("npm:101:B");
 });
 
-it("says reached through an undisclosed path when npm names no dependent for a transitive finding", () => {
-  const dir = workspace(
-    JSON.stringify({
-      vulnerabilities: {
-        deep: {
-          name: "deep",
-          severity: "high",
-          isDirect: false,
-          range: "<9",
-          via: [{ ...advisory("GHSA-eeee-eeee-eeee", "Deep flaw"), name: "deep" }],
-          effects: [],
-        },
-      },
-      metadata: { vulnerabilities: { critical: 0, high: 1 } },
-    })
-  );
+// npm names a dependent in `effects` only when it is vulnerable too, so a transitive finding asks npm explain.
+const deep = JSON.stringify({
+  vulnerabilities: {
+    deep: {
+      name: "deep",
+      severity: "high",
+      isDirect: false,
+      range: "<9",
+      via: [{ ...advisory("GHSA-eeee-eeee-eeee", "Deep flaw"), name: "deep" }],
+      nodes: ["node_modules/deep"],
+      effects: [],
+    },
+  },
+  metadata: { vulnerabilities: { critical: 0, high: 1 } },
+});
 
-  expect(run(dir).stderr).toContain(
-    "GHSA-eeee-eeee-eeee Deep flaw, reached through an undisclosed path"
-  );
+it("says reached through an undisclosed path when npm explain cannot say which dependency pulls a transitive finding in", () => {
+  const { status, stderr } = run(workspace(deep));
+
+  expect({
+    status,
+    line: stderr.includes("Deep flaw, reached through an undisclosed path"),
+  }).toEqual({
+    status: 1,
+    line: true,
+  });
+});
+
+it("names the dependencies the project and its workspaces declare that pull a transitive finding in, as npm explain reports them", () => {
+  // npm's own shape: the project root explains itself by location alone, and a workspace says it is one.
+  const root = { location: "/project" };
+  const edge = (name: string, from: object) => ({ type: "dev", name, spec: "*", from });
+  const node = (name: string, location: string, dependents: object[]) => ({
+    name,
+    version: "1.0.0",
+    location,
+    isWorkspace: false,
+    dependents,
+  });
+  const workspaceNode = (name: string, location: string, dependents: object[]) => ({
+    ...node(name, location, dependents),
+    isWorkspace: true,
+  });
+  const answer = JSON.stringify([
+    node("deep", "node_modules/deep", [
+      edge(
+        "deep",
+        node("mid", "node_modules/mid", [
+          edge("mid", node("glob", "node_modules/glob", [edge("glob", root)])),
+          edge("mid", node("eslint", "node_modules/eslint", [edge("eslint", root)])),
+          edge("mid", workspaceNode("@acme/web", "packages/web", [edge("@acme/web", root)])),
+        ])
+      ),
+    ]),
+  ]);
+  const dir = workspace(deep, 1, { answer, exitCode: 0 });
+
+  const { stderr } = run(dir);
+
+  expect({
+    line: stderr.split("\n").find((line) => line.startsWith("check-audit: high:")),
+    explained: readFileSync(join(dir, "explain-args"), "utf8"),
+  }).toEqual({
+    line: "check-audit: high: deep not resolvable on disk installed, affected <9 — GHSA-eeee-eeee-eeee Deep flaw, reached through eslint, glob, mid",
+    explained: "explain\nnode_modules/deep\n--json\n",
+  });
 });

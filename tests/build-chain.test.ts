@@ -165,7 +165,7 @@ it("updates npm and actions weekly, grouping only dev minors and patches, so maj
   ]);
 });
 
-it("keeps both scripts byte-identical to HAL Engine's at 89285c155749 below the one header line naming it", () => {
+it("keeps both scripts byte-identical to the HAL Engine commit their one header line names", () => {
   const copies = ["check-audit", "check-action-pins"].map((name) => {
     const lines = readFileSync(`scripts/${name}.mjs`, "utf8").split("\n");
     const [header] = lines.splice(1, 1);
@@ -176,9 +176,9 @@ it("keeps both scripts byte-identical to HAL Engine's at 89285c155749 below the 
   expect(copies).toEqual([
     {
       header: expect.stringContaining(
-        "copied unmodified from re-cinq/HALEngine@89285c155749 scripts/check-audit.mjs"
+        "copied unmodified from re-cinq/HALEngine@8712723846c2 scripts/check-audit.mjs"
       ),
-      sha256: "ca23eae2dba68e8ca76fd9358881430b7b553aaef71ed0d1d5074392e9648207",
+      sha256: "cadb369b9b5bea03f814f9724c414ca876e50af23b41f7a4ed02776791aa2aa7",
     },
     {
       header: expect.stringContaining(
