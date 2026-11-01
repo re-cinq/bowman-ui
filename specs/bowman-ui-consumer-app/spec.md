@@ -28,8 +28,9 @@ rewrites is reported for a manual fix rather than guessed at.
 and declares no `@re-cinq/bowman-ui` dependency at all - the version under
 test is always the tarball `npm pack` just produced
 ([validated by](../../scripts/consumer-app.sh#L99)). `react` and `react-dom`
-are pinned at exactly `19.3.0`
-([validated by](../../examples/chat-demo/package.json#L15)), the version
+are pinned at exactly `19.3.1`
+([validated by the react pin](../../examples/chat-demo/package.json#L14),
+[validated by the react-dom pin](../../examples/chat-demo/package.json#L15)), the version
 docs/design-notes.md decision 4 records as the one CI installs and the only one tested
 ([validated by is the same in decision 4, the README, the lockfile, the chat-demo pin and the rsc-fixture pin](../../tests/react-version-consistency.test.ts#L54)).
 
