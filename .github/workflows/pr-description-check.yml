@@ -9,7 +9,13 @@ permissions:
   pull-requests: read
 
 jobs:
+  # Issue 398: Dependabot writes its own body - release notes, commits,
+  # compatibility - with none of these headings, so its pull requests could
+  # never pass and sat unmerged. The author's login decides, not the actor's: a
+  # person editing a Dependabot body does not bring the check back. GitHub
+  # reports a job its `if:` skipped as a success, so a required check holds.
   check-description:
+    if: github.event.pull_request.user.login != 'dependabot[bot]'
     runs-on: ubuntu-latest
     steps:
       - name: Check required sections
