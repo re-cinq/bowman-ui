@@ -1,5 +1,5 @@
-/** Role discriminant for {@link ChatEntry}, hal-engine's four SessionEntry roles (docs/websocket-protocol.md §6). */
-export type ChatEntryRole = "user" | "assistant" | "thinking" | "tool";
+/** Role discriminant for {@link ChatEntry}: hal-engine's four SessionEntry roles (docs/websocket-protocol.md §6) and a consumer's card. */
+export type ChatEntryRole = "user" | "assistant" | "thinking" | "tool" | "card";
 
 /** A message authored by the user (docs/websocket-protocol.md §6.1); fully formed, never streams (§7.2). */
 export interface UserChatEntry {
@@ -51,8 +51,21 @@ export interface ToolChatEntry {
   toolInput: Record<string, unknown>;
 }
 
+/** A consumer's card, with no hal-engine role: its adapter builds it from an entry a tool sent, which the engine forwards as-is. */
+export interface CardChatEntry {
+  /** Opaque identifier assigned by the consuming adapter. */
+  id: string;
+  /** Discriminant. */
+  role: "card";
+  /** The consumer's name for the card type, such as "delivery_card"; never rendered. */
+  kind: string;
+  /** The card's fields, opaque to the library: only the consumer's describeCard reads them, never the DOM. */
+  data: Readonly<Record<string, unknown>>;
+}
+
 /** One entry per piece of content, discriminated on role (docs/websocket-protocol.md §6; chat-entry-types spec). */
-export type ChatEntry = UserChatEntry | AssistantChatEntry | ThinkingChatEntry | ToolChatEntry;
+export type ChatEntry =
+  UserChatEntry | AssistantChatEntry | ThinkingChatEntry | ToolChatEntry | CardChatEntry;
 
 /** Coarse conversation state: "idle" between exchanges, "streaming" in flight, "error" after a terminal error. */
 export type ChatStreamState = "idle" | "streaming" | "error";

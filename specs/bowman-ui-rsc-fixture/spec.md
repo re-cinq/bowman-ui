@@ -126,7 +126,7 @@ mechanically with
 `AppSidebar`, `Button`, `ChatComposer`, `ChatMessage`, `ChatMessageList`,
 `ConversationList`, `ErrorBoundary`, `IconButton`, `PromptChips`,
 `SearchField`, `Toast`, `ToolActivity`
-([validated by](../../docs/design-notes.md#L918)), and the same sentence appears in
+([validated by](../../docs/design-notes.md#L951)), and the same sentence appears in
 the README ([validated by](../../README.md#L225)). `app/client/page.tsx` is
 the control: the same composition under `"use client"`, building green, so
 the rejection is attributable to the boundary and not to the components
@@ -149,7 +149,7 @@ regression here would surface the day a consumer tries the server idiom, not
 in this fixture.
 
 No `"react-server"` condition is added to `exports`; docs/design-notes.md records the
-refusal and its reason ([validated by](../../docs/design-notes.md#L898)).
+refusal and its reason ([validated by](../../docs/design-notes.md#L931)).
 
 ## The script
 
@@ -247,7 +247,7 @@ The `rsc` job in `ci.yml` runs on every pull request (the workflow's
 unfiltered `pull_request` trigger) beside `032`'s `consumer` job. It pins
 its actions to the same commit SHAs as the existing jobs with
 `persist-credentials: false`
-([validated by](../../.github/workflows/ci.yml#L160)) - the issue text
+([validated by](../../.github/workflows/ci.yml#L165)) - the issue text
 named the older `v6`/`v4` SHAs from before this repo moved to `v7` pins;
 the existing file's style wins and the deviation is recorded here - and
 takes its setup from the shared `setup-node-install` composite action, which
@@ -259,18 +259,18 @@ runs `npm ci --ignore-scripts`
 `npm run build` before packing
 ([validated by](../../.github/actions/setup-node-install/action.yml#L27)), then runs the green
 case and the `--expect-failure` case as separately named steps
-([validated by](../../.github/workflows/ci.yml#L169),
-[the red step](../../.github/workflows/ci.yml#L171)).
+([validated by](../../.github/workflows/ci.yml#L174),
+[the red step](../../.github/workflows/ci.yml#L176)).
 
 The same job re-runs the three next-absence checks, unmodified:
 `check-forbidden-imports.mjs`
-([validated by](../../.github/workflows/ci.yml#L173)), `018`'s manifest grep
+([validated by](../../.github/workflows/ci.yml#L178)), `018`'s manifest grep
 with the `node_modules/next` probe
-([validated by](../../.github/workflows/ci.yml#L175)), and `032`'s
+([validated by](../../.github/workflows/ci.yml#L180)), and `032`'s
 node_modules `find` - which issue 100 moved into
 `scripts/scan-forbidden-node-modules.sh` so this job and `consumer-app.sh`
 share one copy of the pattern rather than drifting
-([validated by](../../.github/workflows/ci.yml#L186)). One honest caveat,
+([validated by](../../.github/workflows/ci.yml#L191)). One honest caveat,
 recorded instead of dressed up: the `find` cannot run against the fixture's
 own installed tree, which contains `next` by design - the `consumer` job
 remains its executable home for the consumer tree, and here the identical
@@ -281,7 +281,7 @@ the three checks carries a pointer comment at its home naming the
 exemption: `check-forbidden-imports.mjs`
 ([validated by](../../scripts/check-forbidden-imports.mjs#L11)), the
 `next must be absent` step
-([validated by](../../.github/workflows/ci.yml#L121)), and the shared
+([validated by](../../.github/workflows/ci.yml#L126)), and the shared
 node_modules scan
 ([validated by](../../scripts/scan-forbidden-node-modules.sh#L6)).
 
@@ -322,7 +322,7 @@ reachable the same way `consumer` is, as a `package.json` script
   the one exception in place, so the decision does not contradict the
   § RSC fixture section ([validated by](../../docs/design-notes.md#L165)); that
   section names `examples/rsc-fixture` as the only path in the repo
-  where `next` may appear ([validated by](../../docs/design-notes.md#L888)).
+  where `next` may appear ([validated by](../../docs/design-notes.md#L921)).
 - Observation, not a test-linked statement (no test can assert a property of
   the PR's own diff): no file under the library's `src/` changed in this PR -
   the fixture's own `examples/rsc-fixture/src/` is the issue's named path for

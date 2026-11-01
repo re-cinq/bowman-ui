@@ -17,6 +17,7 @@
 import type {
   AppShellProps,
   AppSidebarProps,
+  ChatCardProps,
   ChatComposerProps,
   ChatMessageListProps,
   ChatMessageProps,
@@ -190,6 +191,12 @@ export const chatMessageListPropDocs = {
     required: false,
     description: "Fills the icon slot of every ToolActivity.",
   },
+  describeCard: {
+    type: "(entry: CardChatEntry) => ReactNode",
+    required: false,
+    description:
+      "Draws each card entry's body inside the ChatCard frame; null or absent shows the cardUnavailable label.",
+  },
   showThinking: {
     type: "boolean",
     required: false,
@@ -241,6 +248,33 @@ export const toolActivityPropDocs = {
     description: "Overrides the component's strings; English defaults apply per key.",
   },
 } satisfies Record<keyof ToolActivityProps, PropDoc>;
+
+export const chatCardPropDocs = {
+  entry: { type: "CardChatEntry", required: true, description: "The card to frame." },
+  describeCard: {
+    type: "(entry: CardChatEntry) => ReactNode",
+    required: false,
+    description:
+      "Draws the body from the consumer's own reading of entry.data. Absent, or returning null, shows the cardUnavailable label; the library never prints data.",
+  },
+  showFeedback: {
+    type: "boolean",
+    required: false,
+    default: "true",
+    description: "Shows the thumbs, which rate this card alone.",
+  },
+  labels: {
+    type: "Partial<ChatCardLabels>",
+    required: false,
+    default: "defaultChatCardLabels",
+    description: "Overrides the card's name, its fallback and the feedback strings.",
+  },
+  onFeedback: {
+    type: '(entryId: string, type: "up" | "down") => void',
+    required: false,
+    description: "Reports a rating with the card's own id.",
+  },
+} satisfies Record<keyof ChatCardProps, PropDoc>;
 
 export const thinkingTracePropDocs = {
   entry: { type: "ThinkingChatEntry", required: true, description: "The reasoning to render." },

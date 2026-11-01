@@ -30,10 +30,10 @@ component reads no clock and no locale: no `Date` constructor,
 `ConversationList` sits
 in the `labelsProp` partition bucket and passes the
 sentinel render across its list, empty and loading states, the function label
-included ([partition](../../tests/labelled-exports.test.tsx#L85),
-[harness](../../tests/labelled-exports.test.tsx#L506),
+included ([partition](../../tests/labelled-exports.test.tsx#L90),
+[harness](../../tests/labelled-exports.test.tsx#L551),
 [validated by onDelete renders one button per row named "Delete conversation: Booking 4711"; clicking it calls onDelete with the id and onSelect zero times](../../tests/ConversationList.test.tsx#L248),
-[defaults](../../tests/labelled-exports.test.tsx#L598)).
+[defaults](../../tests/labelled-exports.test.tsx#L649)).
 
 ## The four decisions
 
@@ -87,7 +87,7 @@ and no `<ul>` ([validated by isLoading renders a role="status" element named "Lo
 The delete button is `opacity-0` until its row is hovered or focused within;
 measured in Chromium and WebKit, its computed opacity is `0` at rest and `1` on focus,
 and `Enter` then removes the row from the demo's list (issue 151)
-([validated by the current conversation's delete button is invisible at rest, revealed on focus, and Enter removes the row and moves the current mark](../../examples/chat-demo/tests/chat-demo.spec.ts#L563)).
+([validated by the current conversation's delete button is invisible at rest, revealed on focus, and Enter removes the row and moves the current mark](../../examples/chat-demo/tests/chat-demo.spec.ts#L581)).
 
 ## The characterization suite
 

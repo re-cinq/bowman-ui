@@ -4,7 +4,9 @@ import { resolve } from "node:path";
 import { createRef } from "react";
 import { ACCENT_DOT_SELECTOR } from "./helpers/expect-theme-tokens.js";
 import {
+  AppSidebar,
   ChatMessageList,
+  defaultChatCardLabels,
   defaultChatMessageLabels,
   defaultChatMessageListLabels,
   defaultThinkingIndicatorLabels,
@@ -13,6 +15,7 @@ import {
 } from "../src/index.js";
 import type {
   AssistantChatEntry,
+  CardChatEntry,
   ChatMessageListHandle,
   ThinkingChatEntry,
   ToolChatEntry,
@@ -40,6 +43,16 @@ const toolEntry = (id: string): ToolChatEntry => ({
   toolName: "get_weather",
   toolInput: { location: "Berlin", units: "celsius" },
 });
+
+const cardEntry = (id: string, shipmentReference: string): CardChatEntry => ({
+  id,
+  role: "card",
+  kind: "delivery_card",
+  data: { shipmentReference, statusCode: "LEVERET" },
+});
+
+const describeDelivery = (entry: CardChatEntry) =>
+  `${String(entry.data.shipmentReference)} er leveret`;
 
 const thinkingEntry = (id: string, isStreaming = false): ThinkingChatEntry => ({
   id,
@@ -116,6 +129,17 @@ const scrollRegionTo = (scrollTop: number) => {
 const appendThirdEntry = (rerender: ReturnType<typeof render>["rerender"]) => {
   scrollToMock.mockClear();
   rerender(<ChatMessageList entries={threeEntries} userInitials="LM" labels={{ aiDisclosure }} />);
+};
+
+const growLastEntry = (rerender: ReturnType<typeof render>["rerender"]) => {
+  scrollToMock.mockClear();
+  rerender(
+    <ChatMessageList
+      entries={[twoEntries[0], assistantEntry("a1", "Pedido 4711 encontrado y confirmado")]}
+      userInitials="LM"
+      labels={{ aiDisclosure }}
+    />
+  );
 };
 
 const expectSmoothScrollToBottom = () => {
@@ -225,9 +249,33 @@ describe("ChatMessageList", () => {
         ...defaultThinkingIndicatorLabels,
         ...defaultThinkingTraceLabels,
         ...defaultToolActivityLabels,
+        ...defaultChatCardLabels,
         transcript: "Conversation",
       });
       expect(Object.keys(defaultChatMessageListLabels)).not.toContain("aiDisclosure");
+    });
+
+    it("is at least as tall as AppSidebar's h-14 brand row, its text centred, so their bottom borders meet across the page", () => {
+      render(
+        <>
+          <AppSidebar brand={<span>OLT kundeservice</span>} />
+          <ChatMessageList entries={twoEntries} userInitials="LM" labels={{ aiDisclosure }} />
+        </>
+      );
+
+      const bandClasses = screen.getByText(aiDisclosure).className.split(" ");
+      const brandRowClasses = screen
+        .getByText("OLT kundeservice")
+        .parentElement?.className.split(" ");
+
+      expect({
+        band: ["min-h-14", "flex", "items-center", "border-b"].every((cls) =>
+          bandClasses.includes(cls)
+        ),
+        brandRow: ["h-14", "items-center", "border-b"].every((cls) =>
+          brandRowClasses?.includes(cls)
+        ),
+      }).toEqual({ band: true, brandRow: true });
     });
   });
 
@@ -643,9 +691,10 @@ describe("ChatMessageList", () => {
       expectSmoothScrollToBottom();
     });
 
-    it("unpinned after a scroll event at scrollTop 100, appending an entry calls scrollTo zero times", () => {
+    it("unpinned after scrolling up from the bottom to scrollTop 100, appending an entry calls scrollTo zero times", () => {
       const rerender = renderTwoEntriesWithGeometry();
 
+      scrollRegionTo(800);
       scrollRegionTo(100);
       appendThirdEntry(rerender);
 
@@ -655,6 +704,7 @@ describe("ChatMessageList", () => {
     it("a scroll event back to the bottom re-pins and the next append scrolls smooth again", () => {
       const rerender = renderTwoEntriesWithGeometry();
 
+      scrollRegionTo(800);
       scrollRegionTo(100);
       scrollRegionTo(800);
       appendThirdEntry(rerender);
@@ -665,14 +715,7 @@ describe("ChatMessageList", () => {
     it("growing the last entry's content without changing entries.length scrolls with behavior auto", () => {
       const rerender = renderTwoEntriesWithGeometry();
 
-      scrollToMock.mockClear();
-      rerender(
-        <ChatMessageList
-          entries={[twoEntries[0], assistantEntry("a1", "Pedido 4711 encontrado y confirmado")]}
-          userInitials="LM"
-          labels={{ aiDisclosure }}
-        />
-      );
+      growLastEntry(rerender);
 
       expect(scrollToMock).toHaveBeenCalledExactlyOnceWith({ top: 1200, behavior: "auto" });
     });
@@ -782,6 +825,15 @@ describe("ChatMessageList", () => {
       );
       expect(scrollToMock).toHaveBeenCalledTimes(0);
     });
+
+    it("a downward scroll event landing 55px short of the bottom, after a delta outgrew the list's own scroll, stays pinned and the next delta follows", () => {
+      const rerender = renderTwoEntriesWithGeometry();
+
+      scrollRegionTo(745);
+      growLastEntry(rerender);
+
+      expect(scrollToMock).toHaveBeenCalledExactlyOnceWith({ top: 1200, behavior: "auto" });
+    });
   });
 
   describe("the ref handle", () => {
@@ -820,6 +872,8 @@ describe("ChatMessageList", () => {
       );
 
       stubGeometry(regionOf());
+      regionOf().scrollTop = 800;
+      fireEvent.scroll(regionOf());
       regionOf().scrollTop = 100;
       fireEvent.scroll(regionOf());
       scrollToMock.mockClear();
@@ -1072,6 +1126,69 @@ describe("ChatMessageList", () => {
       );
 
       expect(screen.getByText("Consultando")).toBeInTheDocument();
+    });
+  });
+
+  describe("card entries", () => {
+    it("renders a question, a tool row and two cards, each drawing its describeCard body, in transcript order", () => {
+      const { container } = render(
+        <ChatMessageList
+          entries={[
+            userEntry("u1", "Hvornår leveres OLT-2026-0001?"),
+            toolEntry("t1"),
+            cardEntry("c1", "SHP-2026-000123"),
+            cardEntry("c2", "SHP-2026-000124"),
+          ]}
+          userInitials="LM"
+          describeCard={describeDelivery}
+          labels={{ aiDisclosure }}
+        />
+      );
+
+      const column = container.querySelector(".max-w-3xl");
+
+      expect(Array.from(column?.children ?? []).map((child) => child.textContent)).toEqual([
+        expect.stringContaining("Hvornår leveres OLT-2026-0001?"),
+        "Looked something up",
+        expect.stringContaining("SHP-2026-000123 er leveret"),
+        expect.stringContaining("SHP-2026-000124 er leveret"),
+      ]);
+    });
+
+    it("rates card c2 alone through onFeedback with its own id", () => {
+      const ratings: [string, string][] = [];
+
+      render(
+        <ChatMessageList
+          entries={[cardEntry("c1", "SHP-2026-000123"), cardEntry("c2", "SHP-2026-000124")]}
+          userInitials="LM"
+          describeCard={describeDelivery}
+          labels={{ aiDisclosure }}
+          onFeedback={(entryId, type) => ratings.push([entryId, type])}
+        />
+      );
+
+      const second = screen.getAllByRole("article", { name: "Card" })[1];
+
+      fireEvent.click(within(second).getByRole("button", { name: "Bad response" }));
+
+      expect(ratings).toEqual([["c2", "down"]]);
+    });
+
+    it("names each card and its fallback from the list's labels and shows no thumbs with showFeedback false", () => {
+      render(
+        <ChatMessageList
+          entries={[cardEntry("c1", "SHP-2026-000123")]}
+          userInitials="LM"
+          showFeedback={false}
+          labels={{ aiDisclosure, card: "Leveringskort", cardUnavailable: "Kortet kan ikke vises" }}
+        />
+      );
+
+      expect({
+        card: screen.getByRole("article", { name: "Leveringskort" }).textContent,
+        buttons: screen.queryAllByRole("button"),
+      }).toEqual({ card: "Kortet kan ikke vises", buttons: [] });
     });
   });
 
