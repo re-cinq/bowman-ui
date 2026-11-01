@@ -30,23 +30,23 @@ base, so a cited line a branch rewrites is reported for a manual fix rather than
 the version under test is always the tarball `npm pack` just produced,
 executable-asserted before every run
 ([validated by](../../scripts/rsc-fixture.sh#L54)). `react` and `react-dom`
-are pinned at exactly `19.3.0`
-([validated by](../../examples/rsc-fixture/package.json#L11),
-[L12](../../examples/rsc-fixture/package.json#L12)), the version
+are pinned at exactly `19.3.1`
+([validated by the react pin](../../examples/rsc-fixture/package.json#L11),
+[validated by the react-dom pin](../../examples/rsc-fixture/package.json#L12)), the version
 docs/design-notes.md decision 4 records as the one CI installs and the only
 one tested; the pin is held equal to that record, the README's claim, the
 root lockfile and the chat-demo pin by the version-consistency test
 ([validated by is the same in decision 4, the README, the lockfile, the chat-demo pin and the rsc-fixture pin](../../tests/react-version-consistency.test.ts#L54)). One
 caveat recorded rather than papered over: Next substitutes its own vendored
 React build for parts of the App Router render, so the pin is a claim about
-what the fixture installs, not proof that stock `react@19.3.0` executed every
+what the fixture installs, not proof that stock `react@19.3.1` executed every
 server frame.
 
-`next` is pinned at exactly `16.3.5`
-([validated by](../../examples/rsc-fixture/package.json#L18)) - `16.3.3` at
+`next` is pinned at exactly `16.4.3`
+([validated by the next pin](../../examples/rsc-fixture/package.json#L18)) - `16.3.3` at
 implementation time, since moved by Dependabot's grouped bump, with no `^`.
 Turbopack is Next 16's default bundler and the fixture does not opt out: the
-measured build banner reads `Next.js 16.3.5 (Turbopack)`, and the config
+measured build banner reads `Next.js 16.4.3 (Turbopack)`, and the config
 carries no `--webpack`-equivalent nor any bundler key
 ([validated by](../../examples/rsc-fixture/next.config.ts#L3)). `typescript` is
 pinned at `7.0.2`, the same version `examples/chat-demo` pins; `next build`'s
