@@ -41,7 +41,7 @@ unlayered, so they win on plain specificity without depending on a
 consumer's `@layer` order. Since issue 210 the copied `dist/styles.css` opens with a
 comment block declaring, one line per `--bowman-*` theming token, that token and
 its default
-([validated by dist/styles.css opens with one comment line per token, each stating its default](../../tests/theming-tokens-dist.test.ts#L274)). The 50 % stop of
+([validated by dist/styles.css opens with one comment line per token, each stating its default](../../tests/theming-tokens-dist.test.ts#L290)). The 50 % stop of
 `bowman-pulse-subtle` reads `--bowman-accent-glow` and `--bowman-pulse-outline` with today's
 literals as fallbacks - the zero stop stays literal
 ([validated by](../../tests/styles.test.ts#L72)).
@@ -71,7 +71,7 @@ utility classes, with no `data-animations` attribute in any selector
 ([validated by neutralises all four animations under prefers-reduced-motion, touching no transform, with no data-animations selector](../../tests/styles.test.ts#L90)). Rendered in Chromium and WebKit under
 that preference, a thinking dot's computed `animation-name` is `none`, against
 `bowman-fade-dot` without the emulation (issue 151)
-([validated by the thinking dots animate by default and stop under prefers-reduced-motion](../../examples/chat-demo/tests/chat-demo.spec.ts#L674)). No
+([validated by the thinking dots animate by default and stop under prefers-reduced-motion](../../examples/chat-demo/tests/chat-demo.spec.ts#L723)). No
 `NEXT_PUBLIC_FLAG_ANIMATIONS` escape hatch exists: flag plumbing belongs to
 a consumer ([validated by `no built file reads process.env and no NEXT_PUBLIC flag string survives in src/`](../../tests/hooks-dist.test.ts#L45)).
 

@@ -832,8 +832,8 @@ test.describe("component states", () => {
 
     const items = page.getByRole("main").locator("ul li");
 
-    await expect(items).toHaveCount(23);
-    await expect(items.locator("svg[aria-hidden='true']")).toHaveCount(23);
+    await expect(items).toHaveCount(24);
+    await expect(items.locator("svg[aria-hidden='true']")).toHaveCount(24);
     await expect(items.filter({ hasText: "SendIcon" })).toHaveCount(1);
   });
 

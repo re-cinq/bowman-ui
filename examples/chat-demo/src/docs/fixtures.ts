@@ -4,6 +4,7 @@
 
 import type {
   AssistantChatEntry,
+  CardChatEntry,
   ChatAttribution,
   ChatEntry,
   ConversationListItem,
@@ -60,6 +61,14 @@ export const docsToolEntry: ToolChatEntry = {
   role: "tool",
   toolName: "lookup_stock",
   toolInput: { title: "the-cartographers-atlas", format: "hardback", copies: 2 },
+};
+
+// A consumer's card: kind and data are its own, and only its describeCard reads them.
+export const docsCardEntry: CardChatEntry = {
+  id: "docs-card",
+  role: "card",
+  kind: "order_card",
+  data: { orderNumber: "BK-2041", status: "Shipped", arrives: "Friday by 12:00" },
 };
 
 export const docsThinkingEntry: ThinkingChatEntry = {

@@ -31,6 +31,7 @@ const chatExports = [
   "AssistantChatEntry",
   "ThinkingChatEntry",
   "ToolChatEntry",
+  "CardChatEntry",
   "ChatStreamState",
   "ChatErrorInfo",
 ];
@@ -72,7 +73,7 @@ const droppedFields = (entry: FixtureEntry, mapped: ChatEntry): string[] =>
   Object.keys(entry).filter((key) => !(key in mapped));
 
 describe("type-level assertions", () => {
-  it("tsc accepts chat-type-assertions.ts, proving a fifth role and a streamless assistant entry fail to typecheck", () => {
+  it("tsc accepts chat-type-assertions.ts, proving a sixth role, a card without kind and a streamless assistant entry fail to typecheck", () => {
     expectTypeAssertionsCompile("tests/types/chat-type-assertions.ts");
   });
 });
@@ -102,7 +103,7 @@ describe("dist/types/chat.d.ts", () => {
     expect(readChatDts()).not.toMatch(/^\s*\[[A-Za-z_$][\w$]*\s*:\s*(string|number)\s*\]\s*:/m);
   });
 
-  it("exports exactly the eight chat type names", () => {
+  it("exports exactly the nine chat type names", () => {
     const exportedNames = [
       ...readChatDts().matchAll(/^export (?:interface|type) ([A-Za-z0-9_]+)/gm),
     ].map((match) => match[1]);

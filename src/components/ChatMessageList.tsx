@@ -11,7 +11,14 @@ import {
 import { useReducedMotion } from "../hooks/useReducedMotion.js";
 import { resolveLabels } from "../labels.js";
 import type { MarkdownPolicy } from "../markdown/urlPolicy.js";
-import type { AssistantChatEntry, ChatEntry, ToolChatEntry, UserChatEntry } from "../types/chat.js";
+import type {
+  AssistantChatEntry,
+  CardChatEntry,
+  ChatEntry,
+  ToolChatEntry,
+  UserChatEntry,
+} from "../types/chat.js";
+import { ChatCard, defaultChatCardLabels, type ChatCardLabels } from "./ChatCard.js";
 import { ChatMessage, defaultChatMessageLabels, type ChatMessageLabels } from "./ChatMessage.js";
 import {
   ThinkingIndicator,
@@ -31,7 +38,12 @@ import {
 import { BORDER, TEXT_MUTED } from "../theme/tokens.js";
 
 export interface ChatMessageListLabels
-  extends ChatMessageLabels, ThinkingIndicatorLabels, ThinkingTraceLabels, ToolActivityLabels {
+  extends
+    ChatMessageLabels,
+    ThinkingIndicatorLabels,
+    ThinkingTraceLabels,
+    ToolActivityLabels,
+    ChatCardLabels {
   /** EU AI Act disclosure, outside the scroll region in every state; no default (design-notes § Labels decision 5). */
   aiDisclosure: string;
   /** The scroll region's accessible name. */
@@ -45,6 +57,8 @@ export const defaultChatMessageListLabels: Readonly<
   ...defaultThinkingIndicatorLabels,
   ...defaultThinkingTraceLabels,
   ...defaultToolActivityLabels,
+  card: defaultChatCardLabels.card,
+  cardUnavailable: defaultChatCardLabels.cardUnavailable,
   transcript: "Conversation",
 });
 
@@ -55,7 +69,7 @@ export interface ChatAttribution {
 }
 
 export interface ChatMessageListProps {
-  /** The conversation in order, all four entry roles; a delta must arrive as a new array. */
+  /** The conversation in order, all five entry roles; a delta must arrive as a new array. */
   entries: ReadonlyArray<ChatEntry>;
   userInitials: string;
   /** Required, unlike sibling components' labels: aiDisclosure has no default, so the prop cannot be omitted. */
@@ -85,6 +99,8 @@ export interface ChatMessageListProps {
   showToolInput?: boolean;
   /** Fills the icon slot of every `ToolActivity`. */
   toolIcon?: ReactNode;
+  /** Draws a card entry's body; the list frames it, rates it per card and never prints entry.data itself. */
+  describeCard?: (entry: CardChatEntry) => ReactNode;
   /** Mounts a ThinkingTrace per thinking entry; off by default, see design-notes § Thinking trace. */
   showThinking?: boolean;
   onCopy?: (text: string, entryId: string) => void;
@@ -152,6 +168,7 @@ export const ChatMessageList = forwardRef<ChatMessageListHandle, ChatMessageList
       showToolName,
       showToolInput,
       toolIcon,
+      describeCard,
       showThinking = false,
       onCopy,
       onFeedback,
@@ -165,7 +182,6 @@ export const ChatMessageList = forwardRef<ChatMessageListHandle, ChatMessageList
     const prefersReducedMotion = useReducedMotion(reducedMotion);
     const regionRef = useRef<HTMLDivElement>(null);
     const pinnedRef = useRef(true);
-    const smoothScrollInFlightRef = useRef(false);
     const lastScrollTopRef = useRef(0);
     const previousLengthRef = useRef<number | null>(null);
 
@@ -175,7 +191,6 @@ export const ChatMessageList = forwardRef<ChatMessageListHandle, ChatMessageList
       previousLengthRef.current = entries.length;
 
       if (previousLength === null) {
-        smoothScrollInFlightRef.current = false;
         scrollRegionToBottom(regionRef.current, "auto");
 
         return;
@@ -187,7 +202,6 @@ export const ChatMessageList = forwardRef<ChatMessageListHandle, ChatMessageList
       const grew = entries.length > previousLength;
       const behavior: ScrollBehavior = prefersReducedMotion || !grew ? "auto" : "smooth";
 
-      smoothScrollInFlightRef.current = behavior === "smooth";
       scrollRegionToBottom(regionRef.current, behavior);
     }, [entries, busy, prefersReducedMotion]);
 
@@ -198,7 +212,6 @@ export const ChatMessageList = forwardRef<ChatMessageListHandle, ChatMessageList
           const behavior: ScrollBehavior = prefersReducedMotion ? "auto" : "smooth";
 
           pinnedRef.current = true;
-          smoothScrollInFlightRef.current = behavior === "smooth";
           scrollRegionToBottom(regionRef.current, behavior);
         },
         isPinnedToBottom: () => isNearBottom(regionRef.current),
@@ -206,25 +219,22 @@ export const ChatMessageList = forwardRef<ChatMessageListHandle, ChatMessageList
       [prefersReducedMotion]
     );
 
-    // Our smooth scroll's own downward events must not unpin the reader; the bottom or an upward move settles it.
+    // Only the reader moves the region up; the list's own scrolls move it down, and content can outgrow one before its event lands.
     const handleScroll = (event: UIEvent<HTMLDivElement>) => {
       const node = event.currentTarget;
-      const previousTop = lastScrollTopRef.current;
+      const movedUp = node.scrollTop < lastScrollTopRef.current;
 
       lastScrollTopRef.current = node.scrollTop;
 
       if (isNearBottom(node)) {
         pinnedRef.current = true;
-        smoothScrollInFlightRef.current = false;
 
         return;
       }
 
-      if (smoothScrollInFlightRef.current && node.scrollTop > previousTop) {
-        return;
+      if (movedUp) {
+        pinnedRef.current = false;
       }
-      pinnedRef.current = false;
-      smoothScrollInFlightRef.current = false;
     };
 
     const showEmptyState = entries.length === 0 && !busy;
@@ -261,6 +271,19 @@ export const ChatMessageList = forwardRef<ChatMessageListHandle, ChatMessageList
           />
         ) : null;
       }
+
+      if (entry.role === "card") {
+        return (
+          <ChatCard
+            key={entry.id}
+            entry={entry}
+            describeCard={describeCard}
+            showFeedback={showFeedback}
+            labels={resolved}
+            onFeedback={onFeedback}
+          />
+        );
+      }
       const attributed = attributionFor(entry, attribution);
 
       return (
@@ -283,7 +306,9 @@ export const ChatMessageList = forwardRef<ChatMessageListHandle, ChatMessageList
 
     return (
       <div className="flex min-h-0 flex-1 flex-col">
-        <p className={`border-b ${BORDER} px-4 py-2 text-center text-xs ${TEXT_MUTED}`}>
+        <p
+          className={`flex min-h-14 items-center justify-center border-b ${BORDER} px-4 py-2 text-center text-xs ${TEXT_MUTED}`}
+        >
           {resolved.aiDisclosure}
         </p>
         <div

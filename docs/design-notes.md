@@ -73,7 +73,7 @@ Recorded shapes:
   boundary.
 - `icons/Icon.tsx` and `icons/index.tsx` are client-free by design:
   `forwardRef` is server-safe, and neither file uses a client-only API or
-  handler. They get **no** directive - and neither do the 23 icons, which
+  handler. They get **no** directive - and neither do the 24 icons, which
   are pure SVG; stamping a directive on them would push needless JS into
   consumers' browser bundles. If an icon file ever does use a client-only
   API, that file carries the directive and this section records the
@@ -99,7 +99,7 @@ directive of its own: `export ... from` is not a reference. It runs in
 only a Next.js consumer importing from a server component proves the
 boundary holds - that verification is the RSC fixture build.
 
-## 2. One icon system: an in-repo 23-icon set, no icon dependency
+## 2. One icon system: an in-repo 24-icon set, no icon dependency
 
 Two facts hold at once and must not be collapsed into one.
 
@@ -110,7 +110,7 @@ import and names this decision as the reason. The local set carries a tested
 accessibility contract (`getAccessibleIconProps`, WCAG 2.1 AA) that an icon
 dependency has no equivalent for.
 
-Second, the artwork: the 23 glyphs are not original. Their SVG path data is
+Second, the artwork: the 24 glyphs are not original. Their SVG path data is
 adapted from - and includes modified versions of - Lucide (ISC, with a
 Feather-derived subset under MIT) and Heroicons v1/v2 (MIT, Tailwind Labs).
 No runtime dependency contradicts this: only the path data was copied and
@@ -128,7 +128,7 @@ Consequences, recorded so no cleanup PR "fixes" them:
   affordance is decorative in the surfaces this package targets. The
   composer takes an attachment slot instead.
 
-The exported prop type for the 23 icons is public: `IconProps`
+The exported prop type for the 24 icons is public: `IconProps`
 (`{className?, ariaLabel?, strokeWidth?}`), exported from the package root.
 
 ## 3. The avatar slot is the glyph, not the circle
@@ -247,7 +247,7 @@ other key still defaults per key.
 **The three `stringPropOnly` exceptions** (every other string-carrying export
 takes `labels`):
 
-- **The icons' `ariaLabel` prop** (all 23 icons). An icon carries at most one
+- **The icons' `ariaLabel` prop** (all 24 icons). An icon carries at most one
   assistive string and is decorative - `aria-hidden` - unless the call site
   supplies one, so a one-key labels object would add ceremony without adding
   safety. `LoadingIcon`'s `"Loading"` destructuring default is the icon set's
@@ -344,6 +344,39 @@ action row. Three consequences the consumer owns:
   messages only, so a node returned for a user entry is dropped; filtering by
   role in the callback is the consumer's choice, not the library's.
 
+## Card entries
+
+`ChatCard` renders a `CardChatEntry`, the fifth `ChatEntry` role and the only
+one with no `hal-engine` counterpart: a consumer's adapter builds it from an
+entry a tool sent, which the engine forwards as-is (re-cinq/bowman-ui#280;
+Otto's delivery card is the first). This reverses
+`specs/bowman-ui-chat-entry-types/spec.md`'s "a fifth role does not
+typecheck", deliberately; a sixth role still does not. The decisions, so no
+cleanup PR reverses them:
+
+- **The library owns the frame, the consumer only the body.**
+  `describeCard(entry)` returns what goes inside; the article, its
+  accessible name, its tokens and its thumbs are `ChatCard`'s. It receives
+  card entries only, so it widens nothing else, and it is the counterpart of
+  `describeTool`, not a `renderEntry`.
+- **`data` is opaque and never printed.** It is
+  `Readonly<Record<string, unknown>>`, and without `describeCard`, or when it
+  returns `null` or `undefined` for a kind the consumer does not draw, the
+  card shows the `cardUnavailable` label rather than an empty row or a dump of
+  `data`; `kind` is never rendered either. What `describeCard` puts in the
+  DOM is the consumer's data-flow decision, as `showToolInput` is.
+- **Each card is rated alone.** A turn can hold many cards (one per shipment
+  of an order), so the thumbs sit on every card and report its own id
+  through the list's existing `onFeedback`, the rating keyed by `entry.id`
+  as `ChatMessage` keys its own. They are `ChatMessage`'s thumbs,
+  moved to the internal `FeedbackButtons` module both import, so a rated
+  card and a rated message cannot drift apart.
+- **No attribution, no copy.** A card is a system answer, not model text, so
+  it carries no avatar or persona name; its body is a consumer node, so what
+  to copy from it is the consumer's call.
+- **No collapsing.** Each card is its own row in transcript order. How a long
+  run of cards presents is a later decision, recorded here when it is made.
+
 ## AppShell
 
 - **A consumer controlling `mobileSidebarOpen` owns closing it on
@@ -392,7 +425,9 @@ decision for that consumer's own compliance record, not one the library
 makes. `ToolActivity` is not a message: it carries no avatar, copy or
 feedback affordance, and no `renderEntry` escape hatch exists - the
 data-boundary default stays in the library rather than one deadline from a
-raw entry dump. When `JSON.stringify` cannot serialise the arguments - a
+raw entry dump. A card entry is not that hatch: § Card entries keeps the
+frame and the data boundary in the library and hands the consumer only the
+body. When `JSON.stringify` cannot serialise the arguments - a
 BigInt, a cycle, a `toJSON` that throws or yields `undefined` - the `<pre>`
 shows the `toolInputUnavailable` label instead, so one malformed entry never
 unmounts the list (issue 130).
@@ -920,8 +955,8 @@ cannot pass a function across the client boundary - `AppShell`
 (`renderSidebar`, `onMobileSidebarOpenChange`), `AppSidebar`
 (`renderNavLink`, `onNavigate`, a `SidebarNavItem`'s `icon`), `Button` and
 `IconButton` (`onClick`, and the `icon` component), `ChatComposer`
-(`onSubmit`), `ChatMessage` and `ChatMessageList` (`onCopy`, `onFeedback`, the
-`assistantMessageFrom` label, and on `ChatMessageList` alone `renderEntryFooter` and `describeTool`),
+(`onSubmit`), `ChatCard` (`describeCard`, `onFeedback`), `ChatMessage` and `ChatMessageList` (`onCopy`, `onFeedback`, the
+`assistantMessageFrom` label, and on `ChatMessageList` alone `renderEntryFooter`, `describeTool` and `describeCard`),
 `ConversationList` (`renderLink`, `onSelect`, `onDelete`, the
 `deleteConversation` label), `ErrorBoundary` (`onError`), `PromptChips`
 (`onPick`), `SearchField` (`onChange`), `Toast` (`onClose`) and

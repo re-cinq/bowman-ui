@@ -127,6 +127,12 @@ export const DatabaseIcon = /*#__PURE__*/ createUniformIcon(
   1.5
 );
 
+export const LogOutIcon = /*#__PURE__*/ createUniformIcon("LogOutIcon", [
+  "M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4",
+  "M16 17l5-5-5-5",
+  "M21 12H9",
+]);
+
 // LoadingIcon keeps its own svg root: IconWrapper's stroke="currentColor" would stroke the strokeless spinner path.
 export function LoadingIcon(props: IconProps) {
   const { className, ariaLabel = "Loading" } = props;

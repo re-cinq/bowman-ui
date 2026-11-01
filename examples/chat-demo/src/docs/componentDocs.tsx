@@ -11,6 +11,7 @@
 import { useEffect, useRef, useState, type ComponentType, type ReactNode } from "react";
 import {
   AppSidebar,
+  ChatCard,
   ChatComposer,
   ChatMessage,
   ChatMessageList,
@@ -23,6 +24,7 @@ import {
   ToolActivity,
   defaultAppShellLabels,
   defaultAppSidebarLabels,
+  defaultChatCardLabels,
   defaultChatComposerLabels,
   defaultChatMessageLabels,
   defaultChatMessageListLabels,
@@ -39,6 +41,8 @@ import { AppShellExample } from "./examples/AppShellExample";
 import appShellSource from "./examples/AppShellExample.tsx?raw";
 import { AppSidebarExample } from "./examples/AppSidebarExample";
 import appSidebarSource from "./examples/AppSidebarExample.tsx?raw";
+import { ChatCardExample, describeOrder } from "./examples/ChatCardExample";
+import chatCardSource from "./examples/ChatCardExample.tsx?raw";
 import { ChatComposerExample } from "./examples/ChatComposerExample";
 import chatComposerSource from "./examples/ChatComposerExample.tsx?raw";
 import { ChatMessageExample } from "./examples/ChatMessageExample";
@@ -74,6 +78,7 @@ import {
   docsNamedEntry,
   docsStreamingEntry,
   docsStreamingThinkingEntry,
+  docsCardEntry,
   docsThinkingEntry,
   docsToolEntry,
   docsUserEntry,
@@ -82,6 +87,7 @@ import {
 import {
   appShellPropDocs,
   appSidebarPropDocs,
+  chatCardPropDocs,
   chatComposerPropDocs,
   chatMessageListPropDocs,
   chatMessagePropDocs,
@@ -181,7 +187,7 @@ export const componentDocs: ReadonlyArray<ComponentDoc> = [
     id: "chat-message",
     name: "ChatMessage",
     purpose:
-      "One turn of a conversation. Reach for it when you are laying out messages yourself; reach for ChatMessageList when you want the whole transcript. It renders a user turn as a plain bubble and an assistant turn as markdown behind a link and image policy, with copy and feedback affordances that appear on hover or focus. Only user and assistant entries are renderable: handing it a thinking or tool entry is a compile error rather than a silent blank, so tool arguments cannot reach a customer's screen by accident.",
+      "One turn of a conversation. Reach for it when you are laying out messages yourself; reach for ChatMessageList when you want the whole transcript. It renders a user turn as a plain bubble and an assistant turn as markdown behind a link and image policy, with copy and feedback affordances that appear on hover or focus, and at rest on a device with no hover, such as a phone. Only user and assistant entries are renderable: handing it a thinking or tool entry is a compile error rather than a silent blank, so tool arguments cannot reach a customer's screen by accident.",
     importLine: 'import { ChatMessage } from "@re-cinq/bowman-ui";',
     Example: ChatMessageExample,
     exampleSource: chatMessageSource,
@@ -335,6 +341,34 @@ export const componentDocs: ReadonlyArray<ComponentDoc> = [
             <ToolActivity entry={docsToolEntry} describeTool={describeTool} />
           </div>
         ),
+      },
+    ],
+  },
+  {
+    id: "chat-card",
+    name: "ChatCard",
+    purpose:
+      "A consumer's card in the transcript, such as an order's status, framed by the library and drawn by the consumer. The library owns the article, its accessible name, its tokens and thumbs that rate the card alone; describeCard draws the body from the consumer's own reading of the card's data. The data is opaque: without describeCard, or when it returns null for a kind it does not draw, the card shows the cardUnavailable label and nothing from the data. ChatMessageList renders one per card entry, in transcript order.",
+    importLine: 'import { ChatCard } from "@re-cinq/bowman-ui";',
+    Example: ChatCardExample,
+    exampleSource: chatCardSource,
+    props: chatCardPropDocs,
+    labels: { defaults: defaultChatCardLabels, missing: [] },
+    variants: [
+      {
+        id: "described",
+        caption: "describeCard: the consumer's body inside the library's frame",
+        node: <ChatCard entry={docsCardEntry} describeCard={describeOrder} />,
+      },
+      {
+        id: "unavailable",
+        caption: "No describeCard: the cardUnavailable label, and nothing from data",
+        node: <ChatCard entry={docsCardEntry} />,
+      },
+      {
+        id: "no-feedback",
+        caption: "showFeedback false: no thumbs",
+        node: <ChatCard entry={docsCardEntry} describeCard={describeOrder} showFeedback={false} />,
       },
     ],
   },
@@ -537,7 +571,7 @@ export const componentDocs: ReadonlyArray<ComponentDoc> = [
     id: "icons",
     name: "Icons",
     purpose:
-      'Twenty-three stroke icons drawn in this repository rather than pulled from an icon package, so the published bundle carries no icon dependency. Every icon takes the same props: an icon given an ariaLabel becomes role="img" with that name, and one given none is aria-hidden, which is what a glyph beside a text label wants. IconWrapper and getAccessibleIconProps are exported too, for a consumer drawing an icon of its own that has to behave the same way.',
+      'Twenty-four stroke icons drawn in this repository rather than pulled from an icon package, so the published bundle carries no icon dependency. Every icon takes the same props: an icon given an ariaLabel becomes role="img" with that name, and one given none is aria-hidden, which is what a glyph beside a text label wants. IconWrapper and getAccessibleIconProps are exported too, for a consumer drawing an icon of its own that has to behave the same way.',
     importLine: 'import { SearchIcon, SendIcon } from "@re-cinq/bowman-ui";',
     Example: IconsExample,
     exampleSource: iconsSource,
