@@ -91,8 +91,9 @@ jobs:
     # The bound on LORE_TRACE_TIMEOUT_MS below: 73 test files at four at a time
     # could otherwise stall for hours against GitHub's 360-minute default, and
     # on main a stalled run holds the concurrency group for all of it. The job
-    # measures ~3 minutes today; the first push after this lands also posts a
-    # full nine-chunk ingest, so the headroom is for that, not for the suite.
+    # measures ~3 minutes today; a manual run from main, and a push after an
+    # unreachable state, post a full nine-chunk ingest, so the headroom is for
+    # that, not for the suite.
     timeout-minutes: 90
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
