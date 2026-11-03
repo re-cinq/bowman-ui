@@ -34,15 +34,18 @@
 # and the delta is selected from `git diff --name-status
 # <ingested commit>..HEAD`, which needs the work tree.
 # Issue 166: --post therefore runs in the same job as the repository's own test
-# commands, so the token is bound on push to main only - code that reaches main
-# has been reviewed, a fork's pull request carries no secrets at all, and a
-# same-repo pull request author already has write access. A pull request runs
-# the binary with no token, no endpoint and no --post: it still proves the
-# manifest and the test-command scripts work, and its report is uploaded as an
-# artifact instead of posted. Posting one would in fact corrupt the graph - a
-# pull_request checkout is detached, so the report names branch "HEAD", which
-# lore-api reads as "not a branch" and projects into main's graph, advancing
-# main's ingested-commit pointer to a merge ref that exists nowhere.
+# commands, so the token is bound on main only - code that reaches main has been
+# reviewed, a fork's pull request carries no secrets at all, and a same-repo
+# pull request author already has write access. A manual run from main binds it
+# too and posts with --full: the whole report plus every tracked path, which is
+# what clears the graph's rows for tests and files that have gone. A manual run
+# from any other branch binds nothing and posts nothing, like a pull request. A
+# pull request runs the binary with no token, no endpoint and no --post: it
+# still proves the manifest and the test-command scripts work, and its report is
+# uploaded as an artifact instead of posted. Posting one would in fact corrupt
+# the graph - a pull_request checkout is detached, so the report names branch
+# "HEAD", which lore-api reads as "not a branch" and projects into main's graph,
+# advancing main's ingested-commit pointer to a merge ref that exists nowhere.
 # What the single job costs: LORE_INGEST_TOKEN is lore-api's legacy token, which
 # resolves to every scope - admin included - with no database lookup, and the
 # binary runs each test command through `sh -c` with its own environment
@@ -67,6 +70,7 @@ on:
   push:
     branches: [main]
   pull_request:
+  workflow_dispatch:
 
 # One in-flight run per ref, as ci.yml records. On main it also serialises the
 # ingest, so two quick merges cannot diff the same ingest-state and redden
@@ -139,20 +143,24 @@ jobs:
         if: steps.fetch.outputs.fetched == 'true'
         shell: bash
         env:
-          LORE_API_URL: ${{ github.event_name == 'push' && (secrets.LORE_INGEST_URL || vars.LORE_INGEST_URL) || '' }}
-          LORE_INGEST_TOKEN: ${{ github.event_name == 'push' && secrets.LORE_INGEST_TOKEN || '' }}
+          LORE_API_URL: ${{ (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')) && (secrets.LORE_INGEST_URL || vars.LORE_INGEST_URL) || '' }}
+          LORE_INGEST_TOKEN: ${{ (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')) && secrets.LORE_INGEST_TOKEN || '' }}
           # The binary's per-command default is 120s, which a cold runner can
           # exceed on the list command or a per-file run - and under
           # coverage_format lcov a timed-out run is reported as a FAILING
           # test, not as an error, so ten minutes buys the slack.
           LORE_TRACE_TIMEOUT_MS: "600000"
         run: |
-          if [ "${GITHUB_EVENT_NAME}" = "push" ]; then
+          FULL=""
+          if [ "${GITHUB_EVENT_NAME}" = "workflow_dispatch" ] && [ "${GITHUB_REF}" = "refs/heads/main" ]; then
+            FULL="--full"
+          fi
+          if [ "${GITHUB_EVENT_NAME}" = "push" ] || [ -n "${FULL}" ]; then
             if [ -z "${LORE_API_URL}" ] || [ -z "${LORE_INGEST_TOKEN}" ]; then
               echo "::error::LORE_API_URL or LORE_INGEST_TOKEN is not configured - Lore test ingest skipped"
               exit 1
             fi
-            if ! ./lore-code-trace --post; then
+            if ! ./lore-code-trace --post ${FULL}; then
               echo "::error::Lore test run or ingest failed - see the binary's output above"
               exit 1
             fi

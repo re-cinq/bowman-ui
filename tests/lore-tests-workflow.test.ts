@@ -56,10 +56,12 @@ const fetchRunBlock = runBlockOf(fetchStep);
 const suiteRunBlock = runBlockOf(runStep);
 const fetchedGate = "if: steps.fetch.outputs.fetched == 'true'";
 const reportGate = "if: always() && steps.run.outputs.report == 'true'";
-const tokenBinding =
-  "LORE_INGEST_TOKEN: ${{ github.event_name == 'push' && secrets.LORE_INGEST_TOKEN || '' }}";
+const postsFromMain =
+  "(github.event_name == 'push' || " +
+  "(github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'))";
+const tokenBinding = `LORE_INGEST_TOKEN: \${{ ${postsFromMain} && secrets.LORE_INGEST_TOKEN || '' }}`;
 const endpointBinding =
-  "LORE_API_URL: ${{ github.event_name == 'push' && " +
+  `LORE_API_URL: \${{ ${postsFromMain} && ` +
   "(secrets.LORE_INGEST_URL || vars.LORE_INGEST_URL) || '' }}";
 const hasTool = (tool: string): boolean => spawnSync(tool, ["--version"]).status === 0;
 const fetchIt = it.skipIf(!hasTool("sha256sum"));
@@ -160,8 +162,10 @@ const runFetch = (env: Record<string, string>) => {
 };
 
 describe("lore-tests.yml triggers and wiring", () => {
-  it("runs on push to main and on pull_request only", () => {
-    expect(workflow).toContain("\non:\n  push:\n    branches: [main]\n  pull_request:\n\n");
+  it("runs on push to main, on pull_request and by hand, and on nothing else", () => {
+    expect(workflow).toContain(
+      "\non:\n  push:\n    branches: [main]\n  pull_request:\n  workflow_dispatch:\n\n"
+    );
   });
 
   it("checks out the whole history the delta is diffed over, with no credentials", () => {
@@ -276,7 +280,7 @@ describe("lore-tests.yml ingest sink", () => {
 });
 
 describe("lore-tests.yml token scoping (issue 166)", () => {
-  it("binds the token and the endpoint on a push only, in the suite step alone", () => {
+  it("binds the token and the endpoint on a push or a manual run from main only, in the suite step alone", () => {
     expect(workflowBody.split(tokenBinding)).toHaveLength(2);
     expect(workflowBody.split(endpointBinding)).toHaveLength(2);
     expect(runStep).toContain(tokenBinding);
@@ -314,9 +318,14 @@ describe("lore-tests.yml token scoping (issue 166)", () => {
     expect(suiteRunBlock).not.toMatch(/set -[a-z]*x/);
     expect(suiteRunBlock).not.toContain("GITHUB_STEP_SUMMARY");
     expect(suiteRunBlock).not.toMatch(/^ *(echo|printf).*\$\{?LORE_INGEST_TOKEN/m);
-    // The gate is the literal event, not its complement: a third trigger must
-    // not quietly inherit the push path.
-    expect(suiteRunBlock).toContain('if [ "${GITHUB_EVENT_NAME}" = "push" ]; then');
+    // The gate is the literal events, not their complement: another trigger must
+    // not quietly inherit the path that posts.
+    expect(suiteRunBlock).toContain(
+      'if [ "${GITHUB_EVENT_NAME}" = "workflow_dispatch" ] && [ "${GITHUB_REF}" = "refs/heads/main" ]; then'
+    );
+    expect(suiteRunBlock).toContain(
+      'if [ "${GITHUB_EVENT_NAME}" = "push" ] || [ -n "${FULL}" ]; then'
+    );
   });
 
   it("keeps the report of a run that posts nothing as an artifact instead", () => {
@@ -497,6 +506,42 @@ describe("lore-tests.yml suite step on a push", () => {
     expect(result.status).toBe(1);
     expect(result.stdout).toMatch(/^::error::LORE_API_URL or LORE_INGEST_TOKEN is not configured/m);
     expect(traceCalls).toBeNull();
+  });
+});
+
+describe("lore-tests.yml suite step on a manual run", () => {
+  const manual = { GITHUB_EVENT_NAME: "workflow_dispatch" };
+  const fromMain = { ...manual, GITHUB_REF: "refs/heads/main" };
+
+  it("posts the whole report with --full from main", () => {
+    const { result, output, reportFile, traceCalls } = runSuite(0, fromMain);
+
+    expect({ status: result.status, traceCalls, reportFile, output }).toEqual({
+      status: 0,
+      traceCalls: "call:--post --full\n",
+      reportFile: null,
+      output: "",
+    });
+  });
+
+  it("errors and exits 1 without running the binary from main when LORE_INGEST_TOKEN is empty", () => {
+    const { result, traceCalls } = runSuite(0, { ...fromMain, LORE_INGEST_TOKEN: "" });
+
+    expect({ status: result.status, traceCalls }).toEqual({ status: 1, traceCalls: null });
+  });
+
+  it("posts nothing from another branch even when the token leaks into the environment", () => {
+    const { result, output, traceCalls } = runSuite(0, {
+      ...manual,
+      GITHUB_REF: "refs/heads/feat/x",
+      LORE_INGEST_TOKEN: token,
+    });
+
+    expect({ status: result.status, traceCalls, output }).toEqual({
+      status: 0,
+      traceCalls: "call:\n",
+      output: "report=true\n",
+    });
   });
 });
 
