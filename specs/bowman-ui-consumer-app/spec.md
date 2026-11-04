@@ -15,7 +15,7 @@ build, laid out by a real browser. The whole proof is one command,
 `npm run consumer` ([validated by](../../package.json#L55)), documented in the
 README's Worked consumer section ([validated by](../../README.md#L203)).
 
-Anchor caveat: `scripts/reanchor-spec-links.mjs` tracks every `(../)+path#Lnn` link, so this
+Anchor caveat: `re-lint-reanchor` tracks every `(../)+path#Lnn` link, so this
 spec's links into `examples/`, `package.json` files, workflow files and root config files are
 re-anchored and rot-checked by CI along with the rest. A link into a file that is not a test
 is mapped through the diff hunks of that file since the merge base, so a line the branch

@@ -1273,7 +1273,7 @@ typecheck` now runs `typescript7` twice: `tsconfig.json`, then
     program against the test files on disk.
 14. **Spec links are re-anchored by test title and merge-base hunks, and CI
     only checks.** A `#Lnn` link drifts the moment its cited file gains or
-    loses a line above it (issues 36 and 37). `scripts/reanchor-spec-links.mjs`
+    loses a line above it (issues 36 and 37). `re-lint-reanchor`
     (`npm run reanchor`) heals it deterministically. A link labelled
     `[validated by <test title>]` into a test file moves to the line of the
     one `it()`/`test()` carrying that title, because a title survives every
@@ -1283,7 +1283,7 @@ typecheck` now runs `typescript7` twice: `tsconfig.json`, then
     the untitled `[validated by]`, `[Lnnn]` and descriptive labels, and every
     link into a script, README, doc, workflow or config - is paired with its
     copy in the merge base's markdown (lines compared with their line numbers
-    blanked, so the script's own rewrites never unpair them) and mapped
+    blanked, so the command's own rewrites never unpair them) and mapped
     through the cited file's `git diff -U0` hunks from that merge base.
     Reading the merge-base copy is what makes a second run a no-op. During an
     uncommitted merge the working tree already holds `MERGE_HEAD`'s side, so
@@ -1300,8 +1300,8 @@ typecheck` now runs `typescript7` twice: `tsconfig.json`, then
     every titled link for a deliberate cleanup. The rot check (issue 46) and
     the `[Lnnn]` label sync (issue 18) carry over unchanged and ignore scope.
 
-    It replaced `scripts/repoint-spec-anchors.mjs`, which found each anchor's
-    cited content from the base ref in the working copy and broke ties by
+    The first implementation, `scripts/reanchor-spec-links.mjs`, replaced
+    `scripts/repoint-spec-anchors.mjs`, which found each anchor's cited content from the base ref in the working copy and broke ties by
     surrounding context. Three of its behaviours are gone with it. The
     content search, and the ambiguity failure a file of repeated blocks
     produced, gave way to hunk mapping, which has no ties to break. The
@@ -1327,6 +1327,22 @@ typecheck` now runs `typescript7` twice: `tsconfig.json`, then
     hand-edited href there passed as authored; with `--all` every titled link
     must sit inside its test. Untitled links into unchanged files map through
     empty hunks, so the sweep adds no churn to a pull request.
+
+    Amended by issue 262: the logic moved upstream. `npm run reanchor` and
+    `npm run reanchor:check` call the `re-lint-reanchor` bin of
+    `@re-cinq/eslint-plugin-re-lint`, the logic its `no-stale-spec-links` rule
+    also runs, and `scripts/reanchor-spec-links.mjs` is gone, so this repo no
+    longer keeps a second implementation of this decision. The package had to
+    carry this decision's two guards first: a title no test carries (re-lint
+    1.6.0, issue 247 above) and a title only a suite or step carries (re-lint
+    1.11.0, until then a filter in the local script). The bin goes further
+    than the script in three ways, none of which moved a link here. A titled
+    link inside a different test's span moves to the test it names even in a
+    scoped run, which `--all` already did. The corpus is every markdown file
+    under `specs/` and `adrs/`, where the script read `specs/<slug>/spec.md`
+    and `adrs/*.md`. And it reads `./`, `/` and bare hrefs as well as `../`
+    ones. `tests/reanchor-spec-links.test.ts` stays, driving the bin, as the
+    consumer-side pin of the behaviour this repo's specs and CI depend on.
 
 15. **`require-status-matches-coverage` autofixes the status row, and
     `--fix` stays the documented command.** re-lint 1.8.0 made the rule

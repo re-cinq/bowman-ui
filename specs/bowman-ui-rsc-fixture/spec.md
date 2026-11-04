@@ -16,7 +16,7 @@ the one consumer shape it is built for. The whole proof is one command,
 `npm run rsc` ([validated by](../../package.json#L56)), documented in the
 README's App Router consumer section ([validated by](../../README.md#L213)).
 
-Anchor caveat (the consumer-app spec's precedent): `scripts/reanchor-spec-links.mjs` tracks
+Anchor caveat (the consumer-app spec's precedent): `re-lint-reanchor` tracks
 every `(../)+path#Lnn` link, so this spec's links into `examples/`, workflow files,
 `package.json` and root config files are re-anchored and rot-checked by CI along with the rest.
 A link into `ci.yml` or `publish.yml` is mapped through that file's diff hunks since the merge
