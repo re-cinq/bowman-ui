@@ -44,8 +44,9 @@ CI runs these on every pull request, and they are the same commands you run loca
 Two habits the checks will otherwise teach you the slow way:
 
 - After editing any file a spec cites - a test, a script, a doc, a workflow, a config - run
-  `npm run reanchor` so the `[validated by](...#Lnn)` anchors in `specs/*/spec.md` follow the
-  lines they point at, and commit the result. CI runs `npm run reanchor:check`.
+  `npm run reanchor` (the package's `re-lint-reanchor`) so the `[validated by](...#Lnn)` anchors
+  in `specs/*/spec.md` follow the lines they point at, and commit the result. CI runs
+  `npm run reanchor:check`.
 - The public API is a committed snapshot (`tests/fixtures/public-api.json`). A test failing
   against it is telling you a surface changed; regenerating the snapshot is a release decision,
   not a fix.
