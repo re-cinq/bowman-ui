@@ -81,9 +81,9 @@ The typecheck script is `typecheck`, not `type-check`.
   testable statement and ALWAYS exits 0 — a report, not a gate. See docs/design-notes.md § Lint
   guardrails decision 11.
 - `npm run reanchor [-- <base-ref>]` / `npm run reanchor:check` (both the package's
-  `re-lint-reanchor` bin, both pass `--all`) — after editing any
-  cited repository file (a test, a script, README.md, a docs/ markdown file, a workflow, a
-  config), run `npm run reanchor` and commit the result or CI reds. A `[validated by <test
+  `re-lint-reanchor` bin, both pass `--all`) — after editing any cited repository file (a test,
+  a script, README.md, a docs/ markdown file, a workflow, a config), run `npm run reanchor` and
+  commit the result or CI reds. A `[validated by <test
 title>]` link follows its `it()`; every other link is mapped through the cited file's diff
   hunks from the merge base with `origin/main`. A cited line the branch deleted, or a titled
   link whose title no test in the cited file carries, is reported, exit 1. CI runs

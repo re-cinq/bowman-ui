@@ -1301,7 +1301,8 @@ typecheck` now runs `typescript7` twice: `tsconfig.json`, then
     the `[Lnnn]` label sync (issue 18) carry over unchanged and ignore scope.
 
     The first implementation, `scripts/reanchor-spec-links.mjs`, replaced
-    `scripts/repoint-spec-anchors.mjs`, which found each anchor's cited content from the base ref in the working copy and broke ties by
+    `scripts/repoint-spec-anchors.mjs`, which found each anchor's cited
+    content from the base ref in the working copy and broke ties by
     surrounding context. Three of its behaviours are gone with it. The
     content search, and the ambiguity failure a file of repeated blocks
     produced, gave way to hunk mapping, which has no ties to break. The
@@ -1336,13 +1337,17 @@ typecheck` now runs `typescript7` twice: `tsconfig.json`, then
     carry this decision's two guards first: a title no test carries (re-lint
     1.6.0, issue 247 above) and a title only a suite or step carries (re-lint
     1.11.0, until then a filter in the local script). The bin goes further
-    than the script in three ways, none of which moved a link here. A titled
+    than the script in four ways, none of which moved a link here. A titled
     link inside a different test's span moves to the test it names even in a
-    scoped run, which `--all` already did. The corpus is every markdown file
-    under `specs/` and `adrs/`, where the script read `specs/<slug>/spec.md`
-    and `adrs/*.md`. And it reads `./`, `/` and bare hrefs as well as `../`
-    ones. `tests/reanchor-spec-links.test.ts` stays, driving the bin, as the
-    consumer-side pin of the behaviour this repo's specs and CI depend on.
+    scoped run, which `--all` already did. A bare `[<title>]` label into a test
+    file follows the one test carrying that title, where the script read only
+    `validated by` and `implemented by` labels as titles; a bare label naming
+    no test is still mapped through the hunks. The corpus is every markdown
+    file under `specs/` and `adrs/`, where the script read
+    `specs/<slug>/spec.md` and `adrs/*.md`. And it reads `./`, `/` and bare
+    hrefs as well as `../` ones. `tests/reanchor-spec-links.test.ts` stays,
+    driving the bin, as the consumer-side pin of the behaviour this repo's
+    specs and CI depend on.
 
 15. **`require-status-matches-coverage` autofixes the status row, and
     `--fix` stays the documented command.** re-lint 1.8.0 made the rule
