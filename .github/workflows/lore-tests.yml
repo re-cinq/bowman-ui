@@ -20,6 +20,10 @@
 # exit code cannot be trusted across platforms - macOS ships a sha256sum that
 # exits 0 on a malformed check line, as tests/lore-ingest-workflow.test.ts
 # records for the workflow that does use `-c`.
+# Each download gets 7 attempts 30 seconds apart, retrying any error, so one
+# dropped connection or a lore-api rollout does not fail main. curl runs
+# without -S: its error for a failed connection names the bare host, which
+# the mask on the secret's full URL does not cover.
 # The report is posted by the binary itself (`--post`), not by a curl step of
 # our own. The `POST /api/webhook/ci-tests` ingress such a step would target,
 # on the LORE_WEBHOOK_URL host, is gone: that host now answers /api/webhook/*
@@ -115,7 +119,7 @@ jobs:
             exit 1
           fi
           for artifact in linux-amd64 checksums.txt; do
-            if ! curl -fsSL "${LORE_INGEST_URL}/dist/lore-code-trace/${artifact}" -o "${artifact}"; then
+            if ! curl -fsL --connect-timeout 20 --retry 6 --retry-delay 30 --retry-all-errors "${LORE_INGEST_URL}/dist/lore-code-trace/${artifact}" -o "${artifact}"; then
               echo "::warning::lore-code-trace (${artifact}) could not be downloaded - Lore test ingest skipped"
               [ "${GITHUB_EVENT_NAME}" = "pull_request" ] && exit 0
               exit 1
