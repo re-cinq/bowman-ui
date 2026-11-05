@@ -75,7 +75,7 @@ export const Button: ForwardRefExoticComponent<ButtonProps & RefAttributes<HTMLB
   `--bowman-accent` and `--bowman-accent-hover`, with the `TEXT_ON_ACCENT` string reading
   `--bowman-text-on-accent`), `secondary` is the
   chat-demo's "new chat" look (a `border-slate-200` border on `bg-white` with `text-slate-700`),
-  `ghost` is borderless text with a hover surface (`text-slate-600 hover:bg-slate-50`), `danger` is a solid red background reading `--bowman-danger-bg` with white text reading `--bowman-text-on-accent` and a hover state reading `--bowman-danger-bg-hover` ([from plan](../bowman-ui-form-dialog-notice/plan.md)), each with
+  `ghost` is borderless text with a hover surface (`text-slate-600 hover:bg-slate-50`), `danger` is a solid red background reading `--bowman-danger-bg` with white text reading `--bowman-text-on-accent` and a hover state reading `--bowman-danger-bg-hover` (tokens defined in [theming-tokens](../bowman-ui-theming-tokens/spec.md)) ([from plan](../bowman-ui-form-dialog-notice/plan.md)), each with
   its `dark:` counterpart. Every variant carries the package's focus ring (`focus:ring-2` beside
   the `FOCUS_RING_COLOR` token string, reading `--bowman-focus-ring`) and the
   `disabled:cursor-not-allowed disabled:opacity-50` pair ([validated
@@ -95,7 +95,7 @@ export const Button: ForwardRefExoticComponent<ButtonProps & RefAttributes<HTMLB
   [L183](../../tests/Button.test.tsx#L183),
   [validated by with icon omitted no svg renders and the button holds only the text](../../tests/Button.test.tsx#L193)).
 - `onClick` receives the click event; `disabled` renders the native attribute and the click never
-  fires ([validated by clicking "Ny samtale" calls onClick once with the click event](../../tests/Button.test.tsx#L57), [validated by disabled renders the native attribute and the click never reaches onClick](../../tests/Button.test.tsx#L69)).
+  fires; a disabled `danger` button also does not call `onClick` ([validated by clicking "Ny samtale" calls onClick once with the click event](../../tests/Button.test.tsx#L57), [validated by disabled renders the native attribute and the click never reaches onClick](../../tests/Button.test.tsx#L69)).
 - `Button` renders no string of its own - its text is `children` - so it sits in `noStrings` and
   takes no `labels` prop ([validated by](../../tests/labelled-exports.test.tsx#L138),
   [validated by labelsProp, stringPropOnly and noStrings together are exactly src/index.ts's value exports](../../tests/labelled-exports.test.tsx#L165)).

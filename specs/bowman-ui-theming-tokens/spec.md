@@ -300,7 +300,7 @@ side by side"), so the two columns cannot drift apart
 ([validated by the two previews render the same send button in different colours](../../examples/chat-demo/tests/theming.spec.ts#L447),
 [preview](../../examples/chat-demo/src/docs/ThemingSection.tsx#L24)).
 
-The override lives in `examples/chat-demo/src/custom-theme.css`, which sets all forty-four tokens
+The override lives in `examples/chat-demo/src/custom-theme.css`, which sets all forty-six tokens
 under `.custom-theme` (scoped to the wrapper, not `:root`) and is imported from `main.tsx` after
 `./styles.css`, whose three documented lines are untouched; the themed screen takes its colours
 from that wrapper alone

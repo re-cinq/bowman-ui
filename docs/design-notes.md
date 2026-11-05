@@ -240,8 +240,8 @@ typed
 `IconButton` (§ Styled primitives) is the second component whose `labels`
 prop is required, typed `labels: IconButtonLabels`: its single key
 `accessibleName` is required, so no `defaultIconButtonLabels` ships; nothing
-of that name exists, and an empty frozen object would be ceremony. Decision
-2's optional `labels?` shape reads subject to these two exceptions; every
+of that name exists, and an empty frozen object would be ceremony. `TextField` is the third component whose `labels` prop is required, typed `labels: TextFieldLabels`: its `accessibleName` key is required, so no `defaultTextFieldLabels` ships. Decision
+2's optional `labels?` shape reads subject to these three exceptions; every
 other key still defaults per key.
 
 **The three `stringPropOnly` exceptions** (every other string-carrying export
@@ -1474,3 +1474,9 @@ the config comment.
   `tests/icons-dist.test.ts`.
 - The public icon props type is required to exist by this record
   (decision 2 above).
+
+## Form, dialog and notice components
+
+1. **ConfirmDialog extra fields:** The consumer provides markup and manages field values between the description and the action buttons; the dialog does not validate typed content; the consumer uses the `confirmDisabled` prop to disable the Confirm button while pre-conditions are unmet and the `busy` prop when a triggered async action is in progress; busy also prevents dialog dismissal to block duplicate submissions.
+2. **Danger button visual form:** filled: solid red background (`--bowman-danger-bg`), white text (`--bowman-text-on-accent`), red hover background (`--bowman-danger-bg-hover`); two new colour tokens, total forty-six; existing danger tokens covered text and soft surfaces only.
+3. **Notice tone colours:** info uses `--bowman-accent` family (the existing blue), success uses `--bowman-success`, error uses `--bowman-danger`, warning uses existing palette yellow directly; no new token for info or warning, so the token count is unchanged by Notice.

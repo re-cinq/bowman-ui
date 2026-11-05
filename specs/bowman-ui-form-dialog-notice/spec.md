@@ -1,9 +1,9 @@
 # Form, dialog and notice components
 
-| Field  | Value |
-| ------ | ----- |
-| Issue  | -     |
-| Status | Draft |
+| Field  | Value       |
+| ------ | ----------- |
+| Issue  | -           |
+| Status | Draft       |
 
 Bowman UI is built for chat interfaces. Apps that use it for anything else, such as admin pages, settings or a confirmation step before a destructive action, find no text field, no dialog, no inline notice and no danger button. Each app then builds its own. That costs time, the copies drift apart in look and behaviour, and accessibility is redone by hand in every one. This spec introduces general-purpose components to address exactly the gap between what Bowman offers today and what a team needs to build a typical settings, confirmation or admin screen without stepping outside the library. The decision record lives in docs/design-notes.md § Form, dialog and notice components.
 
@@ -41,7 +41,7 @@ Dialog is a modal component that presents content requiring the user’s full at
 ### ConfirmDialog
 
 ConfirmDialog is a specialised form of Dialog for one job: asking the user to confirm before an action they cannot undo. Every instance presents a title, a brief description of what will happen, a Cancel button and a Confirm button styled as a danger action ([from plan](plan.md)).
-When a yes-or-no click is not enough, the consumer places extra inputs inside the dialog, between the description and the buttons ([from plan](plan.md)). The consumer manages these inputs and keeps the Confirm button disabled until its own conditions are met ([from plan](plan.md)).
+When a yes-or-no click is not enough, the consumer places extra inputs inside the dialog, between the description and the buttons ([from plan](plan.md)). The consumer manages these inputs and uses the `confirmDisabled` prop to keep the Confirm button disabled until its own conditions are met ([from plan](plan.md)).
 While a triggered action is in progress, the consumer signals this with a `busy` prop, which keeps the Confirm button non-interactive and prevents the dialog from being dismissed ([from plan](plan.md)).
 
 ### Notice
@@ -59,11 +59,11 @@ Card is a panel component that can optionally be rendered as a single selectable
 ## Label keys
 
 - Each component that carries assistive-technology strings ships them through its `labels` prop. ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#kpis-p-11))
-- TextField's `labels` carries: an accessible name for the field (always required), optional hint text displayed beneath the field, and optional error text announced when the field is in an invalid state. ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#kpis-p-12))
-- SearchField's `labels` carries: the existing input-name and placeholder labels it already ships, plus an accessible name for the submit button added by this work. ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#kpis-p-13))
-- Dialog's `labels` carries: an accessible name for the close button. ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#kpis-p-14))
-- ConfirmDialog's `labels` carries: accessible names for the Cancel button and the Confirm button; the title text and the body description are consumer content, not labels. ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#kpis-p-15))
-- Notice's `labels` carries: an accessible name for the dismiss button, when one is present. ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#kpis-p-16))
+- TextField's `labels` carries: an accessible name for the field (the `accessibleName` key, always required), optional hint text displayed beneath the field, and optional error text announced when the field is in an invalid state. ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#kpis-p-12))
+- SearchField's `labels` carries: the existing input-name and placeholder labels it already ships, plus an accessible name for the submit button (the `searchSubmit` key, default `"Search"`) added by this work. ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#kpis-p-13))
+- Dialog's `labels` carries: an accessible name for the close button (the `closeDialog` key, default `"Close"`). ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#kpis-p-14))
+- ConfirmDialog's `labels` carries: accessible names for the Cancel button (the `cancelAction` key, default `"Cancel"`) and the Confirm button (the `confirmAction` key, default `"Confirm"`); the title text and the body description are consumer content, not labels. ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#kpis-p-15))
+- Notice's `labels` carries: an accessible name for the dismiss button (the `dismissNotice` key, default `"Dismiss"`), when one is present. ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#kpis-p-16))
 - The danger button, KeyValueList, and Card carry no new label keys: the danger button uses the same consumer-visible text as every other button variant; KeyValueList renders consumer-provided term and value pairs; Card's selectable form takes its accessible name from its visible content. ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#kpis-p-17))
 - No two components share a label key name with different meanings. ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#kpis-p-18))
 
@@ -87,7 +87,7 @@ Card is a panel component that can optionally be rendered as a single selectable
 
 ## Recorded decisions
 
-1. **ConfirmDialog extra fields.** The "optional extra fields" are a consumer-rendered content slot. The consumer provides the markup and manages its own field values. The dialog does not check what's typed; the app does that itself and uses the `busy` or `disabled` prop to keep the Confirm button disabled ([from plan](plan.md)).
+1. **ConfirmDialog extra fields.** The "optional extra fields" are a consumer-rendered content slot. The consumer provides the markup and manages its own field values. The dialog does not check what's typed; the app does that itself and uses the `confirmDisabled` or `busy` prop to keep the Confirm button disabled ([from plan](plan.md)).
 
 2. **Danger button visual form.** The danger button takes a filled form: solid red background, white text, matching the visual weight of the primary button. Because existing danger colour tokens cover text and soft surfaces only, two new tokens are required — `--bowman-danger-bg` (resting background) and `--bowman-danger-bg-hover` (hover state), declared in `src/theme/tokens.ts`; the token count rises from 44 to 46, and all update sites must agree on the new total in the same release. ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#constraints-p-15))
 3. **Notice tone colours.** Notice uses existing colour resources for all four tones: info uses the `--bowman-accent` token family (the same blue used for focus rings and the primary button); success reuses `--bowman-success` tokens; error reuses `--bowman-danger` tokens; warning uses existing palette yellow values directly with no new themeable token, so the token count does not change for this tone. Consuming apps that override `--bowman-accent` or `--bowman-danger` will see those overrides reflected in the corresponding Notice tones; the warning and info tones are not individually overridable. ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#constraints-p-16))
@@ -146,8 +146,3 @@ Card is a panel component that can optionally be rendered as a single selectable
 - The release is published through `.github/workflows/publish.yml`, the existing pipeline triggered by `release: types: [published]`, which runs `npm stage publish` with npm OIDC trusted publishing. No maintainer publishes by hand; the staged package must be approved by a maintainer with 2FA on npmjs.com before it becomes public. ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#delivery-p-3))
 
 - There is no fixed delivery date. ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#f1061085-158c-4241-8d7e-d55a6348913d))
-
-## Open Questions
-
-- Is there a target date for this release, and who is the accessibility reviewer who must sign off before it publishes? ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#q-deadline-and-reviewer))
-- The reasoning recorded alongside the deadline-and-reviewer question states that the success criteria named an accessibility reviewer gate, but the success criteria have never contained such a gate. Is a reviewer happy to treat this as a known draft-sequence artifact, with the understanding that the KPI, the answer, and the delivery prose are all consistent (no reviewer gate, no fixed date)? ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#q-stale-reviewer-gate-premise))
