@@ -47,7 +47,7 @@ closed members ([validated by labelsProp, stringPropOnly and noStrings together 
 ### `Button`
 
 ```ts
-export type ButtonVariant = "primary" | "secondary" | "ghost";
+export type ButtonVariant = "primary" | "secondary" | "ghost" | "danger";
 export type ButtonSize = "sm" | "md";
 
 export interface ButtonProps {
@@ -75,7 +75,7 @@ export const Button: ForwardRefExoticComponent<ButtonProps & RefAttributes<HTMLB
   `--bowman-accent` and `--bowman-accent-hover`, with the `TEXT_ON_ACCENT` string reading
   `--bowman-text-on-accent`), `secondary` is the
   chat-demo's "new chat" look (a `border-slate-200` border on `bg-white` with `text-slate-700`),
-  `ghost` is borderless text with a hover surface (`text-slate-600 hover:bg-slate-50`), each with
+  `ghost` is borderless text with a hover surface (`text-slate-600 hover:bg-slate-50`), `danger` is a solid red background reading `--bowman-danger-bg` with white text reading `--bowman-text-on-accent` and a hover state reading `--bowman-danger-bg-hover` ([from plan](../bowman-ui-form-dialog-notice/plan.md)), each with
   its `dark:` counterpart. Every variant carries the package's focus ring (`focus:ring-2` beside
   the `FOCUS_RING_COLOR` token string, reading `--bowman-focus-ring`) and the
   `disabled:cursor-not-allowed disabled:opacity-50` pair ([validated
@@ -196,14 +196,17 @@ export interface SearchFieldLabels {
   /** The input's accessible name - a real label, never the placeholder. */
   searchInput: string;
   searchPlaceholder: string;
+  searchSubmit: string;
 }
 
-export const defaultSearchFieldLabels: Readonly<Required<SearchFieldLabels>>; // "Search", "Search..."
+export const defaultSearchFieldLabels: Readonly<Required<SearchFieldLabels>>; // "Search", "Search...", "Search"
 
 export interface SearchFieldProps {
   value: string;
   /** Receives the input's new value verbatim - untrimmed, a controlled input's contract. */
   onChange: (value: string) => void;
+  /** When provided, renders a submit button and runs on Enter. */
+  onSubmit?: () => void;
   disabled?: boolean;
   labels?: Partial<SearchFieldLabels>;
 }
@@ -229,8 +232,8 @@ export const SearchField: ForwardRefExoticComponent<
   [browser](../../examples/chat-demo/tests/docs.spec.ts#L196)).
 - `disabled` renders the native attribute ([validated by disabled renders the native disabled attribute](../../tests/SearchField.test.tsx#L42),
   [validated by the input is enabled when disabled is omitted](../../tests/SearchField.test.tsx#L48)).
-- No clear button, no submit, no debounce: filtering as the user types is the consumer's, and
-  `useDebounce` already ships for it ([validated by renders no button - no clear control and no submit](../../tests/SearchField.test.tsx#L76)).
+- No clear button, no debounce: filtering as the user types is the consumer's, and
+  `useDebounce` already ships for it. When `onSubmit` is absent, no submit button renders and behaviour is identical to the released component ([validated by renders no button - no clear control and no submit](../../tests/SearchField.test.tsx#L76)). When `onSubmit` is provided, one submit button is rendered inside the wrapper; clicking it or pressing Enter in the input calls `onSubmit` once. The input's value is not cleared on submit ([from plan](../bowman-ui-form-dialog-notice/plan.md)).
 
 ## Conventions every primitive follows
 

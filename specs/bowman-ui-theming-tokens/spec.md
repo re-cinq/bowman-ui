@@ -12,15 +12,15 @@ class strings. This feature replaces each of those utilities with a `--bowman-*`
 property read through a `var()` whose fallback is the palette value the site painted before,
 so a consumer overriding nothing sees today's look byte for byte and a consumer setting a
 handful of properties re-themes every site at once. The decision record lives in
-docs/design-notes.md § Theming; this file pins the forty-four names, their fallbacks, every site
+docs/design-notes.md § Theming; this file pins the forty-six names, their fallbacks, every site
 that reads them, and the tests.
 
 ## The tokens
 
-Forty-four tokens - fifteen theme tokens named for a role and a shade, twenty-one neutral
-chrome roles added under docs/design-notes.md § Theming decision 12, and eight semantic-colour
+Forty-six tokens - fifteen theme tokens named for a role and a shade, twenty-one neutral
+chrome roles added under docs/design-notes.md § Theming decision 12, and ten semantic-colour
 roles (the danger and success pairs with their soft surfaces, issues 108 and 107, under
-decision 6) - each with its default recorded once in a comment line at the top of
+decision 6, plus the two danger button background tokens) - each with its default recorded once in a comment line at the top of
 `src/styles.css` ([validated by dist/styles.css opens with one comment line per token, each stating its default](../../tests/theming-tokens-dist.test.ts#L290)).
 
 The names and their fallbacks are tabled once, in docs/design-notes.md § Theming, and that
@@ -29,7 +29,7 @@ a fallback or the order departs from the declaration block
 ([validated by the token table in docs/design-notes.md § Theming lists the same names and fallbacks, in the declared order](../../tests/theming-tokens-dist.test.ts#L382)).
 
 - The set of tokens read across `dist/theme/tokens.js` and `dist/styles.css` is exactly the
-  forty-four the comment block declares - no extra name in the code, no orphan in the block
+  forty-six the comment block declares - no extra name in the code, no orphan in the block
   ([validated by the tokens read in dist/theme/tokens.js and dist/styles.css are exactly the declared ones](../../tests/theming-tokens-dist.test.ts#L297)).
 - CLAUDE.md invariant 13 quotes the count as a literal, and the same dist test reads that digit
   and fails when it lags the block
@@ -189,7 +189,7 @@ utility fails ([validated by each neutral role constant is imported by exactly t
   `ConversationList` delete-button hover read the danger role - `--bowman-danger` /
   `--bowman-danger-soft` and their `-dark` twins - so a consumer recolours every negative-state
   site at once; the delete hover moves from a lone `red-500` to the role's `red-600`, and the two
-  dark soft fills (`red-900/30` and `/20`) collapse to one `rgba()` fallback, per decision 6
+  dark soft fills (`red-900/30` and `/20`) collapse to one `rgba()` fallback, per decision 6. The `Button` with `variant="danger"` reads `--bowman-danger-bg` and `--bowman-danger-bg-hover` ([from plan](../bowman-ui-form-dialog-notice/plan.md))
   ([validated by each neutral role constant is imported by exactly the built components recorded for it](../../tests/theming-tokens-dist.test.ts#L346),
   [validated by a selected thumbs-down reads the danger role's soft surface and text, not the red palette classes](../../tests/ChatMessage.test.tsx#L517),
   [validated by the delete button's hover reads the danger role, not the lone red-500](../../tests/ConversationList.test.tsx#L159),
