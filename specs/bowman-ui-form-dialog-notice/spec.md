@@ -11,7 +11,9 @@ Bowman UI is built for chat interfaces. Apps that use it for anything else, such
 
 We want Bowman to offer these general-purpose components itself, so every future screen built on the library begins from a tested, accessible foundation rather than from scratch:
 
+- a `danger` variant for `Button`, for destructive actions ([from plan](plan.md))
 - `TextField`: a labelled input with hint and error text ([from plan](plan.md))
+- an `onSubmit` callback for `SearchField`, for searches that run on Enter or a click instead of on every keystroke ([from plan](plan.md))
 - Dialog: a modal that presents content requiring the user’s full attention before they can continue ([from plan](plan.md))
 - ConfirmDialog: a ready-made dialog for confirming before a destructive or irreversible action ([from plan](plan.md))
 - `Notice`: an inline message in an info, success, warning or error tone ([from plan](plan.md))
@@ -20,9 +22,21 @@ We want Bowman to offer these general-purpose components itself, so every future
 
 ## What ships
 
+### Button — danger variant
+
+The `danger` variant for Button is intended for destructive actions ([from plan](plan.md)).
+
+### SearchField
+
+SearchField receives an `onSubmit` callback for searches that run on Enter or a click instead of on every keystroke ([from plan](plan.md)).
+
 ### TextField
 
+TextField is a general-purpose labelled input component that provides support for hint text and error text to be announced when the field is in an invalid state ([from plan](plan.md)).
+
 ### Dialog
+
+Dialog is a modal component that presents content requiring the user’s full attention before they can continue ([from plan](plan.md)).
 
 ### ConfirmDialog
 
@@ -32,9 +46,15 @@ While a triggered action is in progress, the consumer signals this with a `busy`
 
 ### Notice
 
+Notice is a general-purpose inline message component that can be rendered in an info, success, warning or error tone ([from plan](plan.md)).
+
 ### KeyValueList
 
+KeyValueList is a component that renders a list of label and value pairs ([from plan](plan.md)).
+
 ### Card
+
+Card is a panel component that can optionally be rendered as a single selectable element ([from plan](plan.md)).
 
 ## Label keys
 
