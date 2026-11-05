@@ -26,16 +26,15 @@ change widened it to `(../)+examples/*/tests/*.ts(x)` anchors, so this spec's li
 `examples/chat-demo/tests/chat-demo.spec.ts` are checked by CI like any `tests/` anchor. Issue
 32 widened it again to `scripts/`, `README.md` and `docs/` markdown anchors, which exposed six
 dead links the narrower check had never seen, and issue 37 to any repo-relative path carrying a
-file extension. `scripts/reanchor-spec-links.mjs`, which replaced that checker, keeps the
-widest form: any `(../)+path#Lnn` link
-([regex](../../scripts/reanchor-spec-links.mjs#L52)), so root config files, workflow files,
+file extension. `re-lint-reanchor`, which replaced that checker, keeps the
+widest form, any `(../)+path#Lnn` link, so root config files, workflow files,
 `package.json` files and `examples/` sources are re-anchored and rot-checked like every other
 cited file
-([validated by maps a link into README.md, titled or not, from L2 to L3 through the hunks](../../tests/reanchor-spec-links.test.ts#L345)). The
+([validated by maps a link into README.md, titled or not, from L2 to L3 through the hunks](../../tests/reanchor-spec-links.test.ts#L358)). The
 assistive-technology spec's placeholder links carry `#A1`-style fragments and a `<date>`
 placeholder, so the checker never matches them; a real `docs/accessibility/at-pass-*.md` cited
 with `#L` anchors becomes tracked the moment it exists
-([validated by leaves a link whose fragment is not a line number, and a web URL, untouched](../../tests/reanchor-spec-links.test.ts#L450)).
+([validated by leaves a link whose fragment is not a line number, and a web URL, untouched](../../tests/reanchor-spec-links.test.ts#L463)).
 
 ## Baseline
 
@@ -168,7 +167,7 @@ The assertions run inside the existing `consumer` job in
 `.github/workflows/ci.yml`, against `vite preview` and the packed tarball,
 on every pull request - the job already runs the whole suite via
 `scripts/consumer-app.sh`
-([job](../../.github/workflows/ci.yml#L135)). No new job, no second browser
+([job](../../.github/workflows/ci.yml#L140)). No new job, no second browser
 install, and `scripts/consumer-app.sh` is unchanged in this PR - like the
 `src/` constraint, that is proven by the PR diff, not by an executable
 anchor.

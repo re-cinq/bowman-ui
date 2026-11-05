@@ -101,10 +101,11 @@ Five local commands run over the spec and ADR corpora, four gates and one report
 
 - `npm run check:spec-links` - every `[validated by]` link must sit in its
   statement's trailing parenthetical. Exit 1 on any finding.
-- `npm run reanchor:check` - no `#Lnn` link into a file the branch changed
-  may be stale, no `[validated by <test title>]` link anywhere may sit outside
-  its test or name a title no test in the cited file carries (`--all`), and
-  none may land on a deleted, blank or missing line.
+- `npm run reanchor:check` (the package's `re-lint-reanchor`) - no `#Lnn`
+  link into a file the branch changed may be stale, no
+  `[validated by <test title>]` link anywhere may sit outside its test or name
+  a title no test in the cited file carries (`--all`), and none may land on a
+  deleted, blank or missing line.
   `npm run reanchor` heals the stale ones. Exit 1 on any finding.
 - `npm run lint` - every doc must open with a lead paragraph
   (`re-lint/require-intro-paragraph`) and a spec's status must parse and match
@@ -201,7 +202,8 @@ Closes #42
 
 The body follows `.github/PULL_REQUEST_TEMPLATE.md`. Three of its headings are required:
 `.github/workflows/pr-description-check.yml` fails a pull request whose body lacks a line
-starting `## Why`, `## What Changed` or `## Testing`.
+starting `## Why`, `## What Changed` or `## Testing`. It skips a pull request Dependabot
+opened, since Dependabot writes its own body (issue 398).
 
 ```markdown
 ## Why

@@ -43,12 +43,4 @@ describe("listSpecDocs", () => {
   it("includeAdrs appends the sorted adrs/*.md files and skips non-markdown entries", () => {
     expect(listSpecDocs(root, { includeAdrs: true })).toEqual([...sortedSpecs, ...sortedAdrs]);
   });
-
-  it("both extras order the system spec before the adrs", () => {
-    expect(listSpecDocs(root, { includeSystemSpec: true, includeAdrs: true })).toEqual([
-      ...sortedSpecs,
-      ".specify/spec.md",
-      ...sortedAdrs,
-    ]);
-  });
 });

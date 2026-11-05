@@ -80,9 +80,10 @@ The typecheck script is `typecheck`, not `type-check`.
   any finding, exit 2 on a bad flag or unreadable doc. `--coverage` instead lists every unlinked
   testable statement and ALWAYS exits 0 — a report, not a gate. See docs/design-notes.md § Lint
   guardrails decision 11.
-- `npm run reanchor [-- <base-ref>]` / `npm run reanchor:check` (both pass `--all`) — after editing any
-  cited repository file (a test, a script, README.md, a docs/ markdown file, a workflow, a
-  config), run `npm run reanchor` and commit the result or CI reds. A `[validated by <test
+- `npm run reanchor [-- <base-ref>]` / `npm run reanchor:check` (both the package's
+  `re-lint-reanchor` bin, both pass `--all`) — after editing any cited repository file (a test,
+  a script, README.md, a docs/ markdown file, a workflow, a config), run `npm run reanchor` and
+  commit the result or CI reds. A `[validated by <test
 title>]` link follows its `it()`; every other link is mapped through the cited file's diff
   hunks from the merge base with `origin/main`. A cited line the branch deleted, or a titled
   link whose title no test in the cited file carries, is reported, exit 1. CI runs
@@ -200,12 +201,10 @@ title>]` link follows its `it()`; every other link is mapped through the cited f
     corpus, `require-intro-paragraph` (specs + ADRs) and `require-status-matches-coverage`
     (specs only — ADRs are exempt from the coverage tier, decision 11), pinned by
     tests/eslint-spec-docs.test.ts against `tests/fixtures/spec-status/`. The package's
-    `/spec/*.js` exports are lore's vendored spec domain and are what `npm run check:spec-links`,
-    `npm run check:spec-status` and `npm run reanchor` import — the last for test-declaration
-    titles and spans, so its spans and the plugin's cannot diverge; which declarations may be
-    cited stays its own rule. See docs/design-notes.md § Lint guardrails
-    decisions 10 and 11. Spec `#Lnn` links are healed by `npm run reanchor` and only
-    checked in CI (decision 14).
+    `/spec/*.js` exports are lore's vendored spec domain and are what `npm run check:spec-links`
+    and `npm run check:spec-status` import. See docs/design-notes.md § Lint guardrails
+    decisions 10 and 11. Spec `#Lnn` links are healed by `npm run reanchor`, the package's
+    `re-lint-reanchor` bin, and only checked in CI (decision 14).
 12. **Publishing** is release-triggered CI only, via npm OIDC trusted publishing
     (.github/workflows/publish.yml: `release: types: [published]`, `id-token: write`, no
     `NPM_TOKEN`) and STAGED: `npm stage publish`, approved by a maintainer with 2FA on npmjs.com.

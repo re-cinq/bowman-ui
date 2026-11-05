@@ -15,7 +15,7 @@ build, laid out by a real browser. The whole proof is one command,
 `npm run consumer` ([validated by](../../package.json#L55)), documented in the
 README's Worked consumer section ([validated by](../../README.md#L203)).
 
-Anchor caveat: `scripts/reanchor-spec-links.mjs` tracks every `(../)+path#Lnn` link, so this
+Anchor caveat: `re-lint-reanchor` tracks every `(../)+path#Lnn` link, so this
 spec's links into `examples/`, `package.json` files, workflow files and root config files are
 re-anchored and rot-checked by CI along with the rest. A link into a file that is not a test
 is mapped through the diff hunks of that file since the merge base, so a line the branch
@@ -28,8 +28,9 @@ rewrites is reported for a manual fix rather than guessed at.
 and declares no `@re-cinq/bowman-ui` dependency at all - the version under
 test is always the tarball `npm pack` just produced
 ([validated by](../../scripts/consumer-app.sh#L99)). `react` and `react-dom`
-are pinned at exactly `19.3.0`
-([validated by](../../examples/chat-demo/package.json#L15)), the version
+are pinned at exactly `19.3.1`
+([validated by the react pin](../../examples/chat-demo/package.json#L14),
+[validated by the react-dom pin](../../examples/chat-demo/package.json#L15)), the version
 docs/design-notes.md decision 4 records as the one CI installs and the only one tested
 ([validated by is the same in decision 4, the README, the lockfile, the chat-demo pin and the rsc-fixture pin](../../tests/react-version-consistency.test.ts#L54)).
 
@@ -476,7 +477,7 @@ unless every specifier the fixture carries trips - one allowed specifier
 sneaking in would rot the fixture's proof
 ([validated by](../../scripts/check-forbidden-imports.mjs#L88)). The check
 runs as the named `ci.yml` step "Forbidden import check"
-([validated by](../../.github/workflows/ci.yml#L54)). It is static on top of,
+([validated by](../../.github/workflows/ci.yml#L59)). It is static on top of,
 not instead of, the dynamic `node_modules` scan in `consumer-app.sh`: a grep
 misses a transitively pulled-in package, and a `node_modules` scan misses a
 source import a bundler tree-shakes away.
@@ -486,7 +487,7 @@ source import a bundler tree-shakes away.
 The `consumer` job in `ci.yml` runs on every pull request (the workflow's
 unfiltered `pull_request` trigger), pins its actions to the same commit SHAs
 as the existing job with `persist-credentials: false`
-([validated by](../../.github/workflows/ci.yml#L135)), takes its setup from
+([validated by](../../.github/workflows/ci.yml#L140)), takes its setup from
 the shared `setup-node-install` composite action, which sets
 Node from `.nvmrc` via `node-version-file` ([validated by](../../.github/actions/setup-node-install/action.yml#L19)),
 runs `npm ci --ignore-scripts`
@@ -497,7 +498,7 @@ runs `npm ci --ignore-scripts`
 ([validated by](../../.github/actions/setup-node-install/action.yml#L27)), and runs the script as
 its `Consumer app check` step with no browser install step of its own - the
 script installs the demo's pinned Chromium and WebKit itself
-([validated by](../../.github/workflows/ci.yml#L148)). It omits
+([validated by](../../.github/workflows/ci.yml#L153)). It omits
 `fetch-depth: 0` on purpose: that exists for the spec anchor check, which
 this job does not run.
 

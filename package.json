@@ -50,12 +50,15 @@
     "check:spec-links": "node scripts/check-spec-links.mjs",
     "check:spec-status": "node scripts/check-spec-status.mjs",
     "check:at-pass": "node scripts/check-at-pass.mjs",
-    "reanchor": "node scripts/reanchor-spec-links.mjs --all",
-    "reanchor:check": "node scripts/reanchor-spec-links.mjs --check --all",
+    "reanchor": "re-lint-reanchor --all",
+    "reanchor:check": "re-lint-reanchor --check --all",
     "consumer": "scripts/consumer-app.sh",
     "rsc": "scripts/rsc-fixture.sh",
     "prettier": "prettier --write .",
-    "prettier:check": "prettier --check ."
+    "prettier:check": "prettier --check .",
+    "check:audit": "node scripts/check-audit.mjs",
+    "check:action-pins": "node scripts/check-action-pins.mjs",
+    "check:build-chain": "npm run check:audit && npm run check:action-pins"
   },
   "peerDependencies": {
     "react": "^19.0.0",
@@ -68,7 +71,7 @@
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@eslint/markdown": "8.0.3",
-    "@re-cinq/eslint-plugin-re-lint": "^1.8.0",
+    "@re-cinq/eslint-plugin-re-lint": "^1.11.0",
     "@stylistic/eslint-plugin": "^5.10.0",
     "@tailwindcss/cli": "^4.3.3",
     "@testing-library/jest-dom": "^7.0.1",
@@ -85,14 +88,15 @@
     "jscpd": "^5.1.2",
     "jsdom": "^30.0.1",
     "prettier": "^3.4.2",
-    "react": "19.3.0",
-    "react-dom": "19.3.0",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
     "rolldown": "^1.2.7",
     "tailwindcss": "^4.3.3",
     "typescript": "~6.0.2",
     "typescript-eslint": "^8.69.0",
     "typescript7": "npm:typescript@~7.0.2",
-    "vitest": "^5.0.0"
+    "vitest": "^5.0.0",
+    "yaml": "^2.9.0"
   },
   "engines": {
     "node": ">=20.9.0"

@@ -34,15 +34,18 @@
 # and the delta is selected from `git diff --name-status
 # <ingested commit>..HEAD`, which needs the work tree.
 # Issue 166: --post therefore runs in the same job as the repository's own test
-# commands, so the token is bound on push to main only - code that reaches main
-# has been reviewed, a fork's pull request carries no secrets at all, and a
-# same-repo pull request author already has write access. A pull request runs
-# the binary with no token, no endpoint and no --post: it still proves the
-# manifest and the test-command scripts work, and its report is uploaded as an
-# artifact instead of posted. Posting one would in fact corrupt the graph - a
-# pull_request checkout is detached, so the report names branch "HEAD", which
-# lore-api reads as "not a branch" and projects into main's graph, advancing
-# main's ingested-commit pointer to a merge ref that exists nowhere.
+# commands, so the token is bound on main only - code that reaches main has been
+# reviewed, a fork's pull request carries no secrets at all, and a same-repo
+# pull request author already has write access. A manual run from main binds it
+# too and posts with --full: the whole report plus every tracked path, which is
+# what clears the graph's rows for tests and files that have gone. A manual run
+# from any other branch binds nothing and posts nothing, like a pull request. A
+# pull request runs the binary with no token, no endpoint and no --post: it
+# still proves the manifest and the test-command scripts work, and its report is
+# uploaded as an artifact instead of posted. Posting one would in fact corrupt
+# the graph - a pull_request checkout is detached, so the report names branch
+# "HEAD", which lore-api reads as "not a branch" and projects into main's graph,
+# advancing main's ingested-commit pointer to a merge ref that exists nowhere.
 # What the single job costs: LORE_INGEST_TOKEN is lore-api's legacy token, which
 # resolves to every scope - admin included - with no database lookup, and the
 # binary runs each test command through `sh -c` with its own environment
@@ -56,7 +59,7 @@
 # when dist is missing or stale; building here means it never has to, so no
 # invocation's `rm -rf dist` can land under a sibling's test run.
 # Issue 216: the template's Playwright install step is dropped. The binary
-# honours only the manifest's first entry, the vitest suite, so the consumer
+# skips an entry with no list command (re-cinq/lore#3974), so the consumer
 # entry never runs here, and its own run installs Chromium and WebKit itself
 # anyway; the root `npx playwright install` it ran also resolved the latest
 # playwright from the registry against no pin, the rule ci.yml's consumer job
@@ -67,6 +70,7 @@ on:
   push:
     branches: [main]
   pull_request:
+  workflow_dispatch:
 
 # One in-flight run per ref, as ci.yml records. On main it also serialises the
 # ingest, so two quick merges cannot diff the same ingest-state and redden
@@ -87,8 +91,9 @@ jobs:
     # The bound on LORE_TRACE_TIMEOUT_MS below: 73 test files at four at a time
     # could otherwise stall for hours against GitHub's 360-minute default, and
     # on main a stalled run holds the concurrency group for all of it. The job
-    # measures ~3 minutes today; the first push after this lands also posts a
-    # full nine-chunk ingest, so the headroom is for that, not for the suite.
+    # measures ~3 minutes today; a manual run from main, and a push after an
+    # unreachable state, post a full nine-chunk ingest, so the headroom is for
+    # that, not for the suite.
     timeout-minutes: 90
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -139,20 +144,24 @@ jobs:
         if: steps.fetch.outputs.fetched == 'true'
         shell: bash
         env:
-          LORE_API_URL: ${{ github.event_name == 'push' && (secrets.LORE_INGEST_URL || vars.LORE_INGEST_URL) || '' }}
-          LORE_INGEST_TOKEN: ${{ github.event_name == 'push' && secrets.LORE_INGEST_TOKEN || '' }}
+          LORE_API_URL: ${{ (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')) && (secrets.LORE_INGEST_URL || vars.LORE_INGEST_URL) || '' }}
+          LORE_INGEST_TOKEN: ${{ (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')) && secrets.LORE_INGEST_TOKEN || '' }}
           # The binary's per-command default is 120s, which a cold runner can
           # exceed on the list command or a per-file run - and under
           # coverage_format lcov a timed-out run is reported as a FAILING
           # test, not as an error, so ten minutes buys the slack.
           LORE_TRACE_TIMEOUT_MS: "600000"
         run: |
-          if [ "${GITHUB_EVENT_NAME}" = "push" ]; then
+          FULL=""
+          if [ "${GITHUB_EVENT_NAME}" = "workflow_dispatch" ] && [ "${GITHUB_REF}" = "refs/heads/main" ]; then
+            FULL="--full"
+          fi
+          if [ "${GITHUB_EVENT_NAME}" = "push" ] || [ -n "${FULL}" ]; then
             if [ -z "${LORE_API_URL}" ] || [ -z "${LORE_INGEST_TOKEN}" ]; then
               echo "::error::LORE_API_URL or LORE_INGEST_TOKEN is not configured - Lore test ingest skipped"
               exit 1
             fi
-            if ! ./lore-code-trace --post; then
+            if ! ./lore-code-trace --post ${FULL}; then
               echo "::error::Lore test run or ingest failed - see the binary's output above"
               exit 1
             fi
@@ -167,7 +176,7 @@ jobs:
 
       - name: Upload test report
         if: always() && steps.run.outputs.report == 'true'
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: lore-test-report
           path: lore-test-report.json

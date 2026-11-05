@@ -8,8 +8,8 @@ it("the one statement each partial-coverage fixture links", () => {
 // It lives inside the fixture tree on purpose:
 // re-lint/require-status-matches-coverage counts a ([validated by](...#Lnn))
 // link only when its target file resolves and its line lands inside an
-// it()/test() declaration, and scripts/lib/spec-corpus.mjs walks specs/,
-// .specify/ and adrs/ only - so `npm run reanchor` never heals a link from this
+// it()/test() declaration, and `npm run reanchor` walks specs/, .specify/ and
+// adrs/ only - so it never heals a link from this
 // tree. Pointing these fixtures at a real test's line number made them hostage
 // to that file's line numbering; pointing them here keeps each fixture's
 // coverage tier under the fixture's own control.

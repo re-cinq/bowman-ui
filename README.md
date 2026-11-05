@@ -20,11 +20,11 @@ The component documentation, built from the packed package, is published at <htt
 npm install @re-cinq/bowman-ui
 ```
 
-Every version is published from this repository's CI with npm provenance, so `npm audit signatures` can verify that what you installed was built by `.github/workflows/publish.yml` from the tagged commit.
+That is the one supported install: from the npm registry, with neither `--legacy-peer-deps` nor `--force`. Every version is published from this repository's CI with npm provenance, so `npm audit signatures` can verify that what you installed was built by `.github/workflows/publish.yml` from the tagged commit.
 
 ## Requirements
 
-- React and React DOM `^19.0.0` as peer dependencies. That range is what the components are tested against (React 19.3.0) - it is not a claim of React 18 support.
+- React and React DOM `^19.0.0` as peer dependencies. That range is what the components are tested against (React 19.3.1) - it is not a claim of React 18 support.
 - Node.js `>=20.9.0` to consume the package (its published `engines` floor). Developing this repo needs `>=22`, pinned in `.nvmrc` and CI.
 
 ## Styles

@@ -11,7 +11,10 @@ import {
   type RunResult,
 } from "./helpers/script-runner.js";
 
-const script = join(process.cwd(), "scripts", "reanchor-spec-links.mjs");
+// The bin `npm run reanchor` runs. Upstream owns the logic and its own tests; these
+// pin, from the consumer side, the behaviour this repo's specs and CI depend on, so a
+// release that changes it turns a test red at the bump (issue 262).
+const script = join(process.cwd(), "node_modules", ".bin", "re-lint-reanchor");
 
 const run = (repo: string, ...args: string[]): RunResult => runScript(script, args, { cwd: repo });
 
@@ -327,8 +330,8 @@ describe("reanchor-spec-links", () => {
     expect(healed).toMatchObject({ status: 0 });
   });
 
-  it("leaves a titled link into a test file this branch did not change alone, and --all moves it", () => {
-    const spec = asSpec(link("validated by subtracts numbers", "2"));
+  it("leaves a titled link on the L1 describe line of a test file this branch did not change alone, and --all moves it", () => {
+    const spec = asSpec(link("validated by subtracts numbers", "1"));
     const repo = repoWith(spec);
 
     write(repo, "README.md", asFile(["# Demo", "", "Run npm test."]));
@@ -339,6 +342,16 @@ describe("reanchor-spec-links", () => {
     expect(scoped.stdout).toContain("out of scope: 1");
     expect(specAfterScoped).toEqual(spec);
     expect(swept).toMatchObject({ status: 0 });
+    expect(read(repo, SPEC_PATH)).toEqual(asSpec(link("validated by subtracts numbers", "5")));
+  });
+
+  it("moves a titled link on L2, inside adds numbers, to subtracts numbers on L5 in a test file this branch did not change", () => {
+    const repo = repoWith(asSpec(link("validated by subtracts numbers", "2")));
+
+    write(repo, "README.md", asFile(["# Demo", "", "Run npm test."]));
+    const result = run(repo, "main");
+
+    expect(result).toMatchObject({ status: 0 });
     expect(read(repo, SPEC_PATH)).toEqual(asSpec(link("validated by subtracts numbers", "5")));
   });
 
