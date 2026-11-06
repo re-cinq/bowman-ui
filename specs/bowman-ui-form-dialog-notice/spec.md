@@ -11,14 +11,19 @@ Bowman UI is built for chat interfaces. Apps that use it for anything else, such
 
 We want Bowman to offer these general-purpose components itself, so every future screen built on the library begins from a tested, accessible foundation rather than from scratch:
 
-- a `danger` variant for `Button`, for destructive actions ([from plan](plan.md))
-- `TextField`: a labelled input with hint and error text ([from plan](plan.md))
-- an `onSubmit` callback for `SearchField`, for searches that run on Enter or a click instead of on every keystroke ([from plan](plan.md))
+- a `danger` variant for `Button`, for destructive actions ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#intent-p-3))
+- `TextField`: a labelled input with hint and error text ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#intent-p-4))
+- an `onSubmit` callback for `SearchField`, for searches that run on Enter or a click instead of on every keystroke ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#intent-p-5))
 - Dialog: a modal that presents content requiring the user’s full attention before they can continue ([from plan](plan.md))
-- ConfirmDialog: a ready-made dialog for confirming before a destructive or irreversible action ([from plan](plan.md))
-- `Notice`: an inline message in an info, success, warning or error tone ([from plan](plan.md))
-- `KeyValueList`: label and value pairs ([from plan](plan.md))
-- `Card`: a panel, optionally selectable as a whole ([from plan](plan.md))
+- ConfirmDialog: a ready-made dialog for confirming before a destructive or irreversible action ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#p_13644075-15d3-4dc1-b80f-7bb251ebacf7))
+- `Notice`: an inline message in an info, success, warning or error tone ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#intent-p-7))
+- `KeyValueList`: label and value pairs ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#intent-p-8))
+- `Card`: a panel, optionally selectable as a whole ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#intent-p-9))
+
+- Bowman UI is built for chat interfaces; apps that build admin pages, settings screens or confirmation flows on top of Bowman today find no text field, no dialog, no inline notice and no danger button, and must build and maintain their own. ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#intent-p-1))
+- Bowman offers these general-purpose components so every future screen built on the library begins from a tested, accessible foundation rather than from scratch. ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#intent-p-2))
+- The teams most immediately affected are those that have already built admin pages or settings screens on top of Bowman and today own their own focus management, keyboard handling, colour choices and accessible markup; bringing these components into Bowman absorbs that responsibility once. ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#intent-p-14))
+- The eight components cover exactly the gap between what Bowman offers today and what a team needs to build a typical settings, confirmation or admin screen without stepping outside the library. ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#intent-p-16))
 
 ## What ships
 
@@ -40,7 +45,7 @@ Dialog is a modal component that presents content requiring the user’s full at
 
 ### ConfirmDialog
 
-ConfirmDialog is a specialised form of Dialog for one job: asking the user to confirm before an action they cannot undo. Every instance presents a title, a brief description of what will happen, a Cancel button and a Confirm button styled as a danger action ([from plan](plan.md)).
+ConfirmDialog is a specialised form of Dialog for one job: asking the user to confirm before an action they cannot undo. Every instance presents a title, a brief description of what will happen, a Cancel button and a Confirm button styled as a danger action ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#p_26727aed-6334-4fea-86f1-a547d0222f0b)).
 When a yes-or-no click is not enough, the consumer places extra inputs inside the dialog, between the description and the buttons ([from plan](plan.md)). The consumer manages these inputs and uses the `confirmDisabled` prop to keep the Confirm button disabled until its own conditions are met ([from plan](plan.md)).
 While a triggered action is in progress, the consumer signals this with a `busy` prop, which keeps the Confirm button non-interactive and prevents the dialog from being dismissed ([from plan](plan.md)).
 
@@ -87,10 +92,10 @@ Card is a panel component that can optionally be rendered as a single selectable
 
 ## Recorded decisions
 
-1. **ConfirmDialog extra fields.** The "optional extra fields" are a consumer-rendered content slot. The consumer provides the markup and manages its own field values. The dialog does not check what's typed; the app does that itself and uses the `confirmDisabled` or `busy` prop to keep the Confirm button disabled ([from plan](plan.md)).
+1. **ConfirmDialog extra fields.** The "optional extra fields" are a consumer-rendered content slot. The consumer provides the markup and manages its own field values. The dialog does not check what's typed; the app does that itself and uses the `confirmDisabled` or `busy` prop to keep the Confirm button disabled ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#q-confirmdialog-extra-fields)).
 
-2. **Danger button visual form.** The danger button takes a filled form: solid red background, white text, matching the visual weight of the primary button. Because existing danger colour tokens cover text and soft surfaces only, two new tokens are required — `--bowman-danger-bg` (resting background) and `--bowman-danger-bg-hover` (hover state), declared in `src/theme/tokens.ts`; the token count rises from 44 to 46, and all update sites must agree on the new total in the same release. ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#constraints-p-15))
-3. **Notice tone colours.** Notice uses existing colour resources for all four tones: info uses the `--bowman-accent` token family (the same blue used for focus rings and the primary button); success reuses `--bowman-success` tokens; error reuses `--bowman-danger` tokens; warning uses existing palette yellow values directly with no new themeable token, so the token count does not change for this tone. Consuming apps that override `--bowman-accent` or `--bowman-danger` will see those overrides reflected in the corresponding Notice tones; the warning and info tones are not individually overridable. ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#constraints-p-16))
+2. **Danger button visual form.** The danger button takes a filled form: solid red background, white text, matching the visual weight of the primary button. Because existing danger colour tokens cover text and soft surfaces only, two new tokens are required — `--bowman-danger-bg` (resting background) and `--bowman-danger-bg-hover` (hover state), declared in `src/theme/tokens.ts`; the token count rises from 44 to 46, and all update sites must agree on the new total in the same release. ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#constraints-p-15), [from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#q-danger-button-form))
+3. **Notice tone colours.** Notice uses existing colour resources for all four tones: info uses the `--bowman-accent` token family (the same blue used for focus rings and the primary button); success reuses `--bowman-success` tokens; error reuses `--bowman-danger` tokens; warning uses existing palette yellow values directly with no new themeable token, so the token count does not change for this tone. Consuming apps that override `--bowman-accent` or `--bowman-danger` will see those overrides reflected in the corresponding Notice tones; the warning and info tones are not individually overridable. ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#constraints-p-16), [from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#q-notice-tones-tokens))
 
 ## Scope
 
@@ -126,7 +131,7 @@ Card is a panel component that can optionally be rendered as a single selectable
 
 ## Constraints
 
-- All new components follow Bowman UI's existing design and code conventions. ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#86615455-cdda-470f-98fc-a002981cce98))
+- All new components follow Bowman UI's existing design and code conventions. ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#86615455-cdda-470f-98fc-a002981cce98), [from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#intent-p-10))
 - This release only adds to the published API surface; no existing exports are changed or removed, making it a minor release with no breaking changes. ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#f7792ce3-ed4d-4b5d-9592-eb390c94ca6d))
 - No new runtime dependencies may be introduced. Dialog and ConfirmDialog MUST use the native `<dialog>` element and the existing `useFocusTrap` hook at `src/hooks/useFocusTrap.ts`, unchanged. ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#2c5f73ec-6cea-42f7-9333-b68ccb3da516))
 - All new components MUST meet WCAG 2.2 AA as the minimum accessibility standard. ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#e7b480e1-27d1-4581-b4ef-f0018a4dc666))
