@@ -101,7 +101,7 @@ jobs:
           git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git"
           git switch --quiet -C "${BRANCH}"
           git commit --quiet -am "Repoint spec links to their content hashes after ${HEAD_SHA:0:9}"
-          git push --quiet --force origin "${BRANCH}"
+          git push --quiet origin "+${BRANCH}"
           PR="$(gh pr list --head "${BRANCH}" --state open --json number --jq '.[0].number // empty')"
           if [ -z "${PR}" ]; then
             PR="$(gh pr create --head "${BRANCH}" --base main \
@@ -119,4 +119,4 @@ jobs:
         run: |
           set -euo pipefail
           git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git"
-          git push --quiet --force origin "${HEAD_SHA}:${BASE_REF}"
+          git push --quiet origin "+${HEAD_SHA}:${BASE_REF}"
