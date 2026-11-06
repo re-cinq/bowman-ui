@@ -188,8 +188,7 @@ utility fails ([validated by each neutral role constant is imported by exactly t
 - The selected thumbs-down chip and text, the `ErrorBoundary` icon circle and glyph, and the
   `ConversationList` delete-button hover read the danger role - `--bowman-danger` /
   `--bowman-danger-soft` and their `-dark` twins - so a consumer recolours every negative-state
-  site at once; the delete hover moves from a lone `red-500` to the role's `red-600`, and the two
-  dark soft fills (`red-900/30` and `/20`) collapse to one `rgba()` fallback, per decision 6. The `Button` with `variant="danger"` reads `--bowman-danger-bg` and `--bowman-danger-bg-hover` ([from plan](../bowman-ui-form-dialog-notice/plan.md))
+  site at once; the delete hover moves from a lone `red-500` to the role's `red-600`, and the dark soft fill uses one `rgba()` fallback, per decision 6. The `Button` with `variant="danger"` reads `--bowman-danger-bg` and `--bowman-danger-bg-hover` ([from plan](../bowman-ui-form-dialog-notice/plan.md))
   ([validated by each neutral role constant is imported by exactly the built components recorded for it](../../tests/theming-tokens-dist.test.ts#L346),
   [validated by a selected thumbs-down reads the danger role's soft surface and text, not the red palette classes](../../tests/ChatMessage.test.tsx#L517),
   [validated by the delete button's hover reads the danger role, not the lone red-500](../../tests/ConversationList.test.tsx#L159),
