@@ -17,13 +17,13 @@ baseline: the tests in
 `autoFocus`, `maxHeightPx`, `attachSlot`, `labels` - with an uncontrolled
 draft: the source grep shows `onChange=` once (the textarea's own binding)
 and no `value=` or `onValueChange` prop
-([validated by the textarea is uncontrolled: onChange= is its own binding and no value= or onValueChange prop exists](../../tests/ChatComposer.test.tsx#L570)). External writes go
+([validated by the textarea is uncontrolled: onChange= is its own binding and no value= or onValueChange prop exists @7556d1b2](../../tests/ChatComposer.test.tsx#L570)). External writes go
 through `ChatComposerHandle` (`focus()`, `setValue()`) via
 `forwardRef` + `useImperativeHandle`, covering the only two outside
 writes a consumer needs: clear-on-send and a text-injection helper
-([validated by](../../tests/ChatComposer.test.tsx#L368),
-[L401](../../tests/ChatComposer.test.tsx#L401),
-[validated by ChatComposer is a forwardRef<ChatComposerHandle, ChatComposerProps> component - never ref-as-prop](../../tests/ChatComposer.test.tsx#L603)).
+([validated by @8936be38](../../tests/ChatComposer.test.tsx#L368),
+[L401@f30e2cd0](../../tests/ChatComposer.test.tsx#L401),
+[validated by ChatComposer is a forwardRef<ChatComposerHandle, ChatComposerProps> component - never ref-as-prop @d86f2fb5](../../tests/ChatComposer.test.tsx#L603)).
 
 **Note - first `useImperativeHandle` in the repo.** 018 Decision 4's idiom is
 `forwardRef` (preserved here); `useImperativeHandle` itself has no prior use
@@ -35,22 +35,22 @@ issue is cited for it.
 - The trimmed draft is submitted once and the composer clears itself: value
   `""`, inline height back to `auto`, and send disabled again - from the
   button and from `Enter` alike
-  ([validated by typing "Hvor er min booking?" and clicking send calls onSubmit once with exactly that string, then the draft is "", the height is back to auto and send is disabled again](../../tests/ChatComposer.test.tsx#L46),
-  [validated by Enter submits the trimmed draft once, then the draft is "", the height is back to auto and send is disabled again](../../tests/ChatComposer.test.tsx#L91)).
+  ([validated by typing "Hvor er min booking?" and clicking send calls onSubmit once with exactly that string, then the draft is "", the height is back to auto and send is disabled again @d32cd08b](../../tests/ChatComposer.test.tsx#L46),
+  [validated by Enter submits the trimmed draft once, then the draft is "", the height is back to auto and send is disabled again @09409383](../../tests/ChatComposer.test.tsx#L91)).
 - `"  Ja  "` submits as `"Ja"` - no length floor, rejecting `the-expert-ui`'s
   3-character floor;
   `"   "` leaves send disabled and `onSubmit` uncalled, also under `Enter`
-  ([validated by " Ja " submits as "Ja" - trimmed, with no length floor](../../tests/ChatComposer.test.tsx#L57),
-  [validated by " " leaves the send button disabled and onSubmit uncalled](../../tests/ChatComposer.test.tsx#L69),
-  [validated by Enter on a whitespace-only draft calls onSubmit zero times](../../tests/ChatComposer.test.tsx#L102)).
+  ([validated by " Ja " submits as "Ja" - trimmed, with no length floor @568cb9bf](../../tests/ChatComposer.test.tsx#L57),
+  [validated by " " leaves the send button disabled and onSubmit uncalled @6e847c41](../../tests/ChatComposer.test.tsx#L69),
+  [validated by Enter on a whitespace-only draft calls onSubmit zero times @e268966b](../../tests/ChatComposer.test.tsx#L102)).
 
 ## The keyboard
 
 - `Enter` submits and preventDefaults;
   `Shift+Enter` inserts a newline and leaves the draft
-  ([validated by Enter submits the trimmed draft once, then the draft is "", the height is back to auto and send is disabled again](../../tests/ChatComposer.test.tsx#L91),
-  [validated by plain Enter preventDefaults, so no newline leaks into the cleared draft](../../tests/ChatComposer.test.tsx#L187),
-  [validated by Shift+Enter does not submit and leaves the draft in the box](../../tests/ChatComposer.test.tsx#L113)).
+  ([validated by Enter submits the trimmed draft once, then the draft is "", the height is back to auto and send is disabled again @09409383](../../tests/ChatComposer.test.tsx#L91),
+  [validated by plain Enter preventDefaults, so no newline leaks into the cleared draft @65db896a](../../tests/ChatComposer.test.tsx#L187),
+  [validated by Shift+Enter does not submit and leaves the draft in the box @869f3dde](../../tests/ChatComposer.test.tsx#L113)).
 - Modified `Enter` is decided (issue 135, option c): `Ctrl+Enter` and
   `Meta+Enter` submit and preventDefault exactly like plain `Enter`; `Alt+Enter` joins
   `Shift+Enter` as a newline chord - no submit, no preventDefault, the draft
@@ -59,21 +59,21 @@ issue is cited for it.
   the two-operator budget. The browser's own newline insertion is unasserted:
   jsdom inserts nothing, and the Playwright case pins only that no entry is
   appended and the draft survives, with or without a trailing newline
-  ([validated by Ctrl+Enter submits the trimmed draft once and clears the box like plain Enter](../../tests/ChatComposer.test.tsx#L125),
-  [validated by Meta+Enter submits the trimmed draft once and clears the box like plain Enter](../../tests/ChatComposer.test.tsx#L137),
-  [validated by Alt+Enter does not submit, does not preventDefault and leaves the draft in the box](../../tests/ChatComposer.test.tsx#L149),
-  [validated by Shift+Enter does not submit and leaves the draft in the box](../../tests/ChatComposer.test.tsx#L113),
-  [validated by Ctrl+Shift+Enter does not submit: Shift wins over Ctrl](../../tests/ChatComposer.test.tsx#L162),
-  [validated by Alt+Enter appends no entry and keeps the draft in the box](../../examples/chat-demo/tests/chat-demo.spec.ts#L396)).
+  ([validated by Ctrl+Enter submits the trimmed draft once and clears the box like plain Enter @de8f286d](../../tests/ChatComposer.test.tsx#L125),
+  [validated by Meta+Enter submits the trimmed draft once and clears the box like plain Enter @4e672b2d](../../tests/ChatComposer.test.tsx#L137),
+  [validated by Alt+Enter does not submit, does not preventDefault and leaves the draft in the box @f06e40b0](../../tests/ChatComposer.test.tsx#L149),
+  [validated by Shift+Enter does not submit and leaves the draft in the box @869f3dde](../../tests/ChatComposer.test.tsx#L113),
+  [validated by Ctrl+Shift+Enter does not submit: Shift wins over Ctrl @9430cdbf](../../tests/ChatComposer.test.tsx#L162),
+  [validated by Alt+Enter appends no entry and keeps the draft in the box @93f6d93a](../../examples/chat-demo/tests/chat-demo.spec.ts#L396)).
 - **The IME guard is the fix this component adds.** `Enter` with
   `nativeEvent.isComposing` neither submits nor preventDefaults. None of the
   three inline copies checks it. Verified by mutation: removing the
   `event.nativeEvent.isComposing` term from `handleKeyDown` makes exactly
   this test fail (1 failed, 29 passed in the mutant run;
-  [validated by Enter while isComposing does not submit and does not preventDefault - the IME guard the inline copies lack](../../tests/ChatComposer.test.tsx#L174)).
+  [validated by Enter while isComposing does not submit and does not preventDefault - the IME guard the inline copies lack @856dcc16](../../tests/ChatComposer.test.tsx#L174)).
 - `Escape` is not bound - it clears nothing and calls nothing, pinned so the
   shortcut is not added later without a decision
-  ([validated by Escape does not clear the draft and calls nothing - pinned so the shortcut is not added without a decision](../../tests/ChatComposer.test.tsx#L196)).
+  ([validated by Escape does not clear the draft and calls nothing - pinned so the shortcut is not added without a decision @57fb2feb](../../tests/ChatComposer.test.tsx#L196)).
 
 ## busy and disabled
 
@@ -82,18 +82,18 @@ reader should see, disabled is merely inert. `busy`
 disables the send button, swallows `Enter`, and pulses the wrapper, but leaves
 the textarea editable so the user can keep drafting while the agent is
 thinking; `disabled` disables both without the pulse
-([validated by busy keeps the textarea editable, disables the send button, Enter calls onSubmit zero times, and the wrapper pulses](../../tests/ChatComposer.test.tsx#L210),
-[validated by disabled without busy disables both and the wrapper carries no pulse class](../../tests/ChatComposer.test.tsx#L234)).
+([validated by busy keeps the textarea editable, disables the send button, Enter calls onSubmit zero times, and the wrapper pulses @70fee146](../../tests/ChatComposer.test.tsx#L210),
+[validated by disabled without busy disables both and the wrapper carries no pulse class @5ad0adca](../../tests/ChatComposer.test.tsx#L234)).
 
 A draft typed before `busy` survives the toggle: the textarea is uncontrolled
 and never remounts, so its value and the enabled send button return once
 `busy` is false again
-([validated by a draft typed before busy survives the toggle: "Hvor er min booking?" and the enabled send button return once busy is false](../../tests/ChatComposer.test.tsx#L284)).
+([validated by a draft typed before busy survives the toggle: "Hvor er min booking?" and the enabled send button return once busy is false @30b5330c](../../tests/ChatComposer.test.tsx#L284)).
 
 The wrapper also carries `aria-busy`: `"true"` while `busy`, `"false"` when
 idle and when merely `disabled`, so assistive technology hears the pulse the
 sighted reader sees
-([validated by busy marks the composer surface aria-busy="true"; idle and plain disabled mark it "false"](../../tests/ChatComposer.test.tsx#L222)).
+([validated by busy marks the composer surface aria-busy="true"; idle and plain disabled mark it "false" @3feb8558](../../tests/ChatComposer.test.tsx#L222)).
 
 While `busy` and not `disabled`, the textarea itself also carries
 `aria-describedby` pointing at a visually hidden `bowman-sr-only` element whose
@@ -101,18 +101,18 @@ text is the resolved `composerBusyHint` - by default `You can keep typing.`
 followed by `Sending waits until the assistant has finished responding.` - so a screen-reader
 user focused in the still-editable field hears that a send waits for the reply
 rather than only the wrapper's `aria-busy` (issue 236)
-([validated by busy describes the textarea through a bowman-sr-only element with the default composerBusyHint: "You can keep typing." followed by "Sending waits until the assistant has finished responding." and sets no aria-disabled](../../tests/ChatComposer.test.tsx#L242),
-[validated by busy with labels={{ composerBusyHint: "Du kan skrive videre; afsendelse venter." }} describes the textarea with that string](../../tests/ChatComposer.test.tsx#L260)).
+([validated by busy describes the textarea through a bowman-sr-only element with the default composerBusyHint: "You can keep typing." followed by "Sending waits until the assistant has finished responding." and sets no aria-disabled @151abbeb](../../tests/ChatComposer.test.tsx#L242),
+[validated by busy with labels={{ composerBusyHint: "Du kan skrive videre; afsendelse venter." }} describes the textarea with that string @91077d0c](../../tests/ChatComposer.test.tsx#L260)).
 The textarea is never `aria-disabled`; idle and `disabled` (with or without
 `busy`) render neither the attribute nor the element
-([validated by idle leaves the textarea without aria-describedby and without an accessible description](../../tests/ChatComposer.test.tsx#L253),
-[validated by disabled renders no hint with or without busy: the textarea has no aria-describedby](../../tests/ChatComposer.test.tsx#L272)).
+([validated by idle leaves the textarea without aria-describedby and without an accessible description @c4623b81](../../tests/ChatComposer.test.tsx#L253),
+[validated by disabled renders no hint with or without busy: the textarea has no aria-describedby @25075ecc](../../tests/ChatComposer.test.tsx#L272)).
 
 **Note - pulse class.** The wrapper carries `bowman-pulse-subtle`, not the
 issue text's `animate-pulse-subtle`: 019 renamed every package animation
 class under the `bowman-` prefix, the same recorded deviation as
 `specs/bowman-ui-chat-message/spec.md`
-([validated by busy keeps the textarea editable, disables the send button, Enter calls onSubmit zero times, and the wrapper pulses](../../tests/ChatComposer.test.tsx#L210)).
+([validated by busy keeps the textarea editable, disables the send button, Enter calls onSubmit zero times, and the wrapper pulses @70fee146](../../tests/ChatComposer.test.tsx#L210)).
 
 ## The ref handle and focus
 
@@ -121,11 +121,11 @@ blank write keeps send disabled; a
 handle retained past unmount is a no-op. `focus()` makes the
 textarea `document.activeElement`; `autoFocus` does
 the same on mount and defaults to false
-([validated by](../../tests/ChatComposer.test.tsx#L401),
-[validated by autoFocus focuses the textarea on mount, and its default is false](../../tests/ChatComposer.test.tsx#L411),
-[L368](../../tests/ChatComposer.test.tsx#L368),
-[validated by setValue with a blank string leaves the send button disabled](../../tests/ChatComposer.test.tsx#L381),
-[validated by setValue on a handle retained past unmount is a no-op, not a crash](../../tests/ChatComposer.test.tsx#L391)).
+([validated by @f30e2cd0](../../tests/ChatComposer.test.tsx#L401),
+[validated by autoFocus focuses the textarea on mount, and its default is false @c0d7994a](../../tests/ChatComposer.test.tsx#L411),
+[L368@8936be38](../../tests/ChatComposer.test.tsx#L368),
+[validated by setValue with a blank string leaves the send button disabled @bda8734b](../../tests/ChatComposer.test.tsx#L381),
+[validated by setValue on a handle retained past unmount is a no-op, not a crash @b4ee7513](../../tests/ChatComposer.test.tsx#L391)).
 
 After a send that leaves the composer active, the textarea is
 `document.activeElement` again whether the submit came from `Enter` or from
@@ -137,10 +137,10 @@ who tabbed to send never lands on `body` (issue 131; the demo, which passes
 no `busy`, proves Tab to send then `Enter` and then `Space` in a real
 Chromium and, with `Alt+Tab` standing in for WebKit's control-skipping `Tab`,
 in a real WebKit - issue 200)
-([validated by clicking the focused send button submits, disables send, and leaves the textarea as document.activeElement](../../tests/ChatComposer.test.tsx#L521),
-[validated by Enter keeps the textarea as document.activeElement after the submit](../../tests/ChatComposer.test.tsx#L535),
-[validated by an onSubmit that focuses an outside button wins: that button is document.activeElement after send](../../tests/ChatComposer.test.tsx#L546),
-[validated by Tab to send then Enter or Space appends the entry and returns focus to the textarea](../../examples/chat-demo/tests/chat-demo.spec.ts#L446)).
+([validated by clicking the focused send button submits, disables send, and leaves the textarea as document.activeElement @c0949b80](../../tests/ChatComposer.test.tsx#L521),
+[validated by Enter keeps the textarea as document.activeElement after the submit @4300440e](../../tests/ChatComposer.test.tsx#L535),
+[validated by an onSubmit that focuses an outside button wins: that button is document.activeElement after send @ab9fca2d](../../tests/ChatComposer.test.tsx#L546),
+[validated by Tab to send then Enter or Space appends the entry and returns focus to the textarea @eeeeca71](../../examples/chat-demo/tests/chat-demo.spec.ts#L446)).
 
 ## Auto-resize
 
@@ -150,24 +150,24 @@ cap. jsdom performs no layout and reports `scrollHeight` 0, so the tests stub
 the property (`Object.defineProperty(textarea, "scrollHeight", { value: 320,
 configurable: true })`) and note it: a stubbed 320 caps at `200px` by default
 and reaches `320px` with `maxHeightPx={400}`
-([validated by a stubbed scrollHeight of 320 caps the height at 200px under the default maxHeightPx](../../tests/ChatComposer.test.tsx#L423),
-[validated by the same 320 becomes 320px with maxHeightPx={400}](../../tests/ChatComposer.test.tsx#L432)). A passing test here
+([validated by a stubbed scrollHeight of 320 caps the height at 200px under the default maxHeightPx @e71eee7c](../../tests/ChatComposer.test.tsx#L423),
+[validated by the same 320 becomes 320px with maxHeightPx={400} @e4cb1a98](../../tests/ChatComposer.test.tsx#L432)). A passing test here
 proves the arithmetic, never real browser layout.
 
 ## The attachment slot
 
 No attach button ships and no paperclip glyph exists in `src/` or `dist/`
 (docs/design-notes.md decision 2 - the attach affordance is decorative,
-so no button ships without a slot to fill it) ([validated by no paperclip glyph appears anywhere in src/ or dist/](../../tests/ChatComposer.test.tsx#L575)).
+so no button ships without a slot to fill it) ([validated by no paperclip glyph appears anywhere in src/ or dist/ @c482432e](../../tests/ChatComposer.test.tsx#L575)).
 With no `attachSlot`, send is the only button; a supplied slot
 renders left of send
-([validated by with no attachSlot, send is the only button in the document](../../tests/ChatComposer.test.tsx#L443),
-[validated by attachSlot renders left of send](../../tests/ChatComposer.test.tsx#L449)). The wrapper is a
+([validated by with no attachSlot, send is the only button in the document @d058918a](../../tests/ChatComposer.test.tsx#L443),
+[validated by attachSlot renders left of send @f7b0f31b](../../tests/ChatComposer.test.tsx#L449)). The wrapper is a
 `div`, not a `<form>`, and every self-rendered button carries
 `type="button"`, so
 a consumer's own wrapping form never receives a submit from the composer
-([validated by every button the component renders itself carries type="button"](../../tests/ChatComposer.test.tsx#L463),
-[validated by `clicking send inside a consumer's <form onSubmit> does not fire the form's submit handler`](../../tests/ChatComposer.test.tsx#L471)).
+([validated by every button the component renders itself carries type="button" @9e355873](../../tests/ChatComposer.test.tsx#L463),
+[validated by `clicking send inside a consumer's <form onSubmit> does not fire the form's submit handler` @4d7b536c](../../tests/ChatComposer.test.tsx#L471)).
 
 ## Labels and accessible names
 
@@ -175,14 +175,14 @@ Four flat keys per 022 Decision 2: `composerInput` (the textarea's
 `aria-label` - a real accessible name, not the placeholder),
 `composerPlaceholder`, `send`, and `composerBusyHint` (the busy description
 of § busy and disabled)
-([validated by the defaults name the textarea "Your message" with placeholder "Reply..."](../../tests/ChatComposer.test.tsx#L502)). The textarea answers to the resolved
+([validated by the defaults name the textarea "Your message" with placeholder "Reply..." @c181bfc6](../../tests/ChatComposer.test.tsx#L502)). The textarea answers to the resolved
 `composerInput` while showing the `composerPlaceholder`; the send button's
 accessible name is the resolved `send` label with its `SendIcon`
 `aria-hidden` per 020's `getAccessibleIconProps` contract
-([validated by the textarea's accessible name is the resolved composerInput label, distinct from the "Responder..." placeholder](../../tests/ChatComposer.test.tsx#L488), defaults
-[validated by the defaults name the textarea "Your message" with placeholder "Reply..."](../../tests/ChatComposer.test.tsx#L502),
-[validated by the send button's accessible name is the resolved send label and its SendIcon is aria-hidden](../../tests/ChatComposer.test.tsx#L511),
-[validated by the send button renders the set's SendIcon](../../tests/ChatComposer.test.tsx#L587)).
+([validated by the textarea's accessible name is the resolved composerInput label, distinct from the "Responder..." placeholder @dd8bed66](../../tests/ChatComposer.test.tsx#L488), defaults
+[validated by the defaults name the textarea "Your message" with placeholder "Reply..." @c181bfc6](../../tests/ChatComposer.test.tsx#L502),
+[validated by the send button's accessible name is the resolved send label and its SendIcon is aria-hidden @4c21cab7](../../tests/ChatComposer.test.tsx#L511),
+[validated by the send button renders the set's SendIcon @eece5fe7](../../tests/ChatComposer.test.tsx#L587)).
 
 `defaultChatComposerLabels` is `Readonly<Required<ChatComposerLabels>>`; a
 key added without a default fails `npm run typecheck`, pinned by the
@@ -190,28 +190,28 @@ key added without a default fails `npm run typecheck`, pinned by the
 compiled against `dist/` (fixture at
 [chat-composer-type-assertions](../../tests/types/chat-composer-type-assertions.tsx)).
 `ChatComposer` joins the `labelsProp` partition and the sentinel render
-covers it ([partition](../../tests/labelled-exports.test.tsx#L89),
-[harness](../../tests/labelled-exports.test.tsx#L499),
-[coverage](../../tests/labelled-exports.test.tsx#L643),
-[validated by tsc accepts chat-composer-type-assertions.tsx against dist via the '.' exports entry, pinning the @ts-expect-error fixture](../../tests/chat-composer-dist.test.ts#L18)).
+covers it ([partition@d749da79](../../tests/labelled-exports.test.tsx#L89),
+[harness@d749da79](../../tests/labelled-exports.test.tsx#L499),
+[coverage@57ea3735](../../tests/labelled-exports.test.tsx#L643),
+[validated by tsc accepts chat-composer-type-assertions.tsx against dist via the '.' exports entry, pinning the @ts-expect-error fixture @26eddaa3](../../tests/chat-composer-dist.test.ts#L18)).
 
 **Note - one placeholder default.** The single `composerPlaceholder`
 default (`"Reply..."`) is the mid-conversation reply prompt, the composer's
 common case. A consumer rendering an empty state passes its own
 welcome sentence through `labels` instead of the package shipping a second
 default
-([validated by the defaults name the textarea "Your message" with placeholder "Reply..."](../../tests/ChatComposer.test.tsx#L502)).
+([validated by the defaults name the textarea "Your message" with placeholder "Reply..." @c181bfc6](../../tests/ChatComposer.test.tsx#L502)).
 
 ## Theming
 
 The send button paints its glyph with `--bowman-text-on-accent`, a single `white` value in both
 modes, so a consumer who sets a pale `--bowman-accent` can darken the icon to keep it legible;
 the rest of the composer's palette is covered by `specs/bowman-ui-theming-tokens/spec.md`
-([validated by the send button reads --bowman-text-on-accent for its text, one value in both modes](../../tests/ChatComposer.test.tsx#L340)).
+([validated by the send button reads --bowman-text-on-accent for its text, one value in both modes @3d970d64](../../tests/ChatComposer.test.tsx#L340)).
 Disabled - no draft, `busy` or `disabled` - the button reads `--bowman-text-subtle` for its
 glyph and `--bowman-active` for its surface under a `disabled:` prefix, two existing roles and
 none of its own
-([validated by the disabled send button reads --bowman-text-subtle for its text and --bowman-active for its background, light and dark](../../tests/ChatComposer.test.tsx#L358)).
+([validated by the disabled send button reads --bowman-text-subtle for its text and --bowman-active for its background, light and dark @35235d74](../../tests/ChatComposer.test.tsx#L358)).
 
 ## GDPR
 
@@ -220,9 +220,9 @@ and addresses (`003-support-conversation-data-flow-record`). The component
 calls no `console.*`, `localStorage`, `sessionStorage`, `fetch`,
 `sendBeacon` or analytics, asserted by source grep and by the
 suite-wide console trap in `tests/setup.ts`
-([validated by `GDPR: the file calls no console.*, localStorage, sessionStorage, fetch, sendBeacon or analytics, and holds no draft persistence`](../../tests/ChatComposer.test.tsx#L593)). There is no draft persistence
+([validated by `GDPR: the file calls no console.*, localStorage, sessionStorage, fetch, sendBeacon or analytics, and holds no draft persistence` @bff9b74f](../../tests/ChatComposer.test.tsx#L593)). There is no draft persistence
 and no autosave: an unsent support question does not survive on the
-customer's device ([validated by `GDPR: the file calls no console.*, localStorage, sessionStorage, fetch, sendBeacon or analytics, and holds no draft persistence`](../../tests/ChatComposer.test.tsx#L593)).
+customer's device ([validated by `GDPR: the file calls no console.*, localStorage, sessionStorage, fetch, sendBeacon or analytics, and holds no draft persistence` @bff9b74f](../../tests/ChatComposer.test.tsx#L593)).
 
 ## Source purity and the build
 
@@ -231,8 +231,8 @@ No `@clerk`, `swr`, `next-intl`, `next/`, `@/` or
 `dist/components/ChatComposer.js` opens with `"use client";` as its first
 statement per 018 Decision 1's positional check, and `npm pack` ships it
 with its `.d.ts`
-([validated by dist/components/ChatComposer.js opens with "use client"; as its first statement](../../tests/chat-composer-dist.test.ts#L10),
-[validated by no @clerk, swr, next-intl, next/, @/ or lucide-react import, and every relative import ends in .js](../../tests/ChatComposer.test.tsx#L597)).
+([validated by dist/components/ChatComposer.js opens with "use client"; as its first statement @9a7d5dfc](../../tests/chat-composer-dist.test.ts#L10),
+[validated by no @clerk, swr, next-intl, next/, @/ or lucide-react import, and every relative import ends in .js @9265fdb1](../../tests/ChatComposer.test.tsx#L597)).
 
 ## Recorded deviations from the issue text
 

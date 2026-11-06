@@ -21,24 +21,24 @@ source's `label?: string` is gone.
 `Readonly<Required<ThinkingIndicatorLabels>>` over `thinking` (`"Thinking"`,
 the key name 023 gave the inline form) and `thinkingRegion`
 (`"Loading response"`, the `aria-label` on the `role="status"` element)
-([validated by defaultThinkingIndicatorLabels is frozen and holds exactly the two English defaults](../../tests/ThinkingIndicator.test.tsx#L31),
-[validated by ThinkingIndicator.tsx carries no label?: prop - the labels object replaced it](../../tests/ThinkingIndicator.test.tsx#L101)). A key added
+([validated by defaultThinkingIndicatorLabels is frozen and holds exactly the two English defaults @74272091](../../tests/ThinkingIndicator.test.tsx#L31),
+[validated by ThinkingIndicator.tsx carries no label?: prop - the labels object replaced it @6cb62884](../../tests/ThinkingIndicator.test.tsx#L101)). A key added
 without a default fails the build, pinned from outside by an
 `@ts-expect-error` fixture
-([validated by](../../tests/types/thinking-indicator-type-assertions.tsx#L19),
+([validated by @8a761dc7](../../tests/types/thinking-indicator-type-assertions.tsx#L19),
 compiled by
-[thinking-indicator-dist](../../tests/thinking-indicator-dist.test.ts#L20)).
+[thinking-indicator-dist@399918a5](../../tests/thinking-indicator-dist.test.ts#L20)).
 
 `ThinkingDots` is deliberately not exported: an `@ts-expect-error` import in
 the same fixture pins it out of the public type surface
-([validated by](../../tests/types/thinking-indicator-type-assertions.tsx#L10)).
+([validated by @1cdcebb7](../../tests/types/thinking-indicator-type-assertions.tsx#L10)).
 The runtime export set of `dist/index.js` is pinned separately by the
 `public-api` exact snapshot of 47 values and 31 types after this issue.
 `dist/components/ThinkingDots.{js,d.ts}` packs
 with the rest of `dist/`, but `package.json`'s `exports` map exposes only `"."`
 and `"./styles.css"`, so no consumer can deep-import the private component
-([validated by distributes ESM only: "type" is "module" and the "." export carries no require condition](../../tests/system-contract.test.ts#L30),
-[public-api](../../tests/public-api.test.ts#L43)).
+([validated by distributes ESM only: "type" is "module" and the "." export carries no require condition @3b882458](../../tests/system-contract.test.ts#L30),
+[public-api@d5931828](../../tests/public-api.test.ts#L43)).
 
 ## The decisions
 
@@ -47,30 +47,30 @@ and `"./styles.css"`, so no consumer can deep-import the private component
    would break translation silently even after `labels` shipped.
    - With no `labels` prop the visible text is `"Thinking"` and the
      `role="status"` element carries `aria-label="Loading response"`
-     ([validated by renders "Thinking" and a role="status" element with aria-label "Loading response" by default](../../tests/ThinkingIndicator.test.tsx#L14)).
+     ([validated by renders "Thinking" and a role="status" element with aria-label "Loading response" by default @cd4d15bd](../../tests/ThinkingIndicator.test.tsx#L14)).
    - With Danish overrides neither English string appears anywhere in the
      rendered output
-     ([validated by labels {thinking: "Pensando", thinkingRegion: "Cargando respuesta"} leaves no English string in the output](../../tests/ThinkingIndicator.test.tsx#L22)).
+     ([validated by labels {thinking: "Pensando", thinkingRegion: "Cargando respuesta"} leaves no English string in the output @4a99f91a](../../tests/ThinkingIndicator.test.tsx#L22)).
    - The attribute is kept rather than removed; whether a real screen reader
      announces it over the live-region content is unverified follow-up work
-     ([validated by renders "Thinking" and a role="status" element with aria-label "Loading response" by default](../../tests/ThinkingIndicator.test.tsx#L14)).
+     ([validated by renders "Thinking" and a role="status" element with aria-label "Loading response" by default @cd4d15bd](../../tests/ThinkingIndicator.test.tsx#L14)).
 2. **The avatar slot is the glyph, not the circle** (018 decision 3).
    - `assistantAvatar` renders inside the circle
-     ([validated by assistantAvatar renders inside the avatar circle](../../tests/ThinkingIndicator.test.tsx#L44)).
+     ([validated by assistantAvatar renders inside the avatar circle @84b7d1f2](../../tests/ThinkingIndicator.test.tsx#L44)).
    - With none supplied the circle is empty
-     ([validated by with no assistantAvatar the circle is empty](../../tests/ThinkingIndicator.test.tsx#L54)).
+     ([validated by with no assistantAvatar the circle is empty @2b69f64c](../../tests/ThinkingIndicator.test.tsx#L54)).
    - `LogoIcon` appears nowhere in `src/` or `dist/`
-     ([validated by LogoIcon appears nowhere in src/ or dist/ - the avatar slot replaced the bundled mark](../../tests/ThinkingIndicator.test.tsx#L134)).
+     ([validated by LogoIcon appears nowhere in src/ or dist/ - the avatar slot replaced the bundled mark @cb497ae5](../../tests/ThinkingIndicator.test.tsx#L134)).
 3. **The circle is unconditionally `aria-hidden` and unconditionally
    pulsing.** An announced avatar inside a `role="status"` region would just
    be noise, and this component is itself the loading state, so no prop turns
-   either off ([validated by the circle carries aria-hidden="true" and bowman-pulse-subtle with every prop supplied](../../tests/ThinkingIndicator.test.tsx#L63)).
+   either off ([validated by the circle carries aria-hidden="true" and bowman-pulse-subtle with every prop supplied @7f8700f3](../../tests/ThinkingIndicator.test.tsx#L63)).
 
    Recorded asymmetry: `ChatMessage`'s assistant circle carries no
    `aria-hidden`, so a consumer-supplied avatar's accessible name is silenced
    here and not there - correct per the issue (the status region owns the
    name), noted so the next reader finds it decided rather than drifted
-   ([validated by the circle carries aria-hidden="true" and bowman-pulse-subtle with every prop supplied](../../tests/ThinkingIndicator.test.tsx#L63)).
+   ([validated by the circle carries aria-hidden="true" and bowman-pulse-subtle with every prop supplied @7f8700f3](../../tests/ThinkingIndicator.test.tsx#L63)).
 
 4. **One dots implementation, one dots assertion.** `ThinkingDots` owns the
    `flex gap-0.5` wrapper span and the three `bowman-fade-dot` dots at
@@ -78,15 +78,15 @@ and `"./styles.css"`, so no consumer can deep-import the private component
    forms (`ThinkingIndicator.tsx:21-34` and `48-61`, which duplicate the same
    span).
    - Both components import it
-     ([validated by ThinkingDots is imported by both ThinkingIndicator and InlineThinkingIndicator](../../tests/ThinkingIndicator.test.tsx#L118)).
+     ([validated by ThinkingDots is imported by both ThinkingIndicator and InlineThinkingIndicator @2ace2700](../../tests/ThinkingIndicator.test.tsx#L118)).
    - One shared test helper
      ([expect-thinking-dots](../../tests/helpers/expect-thinking-dots.ts))
      asserts count, order and delays against both
-     ([validated by renders three bowman-fade-dot dots with staggered delays, via the helper shared with InlineThinkingIndicator](../../tests/ThinkingIndicator.test.tsx#L39),
-     [inline](../../tests/InlineThinkingIndicator.test.tsx#L20)).
+     ([validated by renders three bowman-fade-dot dots with staggered delays, via the helper shared with InlineThinkingIndicator @654aa06f](../../tests/ThinkingIndicator.test.tsx#L39),
+     [inline@047211df](../../tests/InlineThinkingIndicator.test.tsx#L20)).
    - `InlineThinkingIndicator` still renders its label and dots with no
      `role="status"` and no avatar circle
-     ([validated by InlineThinkingIndicator renders its label and dots with no role="status" and no avatar circle](../../tests/ThinkingIndicator.test.tsx#L82)).
+     ([validated by InlineThinkingIndicator renders its label and dots with no role="status" and no avatar circle @99dd6f2e](../../tests/ThinkingIndicator.test.tsx#L82)).
 
 ## The 015 characterization suite, substituted
 
@@ -96,54 +96,54 @@ written from the behaviors the acceptance criteria pin: the default and
 overridden labels, the `role="status"` semantics, the dot count, order,
 delays and class, the empty avatar circle, and the unconditional
 `aria-hidden`/pulse (`tests/ThinkingIndicator.test.tsx`;
-[validated by renders "Thinking" and a role="status" element with aria-label "Loading response" by default](../../tests/ThinkingIndicator.test.tsx#L14)).
+[validated by renders "Thinking" and a role="status" element with aria-label "Loading response" by default @cd4d15bd](../../tests/ThinkingIndicator.test.tsx#L14)).
 
 Two renames inherited from 019 rather than adapted here, since 019 shipped
 every package animation class under the `bowman-` prefix - the same recorded
 deviation as 023's and 025's. The dots carry `bowman-fade-dot`, not the issue
 text's `animate-fade-dot`
-([validated by renders three bowman-fade-dot dots with staggered delays, via the helper shared with InlineThinkingIndicator](../../tests/ThinkingIndicator.test.tsx#L39)). The circle
+([validated by renders three bowman-fade-dot dots with staggered delays, via the helper shared with InlineThinkingIndicator @654aa06f](../../tests/ThinkingIndicator.test.tsx#L39)). The circle
 carries `bowman-pulse-subtle`, not `animate-pulse-subtle`
-([validated by the circle carries aria-hidden="true" and bowman-pulse-subtle with every prop supplied](../../tests/ThinkingIndicator.test.tsx#L63)). One path correction: the labels partition lives
+([validated by the circle carries aria-hidden="true" and bowman-pulse-subtle with every prop supplied @7f8700f3](../../tests/ThinkingIndicator.test.tsx#L63)). One path correction: the labels partition lives
 at `tests/labelled-exports.test.tsx`, not the issue text's
 `src/__tests__/labelled-exports.tsx`, and the component tests at
 `tests/ThinkingIndicator.test.tsx`, not `tests/components/` - the repo's
 shipped layout since 022
-([validated by renders three bowman-fade-dot dots with staggered delays, via the helper shared with InlineThinkingIndicator](../../tests/ThinkingIndicator.test.tsx#L39),
-[validated by the circle carries aria-hidden="true" and bowman-pulse-subtle with every prop supplied](../../tests/ThinkingIndicator.test.tsx#L63)).
+([validated by renders three bowman-fade-dot dots with staggered delays, via the helper shared with InlineThinkingIndicator @654aa06f](../../tests/ThinkingIndicator.test.tsx#L39),
+[validated by the circle carries aria-hidden="true" and bowman-pulse-subtle with every prop supplied @7f8700f3](../../tests/ThinkingIndicator.test.tsx#L63)).
 
 ## Carried across mechanically
 
 - `ThinkingIndicator` joins the `labelsProp` partition bucket with a sentinel
-  harness ([validated by labelsProp, stringPropOnly and noStrings together are exactly src/index.ts's value exports](../../tests/labelled-exports.test.tsx#L165),
-  [validated by no run of three Latin letters survives outside the sentinels for any labelsProp member](../../tests/labelled-exports.test.tsx#L689)).
+  harness ([validated by labelsProp, stringPropOnly and noStrings together are exactly src/index.ts's value exports @55e0da40](../../tests/labelled-exports.test.tsx#L165),
+  [validated by no run of three Latin letters survives outside the sentinels for any labelsProp member @ffb54b18](../../tests/labelled-exports.test.tsx#L689)).
   - The partition test still asserts the full barrel, which `ThinkingDots`
     never enters.
   - The `thinkingRegion` sentinel lands in `aria-label`, one of the seven
     checked attributes
-    ([validated by no run of three Latin letters survives outside the sentinels for any labelsProp member](../../tests/labelled-exports.test.tsx#L689)).
+    ([validated by no run of three Latin letters survives outside the sentinels for any labelsProp member @ffb54b18](../../tests/labelled-exports.test.tsx#L689)).
 - No `@clerk`, `swr`, `next-intl`, `next/` or `@/` import in
   either new file, and every relative import ends in `.js`
-  ([validated by neither file imports @clerk, swr, next-intl, next/ or @/ and every relative import ends in .js](../../tests/ThinkingIndicator.test.tsx#L107)).
+  ([validated by neither file imports @clerk, swr, next-intl, next/ or @/ and every relative import ends in .js @61758928](../../tests/ThinkingIndicator.test.tsx#L107)).
 - Both new files carry `"use client"` as the first statement of their `dist/`
   output, per 018 decision 1's positional check and
   `scripts/check-client-directives.mjs`
-  ([validated by each built thinking indicator file opens with "use client"; as its first statement](../../tests/thinking-indicator-dist.test.ts#L10)).
+  ([validated by each built thinking indicator file opens with "use client"; as its first statement @e340d29e](../../tests/thinking-indicator-dist.test.ts#L10)).
 - Neither file references a client-only API today; docs/design-notes.md decision 1's
-  recorded exception ([docs/design-notes.md](../../docs/design-notes.md#L83), amended in this
+  recorded exception ([docs/design-notes.md@895cf0d5](../../docs/design-notes.md#L83), amended in this
   issue) covers the chat surface's presentational components and the private
   subcomponents they compose, extending 023's shipped `InlineThinkingIndicator`
-  precedent ([validated by each built thinking indicator file opens with "use client"; as its first statement](../../tests/thinking-indicator-dist.test.ts#L10)).
+  precedent ([validated by each built thinking indicator file opens with "use client"; as its first statement @e340d29e](../../tests/thinking-indicator-dist.test.ts#L10)).
 - **GDPR.** The component renders only its own labels - no customer data
   reaches it.
   - Neither file references `console.`, `localStorage`, `sessionStorage`,
     `fetch` or `sendBeacon`
-    ([validated by `GDPR: neither file calls console.*, localStorage, sessionStorage, fetch or sendBeacon`](../../tests/ThinkingIndicator.test.tsx#L128)).
+    ([validated by `GDPR: neither file calls console.*, localStorage, sessionStorage, fetch or sendBeacon` @5dd2da55](../../tests/ThinkingIndicator.test.tsx#L128)).
   - The suite-wide console trap 023 installed in `tests/setup.ts` fails any
     test that writes to the console
-    ([validated by `GDPR: neither file calls console.*, localStorage, sessionStorage, fetch or sendBeacon`](../../tests/ThinkingIndicator.test.tsx#L128)).
+    ([validated by `GDPR: neither file calls console.*, localStorage, sessionStorage, fetch or sendBeacon` @5dd2da55](../../tests/ThinkingIndicator.test.tsx#L128)).
 - `npm pack --dry-run` ships both built files with their `d.ts` counterparts
-  ([validated by npm pack --dry-run ships both files with their d.ts counterparts](../../tests/thinking-indicator-dist.test.ts#L16)).
+  ([validated by npm pack --dry-run ships both files with their d.ts counterparts @4ff5c168](../../tests/thinking-indicator-dist.test.ts#L16)).
 
 ## Amended by 078
 
@@ -151,4 +151,4 @@ The `role="status"` element now carries an explicit `aria-live="polite"` -
 the ARIA-canonical spelling of the role's implicit value - so
 `ChatMessageList` can query the live-region override as an attribute inside
 its `aria-live="off"` transcript
-([validated by the role="status" element carries an explicit aria-live="polite", the attribute ChatMessageList queries against its aria-live="off" transcript](../../tests/ThinkingIndicator.test.tsx#L145)).
+([validated by the role="status" element carries an explicit aria-live="polite", the attribute ChatMessageList queries against its aria-live="off" transcript @72c8e7c6](../../tests/ThinkingIndicator.test.tsx#L145)).

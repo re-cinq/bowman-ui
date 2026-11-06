@@ -23,17 +23,17 @@ parenthetical closing the statement counts.
 
 - A citation mid-way through a list item is misplaced, and each one is reported separately
   against the item's own first line
-  ([validated by a list item with two mid-item citations reports both at the item's line](../../tests/check-spec-links.test.ts#L37)).
+  ([validated by a list item with two mid-item citations reports both at the item's line @aef605ca](../../tests/check-spec-links.test.ts#L37)).
 - A citation mid-way through a paragraph sentence is misplaced, and is reported against the
   line the paragraph starts on, not the line the link sits on
-  ([validated by a mid-sentence citation in a paragraph reports one finding at the paragraph's line](../../tests/check-spec-links.test.ts#L44)).
+  ([validated by a mid-sentence citation in a paragraph reports one finding at the paragraph's line @6f4c4802](../../tests/check-spec-links.test.ts#L44)).
 - A citation closing its sentence is where the rule wants it and is never reported
-  ([validated by a paragraph sentence whose citation is trailing reports nothing](../../tests/check-spec-links.test.ts#L61)).
+  ([validated by a paragraph sentence whose citation is trailing reports nothing @84143f17](../../tests/check-spec-links.test.ts#L61)).
 - A mid-sentence link to something other than a test file - a script, a doc - is prose, not a
   miscited test, and is never reported
-  ([validated by a mid-sentence link to a script rather than a test reports nothing](../../tests/check-spec-links.test.ts#L68)).
+  ([validated by a mid-sentence link to a script rather than a test reports nothing @9a1f6119](../../tests/check-spec-links.test.ts#L68)).
 - A citation written inside backticks is documentation of the convention rather than a use of
-  it, and is never reported ([validated by a citation written inside backticks reports nothing](../../tests/check-spec-links.test.ts#L75)).
+  it, and is never reported ([validated by a citation written inside backticks reports nothing @0b168f1b](../../tests/check-spec-links.test.ts#L75)).
 
 ## Where the segmentation comes from
 
@@ -55,32 +55,32 @@ decision 10).
 
 - With no path arguments it scans every `specs/<slug>/spec.md` in sorted slug order followed by
   `.specify/spec.md`, which is exactly the list an explicit invocation of those paths produces
-  ([validated by no spec paths scans the sorted specs directories plus .specify/spec.md](../../tests/check-spec-links.test.ts#L143)).
+  ([validated by no spec paths scans the sorted specs directories plus .specify/spec.md @f12cb570](../../tests/check-spec-links.test.ts#L143)).
 - Each finding prints one line carrying the spec, the statement's line, the cited path with its
   `#L` anchor, and the words `cited outside the statement's trailing parenthetical`. A citation
   written with no `#L` anchor prints the path alone
-  ([validated by a citation with no #L anchor is reported with the path alone](../../tests/check-spec-links.test.ts#L55)).
+  ([validated by a citation with no #L anchor is reported with the path alone @766cddb3](../../tests/check-spec-links.test.ts#L55)).
 - The run closes with `misplaced: <N> across <M> specs (<S> statements scanned)` and exits 1
-  when `N` is above zero ([validated by a spec with misplaced citations exits 1 and summarises findings, specs and statements](../../tests/check-spec-links.test.ts#L88)).
+  when `N` is above zero ([validated by a spec with misplaced citations exits 1 and summarises findings, specs and statements @5eb47ccb](../../tests/check-spec-links.test.ts#L88)).
 - A spec whose citations all sit in trailing parentheticals exits 0 under the same summary line
-  ([validated by a spec citing only in trailing parentheticals exits 0 with a zero summary](../../tests/check-spec-links.test.ts#L82)).
+  ([validated by a spec citing only in trailing parentheticals exits 0 with a zero summary @f23fb636](../../tests/check-spec-links.test.ts#L82)).
 - `--json` replaces the report with an array alone, each entry carrying `spec`, `line`, `path`,
   `anchorLine`, `label` and `statement`
-  ([validated by --json prints only an array of findings carrying every reported field](../../tests/check-spec-links.test.ts#L95)).
+  ([validated by --json prints only an array of findings carrying every reported field @ec84d2d1](../../tests/check-spec-links.test.ts#L95)).
 - An unrecognised flag exits 2 with the usage line rather than scanning anything
-  ([validated by an unknown flag exits 2 with the usage line](../../tests/check-spec-links.test.ts#L109)).
+  ([validated by an unknown flag exits 2 with the usage line @c809ad1f](../../tests/check-spec-links.test.ts#L109)).
 - A spec path that cannot be read exits 2 naming that path, so a typo is never reported as a
-  clean run ([validated by a spec path that cannot be read exits 2 naming the path](../../tests/check-spec-links.test.ts#L122)).
+  clean run ([validated by a spec path that cannot be read exits 2 naming the path @07c72b33](../../tests/check-spec-links.test.ts#L122)).
 
 Paths are resolved against the repo root, not the working directory, because the script locates
 the root from its own module URL and every reported path is printed root-relative.
 
 - A relative path means the same spec from any working directory
-  ([validated by a relative spec path resolves against the repo root, not the working directory](../../tests/check-spec-links.test.ts#L129)).
+  ([validated by a relative spec path resolves against the repo root, not the working directory @9e590715](../../tests/check-spec-links.test.ts#L129)).
 - An absolute path is accepted and reported root-relative
-  ([validated by an absolute spec path is scanned and reported repo-relative](../../tests/check-spec-links.test.ts#L136)).
+  ([validated by an absolute spec path is scanned and reported repo-relative @9a5351fb](../../tests/check-spec-links.test.ts#L136)).
 - The usage line states both facts
-  ([validated by the usage line says paths resolve against the repo root](../../tests/check-spec-links.test.ts#L116)).
+  ([validated by the usage line says paths resolve against the repo root @c3b23f04](../../tests/check-spec-links.test.ts#L116)).
 
 ## Re-anchoring
 
@@ -92,76 +92,76 @@ file moves under it. It walks every markdown file under `specs/` and `adrs/` and
 
 - A link labelled `[validated by <test title>]` moves to the line of the one `it()` or `test()`
   carrying that title when lines are inserted above the test
-  ([validated by moves a titled link from L5 to its test declaration on L7 when two lines are inserted above](../../tests/reanchor-spec-links.test.ts#L119)).
+  ([validated by moves a titled link from L5 to its test declaration on L7 when two lines are inserted above @2c5fc589](../../tests/reanchor-spec-links.test.ts#L119)).
 - It moves to that declaration too when the cited assertion itself is rewritten
-  ([validated by moves a titled link from L3 to its test declaration on L5 when its cited assertion is rewritten in place](../../tests/reanchor-spec-links.test.ts#L130)).
+  ([validated by moves a titled link from L3 to its test declaration on L5 when its cited assertion is rewritten in place @7b54f021](../../tests/reanchor-spec-links.test.ts#L130)).
 - A titled link on a line inside its test's body is mapped through the diff hunks and stays on
   that line when it is still inside the test
-  ([validated by maps a titled link on the L3 assertion to the L5 assertion when two lines are inserted above](../../tests/reanchor-spec-links.test.ts#L152)).
+  ([validated by maps a titled link on the L3 assertion to the L5 assertion when two lines are inserted above @41600d79](../../tests/reanchor-spec-links.test.ts#L152)).
 - A titled link already inside its test's span stays where it is
-  ([validated by keeps a titled link on L3 that already lies inside the span of its test](../../tests/reanchor-spec-links.test.ts#L161)).
+  ([validated by keeps a titled link on L3 that already lies inside the span of its test @0a36fce0](../../tests/reanchor-spec-links.test.ts#L161)).
 - A test's span ends at the next declaration of any kind - a suite, or a test whose title is an
   expression rather than a literal - not at the next one whose title the reader can name, so a
   link onto a declaration the reader cannot name is pulled back to the test it claims
-  ([validated by pulls a titled link back off a test the title reader cannot name](../../tests/reanchor-spec-links.test.ts#L171),
-  [validated by ends a test's span at a suite it cannot cite](../../tests/reanchor-spec-links.test.ts#L184)).
+  ([validated by pulls a titled link back off a test the title reader cannot name @eeee95d1](../../tests/reanchor-spec-links.test.ts#L171),
+  [validated by ends a test's span at a suite it cannot cite @e990da36](../../tests/reanchor-spec-links.test.ts#L184)).
 - A title only a suite carries is not evidence and is reported, in either shape a suite takes,
   a `test.describe("…")` or a bare `describe("…")`: the reader names neither, and both would
   otherwise read as a statement validated by a grouping construct
-  ([validated by reports a title carried only by a suite, which asserts nothing](../../tests/reanchor-spec-links.test.ts#L398),
-  [validated by reports a title carried only by a bare suite](../../tests/reanchor-spec-links.test.ts#L420)).
+  ([validated by reports a title carried only by a suite, which asserts nothing @9d3799f1](../../tests/reanchor-spec-links.test.ts#L398),
+  [validated by reports a title carried only by a bare suite @44636cf2](../../tests/reanchor-spec-links.test.ts#L420)).
 - A title two tests carry is reported and exits 1
-  ([validated by reports a title two tests carry and exits 1](../../tests/reanchor-spec-links.test.ts#L429)).
+  ([validated by reports a title two tests carry and exits 1 @fd10726f](../../tests/reanchor-spec-links.test.ts#L429)).
 - Every other link is paired with its copy in the merge base's markdown and mapped through the
   cited file's `git diff -U0` hunks, in feature specs, the system spec and ADRs alike
-  ([validated by maps untitled links on L6 and L3 to L8 and L5 in a spec, the system spec and an ADR](../../tests/reanchor-spec-links.test.ts#L204)).
+  ([validated by maps untitled links on L6 and L3 to L8 and L5 in a spec, the system spec and an ADR @00693f5d](../../tests/reanchor-spec-links.test.ts#L204)).
 - A titled link whose title no test in the cited file carries is reported, rewrites nothing and
   exits 1 in both modes
-  ([validated by reports a titled link whose title no test carries and exits 1 in both modes, rewriting nothing](../../tests/reanchor-spec-links.test.ts#L226)).
+  ([validated by reports a titled link whose title no test carries and exits 1 in both modes, rewriting nothing @b8848e35](../../tests/reanchor-spec-links.test.ts#L226)).
 - A link into a file that is not a test, such as a README line, is mapped through the hunks
   whatever its label says
-  ([validated by maps a link into README.md, titled or not, from L2 to L3 through the hunks](../../tests/reanchor-spec-links.test.ts#L358)).
+  ([validated by maps a link into README.md, titled or not, from L2 to L3 through the hunks @b192cf0e](../../tests/reanchor-spec-links.test.ts#L358)).
 - A link whose cited line the branch deleted is reported, rewrites nothing and exits 1 in both
-  modes ([validated by reports an untitled link on a deleted line and exits 1 in both modes, rewriting nothing](../../tests/reanchor-spec-links.test.ts#L239)).
+  modes ([validated by reports an untitled link on a deleted line and exits 1 in both modes, rewriting nothing @1b385527](../../tests/reanchor-spec-links.test.ts#L239)).
 - A cited line rewritten in place is reported the same way, because no line number maps to it
-  ([validated by reports an untitled link whose cited line was rewritten in place](../../tests/reanchor-spec-links.test.ts#L252)).
+  ([validated by reports an untitled link whose cited line was rewritten in place @4fd2aa12](../../tests/reanchor-spec-links.test.ts#L252)).
 - A link whose href the branch edited by hand has no base anchor to map from and is kept as
-  authored ([validated by keeps a link whose href this branch edited by hand as authored](../../tests/reanchor-spec-links.test.ts#L262)).
+  authored ([validated by keeps a link whose href this branch edited by hand as authored @6c5db876](../../tests/reanchor-spec-links.test.ts#L262)).
 - A link the branch added is kept as authored, and the links around it still map
-  ([validated by keeps a link this branch added above as authored and still maps L6 below it to L8](../../tests/reanchor-spec-links.test.ts#L273)).
+  ([validated by keeps a link this branch added above as authored and still maps L6 below it to L8 @877d0cbe](../../tests/reanchor-spec-links.test.ts#L273)).
 - A statement the branch reworded keeps its link paired with the merge-base copy
-  ([validated by maps a link on a statement this branch reworded, L6 to L8](../../tests/reanchor-spec-links.test.ts#L289)).
+  ([validated by maps a link on a statement this branch reworded, L6 to L8 @ec7ffc3a](../../tests/reanchor-spec-links.test.ts#L289)).
 - A second run against the same merge base changes nothing, because the pairing reads the
   merge-base markdown rather than the working copy
-  ([validated by a second run against the same merge base changes nothing](../../tests/reanchor-spec-links.test.ts#L301)).
+  ([validated by a second run against the same merge base changes nothing @097124eb](../../tests/reanchor-spec-links.test.ts#L301)).
 - `--check` rewrites nothing and exits 1 naming each link that would move, and exits 0 once a
   plain run has healed them
-  ([validated by --check exits 1 naming a stale link and rewrites nothing, then exits 0 after a run](../../tests/reanchor-spec-links.test.ts#L314)).
+  ([validated by --check exits 1 naming a stale link and rewrites nothing, then exits 0 after a run @c47d21b3](../../tests/reanchor-spec-links.test.ts#L314)).
 - Only links into files the branch changed are re-anchored, and `--all` extends the title
   lookup to every link
-  ([validated by leaves a titled link on the L1 describe line of a test file this branch did not change alone, and --all moves it](../../tests/reanchor-spec-links.test.ts#L333)).
+  ([validated by leaves a titled link on the L1 describe line of a test file this branch did not change alone, and --all moves it @70508efc](../../tests/reanchor-spec-links.test.ts#L333)).
 - The one exception is a title naming exactly one test with its anchor inside a different test:
   it moves to the test it names whatever the scope, because read by span it is evidence for the
   wrong test
-  ([validated by moves a titled link on L2, inside adds numbers, to subtracts numbers on L5 in a test file this branch did not change](../../tests/reanchor-spec-links.test.ts#L348)).
+  ([validated by moves a titled link on L2, inside adds numbers, to subtracts numbers on L5 in a test file this branch did not change @f42f54eb](../../tests/reanchor-spec-links.test.ts#L348)).
 - A bare `[Lnnn]` label follows its href when the href moves
-  ([validated by an L6 line label follows its href to L8](../../tests/reanchor-spec-links.test.ts#L372)).
+  ([validated by an L6 line label follows its href to L8 @31719abb](../../tests/reanchor-spec-links.test.ts#L372)).
 - A bare `[Lnnn]` label that disagrees with its href fails `--check` and is synced by a plain
-  run ([validated by an L9 line label on an L6 href fails --check as mislabelled and a run syncs it to L6](../../tests/reanchor-spec-links.test.ts#L382)).
+  run ([validated by an L9 line label on an L6 href fails --check as mislabelled and a run syncs it to L6 @8dec6e16](../../tests/reanchor-spec-links.test.ts#L382)).
 - In either mode and whatever the scope, an anchor on a blank or closing line, past the end of
   its file, or into a missing file is rotten and exits 1
-  ([validated by an anchor on a blank line or into a missing file is rotten in both modes](../../tests/reanchor-spec-links.test.ts#L443)).
+  ([validated by an anchor on a blank line or into a missing file is rotten in both modes @ce9495a7](../../tests/reanchor-spec-links.test.ts#L443)).
 - A fragment that is not a line number, and a web URL, are never touched
-  ([validated by leaves a link whose fragment is not a line number, and a web URL, untouched](../../tests/reanchor-spec-links.test.ts#L463)).
+  ([validated by leaves a link whose fragment is not a line number, and a web URL, untouched @461ce0ca](../../tests/reanchor-spec-links.test.ts#L463)).
 - During an uncommitted merge the baseline includes `MERGE_HEAD`, so links the merged side already
   moved are mapped only through this branch's own shift
-  ([validated by maps L6, an L6 label and setup L3 to L9, L9 and L5 during an uncommitted merge of main](../../tests/reanchor-spec-links.test.ts#L476)).
+  ([validated by maps L6, an L6 label and setup L3 to L9, L9 and L5 during an uncommitted merge of main @9587e172](../../tests/reanchor-spec-links.test.ts#L476)).
 - The base ref defaults to `origin/main`
-  ([validated by defaults the base ref to origin/main](../../tests/reanchor-spec-links.test.ts#L501)).
+  ([validated by defaults the base ref to origin/main @af020130](../../tests/reanchor-spec-links.test.ts#L501)).
 - An unknown flag or a second base ref exits 2 with the usage line
-  ([validated by an unknown flag or a second base ref exits 2 with usage](../../tests/reanchor-spec-links.test.ts#L516)).
+  ([validated by an unknown flag or a second base ref exits 2 with usage @e69c0c79](../../tests/reanchor-spec-links.test.ts#L516)).
 - A base ref that does not resolve exits 2 naming the ref
-  ([validated by an unknown base ref exits 2 naming the ref](../../tests/reanchor-spec-links.test.ts#L523)).
+  ([validated by an unknown base ref exits 2 naming the ref @479f79a3](../../tests/reanchor-spec-links.test.ts#L523)).
 
 ## CI
 

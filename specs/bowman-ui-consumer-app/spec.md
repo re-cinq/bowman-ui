@@ -8,12 +8,12 @@
 `examples/chat-demo` is the worked consumer: a standalone Vite + React app
 that installs `@re-cinq/bowman-ui` from a freshly packed tarball - never the
 source tree, never the registry
-([validated by](../../scripts/consumer-app.sh#L99)) - and renders a full
+([validated by @6960dd7c](../../scripts/consumer-app.sh#L99)) - and renders a full
 chat screen in a real Chromium and a real WebKit. It proves what no jsdom test can: the
 package's eight major components in one document, compiled by a real Tailwind v4
 build, laid out by a real browser. The whole proof is one command,
-`npm run consumer` ([validated by](../../package.json#L55)), documented in the
-README's Worked consumer section ([validated by](../../README.md#L203)).
+`npm run consumer` ([validated by @6fffc2af](../../package.json#L55)), documented in the
+README's Worked consumer section ([validated by @5c232a3d](../../README.md#L203)).
 
 Anchor caveat: `re-lint-reanchor` tracks every `(../)+path#Lnn` link, so this
 spec's links into `examples/`, `package.json` files, workflow files and root config files are
@@ -24,32 +24,32 @@ rewrites is reported for a manual fix rather than guessed at.
 ## The demo app
 
 `examples/chat-demo/package.json` is `private: true`
-([validated by](../../examples/chat-demo/package.json#L3)), `"type": "module"`
+([validated by @a3fa150e](../../examples/chat-demo/package.json#L3)), `"type": "module"`
 and declares no `@re-cinq/bowman-ui` dependency at all - the version under
 test is always the tarball `npm pack` just produced
-([validated by](../../scripts/consumer-app.sh#L99)). `react` and `react-dom`
+([validated by @6960dd7c](../../scripts/consumer-app.sh#L99)). `react` and `react-dom`
 are pinned at exactly `19.3.1`
-([validated by the react pin](../../examples/chat-demo/package.json#L14),
-[validated by the react-dom pin](../../examples/chat-demo/package.json#L15)), the version
+([validated by the react pin @c3d91cad](../../examples/chat-demo/package.json#L14),
+[validated by the react-dom pin @31b03e68](../../examples/chat-demo/package.json#L15)), the version
 docs/design-notes.md decision 4 records as the one CI installs and the only one tested
-([validated by is the same in decision 4, the README, the lockfile, the chat-demo pin and the rsc-fixture pin](../../tests/react-version-consistency.test.ts#L54)).
+([validated by is the same in decision 4, the README, the lockfile, the chat-demo pin and the rsc-fixture pin @49c9589d](../../tests/react-version-consistency.test.ts#L54)).
 
 The Tailwind dependency is `tailwindcss@4.3.3` with the matching
 `@tailwindcss/vite@4.3.3` Vite adapter
-([validated by](../../examples/chat-demo/package.json#L19),
-[L24](../../examples/chat-demo/package.json#L24)) - the major (v4) the
+([validated by @fb6cace7](../../examples/chat-demo/package.json#L19),
+[L24@7dd62ab8](../../examples/chat-demo/package.json#L24)) - the major (v4) the
 package requires of consumers, at the
 exact version this repo's own devDependencies resolve. Every demo dependency
 is an exact pin and the demo lockfile is committed, so `npm ci` installs the
-exact recorded tree ([validated by](../../scripts/consumer-app.sh#L97)). The
+exact recorded tree ([validated by @23e89c74](../../scripts/consumer-app.sh#L97)). The
 tarball install runs with `--no-save`, so the per-version tarball path never
 enters the committed manifest or lockfile
-([validated by](../../scripts/consumer-app.sh#L100)).
+([validated by @b5a6094c](../../scripts/consumer-app.sh#L100)).
 
 `src/styles.css` contains exactly the three documented lines -
 `@import "tailwindcss";`, `@import "@re-cinq/bowman-ui/styles.css";` and
 `@source "../node_modules/@re-cinq/bowman-ui/dist";` - and nothing else
-([validated by](../../examples/chat-demo/src/styles.css#L1)). Those lines were
+([validated by @89cf4524](../../examples/chat-demo/src/styles.css#L1)). Those lines were
 sufficient to render the screen, so the README's Styles section needed no
 amendment.
 
@@ -57,7 +57,7 @@ Since the theming tokens (issue 210) a second stylesheet,
 `src/custom-theme.css`, sets every `--bowman-*` token the library exposes under
 the `.custom-theme` wrapper - never `:root` - and `main.tsx` imports it after
 `./styles.css`; the three-line entry stylesheet above is unchanged
-([validated by](../../examples/chat-demo/src/main.tsx#L1)).
+([validated by @d5633a07](../../examples/chat-demo/src/main.tsx#L1)).
 
 ### Composition
 
@@ -66,17 +66,17 @@ the `.custom-theme` wrapper - never `:root` - and `main.tsx` imports it after
 specifier `@re-cinq/bowman-ui`
 ([validated by](../../examples/chat-demo/src/App.tsx#L2)). All state lives in
 `App.tsx` `useState` hooks
-([validated by](../../examples/chat-demo/src/App.tsx#L64)); the assistant
+([validated by @cf06fd98](../../examples/chat-demo/src/App.tsx#L64)); the assistant
 reply is a `setTimeout` appending a fixture entry - no fetch, no WebSocket, no
-engine ([validated by](../../examples/chat-demo/src/App.tsx#L128)).
+engine ([validated by @2fff2d21](../../examples/chat-demo/src/App.tsx#L128)).
 
 `renderSidebar` returns `AppSidebar` with the brand passed as a plain text
 node, two nav items, `ConversationList` as `children` and a button in `footer`
-([validated by](../../examples/chat-demo/src/App.tsx#L169)).
+([validated by @72b7c5f7](../../examples/chat-demo/src/App.tsx#L169)).
 `ChatMessageList` sits above `ChatComposer` inside the shell's `children`,
 wrapped in the bounded flex column (`flex h-full min-h-0 flex-col`) that
 docs/design-notes.md § Layout requires of consumers
-([validated by](../../examples/chat-demo/src/App.tsx#L206)), and copy shows a
+([validated by @12e86a59](../../examples/chat-demo/src/App.tsx#L206)), and copy shows a
 `Toast` ([validated by](../../examples/chat-demo/src/App.tsx#L228)).
 
 `src/themes.tsx` adds the `&theme=copperline` dimension to `?view=chat`:
@@ -85,7 +85,7 @@ or the invented Copperline Bicycles company - and `ChatScreen` wraps the whole
 fragment, shell and toast alike, in the theme's `.custom-theme` wrapper and
 passes its chainring mark as `ChatMessageList`'s `assistantAvatar`; an
 unknown value falls back to the default
-([validated by](../../examples/chat-demo/src/themes.tsx#L46)). The wrapper,
+([validated by @539b918e](../../examples/chat-demo/src/themes.tsx#L46)). The wrapper,
 the tokens it sets and the browser proof are specified in
 `specs/bowman-ui-theming-tokens/spec.md` § The demo, not restated here.
 
@@ -97,11 +97,11 @@ only (`MB-4821-XQ`, `Marginalia Books`, `The Cartographer's Atlas`,
 copied from a support email (`003-support-conversation-data-flow-record`).
 The repo is public, so a fixture file is a publication. The link target is
 the whole file
-([validated by](../../examples/chat-demo/src/fixtures.ts#L1)). The second
+([validated by @8612dc49](../../examples/chat-demo/src/fixtures.ts#L1)). The second
 conversation's last reply carries a 300-character reference with no break
 opportunity, so the browser suite can prove the markdown side of issue 132
 against a fixture rather than a typed message
-([validated by a 300-character token in an assistant entry does not widen its paragraph or its article](../../examples/chat-demo/tests/chat-demo.spec.ts#L428)).
+([validated by a 300-character token in an assistant entry does not widen its paragraph or its article @3dd98fd0](../../examples/chat-demo/tests/chat-demo.spec.ts#L428)).
 
 ### Labels
 
@@ -112,7 +112,7 @@ deliberately thin: every component exports a complete English default label
 set, so the module reuses those defaults and writes out only the strings no
 default can supply - the required `aiDisclosure` (docs/design-notes.md § Labels
 decision 5) and the demo's own screen copy
-([validated by](../../examples/chat-demo/src/labels.ts#L1)). "Single" is
+([validated by @dde8cce2](../../examples/chat-demo/src/labels.ts#L1)). "Single" is
 looser than it was: the two theme names live with their themes in
 `src/themes.tsx`, and the Theming section's explanatory copy with its previews
 in `src/docs/ThemingSection.tsx`, beside the docs chrome's own
@@ -121,7 +121,7 @@ in `src/docs/ThemingSection.tsx`, beside the docs chrome's own
 ## The consumer script
 
 `scripts/consumer-app.sh` is `chmod +x`, opens `#!/usr/bin/env bash` with
-`set -euo pipefail` ([validated by](../../scripts/consumer-app.sh#L1)), and
+`set -euo pipefail` ([validated by @678620c1](../../scripts/consumer-app.sh#L1)), and
 (since issue 100 factored the shared pack-and-copy preamble into
 `scripts/pack-to-temp.sh`, sourced by this script and `rsc-fixture.sh` alike -
 see `specs/bowman-ui-rsc-fixture/spec.md`):
@@ -129,62 +129,62 @@ see `specs/bowman-ui-rsc-fixture/spec.md`):
 - builds and packs the package through `pack_library`, which runs
   `npm run build` then `npm pack --pack-destination "$TMPDIR"` (`TMPDIR`
   defaulted first, for runners that leave it unset)
-  ([validated by](../../scripts/pack-to-temp.sh#L7))
+  ([validated by @2a49ab0d](../../scripts/pack-to-temp.sh#L7))
 - then asserts `npm pack --dry-run` lists `dist/` (including
   `dist/styles.css`), `package.json`, `LICENSE`, `README.md` and
   `THIRD-PARTY-NOTICES.md`, and nothing from `examples/`, `src/` or `tests/`
-  ([validated by](../../scripts/consumer-app.sh#L51))
+  ([validated by @951e846a](../../scripts/consumer-app.sh#L51))
 - asserts the committed demo manifest declares no `@re-cinq/bowman-ui`
   dependency, and the Playwright config no `executablePath` and both the
   `chromium` and the `webkit` project, so none of those claims rests on prose
-  alone ([validated by](../../scripts/consumer-app.sh#L76))
+  alone ([validated by @d23371d8](../../scripts/consumer-app.sh#L76))
 - copies `examples/chat-demo/` to a `mktemp -d` directory, excluding any
   local `node_modules`, `dist` and reports so the temp tree is exactly the
   committed demo, lockfile included
-  ([validated by](../../scripts/pack-to-temp.sh#L22))
+  ([validated by @f9572a34](../../scripts/pack-to-temp.sh#L22))
 - asserts the install directory is not inside the repo working tree and exits
   non-zero naming both paths if it is
-  ([validated by](../../scripts/pack-to-temp.sh#L15))
+  ([validated by @dc33d887](../../scripts/pack-to-temp.sh#L15))
 - installs the `.tgz` by file path
-  ([validated by](../../scripts/consumer-app.sh#L99)), which also matters
+  ([validated by @6960dd7c](../../scripts/consumer-app.sh#L99)), which also matters
   for styling: a tarball install unpacks a real directory for the `@source`
   scan, where a `file:` directory dependency would only symlink
 - runs `scripts/scan-forbidden-node-modules.sh` (issue 100 moved the
   `find` into this script so the `rsc` CI job could share one copy) over the
   temp install's `node_modules` for the forbidden packages at any depth,
   naming the matched path on failure
-  ([validated by](../../scripts/scan-forbidden-node-modules.sh#L14))
+  ([validated by @692e5fa1](../../scripts/scan-forbidden-node-modules.sh#L14))
 - runs `tsc --noEmit` in the temp copy under `"strict": true` and
   `"moduleResolution": "bundler"`
-  ([validated by](../../scripts/consumer-app.sh#L106),
-  [tsconfig](../../examples/chat-demo/tsconfig.json#L5))
-- runs `vite build` ([validated by](../../scripts/consumer-app.sh#L109)),
+  ([validated by @07db3dff](../../scripts/consumer-app.sh#L106),
+  [tsconfig@c71b3bed](../../examples/chat-demo/tsconfig.json#L5))
+- runs `vite build` ([validated by @1a2262f3](../../scripts/consumer-app.sh#L109)),
   installs the Chromium and WebKit builds matching the demo's pinned
   `@playwright/test` with `--with-deps` so a Linux runner gets their system
   libraries from the same pinned version (issue 200 added WebKit)
-  ([validated by the install command](../../scripts/consumer-app.sh#L112)),
+  ([validated by the install command @45836e70](../../scripts/consumer-app.sh#L112)),
   and runs the suite against `vite preview` (started by Playwright's
   `webServer`), never `vite dev`
-  ([validated by](../../scripts/consumer-app.sh#L115),
-  [webServer](../../examples/chat-demo/playwright.config.ts#L17))
+  ([validated by @0c771253](../../scripts/consumer-app.sh#L115),
+  [webServer@1a1637f3](../../examples/chat-demo/playwright.config.ts#L17))
 - removes its temp directory and tarball on exit including failure, and
   `--keep` retains both and prints their paths
   ([validated by](../../scripts/consumer-app.sh#L29)).
 
 `examples/chat-demo/playwright.config.ts` contains no `executablePath` and no
 per-user machine path of any kind, executable-asserted on every run
-([validated by](../../scripts/consumer-app.sh#L81)) - a deliberately
+([validated by @d3e2bc00](../../scripts/consumer-app.sh#L81)) - a deliberately
 minimal Playwright config. Its `projects` are the browser matrix: `chromium`
 on the `Desktop Chrome` preset first, then `webkit` on `Desktop Safari`
 (issue 200) - both a 1280x720 viewport, Safari's at device scale factor 2 -
 and the script asserts both names are declared, so dropping a project cannot
 pass silently
-([validated by](../../examples/chat-demo/playwright.config.ts#L14),
-[webkit](../../examples/chat-demo/playwright.config.ts#L15),
-[validated by the projects guard](../../scripts/consumer-app.sh#L85)). On CI the suite
+([validated by @3e7ffa54](../../examples/chat-demo/playwright.config.ts#L14),
+[webkit@fb632bda](../../examples/chat-demo/playwright.config.ts#L15),
+[validated by the projects guard @cbf828cf](../../scripts/consumer-app.sh#L85)). On CI the suite
 runs with one worker and two retries; the reply and toast timings race a
 contended runner otherwise
-([validated by](../../examples/chat-demo/playwright.config.ts#L8)).
+([validated by @7aec21a5](../../examples/chat-demo/playwright.config.ts#L8)).
 
 ## The Playwright suite
 
@@ -201,17 +201,17 @@ The rendered screen exposes, by role query rather than CSS selector: one
 user and assistant entries, and the composer textarea. `AppShell` renders
 `renderSidebar` twice (desktop rail and mobile drawer); the counts are exact
 because role queries exclude the `display: none` copy at each viewport
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L68),
-[L69](../../examples/chat-demo/tests/chat-demo.spec.ts#L69),
-[L76](../../examples/chat-demo/tests/chat-demo.spec.ts#L76),
-[L78](../../examples/chat-demo/tests/chat-demo.spec.ts#L78),
-[L79](../../examples/chat-demo/tests/chat-demo.spec.ts#L79),
-[L86](../../examples/chat-demo/tests/chat-demo.spec.ts#L86)).
+([validated by @fb9696ed](../../examples/chat-demo/tests/chat-demo.spec.ts#L68),
+[L69@535e4e8b](../../examples/chat-demo/tests/chat-demo.spec.ts#L69),
+[L76@69afaffb](../../examples/chat-demo/tests/chat-demo.spec.ts#L76),
+[L78@4e564a19](../../examples/chat-demo/tests/chat-demo.spec.ts#L78),
+[L79@4e8343b8](../../examples/chat-demo/tests/chat-demo.spec.ts#L79),
+[L86@dd79f09c](../../examples/chat-demo/tests/chat-demo.spec.ts#L86)).
 
 Typing into the composer and pressing Enter appends a user entry, and the
 fixture reply appends an assistant entry, with no data layer between the
 composer's submit handler and the list's entries
-([validated by Enter appends the typed user entry and the fixture assistant reply follows](../../examples/chat-demo/tests/chat-demo.spec.ts#L102)).
+([validated by Enter appends the typed user entry and the fixture assistant reply follows @4f5decad](../../examples/chat-demo/tests/chat-demo.spec.ts#L102)).
 
 Clicking copy on an assistant entry shows the toast, and it disappears on its
 own - a real timer in a real event loop, no fake timers anywhere in the suite.
@@ -223,9 +223,9 @@ than 2.5 s later - so a slow click on a contended runner cannot eat the slack -
 and a toast dismissed at half the duration or lingering to twice it both fail
 where the former
 `toHaveCount(0, { timeout: 10_000 })` passed any duration under ten seconds
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L226),
-[L227](../../examples/chat-demo/tests/chat-demo.spec.ts#L227),
-[L213](../../examples/chat-demo/tests/chat-demo.spec.ts#L213)). The toast is
+([validated by @5eae2b19](../../examples/chat-demo/tests/chat-demo.spec.ts#L226),
+[L227@d2469e56](../../examples/chat-demo/tests/chat-demo.spec.ts#L227),
+[L213@f8cf8643](../../examples/chat-demo/tests/chat-demo.spec.ts#L213)). The toast is
 located via its visible pill and its unmount, because `Toast` deliberately
 renders the message twice (an `aria-hidden` pill and a visually-hidden live
 region).
@@ -234,7 +234,7 @@ One `getComputedStyle` assertion proves the consumer's Tailwind build scanned
 the installed `dist`: the `aside`'s `lg:w-72` - a class only the library's
 built files carry, never written by the demo - resolves to a computed width
 of `288px`
-([validated by the consumer Tailwind build scanned the installed dist](../../examples/chat-demo/tests/chat-demo.spec.ts#L97)).
+([validated by the consumer Tailwind build scanned the installed dist @bf552a06](../../examples/chat-demo/tests/chat-demo.spec.ts#L97)).
 
 ### Zero English (superseded)
 
@@ -252,18 +252,18 @@ every labelled export.
 
 The resolved `aiDisclosure` is visible by exact text with entries present and
 in the empty state
-([validated by the disclosure is visible in the empty state](../../examples/chat-demo/tests/chat-demo.spec.ts#L266),
-[L239](../../examples/chat-demo/tests/chat-demo.spec.ts#L239)). The obligation
+([validated by the disclosure is visible in the empty state @b2de6327](../../examples/chat-demo/tests/chat-demo.spec.ts#L266),
+[L239@22f3c822](../../examples/chat-demo/tests/chat-demo.spec.ts#L239)). The obligation
 applies regardless of server location because the agent serves EU users. The
 disclosure sits outside the scrollable region - it is not a descendant of the
 `role="log"` region and stays in the viewport with the transcript scrolled to
 either end
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L258),
-[L243](../../examples/chat-demo/tests/chat-demo.spec.ts#L243)). The transcript
+([validated by @de5d399a](../../examples/chat-demo/tests/chat-demo.spec.ts#L258),
+[L243@bd67be6a](../../examples/chat-demo/tests/chat-demo.spec.ts#L243)). The transcript
 is first asserted to overflow (`scrollHeight > clientHeight`), so the two
 `scrollTop` writes move something rather than being no-ops on a fixture that
 fits the viewport
-([validated by](../../examples/chat-demo/tests/chat-demo.spec.ts#L253)).
+([validated by @44ca59e3](../../examples/chat-demo/tests/chat-demo.spec.ts#L253)).
 
 ### Mobile drawer focus trap
 
@@ -271,15 +271,15 @@ At a 375x667 viewport the drawer starts closed, the hamburger opens it, `Tab`
 from the last focusable element inside it returns to the first, and `Escape`
 closes it and returns focus to the hamburger - the first execution of the focus
 trap where `offsetParent` is a real value rather than the jsdom shim
-([validated by the drawer starts closed, traps focus and closes on Escape](../../examples/chat-demo/tests/chat-demo.spec.ts#L289),
-[validated by the drawer starts closed, traps focus and closes on Escape](../../examples/chat-demo/tests/chat-demo.spec.ts#L293),
-[validated by the drawer starts closed, traps focus and closes on Escape](../../examples/chat-demo/tests/chat-demo.spec.ts#L304),
-[validated by the drawer starts closed, traps focus and closes on Escape](../../examples/chat-demo/tests/chat-demo.spec.ts#L307)). The test waits
+([validated by the drawer starts closed, traps focus and closes on Escape @a1738c0d](../../examples/chat-demo/tests/chat-demo.spec.ts#L289),
+[validated by the drawer starts closed, traps focus and closes on Escape @5bd7eb1b](../../examples/chat-demo/tests/chat-demo.spec.ts#L293),
+[validated by the drawer starts closed, traps focus and closes on Escape @3d04d733](../../examples/chat-demo/tests/chat-demo.spec.ts#L304),
+[validated by the drawer starts closed, traps focus and closes on Escape @2b3aee6f](../../examples/chat-demo/tests/chat-demo.spec.ts#L307)). The test waits
 for the trap to have focused the close button before moving focus itself: the
 trap focuses a frame after opening, and a test that focused the last element
 before that frame let the trap's own focus land second and the `Tab` move on
 past the close button - two of three local runs failed that way
-([validated by the drawer starts closed, traps focus and closes on Escape](../../examples/chat-demo/tests/chat-demo.spec.ts#L299)).
+([validated by the drawer starts closed, traps focus and closes on Escape @6f919d5d](../../examples/chat-demo/tests/chat-demo.spec.ts#L299)).
 
 ### Browser-only behaviour (issue 151)
 
@@ -298,46 +298,46 @@ in `specs/bowman-ui-theming-tokens/spec.md`, the reveals in
 - A reader who scrolls the transcript to the top mid-stream is still at the
   top when the reply commits, and a reader left at the bottom is within a
   pixel of it - real `scrollHeight`, real `scrollTo`
-  ([validated by a reader who scrolls to the top mid-stream is still at the top when the reply commits](../../examples/chat-demo/tests/chat-demo.spec.ts#L490),
-  [validated by a reader left at the bottom is still at the bottom when the reply commits](../../examples/chat-demo/tests/chat-demo.spec.ts#L527)).
+  ([validated by a reader who scrolls to the top mid-stream is still at the top when the reply commits @2b223ccc](../../examples/chat-demo/tests/chat-demo.spec.ts#L490),
+  [validated by a reader left at the bottom is still at the bottom when the reply commits @f7491e0c](../../examples/chat-demo/tests/chat-demo.spec.ts#L527)).
 - An assistant entry's action row and a conversation row's delete button have
   computed opacity `0` at rest and `1` on hover or when focus enters them; the
   demo wires `ConversationList`'s `onDelete`, so `Enter` on the revealed
   delete button removes the row and its entries, and deleting the current
-  conversation makes the first remaining one current ([validated by an assistant entry's action row is invisible at rest and revealed by hover or by focus](../../examples/chat-demo/tests/chat-demo.spec.ts#L545),
-  [validated by the current conversation's delete button is invisible at rest, revealed on focus, and Enter removes the row and moves the current mark](../../examples/chat-demo/tests/chat-demo.spec.ts#L581),
-  [App](../../examples/chat-demo/src/App.tsx#L196)).
+  conversation makes the first remaining one current ([validated by an assistant entry's action row is invisible at rest and revealed by hover or by focus @7e80022c](../../examples/chat-demo/tests/chat-demo.spec.ts#L545),
+  [validated by the current conversation's delete button is invisible at rest, revealed on focus, and Enter removes the row and moves the current mark @c328488b](../../examples/chat-demo/tests/chat-demo.spec.ts#L581),
+  [App@b1430d53](../../examples/chat-demo/src/App.tsx#L196)).
 - Under a touch device descriptor where `(hover: none)` matches, an assistant
   entry's action row and a `ChatCard`'s thumbs row have computed opacity `1`
   with no pointer interaction (issue 285)
-  ([validated by the device reports no hover](../../examples/chat-demo/tests/chat-demo.spec.ts#L617),
-  [validated by an assistant entry's action row shows at full opacity with no pointer interaction](../../examples/chat-demo/tests/chat-demo.spec.ts#L623),
-  [validated by a ChatCard's thumbs row shows at full opacity with no pointer interaction](../../examples/chat-demo/tests/chat-demo.spec.ts#L635)).
+  ([validated by the device reports no hover @52856698](../../examples/chat-demo/tests/chat-demo.spec.ts#L617),
+  [validated by an assistant entry's action row shows at full opacity with no pointer interaction @125e4bb1](../../examples/chat-demo/tests/chat-demo.spec.ts#L623),
+  [validated by a ChatCard's thumbs row shows at full opacity with no pointer interaction @f9868c0d](../../examples/chat-demo/tests/chat-demo.spec.ts#L635)).
 - `Tab` on a fresh load reaches the skip link first, and `Enter` on it sends
   the next `Tab` inside `main`
-  ([validated by Tab reaches the skip link first, and Enter on it sends the next Tab inside main](../../examples/chat-demo/tests/chat-demo.spec.ts#L647)).
+  ([validated by Tab reaches the skip link first, and Enter on it sends the next Tab inside main @0aac2512](../../examples/chat-demo/tests/chat-demo.spec.ts#L647)).
 - With the drawer open at 375px and the viewport then grown to 1024px, three
   `Tab`s each move focus forward through `main` and never into the hidden
   drawer
-  ([validated by after the viewport grows to desktop, three Tabs advance through main, never the drawer](../../examples/chat-demo/tests/chat-demo.spec.ts#L686)).
+  ([validated by after the viewport grows to desktop, three Tabs advance through main, never the drawer @1a1e5cef](../../examples/chat-demo/tests/chat-demo.spec.ts#L686)).
 - Under `prefers-reduced-motion: reduce` a thinking dot's computed
   `animation-name` is `none` and the drawer's `transition-duration` is `0s`,
   against `bowman-fade-dot` and `0.3s` without the emulation
-  ([validated by the thinking dots animate by default and stop under prefers-reduced-motion](../../examples/chat-demo/tests/chat-demo.spec.ts#L723),
-  [validated by the drawer slides over 0.3s by default and has no transition under prefers-reduced-motion](../../examples/chat-demo/tests/chat-demo.spec.ts#L737)).
+  ([validated by the thinking dots animate by default and stop under prefers-reduced-motion @0886b5d9](../../examples/chat-demo/tests/chat-demo.spec.ts#L723),
+  [validated by the drawer slides over 0.3s by default and has no transition under prefers-reduced-motion @80c6e4e1](../../examples/chat-demo/tests/chat-demo.spec.ts#L737)).
 - Under the dark colour scheme every token with a `-dark` twin resolves to that twin at its
   chat-screen site, shown to differ from the light shade, on the default theme and inside the
   wrapper alike; the matrix is `specs/bowman-ui-theming-tokens/spec.md` § The browser proof
-  ([validated by](../../examples/chat-demo/tests/theming.spec.ts#L366)).
+  ([validated by @e80fded2](../../examples/chat-demo/tests/theming.spec.ts#L366)).
 - Under the dark colour scheme the focused conversation row's ring offset
   shadow resolves to the `--color-slate-900` probe, shown to differ from the
   white light offset, and inside the wrapper to its `--bowman-ring-offset-dark`
-  ([validated by](../../examples/chat-demo/tests/theming.spec.ts#L240)).
+  ([validated by @7651fef3](../../examples/chat-demo/tests/theming.spec.ts#L240)).
 - The documentation gains a `search-field` page with a `SearchFieldExample`,
   and the engine's native clear control empties the controlled field through
   `onChange("")` in both engines; `Escape` does so in Chromium only, and the
   test asserts that WebKit leaves the value (issue 218)
-  ([validated by typing narrows the example's count, the native clear control empties the field through onChange, and Escape does so in Chromium only](../../examples/chat-demo/tests/docs.spec.ts#L196)).
+  ([validated by typing narrows the example's count, the native clear control empties the field through onChange, and Escape does so in Chromium only @fe193eeb](../../examples/chat-demo/tests/docs.spec.ts#L196)).
 
 Each of these was shown red against a deliberately broken condition before
 this record (the unpin removed, the reveal classes dropped, the skip link's
@@ -356,48 +356,48 @@ statement below runs in both engines.
 - The chat's keyboard chords beyond Enter: `Ctrl+Enter` or `Meta+Enter` sends the draft, and
   `Ctrl+C` or `Meta+C` on a focused assistant article copies it - the label flips to Copied, the
   notice and the toast show, and the label reverts on its own
-  ([validated by Ctrl+Enter or Meta+Enter sends the draft like plain Enter](../../examples/chat-demo/tests/chat-demo.spec.ts#L757),
-  [validated by Ctrl+C or Meta+C on a focused assistant article copies it: the label flips, the notice and the toast show, and the label reverts on its own](../../examples/chat-demo/tests/chat-demo.spec.ts#L770)).
+  ([validated by Ctrl+Enter or Meta+Enter sends the draft like plain Enter @f301e187](../../examples/chat-demo/tests/chat-demo.spec.ts#L757),
+  [validated by Ctrl+C or Meta+C on a focused assistant article copies it: the label flips, the notice and the toast show, and the label reverts on its own @ef74f954](../../examples/chat-demo/tests/chat-demo.spec.ts#L770)).
 - A clicked thumb is `aria-pressed` and thanks the reader, the other takes over on its click,
   and the toast announces its message in its live region as well as the pill
-  ([validated by a clicked thumb is pressed and thanks the reader; the other thumb takes over on its click](../../examples/chat-demo/tests/chat-demo.spec.ts#L791),
-  [validated by the toast announces its message in the live region as well as the pill](../../examples/chat-demo/tests/chat-demo.spec.ts#L812)).
+  ([validated by a clicked thumb is pressed and thanks the reader; the other thumb takes over on its click @11268706](../../examples/chat-demo/tests/chat-demo.spec.ts#L791),
+  [validated by the toast announces its message in the live region as well as the pill @45fe8c41](../../examples/chat-demo/tests/chat-demo.spec.ts#L812)).
 - The Settings item and the sign-out footer button raise the demo-only toast, and selecting
   another conversation moves the current mark and shows that transcript's entries
-  ([validated by the Settings item raises the demo-only toast and leaves Conversations current](../../examples/chat-demo/tests/chat-demo.spec.ts#L826),
-  [validated by the sign-out footer button raises the demo-only toast](../../examples/chat-demo/tests/chat-demo.spec.ts#L841),
-  [validated by selecting another conversation moves the current mark and shows that transcript](../../examples/chat-demo/tests/chat-demo.spec.ts#L848)).
+  ([validated by the Settings item raises the demo-only toast and leaves Conversations current @4e7d558b](../../examples/chat-demo/tests/chat-demo.spec.ts#L826),
+  [validated by the sign-out footer button raises the demo-only toast @1d28f394](../../examples/chat-demo/tests/chat-demo.spec.ts#L841),
+  [validated by selecting another conversation moves the current mark and shows that transcript @4e455723](../../examples/chat-demo/tests/chat-demo.spec.ts#L848)).
 - The streaming circle's pulse is the third animation shown to stop under
   `prefers-reduced-motion`, beside the dots and the drawer
-  ([validated by the streaming circle pulses by default and stops under prefers-reduced-motion](../../examples/chat-demo/tests/chat-demo.spec.ts#L874)).
+  ([validated by the streaming circle pulses by default and stops under prefers-reduced-motion @ec101385](../../examples/chat-demo/tests/chat-demo.spec.ts#L874)).
 - Every documented state renders as its caption says: the tool activity variants, the thinking
   trace's collapsed, streaming and expanded states, the chat message's markdown table and
   policy-allowed link, the list's personas and busy row, the composer example's ref handle and
   its busy, disabled and grown variants, the search field's filled and disabled variants, the
   sidebar example's `aria-current`, the shell example's desktop copy, the inline indicator, the
   toast example, the consumer-supplied fallback, the icon set and the back link
-  ([validated by the tool activity variants render the safe headline, the pending tense, the opted-in name, the expanded JSON and the caller's sentences](../../examples/chat-demo/tests/docs.spec.ts#L540),
-  [validated by the thinking trace stays collapsed until its summary is clicked, streams its dots in the summary, and the expanded variant is open](../../examples/chat-demo/tests/docs.spec.ts#L562),
-  [validated by the chat message variants render the markdown table, the policy-allowed link, no action row while streaming, the named article and the footer](../../examples/chat-demo/tests/docs.spec.ts#L579),
-  [validated by the chat message list variants render every role with its persona, the busy status with a pending tool row, and the empty greeting](../../examples/chat-demo/tests/docs.spec.ts#L606),
-  [validated by the composer example takes a draft through the ref handle and reports the sent text, and the busy, disabled and grown variants show their states](../../examples/chat-demo/tests/docs.spec.ts#L633),
-  [validated by the conversation list example moves the current mark on select, removes a row on delete, and the loading and empty variants render their states](../../examples/chat-demo/tests/docs.spec.ts#L670),
-  [validated by the search field variants carry the filled value and the disabled state](../../examples/chat-demo/tests/docs.spec.ts#L760),
-  [validated by the sidebar example moves aria-current to the clicked nav item and draws an icon in each](../../examples/chat-demo/tests/docs.spec.ts#L769),
-  [validated by the shell example renders the desktop copy of its sidebar and the inline thinking indicator its label and dots](../../examples/chat-demo/tests/docs.spec.ts#L786),
-  [validated by the toast example shows the pill, announces the message in its live region, and dismisses itself](../../examples/chat-demo/tests/docs.spec.ts#L798),
-  [validated by the consumer-supplied fallback replaces the built-in alert, retry button included](../../examples/chat-demo/tests/docs.spec.ts#L815),
-  [validated by the icons page lists the whole set, every glyph aria-hidden beside its name](../../examples/chat-demo/tests/docs.spec.ts#L828),
-  [validated by the back link on a component page returns to the index](../../examples/chat-demo/tests/docs.spec.ts#L840)).
+  ([validated by the tool activity variants render the safe headline, the pending tense, the opted-in name, the expanded JSON and the caller's sentences @49e7631e](../../examples/chat-demo/tests/docs.spec.ts#L540),
+  [validated by the thinking trace stays collapsed until its summary is clicked, streams its dots in the summary, and the expanded variant is open @407af9e6](../../examples/chat-demo/tests/docs.spec.ts#L562),
+  [validated by the chat message variants render the markdown table, the policy-allowed link, no action row while streaming, the named article and the footer @4262cdff](../../examples/chat-demo/tests/docs.spec.ts#L579),
+  [validated by the chat message list variants render every role with its persona, the busy status with a pending tool row, and the empty greeting @8a53d9db](../../examples/chat-demo/tests/docs.spec.ts#L606),
+  [validated by the composer example takes a draft through the ref handle and reports the sent text, and the busy, disabled and grown variants show their states @16982847](../../examples/chat-demo/tests/docs.spec.ts#L633),
+  [validated by the conversation list example moves the current mark on select, removes a row on delete, and the loading and empty variants render their states @548c6346](../../examples/chat-demo/tests/docs.spec.ts#L670),
+  [validated by the search field variants carry the filled value and the disabled state @e159cb8d](../../examples/chat-demo/tests/docs.spec.ts#L760),
+  [validated by the sidebar example moves aria-current to the clicked nav item and draws an icon in each @65a1ffc8](../../examples/chat-demo/tests/docs.spec.ts#L769),
+  [validated by the shell example renders the desktop copy of its sidebar and the inline thinking indicator its label and dots @29d2b773](../../examples/chat-demo/tests/docs.spec.ts#L786),
+  [validated by the toast example shows the pill, announces the message in its live region, and dismisses itself @6da9ffb7](../../examples/chat-demo/tests/docs.spec.ts#L798),
+  [validated by the consumer-supplied fallback replaces the built-in alert, retry button included @1c5868e5](../../examples/chat-demo/tests/docs.spec.ts#L815),
+  [validated by the icons page lists the whole set, every glyph aria-hidden beside its name @83433c87](../../examples/chat-demo/tests/docs.spec.ts#L828),
+  [validated by the back link on a component page returns to the index @a6221f90](../../examples/chat-demo/tests/docs.spec.ts#L840)).
 - The conversation list example gains a button that gives the placeholder row its real title -
   the producer's move the typewriter waits for - so the animation runs in a real browser: the
   hidden span carries the settled title at once, the visible span clips mid-animation and ends
   settled, and under `prefers-reduced-motion` it lands at once with nothing clipped
-  ([validated by settling the placeholder title runs the typewriter: the visible title clips mid-animation and ends settled at the new title](../../examples/chat-demo/tests/docs.spec.ts#L720),
-  [validated by under prefers-reduced-motion the settled title lands at once, every character opaque and nothing clipped](../../examples/chat-demo/tests/docs.spec.ts#L743)).
+  ([validated by settling the placeholder title runs the typewriter: the visible title clips mid-animation and ends settled at the new title @8a13f2f6](../../examples/chat-demo/tests/docs.spec.ts#L720),
+  [validated by under prefers-reduced-motion the settled title lands at once, every character opaque and nothing clipped @f52dbea2](../../examples/chat-demo/tests/docs.spec.ts#L743)).
 - At a phone width the documentation's own drawer opens from the hamburger and a nav anchor -
   the `renderNavLink` seam - loads that component's page
-  ([validated by the hamburger opens the drawer and a nav anchor loads that component's page](../../examples/chat-demo/tests/docs.spec.ts#L854)).
+  ([validated by the hamburger opens the drawer and a nav anchor loads that component's page @552869c6](../../examples/chat-demo/tests/docs.spec.ts#L854)).
 - The documentation pages carry token sites the chat has none of, measured under both schemes:
   the danger family on the error boundary's icon, the thinking dots and indicator circle, the
   tool name and arguments, the trace content, the search field's frame, icon and ring, the row
@@ -405,7 +405,7 @@ statement below runs in both engines.
   and assistant name, each against the token's declared fallback - the demo themes the chat view
   alone, so the proof that a site reads `var(--bowman-...)` rather than a hardcoded light/dark
   pair is the chat matrix's Copperline runs, never a documentation page
-  ([validated by](../../examples/chat-demo/tests/docs.spec.ts#L268)).
+  ([validated by @0d7fff9a](../../examples/chat-demo/tests/docs.spec.ts#L268)).
 
 Out of the demo's reach, and left so: `Button`, `IconButton` and `PromptChips` have no
 documentation page and no chat-screen site, so no browser measures them; the demo does not
@@ -439,19 +439,19 @@ first run and are recorded rather than hidden:
   trap-driven `Tab` of the mobile drawer and the three `Tab`s of the rotate
   test pass unchanged in both engines, as they are handled by the trap's own
   listener or land on a textarea
-  ([validated by Tab to send then Enter or Space appends the entry and returns focus to the textarea](../../examples/chat-demo/tests/chat-demo.spec.ts#L446),
-  [validated by Tab reaches the skip link first, and Enter on it sends the next Tab inside main](../../examples/chat-demo/tests/chat-demo.spec.ts#L647),
-  [helper](../../examples/chat-demo/tests/chat-demo.spec.ts#L59)).
+  ([validated by Tab to send then Enter or Space appends the entry and returns focus to the textarea @eeeeca71](../../examples/chat-demo/tests/chat-demo.spec.ts#L446),
+  [validated by Tab reaches the skip link first, and Enter on it sends the next Tab inside main @0aac2512](../../examples/chat-demo/tests/chat-demo.spec.ts#L647),
+  [helper@91ce94a8](../../examples/chat-demo/tests/chat-demo.spec.ts#L59)).
 - WebKit's search input has no `Escape`-to-clear, so the search-field test
   expects `""` after `Escape` in Chromium and the typed value in WebKit - an
   executable record of issue 218 that goes red the day the engines agree,
   where a skip would decay silently
-  ([validated by typing narrows the example's count, the native clear control empties the field through onChange, and Escape does so in Chromium only](../../examples/chat-demo/tests/docs.spec.ts#L196)).
+  ([validated by typing narrows the example's count, the native clear control empties the field through onChange, and Escape does so in Chromium only @fe193eeb](../../examples/chat-demo/tests/docs.spec.ts#L196)).
 
 The cost is one more browser download with its OS packages and a second pass
 of the suite in the `consumer` job and in publish's `verify`, both of which
 run the script unchanged
-([validated by](../../scripts/consumer-app.sh#L112)).
+([validated by @45836e70](../../scripts/consumer-app.sh#L112)).
 
 ## The static import ban
 
@@ -459,11 +459,11 @@ run the script unchanged
 `ts.createSourceFile` and exits non-zero on any import, re-export, dynamic
 `import()` or `require()` whose non-relative specifier does not resolve to
 a package declared in `package.json`
-([validated by](../../scripts/check-forbidden-imports.mjs#L100)). The
+([validated by @d8eec62e](../../scripts/check-forbidden-imports.mjs#L100)). The
 allowlist is read at runtime from `dependencies` plus `peerDependencies`
-([validated by](../../scripts/check-forbidden-imports.mjs#L31)), and a
+([validated by @9a019f31](../../scripts/check-forbidden-imports.mjs#L31)), and a
 subpath of a declared package counts as the package
-([validated by](../../scripts/check-forbidden-imports.mjs#L41)). This
+([validated by @ce95dc5d](../../scripts/check-forbidden-imports.mjs#L41)). This
 inverts the issue's name blocklist (`@clerk/*`, `swr`, `next-intl`,
 `next`/`next/*`, plus `lucide-react` per docs/design-notes.md decision 2, the `@/`
 path alias per docs/design-notes.md decision 5, and any internal source-app
@@ -475,9 +475,9 @@ The red fixture `tests/fixtures/forbidden-imports/red.tsx` carries only
 specifiers outside the allowlist, and the script's built-in self-test fails
 unless every specifier the fixture carries trips - one allowed specifier
 sneaking in would rot the fixture's proof
-([validated by](../../scripts/check-forbidden-imports.mjs#L88)). The check
+([validated by @8516dfcc](../../scripts/check-forbidden-imports.mjs#L88)). The check
 runs as the named `ci.yml` step "Forbidden import check"
-([validated by](../../.github/workflows/ci.yml#L59)). It is static on top of,
+([validated by @7a73316e](../../.github/workflows/ci.yml#L59)). It is static on top of,
 not instead of, the dynamic `node_modules` scan in `consumer-app.sh`: a grep
 misses a transitively pulled-in package, and a `node_modules` scan misses a
 source import a bundler tree-shakes away.
@@ -487,38 +487,38 @@ source import a bundler tree-shakes away.
 The `consumer` job in `ci.yml` runs on every pull request (the workflow's
 unfiltered `pull_request` trigger), pins its actions to the same commit SHAs
 as the existing job with `persist-credentials: false`
-([validated by](../../.github/workflows/ci.yml#L140)), takes its setup from
+([validated by @6bfbd709](../../.github/workflows/ci.yml#L140)), takes its setup from
 the shared `setup-node-install` composite action, which sets
-Node from `.nvmrc` via `node-version-file` ([validated by](../../.github/actions/setup-node-install/action.yml#L19)),
+Node from `.nvmrc` via `node-version-file` ([validated by @20e1409b](../../.github/actions/setup-node-install/action.yml#L19)),
 runs `npm ci --ignore-scripts`
-([validated by](../../.github/actions/setup-node-install/action.yml#L23)) and, because the job passes
+([validated by @a086b78a](../../.github/actions/setup-node-install/action.yml#L23)) and, because the job passes
 `build: "true"`, the one input the composite action's build step is gated on
-([validated by](../../.github/actions/setup-node-install/action.yml#L25)), an explicit
+([validated by @cd6e6338](../../.github/actions/setup-node-install/action.yml#L25)), an explicit
 `npm run build` before packing
-([validated by](../../.github/actions/setup-node-install/action.yml#L27)), and runs the script as
+([validated by @7c009d67](../../.github/actions/setup-node-install/action.yml#L27)), and runs the script as
 its `Consumer app check` step with no browser install step of its own - the
 script installs the demo's pinned Chromium and WebKit itself
-([validated by](../../.github/workflows/ci.yml#L153)). It omits
+([validated by @0cced61d](../../.github/workflows/ci.yml#L153)). It omits
 `fetch-depth: 0` on purpose: that exists for the spec anchor check, which
 this job does not run.
 
 `publish.yml` runs `scripts/consumer-app.sh` in its credential-free `verify`
 job, after `test:coverage` has built `dist/`; the `publish` job holds the
 OIDC credential, runs no example-app code, and only `needs:` that green
-result ([validated by](../../.github/workflows/publish.yml#L101)).
+result ([validated by @0cced61d](../../.github/workflows/publish.yml#L101)).
 
 ## Gates preserved
 
 - `tsconfig.json` excludes `examples/`
-  ([validated by](../../tsconfig.json#L17)).
+  ([validated by @a5a94ead](../../tsconfig.json#L17)).
 - The coverage `include` still scopes to `src/**` at the unchanged
-  100/100/100/100 thresholds ([validated by](../../vitest.config.ts#L26));
+  100/100/100/100 thresholds ([validated by @6a4e44f3](../../vitest.config.ts#L26));
   vitest's `exclude` gains `examples/**` so the Playwright suite - which
   matches the default spec glob - never runs under vitest
-  ([validated by](../../vitest.config.ts#L12)).
+  ([validated by @a1299aae](../../vitest.config.ts#L12)).
 - `npm pack --dry-run` ships `dist/`, `package.json`, `LICENSE`, `README.md`,
   `THIRD-PARTY-NOTICES.md` and nothing else, now executable-asserted on every
-  consumer run ([validated by](../../scripts/consumer-app.sh#L60)).
+  consumer run ([validated by @9e840219](../../scripts/consumer-app.sh#L60)).
 - No file under `src/` changed in the PR that introduced the demo - the one
   statement here with no executable anchor: its proof is that PR's diff
   itself, reviewable but not re-runnable.
