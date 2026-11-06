@@ -21,10 +21,10 @@ flag to the callback where the derivation already lives.
 component's own resolved `pending` prop rather than a second derivation. With
 `pending` set the callback's present-tense string renders; without it the
 past-tense one
-([validated by receives pending, so the caller's sentence reads present tense while the call runs](../../tests/ToolActivity.test.tsx#L152)). The published
+([validated by receives pending, so the caller's sentence reads present tense while the call runs @a38ecdcf](../../tests/ToolActivity.test.tsx#L152)). The published
 declarations carry the two-parameter form, reached from the barrel's
 `export type { ... ToolActivityProps } from "./components/ToolActivity.js"`
-([validated by the declarations reached from dist/index.d.ts carry the two-parameter describeTool](../../tests/ToolActivity.test.tsx#L287)) - `dist/index.d.ts`
+([validated by the declarations reached from dist/index.d.ts carry the two-parameter describeTool @508a549b](../../tests/ToolActivity.test.tsx#L287)) - `dist/index.d.ts`
 is re-export statements only, so the signature is emitted in the module it
 re-exports.
 
@@ -37,11 +37,11 @@ re-exports.
    `tests/types/tool-activity-type-assertions.tsx` compiles against the built
    package suppressing no error. The same
    one-parameter shape stays pinned through `ChatMessageList`'s own assertions
-   ([validated by](../../tests/types/chat-message-list-type-assertions.tsx#L107),
-   [validated by takes a one-parameter callback unchanged, ignoring the pending argument](../../tests/ToolActivity.test.tsx#L167),
-   [validated by tsc accepts tool-activity-type-assertions.tsx against dist, with no @ts-expect-error in it](../../tests/ToolActivity.test.tsx#L300),
+   ([validated by @1c8174c7](../../tests/types/chat-message-list-type-assertions.tsx#L107),
+   [validated by takes a one-parameter callback unchanged, ignoring the pending argument @2ed7a71c](../../tests/ToolActivity.test.tsx#L167),
+   [validated by tsc accepts tool-activity-type-assertions.tsx against dist, with no @ts-expect-error in it @83fa123c](../../tests/ToolActivity.test.tsx#L300),
    compiled by
-   [chat-message-list-dist](../../tests/chat-message-list-dist.test.ts#L85)).
+   [chat-message-list-dist@4628ba7b](../../tests/chat-message-list-dist.test.ts#L85)).
 2. **One source of truth for the flag.** The value passed is the prop
    `ToolActivity` already resolved (default `false`), so a caller using the
    component directly and one going through `ChatMessageList` see identical
@@ -52,17 +52,17 @@ re-exports.
    one its present-tense string, and with `busy` false both read past tense.
    Its prop type
    restates the signature inline and is kept identical to `ToolActivity`'s
-   ([validated by hands describeTool the same pending flag it derives for its own labels](../../tests/ChatMessageList.test.tsx#L1086)).
+   ([validated by hands describeTool the same pending flag it derives for its own labels @61bd69ac](../../tests/ChatMessageList.test.tsx#L1086)).
 3. **Replacement semantics are untouched.** A supplied `describeTool` still
    replaces the tensed labels entirely and suppresses nothing else - with
    `showToolName` also set, the fixture's tool name is still in the document.
    This issue changes
    what the callback knows, not what it controls
-   ([validated by replaces the default sentence and does not suppress showToolName](../../tests/ToolActivity.test.tsx#L132)).
+   ([validated by replaces the default sentence and does not suppress showToolName @b98ed7cc](../../tests/ToolActivity.test.tsx#L132)).
 4. **The component stays off the client-directive trigger list.**
    `ToolActivity.tsx` gains no state: its source still holds no `useState`,
    `useEffect` or `useId`
-   ([validated by holds no useState, useEffect or useId](../../tests/ToolActivity.test.tsx#L256)).
+   ([validated by holds no useState, useEffect or useId @af16b9c3](../../tests/ToolActivity.test.tsx#L256)).
 
 ## Out of scope
 
@@ -78,4 +78,4 @@ cannot carry what the protocol does not send.
 
 No export is added or removed - only the signature of an existing one changes -
 so `tests/fixtures/public-api.json`, which records names, is unchanged
-([validated by](../../tests/public-api.test.ts#L43)).
+([validated by @d5931828](../../tests/public-api.test.ts#L43)).
