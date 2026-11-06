@@ -82,6 +82,8 @@ jobs:
           fi
           # Exit 1 means a link nothing can repoint, which a person fixes by hand; the rest are rewritten.
           npx re-lint-reanchor --all --hash-all "${BASE}" || true
+          # A hash lengthens the line, so the format check would fail on the rewrapped paragraph.
+          git diff --name-only -z | xargs -0 -r npx prettier --write
           if git diff --quiet; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
           else
