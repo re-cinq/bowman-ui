@@ -13,72 +13,72 @@ Five hooks under `src/hooks/` and `src/components/ErrorBoundary.tsx`, all export
 barrel with their option types (`FocusGroupsOptions`, `SidebarStateOptions`,
 `ErrorBoundaryLabels`). Every file carries `"use client"` as its first statement, verified on the
 built output, ships in the tarball with its `.d.ts` and resolves through the `"."`
-exports entry for a consumer ([validated by each built hook and ErrorBoundary opens with "use client"; as its first statement](../../tests/hooks-dist.test.ts#L27),
-[validated by npm pack --dry-run ships the five hooks and ErrorBoundary with their d.ts files](../../tests/hooks-dist.test.ts#L23),
-[validated by tsc accepts hooks-type-assertions.tsx against dist via the '.' exports entry](../../tests/hooks-dist.test.ts#L19)).
+exports entry for a consumer ([validated by each built hook and ErrorBoundary opens with "use client"; as its first statement @eda96026](../../tests/hooks-dist.test.ts#L27),
+[validated by npm pack --dry-run ships the five hooks and ErrorBoundary with their d.ts files @a047bd66](../../tests/hooks-dist.test.ts#L23),
+[validated by tsc accepts hooks-type-assertions.tsx against dist via the '.' exports entry @6ae71708](../../tests/hooks-dist.test.ts#L19)).
 
 - `useDebounce` — carries its own `"use client"` directive rather than inheriting it from its
   importers (the directive-inheritance failure docs/design-notes.md decision 1 records). Timing
   pinned at the 299/301ms edges
   with restart-on-change
-  ([validated by still returns the previous value 299ms after a change and the new one at 301ms](../../tests/useDebounce.test.tsx#L22),
-  [validated by a change before the deadline restarts the delay instead of firing the stale value](../../tests/useDebounce.test.tsx#L37)).
+  ([validated by still returns the previous value 299ms after a change and the new one at 301ms @f624b5e8](../../tests/useDebounce.test.tsx#L22),
+  [validated by a change before the deadline restarts the delay instead of firing the stale value @966ae210](../../tests/useDebounce.test.tsx#L37)).
 - `useReducedMotion(override?: boolean)` — reads no `process.env`
   flag; a boolean override returns as-is without consulting `matchMedia`, and with no override
   the hook tracks `prefers-reduced-motion: reduce` including change events and listener cleanup
-  ([validated by returns the boolean override as-is and never consults matchMedia](../../tests/useReducedMotion.test.tsx#L42),
-  [validated by follows a change event from the media query](../../tests/useReducedMotion.test.tsx#L62),
-  [validated by reports the preference on the very first render - no flash frame](../../tests/useReducedMotion.test.tsx#L75),
-  [validated by removes the change listener on unmount](../../tests/useReducedMotion.test.tsx#L97)).
+  ([validated by returns the boolean override as-is and never consults matchMedia @e23219e9](../../tests/useReducedMotion.test.tsx#L42),
+  [validated by follows a change event from the media query @9399d0ff](../../tests/useReducedMotion.test.tsx#L62),
+  [validated by reports the preference on the very first render - no flash frame @a6f11626](../../tests/useReducedMotion.test.tsx#L75),
+  [validated by removes the change listener on unmount @3da58380](../../tests/useReducedMotion.test.tsx#L97)).
 - `useSidebarState(key, {storagePrefix, defaultOpen})` — `storagePrefix` is
   required with no default; the stored key is `${storagePrefix}${key}`, a stored
   value wins over `defaultOpen`, and storage access
   that throws degrades to in-memory state instead of crashing. Omitting `storagePrefix` does not
   compile, via `tests/types/hooks-type-assertions.tsx`
-  ([validated by persists toggles under the exact key "olt-chat"](../../tests/useSidebarState.test.tsx#L37),
-  [validated by a stored "false" wins over defaultOpen on mount](../../tests/useSidebarState.test.tsx#L61),
-  [validated by degrades to in-memory state when storage access throws](../../tests/useSidebarState.test.tsx#L69),
-  [types](../../tests/hooks-dist.test.ts#L19)).
+  ([validated by persists toggles under the exact key "olt-chat" @4d4fe707](../../tests/useSidebarState.test.tsx#L37),
+  [validated by a stored "false" wins over defaultOpen on mount @2bf50364](../../tests/useSidebarState.test.tsx#L61),
+  [validated by degrades to in-memory state when storage access throws @0039b519](../../tests/useSidebarState.test.tsx#L69),
+  [types@6ae71708](../../tests/hooks-dist.test.ts#L19)).
   - `isHydrated` is `false` in a server render and `true` once the client has hydrated, and a
     server render ignores any stored value and reports `defaultOpen`, so a consumer can avoid a
     flash of the wrong state
-    ([validated by server render falls back to the default and reports not hydrated](../../tests/useSidebarState.test.tsx#L125),
-    [validated by starts open by default and reports hydrated after mount](../../tests/useSidebarState.test.tsx#L23)).
+    ([validated by server render falls back to the default and reports not hydrated @9b92906e](../../tests/useSidebarState.test.tsx#L125),
+    [validated by starts open by default and reports hydrated after mount @69ceb874](../../tests/useSidebarState.test.tsx#L23)).
   - A window `storage` event whose key is the stored key, or `null` (a whole-store clear),
     re-reads storage, so a cross-tab write is reflected until the consumer first sets the value
     locally; after a local set the local value wins, a later matching event no longer changes
     `isOpen`, and this tab does not write back to storage in response to the event; an event
     for any other key is ignored
-    ([validated by reflects a cross-tab write when the storage event key matches](../../tests/useSidebarState.test.tsx#L87),
-    [validated by re-reads on a whole-store clear (storage event with a null key)](../../tests/useSidebarState.test.tsx#L100),
-    [validated by ignores a storage event for an unrelated key](../../tests/useSidebarState.test.tsx#L114),
-    [validated by a matching storage event after a toggle changes neither isOpen nor the stored value](../../tests/useSidebarState.test.tsx#L134)).
+    ([validated by reflects a cross-tab write when the storage event key matches @b28eb230](../../tests/useSidebarState.test.tsx#L87),
+    [validated by re-reads on a whole-store clear (storage event with a null key) @0fea0f48](../../tests/useSidebarState.test.tsx#L100),
+    [validated by ignores a storage event for an unrelated key @79889f66](../../tests/useSidebarState.test.tsx#L114),
+    [validated by a matching storage event after a toggle changes neither isOpen nor the stored value @ff59fb64](../../tests/useSidebarState.test.tsx#L134)).
 - `useFocusTrap` — verbatim: first-element focus on open, Tab/Shift+Tab wrap at the ends while
   focus is inside, and pull focus back to an end when it sits outside the open trap (the
   2026-08-26 review's modal-only hardening), Escape closes, and focus returns to the trigger ref
   or the previously active element
-  ([validated by focuses the first focusable element when opened](../../tests/useFocusTrap.test.tsx#L65),
-  [validated by Tab on the last element wraps to the first](../../tests/useFocusTrap.test.tsx#L71),
-  [validated by Shift+Tab on the first element wraps to the last](../../tests/useFocusTrap.test.tsx#L80), [validated by Tab in the middle of the list is not intercepted](../../tests/useFocusTrap.test.tsx#L89),
-  [validated by Shift+Tab in the middle of the list is not intercepted](../../tests/useFocusTrap.test.tsx#L134),
-  [validated by Tab while focus sits outside the open trap pulls it to the first element](../../tests/useFocusTrap.test.tsx#L207),
-  [validated by Shift+Tab while focus sits outside the open trap pulls it to the last element](../../tests/useFocusTrap.test.tsx#L215),
-  [validated by Escape calls onClose](../../tests/useFocusTrap.test.tsx#L107),
-  [validated by closing returns focus to the trigger ref when one is given](../../tests/useFocusTrap.test.tsx#L117),
-  [validated by closing returns focus to the previously active element without a trigger ref](../../tests/useFocusTrap.test.tsx#L125),
-  [validated by `closing returns focus to a previously active <svg tabindex="0"> without a trigger ref`](../../tests/useFocusTrap.test.tsx#L235)).
+  ([validated by focuses the first focusable element when opened @88c2e5f9](../../tests/useFocusTrap.test.tsx#L65),
+  [validated by Tab on the last element wraps to the first @77102a40](../../tests/useFocusTrap.test.tsx#L71),
+  [validated by Shift+Tab on the first element wraps to the last @ece39e41](../../tests/useFocusTrap.test.tsx#L80), [validated by Tab in the middle of the list is not intercepted @ffe0bca8](../../tests/useFocusTrap.test.tsx#L89),
+  [validated by Shift+Tab in the middle of the list is not intercepted @19fc1cac](../../tests/useFocusTrap.test.tsx#L134),
+  [validated by Tab while focus sits outside the open trap pulls it to the first element @f5f8ac6b](../../tests/useFocusTrap.test.tsx#L207),
+  [validated by Shift+Tab while focus sits outside the open trap pulls it to the last element @f8683715](../../tests/useFocusTrap.test.tsx#L215),
+  [validated by Escape calls onClose @03a2527a](../../tests/useFocusTrap.test.tsx#L107),
+  [validated by closing returns focus to the trigger ref when one is given @aed68688](../../tests/useFocusTrap.test.tsx#L117),
+  [validated by closing returns focus to the previously active element without a trigger ref @279280ed](../../tests/useFocusTrap.test.tsx#L125),
+  [validated by `closing returns focus to a previously active <svg tabindex="0"> without a trigger ref` @bd707c95](../../tests/useFocusTrap.test.tsx#L235)).
 - `useFocusGroups({announce})` — the hardcoded English `Moved to ${groupName}` and the Tailwind
   `sr-only` class are both gone from the contract: `announce` maps a group name to the
   announcement (English default preserved, `null` suppresses), and the live region is hidden
   by the package's own `bowman-sr-only` class from `./styles.css`, never Tailwind's `sr-only`,
   so it needs no consumer Tailwind build. F6 order semantics pinned, including
   the fall-back-to-DOM-order quirk where the first F6 lands on the second group
-  ([validated by announces "Moved to main" in a role=status live region hidden by the bowman-sr-only class](../../tests/useFocusGroups.test.tsx#L120),
-  [validated by announce returning null suppresses the live region entirely](../../tests/useFocusGroups.test.tsx#L144),
-  [validated by twelve unordered groups are visited in DOM order, wrapping back to the first](../../tests/useFocusGroups.test.tsx#L83),
-  [validated by F6 follows data-focus-group-order, not DOM order](../../tests/useFocusGroups.test.tsx#L53),
-  [validated by F6 wraps forward past the last group and Shift+F6 wraps backward past the first](../../tests/useFocusGroups.test.tsx#L61),
-  [validated by equal orders fall back to DOM order, so the first F6 lands on the second group](../../tests/useFocusGroups.test.tsx#L75)).
+  ([validated by announces "Moved to main" in a role=status live region hidden by the bowman-sr-only class @2f92fb33](../../tests/useFocusGroups.test.tsx#L120),
+  [validated by announce returning null suppresses the live region entirely @b81e1755](../../tests/useFocusGroups.test.tsx#L144),
+  [validated by twelve unordered groups are visited in DOM order, wrapping back to the first @26f602e0](../../tests/useFocusGroups.test.tsx#L83),
+  [validated by F6 follows data-focus-group-order, not DOM order @5d3836b0](../../tests/useFocusGroups.test.tsx#L53),
+  [validated by F6 wraps forward past the last group and Shift+F6 wraps backward past the first @da279fe6](../../tests/useFocusGroups.test.tsx#L61),
+  [validated by equal orders fall back to DOM order, so the first F6 lands on the second group @48c46ffc](../../tests/useFocusGroups.test.tsx#L75)).
 - `ErrorBoundary` — the `console.error` call is gone: `onError` is the only reporting channel,
   and rendering a thrown error writes nothing to the console and nothing to localStorage — the
   GDPR zero-retention rider on the error text. The three English strings became
@@ -92,28 +92,28 @@ exports entry for a consumer ([validated by each built hook and ErrorBoundary op
   `useFocusGroups` uses, shared through `src/hooks/focusWithTransientTabIndex.ts` - a text
   node before that element is skipped, and text-only recovered content leaves focus where the
   browser put it and writes no `tabindex` into the consumer's DOM
-  ([validated by reports only through onError and writes nothing to the console or localStorage](../../tests/ErrorBoundary.test.tsx#L205),
-  [validated by a throwing child renders the role=alert fallback with the three English defaults](../../tests/ErrorBoundary.test.tsx#L65),
-  [validated by a fallback node wins over labels](../../tests/ErrorBoundary.test.tsx#L140),
-  [validated by the retry button re-renders children](../../tests/ErrorBoundary.test.tsx#L152),
-  [validated by clicking "Try again" moves focus to the first focusable element of the recovered children, past the focusable siblings before and after the boundary](../../tests/ErrorBoundary.test.tsx#L264),
-  [validated by `recovered children rooted in a <div> - the host node React reuses from the fallback - still get the focus`](../../tests/ErrorBoundary.test.tsx#L362),
-  [validated by a sibling after the boundary that unmounts in the same commit does not extend the range: the consumer's later button stays unfocused](../../tests/ErrorBoundary.test.tsx#L337),
-  [validated by `recovered children without a focusable element get focus on their first element node through a tabindex="-1" that the next frame removes`](../../tests/ErrorBoundary.test.tsx#L275),
-  [validated by a text node before the first recovered element is skipped: the element, not the text, takes the transient tabindex](../../tests/ErrorBoundary.test.tsx#L288),
-  [validated by several recovered nodes without a focusable element: only the first element node gets the transient tabindex](../../tests/ErrorBoundary.test.tsx#L300),
-  [validated by text-only recovered children leave document.activeElement on body and write no tabindex into the consumer's DOM](../../tests/ErrorBoundary.test.tsx#L318),
-  [validated by the retry button inside a consumer form retries without submitting it, and a child that throws again leaves focus on the fresh retry button](../../tests/ErrorBoundary.test.tsx#L160),
-  [validated by an autoFocus input among the recovered children keeps the focus it took during the commit](../../tests/ErrorBoundary.test.tsx#L326)).
+  ([validated by reports only through onError and writes nothing to the console or localStorage @f94e25a6](../../tests/ErrorBoundary.test.tsx#L205),
+  [validated by a throwing child renders the role=alert fallback with the three English defaults @71940e7e](../../tests/ErrorBoundary.test.tsx#L65),
+  [validated by a fallback node wins over labels @73dd10b6](../../tests/ErrorBoundary.test.tsx#L140),
+  [validated by the retry button re-renders children @298b95d5](../../tests/ErrorBoundary.test.tsx#L152),
+  [validated by clicking "Try again" moves focus to the first focusable element of the recovered children, past the focusable siblings before and after the boundary @c30d8441](../../tests/ErrorBoundary.test.tsx#L264),
+  [validated by `recovered children rooted in a <div> - the host node React reuses from the fallback - still get the focus` @54857920](../../tests/ErrorBoundary.test.tsx#L362),
+  [validated by a sibling after the boundary that unmounts in the same commit does not extend the range: the consumer's later button stays unfocused @430aad3d](../../tests/ErrorBoundary.test.tsx#L337),
+  [validated by `recovered children without a focusable element get focus on their first element node through a tabindex="-1" that the next frame removes` @8428cdb0](../../tests/ErrorBoundary.test.tsx#L275),
+  [validated by a text node before the first recovered element is skipped: the element, not the text, takes the transient tabindex @cd7e759e](../../tests/ErrorBoundary.test.tsx#L288),
+  [validated by several recovered nodes without a focusable element: only the first element node gets the transient tabindex @ec9e72ad](../../tests/ErrorBoundary.test.tsx#L300),
+  [validated by text-only recovered children leave document.activeElement on body and write no tabindex into the consumer's DOM @643b9894](../../tests/ErrorBoundary.test.tsx#L318),
+  [validated by the retry button inside a consumer form retries without submitting it, and a child that throws again leaves focus on the fresh retry button @ef59b0c6](../../tests/ErrorBoundary.test.tsx#L160),
+  [validated by an autoFocus input among the recovered children keeps the focus it took during the commit @fd1c9065](../../tests/ErrorBoundary.test.tsx#L326)).
 - The error icon circle and glyph read the danger role - `--bowman-danger-soft` background,
   `--bowman-danger` glyph - rather than the `red-*` palette classes, the circle's dark fill
   joining the collapsed `rgba()` soft-dark fallback per § Theming decision 6
-  ([validated by the error icon circle and glyph read the danger role, not the red palette classes](../../tests/ErrorBoundary.test.tsx#L91),
-  [readers](../../tests/theming-tokens-dist.test.ts#L346)).
+  ([validated by the error icon circle and glyph read the danger role, not the red palette classes @8de62178](../../tests/ErrorBoundary.test.tsx#L91),
+  [readers@bc8f1dea](../../tests/theming-tokens-dist.test.ts#L346)).
 
 No built file reads `process.env`, and no `NEXT_PUBLIC_FLAG_ANIMATIONS`
 string survives in `src/`
-([validated by `no built file reads process.env and no NEXT_PUBLIC flag string survives in src/`](../../tests/hooks-dist.test.ts#L37)).
+([validated by `no built file reads process.env and no NEXT_PUBLIC flag string survives in src/` @619c38bf](../../tests/hooks-dist.test.ts#L37)).
 
 ## Recorded decisions and limitations
 
@@ -128,8 +128,8 @@ string survives in `src/`
   server snapshot and reads storage only on the client, and `useReducedMotion` keeps a
   `matchMedia` capability check and reports `false` where the environment lacks it, instead of
   throwing
-  ([validated by server render falls back to the default and reports not hydrated](../../tests/useSidebarState.test.tsx#L125),
-  [validated by an environment without matchMedia reports false and does not throw](../../tests/useReducedMotion.test.tsx#L89)).
+  ([validated by server render falls back to the default and reports not hydrated @9b92906e](../../tests/useSidebarState.test.tsx#L125),
+  [validated by an environment without matchMedia reports false and does not throw @2867b75d](../../tests/useReducedMotion.test.tsx#L89)).
 - **English strings stay as per-component props for now.** The repo-wide labels convention
   (defaults + `resolveLabels`) is issue 022's contract; these components adopt it there.
 - **Directive-checker gap closed.** `scripts/check-client-directives.mjs`'s class rule matches
@@ -137,7 +137,7 @@ string survives in `src/`
   decision 1, rule 3; the
   [client-API trigger-list spec](../bowman-ui-client-api-trigger-list/spec.md) owns the
   statement), so a class component such as `ErrorBoundary` needs no `onClick=` handler to be
-  caught ([validated by exits non-zero when a class extends Component with no hook and no handler](../../tests/client-directives.test.ts#L50)).
+  caught ([validated by exits non-zero when a class extends Component with no hook and no handler @9e4b3f64](../../tests/client-directives.test.ts#L50)).
 - **Visibility test.** `useFocusTrap` treats `display: none` and `visibility: hidden` as hidden (the states that also leave the tab order) and deliberately not opacity: an `opacity-0` element stays tabbable in browsers, and the package's own reveal-on-focus buttons rely on that. Where `checkVisibility` is missing, the `offsetParent` fallback misreports fixed-position descendants as hidden; it is all older engines offer.
 - **Retry refocus targets the recovered children only.** `handleRetry` reads the fallback
   root's previous sibling and the set of its siblings, commits the recovery with `flushSync`,

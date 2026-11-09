@@ -265,7 +265,7 @@ describe("lore-tests.yml ingest sink", () => {
       CURL_STUB_CHECKSUMS: checksumsFor(body),
     });
 
-    expect(curlArgs).toContain("-fsSL");
+    expect(curlArgs).toContain("-fsL");
     expect(curlArgs).toContain("https://lore-api.example.test/dist/lore-code-trace/linux-amd64");
     expect(curlArgs).toContain("https://lore-api.example.test/dist/lore-code-trace/checksums.txt");
     expect(curlArgs).toContain("-o");
@@ -586,5 +586,25 @@ describe("lore-tests.yml suite step on a pull_request", () => {
     expect(result.status).toBe(0);
     expect(traceCalls).toBe("call:\n");
     expect(output).toBe("report=true\n");
+  });
+});
+
+describe("lore-tests.yml download retries", () => {
+  it("asks curl for 7 attempts 30 seconds apart, retrying any error, without the -S that would name the host", () => {
+    const { curlArgs } = runFetch({ CURL_STUB_EXIT: "22" });
+
+    expect(curlArgs?.slice(0, 11)).toEqual([
+      "-fsL",
+      "--connect-timeout",
+      "20",
+      "--retry",
+      "6",
+      "--retry-delay",
+      "30",
+      "--retry-all-errors",
+      "https://lore-api.example.test/dist/lore-code-trace/linux-amd64",
+      "-o",
+      "linux-amd64",
+    ]);
   });
 });

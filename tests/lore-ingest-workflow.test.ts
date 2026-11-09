@@ -410,3 +410,38 @@ describe("Get changed files step", () => {
     ]);
   });
 });
+
+describe("the graph job's fetch retries", () => {
+  it("asks curl for 7 attempts 30 seconds apart, retrying any error, without the -S that would name the host", () => {
+    const workDir = mkdtempSync(join(tmpdir(), "lore-ingest-retry-test-"));
+    const argsPath = join(workDir, "curl-args");
+
+    writeFileSync(
+      join(workDir, "curl"),
+      `#!/usr/bin/env bash\nprintf '%s\\n' "$@" > "${argsPath}"\nexit 22\n`
+    );
+    chmodSync(join(workDir, "curl"), 0o755);
+    spawnSync("bash", ["-e", "-c", extractRunBlock("Fetch lore-code-trace")], {
+      cwd: workDir,
+      env: {
+        PATH: `${workDir}:${process.env.PATH}`,
+        LORE_INGEST_URL: "https://lore.example.test",
+        LORE_INGEST_TOKEN: "test-ingest-token",
+      },
+    });
+
+    expect(readFileSync(argsPath, "utf8").trim().split("\n")).toEqual([
+      "-fsL",
+      "--connect-timeout",
+      "20",
+      "--retry",
+      "6",
+      "--retry-delay",
+      "30",
+      "--retry-all-errors",
+      "https://lore.example.test/dist/lore-code-trace/linux-amd64",
+      "-o",
+      "linux-amd64",
+    ]);
+  });
+});
