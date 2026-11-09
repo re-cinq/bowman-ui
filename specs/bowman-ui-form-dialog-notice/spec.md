@@ -1,9 +1,9 @@
 # Form, dialog and notice components
 
-| Field  | Value       |
-| ------ | ----------- |
-| Issue  | -           |
-| Status | Draft       |
+| Field  | Value |
+| ------ | ----- |
+| Issue  | -     |
+| Status | Draft |
 
 Bowman UI is built for chat interfaces. Apps that use it for anything else, such as admin pages, settings or a confirmation step before a destructive action, find no text field, no dialog, no inline notice and no danger button. Each app then builds its own. That costs time, the copies drift apart in look and behaviour, and accessibility is redone by hand in every one. This spec introduces general-purpose components to address exactly the gap between what Bowman offers today and what a team needs to build a typical settings, confirmation or admin screen without stepping outside the library. The decision record lives in docs/design-notes.md § Form, dialog and notice components.
 
@@ -15,7 +15,14 @@ We want Bowman to offer these general-purpose components itself, so every future
 - `TextField`: a labelled input with hint and error text ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#intent-p-4))
 - an `onSubmit` callback for `SearchField`, for searches that run on Enter or a click instead of on every keystroke ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#intent-p-5))
 - Dialog: a modal that presents content requiring the user’s full attention before they can continue ([from plan](plan.md))
-- ConfirmDialog: a ready-made dialog for confirming before a destructive or irreversible action ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#p_13644075-15d3-4dc1-b80f-7bb251ebacf7))
+- ConfirmDialog: a ready-made implementation of the dialog for confirming before a destructive or irreversible action containing the following UI elements:
+  - a title,
+  - a description,
+  - a Cancel button
+  - a danger-styled Confirm button;
+
+  the consumer can add extra inputs between the description and the buttons when a yes-or-no click alone is not enough ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#p_13644075-15d3-4dc1-b80f-7bb251ebacf7))
+
 - `Notice`: an inline message in an info, success, warning or error tone ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#intent-p-7))
 - `KeyValueList`: label and value pairs ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#intent-p-8))
 - `Card`: a panel, optionally selectable as a whole ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#intent-p-9))
@@ -45,9 +52,9 @@ Dialog is a modal component that presents content requiring the user’s full at
 
 ### ConfirmDialog
 
-ConfirmDialog is a specialised form of Dialog for one job: asking the user to confirm before an action they cannot undo. Every instance presents a title, a brief description of what will happen, a Cancel button and a Confirm button styled as a danger action ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#p_26727aed-6334-4fea-86f1-a547d0222f0b)).
-When a yes-or-no click is not enough, the consumer places extra inputs inside the dialog, between the description and the buttons ([from plan](plan.md)). The consumer manages these inputs and uses the `confirmDisabled` prop to keep the Confirm button disabled until its own conditions are met ([from plan](plan.md)).
-While a triggered action is in progress, the consumer signals this with a `busy` prop, which keeps the Confirm button non-interactive and prevents the dialog from being dismissed ([from plan](plan.md)).
+ConfirmDialog is a ready-made Dialog for confirming before a destructive or irreversible action; it always presents a title, a description, a Cancel button and a Confirm button, and it defines a busy prop ([from plan](plan.md)).
+When a yes-or-no click alone is not enough — for instance when the user must type the name of something they are about to delete, or supply a reason that is recorded alongside the action — the consumer places those extra inputs inside the dialog, between the description and the buttons ([from plan](plan.md)). The dialog does not validate what is typed; the consumer manages that and keeps the Confirm button disabled until its own conditions are met ([from plan](plan.md)).
+When an action triggered by the Confirm button is in progress — for example, while a server processes a delete request — the consumer sets the busy prop; this keeps the Confirm button non-interactive and prevents the user from submitting the same action twice, and the dialog cannot be dismissed while busy ([from plan](plan.md)).
 
 ### Notice
 
@@ -153,8 +160,3 @@ Card is a panel component that can optionally be rendered as a single selectable
 - The release is published through `.github/workflows/publish.yml`, the existing pipeline triggered by `release: types: [published]`, which runs `npm stage publish` with npm OIDC trusted publishing; `workflow_dispatch` re-runs a failed stage on an existing tag and fails on any other ref. No maintainer publishes by hand; the staged package must be approved by a maintainer with 2FA on npmjs.com before it becomes public. ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#delivery-p-3))
 
 - There is no fixed delivery date. ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#f1061085-158c-4241-8d7e-d55a6348913d))
-
-## Open Questions
-
-- Is there a target date for this release, and who is the accessibility reviewer who must sign off before it publishes? ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#q-deadline-and-reviewer))
-- The reasoning recorded alongside the deadline-and-reviewer question states that the success criteria named an accessibility reviewer gate, but the success criteria have never contained such a gate. Is a reviewer happy to treat this as a known draft-sequence artifact, with the understanding that the KPI, the answer, and the delivery prose are all consistent (no reviewer gate, no fixed date)? ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#q-stale-reviewer-gate-premise))
