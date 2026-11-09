@@ -79,7 +79,7 @@ Other public data shapes are consumer-supplied and rendered as-is: `Conversation
 
 ### Distribution & Consumption
 
-1. **ESM-Only Distribution** — A single ESM build is published; the `.` export resolves to `dist/index.js` with no `require` condition, so consumers need native ESM or an ESM-aware bundler. ([validated by distributes ESM only: "type" is "module" and the "." export carries no require condition](../tests/system-contract.test.ts#L30))
+1. **ESM-Only Distribution** — A single ESM build is published; the `.` export declares a `default` entry pointing to the ESM build output, carrying no `require` condition, so consumers need native ESM or an ESM-aware bundler. ([validated by distributes ESM only: "type" is "module" and the "." export carries no require condition](../tests/system-contract.test.ts#L30))
 2. **Stylesheet Subpath Export** — `./styles.css` is a published export and `sideEffects` lists `*.css` so bundlers keep it. ([validated by exports gains "./styles.css" alongside the unchanged "." entry](../tests/styles.test.ts#L107), [side-effects](../tests/styles.test.ts#L114))
 3. **Type Definitions Included** — `.d.ts` files are bundled for full TypeScript IDE support. ([validated by npm pack --dry-run ships the five hooks and ErrorBoundary with their d.ts files](../tests/hooks-dist.test.ts#L23))
 4. **Tree-Shakeable** — Named exports prioritized; unused components can be eliminated by bundlers. ([validated by](../tests/public-api.test.ts#L43))
