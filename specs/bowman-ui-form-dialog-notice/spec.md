@@ -21,7 +21,7 @@ We want Bowman to offer these general-purpose components itself, so every future
   - a Cancel button
   - a danger-styled Confirm button;
 
-  the consumer can add extra inputs between the description and the buttons when a yes-or-no click alone is not enough ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#p_13644075-15d3-4dc1-b80f-7bb251ebacf7))
+  the consumer can add extra inputs between the description and the buttons when a yes-or-no click alone is not enough ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#p_13644075-15d3-4dc1-b80f-7bb251ebacf7), [from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#p_26727aed-6334-4fea-86f1-a547d0222f0b))
 
 - `Notice`: an inline message in an info, success, warning or error tone ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#intent-p-7))
 - `KeyValueList`: label and value pairs ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#intent-p-8))
@@ -110,7 +110,7 @@ Card is a panel component that can optionally be rendered as a single selectable
 
 **In scope** ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#sec_1ff9b9f5-21ee-43bf-93cd-4ca07cd42d06))
 
-- All eight deliverables and their changes are confined to the `bowman-ui` repo: the danger variant of `src/components/Button.tsx`, the `onSubmit` callback added to `src/components/SearchField.tsx`, and the six new files `src/components/TextField.tsx`, `src/components/Dialog.tsx`, `src/components/ConfirmDialog.tsx`, `src/components/Notice.tsx`, `src/components/KeyValueList.tsx`, and `src/components/Card.tsx`. ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#8b34e548-4f4f-42e2-85a1-bdaaba16dfc2))
+- All eight deliverables and their changes are confined to the `bowman-ui` repo; no other repository is modified: the danger variant of `src/components/Button.tsx`, the `onSubmit` callback added to `src/components/SearchField.tsx`, and the six new files `src/components/TextField.tsx`, `src/components/Dialog.tsx`, `src/components/ConfirmDialog.tsx`, `src/components/Notice.tsx`, `src/components/KeyValueList.tsx`, and `src/components/Card.tsx`. ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#8b34e548-4f4f-42e2-85a1-bdaaba16dfc2))
 - Each deliverable MUST ship with Vitest behaviour tests reaching 100% line, statement, function, and branch coverage over `src/**` (enforced by `vitest.config.ts#L26`), an accessibility check, a README section, and a demo registered in `examples/chat-demo/src/docs/componentDocs.tsx` with example source files under `examples/chat-demo/src/docs/examples/`. ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#147b96d4-3eab-45c7-80ef-49cdb5171359))
 
 **Out of scope** ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#0e8e06c6-8eca-4b69-a4e1-7e7c0afc164a))
@@ -149,7 +149,7 @@ Card is a panel component that can optionally be rendered as a single selectable
 - The `stringPropOnly` closed list in `docs/design-notes.md` currently contains exactly three entries — the icon `ariaLabel` prop, the `useFocusGroups` `announce` prop, and the `Toast` `message` prop — and none of the new components may carry user-visible strings as a direct string prop; any addition to this list MUST amend `docs/design-notes.md` in the same release; enforced by `tests/labelled-exports.test.tsx`, which asserts the three-way partition of all barrel exports. ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#constraints-p-9))
 - Source coverage MUST remain at 100% across lines, statements, functions, and branches over `src/**`, as enforced by `vitest.config.ts:26`; no new component ships with coverage gaps. ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#constraints-p-10))
 
-- Notice MUST use blue (the `--bowman-accent` token family) for its info tone (also called the notice tone) and existing palette yellow directly for its warning tone, reusing existing palette values with no new colour token added for either tone; success reuses `--bowman-success` tokens and error reuses `--bowman-danger` tokens. ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#constraints-p-16))
+- Notice MUST use blue (the `--bowman-accent` token family) for its notice tone (also called the info tone) and existing palette yellow directly for its warning tone, reusing existing palette values with no new colour token added for either tone; success reuses `--bowman-success` tokens and error reuses `--bowman-danger` tokens. ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#constraints-p-16))
 
 ## Ownership
 
