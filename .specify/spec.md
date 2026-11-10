@@ -131,3 +131,18 @@ Content the model authored renders behind conservative defaults, since it may re
 6. **Release Cadence** — Stable release every 4–8 weeks; hotfix releases as needed.
 7. **Bundle Size** — Monitor minified+gzipped size of distribution per release.
 8. **Documentation Completeness** — README, JSDoc, and API docs updated with each feature release.
+
+## Scope
+
+### In scope ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#sec_1ff9b9f5-21ee-43bf-93cd-4ca07cd42d06))
+
+- The eight deliverables MUST ship together in the bowman-ui repo: the danger variant added to `src/components/Button.tsx` (and `src/components/buttonStyles.ts`); the `onSubmit` callback added to `src/components/SearchField.tsx`; and six new files added by this feature: `src/components/TextField.tsx`, `src/components/Dialog.tsx`, `src/components/ConfirmDialog.tsx`, `src/components/Notice.tsx`, `src/components/KeyValueList.tsx`, and `src/components/Card.tsx`. ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#8b34e548-4f4f-42e2-85a1-bdaaba16dfc2))
+- Tests (under `tests/`), Playwright axe accessibility checks (in `examples/chat-demo/`), README sections, and harness demos (`examples/chat-demo/src/docs/componentDocs.tsx` entries and new files under `examples/chat-demo/src/docs/examples/`) MUST ship for each of the eight deliverables. ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#147b96d4-3eab-45c7-80ef-49cdb5171359))
+
+### Out of scope ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#0e8e06c6-8eca-4b69-a4e1-7e7c0afc164a))
+
+- Screens, routing, and data fetching in consuming apps MUST NOT be delivered; the library MUST remain purely presentational. ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#84a7bfbe-8149-4194-bca7-27828a4effce))
+- Data tables, pagination, tabs, selects, checkboxes, date pickers, and toast tones are excluded and deferred until a consuming app requires them. ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#c0060b3b-f605-4a16-8468-3870f46ca2f3))
+- Changes to existing components MUST be limited to the danger variant on `src/components/Button.tsx` (via `src/components/buttonStyles.ts`) and the `onSubmit` callback on `src/components/SearchField.tsx`; no other existing component in `src/components/` MUST be modified. ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#617bb9f5-c7d2-4247-926b-82fb84cc19c3))
+- No theme or token redesign is in scope; the new components MUST reuse existing colour tokens from `src/theme/tokens.ts`, adding only nine new token constants — five for the danger button (`DANGER_BG`, `DANGER_BG_DARK`, `DANGER_BG_HOVER`, `DANGER_BG_HOVER_DARK`, `TEXT_ON_DANGER`) and four for Notice (`INFO`, `INFO_DARK`, `WARNING`, `WARNING_DARK`) — reflected as nine new comment lines in `src/styles.css`. ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#19e2c206-305b-4c22-9226-f902fafe36b9))
+- Migrating existing apps to the new components is out of scope; each consuming app MUST adopt the components on its own schedule. ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#8e046583-3503-4357-812f-e64871b23493))
