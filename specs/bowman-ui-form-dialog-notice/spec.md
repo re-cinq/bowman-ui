@@ -5,18 +5,17 @@
 | Issue  | none filed yet |
 | Status | Draft          |
 
-Every screen a consumer builds beside the chat - an admin page, a settings page, a confirmation
-step before a destructive action - needs a labelled text field, a modal dialog, an inline
-notice and a red button, and the package ships none of them, so each consumer hand-writes them
-with its own utility strings and its own focus handling. This change adds a `danger` variant to
-the shared `ButtonVariant` union, an optional `onSubmit` and submit button to `SearchField`, and
-six components - `TextField`, `Dialog`, `ConfirmDialog`, `Notice`, `KeyValueList` and `Card` -
-under the labels convention, the `forwardRef` policy and the closed prop surface
-docs/design-notes.md § Styled primitives records. Nothing here is built yet: this file pins the
-signatures and the behaviour each test must prove, and its statements gain their links as the
-tests land. The delivery plan behind it was approved in Lore; where the two differed, the
-plan's decisions are the ones this file records, save these deviations, each argued where it
-applies:
+Every screen a consumer builds beside the chat - an admin page, a settings page, a confirmation step
+before a destructive action - needs a labelled text field, a modal dialog, an inline notice and a
+red button, and the package ships none of them, so each consumer hand-writes them with its own
+utility strings and its own focus handling. This change adds a `danger` variant to the shared
+`ButtonVariant` union, an optional `onSubmit` and submit button to `SearchField`, and six
+components - `TextField`, `Dialog`, `ConfirmDialog`, `Notice`, `KeyValueList` and `Card` - under the
+labels convention, the `forwardRef` policy and the closed prop surface docs/design-notes.md § Styled
+primitives records. Nothing here is built yet: this file pins the signatures and the behaviour each
+test must prove, and its statements gain their links as the tests land. The delivery plan behind it
+was approved in Lore; where the two differed, the plan's decisions are the ones this file records,
+save these deviations, each argued where it applies:
 
 - `Dialog` is not the browser's native `<dialog>` (decision 1).
 - A selectable `Card` with a heading takes its name from the heading alone (decision 7).
@@ -24,36 +23,41 @@ applies:
   section).
 - `Dialog` and `ConfirmDialog` forward no ref, though their panel takes focus (the conventions
   section).
-- The public `useFocusTrap` hook gains three behaviours, one of which replaces a behaviour a
-  test pins today (the `useFocusTrap` section).
+- The public `useFocusTrap` hook gains three behaviours, one of which replaces a behaviour a test
+  pins today (the `useFocusTrap` section).
 - Some existing tests change a fixture, a map, a title or an assertion, though the plan asks for
   every existing test to pass unchanged (the "Existing tests that change" list).
-- `ButtonVariant` widening is a type-level change for a consumer that switches exhaustively over
-  it (§ The published surface).
-- The plan names two design-record amendments, the danger variant and `SearchField`'s submit;
-  the spec makes two more. `Card` narrows § Styled primitives' refusal of layout primitives
-  (decision 7), and § Labels decisions 2 and 5 are amended for defaults typed over a subset of
-  keys and for optional keys (decision 6) - the typing the plan's five required-labels
-  components and its optional field hint and error need.
-- `ConfirmDialog` takes a fourth label key, `confirmBusy`, beyond the three the plan lists,
-  because the plan's WCAG 2.2 AA floor needs its busy state announced (decision 20).
+- `ButtonVariant` widening is a type-level change for a consumer that switches exhaustively over it
+  (§ The published surface).
+- The plan names two design-record amendments, the danger variant and `SearchField`'s submit; the
+  spec makes more. `Card` narrows § Styled primitives' refusal of layout primitives (decision 7),
+  and § Labels decisions 2 and 5 are amended for defaults typed over a subset of keys and for
+  optional keys (decision 6) - the typing the plan's five required-labels components and its
+  optional field hint and error need. § Theming decisions 6, 11 and 12 also change: decision 6's
+  palette-mapped list gains the dialog overlay, decision 11's `buttonStyles.ts` imports gain the
+  danger strings, and decision 12 gains the muted role's second reader (decision 21) and two more
+  `FOCUS_RING` importers (§ Theming).
+- `Dialog` and `ConfirmDialog` take a `container` prop the plan does not name, so a dialog stays
+  inside a wrapper-scoped theme (decision 22).
+- The scrolling body of a dialog becomes focusable when nothing in it is (decision 23).
+- `ConfirmDialog` takes a fourth label key, `confirmBusy`, beyond the three the plan lists, because
+  the plan's WCAG 2.2 AA floor needs its busy state announced (decision 20).
 - `Notice` forwards no ref, though its dismiss button is focusable (the conventions section).
 - `SearchField`'s resting border stays below WCAG 2.2 AA's 3:1 non-text minimum, because the plan
   holds its look unchanged; `TextField` meets it (§ Out of scope).
-- The assistive-technology pass gains two rows, A8 and A9, where the plan keeps its procedure as
-  it is (§ Accessibility checks).
+- The assistive-technology pass gains two rows, A8 and A9, where the plan keeps its procedure as it
+  is (§ Accessibility checks).
 
-"Styled" keeps its § Styled primitives meaning: Tailwind v4 utility class names in the built
-file, `dark:` variants included, generated by the consumer's own build through the `@source`
-line README § Styles prescribes. `src/styles.css` gains token comment lines and no rule, and
-`dist/styles.css` still declares exactly the four keyframes: the one motion here is
-`LoadingIcon`'s existing `animate-spin`, a Tailwind utility the consumer's build generates.
+"Styled" keeps its § Styled primitives meaning: Tailwind v4 utility class names in the built file,
+`dark:` variants included, generated by the consumer's own build through the `@source` line README
+§ Styles prescribes. `src/styles.css` gains token comment lines and no rule, and `dist/styles.css`
+still declares exactly the four keyframes: the one motion here is `LoadingIcon`'s existing
+`animate-spin`, a Tailwind utility the consumer's build generates.
 
 ## What ships
 
-Six components, three defaults objects and thirteen types, all from the package root, one new
-member of an existing union, one new prop and label key on an existing component, and one
-internal module:
+Six components, three defaults objects and thirteen types, all from the package root, one new member
+of an existing union, one new prop and label key on an existing component, and one internal module:
 
 - `ButtonVariant` gains `"danger"`, which `Button` and `IconButton` both accept through the one
   shared union and the private `src/components/buttonStyles.ts` class map.
@@ -64,23 +68,22 @@ internal module:
 - `KeyValueList`, `Card`, `defaultDialogLabels`, `defaultConfirmDialogLabels` and
   `defaultNoticeLabels` land in the `noStrings` bucket.
 - The `stringPropOnly` list stays at its three closed members.
-- `src/components/ModalPanel.tsx`, the portal, overlay, panel, heading, optional close button
-  and focus trap `Dialog` and `ConfirmDialog` share, is private and never exported from the
-  barrel, as `buttonStyles.ts` and `FeedbackButtons` are.
+- `src/components/ModalPanel.tsx`, the portal, overlay, panel, heading, optional close button and
+  focus trap `Dialog` and `ConfirmDialog` share, is private and never exported from the barrel, as
+  `buttonStyles.ts` and `FeedbackButtons` are.
 
 Every new label key is unique across the package by concept, as docs/design-notes.md § Labels
-decision 3 requires: none of `fieldLabel`, `fieldHint`, `fieldError`, `submitSearch`,
-`dialogTitle`, `closeDialog`, `confirmAction`, `cancelAction`, `confirmBusy` or `dismissNotice`
-exists in any
-labels type today, which was checked by hand against every one the package exports. No test
-checks uniqueness by concept, and none proves a key renders: tests/labelled-exports.test.tsx
-checks that each component's sentinel keys equal its defaults' keys and that no English text
-survives outside the sentinels, so a harness that never shows a key still passes. Each new
-harness therefore passes the props that bring every key on screen - `Notice`'s an `onDismiss`,
-`ConfirmDialog`'s `busy` - and a review keeps the meaning of each name. The plan as approved in
-Lore said "the existing automated labels test re-checks the whole set"; it checks only what is
-stated above, and the local copy of the plan carries the corrected sentence.
-`ConfirmDialog` shares `Dialog`'s `dialogTitle`, because its heading is the same concept.
+decision 3 requires: none of `fieldLabel`, `fieldHint`, `fieldError`, `submitSearch`, `dialogTitle`,
+`closeDialog`, `confirmAction`, `cancelAction`, `confirmBusy` or `dismissNotice` exists in any
+labels type today, which was checked by hand against every one the package exports. No test checks
+uniqueness by concept, and none proves a key renders: tests/labelled-exports.test.tsx checks that
+each component's sentinel keys equal its defaults' keys and that no English text survives outside
+the sentinels, so a harness that never shows a key still passes. Each new harness therefore passes
+the props that bring every key on screen - `Notice`'s an `onDismiss`, `ConfirmDialog`'s `busy` - and
+a review keeps the meaning of each name. The plan as approved in Lore said "the existing automated
+labels test re-checks the whole set"; it checks only what is stated above, and the local copy of the
+plan carries the corrected sentence. `ConfirmDialog` shares `Dialog`'s `dialogTitle`, because its
+heading is the same concept.
 
 ### `Button` and `IconButton`: the `danger` variant
 
@@ -88,10 +91,10 @@ stated above, and the local copy of the plan carries the corrected sentence.
 export type ButtonVariant = "primary" | "secondary" | "ghost" | "danger";
 ```
 
-- `danger` is a solid fill for the one action on a screen that destroys something: the
-  `DANGER_FILL` and `DANGER_FILL_HOVER` token strings, reading `--bowman-danger-fill` and
-  `--bowman-danger-fill-hover`, each with its `-dark` twin, and the `TEXT_ON_DANGER` string
-  reading `--bowman-text-on-danger`, which has no twin, as `--bowman-text-on-accent` has none.
+- `danger` is a solid fill for the one action on a screen that destroys something: the `DANGER_FILL`
+  and `DANGER_FILL_HOVER` token strings, reading `--bowman-danger-fill` and
+  `--bowman-danger-fill-hover`, each with its `-dark` twin, and the `TEXT_ON_DANGER` string reading
+  `--bowman-text-on-danger`, which has no twin, as `--bowman-text-on-accent` has none.
 - It keeps every variant's focus ring and the `disabled:cursor-not-allowed disabled:opacity-50`
   pair, and a disabled `danger` button never reaches `onClick`.
 - `IconButton` takes `danger` through the same union and class map; no second vocabulary.
@@ -106,7 +109,7 @@ export interface SearchFieldLabels {
   searchInput: string;
   searchPlaceholder: string;
   /** The submit button's accessible name, read only when `onSubmit` is given. */
-  submitSearch?: string;
+  submitSearch: string;
 }
 
 export const defaultSearchFieldLabels: Readonly<Required<SearchFieldLabels>>;
@@ -123,55 +126,57 @@ export interface SearchFieldProps {
 ```
 
 - Without `onSubmit`, `SearchField` renders exactly what it renders today - the leading
-  `SearchIcon`, the input, no button - and every existing `SearchField` behaviour holds. The
-  tests that cite it change their fixtures or titles, not the behaviour they prove (see
-  "Existing tests that change" below).
-- With `onSubmit`, the leading icon gives way to a `ghost` `IconButton` holding `SearchIcon` at
-  the input's trailing edge, named by `labels.submitSearch` (default `"Submit search"`), and the
-  input's padding moves to match. Clicking it calls `onSubmit` with the current `value`.
+  `SearchIcon`, the input, no button - and every existing `SearchField` behaviour holds. The tests
+  that cite it change their fixtures or titles, not the behaviour they prove (see "Existing tests
+  that change" below).
+- With `onSubmit`, the leading icon gives way to a `ghost` `IconButton` holding `SearchIcon` at the
+  input's trailing edge, named by `labels.submitSearch` (default `"Submit search"`), and the input's
+  padding moves to match. Clicking it calls `onSubmit` with the current `value`.
 - Enter in the input calls `onSubmit` with the current `value` verbatim, once, and calls
-  `preventDefault()`, so a consumer's own `<form>` around the field does not submit as well.
-  An Enter that commits an IME composition (`event.nativeEvent.isComposing`) does neither, as
+  `preventDefault()`, so a consumer's own `<form>` around the field does not submit as well. An
+  Enter that commits an IME composition (`event.nativeEvent.isComposing`) does neither, as
   `ChatComposer`'s Enter guard does not send mid-composition.
-- While `disabled` holds, the button carries the native `disabled` attribute and neither Enter
-  nor a click calls `onSubmit`.
-- `onChange` still fires on every keystroke; filtering as the user types and searching on
-  submit are both the consumer's choice, and a consumer may wire either or both.
+- While `disabled` holds, the button carries the native `disabled` attribute and neither Enter nor a
+  click calls `onSubmit`.
+- `onChange` still fires on every keystroke; filtering as the user types and searching on submit are
+  both the consumer's choice, and a consumer may wire either or both.
 
 ### Existing tests that change
 
-The plan's backward-compatibility target is "every existing test passing unchanged". It holds
-for the behaviour of every shipped component; the tests below are the complete list that change
-a fixture, a map, a title or an assertion in the same pull request, and each spec statement
-that cites them moves with it. Every other existing test passes unchanged.
+The plan's backward-compatibility target is "every existing test passing unchanged". It holds for
+the behaviour of every shipped component; the tests below are the complete list that change a
+fixture, a map, a title or an assertion in the same pull request, and each spec statement that cites
+them moves with it. Every other existing test passes unchanged.
 
-- tests/SearchField.test.tsx "defaultSearchFieldLabels is frozen and equals { searchInput:
-  "Search", searchPlaceholder: "Search..." }" gains `submitSearch` in its expected object and
-  its title; its titled link in specs/bowman-ui-styled-primitives/spec.md moves with it.
-- tests/SearchField.test.tsx "renders no button - no clear control and no submit" is retitled to
-  say it renders no button without `onSubmit`, and the statement it validates in
-  specs/bowman-ui-styled-primitives/spec.md ("No clear button, no submit, no debounce") becomes
-  "No clear button and no debounce; a submit button only with `onSubmit`", citing this spec.
+- tests/SearchField.test.tsx "defaultSearchFieldLabels is frozen and equals { searchInput: "Search",
+  searchPlaceholder: "Search..." }" gains `submitSearch` in its expected object and its title; its
+  titled link in specs/bowman-ui-styled-primitives/spec.md moves with it.
+- tests/SearchField.test.tsx "renders no button - no clear control and no submit" is retitled to say
+  it renders no button without `onSubmit`, and the statement it validates in
+  specs/bowman-ui-styled-primitives/spec.md ("No clear button, no submit, no debounce") becomes "No
+  clear button and no debounce; a submit button only with `onSubmit`", citing this spec.
 - tests/labelled-exports.test.tsx: `searchFieldSentinels` gains `submitSearch`, or "SearchField's
   sentinel labels cover every defaultSearchFieldLabels key" fails, and the `SearchField` harness
   passes an `onSubmit`, as the new `Notice` harness passes an `onDismiss`, so the key is on the
-  page. Its bucket comment, which names `ChatMessageList`'s and `IconButton`'s labels props as
-  the required ones, names all five.
+  page. Its bucket comment, which names `ChatMessageList`'s and `IconButton`'s labels props as the
+  required ones, names all five.
 - tests/useFocusTrap.test.tsx "an empty container leaves Tab handling alone" is retitled and
   rewritten, as the `useFocusTrap` section below records.
 - tests/theming-tokens-dist.test.ts: its `EXPECTED_FALLBACKS` and `NEUTRAL_ROLE_READERS` maps and
-  its `FOCUS_RING` reader list grow, and the `it()` titled "exactly the five offset-ring
-  components" is retitled for six, as § Theming below lists.
+  its `FOCUS_RING` reader list grow, and the `it()` titled "exactly the five offset-ring components"
+  is retitled for seven, as § Theming below lists.
 - examples/chat-demo/tests/theming.spec.ts: "the chat matrix reaches every token the installed
-  stylesheet declares, and the wrapper sets the same set" is retitled and widened to accept the
-  nine new tokens' sites on the documentation pages (decision 19).
+  stylesheet declares, and the wrapper sets the same set" is retitled and widened to accept the nine
+  new tokens' sites on the documentation pages (decision 19).
 - tests/fixtures/public-api.json gains the new names (§ The published surface) and
   tests/fixtures/forward-ref-components.json gains `TextField` and `Card`; the header comment of
   tests/forward-ref-components.test.ts speaks of a ninth forwardRef component.
 - tests/check-at-pass.test.ts: its hard-coded `rowIds` list, which mirrors
   `scripts/check-at-pass.mjs`'s unexported `ROWS`, gains A8 and A9 (§ Accessibility checks).
 - examples/chat-demo/tests/docs.spec.ts: `docsTokenPages` gains the new pages' token sites
-  (decision 19).
+  (decision 19), and its literal `componentIds` list, which drives the index test's "every component
+  link" and "every component page renders its purpose, import, usage, props and states", gains the
+  six new pages' ids.
 
 ### `TextField`
 
@@ -212,21 +217,21 @@ export const TextField: ForwardRefExoticComponent<TextFieldProps & RefAttributes
   `disabled:cursor-not-allowed disabled:opacity-50` - but its border reads a new `CONTROL_BORDER`
   class string in `src/theme/tokens.ts` rather than `BORDER`. `CONTROL_BORDER` reads the existing
   `--bowman-text-muted` role as a border colour and declares no token (decision 21): `BORDER`
-  (`slate-200` on white, about 1.2:1) fails WCAG 2.2 AA's 3:1 non-text minimum for the boundary
-  of a control (1.4.11), and axe does not test that criterion, so its zero-violation target
-  would not catch it. The tests/theming-tokens-dist.test.ts
-  `NEUTRAL_ROLE_READERS` map keys `CONTROL_BORDER` to `TextField`.
-- `labels.fieldHint` renders under the input and `labels.fieldError` under the hint, and the
-  input's `aria-describedby` names the hint first, then the error, and only those present.
+  (`slate-200` on white, about 1.2:1) fails WCAG 2.2 AA's 3:1 non-text minimum for the boundary of a
+  control (1.4.11), and axe does not test that criterion, so its zero-violation target would not
+  catch it. The tests/theming-tokens-dist.test.ts `NEUTRAL_ROLE_READERS` map keys `CONTROL_BORDER`
+  to `TextField`.
+- `labels.fieldHint` renders under the input and `labels.fieldError` under the hint, and the input's
+  `aria-describedby` names the hint first, then the error, and only those present.
 - With a non-empty `labels.fieldError` - an empty string counts as absent - the input carries
   `aria-invalid="true"` and a border in the `--bowman-danger` role, through a new `DANGER_BORDER`
   class string in `src/theme/tokens.ts` that reads the existing role and declares no token; without
   it, neither. The error text renders in `DANGER` and the hint in `TEXT_MUTED`.
-- The error text renders into a polite live region that exists from the first render, so a
-  message added later is announced - specs/bowman-ui-toast/spec.md's lesson that a live region
-  must exist before its text.
-- The input is controlled: it renders `value`, and every change calls `onChange` with the new
-  value verbatim, as `SearchField` does (§ Styled primitives: "reports the raw value").
+- The error text renders into a polite live region that exists from the first render, so a message
+  added later is announced - specs/bowman-ui-toast/spec.md's lesson that a live region must exist
+  before its text.
+- The input is controlled: it renders `value`, and every change calls `onChange` with the new value
+  verbatim, as `SearchField` does (§ Styled primitives: "reports the raw value").
 - `type`, `required`, `disabled`, `autoComplete`, `spellCheck` and `name` render as the native
   attributes; `type` defaults to `"text"`.
 
@@ -253,46 +258,61 @@ export interface DialogProps {
   footer?: ReactNode;
   /** Where focus returns on close; default the element that held focus before opening. */
   returnFocusRef?: RefObject<HTMLElement | null>;
+  /** The portal's target, such as a themed wrapper; default `document.body`. */
+  container?: Element | null;
 }
 
 export const Dialog: (props: DialogProps) => ReactElement | null;
 ```
 
 - With `open` false it renders nothing. With `open` true it renders, through `createPortal` into
-  `document.body`, a fixed full-screen `z-50` overlay on `bg-black/50`, the dim `AppShell`'s drawer
-  backdrop already paints (src/components/AppShell.tsx), holding one panel with `role="dialog"`,
-  `aria-modal="true"`, `tabIndex={-1}` and `aria-labelledby` pointing at an `<h2>` holding
-  `labels.dialogTitle`. The portal is appended after the page, so the overlay paints above
-  `AppShell`'s drawer and `Toast`, which also sit at `z-50`.
+  `container` when given and `document.body` otherwise, a fixed full-screen `z-50` overlay on
+  `bg-black/50`, the dim `AppShell`'s drawer backdrop already paints (src/components/AppShell.tsx),
+  holding one panel with `role="dialog"`, `aria-modal="true"`, `tabIndex={-1}` and `aria-labelledby`
+  pointing at an `<h2>` holding `labels.dialogTitle`. Into `document.body` the portal is appended
+  after the page, so the overlay paints above `AppShell`'s drawer and `Toast`, which also sit at
+  `z-50`.
+- A consumer whose theme is set on a wrapper - README § Theming's `.custom-theme` or
+  `[data-tenant="acme"]` - passes that wrapper, or an element inside it, as `container`, so the
+  wrapper's `--bowman-*` values and its `dark` class reach the panel (decision 22). The container
+  must have no transformed or `overflow`-clipping ancestor, for the reason decision 1 gives.
 - The dim is a deliberate exception to the plan's "only the colour tokens" constraint: it is
-  non-text, and docs/design-notes.md § Theming decision 6 keeps the mobile overlay
-  (`bg-black`) palette-mapped and lists it so no cleanup turns it into a token. That list gains
-  the dialog's overlay beside it in the same pull request.
+  non-text, and docs/design-notes.md § Theming decision 6 keeps the mobile overlay (`bg-black`)
+  palette-mapped and lists it so no cleanup turns it into a token. That list gains the dialog's
+  overlay beside it in the same pull request.
 - The panel paints its own colours, because the portal takes it out of every region `AppShell`
-  colours: `SURFACE` behind it, a `BORDER` edge, `TEXT_BODY` for `children` and `footer`, and
-  the `<h2>` in `TEXT_STRONG`. Without them its text would inherit whatever the page's `<body>`
-  sets, which docs/design-notes.md § Theming decision 6 rules out for every region the library
-  lays out for consumer content.
-- The panel is `w-full max-w-lg` and at most `calc(100dvh - 2rem)` tall; when its content is
-  taller, the body between the heading and the footer scrolls and the heading and footer stay
-  in view.
-- On the server and during hydration an open `Dialog` renders nothing, and it portals on the
-  first client render after: the client check reads `useSyncExternalStore` with a server
-  snapshot of `false`, so markup never mismatches and no `typeof window` guard is written. The
-  trap is armed with `open && isClient`, so an open `Dialog` hydrated from the server still
-  moves focus into its panel once the panel exists.
+  colours: `SURFACE` behind it, a `BORDER` edge, `TEXT_BODY` for `children` and `footer`, and the
+  `<h2>` in `TEXT_STRONG`. Without them its text would inherit whatever the page's `<body>` sets,
+  which docs/design-notes.md § Theming decision 6 rules out for every region the library lays out
+  for consumer content.
+- The panel is `w-full max-w-lg` and at most `calc(100dvh - 2rem)` tall; when its content is taller,
+  the body between the heading and the footer scrolls and the heading and footer stay in view.
+- While the body overflows and holds no focusable element, it carries `tabIndex={0}`,
+  `role="region"`, `aria-labelledby` pointing at the `<h2>` and the shared `FOCUS_RING`, so a
+  keyboard user can reach and scroll it (WCAG 2.1.1); otherwise it carries none of them, and a user
+  reaches its content by tabbing through its controls (decision 23). A layout effect, re-run from a
+  `ResizeObserver` where one exists, compares `scrollHeight` with `clientHeight` and sets or removes
+  the attributes on the node itself, without a re-render, so they are in place before the trap's
+  open effect looks for a first focusable element. An overflowing prose-only body is therefore the
+  first focusable element and takes initial focus. jsdom lays nothing out, so its test stubs the two
+  heights.
+- On the server and during hydration an open `Dialog` renders nothing, and it portals on the first
+  client render after: the client check reads `useSyncExternalStore` with a server snapshot of
+  `false`, so markup never mismatches and no `typeof window` guard is written. The trap is armed
+  with `open && isClient`, so an open `Dialog` hydrated from the server still moves focus into its
+  panel once the panel exists.
 - The panel traps focus through the shipped `useFocusTrap`: opening moves focus to the first
   focusable element in DOM order, Tab and Shift+Tab wrap inside it, and Escape calls `onClose`.
-- The DOM order is the `<h2>`, `children`, `footer`, then the close button, which CSS places in
-  the panel's corner. Opening therefore focuses the first control in `children`, else the first
-  in `footer`, and the close button only when neither holds one.
+- The DOM order is the `<h2>`, `children`, `footer`, then the close button, which CSS places in the
+  panel's corner. Opening therefore focuses the first control in `children`, else the overflowing
+  body when it is focusable (above), else the first control in `footer`, and the close button only
+  when none of those holds.
 - Closing - `open` turning false - and unmounting while open both return focus to
-  `returnFocusRef.current` when given, else to the element that held focus before the dialog
-  opened. A consumer whose confirmed action removes that element, such as the delete button of
-  a deleted row, passes `returnFocusRef`, because focus sent to a detached node lands on
-  `<body>`.
-- The close button is an `IconButton` with `CloseIcon`, named by `labels.closeDialog`
-  (default `"Close"`), which calls `onClose`.
+  `returnFocusRef.current` when given, else to the element that held focus before the dialog opened.
+  A consumer whose confirmed action removes that element, such as the delete button of a deleted
+  row, passes `returnFocusRef`, because focus sent to a detached node lands on `<body>`.
+- The close button is a `ghost` `IconButton` with `CloseIcon`, as `Notice`'s dismiss button is,
+  named by `labels.closeDialog` (default `"Close"`), which calls `onClose`.
 - A click on the overlay outside the panel does nothing.
 - `footer`, when given, renders after `children` in a right-aligned row.
 
@@ -327,36 +347,38 @@ export interface ConfirmDialogProps {
   busy?: boolean;
   /** As on `Dialog`. */
   returnFocusRef?: RefObject<HTMLElement | null>;
+  /** As on `Dialog`. */
+  container?: Element | null;
 }
 
 export const ConfirmDialog: (props: ConfirmDialogProps) => ReactElement | null;
 ```
 
-- `ConfirmDialog` renders through the same `ModalPanel` as `Dialog`, with every `Dialog`
-  behaviour above - portal, sizing, hydration, trap, focus return, no overlay dismissal - but
-  with `role="alertdialog"`, `aria-describedby` pointing at the `<div>` holding `description`,
-  and no close button (decision 17).
+- `ConfirmDialog` renders through the same `ModalPanel` as `Dialog`, with every `Dialog` behaviour
+  above - portal and `container`, sizing, the focusable overflowing body, hydration, trap, focus
+  return, no overlay dismissal - but with `role="alertdialog"`, `aria-describedby` pointing at the
+  `<div>` holding `description`, and no close button (decision 17).
 - Its body and footer sit in one `<form noValidate>`: `description` first, then `children`, then a
-  `secondary` cancel `Button` and a `danger` confirm `Button` of `type="submit"`. The confirm
-  button is always `danger`: the plan names no other style, and a confirmation that destroys
-  nothing needs no `ConfirmDialog`.
+  `secondary` cancel `Button` and a `danger` confirm `Button` of `type="submit"`. The confirm button
+  is always `danger`: the plan names no other style, and a confirmation that destroys nothing needs
+  no `ConfirmDialog`.
 - The form's submit handler always calls `preventDefault()`, so the browser never navigates and
-  jsdom never reports an unimplemented form submission, and `stopPropagation()`, so React's
-  `submit` event, which bubbles through a portal along the component tree, never reaches a
-  consumer's own `<form onSubmit>` around the `ConfirmDialog`.
-- Submitting the form - the confirm button, or Enter in a field among `children` - calls
-  `onConfirm` once, and never while `confirmDisabled` or `busy` holds.
+  jsdom never reports an unimplemented form submission, and `stopPropagation()`, so React's `submit`
+  event, which bubbles through a portal along the component tree, never reaches a consumer's own
+  `<form onSubmit>` around the `ConfirmDialog`.
+- Submitting the form - the confirm button, or Enter in a field among `children` - calls `onConfirm`
+  once, and never while `confirmDisabled` or `busy` holds.
 - The cancel button and Escape call `onCancel`.
 - While `confirmDisabled` holds, the confirm button carries the native `disabled` attribute.
-- `description` holds prose and no interactive element, as a selectable `Card`'s content holds
-  none: a control there would sit first in DOM order and take initial focus, and its label
-  would be read as part of the dialog's description.
-- Opening focuses the first control in `children`, else the cancel button - never the confirm
-  button.
-- The form carries `noValidate`, so a `required` or typed `TextField` among `children` never
-  raises the browser's own validation bubble, which would block `submit` and show a message in
-  the browser's language rather than the consumer's; validation stays the consumer's, shown
-  through `fieldError` and held through `confirmDisabled`.
+- `description` holds prose and no interactive element, as a selectable `Card`'s content holds none:
+  a control there would sit first in DOM order and take initial focus, and its label would be read
+  as part of the dialog's description.
+- Opening focuses the first control in `children`, else the overflowing body when it is focusable,
+  else the cancel button - never the confirm button.
+- The form carries `noValidate`, so a `required` or typed `TextField` among `children` never raises
+  the browser's own validation bubble, which would block `submit` and show a message in the
+  browser's language rather than the consumer's; validation stays the consumer's, shown through
+  `fieldError` and held through `confirmDisabled`.
 - While `busy` holds, both buttons are disabled, Escape does nothing, and the confirm button's
   children are its text and then `<LoadingIcon ariaLabel="" />`, sized with the same
   `buttonIconClassNames[size]` class `Button` gives its `icon` (src/components/buttonStyles.ts),
@@ -369,20 +391,22 @@ export const ConfirmDialog: (props: ConfirmDialogProps) => ReactElement | null;
   icon carries `motion-reduce:animate-none`, so the spin stops under `prefers-reduced-motion`. No
   `aria-busy` is set: some screen readers hold back a busy region's content, and the panel takes
   focus while busy (below), so marking it busy could silence the focus move.
-- The busy state is announced through `labels.confirmBusy` (default `"Working, please wait"`):
-  a `role="status"` span in the stylesheet's `bowman-sr-only` class sits in the panel from the
-  first render, empty, and receives the label while `busy` holds and loses it when `busy`
-  clears, so the live region exists before its text (specs/bowman-ui-toast/spec.md's lesson)
-  and WCAG 2.2's status-message criterion (4.1.3) is met without moving focus to say it
-  (decision 20). The assistive-technology pass's A8 row records what each screen reader
-  announces.
+- The busy state is announced through `labels.confirmBusy` (default `"Working, please wait"`): a
+  `role="status"` span in the stylesheet's `bowman-sr-only` class sits in the panel from the first
+  render, empty, and receives the label while `busy` holds and loses it when `busy` clears, so the
+  live region exists before its text (specs/bowman-ui-toast/spec.md's lesson) and WCAG 2.2's
+  status-message criterion (4.1.3) is met without moving focus to say it (decision 20). The text
+  comes from state an effect sets, never from `busy` during render, so a `ConfirmDialog` that opens
+  already busy mounts the region empty and fills it a commit later; its test renders with `busy`
+  true and asserts the region empty on the first commit and holding the label after effects flush.
+  The assistive-technology pass's A8 row records what each screen reader announces.
 - Entering `busy` while focus sits on one of the buttons it disables moves focus to the panel. A
   layout effect on `busy` turning true does it: it runs after React sets `disabled` and before the
   browser's focus fixup moves focus to `<body>`, while the button is still `document.activeElement`.
-  Leaving `busy` leaves focus on the panel, where the next Tab reaches the re-enabled buttons
-  (the second widened trap behaviour below). jsdom runs no focus fixup, so the claim
-  that focus never reaches `<body>` is proven in the chat-demo's Playwright suite; jsdom proves the
-  panel receives focus.
+  Leaving `busy` leaves focus on the panel, where the next Tab reaches the re-enabled buttons (the
+  second widened trap behaviour below). jsdom runs no focus fixup, so the claim that focus never
+  reaches `<body>` is proven in the chat-demo's Playwright suite; jsdom proves the panel receives
+  focus.
 
 ### `useFocusTrap`: three widened behaviours
 
@@ -390,28 +414,30 @@ The shipped hook keeps its signature and every other behaviour
 specs/bowman-ui-pure-hooks-error-boundary/spec.md pins, and gains three, which that spec's
 `useFocusTrap` bullet records in the same pull request:
 
-- With no focusable element inside the open container, opening focuses the container itself,
-  which takes focus when it carries `tabIndex={-1}`, as `ModalPanel`'s panel does, and Tab and
-  Shift+Tab are prevented. When focus has escaped the container, a prevented Tab also moves it
-  back to the container, as the non-empty branch pulls escaped focus back to an end today
+- With no focusable element inside the open container, opening focuses the container itself, which
+  takes focus when it carries `tabIndex={-1}`, as `ModalPanel`'s panel does, and Tab and Shift+Tab
+  are prevented. When focus has escaped the container, a prevented Tab also moves it back to the
+  container, as the non-empty branch pulls escaped focus back to an end today
   (src/hooks/useFocusTrap.ts), so focus is never left stranded outside the modal. A busy
-  `ConfirmDialog` with no fields therefore keeps focus on its panel instead of letting Tab
-  leave the dialog. This replaces the behaviour tests/useFocusTrap.test.tsx pins as "an empty
-  container leaves Tab handling alone": that test is retitled and rewritten in this pull request
-  to assert the Tab is prevented and focus lands on the container (see "Existing tests that
-  change").
+  `ConfirmDialog` with no fields therefore keeps focus on its panel instead of letting Tab leave the
+  dialog. This replaces the behaviour tests/useFocusTrap.test.tsx pins as "an empty container leaves
+  Tab handling alone": that test is retitled and rewritten in this pull request to assert the Tab is
+  prevented and focus lands on the container (see "Existing tests that change").
 - While focus sits on the container itself, Tab moves it to the first focusable element and
-  Shift+Tab to the last. Without this, the container counts as inside the trap but is neither
-  end, so no Tab is intercepted and a native Shift+Tab from the panel leaves it for the page's
-  last tabbable element, which the portal places before the panel.
+  Shift+Tab to the last. Without this, the container counts as inside the trap but is neither end,
+  so no Tab is intercepted and a native Shift+Tab from the panel leaves it for the page's last
+  tabbable element, which the portal places before the panel.
 - Unmounting while open returns focus as closing does, through its own effect with an empty
   dependency array (`[]`), so it runs on mount and unmount only, whose cleanup reads the open state
   from a ref. A cleanup that runs because `isOpen` or `triggerRef` changed never returns focus, so a
   close returns it once and a new `triggerRef` mid-dialog returns it never. A return target that is
   no longer connected is skipped. `AppShell` unmounting with its drawer open -
-  tests/AppShell.test.tsx does it - is the one existing caller this reaches, and its return target,
-  the hamburger, unmounts with it, so it is skipped. Under React's development StrictMode, the
-  simulated unmount returns focus and the re-run open effect moves it back into the container.
+  tests/AppShell.test.tsx does it - is the one existing caller this reaches. React detaches the
+  hamburger's ref before the cleanup runs, so the target falls back to the element that held focus
+  when the drawer opened: the detached hamburger, which is skipped, or `<body>` when the test opened
+  the drawer by `fireEvent.click` without focusing it, which takes focus harmlessly. Under React's
+  development StrictMode, the simulated unmount returns focus and the re-run open effect moves it
+  back into the container.
 
 ### `Notice`
 
@@ -438,26 +464,25 @@ export interface NoticeProps {
 export const Notice: (props: NoticeProps) => ReactElement;
 ```
 
-- Renders one container with an aria-hidden tone icon - `InfoIcon`, `CheckIcon`, `WarningIcon`
-  or `ErrorIcon` - then `heading` in bold and `children`. The heading is a bold `<span>`, not a
-  heading element, unlike a static `Card`'s `<h3>`: a notice sits inside the content it
-  qualifies, often several to a page, and an outline entry per notice would bury the page's own
-  headings; the live region and the icon already set it apart.
-- `info` and `success` render with `role="status"`; `warning` and `error` render with
-  `role="alert"` (decision 10).
-- Every tone renders on `SURFACE` inside `BORDER`, with `heading` in `TEXT_STRONG` and
-  `children` in `TEXT_BODY`, so no text sits on a tinted surface. The tone colours only the
-  icon and a 4px left border: `info` the new `--bowman-info`, `success` `--bowman-success`,
-  `warning` the new `--bowman-warning`, `error` `--bowman-danger`, through new class strings in
-  `src/theme/tokens.ts` that read those roles as text and border colours.
+- Renders one container with an aria-hidden tone icon - `InfoIcon`, `CheckIcon`, `WarningIcon` or
+  `ErrorIcon` - then `heading` in bold and `children`. The heading is a bold `<span>`, not a heading
+  element, unlike a static `Card`'s `<h3>`: a notice sits inside the content it qualifies, often
+  several to a page, and an outline entry per notice would bury the page's own headings; the live
+  region and the icon already set it apart.
+- `info` and `success` render with `role="status"`; `warning` and `error` render with `role="alert"`
+  (decision 10).
+- Every tone renders on `SURFACE` inside `BORDER`, with `heading` in `TEXT_STRONG` and `children` in
+  `TEXT_BODY`, so no text sits on a tinted surface. The tone colours only the icon and a 4px left
+  border: `info` the new `--bowman-info`, `success` `--bowman-success`, `warning` the new
+  `--bowman-warning`, `error` `--bowman-danger`, through new class strings in `src/theme/tokens.ts`
+  that read those roles as text and border colours.
 - Without `onDismiss` it renders no button. With it, a `ghost` `IconButton` holding `CloseIcon`,
-  named by `labels.dismissNotice` (default `"Dismiss"`), sits at the container's trailing edge
-  and calls `onDismiss` on a click. `Notice` keeps no open state of its own: the consumer
-  stops rendering it (decision 18). The dismiss button leaves with the notice, so the consumer
-  moves focus in `onDismiss` before it stops rendering the notice - to the control that showed
-  it or another element that stays - because focus on a removed button lands on `<body>`. `Notice`
-  cannot do it, holding no reference to the page around it; the chat-demo's `Notice` page shows
-  the pattern.
+  named by `labels.dismissNotice` (default `"Dismiss"`), sits at the container's trailing edge and
+  calls `onDismiss` on a click. `Notice` keeps no open state of its own: the consumer stops
+  rendering it (decision 18). The dismiss button leaves with the notice, so the consumer moves focus
+  in `onDismiss` before it stops rendering the notice - to the control that showed it or another
+  element that stays - because focus on a removed button lands on `<body>`. `Notice` cannot do it,
+  holding no reference to the page around it; the chat-demo's `Notice` page shows the pattern.
 - No timer: a notice states a condition for as long as the consumer renders it.
 
 ### `KeyValueList`
@@ -480,7 +505,12 @@ export const KeyValueList: (props: KeyValueListProps) => ReactElement | null;
 
 - Renders one `<dl>` holding, per item and in order, a `<div>` with a `<dt>` for `label` and a
   `<dd>` for `value`, keyed by `key`.
-- `layout` changes only the classes, never that structure. An empty `items` renders nothing.
+- `layout` changes only the classes, never that structure. `inline` lays each `<div>` out as a row,
+  the `<dt>` at a third of the width and the `<dd>` beside it; `stacked` puts the `<dd>` under the
+  `<dt>`. An empty `items` renders nothing.
+- Every `<dt>` is small text in `TEXT_MUTED` and every `<dd>` small text in `TEXT_STRONG`. The list
+  paints no background: it sits on the surface of whatever holds it, a static `Card` or a `Dialog`
+  panel on `SURFACE` in this package, which the contrast table measures.
 
 ### `Card`
 
@@ -501,35 +531,36 @@ export const Card: ForwardRefExoticComponent<CardProps & RefAttributes<HTMLEleme
   phrasing content only. On a static card it renders as an `<h3>` in the same bold style, so the
   heading keeps its semantics in the page's outline (WCAG 1.3.1); a consumer whose page needs
   another level wraps the card's content itself.
-- Without `onSelect` it renders a `<div>` on the `--bowman-surface` and `--bowman-border`
-  roles, with no role and no accessible name, so a page of cards adds no landmarks; `disabled`
-  renders nothing on it.
-- Both forms paint `heading` in `TEXT_STRONG` and `children` in `TEXT_BODY`, so a card's text
-  never inherits the page's colour, as the `Dialog` panel's does not.
+- Without `onSelect` it renders a `<div>` on the `--bowman-surface` and `--bowman-border` roles,
+  with no role and no accessible name, so a page of cards adds no landmarks; `disabled` renders
+  nothing on it.
+- Both forms paint `heading` in `TEXT_STRONG` and `children` in `TEXT_BODY`, so a card's text never
+  inherits the page's colour, as the `Dialog` panel's does not.
 - With `onSelect` the whole card renders as one `<button type="button">`, left-aligned, with the
   shared offset ring, `FOCUS_RING` from `src/theme/focusRing.ts`, and a `--bowman-surface-hover`
   hover. With a `heading`, the button is named by it through `aria-labelledby` and described by
   `children`, wrapped in a `<span>`, through `aria-describedby`, so a long body never becomes the
   name; without one, its accessible name is its content. The plan names the card from its visible
-  content; naming it from the heading alone, when there is one, is a deliberate deviation (decision
-  7): a screen reader then reads a short name and the body after it, not the whole card as one name.
-  Its `heading` and `children` must be phrasing content only - text, inline elements, icons - with
-  no interactive element, because a `<button>` may hold nothing else: no `<p>`, no `<div>`, and no
-  `KeyValueList`, whose `<dl>` belongs in a static card. A click or Enter or Space calls `onSelect`;
-  `disabled` renders the native attribute and the call never fires.
+  content; naming it from the heading alone, when there is one, is a deliberate deviation
+  (decision 7): a screen reader then reads a short name and the body after it, not the whole card as
+  one name. Its `heading` and `children` must be phrasing content only - text, inline elements,
+  icons - with no interactive element, because a `<button>` may hold nothing else: no `<p>`, no
+  `<div>`, and no `KeyValueList`, whose `<dl>` belongs in a static card. A click or Enter or Space
+  calls `onSelect`; `disabled` renders the native attribute and the call never fires, and the card
+  takes `Button`'s `disabled:cursor-not-allowed disabled:opacity-50` pair with no hover surface.
 - The `ref` reaches the `<div>` or the `<button>`; it is typed `HTMLElement`, and each branch
   attaches it with a cast to its own element's ref type.
 
 ## Conventions every new component follows
 
-- `TextField`, `Dialog`, `ConfirmDialog`, `Notice`, `Card` and the internal `ModalPanel` open
-  with `"use client"`, each for a trigger docs/design-notes.md decision 1 measures: an `on[A-Z]`
-  JSX handler (all six, `Notice` for its dismiss button), a hook (`useId`,
-  `useSyncExternalStore`, `useFocusTrap`, the busy layout effect) and, in `ModalPanel`,
-  `document.body` as the portal target. `SearchField` already carries the directive.
-  `KeyValueList` takes no handler and calls no hook, so its built file carries no directive and
-  stays server-safe; the RSC fixture's page (examples/rsc-fixture/app/page.tsx) renders it and a
-  `Notice` without `onDismiss` from its server component, so `npm run rsc` proves both.
+- `TextField`, `Dialog`, `ConfirmDialog`, `Notice`, `Card` and the internal `ModalPanel` open with
+  `"use client"`, each for a trigger docs/design-notes.md decision 1 measures: an `on[A-Z]` JSX
+  handler (all six, `Notice` for its dismiss button), a hook (`useId`, `useSyncExternalStore`,
+  `useFocusTrap`, the busy layout effect) and, in `ModalPanel`, `document.body` as the portal
+  target. `SearchField` already carries the directive. `KeyValueList` takes no handler and calls no
+  hook, so its built file carries no directive and stays server-safe; the RSC fixture's page
+  (examples/rsc-fixture/app/page.tsx) renders it and a `Notice` without `onDismiss` from its server
+  component, so `npm run rsc` proves both.
 - `TextField` and `Card` are `forwardRef` components under decision 4, and
   tests/fixtures/forward-ref-components.json gains both, or tests/forward-ref-components.test.ts
   fails; docs/design-notes.md § Styled primitives' "`Button`, `IconButton` and `SearchField` are
@@ -542,8 +573,8 @@ export const Card: ForwardRefExoticComponent<CardProps & RefAttributes<HTMLEleme
   button exists only to remove the notice, so focus never needs to return to it, and the consumer
   moves focus away from it in `onDismiss` (the `Notice` section).
 - No component takes `className`, `style` or a render prop (§ Styled primitives).
-- No icon is added: `CloseIcon`, `LoadingIcon`, `SearchIcon`, `InfoIcon`, `CheckIcon`,
-  `WarningIcon` and `ErrorIcon` already ship.
+- No icon is added: `CloseIcon`, `LoadingIcon`, `SearchIcon`, `InfoIcon`, `CheckIcon`, `WarningIcon`
+  and `ErrorIcon` already ship.
 - No keyframe is added. The busy `LoadingIcon` is the only motion, stopped by
   `motion-reduce:animate-none` in CSS, so `useReducedMotion` has nothing to gate.
 - Fixture data in every test is invented.
@@ -556,11 +587,25 @@ export const Card: ForwardRefExoticComponent<CardProps & RefAttributes<HTMLEleme
   fail it. Their behaviour tests call `stubFocusEnvironment` (tests/helpers/focus-environment.ts):
   jsdom 30 has no `checkVisibility` and reports a null `offsetParent`, so without the stub every
   control reads as hidden and the trap's empty-container branch would focus the panel instead.
+- tests/labelled-exports.test.tsx gains one key-coverage `it()` per new labelled component, in the
+  shapes the file already uses: `TextField`'s sentinels are exactly `fieldLabel`, `fieldHint` and
+  `fieldError`, as `IconButton`'s are exactly its one required key, because it ships no defaults
+  object; `Dialog`'s cover every `defaultDialogLabels` key plus the required `dialogTitle`, and
+  `ConfirmDialog`'s every `defaultConfirmDialogLabels` key plus the required `dialogTitle` and
+  `confirmAction`, as `ChatMessageList`'s cover its defaults plus `aiDisclosure`; `Notice`'s cover
+  every `defaultNoticeLabels` key.
+- A new tests/form-dialog-notice-dist.test.ts, shaped like tests/primitives-dist.test.ts, checks the
+  new built files' directives (the five client files open with `"use client"`, `KeyValueList.js`
+  does not) and compiles a new tests/types/form-dialog-notice-type-assertions.tsx against dist/.
+  That file's `@ts-expect-error` fixtures pin that omitting `labels`, or `labels` without
+  `fieldLabel`, `dialogTitle` or `confirmAction`, is a compile error; that no new component takes
+  `className`; that a `SearchFieldLabels` object without `submitSearch` is a compile error; and,
+  without a directive, that `variant="danger"` compiles on `Button` and `IconButton`.
+  tests/primitives-dist.test.ts and its assertions file stay as they are.
 
 ## Theming
 
-Nine `--bowman-*` custom properties join the 44, for 53, each read only through a `var()`
-fallback:
+Nine `--bowman-*` custom properties join the 44, for 53, each read only through a `var()` fallback:
 
 | Property                          | Fallback                 | Role                            |
 | --------------------------------- | ------------------------ | ------------------------------- |
@@ -574,9 +619,9 @@ fallback:
 | `--bowman-warning`                | `var(--color-amber-700)` | warning icon and border (light) |
 | `--bowman-warning-dark`           | `var(--color-amber-300)` | warning icon and border (dark)  |
 
-Every pair a component renders text on meets WCAG 2.2 AA (4.5:1) and every icon and tone
-border meets the 3:1 non-text minimum, in both themes, recorded in the § Theming table's row
-before the pull request lands. Measured from Tailwind v4's palette for the fallbacks:
+Every pair a component renders text on meets WCAG 2.2 AA (4.5:1) and every icon and tone border
+meets the 3:1 non-text minimum, in both themes, recorded in the § Theming table's row before the
+pull request lands. Measured from Tailwind v4's palette for the fallbacks:
 
 | Pair                                         | Light   | Dark    | Minimum |
 | -------------------------------------------- | ------- | ------- | ------- |
@@ -587,6 +632,8 @@ before the pull request lands. Measured from Tailwind v4's palette for the fallb
 | `CONTROL_BORDER` (`TextField` border)        | 4.77:1  | 6.79:1  | 3:1     |
 | `TEXT_BODY` (panel and card body) on surface | 10.34:1 | 14.49:1 | 4.5:1   |
 | `TEXT_STRONG` (panel and card heading)       | 17.84:1 | 16.28:1 | 4.5:1   |
+| `TEXT_MUTED` (`KeyValueList` term)           | 4.77:1  | 6.79:1  | 4.5:1   |
+| `TEXT_STRONG` (`KeyValueList` value)         | 17.84:1 | 16.28:1 | 4.5:1   |
 | `info` icon and border on surface            | 5.26:1  | 6.77:1  | 3:1     |
 | `success` icon and border on surface         | 3.22:1  | 10.05:1 | 3:1     |
 | `warning` icon and border on surface         | 5.05:1  | 12.34:1 | 3:1     |
@@ -595,170 +642,179 @@ before the pull request lands. Measured from Tailwind v4's palette for the fallb
 The same pull request moves every place tests/theming-tokens-dist.test.ts pins the count or the
 token set, or the suite reds:
 
-- the `src/styles.css` comment block, one line per new token, and the existing lines whose
-  readers gain a component: `--bowman-danger` (`TextField`'s error text and border, `Notice`'s
-  error tone), `--bowman-success` (`Notice`'s success tone), and the neutral roles the new
-  components paint, such as `--bowman-surface` and `--bowman-border`;
-- docs/design-notes.md § Theming: its table, including the "Read by" column of those same
-  existing rows; its three spelled counts; and its group breakdown, whose semantic-colour group
-  grows from eight to seventeen and whose parenthetical, which names only the danger and success
-  roles, names the danger-fill, info and warning roles beside them under decision 6;
+- the `src/styles.css` comment block, one line per new token, and the existing lines whose readers
+  gain a component: `--bowman-danger` (`TextField`'s error text and border, `Notice`'s error tone),
+  `--bowman-success` (`Notice`'s success tone), and the neutral roles the new components paint, such
+  as `--bowman-surface` and `--bowman-border`;
+- docs/design-notes.md § Theming: its table, including the "Read by" column of those same existing
+  rows; its three spelled counts; and the group breakdown in its opening sentence, whose
+  semantic-colour group grows from eight to seventeen and whose parenthetical, which names only the
+  danger and success roles, names the danger-fill, info and warning roles beside them under
+  decision 6;
 - docs/design-notes.md § Theming decision 12, which names the `FOCUS_RING` module's "five
-  importers - `AppShell`, `AppSidebar`, `ConversationList`, `PromptChips` and `buttonStyles`",
-  gains `Card` as the sixth;
-- `specs/bowman-ui-theming-tokens/spec.md`: its four spelled counts and its group breakdown;
-  its § Semantic colour roles, which names only the danger and success roles, gains the
-  danger-fill, info and warning roles; its § What stays palette-mapped gains the dialog overlay
-  beside the mobile overlay; and the new reading sites join the ones its intro says it pins;
+  importers - `AppShell`, `AppSidebar`, `ConversationList`, `PromptChips` and `buttonStyles`", gains
+  `Card` and `ModalPanel` as the sixth and seventh;
+- `specs/bowman-ui-theming-tokens/spec.md`: its four spelled counts and its group breakdown; its
+  § Semantic colour roles, which names only the danger and success roles, gains the danger-fill,
+  info and warning roles; its § What stays palette-mapped gains the dialog overlay beside the mobile
+  overlay; and the new reading sites join the ones its intro says it pins;
 - `.specify/spec.md`, CLAUDE.md invariant 13 ("Exactly 44"), README.md's three spelled counts,
   `examples/chat-demo/README.md`, `examples/chat-demo/src/themes.tsx` and
   `examples/chat-demo/src/docs/ThemingSection.tsx`'s two;
-- `examples/chat-demo/src/custom-theme.css`, which must set all 53 tokens, not only spell the
-  count;
+- `examples/chat-demo/src/custom-theme.css`, which must set all 53 tokens, not only spell the count;
 - the test's `EXPECTED_FALLBACKS` map, which gains the nine tokens with their fallbacks in
   declaration order;
-- the test's `NEUTRAL_ROLE_READERS` map, which pins each class string to the built files that
-  import it, so a site drifting back to a palette utility fails:
+- the test's `NEUTRAL_ROLE_READERS` map, which pins each class string to the built files that import
+  it, so a site drifting back to a palette utility fails:
   - existing keys gain the new readers - `SURFACE`, `BORDER`, `TEXT_STRONG` and `TEXT_BODY` gain
     `ModalPanel` and `Card` (and `Notice`, which paints its container and text the same way);
     `SURFACE` and `TEXT_STRONG` also gain `TextField`, whose input sits on `SURFACE` with its text
-    and label in `TEXT_STRONG`; `SURFACE_HOVER` gains `Card` for its selectable hover;
-    `TEXT_MUTED` gains `TextField`; and `DANGER` gains `TextField`. The test compares each list
-    exactly, so a reader missing here fails it;
+    and label in `TEXT_STRONG`; `SURFACE_HOVER` gains `Card` for its selectable hover; `TEXT_MUTED`
+    gains `TextField` and `KeyValueList`, and `TEXT_STRONG` `KeyValueList` too; and `DANGER` gains
+    `TextField`. The test compares each list exactly, so a reader missing here fails it;
   - every new class string `src/theme/tokens.ts` gains is keyed with its readers: `DANGER_FILL`,
     `DANGER_FILL_HOVER` and `TEXT_ON_DANGER` with `buttonStyles`, as `TEXT_ON_ACCENT` is keyed
     today; `DANGER_BORDER` and `CONTROL_BORDER` with `TextField`; and the tone strings that read
-    `--bowman-info`, `--bowman-warning`, `--bowman-success` and `--bowman-danger` as icon and
-    border colours with `Notice`;
-- the `FOCUS_RING` readers: `Card` makes six offset-ring importers, so the test's reader list
-  and its `it()` title ("exactly the five offset-ring components"), the titled link to it in
-  specs/bowman-ui-theming-tokens/spec.md, and CLAUDE.md's "imported by five files (four
-  components and `buttonStyles.ts`)", which becomes "six files (five components and
-  `buttonStyles.ts`)", move with it;
-- examples/chat-demo/tests/theming.spec.ts, which measures every declared token at a visible
-  site in a real browser, under both schemes and in WebKit too, and today requires every site to
-  be on the chat screen (decision 19).
+    `--bowman-info`, `--bowman-warning`, `--bowman-success` and `--bowman-danger` as icon and border
+    colours with `Notice`;
+- the `FOCUS_RING` readers: `Card` and `ModalPanel`, for its focusable scrolling body, make seven
+  offset-ring importers, so the test's reader list and its `it()` title ("exactly the five
+  offset-ring components"), the titled link to it in specs/bowman-ui-theming-tokens/spec.md, and
+  CLAUDE.md's "imported by five files (four components and `buttonStyles.ts`)", which becomes "seven
+  files (six components and `buttonStyles.ts`)", move with it;
+- examples/chat-demo/tests/theming.spec.ts, which measures every declared token at a visible site in
+  a real browser, under both schemes and in WebKit too, and today requires every site to be on the
+  chat screen (decision 19).
 
 ## Accessibility checks
 
 WCAG 2.2 AA is the floor. Three layers prove it, and none is a reviewer's sign-off:
 
-- The unit tests keep checking roles, names and attributes in jsdom, as every component's
-  tests do today.
+- The unit tests keep checking roles, names and attributes in jsdom, as every component's tests do
+  today.
 - The chat-demo's Playwright suite gains `@axe-core/playwright` as a devDependency of
-  examples/chat-demo/package.json - never of the package, which gains no dependency of any
-  kind - and runs it against each new component's documentation page in every state that
-  applies: default, disabled, error, busy, open and closed. It runs in a real browser, so it
-  measures contrast, including the `danger` fill, and the target is zero violations under the
-  WCAG 2.2 AA rule tags in every state.
+  examples/chat-demo/package.json, pinned to an exact version as that file pins every dependency,
+  with examples/chat-demo/package-lock.json updated in the same pull request, because
+  scripts/consumer-app.sh installs it with `npm ci` - never of the package, which gains no
+  dependency of any kind. It runs against each new component's documentation page in every state
+  that applies - default, disabled, error, busy, open, closed and, on the `Dialog` page, open with a
+  body that overflows - and against the `search-field` page with `onSubmit`. It runs in a real
+  browser, so it measures contrast, including the `danger` fill, and its
+  `scrollable-region-focusable` rule checks the overflowing body; the target is zero violations
+  under the WCAG 2.2 AA rule tags in every state.
 - Keyboard use is checked by hand against each page.
 
-specs/bowman-ui-assistive-technology-pass/spec.md keeps its manual screen-reader procedure, and
-its out-of-scope line for an automated scanner stays true of that pass: the scanner added here
-runs in the chat-demo's suite, not in the pass. The pass itself, docs/accessibility/README.md,
-gains two rows in the same pull request, A8 and A9, each recording what every screen reader in
-the pass announces: a `ConfirmDialog` turning busy - the focus move to its panel and the
-`confirmBusy` status message (decision 20) - and a `Notice` mounted with its text, in each tone
-(decision 14). The rows' verdicts are owed by the human runner, as A1-A7's are. What moves with
-them:
+specs/bowman-ui-assistive-technology-pass/spec.md keeps its manual screen-reader procedure, and its
+out-of-scope line for an automated scanner stays true of that pass: the scanner added here runs in
+the chat-demo's suite, not in the pass. The pass itself, docs/accessibility/README.md, gains two
+rows in the same pull request, A8 and A9, each recording what every screen reader in the pass
+announces: a `ConfirmDialog` turning busy - the focus move to its panel and the `confirmBusy` status
+message (decision 20) - and a `Notice` mounted with its text, in each tone (decision 14). The rows'
+verdicts are owed by the human runner, as A1-A7's are. What moves with them:
 
-- docs/accessibility/README.md's "The surface under test" sends the runner to `?view=chat` and
-  calls a transcription taken anywhere else "of the wrong page"; the chat screen holds neither
-  component (decision 19), so that section names the `ConfirmDialog` and `Notice` documentation
-  pages as A8's and A9's surface, and A1-A7 keep the chat screen;
+- docs/accessibility/README.md's "The surface under test" sends the runner to `?view=chat` and calls
+  a transcription taken anywhere else "of the wrong page"; the chat screen holds neither component
+  (decision 19), so that section names the `ConfirmDialog` and `Notice` documentation pages as A8's
+  and A9's surface, and A1-A7 keep the chat screen;
 - docs/accessibility/README.md's other counts move: "the seven rows are around 30 minutes" and
-  "every declared stack needs its seven rows" become nine, and its `covers` rule, "which today
-  means all seven above", gains `ConfirmDialog.tsx`, `ModalPanel.tsx` and `Notice.tsx`;
+  "every declared stack needs its seven rows" become nine; the front-matter table's "`id`
+  (`A1`..`A7`)", § Verdicts' "Every row A1 to A7" and § The body's "headed `## A1` to `## A7`"
+  become A9; and its `covers` rule, "List every component the rows exercise, which today means all
+  seven above", gains what A8 and A9 exercise: `ConfirmDialog.tsx`, `ModalPanel.tsx`, `Button.tsx`
+  (its cancel and danger confirm buttons) and `src/hooks/useFocusTrap.ts` (the busy focus move) for
+  A8, and `Notice.tsx` and `IconButton.tsx` (its dismiss button) for A9;
 - `scripts/check-at-pass.mjs`'s closed `ROWS` list gains `"A8"` and `"A9"`, or a new row is never
   checked for a verdict, and its header comment's "every row A1-A7" becomes A1-A9;
-  tests/check-at-pass.test.ts's hard-coded `rowIds` gains both (see "Existing tests that
-  change");
+  tests/check-at-pass.test.ts's hard-coded `rowIds` gains both (see "Existing tests that change");
 - docs/accessibility/README.md's "fourteen verbatim transcriptions" - seven rows on two stacks -
-  becomes eighteen; its "the seven are this document's rule", a count of components, becomes ten;
-  and its front-matter block, which calls itself "complete and copy-pasteable", lists the ten
-  `covers` paths and rows A1-A9, or a record copied from it fails the gate once `ROWS` gains A8
-  and A9;
+  becomes eighteen; its "the seven are this document's rule", a count of paths, becomes thirteen;
+  and its front-matter block, which calls itself "complete and copy-pasteable", lists the thirteen
+  `covers` paths and rows A1-A9, or a record copied from it fails the gate once `ROWS` gains A8 and
+  A9;
 - specs/bowman-ui-assistive-technology-pass/spec.md: its "seven rows" becomes nine, its "A1-A7"
-  references become "A1-A9", its "names all seven components" becomes ten, and it gains a
-  statement for each new row beside A1-A7's.
+  references become "A1-A9", its "names all seven components the rows exercise" becomes thirteen
+  paths, KU-22's "seven checks" becomes nine, and it gains a statement for each new row beside
+  A1-A7's. Each new statement links to the owed record as A1-A7's do and sits inside the
+  `re-lint/no-dead-md-links` disable block, whose comment, "the seven links below", becomes nine.
 
 ## The published surface
 
 `tests/fixtures/public-api.json` grows from 66 to 75 runtime names (`TextField`, `Dialog`,
 `ConfirmDialog`, `Notice`, `KeyValueList`, `Card`, `defaultDialogLabels`,
-`defaultConfirmDialogLabels`, `defaultNoticeLabels`) and from 57 to 70 type names
-(`TextFieldType`, `TextFieldLabels`, `TextFieldProps`, `DialogLabels`, `DialogProps`,
-`ConfirmDialogLabels`, `ConfirmDialogProps`, `NoticeTone`, `NoticeLabels`, `NoticeProps`,
-`KeyValueListItem`, `KeyValueListProps`, `CardProps`), written by
-`node scripts/write-public-api.mjs` after the surface was decided here, never regenerated to
-make the test pass. Nothing is removed or renamed: `ButtonVariant` only widens, and
-`SearchField` gains a prop and a label key under names the snapshot already holds. A diff of the
-published type declarations against the previous release shows only added exports, added
-props, the added optional label key and the added variant, so this ships as a minor release.
-`submitSearch` is optional in `SearchFieldLabels`, so no consumer object typed with it breaks.
-Two changes a consumer can still feel are accepted and named in the release notes:
+`defaultConfirmDialogLabels`, `defaultNoticeLabels`) and from 57 to 70 type names (`TextFieldType`,
+`TextFieldLabels`, `TextFieldProps`, `DialogLabels`, `DialogProps`, `ConfirmDialogLabels`,
+`ConfirmDialogProps`, `NoticeTone`, `NoticeLabels`, `NoticeProps`, `KeyValueListItem`,
+`KeyValueListProps`, `CardProps`), written by `node scripts/write-public-api.mjs` after the surface
+was decided here, never regenerated to make the test pass. Nothing is removed or renamed:
+`ButtonVariant` only widens, and `SearchField` gains a prop and a label key under names the snapshot
+already holds. A diff of the published type declarations against the previous release shows only
+added exports, added props, the added label key and the added variant, so this ships as a minor
+release. Three changes a consumer can still feel are accepted and named in the release notes:
 
 - `ButtonVariant` gains `"danger"`, so a consumer's exhaustive `Record<ButtonVariant, …>` or
   `switch` over it needs a fourth case.
+- `SearchFieldLabels` gains the required `submitSearch`, so a consumer's complete catalogue typed
+  `SearchFieldLabels` needs the key; `labels?: Partial<SearchFieldLabels>` and every consumer
+  passing a partial object are unaffected. It is required, as `composerBusyHint` is in
+  `ChatComposerLabels`, so README § Labels and translations' promise that "a missing key is a
+  compile error" keeps holding for a translated catalogue (decision 6).
 - The public `useFocusTrap` hook changes behaviour for an empty container, for focus on the
   container itself and for an unmount while open (the `useFocusTrap` section). A consumer that
   relied on an empty trap leaving Tab alone now sees Tab prevented.
 
-The prose that spells the surface moves with it in the same pull request: `.specify/spec.md`'s
-"66 named value exports: 17 components, … 14 label-defaults objects … plus 57 type exports"
-becomes 75, 23, 17 and 70; CLAUDE.md invariant 3's "66 runtime + 57 type names" becomes 75 and
-70; CLAUDE.md's directory map counts 26 `.tsx` files in `src/components/` and names
-`ModalPanel` beside `FeedbackButtons` as internal; and in
-specs/bowman-ui-styled-primitives/spec.md the `ButtonVariant` block gains `"danger"` and the
-`SearchField` block gains `onSubmit` and `submitSearch`, each citing this spec.
-docs/design-notes.md § Styled primitives records both amendments in the same pull request: its
-`ButtonVariant` decision names four variants, and its `SearchField` decision drops "no submit"
-(decision 3). Its refusal of layout primitives is narrowed for `Card` (decision 7); its opening
-sentence, "`Button`, `IconButton`, `PromptChips` and `SearchField` are a closed set", and its
-"applied to four more components" both count the new styled components; and § Theming
-decision 11, which lists the token imports of `buttonStyles.ts`, gains the three danger
-strings. docs/design-notes.md § Labels decisions 2 and 5 are amended (decision 6). CLAUDE.md's
-spec count, "30 feature specs", already lags `main`'s 32 and becomes 33 with this spec.
+The prose that spells the surface moves with it in the same pull request: `.specify/spec.md`'s "66
+named value exports: 17 components, … 14 label-defaults objects … plus 57 type exports"
+becomes 75, 23, 17 and 70; CLAUDE.md invariant 3's "66 runtime + 57 type names" becomes 75 and 70;
+CLAUDE.md's directory map counts 26 `.tsx` files in `src/components/` and names `ModalPanel` beside
+`FeedbackButtons` as internal; and in specs/bowman-ui-styled-primitives/spec.md the `ButtonVariant`
+block gains `"danger"` and the `SearchField` block gains `onSubmit` and `submitSearch`, each citing
+this spec. docs/design-notes.md § Styled primitives records both amendments in the same pull
+request: its `ButtonVariant` decision names four variants, and its `SearchField` decision drops "no
+submit" (decision 3). Its refusal of layout primitives is narrowed for `Card` (decision 7); its
+opening sentence, "`Button`, `IconButton`, `PromptChips` and `SearchField` are a closed set", and
+its "applied to four more components" both count the new styled components; and § Theming
+decision 11, which lists the token imports of `buttonStyles.ts`, gains the three danger strings.
+docs/design-notes.md § Labels decisions 2 and 5 are amended (decision 6). CLAUDE.md's spec count,
+"30 feature specs", already lags `main`'s 32 and becomes 33 with this spec.
 
 ## Recorded decisions
 
-1. **`Dialog` is a `role="dialog"` panel on `useFocusTrap`, not the native `<dialog>`.** jsdom
-   30, the suite's environment, implements no `showModal`, so a native dialog's modality could
-   only be tested in a browser; `AppShell`'s mobile drawer already carries `role="dialog"`,
-   `aria-modal` and the trap, and one focus primitive serves both. Without the native top
-   layer the panel needs a portal: a transformed ancestor, such as `AppShell`'s translated
-   drawer, becomes the containing block of a fixed descendant, so an overlay rendered in place
-   would cover that ancestor rather than the viewport, and be clipped wherever the ancestor
-   sets `overflow`. `createPortal` comes from `react-dom`, already a peer and already imported
-   by `ErrorBoundary`. The plan says dialogs "build on the browser's built-in modal support";
-   this is the one place the spec departs from it on purpose. What the dialogs keep from the
-   browser is `aria-modal` and the native `disabled`, focus and form-submit behaviour.
+1. **`Dialog` is a `role="dialog"` panel on `useFocusTrap`, not the native `<dialog>`.** jsdom 30,
+   the suite's environment, implements no `showModal`, so a native dialog's modality could only be
+   tested in a browser; `AppShell`'s mobile drawer already carries `role="dialog"`, `aria-modal` and
+   the trap, and one focus primitive serves both. Without the native top layer the panel needs a
+   portal: a transformed ancestor, such as `AppShell`'s translated drawer, becomes the containing
+   block of a fixed descendant, so an overlay rendered in place would cover that ancestor rather
+   than the viewport, and be clipped wherever the ancestor sets `overflow`. `createPortal` comes
+   from `react-dom`, already a peer and already imported, for `flushSync`, by `ErrorBoundary`. The
+   plan says dialogs "build on the browser's built-in modal support"; this is the one place the spec
+   departs from it on purpose. What the dialogs keep from the browser is `aria-modal` and the native
+   `disabled`, focus and form-submit behaviour.
 2. **No dismissal on an overlay click.** `ConfirmDialog` guards destructive actions, and a stray
-   click that closed it would discard what the user had typed; Escape, Cancel and `Dialog`'s
-   close button are deliberate. `Dialog` shares the rule so the two never differ.
-3. **`SearchField` gains a submit, amending § Styled primitives.** That section records "no
-   submit", because filtering as the user types was left to the consumer. Some searches cannot
-   run on every keystroke - a server query, a paid lookup - and the consumer's own `<form>` and
-   `Button` put the submit control outside the field's border with a name of its own choosing.
-   An optional `onSubmit` keeps the recorded behaviour for every consumer who does not pass it,
-   and the design record is amended in the same pull request.
+   click that closed it would discard what the user had typed; Escape, Cancel and `Dialog`'s close
+   button are deliberate. `Dialog` shares the rule so the two never differ.
+3. **`SearchField` gains a submit, amending § Styled primitives.** That section records "no submit",
+   because filtering as the user types was left to the consumer. Some searches cannot run on every
+   keystroke - a server query, a paid lookup - and the consumer's own `<form>` and `Button` put the
+   submit control outside the field's border with a name of its own choosing. An optional `onSubmit`
+   keeps the recorded behaviour for every consumer who does not pass it, and the design record is
+   amended in the same pull request.
 4. **The danger fill takes its own roles.** `--bowman-danger` is a text role whose dark value,
-   `red-400`, is too light for white text on top of it. Reusing it as a fill would fail
-   contrast in dark mode. Reusing `--bowman-text-on-accent` would tie danger text to the
-   accent's theme: that token exists so a consumer with a pale accent can switch the primary
-   button's text to dark (docs/design-notes.md § Theming), and that switch must not also turn
-   the danger button's text dark on red.
-   The dark hover darkens to `red-700` rather than lightening to `red-500`, because white on
-   `red-500` measures 3.82:1 and fails AA.
-5. **A notice's text never sits on a tinted surface, and info and warning get their own
-   roles.** The existing soft surfaces fail as text backgrounds for their own tone colour:
-   `--bowman-success` on `--bowman-success-soft` measures 2.93:1 and `--bowman-danger` on
-   `--bowman-danger-soft` 3.90:1. Adding a text role per tone would cost eight tokens; keeping
-   the text in the body roles on `SURFACE` and colouring only the icon and the left border
-   needs non-text contrast, 3:1, which success and danger already meet on `SURFACE`. Info
-   cannot borrow `--bowman-accent`: that is a fill, whose dark value must stay dark enough for
-   white text while an icon on `slate-900` needs it light, and today's `blue-600` already sits
-   at 3.40:1 there. Warning has no role at all, and amber no stand-in in the palette. Neither
+   `red-400`, is too light for white text on top of it. Reusing it as a fill would fail contrast in
+   dark mode. Reusing `--bowman-text-on-accent` would tie danger text to the accent's theme: that
+   token exists so a consumer with a pale accent can switch the primary button's text to dark
+   (docs/design-notes.md § Theming), and that switch must not also turn the danger button's text
+   dark on red. The dark hover darkens to `red-700` rather than lightening to `red-500`, because
+   white on `red-500` measures 3.82:1 and fails AA.
+5. **A notice's text never sits on a tinted surface, and info and warning get their own roles.** The
+   existing soft surfaces fail as text backgrounds for their own tone colour: `--bowman-success` on
+   `--bowman-success-soft` measures 2.93:1 and `--bowman-danger` on `--bowman-danger-soft` 3.90:1.
+   Adding a text role per tone would cost eight tokens; keeping the text in the body roles on
+   `SURFACE` and colouring only the icon and the left border needs non-text contrast, 3:1, which
+   success and danger already meet on `SURFACE`. Info does not borrow `--bowman-accent`, though
+   `blue-600` passes 3:1 on both surfaces today: the accent is the brand fill a consumer re-themes
+   first, and a brand colour chosen for buttons would then recolour every info notice, however it
+   measured as an icon. Warning has no role at all, and amber no stand-in in the palette. Neither
    needs a soft twin.
 6. **`TextField`'s strings are required labels, never string props.** `fieldLabel`, `fieldHint` and
    `fieldError` ride in `labels: TextFieldLabels`, so the `stringPropOnly` list stays at three. The
@@ -766,64 +822,66 @@ spec count, "30 feature specs", already lags `main`'s 32 and becomes 33 with thi
    could disagree with it, and an invalid input with no message gives a screen reader nothing to
    read. Five components now take a required `labels` prop: `ChatMessageList`, `IconButton`,
    `TextField`, `Dialog` and `ConfirmDialog`. `IconButton` and `TextField` ship no defaults object,
-   because no key of theirs has a meaningful default. Two labels types are the first with optional
-   keys: `TextFieldLabels`, whose `fieldHint` and `fieldError` have no default because a hint and an
-   error are not always there, and `SearchFieldLabels`, whose `submitSearch` is optional but
-   defaulted, so no consumer object typed with it breaks. `Dialog` and `ConfirmDialog` require only
-   their title and confirm text and default the rest, as `ChatMessageList` does, so
-   `defaultDialogLabels` and `defaultConfirmDialogLabels` are typed `Readonly<Required<Pick<…>>>`
-   over their defaulted keys, as `defaultChatMessageListLabels` is typed over an `Omit` today. That
-   departs from docs/design-notes.md § Labels decision 2, which fixes `defaultXLabels:
-Readonly<Required<XLabels>>`, and widens decision 5, which allows a required key but not an
-   optional one; both decisions are amended in the same pull request to name the defaulted-keys
-   typing and both kinds of optional key, with and without a default. Every place that lists the
-   required labels records all five in the same pull request: § Labels, which today speaks of "these
-   two exceptions"; `.specify/spec.md`'s Labels Convention capability, which names "the two required
+   because no key of theirs has a meaningful default. `TextFieldLabels` is the first labels type
+   with optional keys: `fieldHint` and `fieldError` have no default because a hint and an error are
+   not always there. `SearchFieldLabels`' new `submitSearch` is required and defaulted, as
+   `composerBusyHint` is: an optional defaulted key would let a translated catalogue typed
+   `SearchFieldLabels` omit it and still compile, showing English, which breaks README § Labels and
+   translations' "a missing key is a compile error". `Dialog` and `ConfirmDialog` require only their
+   title and confirm text and default the rest, as `ChatMessageList` does, so `defaultDialogLabels`
+   and `defaultConfirmDialogLabels` are typed `Readonly<Required<Pick<…>>>` over their defaulted
+   keys, as `defaultChatMessageListLabels` is typed over an `Omit` today. That departs from
+   docs/design-notes.md § Labels decision 2, which fixes
+   `defaultXLabels: Readonly<Required<XLabels>>`, and widens decision 5, which allows a required key
+   but not an optional one; both decisions are amended in the same pull request to name the
+   defaulted-keys typing and an optional key with no default. Every place that lists the required
+   labels records all five in the same pull request: § Labels, which today speaks of "these two
+   exceptions"; `.specify/spec.md`'s Labels Convention capability, which names "the two required
    labels with no default"; CLAUDE.md invariant 1, which names `ChatMessageList.labels` and
    `IconButton.labels` as required; the bucket comment in tests/labelled-exports.test.tsx; and
-   README.md § Labels and translations, whose "Each labelled component takes `labels?:
-Partial<XLabels>`" gains the five required exceptions beside its three string-prop ones.
+   README.md § Labels and translations, whose "Each labelled component takes
+   `labels?: Partial<XLabels>`" gains the five required exceptions beside its three string-prop
+   ones.
 7. **`Card` narrows the refusal of layout primitives.** § Styled primitives refuses layout
-   primitives because they would decide spacing the consumer's page already decides. `Card`
-   decides one inner padding and nothing about the page: no grid, no gap, no width. It ships
-   for what a consumer gets wrong by hand - a whole surface that is one button, with one
-   accessible name and the package's focus ring. docs/design-notes.md § Styled primitives and
-   specs/bowman-ui-styled-primitives/spec.md record the narrowed refusal in the same pull
-   request. `Card` ships with the other seven changes: the plan ships all eight together. Its
-   one accessible name is the heading when there is one, not the whole visible content the plan
-   names: a name built from a long body is read in full before the user learns what the card
-   is, so the body becomes the description.
-8. **`ConfirmDialog` is a form.** Enter in a field confirms, as a user expects, and the guard
-   lives in one place: the submit handler checks `confirmDisabled` and `busy`, so neither the
-   confirm button nor Enter can bypass it.
+   primitives because they would decide spacing the consumer's page already decides. `Card` decides
+   one inner padding and nothing about the page: no grid, no gap, no width. It ships for what a
+   consumer gets wrong by hand - a whole surface that is one button, with one accessible name and
+   the package's focus ring. docs/design-notes.md § Styled primitives and
+   specs/bowman-ui-styled-primitives/spec.md record the narrowed refusal in the same pull request.
+   `Card` ships with the other seven changes: the plan ships all eight together. Its one accessible
+   name is the heading when there is one, not the whole visible content the plan names: a name built
+   from a long body is read in full before the user learns what the card is, so the body becomes the
+   description.
+8. **`ConfirmDialog` is a form.** Enter in a field confirms, as a user expects, and the guard lives
+   in one place: the submit handler checks `confirmDisabled` and `busy`, so neither the confirm
+   button nor Enter can bypass it.
 9. **`Notice` is not a toast.** specs/bowman-ui-toast/spec.md ships no variants or severity styling,
    and `Notice` does not give it any: a toast is transient and positioned, a notice is inline and
    stays.
-10. **Warning and error notices are alerts; info and success are status.** A warning and an
-    error both ask the user to act before going on, which is what an alert is for; info and
-    success report and wait. `role="alert"` makes some screen readers interrupt on every load,
-    so a condition a page shows from its first render that asks nothing of the user is an
-    `info` notice, not a `warning`; the chat-demo's `Notice` page says so.
-11. **One modal at a time.** `AppShell`'s open mobile drawer is itself a modal, so a `Dialog`
-    opened over it is the nested-dialog case this spec leaves out. Both traps listen on
-    `document`: one Escape would close both, and Tab would never move, because the drawer's
-    trap pulls focus back into the drawer and the dialog's then pulls it back to its own first
-    element. A consumer closes the drawer before opening a dialog from it; the chat-demo's
-    `Dialog` page says so.
+10. **Warning and error notices are alerts; info and success are status.** A warning and an error
+    both ask the user to act before going on, which is what an alert is for; info and success report
+    and wait. `role="alert"` makes some screen readers interrupt on every load, so a condition a
+    page shows from its first render that asks nothing of the user is an `info` notice, not a
+    `warning`; the chat-demo's `Notice` page says so.
+11. **One modal at a time.** `AppShell`'s open mobile drawer is itself a modal, so a `Dialog` opened
+    over it is the nested-dialog case this spec leaves out. Both traps listen on `document`: one
+    Escape would close both, and Tab would never move, because the drawer's trap pulls focus back
+    into the drawer and the dialog's then pulls it back to its own first element. A consumer closes
+    the drawer before opening a dialog from it; the chat-demo's `Dialog` page says so.
 12. **Initial focus follows the DOM, not a prop.** `useFocusTrap` focuses the first focusable
-    element, and a public hook's signature should not widen for one caller. Putting `Dialog`'s
-    close button last in DOM order lands focus on its first field; `ConfirmDialog` has no close
-    button (decision 17), and its Cancel button precedes Confirm, so a bare confirmation lands
-    on Cancel, the least destructive action, as the WAI-ARIA alert dialog pattern advises;
-    focus never starts on the confirm button. Enter in a field still submits (decision 8), so
-    a confirmation whose field the consumer pre-fills with the expected answer confirms on one
-    keystroke: a consumer guarding with a typed confirmation leaves the field empty and holds
-    `confirmDisabled` until it matches.
-13. **`ConfirmDialog` is an `alertdialog`; `Dialog` is not.** A confirmation interrupts to ask
-    about a consequence, which is what the WAI-ARIA alert dialog pattern is for, and its
-    `description` prop gives `aria-describedby` a target that holds the consequence and not the
-    fields' labels. A `Dialog` holds arbitrary content, such as a settings form, with no single
-    description to point at.
+    element, and a public hook's signature should not widen for one caller. Putting `Dialog`'s close
+    button last in DOM order lands focus on its first field; `ConfirmDialog` has no close button
+    (decision 17), and its Cancel button precedes Confirm, so a bare confirmation lands on Cancel,
+    the least destructive action, as the WAI-ARIA alert dialog pattern advises; focus never starts
+    on the confirm button. Enter in a field still submits (decision 8), so a confirmation whose
+    field the consumer pre-fills with the expected answer confirms on one keystroke: a consumer
+    guarding with a typed confirmation leaves the field empty and holds `confirmDisabled` until it
+    matches.
+13. **`ConfirmDialog` is an `alertdialog`; `Dialog` is not.** A confirmation interrupts to ask about
+    a consequence, which is what the WAI-ARIA alert dialog pattern is for, and its `description`
+    prop gives `aria-describedby` a target that holds the consequence and not the fields' labels. A
+    `Dialog` holds arbitrary content, such as a settings form, with no single description to point
+    at.
 14. **A `Notice` mounted with its text is announced on a best-effort basis.**
     specs/bowman-ui-toast/spec.md's lesson - a live region must exist before its text - would need
     the notice to mount empty and fill after an effect, so the server render and the first paint
@@ -831,83 +889,109 @@ Partial<XLabels>`" gains the five required exceptions beside its three string-pr
     in the reading order whether or not it is announced; an outcome that must be announced belongs
     in a `Toast`, and the assistive-technology procedure records what each screen reader does with a
     mounted notice.
-15. **Busy disables natively; it does not use `aria-disabled`.** `aria-disabled` would keep
-    focus on the pressed button with no race against the browser's focus fixup, but `Button`
-    and `IconButton` take `disabled` only, and adding an `aria-disabled` prop would widen two
-    public components' closed prop surface for one internal caller. The native attribute also
-    keeps a busy button out of the tab order and inert to a click with no handler-level guard.
-    The layout effect moves focus to the panel before the fixup runs, and the second widened
-    trap behaviour keeps Tab inside from there; the chat-demo's Playwright suite proves the
-    move in a real browser.
+15. **Busy disables natively; it does not use `aria-disabled`.** `aria-disabled` would keep focus on
+    the pressed button with no race against the browser's focus fixup, but `Button` and `IconButton`
+    take `disabled` only, and adding an `aria-disabled` prop would widen two public components'
+    closed prop surface for one internal caller. The native attribute also keeps a busy button out
+    of the tab order and inert to a click with no handler-level guard. The layout effect moves focus
+    to the panel before the fixup runs, and the second widened trap behaviour keeps Tab inside from
+    there; the chat-demo's Playwright suite proves the move in a real browser.
 16. **A string the component needs to name its own chrome is a label; content is a node.** The
-    dialog's title is required, is the dialog's accessible name and is only ever text, so it
-    rides in `labels` as `dialogTitle`. `Card`'s and `Notice`'s `heading`, and
-    `ConfirmDialog`'s `description`, are optional or composed content that may carry markup,
-    so they are `ReactNode` props, as `Button`'s `children` are.
+    dialog's title is required, is the dialog's accessible name and is only ever text, so it rides
+    in `labels` as `dialogTitle`. `Card`'s and `Notice`'s `heading`, and `ConfirmDialog`'s
+    `description`, are optional or composed content that may carry markup, so they are `ReactNode`
+    props, as `Button`'s `children` are.
 17. **`ConfirmDialog` has no close button.** A confirmation asks for one decision, so it offers
-    exactly two controls, Cancel and the action; a third that also cancels adds a tab stop and
-    a second name for the same outcome. Escape still cancels, as the WAI-ARIA alert dialog
-    pattern expects, and while `busy` holds nothing dismisses it.
-18. **A `Notice` is dismissible only when the consumer can act on it.** The dismiss button
-    renders only with `onDismiss`, and `Notice` holds no open state: a notice that hid itself
-    would come back on the next render of a page that still holds the condition, and a consumer
-    that persists the dismissal needs the callback anyway. No tone label ships: the icon's shape
-    and colour carry the tone on screen, and the consumer's `heading` and text carry it in words,
-    so `NoticeLabels` holds the one key the component needs to name its own chrome.
+    exactly two controls, Cancel and the action; a third that also cancels adds a tab stop and a
+    second name for the same outcome. Escape still cancels, as the WAI-ARIA alert dialog pattern
+    expects, and while `busy` holds nothing dismisses it.
+18. **A `Notice` is dismissible only when the consumer can act on it.** The dismiss button renders
+    only with `onDismiss`, and `Notice` holds no open state: a notice that hid itself would come
+    back on the next render of a page that still holds the condition, and a consumer that persists
+    the dismissal needs the callback anyway. No tone label ships: the icon's shape and colour carry
+    the tone on screen, and the consumer's `heading` and text carry it in words, so `NoticeLabels`
+    holds the one key the component needs to name its own chrome.
 19. **The nine new tokens are measured on their documentation pages, not the chat screen.**
     examples/chat-demo/tests/theming.spec.ts proves every declared token at a visible site of
-    `/?view=chat`, and its "the chat matrix reaches every token the installed stylesheet
-    declares" test fails while any declared token has no site there. A chat screen has no
-    honest place for a danger button, an info notice or a warning notice, and adding them only
-    to reach the tokens would put demo furniture in the screen the suite exists to prove. A
-    documentation-page matrix already exists: examples/chat-demo/tests/docs.spec.ts measures
-    each entry of its `docsTokenPages` on its page under both schemes ("the ${componentId} page
-    paints its tokens"). The new pages join that list - the danger `Button` at rest and hovered, on
-    the `ConfirmDialog` page (§ Documentation),
-    with its text, and an info and a warning `Notice` - rather than a second matrix being built,
-    which the copy-paste gate would flag. `docsTokenPages` moves to the chat-demo's
-    tests/helpers so theming.spec.ts can read it; the docs suite gains the wrapper-theme run the
-    theming suite already makes; and the theming test is retitled to say the chat matrix and the
-    documentation pages together reach every declared token, asserting exactly that union. The
-    file's header comment and the theming spec's statement it validates move with it. Every one
-    of the 44 existing tokens stays measured on the chat screen.
-20. **A busy `ConfirmDialog` announces itself through a fourth label key.** The busy state has
-    no `aria-busy` (it could silence the focus move) and an aria-hidden spinner, so without a
-    status message a screen reader would learn of it only from focus landing on the panel,
-    which reads the dialog's name again - a gap against WCAG 4.1.3. The plan lists
-    ConfirmDialog's keys as `dialogTitle`, `confirmAction` and `cancelAction`, and also makes
-    WCAG 2.2 AA its floor; where the two meet, the floor wins. `confirmBusy` is defaulted, so no
-    consumer has to supply it, and follows the precedent of `ChatComposerLabels`'
-    `composerBusyHint`, the package's existing string for a busy control. This amends the plan's
-    key list; it is the one label key the spec adds beyond it.
+    `/?view=chat`, and its "the chat matrix reaches every token the installed stylesheet declares"
+    test fails while any declared token has no site there. A chat screen has no honest place for a
+    danger button, an info notice or a warning notice, and adding them only to reach the tokens
+    would put demo furniture in the screen the suite exists to prove. A documentation-page matrix
+    already exists: examples/chat-demo/tests/docs.spec.ts measures each entry of its
+    `docsTokenPages` on its page under both schemes ("the ${componentId} page paints its tokens").
+    The new pages join that list - the danger `Button` at rest and hovered, on the `ConfirmDialog`
+    page (§ Documentation), with its text, and an info and a warning `Notice` - rather than a second
+    matrix being built, which the copy-paste gate would flag. `docsTokenPages` moves to the
+    chat-demo's tests/helpers so theming.spec.ts can read it; the docs suite gains the wrapper-theme
+    run the theming suite already makes; and the theming test is retitled to say the chat matrix and
+    the documentation pages together reach every declared token, asserting exactly that union. The
+    file's header comment and the theming spec's statement it validates move with it. Every one of
+    the 44 existing tokens stays measured on the chat screen.
+20. **A busy `ConfirmDialog` announces itself through a fourth label key.** The busy state has no
+    `aria-busy` (it could silence the focus move) and an aria-hidden spinner, so without a status
+    message a screen reader would learn of it only from focus landing on the panel, which reads the
+    dialog's name again - a gap against WCAG 4.1.3. The plan lists ConfirmDialog's keys as
+    `dialogTitle`, `confirmAction` and `cancelAction`, and also makes WCAG 2.2 AA its floor; where
+    the two meet, the floor wins. `confirmBusy` is defaulted, so no consumer has to supply it, and
+    follows the precedent of `ChatComposerLabels`' `composerBusyHint`, the package's existing string
+    for a busy control. This amends the plan's key list; it is the one label key the spec adds
+    beyond it.
 21. **`TextField`'s border reads the muted-text role.** WCAG 2.2 AA needs a control's boundary at
-    3:1 against its background, and no existing role meets it as a border: `--bowman-border` is
-    a divider colour at about 1.2:1. A new token would grow the count past the plan's nine.
-    `--bowman-text-muted` is the lightest role that clears 3:1 in both modes (4.77:1 and 6.79:1),
-    so `CONTROL_BORDER` reads it as a border colour and declares nothing. The cost is coupling:
-    a consumer who recolours muted text recolours every `TextField` border too, and a muted
-    colour light enough to fail 3:1 fails both. docs/design-notes.md § Theming decision 12, which
-    names each role for what a designer overrides, records this second reader of the muted role
-    in the same pull request; a dedicated control-border token is a follow-up should the
-    coupling bite.
+    3:1 against its background, and no existing role meets it as a border: `--bowman-border` is a
+    divider colour at about 1.2:1. A new token would grow the count past the plan's nine.
+    `--bowman-text-muted` is the lightest role that clears 3:1 in both modes (4.77:1 and 6.79:1), so
+    `CONTROL_BORDER` reads it as a border colour and declares nothing. The cost is coupling: a
+    consumer who recolours muted text recolours every `TextField` border too, and a muted colour
+    light enough to fail 3:1 fails both. docs/design-notes.md § Theming decision 12, which names
+    each role for what a designer overrides, records this second reader of the muted role in the
+    same pull request; a dedicated control-border token is a follow-up should the coupling bite.
+22. **A dialog portals into a `container` the consumer may choose.** Theming works on any wrapper
+    (docs/design-notes.md § Theming; README § Theming), and the chat-demo's own custom theme is
+    wrapper-scoped (examples/chat-demo/src/custom-theme.css). A panel portalled only to `<body>`
+    would leave that wrapper, lose its `--bowman-*` overrides and its `dark` class, and paint the
+    default palette inside a themed app. The plan names no such prop; without it, wrapper-scoped
+    theming would silently stop at every dialog, so the floor the plan sets for theming wins.
+    `container` defaults to `document.body`, read only on the client, so the hydration rule above
+    holds. The docs suite's wrapper-theme run (decision 19) opens a `ConfirmDialog` portalled into
+    the themed wrapper and measures its danger fill, panel surface and text there, so a portal that
+    escaped the wrapper fails it.
+23. **An overflowing dialog body with nothing focusable in it becomes focusable.** A keyboard user
+    scrolls a region by focusing it, and a prose-only body that overflows offers nothing to focus;
+    Chrome and Firefox make such a scroller focusable on their own, Safari does not, and WCAG 2.1.1
+    needs it everywhere. The body gains `tabIndex={0}` only in that case, which is the case those
+    browsers cover natively and the one axe's `scrollable-region-focusable` flags. A body that
+    always took focus would sit first in DOM order and take initial focus from the first field,
+    against decision 12. Its name is the dialog's heading, the one name the body has, and its ring
+    is the shared `FOCUS_RING`.
 
 ## Out of scope
 
-Data tables, pagination, tabs, selects, checkboxes, radio groups and a multi-line text field; tones
-or a close button for `Toast`; locking page scroll behind an open dialog, and `inert` on the page
-behind it, beyond what `aria-modal` gives; nested dialogs, including a `Dialog` over `AppShell`'s
-open drawer (decision 11); validation logic, which stays the consumer's, as `TextField` only shows
-the error it is handed; raising `SearchField`'s resting border, `BORDER`, to the 3:1 non-text
-minimum `TextField` meets through `CONTROL_BORDER`, because the plan holds `SearchField`'s look
-unchanged without `onSubmit` - a gap a follow-up should close on its own.
+Data tables, pagination, tabs, selects, checkboxes, radio groups, date pickers and a multi-line text
+field; tones or a close button for `Toast`; locking page scroll behind an open dialog, and `inert`
+on the page behind it, beyond what `aria-modal` gives; nested dialogs, including a `Dialog` over
+`AppShell`'s open drawer (decision 11); validation logic, which stays the consumer's, as `TextField`
+only shows the error it is handed; raising `SearchField`'s resting border, `BORDER`, to the 3:1
+non-text minimum `TextField` meets through `CONTROL_BORDER`, because the plan holds `SearchField`'s
+look unchanged without `onSubmit` - a gap a follow-up should close on its own.
 
 ## Documentation
 
 The chat-demo's documentation app gains one page per new component, each showing every state the
-accessibility checks run against. The `danger` variant gets no page of its own: the `ConfirmDialog`
-page's confirm button is the danger `Button`, and that page also shows it on its own, at rest,
-hovered and disabled, so the token matrix and the axe run reach it there. README.md gains one
-section per new component, as the plan's completion gate requires, and in the same pull request: its
+accessibility checks run against, the `Dialog` page including one whose body overflows. The `danger`
+variant gets no page of its own: the `ConfirmDialog` page's confirm button is the danger `Button`,
+and that page also shows it on its own, at rest, hovered and disabled, so the token matrix and the
+axe run reach it there. The existing `search-field` page gains a state with `onSubmit`, so the
+submit button is shown and scanned.
+
+README.md has no section per component today; its § Hooks is one section of short annotated
+snippets. It gains one section in that shape, "Forms, dialogs and notices", with a subsection per
+new component, as the plan's completion gate asks, each naming the component's props, labels and
+focus behaviour; the subsection for `Dialog` names `container` and the wrapper-theme case, and the
+section opens with the `danger` variant and `SearchField`'s `onSubmit`. In the same pull request:
+its § Hooks comment on `useFocusTrap`, "Tab is trapped, Escape closes and refocuses the trigger",
+stays true and gains nothing, since the widened behaviours keep it so; its § Accessibility, which
+says "the test suite checks that markup", names the chat-demo's axe scan of the documentation pages
+beside it, and its "What no test can check is what a screen reader actually says" stays true; its
 three spelled token counts move to fifty-three; its § Theming sentence naming "Two semantic roles …
 `--bowman-danger` and `--bowman-success`" names the new danger-fill, info and warning roles beside
 them; its sentence "Forty-two of the tokens form twenty-one light/dark pairs … Two have no twin"
