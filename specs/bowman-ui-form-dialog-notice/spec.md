@@ -30,6 +30,11 @@ applies:
   every existing test to pass unchanged (the "Existing tests that change" list).
 - `ButtonVariant` widening is a type-level change for a consumer that switches exhaustively over
   it (§ The published surface).
+- The plan names two design-record amendments, the danger variant and `SearchField`'s submit;
+  the spec makes two more. `Card` narrows § Styled primitives' refusal of layout primitives
+  (decision 7), and § Labels decisions 2 and 5 are amended for defaults typed over a subset of
+  keys and for optional keys (decision 6) - the typing the plan's five required-labels
+  components and its optional field hint and error need.
 - `ConfirmDialog` takes a fourth label key, `confirmBusy`, beyond the three the plan lists,
   because the plan's WCAG 2.2 AA floor needs its busy state announced (decision 20).
 - `Notice` forwards no ref, though its dismiss button is focusable (the conventions section).
@@ -72,8 +77,9 @@ checks uniqueness by concept, and none proves a key renders: tests/labelled-expo
 checks that each component's sentinel keys equal its defaults' keys and that no English text
 survives outside the sentinels, so a harness that never shows a key still passes. Each new
 harness therefore passes the props that bring every key on screen - `Notice`'s an `onDismiss`,
-`ConfirmDialog`'s `busy` - and a review keeps the meaning of each name. The plan says the labels
-test proves every key renders; it does not, and this file records what the test does prove.
+`ConfirmDialog`'s `busy` - and a review keeps the meaning of each name. The plan as approved in
+Lore said "the existing automated labels test re-checks the whole set"; it checks only what is
+stated above, and the local copy of the plan carries the corrected sentence.
 `ConfirmDialog` shares `Dialog`'s `dialogTitle`, because its heading is the same concept.
 
 ### `Button` and `IconButton`: the `danger` variant
@@ -162,8 +168,8 @@ that cites them moves with it. Every other existing test passes unchanged.
 - tests/fixtures/public-api.json gains the new names (§ The published surface) and
   tests/fixtures/forward-ref-components.json gains `TextField` and `Card`; the header comment of
   tests/forward-ref-components.test.ts speaks of a ninth forwardRef component.
-- tests/check-at-pass.test.ts: its fixtures, built from `scripts/check-at-pass.mjs`'s `ROWS`,
-  gain rows A8 and A9 (§ Accessibility checks).
+- tests/check-at-pass.test.ts: its hard-coded `rowIds` list, which mirrors
+  `scripts/check-at-pass.mjs`'s unexported `ROWS`, gains A8 and A9 (§ Accessibility checks).
 - examples/chat-demo/tests/docs.spec.ts: `docsTokenPages` gains the new pages' token sites
   (decision 19).
 
@@ -205,10 +211,10 @@ export const TextField: ForwardRefExoticComponent<TextFieldProps & RefAttributes
   `SURFACE`, `px-3 py-2 text-sm` in `TEXT_STRONG`, the `FOCUS_RING_COLOR` ring on focus, and
   `disabled:cursor-not-allowed disabled:opacity-50` - but its border reads a new `CONTROL_BORDER`
   class string in `src/theme/tokens.ts` rather than `BORDER`. `CONTROL_BORDER` reads the existing
-  `--bowman-text-muted` role as a border colour and declares no token, on the model of
-  `DANGER_BORDER`: `BORDER` (`slate-200` on white, about 1.2:1) fails WCAG 2.2 AA's 3:1
-  non-text minimum for the boundary of a control (1.4.11), and axe does not test that criterion,
-  so its zero-violation target would not catch it. The tests/theming-tokens-dist.test.ts
+  `--bowman-text-muted` role as a border colour and declares no token (decision 21): `BORDER`
+  (`slate-200` on white, about 1.2:1) fails WCAG 2.2 AA's 3:1 non-text minimum for the boundary
+  of a control (1.4.11), and axe does not test that criterion, so its zero-violation target
+  would not catch it. The tests/theming-tokens-dist.test.ts
   `NEUTRAL_ROLE_READERS` map keys `CONTROL_BORDER` to `TextField`.
 - `labels.fieldHint` renders under the input and `labels.fieldError` under the hint, and the
   input's `aria-describedby` names the hint first, then the error, and only those present.
@@ -352,7 +358,10 @@ export const ConfirmDialog: (props: ConfirmDialogProps) => ReactElement | null;
   the browser's language rather than the consumer's; validation stays the consumer's, shown
   through `fieldError` and held through `confirmDisabled`.
 - While `busy` holds, both buttons are disabled, Escape does nothing, and the confirm button's
-  children are its text and then `<LoadingIcon ariaLabel="" />`. The empty `ariaLabel` matters:
+  children are its text and then `<LoadingIcon ariaLabel="" />`, sized with the same
+  `buttonIconClassNames[size]` class `Button` gives its `icon` (src/components/buttonStyles.ts),
+  because `LoadingIcon`'s `<svg>` carries a `viewBox` and no size of its own and would otherwise
+  render at the browser's default and stretch the button. The empty `ariaLabel` matters:
   `LoadingIcon` defaults it to `"Loading"` (src/icons/index.tsx) and names itself with it, and only
   a falsy label renders it aria-hidden (src/icons/Icon.tsx), so the button's accessible name stays
   the action and no English string leaks past the labels convention. It renders as a child, not
@@ -395,14 +404,14 @@ specs/bowman-ui-pure-hooks-error-boundary/spec.md pins, and gains three, which t
   Shift+Tab to the last. Without this, the container counts as inside the trap but is neither
   end, so no Tab is intercepted and a native Shift+Tab from the panel leaves it for the page's
   last tabbable element, which the portal places before the panel.
-- Unmounting while open returns focus as closing does, through its own effect with no
-  dependencies whose cleanup reads the open state from a ref. A cleanup that runs because
-  `isOpen` or `triggerRef` changed never returns focus, so a close returns it once and a new
-  `triggerRef` mid-dialog returns it never. A return target that is no longer connected is
-  skipped. `AppShell` unmounting with its drawer open - tests/AppShell.test.tsx does it - is
-  the one existing caller this reaches, and its return target, the hamburger, unmounts with
-  it, so it is skipped. Under React's development StrictMode, the simulated unmount returns
-  focus and the re-run open effect moves it back into the container.
+- Unmounting while open returns focus as closing does, through its own effect with an empty
+  dependency array (`[]`), so it runs on mount and unmount only, whose cleanup reads the open state
+  from a ref. A cleanup that runs because `isOpen` or `triggerRef` changed never returns focus, so a
+  close returns it once and a new `triggerRef` mid-dialog returns it never. A return target that is
+  no longer connected is skipped. `AppShell` unmounting with its drawer open -
+  tests/AppShell.test.tsx does it - is the one existing caller this reaches, and its return target,
+  the hamburger, unmounts with it, so it is skipped. Under React's development StrictMode, the
+  simulated unmount returns focus and the re-run open effect moves it back into the container.
 
 ### `Notice`
 
@@ -430,7 +439,10 @@ export const Notice: (props: NoticeProps) => ReactElement;
 ```
 
 - Renders one container with an aria-hidden tone icon - `InfoIcon`, `CheckIcon`, `WarningIcon`
-  or `ErrorIcon` - then `heading` in bold and `children`.
+  or `ErrorIcon` - then `heading` in bold and `children`. The heading is a bold `<span>`, not a
+  heading element, unlike a static `Card`'s `<h3>`: a notice sits inside the content it
+  qualifies, often several to a page, and an outline entry per notice would bury the page's own
+  headings; the live region and the icon already set it apart.
 - `info` and `success` render with `role="status"`; `warning` and `error` render with
   `role="alert"` (decision 10).
 - Every tone renders on `SURFACE` inside `BORDER`, with `heading` in `TEXT_STRONG` and
@@ -520,14 +532,15 @@ export const Card: ForwardRefExoticComponent<CardProps & RefAttributes<HTMLEleme
   `Notice` without `onDismiss` from its server component, so `npm run rsc` proves both.
 - `TextField` and `Card` are `forwardRef` components under decision 4, and
   tests/fixtures/forward-ref-components.json gains both, or tests/forward-ref-components.test.ts
-  fails. The fixture grows from six entries to eight, so the test file's header comment, which
-  speaks of "a seventh forwardRef component", speaks of a ninth. `Dialog` and `ConfirmDialog`
-  hand back no element, though the plan asks every focusable element to forward its ref: their
-  panel is focusable only as the trap's fallback target, the trap decides where focus goes, and
-  a consumer that needs focus elsewhere puts it on a control in `children` with its own ref.
-  `Notice` forwards no ref either, though its dismiss button is focusable: the button exists
-  only to remove the notice, so focus never needs to return to it, and the consumer moves focus
-  away from it in `onDismiss` (the `Notice` section).
+  fails; docs/design-notes.md § Styled primitives' "`Button`, `IconButton` and `SearchField` are
+  `forwardRef` components" names them too. The fixture grows from six entries to eight, so the test
+  file's header comment, which speaks of "a seventh forwardRef component", speaks of a ninth.
+  `Dialog` and `ConfirmDialog` hand back no element, though the plan asks every focusable element to
+  forward its ref: their panel is focusable only as the trap's fallback target, the trap decides
+  where focus goes, and a consumer that needs focus elsewhere puts it on a control in `children`
+  with its own ref. `Notice` forwards no ref either, though its dismiss button is focusable: the
+  button exists only to remove the notice, so focus never needs to return to it, and the consumer
+  moves focus away from it in `onDismiss` (the `Notice` section).
 - No component takes `className`, `style` or a render prop (§ Styled primitives).
 - No icon is added: `CloseIcon`, `LoadingIcon`, `SearchIcon`, `InfoIcon`, `CheckIcon`,
   `WarningIcon` and `ErrorIcon` already ship.
@@ -594,6 +607,9 @@ token set, or the suite reds:
   importers - `AppShell`, `AppSidebar`, `ConversationList`, `PromptChips` and `buttonStyles`",
   gains `Card` as the sixth;
 - `specs/bowman-ui-theming-tokens/spec.md`: its four spelled counts and its group breakdown;
+  its § Semantic colour roles, which names only the danger and success roles, gains the
+  danger-fill, info and warning roles; its § What stays palette-mapped gains the dialog overlay
+  beside the mobile overlay; and the new reading sites join the ones its intro says it pins;
 - `.specify/spec.md`, CLAUDE.md invariant 13 ("Exactly 44"), README.md's three spelled counts,
   `examples/chat-demo/README.md`, `examples/chat-demo/src/themes.tsx` and
   `examples/chat-demo/src/docs/ThemingSection.tsx`'s two;
@@ -604,8 +620,11 @@ token set, or the suite reds:
 - the test's `NEUTRAL_ROLE_READERS` map, which pins each class string to the built files that
   import it, so a site drifting back to a palette utility fails:
   - existing keys gain the new readers - `SURFACE`, `BORDER`, `TEXT_STRONG` and `TEXT_BODY` gain
-    `ModalPanel` and `Card` (and `Notice`, which paints its container and text the same way),
-    `TEXT_MUTED` gains `TextField`, and `DANGER` gains `TextField`;
+    `ModalPanel` and `Card` (and `Notice`, which paints its container and text the same way);
+    `SURFACE` and `TEXT_STRONG` also gain `TextField`, whose input sits on `SURFACE` with its text
+    and label in `TEXT_STRONG`; `SURFACE_HOVER` gains `Card` for its selectable hover;
+    `TEXT_MUTED` gains `TextField`; and `DANGER` gains `TextField`. The test compares each list
+    exactly, so a reader missing here fails it;
   - every new class string `src/theme/tokens.ts` gains is keyed with its readers: `DANGER_FILL`,
     `DANGER_FILL_HOVER` and `TEXT_ON_DANGER` with `buttonStyles`, as `TEXT_ON_ACCENT` is keyed
     today; `DANGER_BORDER` and `CONTROL_BORDER` with `TextField`; and the tone strings that read
@@ -652,10 +671,16 @@ them:
   means all seven above", gains `ConfirmDialog.tsx`, `ModalPanel.tsx` and `Notice.tsx`;
 - `scripts/check-at-pass.mjs`'s closed `ROWS` list gains `"A8"` and `"A9"`, or a new row is never
   checked for a verdict, and its header comment's "every row A1-A7" becomes A1-A9;
-  tests/check-at-pass.test.ts's fixtures, built from those rows, gain both (see "Existing tests
-  that change");
+  tests/check-at-pass.test.ts's hard-coded `rowIds` gains both (see "Existing tests that
+  change");
+- docs/accessibility/README.md's "fourteen verbatim transcriptions" - seven rows on two stacks -
+  becomes eighteen; its "the seven are this document's rule", a count of components, becomes ten;
+  and its front-matter block, which calls itself "complete and copy-pasteable", lists the ten
+  `covers` paths and rows A1-A9, or a record copied from it fails the gate once `ROWS` gains A8
+  and A9;
 - specs/bowman-ui-assistive-technology-pass/spec.md: its "seven rows" becomes nine, its "A1-A7"
-  references become "A1-A9", and it gains a statement for each new row beside A1-A7's.
+  references become "A1-A9", its "names all seven components" becomes ten, and it gains a
+  statement for each new row beside A1-A7's.
 
 ## The published surface
 
@@ -855,6 +880,16 @@ Partial<XLabels>`" gains the five required exceptions beside its three string-pr
     consumer has to supply it, and follows the precedent of `ChatComposerLabels`'
     `composerBusyHint`, the package's existing string for a busy control. This amends the plan's
     key list; it is the one label key the spec adds beyond it.
+21. **`TextField`'s border reads the muted-text role.** WCAG 2.2 AA needs a control's boundary at
+    3:1 against its background, and no existing role meets it as a border: `--bowman-border` is
+    a divider colour at about 1.2:1. A new token would grow the count past the plan's nine.
+    `--bowman-text-muted` is the lightest role that clears 3:1 in both modes (4.77:1 and 6.79:1),
+    so `CONTROL_BORDER` reads it as a border colour and declares nothing. The cost is coupling:
+    a consumer who recolours muted text recolours every `TextField` border too, and a muted
+    colour light enough to fail 3:1 fails both. docs/design-notes.md § Theming decision 12, which
+    names each role for what a designer overrides, records this second reader of the muted role
+    in the same pull request; a dedicated control-border token is a follow-up should the
+    coupling bite.
 
 ## Out of scope
 
