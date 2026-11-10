@@ -12,15 +12,15 @@ class strings. This feature replaces each of those utilities with a `--bowman-*`
 property read through a `var()` whose fallback is the palette value the site painted before,
 so a consumer overriding nothing sees today's look byte for byte and a consumer setting a
 handful of properties re-themes every site at once. The decision record lives in
-docs/design-notes.md § Theming; this file pins the forty-six names, their fallbacks, every site
+docs/design-notes.md § Theming; this file pins the fifty-three names, their fallbacks, every site
 that reads them, and the tests.
 
 ## The tokens
 
-Forty-six tokens - fifteen theme tokens named for a role and a shade, twenty-one neutral
-chrome roles added under docs/design-notes.md § Theming decision 12, and ten semantic-colour
+Fifty-three tokens - fifteen theme tokens named for a role and a shade, twenty-one neutral
+chrome roles added under docs/design-notes.md § Theming decision 12, and seventeen semantic-colour
 roles (the danger and success pairs with their soft surfaces, issues 108 and 107, under
-decision 6, plus the two danger button background tokens) - each with its default recorded once in a comment line at the top of
+decision 6, plus the five danger button and four Notice tokens) - each with its default recorded once in a comment line at the top of
 `src/styles.css` ([validated by dist/styles.css opens with one comment line per token, each stating its default](../../tests/theming-tokens-dist.test.ts#L290)).
 
 The names and their fallbacks are tabled once, in docs/design-notes.md § Theming, and that
@@ -29,7 +29,7 @@ a fallback or the order departs from the declaration block
 ([validated by the token table in docs/design-notes.md § Theming lists the same names and fallbacks, in the declared order](../../tests/theming-tokens-dist.test.ts#L382)).
 
 - The set of tokens read across `dist/theme/tokens.js` and `dist/styles.css` is exactly the
-  forty-six the comment block declares - no extra name in the code, no orphan in the block
+  fifty-three the comment block declares - no extra name in the code, no orphan in the block
   ([validated by the tokens read in dist/theme/tokens.js and dist/styles.css are exactly the declared ones](../../tests/theming-tokens-dist.test.ts#L297)).
 - CLAUDE.md invariant 13 quotes the count as a literal, and the same dist test reads that digit
   and fails when it lags the block
@@ -188,7 +188,7 @@ utility fails ([validated by each neutral role constant is imported by exactly t
 - The selected thumbs-down chip and text, the `ErrorBoundary` icon circle and glyph, and the
   `ConversationList` delete-button hover read the danger role - `--bowman-danger` /
   `--bowman-danger-soft` and their `-dark` twins - so a consumer recolours every negative-state
-  site at once; the delete hover moves from a lone `red-500` to the role's `red-600`, and the dark soft fill uses one `rgba()` fallback, per decision 6. The `Button` with `variant="danger"` reads `--bowman-danger-bg` and `--bowman-danger-bg-hover` ([from plan](../bowman-ui-form-dialog-notice/plan.md))
+  site at once; the delete hover moves from a lone `red-500` to the role's `red-600`, and the dark soft fill uses one `rgba()` fallback, per decision 6. The `Button` with `variant="danger"` reads `--bowman-danger-fill`, `--bowman-danger-fill-dark`, `--bowman-text-on-danger`, `--bowman-danger-fill-hover`, and `--bowman-danger-fill-hover-dark` ([from plan](../bowman-ui-form-dialog-notice/plan.md))
   ([validated by each neutral role constant is imported by exactly the built components recorded for it](../../tests/theming-tokens-dist.test.ts#L346),
   [validated by a selected thumbs-down reads the danger role's soft surface and text, not the red palette classes](../../tests/ChatMessage.test.tsx#L517),
   [validated by the delete button's hover reads the danger role, not the lone red-500](../../tests/ConversationList.test.tsx#L159),
@@ -299,7 +299,7 @@ side by side"), so the two columns cannot drift apart
 ([validated by the two previews render the same send button in different colours](../../examples/chat-demo/tests/theming.spec.ts#L447),
 [preview](../../examples/chat-demo/src/docs/ThemingSection.tsx#L24)).
 
-The override lives in `examples/chat-demo/src/custom-theme.css`, which sets all forty-six tokens
+The override lives in `examples/chat-demo/src/custom-theme.css`, which sets all fifty-three tokens
 under `.custom-theme` (scoped to the wrapper, not `:root`) and is imported from `main.tsx` after
 `./styles.css`, whose three documented lines are untouched; the themed screen takes its colours
 from that wrapper alone

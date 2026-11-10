@@ -1,9 +1,9 @@
 # Form, dialog and notice components
 
-| Field  | Value |
-| ------ | ----- |
-| Issue  | -     |
-| Status | Draft |
+| Field  | Value       |
+| ------ | ----------- |
+| Issue  | -           |
+| Status | Draft       |
 
 Bowman UI is built for chat interfaces. Apps that use it for anything else, such as admin pages, settings or a confirmation step before a destructive action, find no text field, no dialog, no inline notice and no danger button. Each app then builds its own. That costs time, the copies drift apart in look and behaviour, and accessibility is redone by hand in every one. This spec introduces general-purpose components to address exactly the gap between what Bowman offers today and what a team needs to build a typical settings, confirmation or admin screen without stepping outside the library. The decision record lives in docs/design-notes.md § Form, dialog and notice components.
 
@@ -88,7 +88,7 @@ Card is a panel component that can optionally be rendered as a single selectable
 - Text arrives display-ready. ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#2cd3f1fe-2a14-4966-a8a8-d06a48483eeb))
 - Focusable elements forward their refs. ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#2cd3f1fe-2a14-4966-a8a8-d06a48483eeb))
 - Motion respects the user's reduced-motion preference. ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#2cd3f1fe-2a14-4966-a8a8-d06a48483eeb))
-- Styling uses only the existing colour tokens plus the approved danger colour. ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#2cd3f1fe-2a14-4966-a8a8-d06a48483eeb))
+- Styling uses only the existing colour tokens plus the nine approved danger-button, info and warning colour tokens. ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#2cd3f1fe-2a14-4966-a8a8-d06a48483eeb))
 - Each component has a README section and a harness demo of each of its states. ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#2cd3f1fe-2a14-4966-a8a8-d06a48483eeb))
 
 ## The published surface
@@ -167,8 +167,3 @@ Card is a panel component that can optionally be rendered as a single selectable
 - The release is published through `.github/workflows/publish.yml`, the existing pipeline triggered by `release: types: [published]`, which runs `npm stage publish` with npm OIDC trusted publishing; `workflow_dispatch` re-runs a failed stage on an existing tag and fails on any other ref. No maintainer publishes by hand; the staged package must be approved by a maintainer with 2FA on npmjs.com before it becomes public. ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#delivery-p-3))
 
 - There is no fixed delivery date. ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#f1061085-158c-4241-8d7e-d55a6348913d))
-
-## Open Questions
-
-- Is there a target date for this release, and who is the accessibility reviewer who must sign off before it publishes? ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#q-deadline-and-reviewer))
-- The reasoning recorded alongside the deadline-and-reviewer question states that the success criteria named an accessibility reviewer gate, but the success criteria have never contained such a gate. Is a reviewer happy to treat this as a known draft-sequence artifact, with the understanding that the KPI, the answer, and the delivery prose are all consistent (no reviewer gate, no fixed date)? ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#q-stale-reviewer-gate-premise))

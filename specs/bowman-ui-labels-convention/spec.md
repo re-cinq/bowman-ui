@@ -63,7 +63,7 @@ string-carrying component already in the repo - it adds no new component.
   stripping and matches the Latin-run regex
   ([validated by no run of three Latin letters survives outside the sentinels for any labelsProp member @ffb54b18](../../tests/labelled-exports.test.tsx#L689)).
 - `docs/design-notes.md § Labels` - Decisions 1-5, the flat-union key-naming rule, the function form for
-  interpolation, the three `stringPropOnly` exceptions with reasons, and `aiDisclosure` (ChatMessageList), `accessibleName` (IconButton), and `accessibleName` (TextField) documented as required-with-no-default exceptions.
+  interpolation, the three `stringPropOnly` exceptions with reasons, and `aiDisclosure` (ChatMessageList), `accessibleName` (IconButton), `fieldLabel` (TextField), `dialogTitle` (Dialog), and `dialogTitle`/`confirmAction` (ConfirmDialog) documented as required-with-no-default exceptions.
 - Re-pinned prior behaviour (AC 39): `<LoadingIcon ariaLabel="Cargando" />` renders
   `aria-label="Cargando"` with `"Loading"` nowhere in the output; the translated `announce`
   assertion already existed and is referenced, not duplicated

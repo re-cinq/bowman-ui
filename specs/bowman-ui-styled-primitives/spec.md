@@ -75,7 +75,7 @@ export const Button: ForwardRefExoticComponent<ButtonProps & RefAttributes<HTMLB
   `--bowman-accent` and `--bowman-accent-hover`, with the `TEXT_ON_ACCENT` string reading
   `--bowman-text-on-accent`), `secondary` is the
   chat-demo's "new chat" look (a `border-slate-200` border on `bg-white` with `text-slate-700`),
-  `ghost` is borderless text with a hover surface (`text-slate-600 hover:bg-slate-50`), `danger` is a solid red background reading `--bowman-danger-bg` with white text reading `--bowman-text-on-accent` and a hover state reading `--bowman-danger-bg-hover` (tokens defined in [theming-tokens](../bowman-ui-theming-tokens/spec.md)) ([from plan](../bowman-ui-form-dialog-notice/plan.md)), each with
+  `ghost` is borderless text with a hover surface (`text-slate-600 hover:bg-slate-50`), `danger` is a solid red background reading `--bowman-danger-fill` and `--bowman-danger-fill-dark` with white text reading `--bowman-text-on-danger` and a hover state reading `--bowman-danger-fill-hover` and `--bowman-danger-fill-hover-dark` (tokens defined in [theming-tokens](../bowman-ui-theming-tokens/spec.md)) ([from plan](../bowman-ui-form-dialog-notice/plan.md)), each with
   its `dark:` counterpart. Every variant carries the package's focus ring (`focus:ring-2` beside
   the `FOCUS_RING_COLOR` token string, reading `--bowman-focus-ring`) and the
   `disabled:cursor-not-allowed disabled:opacity-50` pair ([validated
@@ -196,10 +196,10 @@ export interface SearchFieldLabels {
   /** The input's accessible name - a real label, never the placeholder. */
   searchInput: string;
   searchPlaceholder: string;
-  searchSubmit: string;
+  submitSearch: string;
 }
 
-export const defaultSearchFieldLabels: Readonly<Required<SearchFieldLabels>>; // "Search", "Search...", "Search"
+export const defaultSearchFieldLabels: Readonly<Required<SearchFieldLabels>>; // "Search", "Search...", "Submit search"
 
 export interface SearchFieldProps {
   value: string;

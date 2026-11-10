@@ -240,8 +240,8 @@ typed
 `IconButton` (§ Styled primitives) is the second component whose `labels`
 prop is required, typed `labels: IconButtonLabels`: its single key
 `accessibleName` is required, so no `defaultIconButtonLabels` ships; nothing
-of that name exists, and an empty frozen object would be ceremony. `TextField` is the third component whose `labels` prop is required, typed `labels: TextFieldLabels`: its `accessibleName` key is required, so no `defaultTextFieldLabels` ships. Decision
-2's optional `labels?` shape reads subject to these three exceptions; every
+of that name exists, and an empty frozen object would be ceremony. `TextField` is the third component whose `labels` prop is required, typed `labels: TextFieldLabels`: its `fieldLabel` key is required, so no `defaultTextFieldLabels` ships. `Dialog` is the fourth (`dialogTitle`), and `ConfirmDialog` is the fifth (`dialogTitle` and `confirmAction`). Decision
+2's optional `labels?` shape reads subject to these five exceptions; every
 other key still defaults per key.
 
 **The three `stringPropOnly` exceptions** (every other string-carrying export
@@ -480,9 +480,9 @@ consumer's layout decision.
 
 ## Theming
 
-Forty-four `--bowman-*` custom properties are the package's whole theming
+Fifty-three `--bowman-*` custom properties are the package's whole theming
 surface: fifteen theme tokens (issue 210), twenty-one neutral chrome
-roles added under decision 12, and eight semantic-colour roles (the danger
+roles added under decision 12, and seventeen semantic-colour roles (the danger
 pair and its soft surface, issue 108, and the success pair and its soft fill,
 issue 107, under decision 6). Every theme colour a
 component paints - the
@@ -499,52 +499,61 @@ pins the sites and the tests; this section records the table and the
 decisions. `tests/theming-tokens-dist.test.ts` parses the table below, so
 the name and fallback columns are the contract, not an illustration.
 
-| Token                          | Fallback                 | Read by                                                                                                                                                                                                |
-| ------------------------------ | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `--bowman-accent`              | `var(--color-blue-500)`  | send button background (light); thinking dots (both modes); primary `Button`/`IconButton` (light)                                                                                                      |
-| `--bowman-accent-dark`         | `var(--color-blue-600)`  | send button and primary `Button`/`IconButton` background (dark)                                                                                                                                        |
-| `--bowman-accent-hover`        | `var(--color-blue-600)`  | send button and primary `Button`/`IconButton` hover (light)                                                                                                                                            |
-| `--bowman-accent-hover-dark`   | `var(--color-blue-500)`  | send button and primary `Button`/`IconButton` hover (dark)                                                                                                                                             |
-| `--bowman-accent-soft`         | `var(--color-blue-50)`   | streaming avatar circle background (light): `ChatMessage`, `ThinkingIndicator`                                                                                                                         |
-| `--bowman-accent-soft-dark`    | `var(--color-blue-950)`  | streaming avatar circle background (dark)                                                                                                                                                              |
-| `--bowman-accent-border`       | `var(--color-blue-200)`  | streaming avatar circle border (light)                                                                                                                                                                 |
-| `--bowman-accent-border-dark`  | `var(--color-blue-800)`  | streaming avatar circle border (dark)                                                                                                                                                                  |
-| `--bowman-accent-glow`         | `rgba(59,130,246,0.1)`   | composer `focus-within` shadow (light); `bowman-pulse-subtle` box-shadow (both modes)                                                                                                                  |
-| `--bowman-accent-glow-dark`    | `rgba(96,165,250,0.1)`   | composer `focus-within` shadow (dark)                                                                                                                                                                  |
-| `--bowman-focus-ring`          | `var(--color-blue-500)`  | every `focus:ring`, `ErrorBoundary`'s `focus-visible:ring`, the composer's `focus-within:ring` at `/50` (light)                                                                                        |
-| `--bowman-focus-ring-dark`     | `var(--color-blue-400)`  | the same rings (dark); `ErrorBoundary` has no dark ring today and gains none                                                                                                                           |
-| `--bowman-active`              | `var(--color-slate-100)` | active conversation row background; active sidebar item background; the disabled send button's background (light)                                                                                      |
-| `--bowman-active-dark`         | `var(--color-slate-800)` | active conversation row, sidebar item and disabled send button background (dark)                                                                                                                       |
-| `--bowman-pulse-outline`       | `rgba(59,130,246,0.5)`   | `bowman-pulse-subtle` outline (both modes)                                                                                                                                                             |
-| `--bowman-surface`             | `var(--color-white)`     | panel, sidebar, drawer, composer, search field, prompt chip and secondary `Button`/`IconButton` background (light)                                                                                     |
-| `--bowman-surface-dark`        | `var(--color-slate-900)` | the same surfaces (dark)                                                                                                                                                                               |
-| `--bowman-surface-hover`       | `var(--color-slate-50)`  | sidebar item, conversation row, prompt chip, secondary and ghost button hover (light)                                                                                                                  |
-| `--bowman-surface-hover-dark`  | `var(--color-slate-800)` | the same hovers (dark)                                                                                                                                                                                 |
-| `--bowman-control-hover`       | `var(--color-slate-100)` | `AppShell` drawer and menu buttons, `ChatMessage` copy and feedback controls hover (light)                                                                                                             |
-| `--bowman-control-hover-dark`  | `var(--color-slate-800)` | the same control hovers (dark)                                                                                                                                                                         |
-| `--bowman-border`              | `var(--color-slate-200)` | panel, sidebar (`md:` edge included), composer, search field, prompt chip, secondary button and disclosure band borders (light)                                                                        |
-| `--bowman-border-dark`         | `var(--color-slate-800)` | the same borders (dark)                                                                                                                                                                                |
-| `--bowman-ring-offset`         | `var(--color-white)`     | every `focus:ring-offset` colour beside `ring-offset-2` (light); `ChatMessage`'s slate-950 offsets stay palette-mapped                                                                                 |
-| `--bowman-ring-offset-dark`    | `var(--color-slate-900)` | the same offsets (dark)                                                                                                                                                                                |
-| `--bowman-text-strong`         | `var(--color-slate-900)` | textarea, search input, nav item + hover, ghost hover, `ErrorBoundary` heading, message body, skip-link focus (light)                                                                                  |
-| `--bowman-text-strong-dark`    | `var(--color-slate-100)` | the same strong text (dark)                                                                                                                                                                            |
-| `--bowman-text-body`           | `var(--color-slate-700)` | conversation title, prompt chip, secondary button, `ToolActivity` chip, `AppShell` and `AppSidebar` consumer regions (light)                                                                           |
-| `--bowman-text-body-dark`      | `var(--color-slate-200)` | the same text (dark)                                                                                                                                                                                   |
-| `--bowman-text-secondary`      | `var(--color-slate-600)` | `AppShell` drawer buttons, sidebar item, ghost button, `ErrorBoundary` body text, `ChatMessage` copy/thumb buttons on hover, assistant name, `ThinkingTrace` content, `ToolActivity` tool name (light) |
-| `--bowman-text-secondary-dark` | `var(--color-slate-400)` | the same text (dark)                                                                                                                                                                                   |
-| `--bowman-text-muted`          | `var(--color-slate-500)` | timestamps, the disclosure band, thinking and tool labels (light)                                                                                                                                      |
-| `--bowman-text-muted-dark`     | `var(--color-slate-400)` | the same labels (dark)                                                                                                                                                                                 |
-| `--bowman-text-subtle`         | `var(--color-slate-400)` | faint timestamps, empty-state hints, the search icon, composer and search placeholders, `ChatMessage` copy/thumb and `ConversationList` delete buttons at rest, disabled send button (light)           |
-| `--bowman-text-subtle-dark`    | `var(--color-slate-500)` | the same hints, placeholders, controls and disabled button (dark)                                                                                                                                      |
-| `--bowman-text-on-accent`      | `var(--color-white)`     | send button and primary `Button`/`IconButton` text (one value, both modes)                                                                                                                             |
-| `--bowman-danger`              | `var(--color-red-600)`   | selected thumbs-down and `ErrorBoundary` icon glyph text, `ConversationList` delete-button hover (light)                                                                                               |
-| `--bowman-danger-dark`         | `var(--color-red-400)`   | the same danger text (dark)                                                                                                                                                                            |
-| `--bowman-danger-soft`         | `var(--color-red-100)`   | selected thumbs-down chip and `ErrorBoundary` icon circle background (light)                                                                                                                           |
-| `--bowman-danger-soft-dark`    | `rgba(127, 29, 29, 0.3)` | the same danger surfaces (dark); the `red-900/30` and `red-900/20` fills collapse to this one fallback                                                                                                 |
-| `--bowman-success`             | `var(--color-green-600)` | copied check mark and selected thumbs-up text (light)                                                                                                                                                  |
-| `--bowman-success-dark`        | `var(--color-green-400)` | the same success text (dark)                                                                                                                                                                           |
-| `--bowman-success-soft`        | `var(--color-green-100)` | selected thumbs-up fill (light)                                                                                                                                                                        |
-| `--bowman-success-soft-dark`   | `rgba(20,83,45,0.3)`     | the same fill (dark)                                                                                                                                                                                   |
+| Token                             | Fallback                 | Read by                                                                                                                                                                                                |
+| --------------------------------- | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `--bowman-accent`                 | `var(--color-blue-500)`  | send button background (light); thinking dots (both modes); primary `Button`/`IconButton` (light)                                                                                                      |
+| `--bowman-accent-dark`            | `var(--color-blue-600)`  | send button and primary `Button`/`IconButton` background (dark)                                                                                                                                        |
+| `--bowman-accent-hover`           | `var(--color-blue-600)`  | send button and primary `Button`/`IconButton` hover (light)                                                                                                                                            |
+| `--bowman-accent-hover-dark`      | `var(--color-blue-500)`  | send button and primary `Button`/`IconButton` hover (dark)                                                                                                                                             |
+| `--bowman-accent-soft`            | `var(--color-blue-50)`   | streaming avatar circle background (light): `ChatMessage`, `ThinkingIndicator`                                                                                                                         |
+| `--bowman-accent-soft-dark`       | `var(--color-blue-950)`  | streaming avatar circle background (dark)                                                                                                                                                              |
+| `--bowman-accent-border`          | `var(--color-blue-200)`  | streaming avatar circle border (light)                                                                                                                                                                 |
+| `--bowman-accent-border-dark`     | `var(--color-blue-800)`  | streaming avatar circle border (dark)                                                                                                                                                                  |
+| `--bowman-accent-glow`            | `rgba(59,130,246,0.1)`   | composer `focus-within` shadow (light); `bowman-pulse-subtle` box-shadow (both modes)                                                                                                                  |
+| `--bowman-accent-glow-dark`       | `rgba(96,165,250,0.1)`   | composer `focus-within` shadow (dark)                                                                                                                                                                  |
+| `--bowman-focus-ring`             | `var(--color-blue-500)`  | every `focus:ring`, `ErrorBoundary`'s `focus-visible:ring`, the composer's `focus-within:ring` at `/50` (light)                                                                                        |
+| `--bowman-focus-ring-dark`        | `var(--color-blue-400)`  | the same rings (dark); `ErrorBoundary` has no dark ring today and gains none                                                                                                                           |
+| `--bowman-active`                 | `var(--color-slate-100)` | active conversation row background; active sidebar item background; the disabled send button's background (light)                                                                                      |
+| `--bowman-active-dark`            | `var(--color-slate-800)` | active conversation row, sidebar item and disabled send button background (dark)                                                                                                                       |
+| `--bowman-pulse-outline`          | `rgba(59,130,246,0.5)`   | `bowman-pulse-subtle` outline (both modes)                                                                                                                                                             |
+| `--bowman-surface`                | `var(--color-white)`     | panel, sidebar, drawer, composer, search field, prompt chip and secondary `Button`/`IconButton` background (light)                                                                                     |
+| `--bowman-surface-dark`           | `var(--color-slate-900)` | the same surfaces (dark)                                                                                                                                                                               |
+| `--bowman-surface-hover`          | `var(--color-slate-50)`  | sidebar item, conversation row, prompt chip, secondary and ghost button hover (light)                                                                                                                  |
+| `--bowman-surface-hover-dark`     | `var(--color-slate-800)` | the same hovers (dark)                                                                                                                                                                                 |
+| `--bowman-control-hover`          | `var(--color-slate-100)` | `AppShell` drawer and menu buttons, `ChatMessage` copy and feedback controls hover (light)                                                                                                             |
+| `--bowman-control-hover-dark`     | `var(--color-slate-800)` | the same control hovers (dark)                                                                                                                                                                         |
+| `--bowman-border`                 | `var(--color-slate-200)` | panel, sidebar (`md:` edge included), composer, search field, prompt chip, secondary button and disclosure band borders (light)                                                                        |
+| `--bowman-border-dark`            | `var(--color-slate-800)` | the same borders (dark)                                                                                                                                                                                |
+| `--bowman-ring-offset`            | `var(--color-white)`     | every `focus:ring-offset` colour beside `ring-offset-2` (light); `ChatMessage`'s slate-950 offsets stay palette-mapped                                                                                 |
+| `--bowman-ring-offset-dark`       | `var(--color-slate-900)` | the same offsets (dark)                                                                                                                                                                                |
+| `--bowman-text-strong`            | `var(--color-slate-900)` | textarea, search input, nav item + hover, ghost hover, `ErrorBoundary` heading, message body, skip-link focus (light)                                                                                  |
+| `--bowman-text-strong-dark`       | `var(--color-slate-100)` | the same strong text (dark)                                                                                                                                                                            |
+| `--bowman-text-body`              | `var(--color-slate-700)` | conversation title, prompt chip, secondary button, `ToolActivity` chip, `AppShell` and `AppSidebar` consumer regions (light)                                                                           |
+| `--bowman-text-body-dark`         | `var(--color-slate-200)` | the same text (dark)                                                                                                                                                                                   |
+| `--bowman-text-secondary`         | `var(--color-slate-600)` | `AppShell` drawer buttons, sidebar item, ghost button, `ErrorBoundary` body text, `ChatMessage` copy/thumb buttons on hover, assistant name, `ThinkingTrace` content, `ToolActivity` tool name (light) |
+| `--bowman-text-secondary-dark`    | `var(--color-slate-400)` | the same text (dark)                                                                                                                                                                                   |
+| `--bowman-text-muted`             | `var(--color-slate-500)` | timestamps, the disclosure band, thinking and tool labels (light)                                                                                                                                      |
+| `--bowman-text-muted-dark`        | `var(--color-slate-400)` | the same labels (dark)                                                                                                                                                                                 |
+| `--bowman-text-subtle`            | `var(--color-slate-400)` | faint timestamps, empty-state hints, the search icon, composer and search placeholders, `ChatMessage` copy/thumb and `ConversationList` delete buttons at rest, disabled send button (light)           |
+| `--bowman-text-subtle-dark`       | `var(--color-slate-500)` | the same hints, placeholders, controls and disabled button (dark)                                                                                                                                      |
+| `--bowman-text-on-accent`         | `var(--color-white)`     | send button and primary `Button`/`IconButton` text (one value, both modes)                                                                                                                             |
+| `--bowman-danger`                 | `var(--color-red-600)`   | selected thumbs-down and `ErrorBoundary` icon glyph text, `ConversationList` delete-button hover (light)                                                                                               |
+| `--bowman-danger-dark`            | `var(--color-red-400)`   | the same danger text (dark)                                                                                                                                                                            |
+| `--bowman-danger-soft`            | `var(--color-red-100)`   | selected thumbs-down chip and `ErrorBoundary` icon circle background (light)                                                                                                                           |
+| `--bowman-danger-soft-dark`       | `rgba(127, 29, 29, 0.3)` | the same danger surfaces (dark); the `red-900/30` and `red-900/20` fills collapse to this one fallback                                                                                                 |
+| `--bowman-success`                | `var(--color-green-600)` | copied check mark and selected thumbs-up text (light)                                                                                                                                                  |
+| `--bowman-success-dark`           | `var(--color-green-400)` | the same success text (dark)                                                                                                                                                                           |
+| `--bowman-success-soft`           | `var(--color-green-100)` | selected thumbs-up fill (light)                                                                                                                                                                        |
+| `--bowman-success-soft-dark`      | `rgba(20,83,45,0.3)`     | the same fill (dark)                                                                                                                                                                                   |
+| `--bowman-danger-fill`            | `var(--color-red-600)`   | danger button background (light)                                                                                                                                                                       |
+| `--bowman-danger-fill-dark`       | `var(--color-red-700)`   | danger button background (dark)                                                                                                                                                                        |
+| `--bowman-danger-fill-hover`      | `var(--color-red-700)`   | danger button hover (light)                                                                                                                                                                            |
+| `--bowman-danger-fill-hover-dark` | `var(--color-red-600)`   | danger button hover (dark)                                                                                                                                                                             |
+| `--bowman-text-on-danger`         | `var(--color-white)`     | danger button text (both modes)                                                                                                                                                                        |
+| `--bowman-info`                   | `var(--color-blue-500)`  | info notice tone (light)                                                                                                                                                                               |
+| `--bowman-info-dark`              | `var(--color-blue-400)`  | info notice tone (dark)                                                                                                                                                                                |
+| `--bowman-warning`                | `var(--color-amber-500)` | warning notice tone (light)                                                                                                                                                                            |
+| `--bowman-warning-dark`           | `var(--color-amber-400)` | warning notice tone (dark)                                                                                                                                                                             |
 
 In `src/styles.css` the two `rgba()` fallbacks keep the keyframe's original
 spacing (`rgba(59, 130, 246, 0.1)`); inside a Tailwind class name no space is
@@ -589,7 +598,7 @@ Decisions:
    its own dark selector to get a second - re-deriving the very strategy
    this package refuses to choose. Separate names cost seven extra rows in
    the table and nothing at runtime.
-3. **One token per distinct role-and-shade that existed - fifteen theme tokens, forty-four
+3. **One token per distinct role-and-shade that existed - fifteen theme tokens, fifty-three
    with the neutral roles of decision 12 and the semantic roles of decision 6.**
    Byte-for-byte fallbacks forbid deriving tints: blue-50 is not
    `color-mix(blue-500 10%, white)`, so the circle's tint and border, the
@@ -769,7 +778,7 @@ Decisions:
    inert - the animation from a transparent blue to an opaque copper is the
    same animation as from a transparent copper. Only the 50 % stop reads
    tokens (`--bowman-accent-glow`, `--bowman-pulse-outline`).
-10. **The forty-four-line comment block at the top of `src/styles.css` is the
+10. **The fifty-three-line comment block at the top of `src/styles.css` is the
     in-stylesheet declaration the issue asked for.** One line per token,
     `/* --bowman-accent: var(--color-blue-500) - send button, thinking dots */`,
     at zero runtime cost, because decision 1 forbids a real declaration. It
@@ -871,12 +880,12 @@ PR reverses them.
   ("takes no `className`") applied to four more components; a consumer
   needing a different shape renders its own element. The compile-time pin is
   `tests/types/primitives-type-assertions.tsx`.
-- **One `ButtonVariant` union of three - `primary`, `secondary`, `ghost` -
+- **One `ButtonVariant` union of four - `primary`, `secondary`, `ghost`, `danger` -
   shared by `Button` and `IconButton`.** The issue proposed two. `ghost`
   exists because two controls need a borderless look - the attach control
   inside the composer's dashed footer row (the issue's fifth case) and the
   chat-demo's sign-out footer button, a control the issue did not enumerate -
-  and a bordered `secondary` there reads as chrome. Every variant renders its
+  and a bordered `secondary` there reads as chrome. `danger` is the filled red variant added by the form-dialog-notice feature. Every variant renders its
   content centred (`justify-center` sits in the shared base classes), so a
   left-aligned sidebar control is the consumer's own element: the chat-demo
   follow-up must not expect `Button` to replace the sign-out button as-is.
@@ -902,9 +911,9 @@ PR reverses them.
   nothing, so the slot can be filled unconditionally.
 - **`SearchField` reports the raw value.** A controlled input that trimmed on
   the way out would fight the caret; `ChatComposer` trims because it clears,
-  `SearchField` reflects. It ships no clear button, no submit and no debounce:
+  `SearchField` reflects. It ships no clear button and no debounce:
   filtering as the user types is the consumer's, and `useDebounce` already
-  exists for it. It is the first shipped component to render `SearchIcon`; no
+  exists for it. `onSubmit` is optional: when provided, a submit button renders and `onSubmit` is called on click or Enter; without it, the component behaves exactly as before. It is the first shipped component to render `SearchIcon`; no
   icon is added for the primitives and the set stays at 23 (decision 2).
 - **`Button`, `IconButton` and `SearchField` are `forwardRef` components**
   under decision 4, so a consumer can focus a control - a "jump to latest"
