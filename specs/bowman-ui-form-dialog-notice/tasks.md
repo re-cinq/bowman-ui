@@ -1,0 +1,42 @@
+# Tasks
+
+- [ ] danger variant on Button + IconButton
+  - Vitest tests at 100% coverage
+  - axe Playwright check passing
+  - README section present
+  - harness demo registered in componentDocs.tsx
+- [ ] TextField
+  - Vitest tests at 100% coverage
+  - axe Playwright check passing
+  - README section present
+  - harness demo registered in componentDocs.tsx
+- [ ] SearchField onSubmit
+  - Vitest tests at 100% coverage
+  - axe Playwright check passing
+  - README section present
+  - harness demo registered in componentDocs.tsx
+- [ ] Dialog
+  - Vitest tests at 100% coverage
+  - axe Playwright check passing
+  - README section present
+  - harness demo registered in componentDocs.tsx
+- [ ] ConfirmDialog
+  - Vitest tests at 100% coverage
+  - axe Playwright check passing
+  - README section present
+  - harness demo registered in componentDocs.tsx
+- [ ] Notice
+  - Vitest tests at 100% coverage
+  - axe Playwright check passing
+  - README section present
+  - harness demo registered in componentDocs.tsx
+- [ ] KeyValueList
+  - Vitest tests at 100% coverage
+  - axe Playwright check passing
+  - README section present
+  - harness demo registered in componentDocs.tsx
+- [ ] Card
+  - Vitest tests at 100% coverage
+  - axe Playwright check passing
+  - README section present
+  - harness demo registered in componentDocs.tsx
