@@ -91,19 +91,40 @@ export interface SearchFieldProps {
 ```
 
 - Without `onSubmit`, `SearchField` renders exactly what it renders today - the leading
-  `SearchIcon`, the input, no button - and every existing `SearchField` test passes unchanged
-  but one: the test titled "defaultSearchFieldLabels is frozen and equals { searchInput:
-  "Search", searchPlaceholder: "Search..." }" gains `submitSearch` in its expected object and its
-  title, and the titled link to it in specs/bowman-ui-styled-primitives/spec.md moves with it.
+  `SearchIcon`, the input, no button - and every existing `SearchField` behaviour holds. Three
+  existing tests change their fixtures or titles, not the behaviour they prove (see "Existing
+  tests that change" below).
 - With `onSubmit`, the leading icon gives way to a `ghost` `IconButton` holding `SearchIcon` at
   the input's trailing edge, named by `labels.submitSearch` (default `"Submit search"`), and the
   input's padding moves to match. Clicking it calls `onSubmit` with the current `value`.
 - Enter in the input calls `onSubmit` with the current `value` verbatim, once, and calls
   `preventDefault()`, so a consumer's own `<form>` around the field does not submit as well.
+  An Enter that commits an IME composition (`event.nativeEvent.isComposing`) does neither, as
+  `ChatComposer`'s Enter guard does not send mid-composition.
 - While `disabled` holds, the button carries the native `disabled` attribute and neither Enter
   nor a click calls `onSubmit`.
 - `onChange` still fires on every keystroke; filtering as the user types and searching on
   submit are both the consumer's choice, and a consumer may wire either or both.
+
+### Existing tests that change
+
+The plan's backward-compatibility target is "every existing test passing unchanged". It holds
+for behaviour; these tests change a fixture or a title in the same pull request, and each spec
+statement that cites them moves with it:
+
+- tests/SearchField.test.tsx "defaultSearchFieldLabels is frozen and equals { searchInput:
+  "Search", searchPlaceholder: "Search..." }" gains `submitSearch` in its expected object and
+  its title; its titled link in specs/bowman-ui-styled-primitives/spec.md moves with it.
+- tests/SearchField.test.tsx "renders no button - no clear control and no submit" is retitled to
+  say it renders no button without `onSubmit`, and the statement it validates in
+  specs/bowman-ui-styled-primitives/spec.md ("No clear button, no submit, no debounce") becomes
+  "No clear button and no debounce; a submit button only with `onSubmit`", citing this spec.
+- tests/labelled-exports.test.tsx: `searchFieldSentinels` gains `submitSearch`, or "SearchField's
+  sentinel labels cover every defaultSearchFieldLabels key" fails, and the `SearchField` harness
+  passes an `onSubmit`, or the new key never renders. Its bucket comment, which names
+  `ChatMessageList`'s and `IconButton`'s labels props as the required ones, names all five.
+- tests/useFocusTrap.test.tsx "an empty container leaves Tab handling alone" is rewritten, as the
+  `useFocusTrap` section below records.
 
 ### `TextField`
 
@@ -238,8 +259,6 @@ export interface ConfirmDialogProps {
   description: ReactNode;
   /** Any fields the confirmation needs, after the description. */
   children?: ReactNode;
-  /** Default "danger". */
-  confirmVariant?: "danger" | "primary";
   confirmDisabled?: boolean;
   busy?: boolean;
   /** As on `Dialog`. */
@@ -254,7 +273,9 @@ export const ConfirmDialog: (props: ConfirmDialogProps) => ReactElement | null;
   with `role="alertdialog"`, `aria-describedby` pointing at the `<div>` holding `description`,
   and no close button (decision 17).
 - Its body and footer sit in one `<form noValidate>`: `description` first, then `children`, then a
-  `secondary` cancel `Button` and a `confirmVariant` confirm `Button` of `type="submit"`.
+  `secondary` cancel `Button` and a `danger` confirm `Button` of `type="submit"`. The confirm
+  button is always `danger`: the plan names no other style, and a confirmation that destroys
+  nothing needs no `ConfirmDialog`.
 - The form's submit handler always calls `preventDefault()`, so the browser never navigates and
   jsdom never reports an unimplemented form submission, and `stopPropagation()`, so React's
   `submit` event, which bubbles through a portal along the component tree, never reaches a
@@ -272,11 +293,17 @@ export const ConfirmDialog: (props: ConfirmDialogProps) => ReactElement | null;
   raises the browser's own validation bubble, which would block `submit` and show a message in
   the browser's language rather than the consumer's; validation stays the consumer's, shown
   through `fieldError` and held through `confirmDisabled`.
-- While `busy` holds, both buttons are disabled, Escape does nothing, the panel carries
-  `aria-busy="true"`, and the confirm button holds its text and then an aria-hidden
-  `LoadingIcon`, so its accessible name stays the action and no label key is needed for the
-  spinner. The icon carries `motion-reduce:animate-none`, so the spin stops under
-  `prefers-reduced-motion`.
+- While `busy` holds, both buttons are disabled, Escape does nothing, and the confirm button's
+  children are its text and then `<LoadingIcon ariaLabel="" />`. The empty `ariaLabel` matters:
+  `LoadingIcon` defaults it to `"Loading"` (src/icons/index.tsx) and names itself with it, and
+  only a falsy label renders it aria-hidden (src/icons/Icon.tsx), so the button's accessible
+  name stays the action and no English string leaks past the labels convention. It renders as
+  a child, not through `Button`'s `icon` prop, which places the icon before the text and passes
+  it no label. The icon carries `motion-reduce:animate-none`, so the spin stops under
+  `prefers-reduced-motion`. No `aria-busy` is set: some screen readers hold back a busy
+  region's content, and the panel takes focus while busy (below), so marking it busy could
+  silence the focus move. The assistive-technology procedure records what each screen reader
+  announces when a confirmation turns busy.
 - Entering `busy` while focus sits on one of the buttons it disables moves focus to the panel. A
   layout effect on `busy` turning true does it: it runs after React sets `disabled` and before the
   browser's focus fixup moves focus to `<body>`, while the button is still `document.activeElement`.
@@ -474,8 +501,9 @@ token set, or the suite reds:
   count;
 - the test's `EXPECTED_FALLBACKS` map, which gains the nine tokens with their fallbacks in
   declaration order;
-- the test's `NEUTRAL_ROLE_READERS` map, which gains each new built file that imports a neutral
-  role constant (`SURFACE`, `BORDER`, `TEXT_STRONG`, `TEXT_BODY`, `TEXT_MUTED` and the rest);
+- the test's `NEUTRAL_ROLE_READERS` map, which gains each new built file under every constant
+  it keys, neutral or semantic - `SURFACE`, `BORDER`, `TEXT_STRONG`, `TEXT_BODY`, `TEXT_MUTED`
+  and the rest, and `DANGER`, which `TextField` reads for its error text;
 - the `FOCUS_RING` readers: `Card` makes six offset-ring importers, so the test's reader list
   and its `it()` title ("exactly the five offset-ring components"), the titled link to it in
   specs/bowman-ui-theming-tokens/spec.md, and CLAUDE.md's "imported by five files (four
@@ -523,7 +551,8 @@ specs/bowman-ui-styled-primitives/spec.md the `ButtonVariant` block gains `"dang
 `SearchField` block gains `onSubmit` and `submitSearch`, each citing this spec.
 docs/design-notes.md § Styled primitives records both amendments in the same pull request: its
 `ButtonVariant` decision names four variants, and its `SearchField` decision drops "no submit"
-(decision 3).
+(decision 3). Its refusal of layout primitives is narrowed for `Card` (decision 7), and
+docs/design-notes.md § Labels decisions 2 and 5 are amended (decision 6).
 
 ## Recorded decisions
 
@@ -547,9 +576,10 @@ docs/design-notes.md § Styled primitives records both amendments in the same pu
    and the design record is amended in the same pull request.
 4. **The danger fill takes its own roles.** `--bowman-danger` is a text role whose dark value,
    `red-400`, is too light for white text on top of it. Reusing it as a fill would fail
-   contrast in dark mode, and reusing `--bowman-text-on-accent` would tie danger text to the
-   accent's theme, which docs/design-notes.md § Theming decision 6 forbids - CLAUDE.md
-   invariant 13 sums it up as "read the role".
+   contrast in dark mode. Reusing `--bowman-text-on-accent` would tie danger text to the
+   accent's theme: that token exists so a consumer with a pale accent can switch the primary
+   button's text to dark (docs/design-notes.md § Theming), and that switch must not also turn
+   the danger button's text dark on red.
    The dark hover darkens to `red-700` rather than lightening to `red-500`, because white on
    `red-500` measures 3.82:1 and fails AA.
 5. **A notice's text never sits on a tinted surface, and info and warning get their own
@@ -571,16 +601,23 @@ docs/design-notes.md § Styled primitives records both amendments in the same pu
    because no key of theirs has a meaningful default, and `TextFieldLabels` is the first labels type
    with optional keys, because a hint and an error are not always there. `Dialog` and
    `ConfirmDialog` require only their title and confirm text and default the rest, as
-   `ChatMessageList` does. Both places that list the required labels record all five and the
-   optional keys in the same pull request: docs/design-notes.md § Labels, which today speaks of
-   "these two exceptions", and `.specify/spec.md`'s Labels Convention capability, which names
-   "the two required labels with no default".
+   `ChatMessageList` does, so `defaultDialogLabels` and `defaultConfirmDialogLabels` are typed
+   `Readonly<Required<Pick<…>>>` over their defaulted keys, as `defaultChatMessageListLabels` is
+   typed over an `Omit` today. That departs from docs/design-notes.md § Labels decision 2, which
+   fixes `defaultXLabels: Readonly<Required<XLabels>>`, and widens decision 5, which allows a
+   required key but not an optional one; both decisions are amended in the same pull request to
+   name the defaulted-keys typing and optional keys. Every place that lists the required labels
+   records all five in the same pull request: § Labels, which today speaks of "these two
+   exceptions"; `.specify/spec.md`'s Labels Convention capability, which names "the two required
+   labels with no default"; CLAUDE.md invariant 1, which names `ChatMessageList.labels` and
+   `IconButton.labels` as required; and the bucket comment in tests/labelled-exports.test.tsx.
 7. **`Card` narrows the refusal of layout primitives.** § Styled primitives refuses layout
    primitives because they would decide spacing the consumer's page already decides. `Card`
    decides one inner padding and nothing about the page: no grid, no gap, no width. It ships
    for what a consumer gets wrong by hand - a whole surface that is one button, with one
-   accessible name and the package's focus ring. If the maintainers hold the refusal as it
-   stands, `Card` is dropped and the rest ships without it.
+   accessible name and the package's focus ring. docs/design-notes.md § Styled primitives and
+   specs/bowman-ui-styled-primitives/spec.md record the narrowed refusal in the same pull
+   request. `Card` ships with the other seven changes: the plan ships all eight together.
 8. **`ConfirmDialog` is a form.** Enter in a field confirms, as a user expects, and the guard
    lives in one place: the submit handler checks `confirmDisabled` and `busy`, so neither the
    confirm button nor Enter can bypass it.
@@ -648,6 +685,14 @@ behind it, beyond what `aria-modal` gives; nested dialogs, including a `Dialog` 
 open drawer (decision 11); validation logic, which stays the consumer's, as `TextField` only shows
 the error it is handed; raising `TextField`'s resting border, `BORDER` (`slate-200` on white, about
 1.2:1), to the 3:1 non-text minimum, a gap it shares with `SearchField` that a fix to both should
-close. The chat-demo's documentation app gains one page per new component, and README's App Router
-paragraph gains the new function-valued props, because that list is a claim about every export;
-nothing else in README changes.
+close.
+
+## Documentation
+
+The chat-demo's documentation app gains one page per new component, each showing every state
+the accessibility checks run against. README.md gains one section per new component, as the
+plan's completion gate requires, and in the same pull request: its three spelled token counts
+move to fifty-three; its § Theming sentence naming "Two semantic roles … `--bowman-danger` and
+`--bowman-success`" names the new danger-fill, info and warning roles beside them; and its App
+Router paragraph gains the new function-valued props, because that list is a claim about every
+export.
