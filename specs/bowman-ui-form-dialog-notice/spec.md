@@ -11,7 +11,7 @@ Bowman UI is built for chat interfaces. Apps that use it for anything else, such
 
 We want Bowman to offer these general-purpose components itself, so every future screen built on the library begins from a tested, accessible foundation rather than from scratch:
 
-- a `danger` variant for `Button`, for destructive actions ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#intent-p-3))
+- a `danger` variant for `Button` and `IconButton`, for destructive actions ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#intent-p-3))
 - `TextField`: a labelled input with hint and error text ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#intent-p-4))
 - an `onSubmit` callback for `SearchField`, for searches that run on Enter or a click instead of on every keystroke ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#intent-p-5))
 - Dialog: a modal that presents content requiring the user’s full attention before they can continue ([from plan](plan.md))
@@ -23,7 +23,7 @@ We want Bowman to offer these general-purpose components itself, so every future
 
   the consumer can add extra inputs between the description and the buttons when a yes-or-no click alone is not enough ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#p_13644075-15d3-4dc1-b80f-7bb251ebacf7), [from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#p_26727aed-6334-4fea-86f1-a547d0222f0b))
 
-- `Notice`: an inline message in an info, success, warning or error tone ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#intent-p-7))
+- `Notice`: an inline message in an info, success, warning or error tone, optionally dismissible ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#intent-p-7))
 - `KeyValueList`: label and value pairs ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#intent-p-8))
 - `Card`: a panel, optionally selectable as a whole ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#intent-p-9))
 
@@ -34,9 +34,9 @@ We want Bowman to offer these general-purpose components itself, so every future
 
 ## What ships
 
-### Button — danger variant
+### Button and IconButton — danger variant
 
-The `danger` variant for Button is intended for destructive actions ([from plan](plan.md)).
+The `danger` variant for `Button` and `IconButton` is intended for destructive actions ([from plan](plan.md)).
 
 ### SearchField
 
@@ -52,7 +52,7 @@ Dialog is a modal component that presents content requiring the user’s full at
 
 ### ConfirmDialog
 
-ConfirmDialog is a ready-made Dialog for confirming before a destructive or irreversible action; it always presents a title, a description, a Cancel button and a Confirm button, and it defines a busy prop ([from plan](plan.md), [from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#p_26727aed-6334-4fea-86f1-a547d0222f0b)).
+ConfirmDialog is a ready-made Dialog for confirming before a destructive or irreversible action; it always presents a title, a description, a Cancel button and a Confirm button, and it defines a `confirmDisabled` prop and a `busy` prop ([from plan](plan.md), [from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#p_26727aed-6334-4fea-86f1-a547d0222f0b)).
 When a yes-or-no click alone is not enough — for instance when the user must type the name of something they are about to delete, or supply a reason that is recorded alongside the action — the consumer places those extra inputs inside the dialog, between the description and the buttons ([from plan](plan.md)). The dialog does not validate what is typed; the consumer manages that and keeps the Confirm button disabled until its own conditions are met ([from plan](plan.md)).
 When an action triggered by the Confirm button is in progress — for example, while a server processes a delete request — the consumer sets the busy prop; this keeps the Confirm button non-interactive and prevents the user from submitting the same action twice, and the dialog cannot be dismissed while busy ([from plan](plan.md)).
 
