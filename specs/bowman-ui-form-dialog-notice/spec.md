@@ -88,7 +88,7 @@ Card is a panel component that can optionally be rendered as a single selectable
 - Text arrives display-ready. ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#2cd3f1fe-2a14-4966-a8a8-d06a48483eeb))
 - Focusable elements forward their refs. ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#2cd3f1fe-2a14-4966-a8a8-d06a48483eeb))
 - Motion respects the user's reduced-motion preference. ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#2cd3f1fe-2a14-4966-a8a8-d06a48483eeb))
-- Styling uses only the existing colour tokens plus the nine approved danger-button, info and warning colour tokens. ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#2cd3f1fe-2a14-4966-a8a8-d06a48483eeb))
+- Styling uses only the existing colour tokens plus all nine new colour tokens — five for the danger button (`--bowman-danger-fill`, `--bowman-danger-fill-dark`, `--bowman-danger-fill-hover`, `--bowman-danger-fill-hover-dark`, `--bowman-text-on-danger`) and four for Notice (`--bowman-info`, `--bowman-info-dark`, `--bowman-warning`, `--bowman-warning-dark`). ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#2cd3f1fe-2a14-4966-a8a8-d06a48483eeb))
 - Each component has a README section and a harness demo of each of its states. ([from plan](https://lore.gcp.re-cinq.com/repos/re-cinq/bowman-ui/plans/6f01ddd8-b3bd-443f-8b93-82e29712ed6c#2cd3f1fe-2a14-4966-a8a8-d06a48483eeb))
 
 ## The published surface
