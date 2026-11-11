@@ -48,8 +48,9 @@ save these deviations, each argued where it applies:
   § Theming decisions 6, 11 and 12 also change: decision 6's palette-mapped list gains the dialog
   overlay, decision 11's `buttonStyles.ts` imports gain the danger strings, and decision 12 gains
   the muted role's first border use (decision 21) and two more `FOCUS_RING` importers (§ Theming).
-- `Dialog` and `ConfirmDialog` take a `container` prop the plan does not name, so a dialog stays
-  inside a wrapper-scoped theme (decision 22).
+- `Dialog` and `ConfirmDialog` take a `container` prop, because the plan's theming floor - a
+  consumer's `--bowman-*` overrides reach every component - would otherwise fail for a dialog
+  portalled out of a wrapper-scoped theme (decision 22).
 - The scrolling body of a dialog becomes focusable when nothing in it is (decision 23).
 - `ConfirmDialog` takes a fourth label key, `confirmBusy`, beyond the three the plan lists, because
   the plan's WCAG 2.2 AA floor needs its busy state announced (decision 20).
@@ -215,7 +216,11 @@ export const TextField: ForwardRefExoticComponent<TextFieldProps & RefAttributes
 - With a non-empty `labels.fieldError` - an empty string counts as absent - the input carries
   `aria-invalid="true"` and a border in the `--bowman-danger` role, through a new `DANGER_BORDER`
   class string in `src/theme/tokens.ts` that reads the existing role and declares no token; without
-  it, neither. The error text renders in `DANGER` and the hint in `TEXT_MUTED`.
+  it, neither. `DANGER_BORDER` replaces `CONTROL_BORDER` rather than joining it: both set
+  `border-color`, so with both present Tailwind's generated order, not the class attribute, would
+  decide the colour (docs/design-notes.md § Styled primitives: "an appended class fails silently").
+  The invalid-state test asserts the `--bowman-text-muted` border classes are absent. The error text
+  renders in `DANGER` and the hint in `TEXT_MUTED`.
 - The error text renders into a polite live region that exists from the first render, so a message
   added later is announced - specs/bowman-ui-toast/spec.md's lesson that a live region must exist
   before its text.
@@ -303,22 +308,24 @@ export const Dialog: (props: DialogProps) => ReactElement | null;
   offset ring is never cut by the panel's rounded corners. With a focusable element in it, a user
   reaches its content by tabbing through its controls instead (decision 23). The body is the scroll
   container, so it clips what its children paint past its edges; it carries its own padding of at
-  least `p-1` (4px), more than a ring's 2px plus its 2px offset, with the panel's padding outside
-  it, so the focus rings of the controls in `children` - a `w-full` `TextField` at either side, the
-  first or last control at the top or bottom - are never cut. A layout effect compares
-  `scrollHeight` with `clientHeight` and sets or removes the three attributes on the node itself; it
-  depends on `open && isClient`, because `ModalPanel` stays mounted while the body exists only while
-  the portal renders, so it runs, and attaches its observer, on the commit that first renders the
-  body, after a closed mount or hydration as on a first open render, and re-runs from a
-  `ResizeObserver`, where one exists, watching both the body and an inner wrapper around its
-  content: once the body reaches its height cap its own box stops changing while its content still
-  grows, as when a disclosure in `children` opens without re-rendering `ModalPanel`. It writes them
-  without a re-render, so they are in place before the trap's open effect looks for a first
-  focusable element. An overflowing prose-only body is therefore the first focusable element and
-  takes initial focus. jsdom lays nothing out and has no `ResizeObserver`, so its tests stub the two
-  heights and, for the branch where one exists, a `ResizeObserver` whose callback they fire for each
-  of the two watched elements, keeping the 100% branch floor. One test mounts the dialog closed with
-  overflowing stubbed heights, opens it and asserts the body carries `tabindex="0"`.
+  least `p-1` (4px), no less than a ring's 2px plus its 2px offset, since the scroller clips at its
+  padding edge, with the panel's padding outside it, so the focus rings of the controls in
+  `children` - a `w-full` `TextField` at either side, the first or last control at the top or
+  bottom - are never cut. A layout effect compares `scrollHeight` with `clientHeight` and sets or
+  removes the three attributes on the node itself; it depends on a named `portalOpen` value,
+  `open && isClient`, since `exhaustive-deps` flags an expression written in the array, because
+  `ModalPanel` stays mounted while the body exists only while the portal renders, so it runs, and
+  attaches its observer, on the commit that first renders the body, after a closed mount or
+  hydration as on a first open render, and re-runs from a `ResizeObserver`, where one exists,
+  watching both the body and an inner wrapper around its content: once the body reaches its height
+  cap its own box stops changing while its content still grows, as when a disclosure in `children`
+  opens without re-rendering `ModalPanel`. It writes them without a re-render, so they are in place
+  before the trap's open effect looks for a first focusable element. An overflowing prose-only body
+  is therefore the first focusable element and takes initial focus. jsdom lays nothing out and has
+  no `ResizeObserver`, so its tests stub the two heights and, for the branch where one exists, a
+  `ResizeObserver` whose callback they fire for each of the two watched elements, keeping the 100%
+  branch floor. One test mounts the dialog closed with overflowing stubbed heights, opens it and
+  asserts the body carries `tabindex="0"`.
 - On the server and during hydration an open `Dialog` renders nothing, and it portals on the first
   client render after: the client check reads `useSyncExternalStore` with a server snapshot of
   `false`, so markup never mismatches and no `typeof window` guard is written. The trap is armed
@@ -332,8 +339,12 @@ export const Dialog: (props: DialogProps) => ReactElement | null;
   when none of those holds.
 - Closing - `open` turning false - and unmounting while open both return focus to
   `returnFocusRef.current` when given, else to the element that held focus before the dialog opened.
-  A consumer whose confirmed action removes that element, such as the delete button of a deleted
-  row, passes `returnFocusRef`, because focus sent to a detached node lands on `<body>`.
+  `returnFocusRef` must stay the same object while the dialog is open - a `useRef`, never an inline
+  or `createRef()` object - because the trap's open effect depends on it: a new object re-runs that
+  effect, which records an element inside the panel as the one to return to and moves focus back to
+  the first control on every render. A consumer whose confirmed action removes that element, such as
+  the delete button of a deleted row, passes `returnFocusRef`, because focus sent to a detached node
+  lands on `<body>`.
 - The close button is a `ghost` `IconButton` with `CloseIcon`, as `Notice`'s dismiss button is,
   named by `labels.closeDialog` (default `"Close"`), which calls `onClose`.
 - A click on the overlay outside the panel does nothing.
@@ -381,7 +392,11 @@ export const ConfirmDialog: (props: ConfirmDialogProps) => ReactElement | null;
   above - portal and `container`, sizing, the focusable overflowing body, hydration, trap, focus
   return, no overlay dismissal - but with `role="alertdialog"`, `aria-describedby` pointing at the
   `<div>` holding `description`, and no close button (decision 17).
-- Its body and footer sit in one `<form noValidate>`: `description` first, then `children`, then a
+- Its body and footer sit in one `<form noValidate>`. `ModalPanel` takes an internal `onSubmit`
+  prop, which only `ConfirmDialog` passes: with it, `ModalPanel` renders the wrapper around the
+  scrolling body and the footer as that form, a `flex flex-col min-h-0` column, so the height cap
+  and the footer staying in view hold as in a `Dialog`, and the buttons need no `form=` attribute
+  that `Button` does not take. The form holds `description` first, then `children`, then a
   `secondary` cancel `Button` and a `danger` confirm `Button` of `type="submit"`. The confirm button
   is always `danger`: the plan names no other style, and a confirmation that destroys nothing needs
   no `ConfirmDialog`.
@@ -434,34 +449,34 @@ export const ConfirmDialog: (props: ConfirmDialogProps) => ReactElement | null;
   busy. The assistive-technology pass's A8 row records what each screen reader announces.
 - Entering `busy` while focus sits on one of the buttons it disables moves focus to the panel.
   `ConfirmDialog` passes `busy` to `ModalPanel`, and a layout effect there focuses the panel through
-  the trap's own container ref, only when `busy` turns true on a dialog already open - never on the
-  commit that mounts the panel - and only when, at layout time, `document.activeElement` is a
-  `disabled` element inside the panel, or is `<body>` or null. A dialog that opens already busy is
-  therefore left to the trap, which records the opener as the element to return focus to before it
-  moves focus in; a layout effect that ran on the mount commit would move focus first, so the trap's
-  passive effect would record the panel and focus would return to a detached node on close. A field
-  in `children` that held focus when Enter set `busy` keeps it. A jsdom test opens a dialog busy,
-  closes it and asserts focus returns to the opener; another sets `busy` with focus in a field and
-  asserts the field keeps focus; a third sets `busy` with nothing focused, `document.activeElement`
-  being `<body>`, and a fourth stubs `document.activeElement` to null, and both assert the panel
-  takes focus. Four more cover the rest of the guard: with focus on the confirm button, setting
-  `busy` moves it to the panel; with focus on a disabled element outside the panel, it stays put;
-  setting `busy` while the dialog is closed moves nothing; and clearing `busy` moves nothing. Each
-  arm of the guard then has a test and the 100% branch floor holds. The guard's conditions exceed
-  `bowman/max-boolean-operators`' two at an inline site, so they live in a named predicate whose
-  return the rule exempts. No ref crosses the component boundary: a `panelRef` prop written by
-  `ModalPanel` would fail `bowman/no-prop-mutation` (docs/design-notes.md § Lint guardrails), and
-  `forwardRef` is allowed only in the fixture's exported components
-  (tests/forward-ref-components.test.ts). The layout effect runs after React sets `disabled` and
-  before the browser's focus fixup moves focus to `<body>`, while the button is still
-  `document.activeElement`. Leaving `busy` leaves focus on the panel, where the next Tab reaches the
-  re-enabled buttons (the second widened trap behaviour below). jsdom runs no focus fixup, so the
-  claim that focus never reaches `<body>` is proven in the chat-demo's Playwright suite, which runs
-  Chromium and WebKit (examples/chat-demo/playwright.config.ts). Its test focuses the confirm button
-  and presses Enter rather than clicking it: WebKit on macOS does not focus a clicked button, so a
-  click could leave focus on the panel without the layout effect ever running. Firefox is unproven,
-  and the `<body>`-or-null branch of the guard covers an engine whose fixup runs first. jsdom proves
-  the panel receives focus.
+  the trap's own container ref, only when `busy` turns true, and only when, at layout time,
+  `document.activeElement` is a `disabled` element inside the panel, or is `<body>` or null. A
+  dialog that opens already busy needs no rule of its own: focus then sits on the opener, outside
+  the panel, so the guard leaves it to the trap, which records the opener as the element to return
+  focus to before it moves focus in; and when nothing held focus, the trap records the panel, a
+  detached target on close that the skip in the `useFocusTrap` section passes over, leaving focus on
+  `<body>` as it would have been anyway. A field in `children` that held focus when Enter set `busy`
+  keeps it. A jsdom test opens a dialog busy, closes it and asserts focus returns to the opener;
+  another sets `busy` with focus in a field and asserts the field keeps focus; a third sets `busy`
+  with nothing focused, `document.activeElement` being `<body>`, and a fourth stubs
+  `document.activeElement` to null, and both assert the panel takes focus. Four more cover the rest
+  of the guard: with focus on the confirm button, setting `busy` moves it to the panel; with focus
+  on a disabled element outside the panel, it stays put; setting `busy` while the dialog is closed
+  moves nothing; and clearing `busy` moves nothing. Each arm of the guard then has a test and the
+  100% branch floor holds. The guard's conditions exceed `bowman/max-boolean-operators`' two at an
+  inline site, so they live in a named predicate whose return the rule exempts. No ref crosses the
+  component boundary: a `panelRef` prop written by `ModalPanel` would fail `bowman/no-prop-mutation`
+  (docs/design-notes.md § Lint guardrails), and `forwardRef` is allowed only in the fixture's
+  exported components (tests/forward-ref-components.test.ts). The layout effect runs after React
+  sets `disabled` and before the browser's focus fixup moves focus to `<body>`, while the button is
+  still `document.activeElement`. Leaving `busy` leaves focus on the panel, where the next Tab
+  reaches the re-enabled buttons (the second widened trap behaviour below). jsdom runs no focus
+  fixup, so the claim that focus never reaches `<body>` is proven in the chat-demo's Playwright
+  suite, which runs Chromium and WebKit (examples/chat-demo/playwright.config.ts). Its test focuses
+  the confirm button and presses Enter rather than clicking it: WebKit on macOS does not focus a
+  clicked button, so a click could leave focus on the panel without the layout effect ever running.
+  Firefox is unproven, and the `<body>`-or-null branch of the guard covers an engine whose fixup
+  runs first. jsdom proves the panel receives focus.
 
 ### `useFocusTrap`: three widened behaviours
 
@@ -492,25 +507,26 @@ specs/bowman-ui-pure-hooks-error-boundary/spec.md pins, and gains three, which t
 - Unmounting while open returns focus as closing does, through its own effect with an empty
   dependency array (`[]`), so it runs on mount and unmount only, whose cleanup reads the open state
   and the latest `triggerRef` from refs. Both refs are assigned inside an effect, never during
-  render, which `react-hooks/refs` forbids, and the `[]` effect reads only them, so
-  `react-hooks/exhaustive-deps`, a warning that `--max-warnings 0` makes fatal, has nothing to
-  report. A cleanup that runs because `isOpen` or `triggerRef` changed never returns focus, so a
-  close returns it once and a new `triggerRef` mid-dialog returns it never. A return target that is
-  no longer connected is skipped, with no fallback to the other target, on close as on unmount: both
-  paths call one helper declared at module scope, so `exhaustive-deps` sees no dependency, and a
-  close whose target was removed leaves focus where the browser put it, `<body>`, as the
-  `returnFocusRef` advice above says. The check is defensive: `focus()` on a detached node is
-  already a no-op in every engine and in jsdom, so its test, which removes the target before closing
-  and asserts focus stays where it was, covers the branch rather than proving a change in behaviour.
-  tests/useFocusTrap.test.tsx also gains a test for each widened behaviour: Tab and Shift+Tab from
-  the focused container reach the first and last element; unmounting while open returns focus to the
-  opener; and a cleanup caused by `isOpen` or `triggerRef` changing returns focus at most once, on
-  the close itself. `AppShell` unmounting with its drawer open - tests/AppShell.test.tsx does it -
-  is the one existing caller this reaches. React detaches the hamburger's ref before the cleanup
-  runs, so the target falls back to the element that held focus when the drawer opened: the detached
-  hamburger, which is skipped, or `<body>` when the test opened the drawer by `fireEvent.click`
-  without focusing it, which takes focus harmlessly. Under React's development StrictMode, the
-  simulated unmount returns focus and the re-run open effect moves it back into the container.
+  render, which `react-hooks/refs` forbids, and the `[]` effect reads only them and the trap's own
+  `previousActiveElement` ref, its fallback target, so `react-hooks/exhaustive-deps`, a warning that
+  `--max-warnings 0` makes fatal, has nothing to report. A cleanup that runs because `isOpen` or
+  `triggerRef` changed never returns focus, so a close returns it once and a new `triggerRef`
+  mid-dialog returns it never. A return target that is no longer connected is skipped, with no
+  fallback to the other target, on close as on unmount: both paths call one helper declared at
+  module scope, so `exhaustive-deps` sees no dependency, and a close whose target was removed leaves
+  focus where the browser put it, `<body>`, as the `returnFocusRef` advice above says. The check is
+  defensive: `focus()` on a detached node is already a no-op in every engine and in jsdom, so its
+  test, which removes the target before closing and asserts focus stays where it was, covers the
+  branch rather than proving a change in behaviour. tests/useFocusTrap.test.tsx also gains a test
+  for each widened behaviour: Tab and Shift+Tab from the focused container reach the first and last
+  element; unmounting while open returns focus to the opener; and a cleanup caused by `isOpen` or
+  `triggerRef` changing returns focus at most once, on the close itself. `AppShell` unmounting with
+  its drawer open - tests/AppShell.test.tsx does it - is the one existing caller this reaches. React
+  detaches the hamburger's ref before the cleanup runs, so the target falls back to the element that
+  held focus when the drawer opened: the detached hamburger, which is skipped, or `<body>` when the
+  test opened the drawer by `fireEvent.click` without focusing it, which takes focus harmlessly.
+  Under React's development StrictMode, the simulated unmount returns focus and the re-run open
+  effect moves it back into the container.
 
 ### `Notice`
 
@@ -1168,13 +1184,14 @@ accessibility checks run against, the `Dialog` page including one whose body ove
 dialog state sits behind its own trigger, so at most one dialog is open at a time (decision 11), and
 the `ConfirmDialog` and `Notice` pages carry the themed variant decision 19 measures. The `danger`
 variant gets no page of its own: the `ConfirmDialog` page's confirm button is the danger `Button`,
-and that page also shows it on its own, at rest, hovered and disabled, so the token matrix and the
-axe run reach it there. The existing `search-field` page gains a state with `onSubmit`, so the
-submit button is shown and scanned; its props table in examples/chat-demo/src/docs/propDocs.ts gains
-`onSubmit`, and its purpose text in examples/chat-demo/src/docs/componentDocs.tsx, "A controlled
-search input with a leading icon", says the icon becomes a submit button with `onSubmit`. The
-`use-focus-trap` entry in examples/chat-demo/src/docs/overview.ts, "AppShell uses it for the mobile
-drawer", names `Dialog` and `ConfirmDialog` beside it.
+and that page also shows it on its own, at rest, hovered and disabled, beside a `danger`
+`IconButton` in the same three states, so the token matrix and the axe run reach it there. The
+existing `search-field` page gains a state with `onSubmit`, so the submit button is shown and
+scanned; its props table in examples/chat-demo/src/docs/propDocs.ts gains `onSubmit`, and its
+purpose text in examples/chat-demo/src/docs/componentDocs.tsx, "A controlled search input with a
+leading icon", says the icon becomes a submit button with `onSubmit`. The `use-focus-trap` entry in
+examples/chat-demo/src/docs/overview.ts, "AppShell uses it for the mobile drawer", names `Dialog`
+and `ConfirmDialog` beside it.
 
 README.md has no section per component today; its § Hooks is one section of short annotated
 snippets. It gains one section in that shape, "Forms, dialogs and notices", with a subsection per
@@ -1190,12 +1207,12 @@ three spelled token counts move to fifty-three; its § Theming sentence naming "
 them; its sentence "Forty-two of the tokens form twenty-one light/dark pairs … Two have no twin"
 becomes fifty, twenty-five and three, naming `--bowman-text-on-danger` as the third, the one text
 colour on the danger fill in both modes; its § Styles sentence listing what the `bowman-sr-only`
-rule hides gains `ConfirmDialog`'s busy status region, as do tests/styles.test.ts's title
-"styles.css declares the bowman-sr-only rule the markdown notice, Toast, ConversationList,
-ChatComposer and useFocusGroups depend on" and the titled link to it in
-specs/bowman-ui-stylesheet-entry/spec.md (see "Existing tests that change"); and its App Router
-paragraph gains the new function-valued props, because that list is a claim about every export. Two
-docs/design-notes.md sentences move too: § Lint guardrails' list of what shares `.bowman-sr-only`
-gains `ConfirmDialog`'s busy status region, and the `ChatComposer` busy hint it already lacks; and
-§ Styled primitives' "four component files open with the directive" counts the styled components
-that do once the closed set grows.
+rule hides gains `ConfirmDialog`'s busy status region and the `ChatComposer` busy hint it already
+lacks, as do tests/styles.test.ts's title "styles.css declares the bowman-sr-only rule the markdown
+notice, Toast, ConversationList, ChatComposer and useFocusGroups depend on" and the titled link to
+it in specs/bowman-ui-stylesheet-entry/spec.md (see "Existing tests that change"); and its App
+Router paragraph gains the new function-valued props, because that list is a claim about every
+export. Two docs/design-notes.md sentences move too: § Lint guardrails' list of what shares
+`.bowman-sr-only` gains `ConfirmDialog`'s busy status region, and the `ChatComposer` busy hint it
+already lacks; and § Styled primitives' "four component files open with the directive" counts the
+styled components that do once the closed set grows.
