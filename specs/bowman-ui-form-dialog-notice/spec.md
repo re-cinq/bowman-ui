@@ -327,17 +327,25 @@ export const Dialog: (props: DialogProps) => ReactElement | null;
   watching both the body and an inner wrapper around its content: once the body reaches its height
   cap its own box stops changing while its content still grows, as when a disclosure in `children`
   opens without re-rendering `ModalPanel`. It writes them without a re-render, so they are in place
-  before the trap's open effect looks for a first focusable element. An overflowing prose-only body
-  is therefore the first focusable element and takes initial focus. jsdom lays nothing out and has
-  no `ResizeObserver`, so its tests stub the two heights and, for the branch where one exists, a
+  before the trap's open effect looks for a first focusable element. When the body stops overflowing
+  while it holds focus - a prose-only dialog after the viewport grows - the effect first moves focus
+  to the panel, then removes the attributes, so the browser's focus fixup never drops focus to
+  `<body>` outside the modal; a stubbed-heights test focuses the overflowing body, makes it fit,
+  fires the observer and asserts the panel holds focus. An overflowing prose-only body is therefore
+  the first focusable element and takes initial focus. jsdom lays nothing out and has no
+  `ResizeObserver`, so its tests stub the two heights and, for the branch where one exists, a
   `ResizeObserver` whose callback they fire for each of the two watched elements, keeping the 100%
   branch floor. One test mounts the dialog closed with overflowing stubbed heights, opens it and
   asserts the body carries `tabindex="0"`.
 - On the server and during hydration an open `Dialog` renders nothing, and it portals on the first
   client render after: the client check reads `useSyncExternalStore` with a server snapshot of
-  `false`, so markup never mismatches and no `typeof window` guard is written. The trap is armed
-  with `open && isClient`, so an open `Dialog` hydrated from the server still moves focus into its
-  panel once the panel exists.
+  `false`, so markup never mismatches and no `typeof window` guard is written. The suite has no
+  hydration test today, and the server snapshot runs only under one, so the 100% function floor
+  needs it: the shared routine renders an open dialog with `renderToString` from `react-dom/server`,
+  then hydrates that markup with `hydrateRoot`, and asserts the panel appears and takes focus; a
+  mismatch would trip tests/setup.ts's `console.error` trap. The trap is armed with
+  `open && isClient`, so an open `Dialog` hydrated from the server still moves focus into its panel
+  once the panel exists.
 - The panel traps focus through the shipped `useFocusTrap`: opening moves focus to the first
   focusable element in DOM order, Tab and Shift+Tab wrap inside it, and Escape calls `onClose`.
 - The DOM order is the `<h2>`, `children`, `footer`, then the close button, which CSS places in the
@@ -418,7 +426,11 @@ export const ConfirmDialog: (props: ConfirmDialogProps) => ReactElement | null;
   event, which bubbles through a portal along the component tree, never reaches a consumer's own
   `<form onSubmit>` around the `ConfirmDialog`.
 - Submitting the form - the confirm button, or Enter in a field among `children` - calls `onConfirm`
-  once, and never while `confirmDisabled` or `busy` holds.
+  once, and never while `confirmDisabled` or `busy` holds. jsdom implements no implicit submission
+  on Enter, so its tests submit the form directly or click the confirm button; the chat-demo's
+  Playwright suite presses Enter in a `TextField` among `children` and asserts `onConfirm` ran once,
+  and with `confirmDisabled` asserts it did not run, since a browser skips implicit submission when
+  the form's default button is disabled.
 - The cancel button and Escape call `onCancel`.
 - While `confirmDisabled` holds, the confirm button carries the native `disabled` attribute.
 - `description` holds prose and no interactive element, as a selectable `Card`'s content holds none:
@@ -462,34 +474,36 @@ export const ConfirmDialog: (props: ConfirmDialogProps) => ReactElement | null;
   busy. The assistive-technology pass's A8 row records what each screen reader announces.
 - Entering `busy` while focus sits on one of the buttons it disables moves focus to the panel.
   `ConfirmDialog` passes `busy` to `ModalPanel`, and a layout effect there focuses the panel through
-  the trap's own container ref, only when `busy` turns true, and only when, at layout time,
-  `document.activeElement` is a `disabled` element inside the panel, or is `<body>` or null. A
-  dialog that opens already busy needs no rule of its own: focus then sits on the opener, outside
-  the panel, so the guard leaves it to the trap, which records the opener as the element to return
-  focus to before it moves focus in; and when nothing held focus, the trap records the panel, a
-  detached target on close that the skip in the `useFocusTrap` section passes over, leaving focus on
-  `<body>` as it would have been anyway. A field in `children` that held focus when Enter set `busy`
-  keeps it. A jsdom test opens a dialog busy, closes it and asserts focus returns to the opener;
-  another sets `busy` with focus in a field and asserts the field keeps focus; a third sets `busy`
-  with nothing focused, `document.activeElement` being `<body>`, and a fourth stubs
-  `document.activeElement` to null, and both assert the panel takes focus. Four more cover the rest
-  of the guard: with focus on the confirm button, setting `busy` moves it to the panel; with focus
-  on a disabled element outside the panel, it stays put; setting `busy` while the dialog is closed
-  moves nothing; and clearing `busy` moves nothing. Each arm of the guard then has a test and the
-  100% branch floor holds. The guard's conditions exceed `bowman/max-boolean-operators`' two at an
-  inline site, so they live in a named predicate whose return the rule exempts. No ref crosses the
-  component boundary: a `panelRef` prop written by `ModalPanel` would fail `bowman/no-prop-mutation`
-  (docs/design-notes.md § Lint guardrails), and `forwardRef` is allowed only in the fixture's
-  exported components (tests/forward-ref-components.test.ts). The layout effect runs after React
-  sets `disabled` and before the browser's focus fixup moves focus to `<body>`, while the button is
-  still `document.activeElement`. Leaving `busy` leaves focus on the panel, where the next Tab
-  reaches the re-enabled buttons (the second widened trap behaviour below). jsdom runs no focus
-  fixup, so the claim that focus never reaches `<body>` is proven in the chat-demo's Playwright
-  suite, which runs Chromium and WebKit (examples/chat-demo/playwright.config.ts). Its test focuses
-  the confirm button and presses Enter rather than clicking it: WebKit on macOS does not focus a
-  clicked button, so a click could leave focus on the panel without the layout effect ever running.
-  Firefox is unproven, and the `<body>`-or-null branch of the guard covers an engine whose fixup
-  runs first. jsdom proves the panel receives focus.
+  the trap's own container ref, only when `busy` turns true - read against a ref holding the
+  previous `busy`, which starts at `false`, so a dialog that mounts open and busy counts as turning
+  busy - and only when, at layout time, `document.activeElement` is a `disabled` element inside the
+  panel, or is `<body>` or null. A dialog that opens already busy needs no rule of its own: focus
+  then sits on the opener, outside the panel, so the guard leaves it to the trap, which records the
+  opener as the element to return focus to before it moves focus in; and when nothing held focus,
+  the trap records the panel, a detached target on close that the skip in the `useFocusTrap` section
+  passes over, leaving focus on `<body>` as it would have been anyway. A field in `children` that
+  held focus when Enter set `busy` keeps it. A jsdom test opens a dialog busy, closes it and asserts
+  focus returns to the opener; another sets `busy` with focus in a field and asserts the field keeps
+  focus; a third sets `busy` with nothing focused, `document.activeElement` being `<body>`, and a
+  fourth stubs `document.activeElement` to null, and both assert the panel takes focus. Four more
+  cover the rest of the guard: with focus on the confirm button, setting `busy` moves it to the
+  panel; with focus on a disabled element outside the panel, it stays put; setting `busy` while the
+  dialog is closed moves nothing; and clearing `busy` moves nothing. Each arm of the guard then has
+  a test and the 100% branch floor holds. The guard's conditions exceed
+  `bowman/max-boolean-operators`' two at an inline site, so they live in a named predicate whose
+  return the rule exempts. No ref crosses the component boundary: a `panelRef` prop written by
+  `ModalPanel` would fail `bowman/no-prop-mutation` (docs/design-notes.md § Lint guardrails), and
+  `forwardRef` is allowed only in the fixture's exported components
+  (tests/forward-ref-components.test.ts). The layout effect runs after React sets `disabled` and
+  before the browser's focus fixup moves focus to `<body>`, while the button is still
+  `document.activeElement`. Leaving `busy` leaves focus on the panel, where the next Tab reaches the
+  re-enabled buttons (the second widened trap behaviour below). jsdom runs no focus fixup, so the
+  claim that focus never reaches `<body>` is proven in the chat-demo's Playwright suite, which runs
+  Chromium and WebKit (examples/chat-demo/playwright.config.ts). Its test focuses the confirm button
+  and presses Enter rather than clicking it: WebKit on macOS does not focus a clicked button, so a
+  click could leave focus on the panel without the layout effect ever running. Firefox is unproven,
+  and the `<body>`-or-null branch of the guard covers an engine whose fixup runs first. jsdom proves
+  the panel receives focus.
 
 ### `useFocusTrap`: three widened behaviours
 
@@ -581,10 +595,14 @@ export const Notice: (props: NoticeProps) => ReactElement;
   `--bowman-warning`, `error` `--bowman-danger`, through four new class strings in
   `src/theme/tokens.ts`, `INFO_TONE`, `SUCCESS_TONE`, `WARNING_TONE` and `DANGER_TONE`, each pairing
   the role's `text-` and `border-l-` utilities in both schemes. The container carries its tone's
-  string beside `border-l-4` and the icon takes the colour through `currentColor`, while `heading`
-  and `children` set their own. They differ from `DANGER` and `SUCCESS`, which colour text only, so
-  no class string is declared twice, and `Notice` imports neither: `DANGER` gains only `TextField`
-  and `SUCCESS` no reader.
+  string beside `border-l-4` and the icon takes the colour through `currentColor`; the container
+  also carries `BORDER` for its other three sides, and the tone's `border-l-*` wins on the left only
+  because Tailwind v4 emits `border-left-color` after `border-color` in both schemes - the generated
+  order the `TextField` bullet refuses to rely on between two strings of one property, accepted here
+  because the two set different properties and the documentation-page matrix measures the outcome
+  (decision 19), while `heading` and `children` set their own. They differ from `DANGER` and
+  `SUCCESS`, which colour text only, so no class string is declared twice, and `Notice` imports
+  neither: `DANGER` gains only `TextField` and `SUCCESS` no reader.
 - Without `onDismiss` it renders no button. With it, a `ghost` `IconButton` holding `CloseIcon`,
   named by `labels.dismissNotice` (default `"Dismiss"`), sits at the container's trailing edge and
   calls `onDismiss` on a click. `Notice` keeps no open state of its own: the consumer stops
@@ -935,7 +953,10 @@ them:
   becomes nine, as does eslint.config.mjs's comment on it, "a scoped disable for its seven
   deliberate links". A8 records what each screen reader announces and nothing about Tab, which the
   chat-demo's Playwright suite checks, so the pass's out-of-scope line for keyboard-only navigation
-  and the focus trap stays true.
+  and the focus trap stays true. For the same reason the `covers` list leaves out
+  `src/hooks/useFocusTrap.ts`, though its empty-container branch performs the focus move A8 hears
+  for a dialog opened already busy: the trap is that out-of-scope line's subject, and the
+  chat-demo's Playwright suite, not the record, guards a change to it.
 
 ## The published surface
 
@@ -1128,9 +1149,10 @@ docs/design-notes.md § Labels decisions 2, 3 and 5 are amended (decision 6). CL
     `docsTokenPages` on its page under both schemes ("the ${componentId} page paints its tokens").
     The new pages join that list - the danger `Button` at rest and hovered, on the `ConfirmDialog`
     page (§ Documentation), with its text, and an info and a warning `Notice`, measured through the
-    tone icon's `color`, since the helpers' `ColorProperty` has no single-side border and a mixed
-    border's computed `borderColor` lists four colours - rather than a second matrix being built,
-    which the copy-paste gate would flag. `docsTokenPages` moves to the chat-demo's tests/helpers so
+    tone icon's `color` and the container's `borderLeftColor`, which
+    examples/chat-demo/tests/helpers/colors.ts's `ColorProperty` gains, since a mixed border's
+    computed `borderColor` lists four colours - rather than a second matrix being built, which the
+    copy-paste gate would flag. `docsTokenPages` moves to the chat-demo's tests/helpers so
     theming.spec.ts can read it; the docs suite gains a wrapper-theme run like the theming suite's.
     The chat-demo's `?theme=` parameter applies only with `?view=chat`
     (examples/chat-demo/src/App.tsx), so rather than threading it into the docs view, the
@@ -1228,8 +1250,9 @@ rule hides gains `ConfirmDialog`'s busy status region and the `ChatComposer` bus
 lacks, as do tests/styles.test.ts's title "styles.css declares the bowman-sr-only rule the markdown
 notice, Toast, ConversationList, ChatComposer and useFocusGroups depend on" and the titled link to
 it in specs/bowman-ui-stylesheet-entry/spec.md (see "Existing tests that change"); and its App
-Router paragraph gains the new function-valued props, because that list is a claim about every
-export. Two docs/design-notes.md sentences move too: § Lint guardrails' list of what shares
-`.bowman-sr-only` gains `ConfirmDialog`'s busy status region, and the `ChatComposer` busy hint it
-already lacks; and § Styled primitives' "four component files open with the directive" counts the
-styled components that do once the closed set grows.
+Router paragraph gains the new function-valued props, and `container`, a DOM element, and
+`returnFocusRef`, a ref object, which a server component cannot pass either, because that list is a
+claim about every export. Two docs/design-notes.md sentences move too: § Lint guardrails' list of
+what shares `.bowman-sr-only` gains `ConfirmDialog`'s busy status region, and the `ChatComposer`
+busy hint it already lacks; and § Styled primitives' "four component files open with the directive"
+counts the styled components that do once the closed set grows.
