@@ -23,8 +23,8 @@ save these deviations, each argued where it applies:
   section).
 - `Dialog` and `ConfirmDialog` forward no ref, though their panel takes focus (the conventions
   section).
-- The public `useFocusTrap` hook gains three behaviours, one of which replaces a behaviour a test
-  pins today (the `useFocusTrap` section).
+- The public `useFocusTrap` hook gains three behaviours, one of which gives an empty container that
+  can take focus a behaviour it lacks today (the `useFocusTrap` section).
 - Some existing tests change a fixture, a map, a title or an assertion, though the plan asks for
   every existing test to pass unchanged (the "Existing tests that change" list).
 - `ButtonVariant` widening is a type-level change for a consumer that switches exhaustively over it
@@ -85,7 +85,7 @@ of an existing union, one new prop and label key on an existing component, and o
 - The `stringPropOnly` list stays at its three closed members.
 - The public `useFocusTrap` hook gains three behaviours - focusing an empty container, Tab from the
   focused container, and returning focus on an unmount while open - one of which changes what an
-  empty trap does today (the `useFocusTrap` section).
+  empty trap whose container can take focus does today (the `useFocusTrap` section).
 - `src/components/ModalPanel.tsx`, the portal, overlay, panel, heading, optional close button and
   focus trap `Dialog` and `ConfirmDialog` share, is private and never exported from the barrel, as
   `buttonStyles.ts` and `FeedbackButtons` are.
@@ -534,9 +534,11 @@ specs/bowman-ui-pure-hooks-error-boundary/spec.md pins, and gains three, which t
   left alone: `AppShell`'s drawer carries no `tabIndex` and is `md:hidden`, and it can stay open
   across a rotate to desktop width (src/components/AppShell.tsx handles that case for its scroll
   lock), where its controls are hidden and the trap finds none; without this condition every Tab on
-  the page would be prevented, a keyboard trap (WCAG 2.1.2). A new test opens a trap over an empty
-  container without `tabIndex`, and another over one whose `checkVisibility` is stubbed to false,
-  presses Tab in each and asserts `defaultPrevented` is false. When focus has escaped the container,
+  the page would be prevented, a keyboard trap (WCAG 2.1.2). tests/useFocusTrap.test.tsx's "an empty
+  container leaves Tab handling alone", whose container carries no `tabIndex`, already pins that
+  case and keeps passing; it is retitled to name the missing `tabindex` and gains an assertion that
+  the event's `defaultPrevented` is false, and a new test opens a trap over an empty container whose
+  `checkVisibility` is stubbed to false and asserts the same. When focus has escaped the container,
   a prevented Tab also moves it back to the container, as the non-empty branch pulls escaped focus
   back to an end today (src/hooks/useFocusTrap.ts), so focus is never left stranded outside the
   modal. A trap whose container is null - its ref not yet attached while `isOpen` holds - returns
@@ -545,11 +547,10 @@ specs/bowman-ui-pure-hooks-error-boundary/spec.md pins, and gains three, which t
   crash" presses Tab on such a trap and gains an assertion that the event's `defaultPrevented` is
   false beside its existing one that focus stays on `<body>` (see "Existing tests that change"). A
   busy `ConfirmDialog` with no fields therefore keeps focus on its panel instead of letting Tab
-  leave the dialog. This replaces the behaviour tests/useFocusTrap.test.tsx pins as "an empty
-  container leaves Tab handling alone": that test is retitled and rewritten in this pull request to
-  assert the Tab is prevented and focus lands on the container, and the file's shared `Harness`,
-  whose container carries no `tabIndex` today, gains an option that renders it with `tabIndex={-1}`
-  for that case (see "Existing tests that change").
+  leave the dialog. A new test pins this branch: the file's shared `Harness`, whose container
+  carries no `tabIndex` today, gains an option that renders it with `tabIndex={-1}`, and the test
+  opens an empty trap with it, asserts focus lands on the container, presses Tab and asserts the
+  event is prevented (see "Existing tests that change").
 - While focus sits on the container itself, Tab moves it to the first focusable element and
   Shift+Tab to the last. Without this, the container counts as inside the trap but is neither end,
   so no Tab is intercepted and a native Shift+Tab from the panel leaves it for the page's last
@@ -732,10 +733,11 @@ them moves with it. Every other existing test passes unchanged.
   ConversationList, ChatComposer and useFocusGroups depend on" is retitled to name `ConfirmDialog`
   among them, and its titled link in specs/bowman-ui-stylesheet-entry/spec.md moves with it
   (§ Documentation).
-- tests/useFocusTrap.test.tsx "an empty container leaves Tab handling alone" is retitled and
-  rewritten, and its shared `Harness` gains a `tabIndex={-1}` option; "a never-attached container
-  ref yields no focusable elements and no crash" gains a `defaultPrevented` assertion; both as the
-  `useFocusTrap` section above records.
+- tests/useFocusTrap.test.tsx "an empty container leaves Tab handling alone" is retitled to name the
+  missing `tabindex` and gains a `defaultPrevented` assertion, and its shared `Harness` gains a
+  `tabIndex={-1}` option for a new test; "a never-attached container ref yields no focusable
+  elements and no crash" gains a `defaultPrevented` assertion; both as the `useFocusTrap` section
+  above records.
 - tests/theming-tokens-dist.test.ts: its `EXPECTED_FALLBACKS` and `NEUTRAL_ROLE_READERS` maps and
   its `FOCUS_RING` reader list grow, and the `it()` titled "exactly the five offset-ring components"
   is retitled for seven, as § Theming below lists.
@@ -965,30 +967,31 @@ The rows' verdicts are owed by the human runner, as A1-A7's are. What moves with
   become A9; and its `covers` rule, "List every component the rows exercise, which today means all
   seven above", gains what A8 and A9 exercise: `ConfirmDialog.tsx`, `ModalPanel.tsx`, and
   `Button.tsx` (its cancel and danger confirm buttons) and `src/hooks/useFocusTrap.ts` (whose
-  empty-container branch performs the focus move A8 hears for a dialog opened already busy) for A8,
-  and `Notice.tsx` and `IconButton.tsx` (its dismiss button) for A9;
+  empty-container branch performs the focus move A8 hears for a dialog opened already busy) and
+  `src/hooks/focusableSelector.ts` (whose `getFocusableElements` decides that the container is
+  empty) for A8, and `Notice.tsx` and `IconButton.tsx` (its dismiss button) for A9;
 - `scripts/check-at-pass.mjs`'s closed `ROWS` list gains `"A8"` and `"A9"`, or a new row is never
   checked for a verdict, and its header comment's "every row A1-A7" becomes A1-A9;
   tests/check-at-pass.test.ts's hard-coded `rowIds` gains both (see "Existing tests that change");
 - docs/accessibility/README.md's "fourteen verbatim transcriptions" - seven rows on two stacks -
-  becomes eighteen; its "the seven are this document's rule", a count of paths, becomes thirteen;
-  and its front-matter block, which calls itself "complete and copy-pasteable", lists the thirteen
+  becomes eighteen; its "the seven are this document's rule", a count of paths, becomes fourteen;
+  and its front-matter block, which calls itself "complete and copy-pasteable", lists the fourteen
   `covers` paths and rows A1-A9, or a record copied from it fails the gate once `ROWS` gains A8 and
   A9;
 - specs/bowman-ui-assistive-technology-pass/spec.md: its "seven rows" becomes nine, its "A1-A7"
-  references become "A1-A9", its "names all seven components the rows exercise" becomes thirteen
-  files, one of them a hook, KU-22's "seven checks" becomes nine - its "None has been named" stays
-  true of the pass, which claims no conformance: the WCAG 2.2 AA floor here is this spec's target
-  for its own unit, axe and contrast checks, not a standard named for the screen-reader pass - and
-  it gains a statement for each new row beside A1-A7's. Each new statement links to the owed record
-  as A1-A7's do and sits inside the `re-lint/no-dead-md-links` disable block, whose comment, "the
-  seven links below", becomes nine, as does eslint.config.mjs's comment on it, "a scoped disable for
-  its seven deliberate links". A8 records what each screen reader announces and nothing about Tab,
-  which the chat-demo's Playwright suite checks, so the pass's out-of-scope line, which excludes
-  keyboard-only navigation and the app shell's mobile drawer
+  references become "A1-A9", its "names all seven components the rows exercise" becomes fourteen
+  files, two of them in src/hooks/, KU-22's "seven checks" becomes nine - its "None has been named"
+  stays true of the pass, which claims no conformance: the WCAG 2.2 AA floor here is this spec's
+  target for its own unit, axe and contrast checks, not a standard named for the screen-reader
+  pass - and it gains a statement for each new row beside A1-A7's. Each new statement links to the
+  owed record as A1-A7's do and sits inside the `re-lint/no-dead-md-links` disable block, whose
+  comment, "the seven links below", becomes nine, as does eslint.config.mjs's comment on it, "a
+  scoped disable for its seven deliberate links". A8 records what each screen reader announces and
+  nothing about Tab, which the chat-demo's Playwright suite checks, so the pass's out-of-scope line,
+  which excludes keyboard-only navigation and the app shell's mobile drawer
   (specs/bowman-ui-assistive-technology-pass/spec.md), stays true; the trap is only that line's
-  reason for excluding the drawer, so the hook belongs in A8's `covers`, and a later change to it
-  marks the A8 record stale.
+  reason for excluding the drawer, so the hook and its helper belong in A8's `covers`, and a later
+  change to it marks the A8 record stale.
 
 ## The published surface
 
@@ -1036,9 +1039,10 @@ for `Card` (decision 7); its opening sentence, "`Button`, `IconButton`, `PromptC
 `SearchField` are a closed set", and its "applied to four more components" both count the new styled
 components; and § Theming decision 11, which lists the token imports of `buttonStyles.ts` as
 `ACCENT_BG`, `ACCENT_BG_HOVER` and `FOCUS_RING_COLOR` though the file already imports `FOCUS_RING`
-and seven tokens (src/components/buttonStyles.ts), is restated to match the file, the three danger
-strings included. docs/design-notes.md § Labels decisions 2, 3 and 5 are amended (decision 6).
-CLAUDE.md's spec count, "30 feature specs", already lags `main`'s 32 and becomes 33 with this spec.
+and more tokens than those (src/components/buttonStyles.ts), is restated to match the file, the
+three danger strings included. docs/design-notes.md § Labels decisions 2, 3 and 5 are amended
+(decision 6). CLAUDE.md's spec count, "30 feature specs", already lags `main`'s 32 and becomes 33
+with this spec.
 
 ## Recorded decisions
 
