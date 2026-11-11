@@ -271,12 +271,13 @@ export const Dialog: (props: DialogProps) => ReactElement | null;
   `bg-black/50`, the dim `AppShell`'s drawer backdrop already paints (src/components/AppShell.tsx),
   holding one panel with `role="dialog"`, `aria-modal="true"`, `tabIndex={-1}` and `aria-labelledby`
   pointing at an `<h2>` holding `labels.dialogTitle`. The panel takes focus when it holds nothing
-  focusable and when a `ConfirmDialog` turns busy, so it carries `FOCUS_RING` beside
-  `ring-offset-2`, as the scrolling body does, rather than the browser's default outline. The `<h2>`
-  carries trailing padding wider than the close button, so a long title wraps before it reaches the
-  button in the panel's corner. The portal appends the overlay as the target's last child. Into
-  `document.body` that is after the page, so the overlay paints above `AppShell`'s drawer and
-  `Toast`, which also sit at `z-50` and win ties by document order.
+  focusable, when a `ConfirmDialog` turns busy, and when the scrolling body stops overflowing while
+  it holds focus (below), so it carries `FOCUS_RING` beside `ring-offset-2`, as the scrolling body
+  does, rather than the browser's default outline. The `<h2>` carries trailing padding wider than
+  the close button, so a long title wraps before it reaches the button in the panel's corner. The
+  portal appends the overlay as the target's last child. Into `document.body` that is after the
+  page, so the overlay paints above `AppShell`'s drawer and `Toast`, which also sit at `z-50` and
+  win ties by document order.
 - A consumer whose theme is set on a wrapper - README § Theming's `.custom-theme` or
   `[data-tenant="acme"]` - passes that wrapper, or an element inside it, as `container`, so the
   wrapper's `--bowman-*` values and, under a class-based `dark:` variant, its `dark` class reach the
@@ -339,13 +340,15 @@ export const Dialog: (props: DialogProps) => ReactElement | null;
   asserts the body carries `tabindex="0"`.
 - On the server and during hydration an open `Dialog` renders nothing, and it portals on the first
   client render after: the client check reads `useSyncExternalStore` with a server snapshot of
-  `false`, so markup never mismatches and no `typeof window` guard is written. The suite has no
-  hydration test today, and the server snapshot runs only under one, so the 100% function floor
-  needs it: the shared routine renders an open dialog with `renderToString` from `react-dom/server`,
-  then hydrates that markup with `hydrateRoot`, and asserts the panel appears and takes focus; a
-  mismatch would trip tests/setup.ts's `console.error` trap. The trap is armed with
-  `open && isClient`, so an open `Dialog` hydrated from the server still moves focus into its panel
-  once the panel exists.
+  `false`, so markup never mismatches and no `typeof window` guard is written. The server snapshot
+  runs only under a server render, which the suite has today only for `useSidebarState`'s identical
+  pattern (src/hooks/useSidebarState.ts, rendered with `renderToStaticMarkup` in
+  tests/useSidebarState.test.tsx), so the 100% function floor needs one here, and the hydration path
+  a second: the shared routine renders an open dialog with `renderToString` from `react-dom/server`,
+  then hydrates that markup with `hydrateRoot`, and asserts the panel appears and focus moves inside
+  it, to its first control; a mismatch would trip tests/setup.ts's `console.error` trap. The trap is
+  armed with `open && isClient`, so an open `Dialog` hydrated from the server still moves focus into
+  its panel once the panel exists.
 - The panel traps focus through the shipped `useFocusTrap`: opening moves focus to the first
   focusable element in DOM order, Tab and Shift+Tab wrap inside it, and Escape calls `onClose`.
 - The DOM order is the `<h2>`, `children`, `footer`, then the close button, which CSS places in the
@@ -1212,9 +1215,11 @@ on the page behind it, beyond what `aria-modal` gives; nested dialogs, including
 only shows the error it is handed; raising `SearchField`'s resting border, `BORDER`, to the 3:1
 non-text minimum `TextField` meets through `CONTROL_BORDER`, because the plan holds `SearchField`'s
 look unchanged without `onSubmit` - a gap a follow-up should close on its own; a `form` prop on
-`Button`, which would let a `Dialog`'s footer button submit a form in its body; and an `isComposing`
-check on the trap's Escape handler, without which the Escape that cancels an IME composition in a
-field inside a dialog also closes the dialog.
+`Button`, which would let a `Dialog`'s footer button submit a form in its body; re-evaluating the
+scrolling body's attributes when what is focusable in it changes without any size changing, as when
+a consumer disables its only field while `busy`, an accepted gap since the panel then holds focus
+and Tab stays trapped; and an `isComposing` check on the trap's Escape handler, without which the
+Escape that cancels an IME composition in a field inside a dialog also closes the dialog.
 
 ## Documentation
 
@@ -1247,10 +1252,11 @@ them; its sentence "Forty-two of the tokens form twenty-one light/dark pairs …
 becomes fifty, twenty-five and three, naming `--bowman-text-on-danger` as the third, the one text
 colour on the danger fill in both modes; its § Styles sentence listing what the `bowman-sr-only`
 rule hides gains `ConfirmDialog`'s busy status region and the `ChatComposer` busy hint it already
-lacks, as do tests/styles.test.ts's title "styles.css declares the bowman-sr-only rule the markdown
-notice, Toast, ConversationList, ChatComposer and useFocusGroups depend on" and the titled link to
-it in specs/bowman-ui-stylesheet-entry/spec.md (see "Existing tests that change"); and its App
-Router paragraph gains the new function-valued props, and `container`, a DOM element, and
+lacks; tests/styles.test.ts's title "styles.css declares the bowman-sr-only rule the markdown
+notice, Toast, ConversationList, ChatComposer and useFocusGroups depend on", which already names
+`ChatComposer`, gains `ConfirmDialog`, and the titled link to it in
+specs/bowman-ui-stylesheet-entry/spec.md moves with it (see "Existing tests that change"); and its
+App Router paragraph gains the new function-valued props, and `container`, a DOM element, and
 `returnFocusRef`, a ref object, which a server component cannot pass either, because that list is a
 claim about every export. Two docs/design-notes.md sentences move too: § Lint guardrails' list of
 what shares `.bowman-sr-only` gains `ConfirmDialog`'s busy status region, and the `ChatComposer`
