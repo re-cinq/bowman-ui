@@ -157,8 +157,8 @@ export interface SearchFieldProps {
   `SearchIcon`, the input, no button - and every existing `SearchField` behaviour holds. No keydown
   handler is attached, so Enter is left to the browser and a consumer's own `<form>` around the
   field still submits on it; a new test asserts that `fireEvent.keyDown` with Enter on the input
-  returns `true`, not prevented, when `onSubmit` is absent. The tests that cite it change their
-  fixtures or titles, not the behaviour they prove (see "Existing tests that change" below).
+  returns `true`, not prevented, when `onSubmit` is absent. The existing `SearchField` tests change
+  their fixtures or titles, not the behaviour they prove (see "Existing tests that change" below).
 - With `onSubmit`, the leading icon gives way to a `ghost` `size="sm"` `IconButton` holding
   `SearchIcon`, small enough that it and its offset ring fit inside the input's height, at the
   input's trailing edge, named by `labels.submitSearch` (default `"Submit search"`), and the input's
@@ -330,23 +330,23 @@ export const Dialog: (props: DialogProps) => ReactElement | null;
   bottom - are never cut. A layout effect compares `scrollHeight` with `clientHeight` and sets or
   removes the three attributes on the node itself; it depends on the trap's container ref, which
   `exhaustive-deps` cannot tell is stable, and on a named `portalOpen` value, `open && isClient`,
-  since `exhaustive-deps` flags an expression written in the array, because `ModalPanel` stays
-  mounted while the body exists only while the portal renders, so it runs, and attaches its
-  observer, on the commit that first renders the body, after a closed mount or hydration as on a
-  first open render, and re-runs from a `ResizeObserver`, where one exists, watching both the body
-  and an inner wrapper around its content: once the body reaches its height cap its own box stops
-  changing while its content still grows, as when a disclosure in `children` opens without
-  re-rendering `ModalPanel`. It writes them without a re-render, so they are in place before the
-  trap's open effect looks for a first focusable element. When the body stops overflowing while it
-  holds focus - a prose-only dialog after the viewport grows - the effect first moves focus to the
-  panel, then removes the attributes, so the browser's focus fixup never drops focus to `<body>`
-  outside the modal; a stubbed-heights test focuses the overflowing body, makes it fit, fires the
-  observer and asserts the panel holds focus. An overflowing prose-only body is therefore the first
-  focusable element and takes initial focus. jsdom lays nothing out and has no `ResizeObserver`, so
-  its tests stub the two heights and, for the branch where one exists, a `ResizeObserver` whose
-  callback they fire for each of the two watched elements, keeping the 100% branch floor. One test
-  mounts the dialog closed with overflowing stubbed heights, opens it and asserts the body carries
-  `tabindex="0"`.
+  named because `exhaustive-deps` flags an expression written in the array. It depends on
+  `portalOpen` because `ModalPanel` stays mounted while the body exists only while the portal
+  renders, so it runs, and attaches its observer, on the commit that first renders the body, after a
+  closed mount or hydration as on a first open render. It also re-runs from a `ResizeObserver`,
+  where one exists, watching both the body and an inner wrapper around its content: once the body
+  reaches its height cap its own box stops changing while its content still grows, as when a
+  disclosure in `children` opens without re-rendering `ModalPanel`. It writes them without a
+  re-render, so they are in place before the trap's open effect looks for a first focusable element.
+  When the body stops overflowing while it holds focus - a prose-only dialog after the viewport
+  grows - the effect first moves focus to the panel, then removes the attributes, so the browser's
+  focus fixup never drops focus to `<body>` outside the modal; a stubbed-heights test focuses the
+  overflowing body, makes it fit, fires the observer and asserts the panel holds focus. An
+  overflowing prose-only body is therefore the first focusable element and takes initial focus.
+  jsdom lays nothing out and has no `ResizeObserver`, so its tests stub the two heights and, for the
+  branch where one exists, a `ResizeObserver` whose callback they fire for each of the two watched
+  elements, keeping the 100% branch floor. One test mounts the dialog closed with overflowing
+  stubbed heights, opens it and asserts the body carries `tabindex="0"`.
 - On the server and during hydration an open `Dialog` renders nothing, and it portals on the first
   client render after: the client check reads `useSyncExternalStore` with a server snapshot of
   `false`, so markup never mismatches and no `typeof window` guard is written. The server snapshot
@@ -488,34 +488,38 @@ export const ConfirmDialog: (props: ConfirmDialogProps) => ReactElement | null;
   `ConfirmDialog` passes `busy` to `ModalPanel`, and a layout effect there, whose dependencies
   include that container ref for the same reason, focuses the panel through it, only when `busy`
   turns true - read against a ref holding the previous `busy`, which starts at `false`, so a dialog
-  that mounts open and busy counts as turning busy - and only when, at layout time,
-  `document.activeElement` is a `disabled` element inside the panel, or is `<body>` or null. A
-  dialog that opens already busy needs no rule of its own: focus then sits on the opener, outside
-  the panel, so the guard leaves it to the trap, which records the opener as the element to return
-  focus to before it moves focus in; and when nothing held focus, the trap records the panel, a
-  detached target on close that the skip in the `useFocusTrap` section passes over, leaving focus on
-  `<body>` as it would have been anyway. A field in `children` that held focus when Enter set `busy`
-  keeps it. A jsdom test opens a dialog busy, closes it and asserts focus returns to the opener;
-  another sets `busy` with focus in a field and asserts the field keeps focus; a third sets `busy`
-  with nothing focused, `document.activeElement` being `<body>`, and a fourth stubs
-  `document.activeElement` to null, and both assert the panel takes focus. Four more cover the rest
-  of the guard: with focus on the confirm button, setting `busy` moves it to the panel; with focus
-  on a disabled element outside the panel, it stays put; setting `busy` while the dialog is closed
-  moves nothing; and clearing `busy` moves nothing. Each arm of the guard then has a test and the
-  100% branch floor holds. The guard's conditions exceed `bowman/max-boolean-operators`' two at an
-  inline site, so they live in a named predicate whose return the rule exempts. No ref crosses the
-  component boundary: a `panelRef` prop written by `ModalPanel` would fail `bowman/no-prop-mutation`
-  (docs/design-notes.md § Lint guardrails), and `forwardRef` is allowed only in the fixture's
-  exported components (tests/forward-ref-components.test.ts). The layout effect runs after React
-  sets `disabled` and before the browser's focus fixup moves focus to `<body>`, while the button is
-  still `document.activeElement`. Leaving `busy` leaves focus on the panel, where the next Tab
-  reaches the re-enabled buttons (the second widened trap behaviour below). jsdom runs no focus
-  fixup, so the claim that focus never reaches `<body>` is proven in the chat-demo's Playwright
-  suite, which runs Chromium and WebKit (examples/chat-demo/playwright.config.ts). Its test focuses
-  the confirm button and presses Enter rather than clicking it: WebKit on macOS does not focus a
-  clicked button, so a click could leave focus on the panel without the layout effect ever running.
-  Firefox is unproven, and the `<body>`-or-null branch of the guard covers an engine whose fixup
-  runs first. jsdom proves the panel receives focus.
+  that mounts open and busy counts as turning busy - and only when the panel is attached
+  (`portalOpen`) and, at layout time, `document.activeElement` is a `disabled` element inside the
+  panel, or is `<body>` or null, so a `ConfirmDialog` that turns busy while closed, or mounts closed
+  and busy, focuses nothing. A dialog that opens already busy needs no rule of its own: focus then
+  sits on the opener, outside the panel, so the guard leaves it to the trap, which records the
+  opener as the element to return focus to before it moves focus in; and when nothing held focus and
+  the dialog mounts open and busy, the layout effect focuses the panel first and the trap records
+  it, a detached target on close that the skip in the `useFocusTrap` section passes over, leaving
+  focus on `<body>` as it would have been anyway. A dialog mounted closed and busy and opened later
+  does not re-run the effect, since `busy` has not changed, so the trap records `<body>` itself,
+  with the same outcome. A field in `children` that held focus when Enter set `busy` keeps it. A
+  jsdom test opens a dialog busy, closes it and asserts focus returns to the opener; another sets
+  `busy` with focus in a field and asserts the field keeps focus; a third sets `busy` with nothing
+  focused, `document.activeElement` being `<body>`, and a fourth stubs `document.activeElement` to
+  null, and both assert the panel takes focus. Four more cover the rest of the guard: with focus on
+  the confirm button, setting `busy` moves it to the panel; with focus on a disabled element outside
+  the panel, it stays put; setting `busy` while the dialog is closed moves nothing; and clearing
+  `busy` moves nothing. Each arm of the guard then has a test and the 100% branch floor holds. The
+  guard's conditions exceed `bowman/max-boolean-operators`' two at an inline site, so they live in a
+  named predicate whose return the rule exempts. No ref crosses the component boundary: a `panelRef`
+  prop written by `ModalPanel` would fail `bowman/no-prop-mutation` (docs/design-notes.md § Lint
+  guardrails), and `forwardRef` is allowed only in the fixture's exported components
+  (tests/forward-ref-components.test.ts). The layout effect runs after React sets `disabled` and
+  before the browser's focus fixup moves focus to `<body>`, while the button is still
+  `document.activeElement`. Leaving `busy` leaves focus on the panel, where the next Tab reaches the
+  re-enabled buttons (the second widened trap behaviour below). jsdom runs no focus fixup, so the
+  claim that focus never reaches `<body>` is proven in the chat-demo's Playwright suite, which runs
+  Chromium and WebKit (examples/chat-demo/playwright.config.ts). Its test focuses the confirm button
+  and presses Enter rather than clicking it: WebKit on macOS does not focus a clicked button, so a
+  click could leave focus on the panel without the layout effect ever running. Firefox is unproven,
+  and the `<body>`-or-null branch of the guard covers an engine whose fixup runs first. jsdom proves
+  the panel receives focus.
 
 ### `useFocusTrap`: three widened behaviours
 
@@ -954,7 +958,8 @@ The rows' verdicts are owed by the human runner, as A1-A7's are. What moves with
   (decision 19), so that section names the `ConfirmDialog` and `Notice` documentation pages as A8's
   and A9's surface, and A1-A7 keep the chat screen;
 - docs/accessibility/README.md's other counts move: "the seven rows are around 30 minutes" becomes
-  "the nine rows" with the minute figure dropped until a timed run of A8 and A9 sets a new one, and
+  "the nine rows" with the minute figure dropped until a timed run of A8 and A9 sets a new one, as
+  is the seven-row figure in "A repeat run against an unchanged surface is about 30 minutes", and
   "every declared stack needs its seven rows" becomes nine; the front-matter table's "`id`
   (`A1`..`A7`)", § Verdicts' "Every row A1 to A7" and § The body's "headed `## A1` to `## A7`"
   become A9; and its `covers` rule, "List every component the rows exercise, which today means all
@@ -1029,8 +1034,10 @@ amendments in the same pull request: its `ButtonVariant` decision names four var
 `SearchField` decision drops "no submit" (decision 3). Its refusal of layout primitives is narrowed
 for `Card` (decision 7); its opening sentence, "`Button`, `IconButton`, `PromptChips` and
 `SearchField` are a closed set", and its "applied to four more components" both count the new styled
-components; and § Theming decision 11, which lists the token imports of `buttonStyles.ts`, gains the
-three danger strings. docs/design-notes.md § Labels decisions 2, 3 and 5 are amended (decision 6).
+components; and § Theming decision 11, which lists the token imports of `buttonStyles.ts` as
+`ACCENT_BG`, `ACCENT_BG_HOVER` and `FOCUS_RING_COLOR` though the file already imports `FOCUS_RING`
+and seven tokens (src/components/buttonStyles.ts), is restated to match the file, the three danger
+strings included. docs/design-notes.md § Labels decisions 2, 3 and 5 are amended (decision 6).
 CLAUDE.md's spec count, "30 feature specs", already lags `main`'s 32 and becomes 33 with this spec.
 
 ## Recorded decisions
@@ -1245,8 +1252,12 @@ look unchanged without `onSubmit` - a gap a follow-up should close on its own; a
 `Button`, which would let a `Dialog`'s footer button submit a form in its body; re-evaluating the
 scrolling body's attributes when what is focusable in it changes without any size changing, as when
 a consumer disables its only field while `busy`, an accepted gap since the panel then holds focus
-and Tab stays trapped; and an `isComposing` check on the trap's Escape handler, without which the
-Escape that cancels an IME composition in a field inside a dialog also closes the dialog.
+and Tab stays trapped; a Firefox gap: Firefox makes a scroll container its own tab stop even when it
+holds controls, so in an overflowing body with controls a second Shift+Tab from the first control
+may reach the page behind the dialog, an exposure `AppSidebar`'s drawer scroller already has and
+which the chat-demo's Playwright suite, running Chromium and WebKit only, does not test; and an
+`isComposing` check on the trap's Escape handler, without which the Escape that cancels an IME
+composition in a field inside a dialog also closes the dialog.
 
 ## Documentation
 
