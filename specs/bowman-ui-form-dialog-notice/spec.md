@@ -33,6 +33,9 @@ save these deviations, each argued where it applies:
   against the plan's "0 removed or changed signatures" and its promise that no consumer needs to
   change anything; the key is required so a translated catalogue cannot silently show English
   (decision 6, § The published surface).
+- Three supporting types the plan's export list does not name ship beside each component's props,
+  labels and defaults: `TextFieldType`, `NoticeTone` and `KeyValueListItem`, so a consumer can type
+  a value before passing it, as `ButtonVariant` lets it today (§ The published surface).
 - `SearchField`'s new submit button forwards no ref, though the plan asks for forwarded refs on
   focusable elements: `SearchField`'s ref stays on its input (the conventions section).
 - The plan names two design-record amendments, the danger variant and `SearchField`'s submit; the
@@ -89,7 +92,12 @@ the props that bring every key on screen - `Notice`'s an `onDismiss`, `ConfirmDi
 a review keeps the meaning of each name. The plan as approved in Lore said "the existing automated
 labels test re-checks the whole set"; it checks only what is stated above, and the local copy of the
 plan carries the corrected sentence. `ConfirmDialog` shares `Dialog`'s `dialogTitle`, because its
-heading is the same concept.
+heading is the same concept. `SearchField`, `Dialog` and `Notice` each render an `IconButton`, a
+labelled component, yet do not take the flat union of their own keys and `IconButton`'s that
+§ Labels decision 3 prescribes: `IconButton.accessibleName` names one instance, so each feeds it
+from its own concept-named key - `submitSearch`, `closeDialog`, `dismissNotice` - and a union would
+hand three different buttons one key. § Labels decision 3 records this in the same pull request
+(decision 6).
 
 ### `Button` and `IconButton`: the `danger` variant
 
@@ -249,14 +257,20 @@ export const Dialog: (props: DialogProps) => ReactElement | null;
 - A consumer whose theme is set on a wrapper - README § Theming's `.custom-theme` or
   `[data-tenant="acme"]` - passes that wrapper, or an element inside it, as `container`, so the
   wrapper's `--bowman-*` values and its `dark` class reach the panel (decision 22). The container
-  must have no transformed or `overflow`-clipping ancestor, for the reason decision 1 gives. `null`
-  means `document.body`, so a wrapper read from a ref, still `null` on the first render, portals to
-  `<body>`, and a later `container` re-mounts the portal in the new target, losing focus and
-  re-running the trap: `container` must stay the same while the dialog is open, and must come after
-  every other `z-50` layer - `AppShell`'s drawer, a `Toast` - in document order, or the overlay
-  paints beneath them; a wrapper around the whole screen, as the chat-demo's is, meets that. A
-  consumer keeps the wrapper in state through a callback ref and opens the dialog only once it is
-  set; the chat-demo's `Dialog` page shows the pattern.
+  must have no ancestor that becomes the containing block of a fixed descendant - one with a
+  `transform`, `translate`, `scale`, `rotate`, `filter`, `backdrop-filter` or `perspective`,
+  `contain: layout` or `paint`, or a `will-change` naming one of those - and no ancestor that forms
+  a stacking context with its own `z-index`, for the reason decision 1 gives. A plain `overflow`
+  ancestor does no harm: it does not clip a fixed descendant, so the chat-demo's page-local wrapper
+  inside `AppShell`'s `overflow-hidden` main area (decision 19) meets the rule. `null` means
+  `document.body`, so a wrapper read from a ref, still `null` on the first render, portals to
+  `<body>`, and a later `container` re-mounts the portal's subtree in the new target, which drops
+  focus to `<body>`; the trap lives in `ModalPanel`, outside that subtree, so it neither re-runs nor
+  restores focus: `container` must stay the same while the dialog is open, and must come after every
+  other `z-50` layer - `AppShell`'s drawer, a `Toast` - in document order, or the overlay paints
+  beneath them; a wrapper around the whole screen, as the chat-demo's is, meets that. A consumer
+  keeps the wrapper in state through a callback ref and opens the dialog only once it is set; the
+  chat-demo's `Dialog` page shows the pattern.
 - The dim is a deliberate exception to the plan's "only the colour tokens" constraint: it is
   non-text, and docs/design-notes.md § Theming decision 6 keeps the mobile overlay (`bg-black`)
   palette-mapped and lists it so no cleanup turns it into a token. That list gains the dialog's
@@ -269,15 +283,19 @@ export const Dialog: (props: DialogProps) => ReactElement | null;
 - The panel is `w-full max-w-lg` and at most `calc(100dvh - 2rem)` tall; when its content is taller,
   the body between the heading and the footer scrolls and the heading and footer stay in view.
 - While the body overflows and holds no focusable element, it carries `tabIndex={0}`,
-  `role="region"`, `aria-labelledby` pointing at the `<h2>` and the shared `FOCUS_RING`, so a
-  keyboard user can reach and scroll it (WCAG 2.1.1); otherwise it carries none of them, and a user
-  reaches its content by tabbing through its controls (decision 23). A layout effect, re-run from a
-  `ResizeObserver` where one exists, compares `scrollHeight` with `clientHeight` and sets or removes
-  the attributes on the node itself, without a re-render, so they are in place before the trap's
-  open effect looks for a first focusable element. An overflowing prose-only body is therefore the
-  first focusable element and takes initial focus. jsdom lays nothing out and has no
-  `ResizeObserver`, so its tests stub the two heights and, for the branch where one exists, a
-  `ResizeObserver` whose callback they fire, keeping the 100% branch floor.
+  `role="region"` and `aria-labelledby` pointing at the `<h2>`, so a keyboard user can reach and
+  scroll it (WCAG 2.1.1); otherwise it carries none of them. It always carries the shared
+  `FOCUS_RING` classes, inert while it cannot take focus, and the panel clips nothing, so the offset
+  ring is never cut by the panel's rounded corners; and a user reaches its content by tabbing
+  through its controls (decision 23). A layout effect compares `scrollHeight` with `clientHeight`
+  and sets or removes the three attributes on the node itself, and re-runs from a `ResizeObserver`,
+  where one exists, watching both the body and an inner wrapper around its content: once the body
+  reaches its height cap its own box stops changing while its content still grows, as when a
+  disclosure in `children` opens without re-rendering `ModalPanel`. It writes them without a re-render, so they are in place before the trap's open effect looks for a first focusable element. An
+  overflowing prose-only body is therefore the first focusable element and takes initial focus.
+  jsdom lays nothing out and has no `ResizeObserver`, so its tests stub the two heights and, for the
+  branch where one exists, a `ResizeObserver` whose callback they fire for each of the two watched
+  elements, keeping the 100% branch floor.
 - On the server and during hydration an open `Dialog` renders nothing, and it portals on the first
   client render after: the client check reads `useSyncExternalStore` with a server snapshot of
   `false`, so markup never mismatches and no `typeof window` guard is written. The trap is armed
@@ -388,16 +406,26 @@ export const ConfirmDialog: (props: ConfirmDialogProps) => ReactElement | null;
   busy as well as turning an open one busy. The assistive-technology pass's A8 row records what each
   screen reader announces.
 - Entering `busy` while focus sits on one of the buttons it disables moves focus to the panel.
-  `ConfirmDialog` passes `busy` to `ModalPanel`, and a layout effect there, on `busy` turning true,
-  focuses the panel through the trap's own container ref. No ref crosses the component boundary: a
-  `panelRef` prop written by `ModalPanel` would fail `bowman/no-prop-mutation` (docs/design-notes.md
-  § Lint guardrails), and `forwardRef` is allowed only in the fixture's exported components
+  `ConfirmDialog` passes `busy` to `ModalPanel`, and a layout effect there focuses the panel through
+  the trap's own container ref, only when `busy` turns true on a dialog already open - never on the
+  commit that mounts the panel - and only when, at layout time, `document.activeElement` is a
+  `disabled` element inside the panel, or is `<body>` or null. A dialog that opens already busy is
+  therefore left to the trap, which records the opener as the element to return focus to before it
+  moves focus in; a layout effect that ran on the mount commit would move focus first, so the trap's
+  passive effect would record the panel and focus would return to a detached node on close. A field
+  in `children` that held focus when Enter set `busy` keeps it. A jsdom test opens a dialog busy,
+  closes it and asserts focus returns to the opener; another sets `busy` with focus in a field and
+  asserts the field keeps focus. No ref crosses the component boundary: a `panelRef` prop written by
+  `ModalPanel` would fail `bowman/no-prop-mutation` (docs/design-notes.md § Lint guardrails), and
+  `forwardRef` is allowed only in the fixture's exported components
   (tests/forward-ref-components.test.ts). The layout effect runs after React sets `disabled` and
   before the browser's focus fixup moves focus to `<body>`, while the button is still
   `document.activeElement`. Leaving `busy` leaves focus on the panel, where the next Tab reaches the
   re-enabled buttons (the second widened trap behaviour below). jsdom runs no focus fixup, so the
-  claim that focus never reaches `<body>` is proven in the chat-demo's Playwright suite; jsdom
-  proves the panel receives focus.
+  claim that focus never reaches `<body>` is proven in the chat-demo's Playwright suite, which runs
+  Chromium and WebKit (examples/chat-demo/playwright.config.ts); Firefox is unproven, and the
+  `<body>`-or-null branch of the guard covers an engine whose fixup runs first. jsdom proves the
+  panel receives focus.
 
 ### `useFocusTrap`: three widened behaviours
 
@@ -414,7 +442,9 @@ specs/bowman-ui-pure-hooks-error-boundary/spec.md pins, and gains three, which t
   modal. A busy `ConfirmDialog` with no fields therefore keeps focus on its panel instead of letting
   Tab leave the dialog. This replaces the behaviour tests/useFocusTrap.test.tsx pins as "an empty
   container leaves Tab handling alone": that test is retitled and rewritten in this pull request to
-  assert the Tab is prevented and focus lands on the container (see "Existing tests that change").
+  assert the Tab is prevented and focus lands on the container, and the file's shared `Harness`,
+  whose container carries no `tabIndex` today, gains an option that renders it with `tabIndex={-1}`
+  for that case (see "Existing tests that change").
 - While focus sits on the container itself, Tab moves it to the first focusable element and
   Shift+Tab to the last. Without this, the container counts as inside the trap but is neither end,
   so no Tab is intercepted and a native Shift+Tab from the panel leaves it for the page's last
@@ -573,7 +603,8 @@ them moves with it. Every other existing test passes unchanged.
   among them, and its titled link in specs/bowman-ui-stylesheet-entry/spec.md moves with it
   (§ Documentation).
 - tests/useFocusTrap.test.tsx "an empty container leaves Tab handling alone" is retitled and
-  rewritten, as the `useFocusTrap` section above records.
+  rewritten, and its shared `Harness` gains a `tabIndex={-1}` option, as the `useFocusTrap` section
+  above records.
 - tests/theming-tokens-dist.test.ts: its `EXPECTED_FALLBACKS` and `NEUTRAL_ROLE_READERS` maps and
   its `FOCUS_RING` reader list grow, and the `it()` titled "exactly the five offset-ring components"
   is retitled for seven, as § Theming below lists.
@@ -632,7 +663,11 @@ them moves with it. Every other existing test passes unchanged.
   one `it()` without cleanup, so `document.body` would still hold the earlier harnesses' text and
   fail it. Their behaviour tests call `stubFocusEnvironment` (tests/helpers/focus-environment.ts):
   jsdom 30 has no `checkVisibility` and reports a null `offsetParent`, so without the stub every
-  control reads as hidden and the trap's empty-container branch would focus the panel instead.
+  control reads as hidden and the trap's empty-container branch would focus the panel instead. The
+  portal, trap, focus-return and hydration assertions both components share live in one routine in
+  tests/helpers/, which tests/Dialog.test.tsx and tests/ConfirmDialog.test.tsx each call with their
+  own render, so the copy-paste gate at min-tokens 50 finds no clone (docs/design-notes.md § Lint
+  guardrails decision 12).
 - tests/labelled-exports.test.tsx gains one key-coverage `it()` per new labelled component, in the
   shapes the file already uses: `TextField`'s sentinels are exactly `fieldLabel`, `fieldHint` and
   `fieldError`, as `IconButton`'s are exactly its one required key, because it ships no defaults
@@ -716,6 +751,8 @@ token set, or the suite reds:
   `examples/chat-demo/README.md`, `examples/chat-demo/src/themes.tsx` and
   `examples/chat-demo/src/docs/ThemingSection.tsx`'s two;
 - `examples/chat-demo/src/custom-theme.css`, which must set all 53 tokens, not only spell the count;
+  the axe run scans the themed variants (decision 19), so its values for the nine new tokens must
+  clear the same minimums as the table above in both schemes;
 - the test's `EXPECTED_FALLBACKS` map, which gains the nine tokens with their fallbacks in
   declaration order;
 - the test's `NEUTRAL_ROLE_READERS` map, which pins each class string to the built files that import
@@ -776,24 +813,26 @@ them:
   "every declared stack needs its seven rows" become nine; the front-matter table's "`id`
   (`A1`..`A7`)", § Verdicts' "Every row A1 to A7" and § The body's "headed `## A1` to `## A7`"
   become A9; and its `covers` rule, "List every component the rows exercise, which today means all
-  seven above", gains what A8 and A9 exercise: `ConfirmDialog.tsx`, `ModalPanel.tsx`, `Button.tsx`
-  (its cancel and danger confirm buttons) and `src/hooks/useFocusTrap.ts` (Tab from the focused
-  panel) for A8 - a hook, not a component, listed because the rule's purpose is that an edit to what
-  a row exercises invalidates the record, and the rule's wording gains "and hook" - and `Notice.tsx`
-  and `IconButton.tsx` (its dismiss button) for A9;
+  seven above", gains what A8 and A9 exercise: `ConfirmDialog.tsx`, `ModalPanel.tsx`, and
+  `Button.tsx` (its cancel and danger confirm buttons) for A8, and `Notice.tsx` and `IconButton.tsx`
+  (its dismiss button) for A9;
 - `scripts/check-at-pass.mjs`'s closed `ROWS` list gains `"A8"` and `"A9"`, or a new row is never
   checked for a verdict, and its header comment's "every row A1-A7" becomes A1-A9;
   tests/check-at-pass.test.ts's hard-coded `rowIds` gains both (see "Existing tests that change");
 - docs/accessibility/README.md's "fourteen verbatim transcriptions" - seven rows on two stacks -
-  becomes eighteen; its "the seven are this document's rule", a count of paths, becomes thirteen;
-  and its front-matter block, which calls itself "complete and copy-pasteable", lists the thirteen
+  becomes eighteen; its "the seven are this document's rule", a count of paths, becomes twelve; and
+  its front-matter block, which calls itself "complete and copy-pasteable", lists the twelve
   `covers` paths and rows A1-A9, or a record copied from it fails the gate once `ROWS` gains A8 and
   A9;
 - specs/bowman-ui-assistive-technology-pass/spec.md: its "seven rows" becomes nine, its "A1-A7"
-  references become "A1-A9", its "names all seven components the rows exercise" becomes thirteen
-  paths, KU-22's "seven checks" becomes nine, and it gains a statement for each new row beside
-  A1-A7's. Each new statement links to the owed record as A1-A7's do and sits inside the
-  `re-lint/no-dead-md-links` disable block, whose comment, "the seven links below", becomes nine.
+  references become "A1-A9", its "names all seven components the rows exercise" becomes twelve,
+  KU-22's "seven checks" becomes nine, and it gains a statement for each new row beside A1-A7's.
+  Each new statement links to the owed record as A1-A7's do and sits inside the
+  `re-lint/no-dead-md-links` disable block, whose comment, "the seven links below", becomes nine, as
+  does eslint.config.mjs's comment on it, "a scoped disable for its seven deliberate links". A8
+  records what each screen reader announces and nothing about Tab, which the chat-demo's Playwright
+  suite checks, so the pass's out-of-scope line for keyboard-only navigation and the focus trap
+  stays true.
 
 ## The published surface
 
@@ -843,7 +882,7 @@ docs/design-notes.md § Labels decisions 2 and 5 are amended (decision 6). CLAUD
    the trap, and one focus primitive serves both. Without the native top layer the panel needs a
    portal: a transformed ancestor, such as `AppShell`'s translated drawer, becomes the containing
    block of a fixed descendant, so an overlay rendered in place would cover that ancestor rather
-   than the viewport, and be clipped wherever the ancestor sets `overflow`. `createPortal` comes
+   than the viewport, and be clipped wherever that ancestor sets `overflow`. `createPortal` comes
    from `react-dom`, already a peer and already imported, for `flushSync`, by `ErrorBoundary`. The
    plan says dialogs "build on the browser's built-in modal support"; this is the one place the spec
    departs from it on purpose. What the dialogs keep from the browser is `aria-modal` and the native
@@ -892,7 +931,9 @@ docs/design-notes.md § Labels decisions 2 and 5 are amended (decision 6). CLAUD
    docs/design-notes.md § Labels decision 2, which fixes
    `defaultXLabels: Readonly<Required<XLabels>>`, and widens decision 5, which allows a required key
    but not an optional one; both decisions are amended in the same pull request to name the
-   defaulted-keys typing and an optional key with no default. Every place that lists the required
+   defaulted-keys typing and an optional key with no default, and § Labels decision 3 is amended to
+   record that a component wrapping `IconButton` feeds its per-instance `accessibleName` from a
+   concept-named key of its own rather than taking the union. Every place that lists the required
    labels records all five in the same pull request: § Labels, which today speaks of "these two
    exceptions"; `.specify/spec.md`'s Labels Convention capability, which names "the two required
    labels with no default"; CLAUDE.md invariant 1, which names `ChatMessageList.labels` and
@@ -1048,7 +1089,9 @@ the `ConfirmDialog` and `Notice` pages carry the themed variant decision 19 meas
 variant gets no page of its own: the `ConfirmDialog` page's confirm button is the danger `Button`,
 and that page also shows it on its own, at rest, hovered and disabled, so the token matrix and the
 axe run reach it there. The existing `search-field` page gains a state with `onSubmit`, so the
-submit button is shown and scanned.
+submit button is shown and scanned; its props table in examples/chat-demo/src/docs/propDocs.ts gains
+`onSubmit`, and its purpose text in examples/chat-demo/src/docs/componentDocs.tsx, "A controlled
+search input with a leading icon", says the icon becomes a submit button with `onSubmit`.
 
 README.md has no section per component today; its § Hooks is one section of short annotated
 snippets. It gains one section in that shape, "Forms, dialogs and notices", with a subsection per
