@@ -35,17 +35,19 @@ save these deviations, each argued where it applies:
   (decision 6, § The published surface).
 - Three supporting types the plan's export list does not name ship beside each component's props,
   labels and defaults: `TextFieldType`, `NoticeTone` and `KeyValuePair`, so a consumer can type a
-  value before passing it, as `ButtonVariant` lets it today (§ The published surface).
+  value it stores or builds from data before passing it, as `ButtonVariant` lets it today (§ The
+  published surface). `KeyValueList`'s `layout` gets no exported name: it is chosen where the list
+  is rendered, not carried in data.
 - `SearchField`'s new submit button forwards no ref, though the plan asks for forwarded refs on
   focusable elements: `SearchField`'s ref stays on its input (the conventions section).
 - The plan names two design-record amendments, the danger variant and `SearchField`'s submit; the
   spec makes more. `Card` narrows § Styled primitives' refusal of layout primitives (decision 7),
-  and § Labels decisions 2 and 5 are amended for defaults typed over a subset of keys and for
-  optional keys (decision 6) - the typing the plan's five required-labels components and its
-  optional field hint and error need. § Theming decisions 6, 11 and 12 also change: decision 6's
-  palette-mapped list gains the dialog overlay, decision 11's `buttonStyles.ts` imports gain the
-  danger strings, and decision 12 gains the muted role's first border use (decision 21) and two more
-  `FOCUS_RING` importers (§ Theming).
+  and § Labels decisions 2, 3 and 5 are amended for `IconButton` wrappers that feed `accessibleName`
+  from their own key, for defaults typed over a subset of keys and for optional keys (decision 6) -
+  the typing the plan's five required-labels components and its optional field hint and error need.
+  § Theming decisions 6, 11 and 12 also change: decision 6's palette-mapped list gains the dialog
+  overlay, decision 11's `buttonStyles.ts` imports gain the danger strings, and decision 12 gains
+  the muted role's first border use (decision 21) and two more `FOCUS_RING` importers (§ Theming).
 - `Dialog` and `ConfirmDialog` take a `container` prop the plan does not name, so a dialog stays
   inside a wrapper-scoped theme (decision 22).
 - The scrolling body of a dialog becomes focusable when nothing in it is (decision 23).
@@ -454,12 +456,12 @@ export const ConfirmDialog: (props: ConfirmDialogProps) => ReactElement | null;
   before the browser's focus fixup moves focus to `<body>`, while the button is still
   `document.activeElement`. Leaving `busy` leaves focus on the panel, where the next Tab reaches the
   re-enabled buttons (the second widened trap behaviour below). jsdom runs no focus fixup, so the
-  claim that focus never reaches `<body>` is proven in the chat-demo's Playwright suite, which
-  focuses the confirm button and presses Enter rather than clicking it - WebKit on macOS does not
-  focus a clicked button, so a click could leave focus on the panel without the layout effect ever
-  running - which runs Chromium and WebKit (examples/chat-demo/playwright.config.ts); Firefox is
-  unproven, and the `<body>`-or-null branch of the guard covers an engine whose fixup runs first.
-  jsdom proves the panel receives focus.
+  claim that focus never reaches `<body>` is proven in the chat-demo's Playwright suite, which runs
+  Chromium and WebKit (examples/chat-demo/playwright.config.ts). Its test focuses the confirm button
+  and presses Enter rather than clicking it: WebKit on macOS does not focus a clicked button, so a
+  click could leave focus on the panel without the layout effect ever running. Firefox is unproven,
+  and the `<body>`-or-null branch of the guard covers an engine whose fixup runs first. jsdom proves
+  the panel receives focus.
 
 ### `useFocusTrap`: three widened behaviours
 
@@ -741,11 +743,12 @@ them moves with it. Every other existing test passes unchanged.
   than tests/primitives-dist.test.ts's hand-rolled `opensWithUseClient`, so the copy-paste gate
   finds no clone, checks the new built files' directives (the six client files, `TextField.js`,
   `Dialog.js`, `ConfirmDialog.js`, `Notice.js`, `Card.js` and `ModalPanel.js`, open with
-  `"use client"`, and `KeyValueList.js` does not) and compiles a new
-  tests/types/form-dialog-notice-type-assertions.tsx against dist/. That file's `@ts-expect-error`
-  fixtures pin that omitting `labels`, or `labels` without `fieldLabel`, `dialogTitle` or
-  `confirmAction`, is a compile error; that no new component takes `className`; that a
-  `SearchFieldLabels` object without `submitSearch` is a compile error; and, with no
+  `"use client"`, and `KeyValueList.js` does not, a negative check it makes by calling the helpers'
+  `stripLeadingTrivia` directly, since `expectClientDirectiveFirst` only asserts presence) and
+  compiles a new tests/types/form-dialog-notice-type-assertions.tsx against dist/. That file's
+  `@ts-expect-error` fixtures pin that omitting `labels`, or `labels` without `fieldLabel`,
+  `dialogTitle` or `confirmAction`, is a compile error; that no new component takes `className`;
+  that a `SearchFieldLabels` object without `submitSearch` is a compile error; and, with no
   `@ts-expect-error`, that `variant="danger"` compiles on `Button` and `IconButton`.
   tests/primitives-dist.test.ts and its assertions file stay as they are.
 
@@ -859,10 +862,10 @@ WCAG 2.2 AA is the floor. Three layers prove it, and none is a reviewer's sign-o
   `search-field` page with `onSubmit`. It runs in a real browser, so it measures contrast, including
   the `danger` fill, and its `scrollable-region-focusable` rule checks the overflowing body; the
   target is zero violations under the WCAG 2.2 AA rule tags in every state. Each scan is limited
-  with `AxeBuilder.include()` to the page's states area and, while a dialog is open, its overlay,
-  which portals outside that area, so the documentation chrome around them - a `CodeBlock` whose
-  long usage line scrolls sideways (examples/chat-demo/src/docs/DocsUi.tsx) - is not what is
-  measured.
+  with `AxeBuilder.include()` to the page's states area and, while a dialog is open, its panel,
+  `[role="dialog"], [role="alertdialog"]`, which portals outside that area, so the documentation
+  chrome around them - a `CodeBlock` whose long usage line scrolls sideways
+  (examples/chat-demo/src/docs/DocsUi.tsx) - is not what is measured.
 - Keyboard use is checked by hand against each page.
 
 specs/bowman-ui-assistive-technology-pass/spec.md keeps its manual screen-reader procedure, and its
@@ -917,7 +920,11 @@ was decided here, never regenerated to make the test pass. Nothing is removed or
 `ButtonVariant` only widens, and `SearchField` gains a prop and a label key under names the snapshot
 already holds. A diff of the published type declarations against the previous release shows only
 added exports, added props, the added label key and the added variant, so this ships as a minor
-release. Three changes a consumer can still feel are accepted and named in the release notes:
+release. `.specify/spec.md` § API Stability calls signature alterations and TypeScript changes to
+props breaking; the package already reads that as removals and narrowings, not additions a consumer
+may have to supply, as v0.3.0 shipped `ChatComposerLabels`' required `composerBusyHint` in a minor
+release, and this spec follows that reading. Three changes a consumer can still feel are accepted
+and named in the release notes:
 
 - `ButtonVariant` gains `"danger"`, so a consumer's exhaustive `Record<ButtonVariant, …>` or
   `switch` over it needs a fourth case.
@@ -942,7 +949,7 @@ submit" (decision 3). Its refusal of layout primitives is narrowed for `Card` (d
 opening sentence, "`Button`, `IconButton`, `PromptChips` and `SearchField` are a closed set", and
 its "applied to four more components" both count the new styled components; and § Theming
 decision 11, which lists the token imports of `buttonStyles.ts`, gains the three danger strings.
-docs/design-notes.md § Labels decisions 2 and 5 are amended (decision 6). CLAUDE.md's spec count,
+docs/design-notes.md § Labels decisions 2, 3 and 5 are amended (decision 6). CLAUDE.md's spec count,
 "30 feature specs", already lags `main`'s 32 and becomes 33 with this spec.
 
 ## Recorded decisions
@@ -1165,7 +1172,9 @@ and that page also shows it on its own, at rest, hovered and disabled, so the to
 axe run reach it there. The existing `search-field` page gains a state with `onSubmit`, so the
 submit button is shown and scanned; its props table in examples/chat-demo/src/docs/propDocs.ts gains
 `onSubmit`, and its purpose text in examples/chat-demo/src/docs/componentDocs.tsx, "A controlled
-search input with a leading icon", says the icon becomes a submit button with `onSubmit`.
+search input with a leading icon", says the icon becomes a submit button with `onSubmit`. The
+`use-focus-trap` entry in examples/chat-demo/src/docs/overview.ts, "AppShell uses it for the mobile
+drawer", names `Dialog` and `ConfirmDialog` beside it.
 
 README.md has no section per component today; its § Hooks is one section of short annotated
 snippets. It gains one section in that shape, "Forms, dialogs and notices", with a subsection per
@@ -1185,4 +1194,8 @@ rule hides gains `ConfirmDialog`'s busy status region, as do tests/styles.test.t
 "styles.css declares the bowman-sr-only rule the markdown notice, Toast, ConversationList,
 ChatComposer and useFocusGroups depend on" and the titled link to it in
 specs/bowman-ui-stylesheet-entry/spec.md (see "Existing tests that change"); and its App Router
-paragraph gains the new function-valued props, because that list is a claim about every export.
+paragraph gains the new function-valued props, because that list is a claim about every export. Two
+docs/design-notes.md sentences move too: § Lint guardrails' list of what shares `.bowman-sr-only`
+gains `ConfirmDialog`'s busy status region, and the `ChatComposer` busy hint it already lacks; and
+§ Styled primitives' "four component files open with the directive" counts the styled components
+that do once the closed set grows.
