@@ -159,7 +159,8 @@ export interface SearchFieldProps {
   field still submits on it; a new test asserts that `fireEvent.keyDown` with Enter on the input
   returns `true`, not prevented, when `onSubmit` is absent. The tests that cite it change their
   fixtures or titles, not the behaviour they prove (see "Existing tests that change" below).
-- With `onSubmit`, the leading icon gives way to a `ghost` `IconButton` holding `SearchIcon` at the
+- With `onSubmit`, the leading icon gives way to a `ghost` `size="sm"` `IconButton` holding
+  `SearchIcon`, small enough that it and its offset ring fit inside the input's height, at the
   input's trailing edge, named by `labels.submitSearch` (default `"Submit search"`), and the input's
   padding moves to match. Clicking it calls `onSubmit` with the current `value`.
 - Enter in the input calls `onSubmit` with the current `value` verbatim, once, and calls
@@ -273,11 +274,11 @@ export const Dialog: (props: DialogProps) => ReactElement | null;
   pointing at an `<h2>` holding `labels.dialogTitle`. The panel takes focus when it holds nothing
   focusable, when a `ConfirmDialog` turns busy, and when the scrolling body stops overflowing while
   it holds focus (below), so it carries `FOCUS_RING` beside `ring-offset-2`, as the scrolling body
-  does, rather than the browser's default outline. The `<h2>` carries trailing padding wider than
-  the close button, so a long title wraps before it reaches the button in the panel's corner. The
-  portal appends the overlay as the target's last child. Into `document.body` that is after the
-  page, so the overlay paints above `AppShell`'s drawer and `Toast`, which also sit at `z-50` and
-  win ties by document order.
+  does, rather than the browser's default outline. When the close button renders, the `<h2>` carries
+  trailing padding wider than the close button, so a long title wraps before it reaches the button
+  in the panel's corner. The portal appends the overlay as the target's last child. Into
+  `document.body` that is after the page, so the overlay paints above `AppShell`'s drawer and
+  `Toast`, which also sit at `z-50` and win ties by document order.
 - A consumer whose theme is set on a wrapper - README § Theming's `.custom-theme` or
   `[data-tenant="acme"]` - passes that wrapper, or an element inside it, as `container`, so the
   wrapper's `--bowman-*` values and, under a class-based `dark:` variant, its `dark` class reach the
@@ -751,11 +752,11 @@ them moves with it. Every other existing test passes unchanged.
   as the portal target. `SearchField` already carries the directive. `KeyValueList` takes no handler
   and calls no hook, so its built file carries no directive and stays server-safe. The RSC fixture's
   page (examples/rsc-fixture/app/page.tsx), which renders only icons, `IconWrapper`, `ChatMessage`
-  and `ChatMessageList` today, gains a `KeyValueList` and a `Notice` without `onDismiss` in its
-  server component, and scripts/rsc-fixture.sh, which greps the response only for the icons' markup
-  and the export count today, also greps it for the `<dl>` and the notice's `role="status"`, so
-  `npm run rsc` proves both render on the server; specs/bowman-ui-rsc-fixture/spec.md's statement of
-  what the page renders gains them, and `npm run reanchor` heals its page.tsx line links.
+  and `ChatMessageList` today, gains a `KeyValueList` and an `info` `Notice` without `onDismiss` in
+  its server component, and scripts/rsc-fixture.sh, which greps the response only for the icons'
+  markup and the export count today, also greps it for the `<dl>` and the notice's `role="status"`,
+  so `npm run rsc` proves both render on the server; specs/bowman-ui-rsc-fixture/spec.md's statement
+  of what the page renders gains them, and `npm run reanchor` heals its page.tsx line links.
 - `TextField` and `Card` are `forwardRef` components under decision 4, and
   tests/fixtures/forward-ref-components.json gains both, or tests/forward-ref-components.test.ts
   fails; docs/design-notes.md § Styled primitives' "`Button`, `IconButton` and `SearchField` are
@@ -808,7 +809,9 @@ them moves with it. Every other existing test passes unchanged.
   `dialogTitle` or `confirmAction`, is a compile error; that no new component takes `className`;
   that a `SearchFieldLabels` object without `submitSearch` is a compile error; and, with no
   `@ts-expect-error`, that `variant="danger"` compiles on `Button` and `IconButton`.
-  tests/primitives-dist.test.ts and its assertions file stay as they are.
+  tests/primitives-dist.test.ts and its assertions file stay as they are, but for one comment: the
+  assertions file's "an object missing searchPlaceholder" names `submitSearch` too, since the object
+  now lacks both, and the assertion beneath it still holds.
 
 ## Theming
 
@@ -894,11 +897,11 @@ token set, or the suite reds:
     today; `DANGER_BORDER` and `CONTROL_BORDER` with `TextField`; and `INFO_TONE`, `SUCCESS_TONE`,
     `WARNING_TONE` and `DANGER_TONE`, which read `--bowman-info`, `--bowman-success`,
     `--bowman-warning` and `--bowman-danger` as icon and border colours, with `Notice`;
-- the `FOCUS_RING` readers: `Card` and `ModalPanel`, for its focusable scrolling body, make seven
-  offset-ring importers, so the test's reader list and its `it()` title ("exactly the five
-  offset-ring components"), the titled link to it in specs/bowman-ui-theming-tokens/spec.md, and
-  CLAUDE.md's "imported by five files (four components and `buttonStyles.ts`)", which becomes "seven
-  files (six components and `buttonStyles.ts`)", move with it;
+- the `FOCUS_RING` readers: `Card` and `ModalPanel`, for its panel and focusable scrolling body,
+  make seven offset-ring importers, so the test's reader list and its `it()` title ("exactly the
+  five offset-ring components"), the titled link to it in specs/bowman-ui-theming-tokens/spec.md,
+  and CLAUDE.md's "imported by five files (four components and `buttonStyles.ts`)", which becomes
+  "seven files (six components and `buttonStyles.ts`)", move with it;
 - examples/chat-demo/tests/theming.spec.ts, which measures every declared token at a visible site in
   a real browser, under both schemes and in WebKit too, and today requires every site to be on the
   chat screen (decision 19).
@@ -939,8 +942,9 @@ The rows' verdicts are owed by the human runner, as A1-A7's are. What moves with
   a transcription taken anywhere else "of the wrong page"; the chat screen holds neither component
   (decision 19), so that section names the `ConfirmDialog` and `Notice` documentation pages as A8's
   and A9's surface, and A1-A7 keep the chat screen;
-- docs/accessibility/README.md's other counts move: "the seven rows are around 30 minutes" and
-  "every declared stack needs its seven rows" become nine; the front-matter table's "`id`
+- docs/accessibility/README.md's other counts move: "the seven rows are around 30 minutes" becomes
+  "the nine rows" with the minute figure dropped until a timed run of A8 and A9 sets a new one, and
+  "every declared stack needs its seven rows" becomes nine; the front-matter table's "`id`
   (`A1`..`A7`)", § Verdicts' "Every row A1 to A7" and § The body's "headed `## A1` to `## A7`"
   become A9; and its `covers` rule, "List every component the rows exercise, which today means all
   seven above", gains what A8 and A9 exercise: `ConfirmDialog.tsx`, `ModalPanel.tsx`, and
