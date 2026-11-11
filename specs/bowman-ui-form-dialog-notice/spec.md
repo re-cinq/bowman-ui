@@ -127,6 +127,7 @@ export const defaultSearchFieldLabels: Readonly<Required<SearchFieldLabels>>;
 
 export interface SearchFieldProps {
   value: string;
+  /** Receives the input's new value verbatim - untrimmed, a controlled input's contract. */
   onChange: (value: string) => void;
   /** Runs the search on Enter or the submit button; without it, no button renders. */
   onSubmit?: (value: string) => void;
@@ -242,18 +243,20 @@ export const Dialog: (props: DialogProps) => ReactElement | null;
   `container` when given and `document.body` otherwise, a fixed full-screen `z-50` overlay on
   `bg-black/50`, the dim `AppShell`'s drawer backdrop already paints (src/components/AppShell.tsx),
   holding one panel with `role="dialog"`, `aria-modal="true"`, `tabIndex={-1}` and `aria-labelledby`
-  pointing at an `<h2>` holding `labels.dialogTitle`. Into `document.body` the portal is appended
-  after the page, so the overlay paints above `AppShell`'s drawer and `Toast`, which also sit at
-  `z-50`.
+  pointing at an `<h2>` holding `labels.dialogTitle`. The portal appends the overlay as the target's
+  last child. Into `document.body` that is after the page, so the overlay paints above `AppShell`'s
+  drawer and `Toast`, which also sit at `z-50` and win ties by document order.
 - A consumer whose theme is set on a wrapper - README § Theming's `.custom-theme` or
   `[data-tenant="acme"]` - passes that wrapper, or an element inside it, as `container`, so the
   wrapper's `--bowman-*` values and its `dark` class reach the panel (decision 22). The container
   must have no transformed or `overflow`-clipping ancestor, for the reason decision 1 gives. `null`
   means `document.body`, so a wrapper read from a ref, still `null` on the first render, portals to
   `<body>`, and a later `container` re-mounts the portal in the new target, losing focus and
-  re-running the trap: `container` must stay the same while the dialog is open. A consumer keeps the
-  wrapper in state through a callback ref and opens the dialog only once it is set; the chat-demo's
-  `Dialog` page shows the pattern.
+  re-running the trap: `container` must stay the same while the dialog is open, and must come after
+  every other `z-50` layer - `AppShell`'s drawer, a `Toast` - in document order, or the overlay
+  paints beneath them; a wrapper around the whole screen, as the chat-demo's is, meets that. A
+  consumer keeps the wrapper in state through a callback ref and opens the dialog only once it is
+  set; the chat-demo's `Dialog` page shows the pattern.
 - The dim is a deliberate exception to the plan's "only the colour tokens" constraint: it is
   non-text, and docs/design-notes.md § Theming decision 6 keeps the mobile overlay (`bg-black`)
   palette-mapped and lists it so no cleanup turns it into a token. That list gains the dialog's
@@ -381,17 +384,20 @@ export const ConfirmDialog: (props: ConfirmDialogProps) => ReactElement | null;
   The span renders no children, so React never overwrites the text, and no state is set in an
   effect, which `react-hooks/set-state-in-effect` (eslint.config.mjs) forbids outside `Toast`'s
   recorded exemption. Its test renders with `busy` true and asserts the region holds the label; the
-  empty first commit is the effect's ordering, which the A8 row hears. The assistive-technology
-  pass's A8 row records what each screen reader announces.
-- Entering `busy` while focus sits on one of the buttons it disables moves focus to the panel. A
-  layout effect on `busy` turning true does it, reaching the panel through a plain `panelRef` prop
-  `ModalPanel` takes and attaches beside the trap's ref - never `forwardRef`, which
-  tests/forward-ref-components.test.ts allows only in the fixture's exported components: it runs
-  after React sets `disabled` and before the browser's focus fixup moves focus to `<body>`, while
-  the button is still `document.activeElement`. Leaving `busy` leaves focus on the panel, where the
-  next Tab reaches the re-enabled buttons (the second widened trap behaviour below). jsdom runs no
-  focus fixup, so the claim that focus never reaches `<body>` is proven in the chat-demo's
-  Playwright suite; jsdom proves the panel receives focus.
+  empty first commit is the effect's ordering, which the A8 row hears by opening a dialog already
+  busy as well as turning an open one busy. The assistive-technology pass's A8 row records what each
+  screen reader announces.
+- Entering `busy` while focus sits on one of the buttons it disables moves focus to the panel.
+  `ConfirmDialog` passes `busy` to `ModalPanel`, and a layout effect there, on `busy` turning true,
+  focuses the panel through the trap's own container ref. No ref crosses the component boundary: a
+  `panelRef` prop written by `ModalPanel` would fail `bowman/no-prop-mutation` (docs/design-notes.md
+  § Lint guardrails), and `forwardRef` is allowed only in the fixture's exported components
+  (tests/forward-ref-components.test.ts). The layout effect runs after React sets `disabled` and
+  before the browser's focus fixup moves focus to `<body>`, while the button is still
+  `document.activeElement`. Leaving `busy` leaves focus on the panel, where the next Tab reaches the
+  re-enabled buttons (the second widened trap behaviour below). jsdom runs no focus fixup, so the
+  claim that focus never reaches `<body>` is proven in the chat-demo's Playwright suite; jsdom
+  proves the panel receives focus.
 
 ### `useFocusTrap`: three widened behaviours
 
@@ -562,8 +568,12 @@ them moves with it. Every other existing test passes unchanged.
 - tests/Button.test.tsx "every variant keeps focus:ring-2 ring-offset-2 beside the
   --bowman-focus-ring and --bowman-ring-offset colours and carries the disabled pair" renders a
   `danger` button beside the three it renders today, so "every variant" stays true.
+- tests/styles.test.ts "styles.css declares the bowman-sr-only rule the markdown notice, Toast,
+  ConversationList, ChatComposer and useFocusGroups depend on" is retitled to name `ConfirmDialog`
+  among them, and its titled link in specs/bowman-ui-stylesheet-entry/spec.md moves with it
+  (§ Documentation).
 - tests/useFocusTrap.test.tsx "an empty container leaves Tab handling alone" is retitled and
-  rewritten, as the `useFocusTrap` section below records.
+  rewritten, as the `useFocusTrap` section above records.
 - tests/theming-tokens-dist.test.ts: its `EXPECTED_FALLBACKS` and `NEUTRAL_ROLE_READERS` maps and
   its `FOCUS_RING` reader list grow, and the `it()` titled "exactly the five offset-ring components"
   is retitled for seven, as § Theming below lists.
@@ -585,13 +595,15 @@ them moves with it. Every other existing test passes unchanged.
 - `TextField`, `Dialog`, `ConfirmDialog`, `Notice`, `Card` and the internal `ModalPanel` open with
   `"use client"`, each for a trigger docs/design-notes.md decision 1 measures: an `on[A-Z]` JSX
   handler (all six, `Notice` for its dismiss button), a hook (`useId`, `useSyncExternalStore`,
-  `useFocusTrap`, the busy layout effect) and, in `ModalPanel`, `document.body` as the portal
-  target. `SearchField` already carries the directive. `KeyValueList` takes no handler and calls no
-  hook, so its built file carries no directive and stays server-safe. The RSC fixture's page
-  (examples/rsc-fixture/app/page.tsx), which renders only icons, `IconWrapper`, `ChatMessage` and
-  `ChatMessageList` today, gains a `KeyValueList` and a `Notice` without `onDismiss` in its server
-  component, so `npm run rsc` proves both; specs/bowman-ui-rsc-fixture/spec.md's statement of what
-  the page renders gains them, and `npm run reanchor` heals its page.tsx line links.
+  `useFocusTrap`, and in `ModalPanel` the busy layout effect) and, in `ModalPanel`, `document.body`
+  as the portal target. `SearchField` already carries the directive. `KeyValueList` takes no handler
+  and calls no hook, so its built file carries no directive and stays server-safe. The RSC fixture's
+  page (examples/rsc-fixture/app/page.tsx), which renders only icons, `IconWrapper`, `ChatMessage`
+  and `ChatMessageList` today, gains a `KeyValueList` and a `Notice` without `onDismiss` in its
+  server component, and scripts/rsc-fixture.sh, which greps the response only for the icons' markup
+  and the export count today, also greps it for the `<dl>` and the notice's `role="status"`, so
+  `npm run rsc` proves both render on the server; specs/bowman-ui-rsc-fixture/spec.md's statement of
+  what the page renders gains them, and `npm run reanchor` heals its page.tsx line links.
 - `TextField` and `Card` are `forwardRef` components under decision 4, and
   tests/fixtures/forward-ref-components.json gains both, or tests/forward-ref-components.test.ts
   fails; docs/design-notes.md § Styled primitives' "`Button`, `IconButton` and `SearchField` are
@@ -628,14 +640,17 @@ them moves with it. Every other existing test passes unchanged.
   `ConfirmDialog`'s every `defaultConfirmDialogLabels` key plus the required `dialogTitle` and
   `confirmAction`, as `ChatMessageList`'s cover its defaults plus `aiDisclosure`; `Notice`'s cover
   every `defaultNoticeLabels` key.
-- A new tests/form-dialog-notice-dist.test.ts, shaped like tests/primitives-dist.test.ts, checks the
-  new built files' directives (the six client files, `TextField.js`, `Dialog.js`,
-  `ConfirmDialog.js`, `Notice.js`, `Card.js` and `ModalPanel.js`, open with `"use client"`, and
-  `KeyValueList.js` does not) and compiles a new tests/types/form-dialog-notice-type-assertions.tsx
-  against dist/. That file's `@ts-expect-error` fixtures pin that omitting `labels`, or `labels`
-  without `fieldLabel`, `dialogTitle` or `confirmAction`, is a compile error; that no new component
-  takes `className`; that a `SearchFieldLabels` object without `submitSearch` is a compile error;
-  and, with no `@ts-expect-error`, that `variant="danger"` compiles on `Button` and `IconButton`.
+- A new tests/form-dialog-notice-dist.test.ts, built on tests/helpers/built-package.ts's
+  `expectClientDirectiveFirst`, `expectPackedWithTypes` and `expectTypeAssertionsCompile` rather
+  than tests/primitives-dist.test.ts's hand-rolled `opensWithUseClient`, so the copy-paste gate
+  finds no clone, checks the new built files' directives (the six client files, `TextField.js`,
+  `Dialog.js`, `ConfirmDialog.js`, `Notice.js`, `Card.js` and `ModalPanel.js`, open with
+  `"use client"`, and `KeyValueList.js` does not) and compiles a new
+  tests/types/form-dialog-notice-type-assertions.tsx against dist/. That file's `@ts-expect-error`
+  fixtures pin that omitting `labels`, or `labels` without `fieldLabel`, `dialogTitle` or
+  `confirmAction`, is a compile error; that no new component takes `className`; that a
+  `SearchFieldLabels` object without `submitSearch` is a compile error; and, with no
+  `@ts-expect-error`, that `variant="danger"` compiles on `Button` and `IconButton`.
   tests/primitives-dist.test.ts and its assertions file stay as they are.
 
 ## Theming
@@ -655,8 +670,9 @@ Nine `--bowman-*` custom properties join the 44, for 53, each read only through 
 | `--bowman-warning-dark`           | `var(--color-amber-300)` | warning icon and border (dark)  |
 
 Every pair a component renders text on meets WCAG 2.2 AA (4.5:1) and every icon, tone border and
-focus indicator meets the 3:1 non-text minimum, in both themes, recorded in the § Theming table's
-row before the pull request lands. Measured from Tailwind v4's palette for the fallbacks:
+focus indicator meets the 3:1 non-text minimum, in both themes. docs/design-notes.md § Theming's
+table records no ratio, so § Theming gains a paragraph holding the measured pairs below, written
+before the pull request lands. Measured from Tailwind v4's palette for the fallbacks:
 
 | Pair                                         | Light   | Dark    | Minimum |
 | -------------------------------------------- | ------- | ------- | ------- |
@@ -686,7 +702,9 @@ token set, or the suite reds:
   rows; its three spelled counts; and the group breakdown in its opening sentence, whose
   semantic-colour group grows from eight to seventeen and whose parenthetical, which names only the
   danger and success roles, names the danger-fill, info and warning roles beside them under
-  decision 6;
+  decision 6; and the sentence after it, which lists "the danger role's red text and soft surface,
+  and the success role's green text and soft fill" as read through a `var()`, names the danger fill,
+  info and warning colours too;
 - docs/design-notes.md § Theming decision 12, which names the `FOCUS_RING` module's "five
   importers - `AppShell`, `AppSidebar`, `ConversationList`, `PromptChips` and `buttonStyles`", gains
   `Card` and `ModalPanel` as the sixth and seventh;
@@ -734,19 +752,21 @@ WCAG 2.2 AA is the floor. Three layers prove it, and none is a reviewer's sign-o
   scripts/consumer-app.sh installs it with `npm ci` - never of the package, which gains no
   dependency of any kind. It runs against each new component's documentation page in every state
   that applies - default, disabled, error, busy, open, closed and, on the `Dialog` page, open with a
-  body that overflows - and against the `search-field` page with `onSubmit`. It runs in a real
-  browser, so it measures contrast, including the `danger` fill, and its
-  `scrollable-region-focusable` rule checks the overflowing body; the target is zero violations
-  under the WCAG 2.2 AA rule tags in every state.
+  body that overflows; each open state opens from its own trigger, one dialog at a time, never two
+  open on one page (decision 11), and the axe and token runs open each in turn - and against the
+  `search-field` page with `onSubmit`. It runs in a real browser, so it measures contrast, including
+  the `danger` fill, and its `scrollable-region-focusable` rule checks the overflowing body; the
+  target is zero violations under the WCAG 2.2 AA rule tags in every state.
 - Keyboard use is checked by hand against each page.
 
 specs/bowman-ui-assistive-technology-pass/spec.md keeps its manual screen-reader procedure, and its
 out-of-scope line for an automated scanner stays true of that pass: the scanner added here runs in
 the chat-demo's suite, not in the pass. The pass itself, docs/accessibility/README.md, gains two
 rows in the same pull request, A8 and A9, each recording what every screen reader in the pass
-announces: a `ConfirmDialog` turning busy - the focus move to its panel and the `confirmBusy` status
-message (decision 20) - and a `Notice` mounted with its text, in each tone (decision 14). The rows'
-verdicts are owed by the human runner, as A1-A7's are. What moves with them:
+announces: a `ConfirmDialog` turning busy, and one opened already busy - the focus move to its panel
+and the `confirmBusy` status message (decision 20) - and a `Notice` mounted with its text, in each
+tone (decision 14). The rows' verdicts are owed by the human runner, as A1-A7's are. What moves with
+them:
 
 - docs/accessibility/README.md's "The surface under test" sends the runner to `?view=chat` and calls
   a transcription taken anywhere else "of the wrong page"; the chat screen holds neither component
@@ -757,8 +777,10 @@ verdicts are owed by the human runner, as A1-A7's are. What moves with them:
   (`A1`..`A7`)", § Verdicts' "Every row A1 to A7" and § The body's "headed `## A1` to `## A7`"
   become A9; and its `covers` rule, "List every component the rows exercise, which today means all
   seven above", gains what A8 and A9 exercise: `ConfirmDialog.tsx`, `ModalPanel.tsx`, `Button.tsx`
-  (its cancel and danger confirm buttons) and `src/hooks/useFocusTrap.ts` (the busy focus move) for
-  A8, and `Notice.tsx` and `IconButton.tsx` (its dismiss button) for A9;
+  (its cancel and danger confirm buttons) and `src/hooks/useFocusTrap.ts` (Tab from the focused
+  panel) for A8 - a hook, not a component, listed because the rule's purpose is that an edit to what
+  a row exercises invalidates the record, and the rule's wording gains "and hook" - and `Notice.tsx`
+  and `IconButton.tsx` (its dismiss button) for A9;
 - `scripts/check-at-pass.mjs`'s closed `ROWS` list gains `"A8"` and `"A9"`, or a new row is never
   checked for a verdict, and its header comment's "every row A1-A7" becomes A1-A9;
   tests/check-at-pass.test.ts's hard-coded `rowIds` gains both (see "Existing tests that change");
@@ -960,8 +982,13 @@ docs/design-notes.md § Labels decisions 2 and 5 are amended (decision 6). CLAUD
     tone icon's `color`, since the helpers' `ColorProperty` has no single-side border and a mixed
     border's computed `borderColor` lists four colours - rather than a second matrix being built,
     which the copy-paste gate would flag. `docsTokenPages` moves to the chat-demo's tests/helpers so
-    theming.spec.ts can read it; the docs suite gains the wrapper-theme run the theming suite
-    already makes; and the theming test is retitled to say the chat matrix and the documentation
+    theming.spec.ts can read it; the docs suite gains a wrapper-theme run like the theming suite's.
+    The chat-demo's `?theme=` parameter applies only with `?view=chat`
+    (examples/chat-demo/src/App.tsx), so rather than threading it into the docs view, the
+    `ConfirmDialog` and `Notice` pages each show a themed variant inside a page-local
+    `.custom-theme` wrapper, as examples/chat-demo/src/docs/ThemingSection.tsx does, and that
+    variant's `ConfirmDialog` portals into the wrapper through `container`; the run measures the
+    nine tokens there; and the theming test is retitled to say the chat matrix and the documentation
     pages together reach every declared token, asserting exactly that union. The file's header
     comment and the theming spec's statement it validates move with it. Every one of the 44 existing
     tokens stays measured on the chat screen.
@@ -990,9 +1017,9 @@ docs/design-notes.md § Labels decisions 2 and 5 are amended (decision 6). CLAUD
     default palette inside a themed app. The plan names no such prop; without it, wrapper-scoped
     theming would silently stop at every dialog, so the floor the plan sets for theming wins.
     `container` defaults to `document.body`, read only on the client, so the hydration rule above
-    holds. The docs suite's wrapper-theme run (decision 19) opens a `ConfirmDialog` portalled into
-    the themed wrapper and measures its danger fill, panel surface and text there, so a portal that
-    escaped the wrapper fails it.
+    holds. The docs suite's wrapper-theme run (decision 19) opens the `ConfirmDialog` page's themed
+    variant, portalled into its page-local `.custom-theme` wrapper, and measures its danger fill,
+    panel surface and text there, so a portal that escaped the wrapper fails it.
 23. **An overflowing dialog body with nothing focusable in it becomes focusable.** A keyboard user
     scrolls a region by focusing it, and a prose-only body that overflows offers nothing to focus;
     Chrome and Firefox make such a scroller focusable on their own, Safari does not, and WCAG 2.1.1
@@ -1015,7 +1042,9 @@ look unchanged without `onSubmit` - a gap a follow-up should close on its own.
 ## Documentation
 
 The chat-demo's documentation app gains one page per new component, each showing every state the
-accessibility checks run against, the `Dialog` page including one whose body overflows. The `danger`
+accessibility checks run against, the `Dialog` page including one whose body overflows; each open
+dialog state sits behind its own trigger, so at most one dialog is open at a time (decision 11), and
+the `ConfirmDialog` and `Notice` pages carry the themed variant decision 19 measures. The `danger`
 variant gets no page of its own: the `ConfirmDialog` page's confirm button is the danger `Button`,
 and that page also shows it on its own, at rest, hovered and disabled, so the token matrix and the
 axe run reach it there. The existing `search-field` page gains a state with `onSubmit`, so the
@@ -1035,5 +1064,8 @@ three spelled token counts move to fifty-three; its § Theming sentence naming "
 them; its sentence "Forty-two of the tokens form twenty-one light/dark pairs … Two have no twin"
 becomes fifty, twenty-five and three, naming `--bowman-text-on-danger` as the third, the one text
 colour on the danger fill in both modes; its § Styles sentence listing what the `bowman-sr-only`
-rule hides gains `ConfirmDialog`'s busy status region; and its App Router paragraph gains the new
-function-valued props, because that list is a claim about every export.
+rule hides gains `ConfirmDialog`'s busy status region, as do tests/styles.test.ts's title
+"styles.css declares the bowman-sr-only rule the markdown notice, Toast, ConversationList,
+ChatComposer and useFocusGroups depend on" and the titled link to it in
+specs/bowman-ui-stylesheet-entry/spec.md (see "Existing tests that change"); and its App Router
+paragraph gains the new function-valued props, because that list is a claim about every export.
