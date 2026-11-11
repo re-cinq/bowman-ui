@@ -328,24 +328,25 @@ export const Dialog: (props: DialogProps) => ReactElement | null;
   padding edge, with the panel's padding outside it, so the focus rings of the controls in
   `children` - a `w-full` `TextField` at either side, the first or last control at the top or
   bottom - are never cut. A layout effect compares `scrollHeight` with `clientHeight` and sets or
-  removes the three attributes on the node itself; it depends on a named `portalOpen` value,
-  `open && isClient`, since `exhaustive-deps` flags an expression written in the array, because
-  `ModalPanel` stays mounted while the body exists only while the portal renders, so it runs, and
-  attaches its observer, on the commit that first renders the body, after a closed mount or
-  hydration as on a first open render, and re-runs from a `ResizeObserver`, where one exists,
-  watching both the body and an inner wrapper around its content: once the body reaches its height
-  cap its own box stops changing while its content still grows, as when a disclosure in `children`
-  opens without re-rendering `ModalPanel`. It writes them without a re-render, so they are in place
-  before the trap's open effect looks for a first focusable element. When the body stops overflowing
-  while it holds focus - a prose-only dialog after the viewport grows - the effect first moves focus
-  to the panel, then removes the attributes, so the browser's focus fixup never drops focus to
-  `<body>` outside the modal; a stubbed-heights test focuses the overflowing body, makes it fit,
-  fires the observer and asserts the panel holds focus. An overflowing prose-only body is therefore
-  the first focusable element and takes initial focus. jsdom lays nothing out and has no
-  `ResizeObserver`, so its tests stub the two heights and, for the branch where one exists, a
-  `ResizeObserver` whose callback they fire for each of the two watched elements, keeping the 100%
-  branch floor. One test mounts the dialog closed with overflowing stubbed heights, opens it and
-  asserts the body carries `tabindex="0"`.
+  removes the three attributes on the node itself; it depends on the trap's container ref, which
+  `exhaustive-deps` cannot tell is stable, and on a named `portalOpen` value, `open && isClient`,
+  since `exhaustive-deps` flags an expression written in the array, because `ModalPanel` stays
+  mounted while the body exists only while the portal renders, so it runs, and attaches its
+  observer, on the commit that first renders the body, after a closed mount or hydration as on a
+  first open render, and re-runs from a `ResizeObserver`, where one exists, watching both the body
+  and an inner wrapper around its content: once the body reaches its height cap its own box stops
+  changing while its content still grows, as when a disclosure in `children` opens without
+  re-rendering `ModalPanel`. It writes them without a re-render, so they are in place before the
+  trap's open effect looks for a first focusable element. When the body stops overflowing while it
+  holds focus - a prose-only dialog after the viewport grows - the effect first moves focus to the
+  panel, then removes the attributes, so the browser's focus fixup never drops focus to `<body>`
+  outside the modal; a stubbed-heights test focuses the overflowing body, makes it fit, fires the
+  observer and asserts the panel holds focus. An overflowing prose-only body is therefore the first
+  focusable element and takes initial focus. jsdom lays nothing out and has no `ResizeObserver`, so
+  its tests stub the two heights and, for the branch where one exists, a `ResizeObserver` whose
+  callback they fire for each of the two watched elements, keeping the 100% branch floor. One test
+  mounts the dialog closed with overflowing stubbed heights, opens it and asserts the body carries
+  `tabindex="0"`.
 - On the server and during hydration an open `Dialog` renders nothing, and it portals on the first
   client render after: the client check reads `useSyncExternalStore` with a server snapshot of
   `false`, so markup never mismatches and no `typeof window` guard is written. The server snapshot
@@ -484,37 +485,37 @@ export const ConfirmDialog: (props: ConfirmDialogProps) => ReactElement | null;
   ordering, which the A8 row hears by opening a dialog already busy as well as turning an open one
   busy. The assistive-technology pass's A8 row records what each screen reader announces.
 - Entering `busy` while focus sits on one of the buttons it disables moves focus to the panel.
-  `ConfirmDialog` passes `busy` to `ModalPanel`, and a layout effect there focuses the panel through
-  the trap's own container ref, only when `busy` turns true - read against a ref holding the
-  previous `busy`, which starts at `false`, so a dialog that mounts open and busy counts as turning
-  busy - and only when, at layout time, `document.activeElement` is a `disabled` element inside the
-  panel, or is `<body>` or null. A dialog that opens already busy needs no rule of its own: focus
-  then sits on the opener, outside the panel, so the guard leaves it to the trap, which records the
-  opener as the element to return focus to before it moves focus in; and when nothing held focus,
-  the trap records the panel, a detached target on close that the skip in the `useFocusTrap` section
-  passes over, leaving focus on `<body>` as it would have been anyway. A field in `children` that
-  held focus when Enter set `busy` keeps it. A jsdom test opens a dialog busy, closes it and asserts
-  focus returns to the opener; another sets `busy` with focus in a field and asserts the field keeps
-  focus; a third sets `busy` with nothing focused, `document.activeElement` being `<body>`, and a
-  fourth stubs `document.activeElement` to null, and both assert the panel takes focus. Four more
-  cover the rest of the guard: with focus on the confirm button, setting `busy` moves it to the
-  panel; with focus on a disabled element outside the panel, it stays put; setting `busy` while the
-  dialog is closed moves nothing; and clearing `busy` moves nothing. Each arm of the guard then has
-  a test and the 100% branch floor holds. The guard's conditions exceed
-  `bowman/max-boolean-operators`' two at an inline site, so they live in a named predicate whose
-  return the rule exempts. No ref crosses the component boundary: a `panelRef` prop written by
-  `ModalPanel` would fail `bowman/no-prop-mutation` (docs/design-notes.md § Lint guardrails), and
-  `forwardRef` is allowed only in the fixture's exported components
-  (tests/forward-ref-components.test.ts). The layout effect runs after React sets `disabled` and
-  before the browser's focus fixup moves focus to `<body>`, while the button is still
-  `document.activeElement`. Leaving `busy` leaves focus on the panel, where the next Tab reaches the
-  re-enabled buttons (the second widened trap behaviour below). jsdom runs no focus fixup, so the
-  claim that focus never reaches `<body>` is proven in the chat-demo's Playwright suite, which runs
-  Chromium and WebKit (examples/chat-demo/playwright.config.ts). Its test focuses the confirm button
-  and presses Enter rather than clicking it: WebKit on macOS does not focus a clicked button, so a
-  click could leave focus on the panel without the layout effect ever running. Firefox is unproven,
-  and the `<body>`-or-null branch of the guard covers an engine whose fixup runs first. jsdom proves
-  the panel receives focus.
+  `ConfirmDialog` passes `busy` to `ModalPanel`, and a layout effect there, whose dependencies
+  include that container ref for the same reason, focuses the panel through it, only when `busy`
+  turns true - read against a ref holding the previous `busy`, which starts at `false`, so a dialog
+  that mounts open and busy counts as turning busy - and only when, at layout time,
+  `document.activeElement` is a `disabled` element inside the panel, or is `<body>` or null. A
+  dialog that opens already busy needs no rule of its own: focus then sits on the opener, outside
+  the panel, so the guard leaves it to the trap, which records the opener as the element to return
+  focus to before it moves focus in; and when nothing held focus, the trap records the panel, a
+  detached target on close that the skip in the `useFocusTrap` section passes over, leaving focus on
+  `<body>` as it would have been anyway. A field in `children` that held focus when Enter set `busy`
+  keeps it. A jsdom test opens a dialog busy, closes it and asserts focus returns to the opener;
+  another sets `busy` with focus in a field and asserts the field keeps focus; a third sets `busy`
+  with nothing focused, `document.activeElement` being `<body>`, and a fourth stubs
+  `document.activeElement` to null, and both assert the panel takes focus. Four more cover the rest
+  of the guard: with focus on the confirm button, setting `busy` moves it to the panel; with focus
+  on a disabled element outside the panel, it stays put; setting `busy` while the dialog is closed
+  moves nothing; and clearing `busy` moves nothing. Each arm of the guard then has a test and the
+  100% branch floor holds. The guard's conditions exceed `bowman/max-boolean-operators`' two at an
+  inline site, so they live in a named predicate whose return the rule exempts. No ref crosses the
+  component boundary: a `panelRef` prop written by `ModalPanel` would fail `bowman/no-prop-mutation`
+  (docs/design-notes.md § Lint guardrails), and `forwardRef` is allowed only in the fixture's
+  exported components (tests/forward-ref-components.test.ts). The layout effect runs after React
+  sets `disabled` and before the browser's focus fixup moves focus to `<body>`, while the button is
+  still `document.activeElement`. Leaving `busy` leaves focus on the panel, where the next Tab
+  reaches the re-enabled buttons (the second widened trap behaviour below). jsdom runs no focus
+  fixup, so the claim that focus never reaches `<body>` is proven in the chat-demo's Playwright
+  suite, which runs Chromium and WebKit (examples/chat-demo/playwright.config.ts). Its test focuses
+  the confirm button and presses Enter rather than clicking it: WebKit on macOS does not focus a
+  clicked button, so a click could leave focus on the panel without the layout effect ever running.
+  Firefox is unproven, and the `<body>`-or-null branch of the guard covers an engine whose fixup
+  runs first. jsdom proves the panel receives focus.
 
 ### `useFocusTrap`: three widened behaviours
 
@@ -834,26 +835,27 @@ focus indicator meets the 3:1 non-text minimum, in both themes. docs/design-note
 table records no ratio, so § Theming gains a paragraph holding the measured pairs below in the same
 pull request. Measured from Tailwind v4's palette for the fallbacks:
 
-| Pair                                                 | Light   | Dark    | Minimum |
-| ---------------------------------------------------- | ------- | ------- | ------- |
-| `TEXT_ON_DANGER` on `DANGER_FILL`                    | 4.76:1  | 4.76:1  | 4.5:1   |
-| `TEXT_ON_DANGER` on `DANGER_FILL_HOVER`              | 6.42:1  | 6.42:1  | 4.5:1   |
-| `DANGER` (`TextField` error text) on surface         | 4.76:1  | 6.17:1  | 4.5:1   |
-| `TEXT_MUTED` (`TextField` hint) on surface           | 4.77:1  | 6.79:1  | 4.5:1   |
-| `TEXT_STRONG` (`TextField` label and input text)     | 17.84:1 | 16.28:1 | 4.5:1   |
-| `CONTROL_BORDER` (`TextField` border)                | 4.77:1  | 6.79:1  | 3:1     |
-| `DANGER_BORDER` (invalid `TextField` border)         | 4.76:1  | 6.17:1  | 3:1     |
-| `TEXT_BODY` (panel, card and notice body) on surface | 10.34:1 | 14.49:1 | 4.5:1   |
-| `TEXT_STRONG` (panel, card and notice heading)       | 17.84:1 | 16.28:1 | 4.5:1   |
-| `TEXT_BODY` on `SURFACE_HOVER` (hovered card body)   | 9.88:1  | 11.90:1 | 4.5:1   |
-| `TEXT_STRONG` on `SURFACE_HOVER` (hovered heading)   | 17.05:1 | 13.37:1 | 4.5:1   |
-| `TEXT_MUTED` (`KeyValueList` term)                   | 4.77:1  | 6.79:1  | 4.5:1   |
-| `TEXT_STRONG` (`KeyValueList` value)                 | 17.84:1 | 16.28:1 | 4.5:1   |
-| `info` icon and border on surface                    | 5.26:1  | 6.77:1  | 3:1     |
-| `success` icon and border on surface                 | 3.22:1  | 10.05:1 | 3:1     |
-| `warning` icon and border on surface                 | 5.05:1  | 12.34:1 | 3:1     |
-| `error` icon and border on surface                   | 4.76:1  | 6.17:1  | 3:1     |
-| `FOCUS_RING_COLOR` on its `RING_OFFSET`              | 3.76:1  | 6.77:1  | 3:1     |
+| Pair                                                     | Light   | Dark    | Minimum |
+| -------------------------------------------------------- | ------- | ------- | ------- |
+| `TEXT_ON_DANGER` on `DANGER_FILL`                        | 4.76:1  | 4.76:1  | 4.5:1   |
+| `TEXT_ON_DANGER` on `DANGER_FILL_HOVER`                  | 6.42:1  | 6.42:1  | 4.5:1   |
+| `DANGER` (`TextField` error text) on surface             | 4.76:1  | 6.17:1  | 4.5:1   |
+| `TEXT_MUTED` (`TextField` hint) on surface               | 4.77:1  | 6.79:1  | 4.5:1   |
+| `TEXT_STRONG` (`TextField` label and input text)         | 17.84:1 | 16.28:1 | 4.5:1   |
+| `CONTROL_BORDER` (`TextField` border)                    | 4.77:1  | 6.79:1  | 3:1     |
+| `DANGER_BORDER` (invalid `TextField` border)             | 4.76:1  | 6.17:1  | 3:1     |
+| `TEXT_BODY` (panel, card and notice body) on surface     | 10.34:1 | 14.49:1 | 4.5:1   |
+| `TEXT_STRONG` (panel, card and notice heading)           | 17.84:1 | 16.28:1 | 4.5:1   |
+| `TEXT_BODY` on `SURFACE_HOVER` (hovered card body)       | 9.88:1  | 11.90:1 | 4.5:1   |
+| `TEXT_STRONG` on `SURFACE_HOVER` (hovered heading)       | 17.05:1 | 13.37:1 | 4.5:1   |
+| `TEXT_MUTED` (`KeyValueList` term)                       | 4.77:1  | 6.79:1  | 4.5:1   |
+| `TEXT_STRONG` (`KeyValueList` value)                     | 17.84:1 | 16.28:1 | 4.5:1   |
+| `info` icon and border on surface                        | 5.26:1  | 6.77:1  | 3:1     |
+| `success` icon and border on surface                     | 3.22:1  | 10.05:1 | 3:1     |
+| `warning` icon and border on surface                     | 5.05:1  | 12.34:1 | 3:1     |
+| `error` icon and border on surface                       | 4.76:1  | 6.17:1  | 3:1     |
+| `TEXT_SECONDARY` (ghost close, dismiss and submit icons) | 7.56:1  | 6.79:1  | 3:1     |
+| `FOCUS_RING_COLOR` on its `RING_OFFSET`                  | 3.76:1  | 6.77:1  | 3:1     |
 
 The same pull request moves every place tests/theming-tokens-dist.test.ts pins the count or the
 token set, or the suite reds:
@@ -948,30 +950,31 @@ The rows' verdicts are owed by the human runner, as A1-A7's are. What moves with
   (`A1`..`A7`)", § Verdicts' "Every row A1 to A7" and § The body's "headed `## A1` to `## A7`"
   become A9; and its `covers` rule, "List every component the rows exercise, which today means all
   seven above", gains what A8 and A9 exercise: `ConfirmDialog.tsx`, `ModalPanel.tsx`, and
-  `Button.tsx` (its cancel and danger confirm buttons) for A8, and `Notice.tsx` and `IconButton.tsx`
-  (its dismiss button) for A9;
+  `Button.tsx` (its cancel and danger confirm buttons) and `src/hooks/useFocusTrap.ts` (whose
+  empty-container branch performs the focus move A8 hears for a dialog opened already busy) for A8,
+  and `Notice.tsx` and `IconButton.tsx` (its dismiss button) for A9;
 - `scripts/check-at-pass.mjs`'s closed `ROWS` list gains `"A8"` and `"A9"`, or a new row is never
   checked for a verdict, and its header comment's "every row A1-A7" becomes A1-A9;
   tests/check-at-pass.test.ts's hard-coded `rowIds` gains both (see "Existing tests that change");
 - docs/accessibility/README.md's "fourteen verbatim transcriptions" - seven rows on two stacks -
-  becomes eighteen; its "the seven are this document's rule", a count of paths, becomes twelve; and
-  its front-matter block, which calls itself "complete and copy-pasteable", lists the twelve
+  becomes eighteen; its "the seven are this document's rule", a count of paths, becomes thirteen;
+  and its front-matter block, which calls itself "complete and copy-pasteable", lists the thirteen
   `covers` paths and rows A1-A9, or a record copied from it fails the gate once `ROWS` gains A8 and
   A9;
 - specs/bowman-ui-assistive-technology-pass/spec.md: its "seven rows" becomes nine, its "A1-A7"
-  references become "A1-A9", its "names all seven components the rows exercise" becomes twelve,
-  KU-22's "seven checks" becomes nine - its "None has been named" stays true of the pass, which
-  claims no conformance: the WCAG 2.2 AA floor here is this spec's target for its own unit, axe and
-  contrast checks, not a standard named for the screen-reader pass - and it gains a statement for
-  each new row beside A1-A7's. Each new statement links to the owed record as A1-A7's do and sits
-  inside the `re-lint/no-dead-md-links` disable block, whose comment, "the seven links below",
-  becomes nine, as does eslint.config.mjs's comment on it, "a scoped disable for its seven
-  deliberate links". A8 records what each screen reader announces and nothing about Tab, which the
-  chat-demo's Playwright suite checks, so the pass's out-of-scope line for keyboard-only navigation
-  and the focus trap stays true. For the same reason the `covers` list leaves out
-  `src/hooks/useFocusTrap.ts`, though its empty-container branch performs the focus move A8 hears
-  for a dialog opened already busy: the trap is that out-of-scope line's subject, and the
-  chat-demo's Playwright suite, not the record, guards a change to it.
+  references become "A1-A9", its "names all seven components the rows exercise" becomes thirteen
+  files, one of them a hook, KU-22's "seven checks" becomes nine - its "None has been named" stays
+  true of the pass, which claims no conformance: the WCAG 2.2 AA floor here is this spec's target
+  for its own unit, axe and contrast checks, not a standard named for the screen-reader pass - and
+  it gains a statement for each new row beside A1-A7's. Each new statement links to the owed record
+  as A1-A7's do and sits inside the `re-lint/no-dead-md-links` disable block, whose comment, "the
+  seven links below", becomes nine, as does eslint.config.mjs's comment on it, "a scoped disable for
+  its seven deliberate links". A8 records what each screen reader announces and nothing about Tab,
+  which the chat-demo's Playwright suite checks, so the pass's out-of-scope line, which excludes
+  keyboard-only navigation and the app shell's mobile drawer
+  (specs/bowman-ui-assistive-technology-pass/spec.md), stays true; the trap is only that line's
+  reason for excluding the drawer, so the hook belongs in A8's `covers`, and a later change to it
+  marks the A8 record stale.
 
 ## The published surface
 
@@ -1054,11 +1057,11 @@ CLAUDE.md's spec count, "30 feature specs", already lags `main`'s 32 and becomes
    `--bowman-success-soft` measures 2.93:1 and `--bowman-danger` on `--bowman-danger-soft` 3.90:1.
    Adding a text role per tone would cost eight tokens; keeping the text in the body roles on
    `SURFACE` and colouring only the icon and the left border needs non-text contrast, 3:1, which
-   success and danger already meet on `SURFACE`. Info does not borrow `--bowman-accent`, though
-   `blue-600` passes 3:1 on both surfaces today: the accent is the brand fill a consumer re-themes
-   first, and a brand colour chosen for buttons would then recolour every info notice, however it
-   measured as an icon. Warning has no role at all, and amber no stand-in in the palette. Neither
-   needs a soft twin.
+   success and danger already meet on `SURFACE`. Info does not borrow `--bowman-accent`, though the
+   accent's fallbacks, `blue-500` light and `blue-600` dark, pass 3:1 on their surfaces today: the
+   accent is the brand fill a consumer re-themes first, and a brand colour chosen for buttons would
+   then recolour every info notice, however it measured as an icon. Warning has no role at all, and
+   amber no stand-in in the palette. Neither needs a soft twin.
 6. **`TextField`'s strings are required labels, never string props.** `fieldLabel`, `fieldHint` and
    `fieldError` ride in `labels: TextFieldLabels`, so the `stringPropOnly` list stays at three. The
    presence of a non-empty `labels.fieldError` is the invalid state: a separate `invalid` boolean
