@@ -34,8 +34,8 @@ save these deviations, each argued where it applies:
   change anything; the key is required so a translated catalogue cannot silently show English
   (decision 6, § The published surface).
 - Three supporting types the plan's export list does not name ship beside each component's props,
-  labels and defaults: `TextFieldType`, `NoticeTone` and `KeyValueListItem`, so a consumer can type
-  a value before passing it, as `ButtonVariant` lets it today (§ The published surface).
+  labels and defaults: `TextFieldType`, `NoticeTone` and `KeyValuePair`, so a consumer can type a
+  value before passing it, as `ButtonVariant` lets it today (§ The published surface).
 - `SearchField`'s new submit button forwards no ref, though the plan asks for forwarded refs on
   focusable elements: `SearchField`'s ref stays on its input (the conventions section).
 - The plan names two design-record amendments, the danger variant and `SearchField`'s submit; the
@@ -204,7 +204,9 @@ export const TextField: ForwardRefExoticComponent<TextFieldProps & RefAttributes
   catch it. The tests/theming-tokens-dist.test.ts `NEUTRAL_ROLE_READERS` map keys `CONTROL_BORDER`
   to `TextField`.
 - `labels.fieldHint` renders under the input and `labels.fieldError` under the hint, and the input's
-  `aria-describedby` names the hint first, then the error, and only those present.
+  `aria-describedby` names the hint first, then the error, and only those present. An empty
+  `labels.fieldHint` counts as absent, as an empty `fieldError` does: no hint renders and
+  `aria-describedby` does not name it.
 - With a non-empty `labels.fieldError` - an empty string counts as absent - the input carries
   `aria-invalid="true"` and a border in the `--bowman-danger` role, through a new `DANGER_BORDER`
   class string in `src/theme/tokens.ts` that reads the existing role and declares no token; without
@@ -285,17 +287,27 @@ export const Dialog: (props: DialogProps) => ReactElement | null;
 - While the body overflows and holds no focusable element, it carries `tabIndex={0}`,
   `role="region"` and `aria-labelledby` pointing at the `<h2>`, so a keyboard user can reach and
   scroll it (WCAG 2.1.1); otherwise it carries none of them. It always carries the shared
-  `FOCUS_RING` classes, inert while it cannot take focus, and the panel clips nothing, so the offset
-  ring is never cut by the panel's rounded corners; and a user reaches its content by tabbing
-  through its controls (decision 23). A layout effect compares `scrollHeight` with `clientHeight`
-  and sets or removes the three attributes on the node itself, and re-runs from a `ResizeObserver`,
-  where one exists, watching both the body and an inner wrapper around its content: once the body
-  reaches its height cap its own box stops changing while its content still grows, as when a
-  disclosure in `children` opens without re-rendering `ModalPanel`. It writes them without a re-render, so they are in place before the trap's open effect looks for a first focusable element. An
-  overflowing prose-only body is therefore the first focusable element and takes initial focus.
-  jsdom lays nothing out and has no `ResizeObserver`, so its tests stub the two heights and, for the
-  branch where one exists, a `ResizeObserver` whose callback they fire for each of the two watched
-  elements, keeping the 100% branch floor.
+  `FOCUS_RING` classes beside `ring-offset-2`, which stays at each site (docs/design-notes.md
+  § Theming decision 12), inert while it cannot take focus, and the panel clips nothing, so the
+  offset ring is never cut by the panel's rounded corners; and a user reaches its content by tabbing
+  through its controls (decision 23). The body is the scroll container, so it clips what its
+  children paint past its edges; it carries its own padding of at least `p-1` (4px), more than a
+  ring's 2px plus its 2px offset, with the panel's padding outside it, so the focus rings of the
+  controls in `children` - a `w-full` `TextField` at either side, the first or last control at the
+  top or bottom - are never cut. A layout effect compares `scrollHeight` with `clientHeight` and
+  sets or removes the three attributes on the node itself; it depends on `open && isClient`, because
+  `ModalPanel` stays mounted while the body exists only while the portal renders, so it runs, and
+  attaches its observer, on the commit that first renders the body, after a closed mount or
+  hydration as on a first open render, and re-runs from a `ResizeObserver`, where one exists,
+  watching both the body and an inner wrapper around its content: once the body reaches its height
+  cap its own box stops changing while its content still grows, as when a disclosure in `children`
+  opens without re-rendering `ModalPanel`. It writes them without a re-render, so they are in place
+  before the trap's open effect looks for a first focusable element. An overflowing prose-only body
+  is therefore the first focusable element and takes initial focus. jsdom lays nothing out and has
+  no `ResizeObserver`, so its tests stub the two heights and, for the branch where one exists, a
+  `ResizeObserver` whose callback they fire for each of the two watched elements, keeping the 100%
+  branch floor. One test mounts the dialog closed with overflowing stubbed heights, opens it and
+  asserts the body carries `tabindex="0"`.
 - On the server and during hydration an open `Dialog` renders nothing, and it portals on the first
   client render after: the client check reads `useSyncExternalStore` with a server snapshot of
   `false`, so markup never mismatches and no `typeof window` guard is written. The trap is armed
@@ -396,15 +408,19 @@ export const ConfirmDialog: (props: ConfirmDialogProps) => ReactElement | null;
   render, empty, and receives the label while `busy` holds and loses it when `busy` clears, so the
   live region exists before its text (specs/bowman-ui-toast/spec.md's lesson) and WCAG 2.2's
   status-message criterion (4.1.3) is met without moving focus to say it (decision 20). The text is
-  never rendered from `busy`: an effect on `busy` writes the label into the span's `textContent`
-  through a ref, and clears it, as the overflowing body's attributes are set on the node itself, so
-  a `ConfirmDialog` that opens already busy mounts the region empty and fills it after the commit.
-  The span renders no children, so React never overwrites the text, and no state is set in an
-  effect, which `react-hooks/set-state-in-effect` (eslint.config.mjs) forbids outside `Toast`'s
-  recorded exemption. Its test renders with `busy` true and asserts the region holds the label; the
-  empty first commit is the effect's ordering, which the A8 row hears by opening a dialog already
-  busy as well as turning an open one busy. The assistive-technology pass's A8 row records what each
-  screen reader announces.
+  never rendered from `busy`: the span's ref is a state setter, so the node itself is state, and an
+  effect on `busy`, the label and that node writes the label into the span's `textContent`, and
+  clears it, as the overflowing body's attributes are set on the node itself. The effect does not
+  depend on `busy` alone, because the span exists only while the portal renders: a `ConfirmDialog`
+  mounted closed and busy and opened later - the documentation page opens each state from its own
+  trigger - and one hydrated open both reach a commit where `busy` has not changed but the span has
+  just appeared. Either way the region mounts empty and fills after the commit. The span renders no
+  children, so React never overwrites the text, and no state is set in an effect, which
+  `react-hooks/set-state-in-effect` (eslint.config.mjs) forbids outside `Toast`'s recorded
+  exemption. Its jsdom tests render open with `busy` true, and mount closed with `busy` true and
+  then open, and assert the region holds the label in both; the empty first commit is the effect's
+  ordering, which the A8 row hears by opening a dialog already busy as well as turning an open one
+  busy. The assistive-technology pass's A8 row records what each screen reader announces.
 - Entering `busy` while focus sits on one of the buttons it disables moves focus to the panel.
   `ConfirmDialog` passes `busy` to `ModalPanel`, and a layout effect there focuses the panel through
   the trap's own container ref, only when `busy` turns true on a dialog already open - never on the
@@ -415,17 +431,19 @@ export const ConfirmDialog: (props: ConfirmDialogProps) => ReactElement | null;
   passive effect would record the panel and focus would return to a detached node on close. A field
   in `children` that held focus when Enter set `busy` keeps it. A jsdom test opens a dialog busy,
   closes it and asserts focus returns to the opener; another sets `busy` with focus in a field and
-  asserts the field keeps focus. No ref crosses the component boundary: a `panelRef` prop written by
-  `ModalPanel` would fail `bowman/no-prop-mutation` (docs/design-notes.md § Lint guardrails), and
-  `forwardRef` is allowed only in the fixture's exported components
-  (tests/forward-ref-components.test.ts). The layout effect runs after React sets `disabled` and
-  before the browser's focus fixup moves focus to `<body>`, while the button is still
-  `document.activeElement`. Leaving `busy` leaves focus on the panel, where the next Tab reaches the
-  re-enabled buttons (the second widened trap behaviour below). jsdom runs no focus fixup, so the
-  claim that focus never reaches `<body>` is proven in the chat-demo's Playwright suite, which runs
-  Chromium and WebKit (examples/chat-demo/playwright.config.ts); Firefox is unproven, and the
-  `<body>`-or-null branch of the guard covers an engine whose fixup runs first. jsdom proves the
-  panel receives focus.
+  asserts the field keeps focus; a third sets `busy` with nothing focused, `document.activeElement`
+  being `<body>`, and a fourth stubs `document.activeElement` to null, and both assert the panel
+  takes focus, so each arm of the guard has a test and the 100% branch floor holds. No ref crosses
+  the component boundary: a `panelRef` prop written by `ModalPanel` would fail
+  `bowman/no-prop-mutation` (docs/design-notes.md § Lint guardrails), and `forwardRef` is allowed
+  only in the fixture's exported components (tests/forward-ref-components.test.ts). The layout
+  effect runs after React sets `disabled` and before the browser's focus fixup moves focus to
+  `<body>`, while the button is still `document.activeElement`. Leaving `busy` leaves focus on the
+  panel, where the next Tab reaches the re-enabled buttons (the second widened trap behaviour
+  below). jsdom runs no focus fixup, so the claim that focus never reaches `<body>` is proven in the
+  chat-demo's Playwright suite, which runs Chromium and WebKit
+  (examples/chat-demo/playwright.config.ts); Firefox is unproven, and the `<body>`-or-null branch of
+  the guard covers an engine whose fixup runs first. jsdom proves the panel receives focus.
 
 ### `useFocusTrap`: three widened behaviours
 
@@ -456,13 +474,14 @@ specs/bowman-ui-pure-hooks-error-boundary/spec.md pins, and gains three, which t
   `react-hooks/exhaustive-deps`, a warning that `--max-warnings 0` makes fatal, has nothing to
   report. A cleanup that runs because `isOpen` or `triggerRef` changed never returns focus, so a
   close returns it once and a new `triggerRef` mid-dialog returns it never. A return target that is
-  no longer connected is skipped. `AppShell` unmounting with its drawer open -
-  tests/AppShell.test.tsx does it - is the one existing caller this reaches. React detaches the
-  hamburger's ref before the cleanup runs, so the target falls back to the element that held focus
-  when the drawer opened: the detached hamburger, which is skipped, or `<body>` when the test opened
-  the drawer by `fireEvent.click` without focusing it, which takes focus harmlessly. Under React's
-  development StrictMode, the simulated unmount returns focus and the re-run open effect moves it
-  back into the container.
+  no longer connected is skipped, on close as on unmount: both paths call one helper, so a close
+  whose target was removed leaves focus where the browser put it, `<body>`, as the `returnFocusRef`
+  advice above says. `AppShell` unmounting with its drawer open - tests/AppShell.test.tsx does it -
+  is the one existing caller this reaches. React detaches the hamburger's ref before the cleanup
+  runs, so the target falls back to the element that held focus when the drawer opened: the detached
+  hamburger, which is skipped, or `<body>` when the test opened the drawer by `fireEvent.click`
+  without focusing it, which takes focus harmlessly. Under React's development StrictMode, the
+  simulated unmount returns focus and the re-run open effect moves it back into the container.
 
 ### `Notice`
 
@@ -495,12 +514,19 @@ export const Notice: (props: NoticeProps) => ReactElement;
   several to a page, and an outline entry per notice would bury the page's own headings; the live
   region and the icon already set it apart.
 - `info` and `success` render with `role="status"`; `warning` and `error` render with `role="alert"`
-  (decision 10).
+  (decision 10). The role sits on an inner wrapper around the icon, `heading` and `children`, never
+  on the outer container, so the dismiss button, the wrapper's sibling, is not read as part of the
+  announcement.
 - Every tone renders on `SURFACE` inside `BORDER`, with `heading` in `TEXT_STRONG` and `children` in
   `TEXT_BODY`, so no text sits on a tinted surface. The tone colours only the icon and a 4px left
   border: `info` the new `--bowman-info`, `success` `--bowman-success`, `warning` the new
-  `--bowman-warning`, `error` `--bowman-danger`, through new class strings in `src/theme/tokens.ts`
-  that read those roles as text and border colours.
+  `--bowman-warning`, `error` `--bowman-danger`, through four new class strings in
+  `src/theme/tokens.ts`, `INFO_TONE`, `SUCCESS_TONE`, `WARNING_TONE` and `DANGER_TONE`, each pairing
+  the role's `text-` and `border-l-` utilities in both schemes. The container carries its tone's
+  string beside `border-l-4` and the icon takes the colour through `currentColor`, while `heading`
+  and `children` set their own. They differ from `DANGER` and `SUCCESS`, which colour text only, so
+  no class string is declared twice, and `Notice` imports neither: `DANGER` gains only `TextField`
+  and `SUCCESS` no reader.
 - Without `onDismiss` it renders no button. With it, a `ghost` `IconButton` holding `CloseIcon`,
   named by `labels.dismissNotice` (default `"Dismiss"`), sits at the container's trailing edge and
   calls `onDismiss` on a click. `Notice` keeps no open state of its own: the consumer stops
@@ -513,14 +539,14 @@ export const Notice: (props: NoticeProps) => ReactElement;
 ### `KeyValueList`
 
 ```ts
-export interface KeyValueListItem {
+export interface KeyValuePair {
   key: string;
   label: ReactNode;
   value: ReactNode;
 }
 
 export interface KeyValueListProps {
-  items: readonly KeyValueListItem[];
+  pairs: readonly KeyValuePair[];
   /** Default "inline": label and value side by side; "stacked": value under label. */
   layout?: "inline" | "stacked";
 }
@@ -528,11 +554,14 @@ export interface KeyValueListProps {
 export const KeyValueList: (props: KeyValueListProps) => ReactElement | null;
 ```
 
-- Renders one `<dl>` holding, per item and in order, a `<div>` with a `<dt>` for `label` and a
+- The prop is `pairs`, not `items`, and its type `KeyValuePair`: `re-lint/no-vague-names` blocks
+  `items` and `item` in `src/**` (eslint.config.mjs), so the plain destructure and its `.map`
+  callback would fail lint.
+- Renders one `<dl>` holding, per pair and in order, a `<div>` with a `<dt>` for `label` and a
   `<dd>` for `value`, keyed by `key`.
 - `layout` changes only the classes, never that structure. `inline` lays each `<div>` out as a row,
   the `<dt>` at a third of the width and the `<dd>` beside it; `stacked` puts the `<dd>` under the
-  `<dt>`. An empty `items` renders nothing.
+  `<dt>`. An empty `pairs` renders nothing.
 - Every `<dt>` is small text in `TEXT_MUTED` and every `<dd>` small text in `TEXT_STRONG`. The list
   paints no background: it sits on the surface of whatever holds it, a static `Card` or a `Dialog`
   panel on `SURFACE` in this package, which the contrast table measures.
@@ -562,17 +591,18 @@ export const Card: ForwardRefExoticComponent<CardProps & RefAttributes<HTMLEleme
 - Both forms paint `heading` in `TEXT_STRONG` and `children` in `TEXT_BODY`, so a card's text never
   inherits the page's colour, as the `Dialog` panel's does not.
 - With `onSelect` the whole card renders as one `<button type="button">`, left-aligned, with the
-  shared offset ring, `FOCUS_RING` from `src/theme/focusRing.ts`, and a `--bowman-surface-hover`
-  hover. With a `heading`, the button is named by it through `aria-labelledby` and described by
-  `children`, wrapped in a `<span>`, through `aria-describedby`, so a long body never becomes the
-  name; without one, its accessible name is its content. The plan names the card from its visible
-  content; naming it from the heading alone, when there is one, is a deliberate deviation
-  (decision 7): a screen reader then reads a short name and the body after it, not the whole card as
-  one name. Its `heading` and `children` must be phrasing content only - text, inline elements,
-  icons - with no interactive element, because a `<button>` may hold nothing else: no `<p>`, no
-  `<div>`, and no `KeyValueList`, whose `<dl>` belongs in a static card. A click or Enter or Space
-  calls `onSelect`; `disabled` renders the native attribute and the call never fires, and the card
-  takes `Button`'s `disabled:cursor-not-allowed disabled:opacity-50` pair with no hover surface.
+  shared offset ring, `FOCUS_RING` from `src/theme/focusRing.ts` beside `ring-offset-2`, which stays
+  at each site (docs/design-notes.md § Theming decision 12), and a `--bowman-surface-hover` hover.
+  With a `heading`, the button is named by it through `aria-labelledby` and described by `children`,
+  wrapped in a `<span>`, through `aria-describedby`, so a long body never becomes the name; without
+  one, its accessible name is its content. The plan names the card from its visible content; naming
+  it from the heading alone, when there is one, is a deliberate deviation (decision 7): a screen
+  reader then reads a short name and the body after it, not the whole card as one name. Its
+  `heading` and `children` must be phrasing content only - text, inline elements, icons - with no
+  interactive element, because a `<button>` may hold nothing else: no `<p>`, no `<div>`, and no
+  `KeyValueList`, whose `<dl>` belongs in a static card. A click or Enter or Space calls `onSelect`;
+  `disabled` renders the native attribute and the call never fires, and the card takes `Button`'s
+  `disabled:cursor-not-allowed disabled:opacity-50` pair with no hover surface.
 - The `ref` reaches the `<div>` or the `<button>`; it is typed `HTMLElement`, and each branch
   attaches it with a cast to its own element's ref type.
 
@@ -610,13 +640,16 @@ them moves with it. Every other existing test passes unchanged.
   is retitled for seven, as § Theming below lists.
 - examples/chat-demo/tests/theming.spec.ts: "the chat matrix reaches every token the installed
   stylesheet declares, and the wrapper sets the same set" is retitled and widened to accept the nine
-  new tokens' sites on the documentation pages (decision 19).
+  new tokens' sites on the documentation pages (decision 19); its header comment, and the theming
+  spec's statement it validates, move with it, and it reads `docsTokenPages` from the chat-demo's
+  tests/helpers.
 - tests/fixtures/public-api.json gains the new names (§ The published surface) and
   tests/fixtures/forward-ref-components.json gains `TextField` and `Card`; the header comment of
   tests/forward-ref-components.test.ts speaks of a ninth forwardRef component.
 - tests/check-at-pass.test.ts: its hard-coded `rowIds` list, which mirrors
   `scripts/check-at-pass.mjs`'s unexported `ROWS`, gains A8 and A9 (§ Accessibility checks).
-- examples/chat-demo/tests/docs.spec.ts: `docsTokenPages` gains the new pages' token sites
+- examples/chat-demo/tests/docs.spec.ts: `docsTokenPages` gains the new pages' token sites and moves
+  to the chat-demo's tests/helpers, the suite gains a wrapper-theme run like the theming suite's
   (decision 19), and its literal `componentIds` list, which drives the index test's "every component
   link" and "every component page renders its purpose, import, usage, props and states", gains the
   six new pages' ids.
@@ -709,22 +742,23 @@ focus indicator meets the 3:1 non-text minimum, in both themes. docs/design-note
 table records no ratio, so § Theming gains a paragraph holding the measured pairs below, written
 before the pull request lands. Measured from Tailwind v4's palette for the fallbacks:
 
-| Pair                                         | Light   | Dark    | Minimum |
-| -------------------------------------------- | ------- | ------- | ------- |
-| `TEXT_ON_DANGER` on `DANGER_FILL`            | 4.76:1  | 4.76:1  | 4.5:1   |
-| `TEXT_ON_DANGER` on `DANGER_FILL_HOVER`      | 6.42:1  | 6.42:1  | 4.5:1   |
-| `DANGER` (`TextField` error text) on surface | 4.76:1  | 6.17:1  | 4.5:1   |
-| `TEXT_MUTED` (`TextField` hint) on surface   | 4.77:1  | 6.79:1  | 4.5:1   |
-| `CONTROL_BORDER` (`TextField` border)        | 4.77:1  | 6.79:1  | 3:1     |
-| `TEXT_BODY` (panel and card body) on surface | 10.34:1 | 14.49:1 | 4.5:1   |
-| `TEXT_STRONG` (panel and card heading)       | 17.84:1 | 16.28:1 | 4.5:1   |
-| `TEXT_MUTED` (`KeyValueList` term)           | 4.77:1  | 6.79:1  | 4.5:1   |
-| `TEXT_STRONG` (`KeyValueList` value)         | 17.84:1 | 16.28:1 | 4.5:1   |
-| `info` icon and border on surface            | 5.26:1  | 6.77:1  | 3:1     |
-| `success` icon and border on surface         | 3.22:1  | 10.05:1 | 3:1     |
-| `warning` icon and border on surface         | 5.05:1  | 12.34:1 | 3:1     |
-| `error` icon and border on surface           | 4.76:1  | 6.17:1  | 3:1     |
-| `FOCUS_RING_COLOR` on its `RING_OFFSET`      | 3.76:1  | 6.77:1  | 3:1     |
+| Pair                                                 | Light   | Dark    | Minimum |
+| ---------------------------------------------------- | ------- | ------- | ------- |
+| `TEXT_ON_DANGER` on `DANGER_FILL`                    | 4.76:1  | 4.76:1  | 4.5:1   |
+| `TEXT_ON_DANGER` on `DANGER_FILL_HOVER`              | 6.42:1  | 6.42:1  | 4.5:1   |
+| `DANGER` (`TextField` error text) on surface         | 4.76:1  | 6.17:1  | 4.5:1   |
+| `TEXT_MUTED` (`TextField` hint) on surface           | 4.77:1  | 6.79:1  | 4.5:1   |
+| `CONTROL_BORDER` (`TextField` border)                | 4.77:1  | 6.79:1  | 3:1     |
+| `DANGER_BORDER` (invalid `TextField` border)         | 4.76:1  | 6.17:1  | 3:1     |
+| `TEXT_BODY` (panel, card and notice body) on surface | 10.34:1 | 14.49:1 | 4.5:1   |
+| `TEXT_STRONG` (panel, card and notice heading)       | 17.84:1 | 16.28:1 | 4.5:1   |
+| `TEXT_MUTED` (`KeyValueList` term)                   | 4.77:1  | 6.79:1  | 4.5:1   |
+| `TEXT_STRONG` (`KeyValueList` value)                 | 17.84:1 | 16.28:1 | 4.5:1   |
+| `info` icon and border on surface                    | 5.26:1  | 6.77:1  | 3:1     |
+| `success` icon and border on surface                 | 3.22:1  | 10.05:1 | 3:1     |
+| `warning` icon and border on surface                 | 5.05:1  | 12.34:1 | 3:1     |
+| `error` icon and border on surface                   | 4.76:1  | 6.17:1  | 3:1     |
+| `FOCUS_RING_COLOR` on its `RING_OFFSET`              | 3.76:1  | 6.77:1  | 3:1     |
 
 The same pull request moves every place tests/theming-tokens-dist.test.ts pins the count or the
 token set, or the suite reds:
@@ -765,9 +799,9 @@ token set, or the suite reds:
     `TextField`. The test compares each list exactly, so a reader missing here fails it;
   - every new class string `src/theme/tokens.ts` gains is keyed with its readers: `DANGER_FILL`,
     `DANGER_FILL_HOVER` and `TEXT_ON_DANGER` with `buttonStyles`, as `TEXT_ON_ACCENT` is keyed
-    today; `DANGER_BORDER` and `CONTROL_BORDER` with `TextField`; and the tone strings that read
-    `--bowman-info`, `--bowman-warning`, `--bowman-success` and `--bowman-danger` as icon and border
-    colours with `Notice`;
+    today; `DANGER_BORDER` and `CONTROL_BORDER` with `TextField`; and `INFO_TONE`, `SUCCESS_TONE`,
+    `WARNING_TONE` and `DANGER_TONE`, which read `--bowman-info`, `--bowman-success`,
+    `--bowman-warning` and `--bowman-danger` as icon and border colours, with `Notice`;
 - the `FOCUS_RING` readers: `Card` and `ModalPanel`, for its focusable scrolling body, make seven
   offset-ring importers, so the test's reader list and its `it()` title ("exactly the five
   offset-ring components"), the titled link to it in specs/bowman-ui-theming-tokens/spec.md, and
@@ -793,7 +827,11 @@ WCAG 2.2 AA is the floor. Three layers prove it, and none is a reviewer's sign-o
   open on one page (decision 11), and the axe and token runs open each in turn - and against the
   `search-field` page with `onSubmit`. It runs in a real browser, so it measures contrast, including
   the `danger` fill, and its `scrollable-region-focusable` rule checks the overflowing body; the
-  target is zero violations under the WCAG 2.2 AA rule tags in every state.
+  target is zero violations under the WCAG 2.2 AA rule tags in every state. Each scan is limited
+  with `AxeBuilder.include()` to the page's states area and, while a dialog is open, its overlay,
+  which portals outside that area, so the documentation chrome around them - a `CodeBlock` whose
+  long usage line scrolls sideways (examples/chat-demo/src/docs/DocsUi.tsx) - is not what is
+  measured.
 - Keyboard use is checked by hand against each page.
 
 specs/bowman-ui-assistive-technology-pass/spec.md keeps its manual screen-reader procedure, and its
@@ -840,7 +878,7 @@ them:
 `ConfirmDialog`, `Notice`, `KeyValueList`, `Card`, `defaultDialogLabels`,
 `defaultConfirmDialogLabels`, `defaultNoticeLabels`) and from 57 to 70 type names (`TextFieldType`,
 `TextFieldLabels`, `TextFieldProps`, `DialogLabels`, `DialogProps`, `ConfirmDialogLabels`,
-`ConfirmDialogProps`, `NoticeTone`, `NoticeLabels`, `NoticeProps`, `KeyValueListItem`,
+`ConfirmDialogProps`, `NoticeTone`, `NoticeLabels`, `NoticeProps`, `KeyValuePair`,
 `KeyValueListProps`, `CardProps`), written by `node scripts/write-public-api.mjs` after the surface
 was decided here, never regenerated to make the test pass. Nothing is removed or renamed:
 `ButtonVariant` only widens, and `SearchField` gains a prop and a label key under names the snapshot
