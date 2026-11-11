@@ -254,7 +254,7 @@ export interface DialogProps {
   open: boolean;
   /** Called on Escape and on the close button. */
   onClose: () => void;
-  labels: Pick<DialogLabels, "dialogTitle"> & Partial<Pick<DialogLabels, "closeDialog">>;
+  labels: Partial<DialogLabels> & Required<Pick<DialogLabels, "dialogTitle">>;
   children: ReactNode;
   /** Actions, rendered after the body. */
   footer?: ReactNode;
@@ -404,8 +404,8 @@ export interface ConfirmDialogProps {
   open: boolean;
   onConfirm: () => void;
   onCancel: () => void;
-  labels: Pick<ConfirmDialogLabels, "dialogTitle" | "confirmAction"> &
-    Partial<Pick<ConfirmDialogLabels, "cancelAction" | "confirmBusy">>;
+  labels: Partial<ConfirmDialogLabels> &
+    Required<Pick<ConfirmDialogLabels, "dialogTitle" | "confirmAction">>;
   /** What confirming does - consumer content, read as the dialog's description. */
   description: ReactNode;
   /** Any fields the confirmation needs, after the description. */
@@ -523,13 +523,20 @@ The shipped hook keeps its signature and every other behaviour
 specs/bowman-ui-pure-hooks-error-boundary/spec.md pins, and gains three, which that spec's
 `useFocusTrap` bullet records in the same pull request:
 
-- With no focusable element inside the open container, opening focuses the container itself, which
-  takes focus when it carries `tabIndex={-1}`, as `ModalPanel`'s panel does, and Tab and Shift+Tab
-  are prevented. When focus has escaped the container, a prevented Tab also moves it back to the
-  container, as the non-empty branch pulls escaped focus back to an end today
-  (src/hooks/useFocusTrap.ts), so focus is never left stranded outside the modal. A trap whose
-  container is null - its ref not yet attached while `isOpen` holds - returns before
-  `preventDefault`, so Tab is left alone and the page stays keyboard-usable:
+- With no focusable element inside the open container, and only when the container itself can take
+  focus - it carries a `tabindex` attribute, as `ModalPanel`'s panel's `tabIndex={-1}` does, and
+  passes the same visibility check as the controls - opening focuses the container and Tab and
+  Shift+Tab are prevented. A container that cannot take focus keeps today's early return, so Tab is
+  left alone: `AppShell`'s drawer carries no `tabIndex` and is `md:hidden`, and it can stay open
+  across a rotate to desktop width (src/components/AppShell.tsx handles that case for its scroll
+  lock), where its controls are hidden and the trap finds none; without this condition every Tab on
+  the page would be prevented, a keyboard trap (WCAG 2.1.2). A new test opens a trap over an empty
+  container without `tabIndex`, and another over one whose `checkVisibility` is stubbed to false,
+  presses Tab in each and asserts `defaultPrevented` is false. When focus has escaped the container,
+  a prevented Tab also moves it back to the container, as the non-empty branch pulls escaped focus
+  back to an end today (src/hooks/useFocusTrap.ts), so focus is never left stranded outside the
+  modal. A trap whose container is null - its ref not yet attached while `isOpen` holds - returns
+  before `preventDefault`, so Tab is left alone and the page stays keyboard-usable:
   tests/useFocusTrap.test.tsx's "a never-attached container ref yields no focusable elements and no
   crash" presses Tab on such a trap and gains an assertion that the event's `defaultPrevented` is
   false beside its existing one that focus stays on `<body>` (see "Existing tests that change"). A
@@ -755,9 +762,11 @@ them moves with it. Every other existing test passes unchanged.
   page (examples/rsc-fixture/app/page.tsx), which renders only icons, `IconWrapper`, `ChatMessage`
   and `ChatMessageList` today, gains a `KeyValueList` and an `info` `Notice` without `onDismiss` in
   its server component, and scripts/rsc-fixture.sh, which greps the response only for the icons'
-  markup and the export count today, also greps it for the `<dl>` and the notice's `role="status"`,
-  so `npm run rsc` proves both render on the server; specs/bowman-ui-rsc-fixture/spec.md's statement
-  of what the page renders gains them, and `npm run reanchor` heals its page.tsx line links.
+  markup and the export count today, also greps it for the `<dl>` and for the notice's
+  `role="status"` together with the notice's own text, so the proof stays specific if another status
+  element joins the page, so `npm run rsc` proves both render on the server;
+  specs/bowman-ui-rsc-fixture/spec.md's statement of what the page renders gains them, and
+  `npm run reanchor` heals its page.tsx line links.
 - `TextField` and `Card` are `forwardRef` components under decision 4, and
   tests/fixtures/forward-ref-components.json gains both, or tests/forward-ref-components.test.ts
   fails; docs/design-notes.md § Styled primitives' "`Button`, `IconButton` and `SearchField` are
@@ -1003,7 +1012,8 @@ and named in the release notes:
   compile error" keeps holding for a translated catalogue (decision 6).
 - The public `useFocusTrap` hook changes behaviour for an empty container, for focus on the
   container itself and for an unmount while open (the `useFocusTrap` section). A consumer that
-  relied on an empty trap leaving Tab alone now sees Tab prevented.
+  relied on an empty trap leaving Tab alone now sees Tab prevented only when its container carries a
+  `tabindex` and is visible; one without, such as `AppShell`'s drawer, is unaffected.
 
 The prose that spells the surface moves with it in the same pull request: `.specify/spec.md`'s "66
 named value exports: 17 components, … 14 label-defaults objects … plus 57 type exports"
@@ -1263,19 +1273,22 @@ its § Hooks comment on `useFocusTrap`, "Tab is trapped, Escape closes and refoc
 stays true and gains nothing, since the widened behaviours keep it so; its § Accessibility, which
 says "the test suite checks that markup", names the chat-demo's axe scan of the documentation pages
 beside it, and its "What no test can check is what a screen reader actually says" stays true; its
-three spelled token counts move to fifty-three; its § Theming sentence naming "Two semantic roles …
-`--bowman-danger` and `--bowman-success`" names the new danger-fill, info and warning roles beside
-them; its sentence "Forty-two of the tokens form twenty-one light/dark pairs … Two have no twin"
-becomes fifty, twenty-five and three, naming `--bowman-text-on-danger` as the third, the one text
-colour on the danger fill in both modes; its § Styles sentence listing what the `bowman-sr-only`
-rule hides gains `ConfirmDialog`'s busy status region and the `ChatComposer` busy hint it already
-lacks; tests/styles.test.ts's title "styles.css declares the bowman-sr-only rule the markdown
-notice, Toast, ConversationList, ChatComposer and useFocusGroups depend on", which already names
-`ChatComposer`, gains `ConfirmDialog`, and the titled link to it in
-specs/bowman-ui-stylesheet-entry/spec.md moves with it (see "Existing tests that change"); and its
-App Router paragraph gains the new function-valued props, and `container`, a DOM element, and
-`returnFocusRef`, a ref object, which a server component cannot pass either, because that list is a
-claim about every export. Two docs/design-notes.md sentences move too: § Lint guardrails' list of
-what shares `.bowman-sr-only` gains `ConfirmDialog`'s busy status region, and the `ChatComposer`
-busy hint it already lacks; and § Styled primitives' "four component files open with the directive"
-counts the styled components that do once the closed set grows.
+three spelled token counts move to fifty-three; its § Theming sentence "Two semantic roles sit
+beside them - `--bowman-danger` and `--bowman-success`, each with a `-soft` surface and `-dark`
+twins - …" is restructured rather than appended to, so the `-soft` claim stays with danger and
+success and the new danger-fill, info and warning roles, none of which has a `-soft` surface, are
+named with their own twins, and `--bowman-text-on-danger` as having none; its sentence "Forty-two of
+the tokens form twenty-one light/dark pairs … Two have no twin" becomes fifty, twenty-five and
+three, naming `--bowman-text-on-danger` as the third, the one text colour on the danger fill in both
+modes; its § Styles sentence listing what the `bowman-sr-only` rule hides gains `ConfirmDialog`'s
+busy status region and the `ChatComposer` busy hint it already lacks; tests/styles.test.ts's title
+"styles.css declares the bowman-sr-only rule the markdown notice, Toast, ConversationList,
+ChatComposer and useFocusGroups depend on", which already names `ChatComposer`, gains
+`ConfirmDialog`, and the titled link to it in specs/bowman-ui-stylesheet-entry/spec.md moves with it
+(see "Existing tests that change"); and its App Router paragraph gains the new function-valued
+props, and `container`, a DOM element, and `returnFocusRef`, a ref object, which a server component
+cannot pass either, because that list is a claim about every export. Two docs/design-notes.md
+sentences move too: § Lint guardrails' list of what shares `.bowman-sr-only` gains `ConfirmDialog`'s
+busy status region, and the `ChatComposer` busy hint it already lacks; and § Styled primitives'
+"four component files open with the directive" counts the styled components that do once the closed
+set grows.
