@@ -83,6 +83,9 @@ of an existing union, one new prop and label key on an existing component, and o
 - `KeyValueList`, `Card`, `defaultDialogLabels`, `defaultConfirmDialogLabels` and
   `defaultNoticeLabels` land in the `noStrings` bucket.
 - The `stringPropOnly` list stays at its three closed members.
+- The public `useFocusTrap` hook gains three behaviours - focusing an empty container, Tab from the
+  focused container, and returning focus on an unmount while open - one of which changes what an
+  empty trap does today (the `useFocusTrap` section).
 - `src/components/ModalPanel.tsx`, the portal, overlay, panel, heading, optional close button and
   focus trap `Dialog` and `ConfirmDialog` share, is private and never exported from the barrel, as
   `buttonStyles.ts` and `FeedbackButtons` are.
@@ -96,14 +99,14 @@ each component's sentinel keys equal its defaults' keys and that no English text
 the sentinels, so a harness that never shows a key still passes. Each new harness therefore passes
 the props that bring every key on screen - `Notice`'s an `onDismiss`, `ConfirmDialog`'s `busy` - and
 a review keeps the meaning of each name. The plan as approved in Lore said "the existing automated
-labels test re-checks the whole set"; it checks only what is stated above, and the local copy of the
-plan carries the corrected sentence. `ConfirmDialog` shares `Dialog`'s `dialogTitle`, because its
-heading is the same concept. `SearchField`, `Dialog` and `Notice` each render an `IconButton`, a
-labelled component, yet do not take the flat union of their own keys and `IconButton`'s that
-§ Labels decision 3 prescribes: `IconButton.accessibleName` names one instance, so each feeds it
-from its own concept-named key - `submitSearch`, `closeDialog`, `dismissNotice` - and a union would
-hand three different buttons one key. § Labels decision 3 records this in the same pull request
-(decision 6).
+labels test re-checks the whole set"; it checks only what is stated above, and the plan's Label keys
+paragraph is corrected to say so; the plan is pasted into the issue that tracks this spec.
+`ConfirmDialog` shares `Dialog`'s `dialogTitle`, because its heading is the same concept.
+`SearchField`, `Dialog` and `Notice` each render an `IconButton`, a labelled component, yet do not
+take the flat union of their own keys and `IconButton`'s that § Labels decision 3 prescribes:
+`IconButton.accessibleName` names one instance, so each feeds it from its own concept-named key -
+`submitSearch`, `closeDialog`, `dismissNotice` - and a union would hand three different buttons one
+key. § Labels decision 3 records this in the same pull request (decision 6).
 
 ### `Button` and `IconButton`: the `danger` variant
 
@@ -151,9 +154,11 @@ export interface SearchFieldProps {
 ```
 
 - Without `onSubmit`, `SearchField` renders exactly what it renders today - the leading
-  `SearchIcon`, the input, no button - and every existing `SearchField` behaviour holds. The tests
-  that cite it change their fixtures or titles, not the behaviour they prove (see "Existing tests
-  that change" below).
+  `SearchIcon`, the input, no button - and every existing `SearchField` behaviour holds. No keydown
+  handler is attached, so Enter is left to the browser and a consumer's own `<form>` around the
+  field still submits on it; a new test asserts that `fireEvent.keyDown` with Enter on the input
+  returns `true`, not prevented, when `onSubmit` is absent. The tests that cite it change their
+  fixtures or titles, not the behaviour they prove (see "Existing tests that change" below).
 - With `onSubmit`, the leading icon gives way to a `ghost` `IconButton` holding `SearchIcon` at the
   input's trailing edge, named by `labels.submitSearch` (default `"Submit search"`), and the input's
   padding moves to match. Clicking it calls `onSubmit` with the current `value`.
@@ -286,9 +291,11 @@ export const Dialog: (props: DialogProps) => ReactElement | null;
   subtree in the new target, which drops focus to `<body>`; the trap lives in `ModalPanel`, outside
   that subtree, so it neither re-runs nor restores focus: `container` must stay the same while the
   dialog is open, and must come after every other `z-50` layer - `AppShell`'s drawer, a `Toast` - in
-  document order, or the overlay paints beneath them; a wrapper around the whole screen, as the
-  chat-demo's is, meets that. A consumer keeps the wrapper in state through a callback ref and opens
-  the dialog only once it is set; the chat-demo's `Dialog` page shows the pattern.
+  document order, or the overlay paints beneath them; a wrapper around the whole screen, as the chat
+  view's `?theme=` wrapper is (examples/chat-demo/src/App.tsx), meets that, and so does the
+  documentation pages' page-local wrapper, which follows `AppShell`'s drawer in document order. A
+  consumer keeps the wrapper in state through a callback ref and opens the dialog only once it is
+  set; the chat-demo's `Dialog` page shows the pattern.
 - The dim is a deliberate exception to the plan's "only the colour tokens" constraint: it is
   non-text, and docs/design-notes.md § Theming decision 6 keeps the mobile overlay (`bg-black`)
   palette-mapped and lists it so no cleanup turns it into a token. That list gains the dialog's
@@ -349,6 +356,12 @@ export const Dialog: (props: DialogProps) => ReactElement | null;
   named by `labels.closeDialog` (default `"Close"`), which calls `onClose`.
 - A click on the overlay outside the panel does nothing.
 - `footer`, when given, renders after `children` in a right-aligned row.
+- A `footer` button cannot submit a `<form>` in `children`: `Button` takes no `form` attribute, and
+  only `ConfirmDialog` gets `ModalPanel`'s form wrapper. A `Dialog` whose content is a form
+  therefore follows one of two patterns, and the chat-demo's `Dialog` page shows both: the footer's
+  save button calls the consumer's own handler through `onClick`, with the footer kept in view; or
+  the form and its buttons both sit in `children`, so Enter in a field submits it, at the cost of
+  the buttons scrolling with the body.
 
 ### `ConfirmDialog`
 
@@ -956,7 +969,8 @@ and named in the release notes:
 The prose that spells the surface moves with it in the same pull request: `.specify/spec.md`'s "66
 named value exports: 17 components, … 14 label-defaults objects … plus 57 type exports"
 becomes 75, 23, 17 and 70; CLAUDE.md invariant 3's "66 runtime + 57 type names" becomes 75 and 70;
-CLAUDE.md's directory map counts 26 `.tsx` files in `src/components/` and names `ModalPanel` beside
+CLAUDE.md's directory map counts 26 `.tsx` files in `src/components/`, adds the six new components
+and `ModalPanel` to the names it lists in parentheses, and names `ModalPanel` beside
 `FeedbackButtons` as internal; and in specs/bowman-ui-styled-primitives/spec.md the `ButtonVariant`
 block gains `"danger"` and the `SearchField` block gains `onSubmit` and `submitSearch`, each citing
 this spec. docs/design-notes.md § Styled primitives records both amendments in the same pull
@@ -1175,7 +1189,10 @@ on the page behind it, beyond what `aria-modal` gives; nested dialogs, including
 `AppShell`'s open drawer (decision 11); validation logic, which stays the consumer's, as `TextField`
 only shows the error it is handed; raising `SearchField`'s resting border, `BORDER`, to the 3:1
 non-text minimum `TextField` meets through `CONTROL_BORDER`, because the plan holds `SearchField`'s
-look unchanged without `onSubmit` - a gap a follow-up should close on its own.
+look unchanged without `onSubmit` - a gap a follow-up should close on its own; a `form` prop on
+`Button`, which would let a `Dialog`'s footer button submit a form in its body; and an `isComposing`
+check on the trap's Escape handler, without which the Escape that cancels an IME composition in a
+field inside a dialog also closes the dialog.
 
 ## Documentation
 
