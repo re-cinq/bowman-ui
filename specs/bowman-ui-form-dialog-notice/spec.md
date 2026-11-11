@@ -59,8 +59,8 @@ save these deviations, each argued where it applies:
   holds its look unchanged; `TextField` meets it (§ Out of scope).
 - The assistive-technology pass gains two rows, A8 and A9, where the plan keeps its procedure as it
   is (§ Accessibility checks).
-- The axe scans cover each page's states area and an open dialog's overlay, not the whole page, so
-  the plan's "0 automated accessibility violations in every documented state" is measured on the
+- The axe scans cover each page's states area and an open dialog's panel, not the whole page, so the
+  plan's "0 automated accessibility violations in every documented state" is measured on the
   components, not the documentation chrome around them (§ Accessibility checks).
 
 "Styled" keeps its § Styled primitives meaning: Tailwind v4 utility class names in the built file,
@@ -281,22 +281,24 @@ export const Dialog: (props: DialogProps) => ReactElement | null;
 - A consumer whose theme is set on a wrapper - README § Theming's `.custom-theme` or
   `[data-tenant="acme"]` - passes that wrapper, or an element inside it, as `container`, so the
   wrapper's `--bowman-*` values and, under a class-based `dark:` variant, its `dark` class reach the
-  panel (decision 22). The container must have no ancestor that becomes the containing block of a
-  fixed descendant - one with a `transform`, `translate`, `scale`, `rotate`, `filter`,
+  panel (decision 22). Neither the container nor any of its ancestors may become the containing
+  block of a fixed descendant - one with a `transform`, `translate`, `scale`, `rotate`, `filter`,
   `backdrop-filter` or `perspective`, `contain: layout` or `paint`, or a `will-change` naming one of
-  those - and no ancestor that forms a stacking context with its own `z-index`, for the reason
-  decision 1 gives. A plain `overflow` ancestor does no harm: it does not clip a fixed descendant,
-  so the chat-demo's page-local wrapper inside `AppShell`'s `overflow-hidden` main area
-  (decision 19) meets the rule. `null` means `document.body`, so a wrapper read from a ref, still
-  `null` on the first render, portals to `<body>`, and a later `container` re-mounts the portal's
-  subtree in the new target, which drops focus to `<body>`; the trap lives in `ModalPanel`, outside
-  that subtree, so it neither re-runs nor restores focus: `container` must stay the same while the
-  dialog is open, and must come after every other `z-50` layer - `AppShell`'s drawer, a `Toast` - in
-  document order, or the overlay paints beneath them; a wrapper around the whole screen, as the chat
-  view's `?theme=` wrapper is (examples/chat-demo/src/App.tsx), meets that, and so does the
-  documentation pages' page-local wrapper, which follows `AppShell`'s drawer in document order. A
-  consumer keeps the wrapper in state through a callback ref and opens the dialog only once it is
-  set; the chat-demo's `Dialog` page shows the pattern.
+  those - or form a stacking context with its own `z-index`, for the reason decision 1 gives; the
+  overlay is the container's own child, so a `.custom-theme` wrapper carrying `transform` or
+  `isolate` breaks it as an ancestor would. A plain `overflow` ancestor does no harm: it does not
+  clip a fixed descendant, so the chat-demo's page-local wrapper inside `AppShell`'s
+  `overflow-hidden` main area (decision 19) meets the rule. `null` means `document.body`, so a
+  wrapper read from a ref, still `null` on the first render, portals to `<body>`, and a later
+  `container` re-mounts the portal's subtree in the new target, which drops focus to `<body>`; the
+  trap lives in `ModalPanel`, outside that subtree, so it neither re-runs nor restores focus:
+  `container` must stay the same while the dialog is open, and must come after every other `z-50`
+  layer - `AppShell`'s drawer, a `Toast` - in document order, or the overlay paints beneath them; a
+  wrapper around the whole screen, as the chat view's `?theme=` wrapper is
+  (examples/chat-demo/src/App.tsx), meets that, and so does the documentation pages' page-local
+  wrapper, which follows `AppShell`'s drawer in document order. A consumer keeps the wrapper in
+  state through a callback ref and opens the dialog only once it is set; the chat-demo's `Dialog`
+  page shows the pattern.
 - The dim is a deliberate exception to the plan's "only the colour tokens" constraint: it is
   non-text, and docs/design-notes.md § Theming decision 6 keeps the mobile overlay (`bg-black`)
   palette-mapped and lists it so no cleanup turns it into a token. That list gains the dialog's
@@ -308,6 +310,11 @@ export const Dialog: (props: DialogProps) => ReactElement | null;
   for consumer content.
 - The panel is `w-full max-w-lg` and at most `calc(100dvh - 2rem)` tall; when its content is taller,
   the body between the heading and the footer scrolls and the heading and footer stay in view.
+- "Holds no focusable element" is decided as the trap decides it: the trap's module-private
+  `getFocusableElements`, `FOCUSABLE_SELECTOR` filtered by visibility (src/hooks/useFocusTrap.ts),
+  moves into the internal src/hooks/focusableSelector.ts beside the selector, and both the trap and
+  `ModalPanel` import it, so a body whose only control is `display:none` counts as empty for both;
+  the barrel exports neither.
 - While the body overflows and holds no focusable element, it carries `tabIndex={0}`,
   `role="region"` and `aria-labelledby` pointing at the `<h2>`, so a keyboard user can reach and
   scroll it (WCAG 2.1.1); otherwise it carries none of them. It always carries the shared
@@ -549,7 +556,8 @@ specs/bowman-ui-pure-hooks-error-boundary/spec.md pins, and gains three, which t
   test, which removes the target before closing and asserts focus stays where it was, covers the
   branch rather than proving a change in behaviour. tests/useFocusTrap.test.tsx also gains a test
   for each widened behaviour: Tab and Shift+Tab from the focused container reach the first and last
-  element; unmounting while open returns focus to the opener; and a cleanup caused by `isOpen` or
+  element; Tab on an empty trap while the container itself holds focus is prevented and focus stays
+  on it; unmounting while open returns focus to the opener; and a cleanup caused by `isOpen` or
   `triggerRef` changing returns focus at most once, on the close itself. `AppShell` unmounting with
   its drawer open - tests/AppShell.test.tsx does it - is the one existing caller this reaches. React
   detaches the hamburger's ref before the cleanup runs, so the target falls back to the element that
@@ -924,8 +932,8 @@ the chat-demo's suite, not in the pass. The pass itself, docs/accessibility/READ
 rows in the same pull request, A8 and A9, each recording what every screen reader in the pass
 announces: a `ConfirmDialog` turning busy, and one opened already busy - the focus move to its panel
 and the `confirmBusy` status message (decision 20) - and a `Notice` mounted with its text, in each
-tone (decision 14). The rows' verdicts are owed by the human runner, as A1-A7's are. What moves with
-them:
+tone, plus a dismissible one whose dismiss button the runner reaches and hears named (decision 14).
+The rows' verdicts are owed by the human runner, as A1-A7's are. What moves with them:
 
 - docs/accessibility/README.md's "The surface under test" sends the runner to `?view=chat` and calls
   a transcription taken anywhere else "of the wrong page"; the chat screen holds neither component
@@ -995,16 +1003,18 @@ named value exports: 17 components, … 14 label-defaults objects … plus 57 ty
 becomes 75, 23, 17 and 70; CLAUDE.md invariant 3's "66 runtime + 57 type names" becomes 75 and 70;
 CLAUDE.md's directory map counts 26 `.tsx` files in `src/components/`, adds the six new components
 and `ModalPanel` to the names it lists in parentheses, and names `ModalPanel` beside
-`FeedbackButtons` as internal; and in specs/bowman-ui-styled-primitives/spec.md the `ButtonVariant`
-block gains `"danger"` and the `SearchField` block gains `onSubmit` and `submitSearch`, each citing
-this spec. docs/design-notes.md § Styled primitives records both amendments in the same pull
-request: its `ButtonVariant` decision names four variants, and its `SearchField` decision drops "no
-submit" (decision 3). Its refusal of layout primitives is narrowed for `Card` (decision 7); its
-opening sentence, "`Button`, `IconButton`, `PromptChips` and `SearchField` are a closed set", and
-its "applied to four more components" both count the new styled components; and § Theming
-decision 11, which lists the token imports of `buttonStyles.ts`, gains the three danger strings.
-docs/design-notes.md § Labels decisions 2, 3 and 5 are amended (decision 6). CLAUDE.md's spec count,
-"30 feature specs", already lags `main`'s 32 and becomes 33 with this spec.
+`FeedbackButtons` as internal; its `buttonStyles.ts` entry, "shared by Button and IconButton", gains
+`ConfirmDialog`, which imports `buttonIconClassNames`; and its `src/hooks/` entry names
+`getFocusableElements` beside `focusableSelector`; and in specs/bowman-ui-styled-primitives/spec.md
+the `ButtonVariant` block gains `"danger"` and the `SearchField` block gains `onSubmit` and
+`submitSearch`, each citing this spec. docs/design-notes.md § Styled primitives records both
+amendments in the same pull request: its `ButtonVariant` decision names four variants, and its
+`SearchField` decision drops "no submit" (decision 3). Its refusal of layout primitives is narrowed
+for `Card` (decision 7); its opening sentence, "`Button`, `IconButton`, `PromptChips` and
+`SearchField` are a closed set", and its "applied to four more components" both count the new styled
+components; and § Theming decision 11, which lists the token imports of `buttonStyles.ts`, gains the
+three danger strings. docs/design-notes.md § Labels decisions 2, 3 and 5 are amended (decision 6).
+CLAUDE.md's spec count, "30 feature specs", already lags `main`'s 32 and becomes 33 with this spec.
 
 ## Recorded decisions
 
