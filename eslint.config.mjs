@@ -310,7 +310,7 @@ export default [
   // Every markdown link to a repo file must land (re-lint/no-dead-md-links,
   // decision 9): a rename sweep rewrites a dead link faithfully and the
   // reference reads as current. The assistive-technology-pass spec carries a
-  // scoped disable for its seven deliberate links to the not-yet-written
+  // scoped disable for its nine deliberate links to the not-yet-written
   // at-pass-<date>.md record.
   {
     files: ["**/*.md"],

@@ -14,7 +14,7 @@ static and `032`'s Vite consumer does not share Next's server/client module
 graph, so until this fixture nothing had ever compiled the package inside
 the one consumer shape it is built for. The whole proof is one command,
 `npm run rsc` ([validated by @62d083eb](../../package.json#L56)), documented in the
-README's App Router consumer section ([validated by @93899a4b](../../README.md#L213)).
+README's App Router consumer section ([validated by @93899a4b](../../README.md#L214)).
 
 Anchor caveat (the consumer-app spec's precedent): `re-lint-reanchor` tracks
 every `(../)+path#Lnn` link, so this spec's links into `examples/`, workflow files,
@@ -70,7 +70,14 @@ carries no `"use client"`
 ([validated by](../../examples/rsc-fixture/app/page.tsx#L2)), and renders
 `023`'s `ChatMessage` - a `"use client"` file in `dist/` - as a child of the
 server page, the legal direction of the boundary
-([validated by @474da2d8](../../examples/rsc-fixture/app/page.tsx#L39)). Neither page
+([validated by @474da2d8](../../examples/rsc-fixture/app/page.tsx#L43)). It also renders a
+`KeyValueList`, whose built file carries no directive, and an `info` `Notice` without
+`onDismiss`, a `"use client"` file handed only its tone and its text
+([validated by](../../examples/rsc-fixture/app/page.tsx#L46)), and the script asserts the
+response holds the `<dl>` opening onto its first pair's `<dt>`
+([validated by](../../scripts/rsc-fixture.sh#L168)) and the notice's `role="status"` reaching
+the notice's own text through markup alone, so another status element on the page cannot stand
+in for it ([validated by](../../scripts/rsc-fixture.sh#L175)). Neither page
 carries a directive, and no file above them does; the script asserts it
 (`test -f` first, so a moved file cannot pass vacuously) over
 `app/layout.tsx`, `app/page.tsx` and `src/fixtures.ts` on every run rather
@@ -81,7 +88,7 @@ than leaving it to a reviewer reading the diff
 `import * as bowman from "@re-cinq/bowman-ui"` and renders
 `Object.keys(bowman).length`
 ([validated by @254b680b](../../examples/rsc-fixture/app/page.tsx#L1), the render at
-[L32@e6199906](../../examples/rsc-fixture/app/page.tsx#L32)), so no bundler can elide
+[L36@e6199906](../../examples/rsc-fixture/app/page.tsx#L36)), so no bundler can elide
 the namespace; the script asserts the rendered count is present and at
 least 40 (53 measured), which is what proves the whole barrel - `useDebounce`
 included - sat in the server module graph at render time
@@ -99,7 +106,7 @@ and elision behaviour is the bundler's to change.
 no OLT customer data, no real order identifiers, no content copied from a
 support conversation. The repo is public-facing per `014`, so a fixture
 file is a publication
-([validated by @8508062e](../../examples/rsc-fixture/src/fixtures.ts#L1)).
+([validated by @45ccd5b7](../../examples/rsc-fixture/src/fixtures.ts#L1)).
 
 ## The compose page: measured, rejected
 
@@ -126,8 +133,8 @@ mechanically with
 `AppSidebar`, `Button`, `ChatComposer`, `ChatMessage`, `ChatMessageList`,
 `ConversationList`, `ErrorBoundary`, `IconButton`, `PromptChips`,
 `SearchField`, `Toast`, `ToolActivity`
-([validated by](../../docs/design-notes.md#L951)), and the same sentence appears in
-the README ([validated by @11afad50](../../README.md#L225)). `app/client/page.tsx` is
+([validated by](../../docs/design-notes.md#L962)), and the same sentence appears in
+the README ([validated by @11afad50](../../README.md#L226)). `app/client/page.tsx` is
 the control: the same composition under `"use client"`, building green, so
 the rejection is attributable to the boundary and not to the components
 ([validated by @dbaa958b](../../examples/rsc-fixture/app/client/page.tsx#L1)). The two
@@ -149,7 +156,7 @@ regression here would surface the day a consumer tries the server idiom, not
 in this fixture.
 
 No `"react-server"` condition is added to `exports`; docs/design-notes.md records the
-refusal and its reason ([validated by @019c7274](../../docs/design-notes.md#L931)).
+refusal and its reason ([validated by @019c7274](../../docs/design-notes.md#L1026)).
 
 ## The script
 
@@ -322,7 +329,7 @@ reachable the same way `consumer` is, as a `package.json` script
   the one exception in place, so the decision does not contradict the
   § RSC fixture section ([validated by @b0f53f72](../../docs/design-notes.md#L165)); that
   section names `examples/rsc-fixture` as the only path in the repo
-  where `next` may appear ([validated by @cfdc3084](../../docs/design-notes.md#L921)).
+  where `next` may appear ([validated by @cfdc3084](../../docs/design-notes.md#L1016)).
 - Observation, not a test-linked statement (no test can assert a property of
   the PR's own diff): no file under the library's `src/` changed in this PR -
   the fixture's own `examples/rsc-fixture/src/` is the issue's named path for

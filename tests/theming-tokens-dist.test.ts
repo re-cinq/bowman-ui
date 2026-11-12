@@ -61,47 +61,72 @@ const EXPECTED_FALLBACKS: Record<string, string> = {
   "--bowman-success-dark": "var(--color-green-400)",
   "--bowman-success-soft": "var(--color-green-100)",
   "--bowman-success-soft-dark": "rgba(20,83,45,0.3)",
+  "--bowman-danger-fill": "var(--color-red-600)",
+  "--bowman-danger-fill-dark": "var(--color-red-600)",
+  "--bowman-danger-fill-hover": "var(--color-red-700)",
+  "--bowman-danger-fill-hover-dark": "var(--color-red-700)",
+  "--bowman-text-on-danger": "var(--color-white)",
+  "--bowman-info": "var(--color-blue-600)",
+  "--bowman-info-dark": "var(--color-blue-400)",
+  "--bowman-warning": "var(--color-amber-700)",
+  "--bowman-warning-dark": "var(--color-amber-300)",
 };
 
 const NEUTRAL_ROLE_READERS: Record<string, string[]> = {
   SURFACE: [
     "AppShell",
     "AppSidebar",
+    "Card",
     "ChatCard",
     "ChatComposer",
+    "ModalPanel",
+    "Notice",
     "PromptChips",
     "SearchField",
+    "TextField",
     "buttonStyles",
   ],
-  SURFACE_HOVER: ["AppSidebar", "ConversationList", "PromptChips", "buttonStyles"],
+  SURFACE_HOVER: ["AppSidebar", "Card", "ConversationList", "PromptChips", "buttonStyles"],
   CONTROL_HOVER: ["AppShell", "ChatMessage", "FeedbackButtons"],
   BORDER: [
     "AppShell",
     "AppSidebar",
+    "Card",
     "ChatCard",
     "ChatComposer",
     "ChatMessageList",
+    "ModalPanel",
+    "Notice",
     "PromptChips",
     "SearchField",
     "buttonStyles",
   ],
   BORDER_MD: ["AppSidebar"],
+  CONTROL_BORDER: ["TextField"],
   RING_OFFSET: [],
   TEXT_BODY: [
     "AppShell",
     "AppSidebar",
+    "Card",
     "ConversationList",
+    "ModalPanel",
+    "Notice",
     "PromptChips",
     "ToolActivity",
     "buttonStyles",
   ],
   TEXT_STRONG: [
     "AppSidebar",
+    "Card",
     "ChatCard",
     "ChatComposer",
     "ChatMessage",
     "ErrorBoundary",
+    "KeyValueList",
+    "ModalPanel",
+    "Notice",
     "SearchField",
+    "TextField",
   ],
   TEXT_STRONG_HOVER: ["AppSidebar", "buttonStyles"],
   TEXT_STRONG_FOCUS: ["AppShell"],
@@ -120,6 +145,8 @@ const NEUTRAL_ROLE_READERS: Record<string, string[]> = {
     "ChatMessageList",
     "ConversationList",
     "InlineThinkingIndicator",
+    "KeyValueList",
+    "TextField",
     "ThinkingIndicator",
     "ThinkingTrace",
     "ToolActivity",
@@ -128,11 +155,19 @@ const NEUTRAL_ROLE_READERS: Record<string, string[]> = {
   PLACEHOLDER_SUBTLE: ["ChatComposer", "SearchField"],
   TEXT_SUBTLE_DISABLED: ["ChatComposer"],
   TEXT_ON_ACCENT: ["ChatComposer", "buttonStyles"],
-  DANGER: ["ErrorBoundary", "FeedbackButtons"],
+  TEXT_ON_DANGER: ["buttonStyles"],
+  DANGER: ["ErrorBoundary", "FeedbackButtons", "TextField"],
   DANGER_HOVER: ["ConversationList"],
   DANGER_SOFT: ["ErrorBoundary", "FeedbackButtons"],
+  DANGER_FILL: ["buttonStyles"],
+  DANGER_FILL_HOVER: ["buttonStyles"],
+  DANGER_BORDER: ["TextField"],
   SUCCESS: ["ChatMessage", "FeedbackButtons"],
   SUCCESS_SOFT: ["FeedbackButtons"],
+  INFO_TONE: ["Notice"],
+  SUCCESS_TONE: ["Notice"],
+  WARNING_TONE: ["Notice"],
+  DANGER_TONE: ["Notice"],
 };
 
 const COMMENT_LINE = /^\/\* (--bowman-[a-z-]+): (.+?) - .+ \*\/$/;
@@ -409,31 +444,40 @@ describe("the built theming tokens", () => {
     expect(stripDeclarationBlock(read(STYLESHEET))).not.toMatch(assignment);
   });
 
-  it("dist/theme/focusRing.js composes FOCUS_RING from the tokens module's ring colour and offset, and exactly the five offset-ring components import it", () => {
+  it("dist/theme/focusRing.js composes FOCUS_RING and FOCUS_VISIBLE_RING from the tokens module's ring colour and offset, exactly the six offset-ring components import FOCUS_RING, and ModalPanel alone imports FOCUS_VISIBLE_RING", () => {
     const focusRingModule = read("dist/theme/focusRing.js");
 
     expect(focusRingModule).toMatch(
       /import \{\s*FOCUS_RING_COLOR,\s*RING_OFFSET\s*\} from "\.\/tokens\.js";/
     );
+    expect(focusRingModule).toMatch(
+      /FOCUS_RING = `focus:outline-none focus:ring-2 \$\{FOCUS_RING_COLOR\} \$\{RING_OFFSET\}`/
+    );
+    expect(focusRingModule).toMatch(
+      /FOCUS_VISIBLE_RING = `focus:outline-none focus-visible:ring-2 \$\{FOCUS_RING_COLOR\} \$\{RING_OFFSET\}`/
+    );
     expect(focusRingModule).not.toMatch(/use client|--bowman-/);
     expect(read("dist/index.js")).not.toMatch(/theme\/focusRing/);
 
-    const readers = builtComponents()
-      .filter((file) =>
-        (read(file).match(/import \{([^}]*)\} from "\.\.\/theme\/focusRing\.js";/)?.[1] ?? "")
-          .split(",")
-          .map((name) => name.trim())
-          .includes("FOCUS_RING")
-      )
-      .map((file) => basename(file, ".js"));
+    const readersOf = (fragment: string) =>
+      builtComponents()
+        .filter((file) =>
+          (read(file).match(/import \{([^}]*)\} from "\.\.\/theme\/focusRing\.js";/)?.[1] ?? "")
+            .split(",")
+            .map((name) => name.trim())
+            .includes(fragment)
+        )
+        .map((file) => basename(file, ".js"));
 
-    expect(readers).toEqual([
+    expect(readersOf("FOCUS_RING")).toEqual([
       "AppShell",
       "AppSidebar",
+      "Card",
       "ConversationList",
       "PromptChips",
       "buttonStyles",
     ]);
+    expect(readersOf("FOCUS_VISIBLE_RING")).toEqual(["ModalPanel"]);
   });
 
   it("CLAUDE.md invariant 13 states the same token count as the stylesheet's declaration block", () => {

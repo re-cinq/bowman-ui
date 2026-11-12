@@ -13,7 +13,7 @@ import {
 const script = join(process.cwd(), "scripts", "check-at-pass.mjs");
 
 const coveredPaths = ["src/components/ChatMessage.tsx", "src/components/ChatMessageList.tsx"];
-const rowIds = ["A1", "A2", "A3", "A4", "A5", "A6", "A7"];
+const rowIds = ["A1", "A2", "A3", "A4", "A5", "A6", "A7", "A8", "A9"];
 
 type Row = {
   id: string;

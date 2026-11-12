@@ -73,10 +73,103 @@ describe("SearchField", () => {
   });
 
   describe("the closed surface", () => {
-    it("renders no button - no clear control and no submit", () => {
+    it("renders no button without onSubmit - no clear control and no submit", () => {
       const { container } = render(<SearchField value="" onChange={vi.fn()} />);
 
       expect(container.querySelectorAll("button")).toHaveLength(0);
+    });
+
+    it("without onSubmit, Enter on the input is not prevented, so a consumer's own form still submits", () => {
+      render(<SearchField value="4711" onChange={vi.fn()} />);
+
+      expect(fireEvent.keyDown(searchboxOf(), { key: "Enter" })).toBe(true);
+    });
+
+    it("without onSubmit, the input keeps the leading-icon padding pl-9 pr-3", () => {
+      render(<SearchField value="" onChange={vi.fn()} />);
+
+      expect(searchboxOf()).toHaveClass("pl-9", "pr-3");
+    });
+  });
+
+  describe("the submit callback", () => {
+    it('with onSubmit, a ghost size="sm" IconButton named "Submit search" replaces the leading icon at the trailing edge', () => {
+      const { container } = render(<SearchField value="" onChange={vi.fn()} onSubmit={vi.fn()} />);
+      const button = screen.getByRole("button", { name: "Submit search" });
+
+      expect(container.querySelectorAll("svg")).toHaveLength(1);
+      expect(button).toContainElement(container.querySelector("svg"));
+      expect(button).toHaveClass("p-1.5");
+      expect(button.parentElement).toHaveClass("absolute", "right-1.5");
+      expect(searchboxOf()).toHaveClass("pl-3", "pr-10");
+      expect(searchboxOf()).not.toHaveClass("pl-9");
+    });
+
+    it('labels={{ submitSearch: "Søg nu" }} names the submit button', () => {
+      render(
+        <SearchField
+          value=""
+          onChange={vi.fn()}
+          onSubmit={vi.fn()}
+          labels={{ submitSearch: "Søg nu" }}
+        />
+      );
+
+      expect(screen.getByRole("button", { name: "Søg nu" })).toBeInTheDocument();
+    });
+
+    it('clicking the submit button calls onSubmit once with the current value "  4711 "', () => {
+      const onSubmit = vi.fn();
+
+      render(<SearchField value="  4711 " onChange={vi.fn()} onSubmit={onSubmit} />);
+      fireEvent.click(screen.getByRole("button", { name: "Submit search" }));
+
+      expect(onSubmit).toHaveBeenCalledTimes(1);
+      expect(onSubmit).toHaveBeenCalledWith("  4711 ");
+    });
+
+    it("Enter in the input calls onSubmit once with the value verbatim and prevents the default", () => {
+      const onSubmit = vi.fn();
+
+      render(<SearchField value=" 4711" onChange={vi.fn()} onSubmit={onSubmit} />);
+
+      expect(fireEvent.keyDown(searchboxOf(), { key: "Enter" })).toBe(false);
+      expect(onSubmit).toHaveBeenCalledTimes(1);
+      expect(onSubmit).toHaveBeenCalledWith(" 4711");
+    });
+
+    it.each([
+      ["an Enter that commits an IME composition", { key: "Enter", isComposing: true }],
+      ["a key other than Enter", { key: "a" }],
+    ])("%s neither calls onSubmit nor prevents the default", (_, init) => {
+      const onSubmit = vi.fn();
+
+      render(<SearchField value="4711" onChange={vi.fn()} onSubmit={onSubmit} />);
+
+      expect(fireEvent.keyDown(searchboxOf(), init)).toBe(true);
+      expect(onSubmit).not.toHaveBeenCalled();
+    });
+
+    it("while disabled, the submit button carries the native attribute and neither Enter nor a click calls onSubmit", () => {
+      const onSubmit = vi.fn();
+
+      render(<SearchField value="4711" onChange={vi.fn()} onSubmit={onSubmit} disabled />);
+      const button = screen.getByRole("button", { name: "Submit search" });
+
+      expect(button).toBeDisabled();
+      fireEvent.click(button);
+      fireEvent.keyDown(searchboxOf(), { key: "Enter" });
+
+      expect(onSubmit).not.toHaveBeenCalled();
+    });
+
+    it("with onSubmit, onChange still fires on every keystroke", () => {
+      const onChange = vi.fn();
+
+      render(<SearchField value="" onChange={onChange} onSubmit={vi.fn()} />);
+      fireEvent.change(searchboxOf(), { target: { value: "4" } });
+
+      expect(onChange).toHaveBeenCalledWith("4");
     });
   });
 
@@ -103,11 +196,12 @@ describe("SearchField", () => {
       expect(screen.getByRole("searchbox", { name: "Search" })).toBeInTheDocument();
     });
 
-    it('defaultSearchFieldLabels is frozen and equals { searchInput: "Search", searchPlaceholder: "Search..." }', () => {
+    it('defaultSearchFieldLabels is frozen and equals { searchInput: "Search", searchPlaceholder: "Search...", submitSearch: "Submit search" }', () => {
       expect(Object.isFrozen(defaultSearchFieldLabels)).toBe(true);
       expect(defaultSearchFieldLabels).toEqual({
         searchInput: "Search",
         searchPlaceholder: "Search...",
+        submitSearch: "Submit search",
       });
     });
   });

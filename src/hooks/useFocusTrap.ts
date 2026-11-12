@@ -2,20 +2,24 @@
 
 import { useEffect, useRef, type RefObject } from "react";
 
-import { FOCUSABLE_SELECTOR } from "./focusableSelector.js";
+import { getFocusableElements, isRendered } from "./focusableSelector.js";
 
-function getFocusableElements(container: HTMLElement | null): HTMLElement[] {
-  if (!container) {
-    return [];
+// An empty trap holds focus on its container only when it carries a tabindex and is visible.
+const canTakeFocus = (container: HTMLElement | null): container is HTMLElement =>
+  container !== null && container.hasAttribute("tabindex") && isRendered(container);
+
+const focusSitsOutsideTheEnds = (container: HTMLElement): boolean =>
+  document.activeElement === container || !container.contains(document.activeElement);
+
+// A detached return target is skipped with no fallback, so focus stays where the browser put it.
+const canReturnFocusTo = (target: Element | null): target is HTMLElement | SVGElement =>
+  (target instanceof HTMLElement || target instanceof SVGElement) && target.isConnected;
+
+const returnFocusTo = (target: Element | null) => {
+  if (canReturnFocusTo(target)) {
+    target.focus();
   }
-
-  // display:none and visibility:hidden leave the tab order; opacity-0 stays tabbable and is untested on purpose.
-  return Array.from(container.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)).filter((el) =>
-    typeof el.checkVisibility === "function"
-      ? el.checkVisibility({ visibilityProperty: true })
-      : el.offsetParent !== null
-  );
-}
+};
 
 /** Traps Tab within the container while isOpen; Escape calls onClose and refocuses triggerRef. Modal only. */
 export function useFocusTrap<T extends HTMLElement = HTMLDivElement>(
@@ -26,6 +30,13 @@ export function useFocusTrap<T extends HTMLElement = HTMLDivElement>(
   const containerRef = useRef<T | null>(null);
   const previousActiveElement = useRef<Element | null>(null);
   const hasBeenOpen = useRef(false);
+  const isOpenRef = useRef(isOpen);
+  const latestTriggerRef = useRef(triggerRef);
+
+  useEffect(() => {
+    isOpenRef.current = isOpen;
+    latestTriggerRef.current = triggerRef;
+  });
 
   useEffect(() => {
     if (!isOpen) {
@@ -40,20 +51,24 @@ export function useFocusTrap<T extends HTMLElement = HTMLDivElement>(
         return;
       }
 
-      if (event.key !== "Tab") {
+      const container = containerRef.current;
+
+      if (event.key !== "Tab" || !container) {
         return;
       }
-      const focusableElements = getFocusableElements(containerRef.current);
+      const focusableElements = getFocusableElements(container);
 
       if (focusableElements.length === 0) {
+        holdFocusOnEmptyContainer(event, container);
+
         return;
       }
 
       const firstElement = focusableElements[0];
       const lastElement = focusableElements[focusableElements.length - 1];
 
-      // Focus that escaped the trap is pulled back in instead of tabbing on through the page behind.
-      if (!containerRef.current?.contains(document.activeElement)) {
+      // Focus on the container, or escaped from it, is pulled to an end instead of tabbing on.
+      if (focusSitsOutsideTheEnds(container)) {
         event.preventDefault();
         (event.shiftKey ? lastElement : firstElement).focus();
 
@@ -80,40 +95,59 @@ export function useFocusTrap<T extends HTMLElement = HTMLDivElement>(
       hasBeenOpen.current = true;
       previousActiveElement.current = document.activeElement;
 
-      const focusableElements = getFocusableElements(containerRef.current);
+      const container = containerRef.current;
+      const [firstElement] = getFocusableElements(container);
+      const target = firstElement ?? (canTakeFocus(container) ? container : undefined);
 
-      if (focusableElements.length === 0) {
+      if (!target) {
         return undefined;
       }
 
       // Delay for the DOM; cancelled on close/unmount so a rapid open-then-close never focuses a closed trap.
       const frame = requestAnimationFrame(() => {
-        focusableElements[0].focus();
+        target.focus();
       });
 
       return () => cancelAnimationFrame(frame);
     };
 
-    const returnFocusOnClose = () => {
-      // Only a real open-then-close returns focus: mounting closed must not steal focus onto the trigger.
-      if (!hasBeenOpen.current) {
-        return;
-      }
-
-      const returnTarget = triggerRef?.current || previousActiveElement.current;
-
-      if (returnTarget instanceof HTMLElement || returnTarget instanceof SVGElement) {
-        returnTarget.focus();
-      }
-    };
-
     if (isOpen) {
       return focusFirstElementOnOpen();
     }
-    returnFocusOnClose();
+
+    // Only a real open-then-close returns focus: mounting closed must not steal focus onto the trigger.
+    if (hasBeenOpen.current) {
+      returnFocusTo(triggerRef?.current || previousActiveElement.current);
+    }
 
     return undefined;
   }, [isOpen, triggerRef]);
 
+  useEffect(
+    () => () => returnFocusOnUnmount(isOpenRef, latestTriggerRef, previousActiveElement),
+    []
+  );
+
   return containerRef;
+}
+
+function holdFocusOnEmptyContainer(event: KeyboardEvent, container: HTMLElement) {
+  if (!canTakeFocus(container)) {
+    return;
+  }
+  event.preventDefault();
+
+  if (!container.contains(document.activeElement)) {
+    container.focus();
+  }
+}
+
+function returnFocusOnUnmount(
+  isOpenRef: RefObject<boolean>,
+  triggerRef: RefObject<RefObject<HTMLElement | null> | undefined>,
+  previousActiveElement: RefObject<Element | null>
+) {
+  if (isOpenRef.current) {
+    returnFocusTo(triggerRef.current?.current || previousActiveElement.current);
+  }
 }

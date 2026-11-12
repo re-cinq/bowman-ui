@@ -4,7 +4,8 @@
 
 import { expect, type Locator, type Page } from "@playwright/test";
 
-export type ColorProperty = "backgroundColor" | "borderColor" | "color" | "outlineColor";
+export type ColorProperty =
+  "backgroundColor" | "borderColor" | "borderLeftColor" | "color" | "outlineColor";
 
 export type StyleProperty =
   ColorProperty | "boxShadow" | "opacity" | "animationName" | "transitionDuration" | "textOverflow";

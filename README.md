@@ -38,13 +38,13 @@ Add two lines to your app's CSS entry:
 
 (Adjust the `@source` path so it points at the installed `dist` relative to your CSS file.)
 
-Tailwind CSS v4 is required: the stylesheet ships only what Tailwind cannot generate from a class name - four animation keyframes (`bowman-fade-in`, `bowman-toast-fade-in`, `bowman-fade-dot`, `bowman-pulse-subtle`) with their utility rules, the `bowman-md-*` markdown element styling and the `bowman-sr-only` rule that hides the markdown link notice, `Toast`'s live region, `ConversationList`'s plain title and `useFocusGroups`' announcement region, and an unconditional `prefers-reduced-motion` rule. Everything else on the components - layout, color, `dark:` variants - is plain Tailwind utility class names in the built files, and your own Tailwind v4 build generates their CSS by scanning the installed `dist`. That is what the `@source` line is for: Tailwind v4 does not scan `node_modules` by default, so without it the components render unstyled. How `dark:` resolves (media query or class strategy) stays your build's decision.
+Tailwind CSS v4 is required: the stylesheet ships only what Tailwind cannot generate from a class name - four animation keyframes (`bowman-fade-in`, `bowman-toast-fade-in`, `bowman-fade-dot`, `bowman-pulse-subtle`) with their utility rules, the `bowman-md-*` markdown element styling and the `bowman-sr-only` rule that hides the markdown link notice, `Toast`'s live region, `ConversationList`'s plain title, `useFocusGroups`' announcement region, the `ChatComposer` busy hint and `ConfirmDialog`'s busy status region, and an unconditional `prefers-reduced-motion` rule. Everything else on the components - layout, color, `dark:` variants - is plain Tailwind utility class names in the built files, and your own Tailwind v4 build generates their CSS by scanning the installed `dist`. That is what the `@source` line is for: Tailwind v4 does not scan `node_modules` by default, so without it the components render unstyled. How `dark:` resolves (media query or class strategy) stays your build's decision.
 
 `styles.css` itself is plain CSS - no Tailwind at-rules - so a non-Tailwind consumer can import it too, but must then supply the utility styles the components reference by other means.
 
 ## Theming
 
-Every theme colour the components paint - the send button and primary `Button` fill, the streaming circle's tint and border, the focus ring and the composer's focus glow, the active row's surface, the pulse animation - is read through one of fifteen theme-colour `--bowman-*` custom properties (of the forty-four the package exposes), each with today's palette value as its `var()` fallback. Set the ones you want at `:root`, or on any wrapper to scope a theme to part of the page:
+Every theme colour the components paint - the send button and primary `Button` fill, the streaming circle's tint and border, the focus ring and the composer's focus glow, the active row's surface, the pulse animation - is read through one of fifteen theme-colour `--bowman-*` custom properties (of the fifty-three the package exposes), each with today's palette value as its `var()` fallback. Set the ones you want at `:root`, or on any wrapper to scope a theme to part of the page:
 
 ```css
 :root {
@@ -66,7 +66,7 @@ Every theme colour the components paint - the send button and primary `Button` f
 }
 ```
 
-The neutral chrome has its own roles - `--bowman-surface`, `--bowman-surface-hover`, `--bowman-control-hover`, `--bowman-border`, `--bowman-ring-offset` and the text tiers `--bowman-text-strong`, `--bowman-text-body`, `--bowman-text-secondary`, `--bowman-text-muted`, `--bowman-text-subtle`, each with a `-dark` twin - so you can move the panels off pure white and the borders off slate-200 the same way. Two semantic roles sit beside them - `--bowman-danger` and `--bowman-success`, each with a `-soft` surface and `-dark` twins - for the selected thumbs, the copied check, the delete hover and the error icon. docs/design-notes.md § Theming lists all forty-four with the fallback each ships.
+The neutral chrome has its own roles - `--bowman-surface`, `--bowman-surface-hover`, `--bowman-control-hover`, `--bowman-border`, `--bowman-ring-offset` and the text tiers `--bowman-text-strong`, `--bowman-text-body`, `--bowman-text-secondary`, `--bowman-text-muted`, `--bowman-text-subtle`, each with a `-dark` twin - so you can move the panels off pure white and the borders off slate-200 the same way. Semantic roles sit beside them. `--bowman-danger` and `--bowman-success`, each with a `-soft` surface and `-dark` twins, colour the selected thumbs, the copied check, the delete hover, the error icon, `TextField`'s error and the `error` and `success` notices. `--bowman-danger-fill` and its `--bowman-danger-fill-hover`, `--bowman-info` and `--bowman-warning`, each with a `-dark` twin and no `-soft` surface, colour the `danger` button and the `info` and `warning` notices; `--bowman-text-on-danger`, the text on the danger fill, has no twin. docs/design-notes.md § Theming lists all fifty-three with the fallback each ships.
 
 ### Applying a theme, step by step
 
@@ -90,15 +90,16 @@ The neutral chrome has its own roles - `--bowman-surface`, `--bowman-surface-hov
    light mode and leaves dark mode on the shipped fallback. Whether `dark:` follows
    `prefers-color-scheme` or a class is still your Tailwind build's decision.
 5. **Keep the fixed colours in mind.** Only the roles above are tokens. The shell ground, the
-   avatar circles at rest, the user avatar, the toast and the error retry button keep their
+   avatar circles at rest, the user avatar, the dialog overlay's dim, the toast and the error
+   retry button keep their
    slate and white utilities; if your palette needs those moved too, override the palette
    variables (`--color-slate-900` and friends) in your Tailwind theme, which recolours every use
    rather than one role.
 
 A complete theme is the union of the two blocks above plus their `-dark` twins; the chat
-demo's `examples/chat-demo/src/custom-theme.css` is a worked example that sets all forty-four.
+demo's `examples/chat-demo/src/custom-theme.css` is a worked example that sets all fifty-three.
 
-Override none and the package resolves to the same Tailwind theme variables it used before the tokens existed, byte for byte - nothing declares a `--bowman-*` value, so there is no cascade to fight. Forty-two of the tokens form twenty-one light/dark pairs (`--bowman-accent` and `--bowman-accent-dark`, `--bowman-focus-ring` and `--bowman-focus-ring-dark`, ...), the `-dark` half read by the components' `dark:` variants, so your build's dark-mode strategy applies to the tokens unchanged; set both halves for a theme that holds in both modes. Two have no twin: `--bowman-pulse-outline`, because the pulse keyframe paints one outline in both modes, and `--bowman-text-on-accent`, the one text colour on the accent surface in both modes. `--bowman-active` colours the active row's background and its label reads `--bowman-text-strong`, so keep `--bowman-active` in contrast with `--bowman-text-strong` in light mode and `--bowman-active-dark` with `--bowman-text-strong-dark` in dark mode. The full table - every name, fallback and site - is in docs/design-notes.md § Theming.
+Override none and the package resolves to the same Tailwind theme variables it used before the tokens existed, byte for byte - nothing declares a `--bowman-*` value, so there is no cascade to fight. Fifty of the tokens form twenty-five light/dark pairs (`--bowman-accent` and `--bowman-accent-dark`, `--bowman-focus-ring` and `--bowman-focus-ring-dark`, ...), the `-dark` half read by the components' `dark:` variants, so your build's dark-mode strategy applies to the tokens unchanged; set both halves for a theme that holds in both modes. Three have no twin: `--bowman-pulse-outline`, because the pulse keyframe paints one outline in both modes, `--bowman-text-on-accent`, the one text colour on the accent surface in both modes, and `--bowman-text-on-danger`, the one text colour on the danger fill in both modes. `--bowman-active` colours the active row's background and its label reads `--bowman-text-strong`, so keep `--bowman-active` in contrast with `--bowman-text-strong` in light mode and `--bowman-active-dark` with `--bowman-text-strong-dark` in dark mode. The full table - every name, fallback and site - is in docs/design-notes.md § Theming.
 
 ## Minimal app
 
@@ -226,8 +227,11 @@ A React server component cannot pass a function across the client boundary - `Ap
 `ChatComposer` (`onSubmit`), `ChatCard` (`describeCard`, `onFeedback`), `ChatMessage` and `ChatMessageList` (`onCopy`, `onFeedback`, the
 `assistantMessageFrom` label, and on `ChatMessageList` alone `renderEntryFooter`, `describeTool` and `describeCard`), `ConversationList` (`renderLink`, `onSelect`, `onDelete`, the
 `deleteConversation` label), `ErrorBoundary` (`onError`), `PromptChips` (`onPick`), `SearchField`
-(`onChange`), `Toast` (`onClose`) and `ToolActivity` (`describeTool`) accept function-valued props,
-so an App Router consumer supplies those props from a `"use client"` file (measured on Next 16.3.3;
+(`onChange`, `onSubmit`), `TextField` (`onChange`), `Dialog` (`onClose`), `ConfirmDialog`
+(`onConfirm`, `onCancel`), `Notice` (`onDismiss`), `Card` (`onSelect`), `Toast` (`onClose`) and
+`ToolActivity` (`describeTool`) accept function-valued props, and `Dialog` and `ConfirmDialog` also
+take `container`, a DOM element, and `returnFocusRef`, a ref object, which cannot cross either, so
+an App Router consumer supplies those props from a `"use client"` file (measured on Next 16.3.3;
 the verbatim build error is recorded in docs/design-notes.md § RSC fixture). An object literal
 crosses fine - `ChatMessageList`'s `attribution` map, element-valued avatars included - which is why
 per-entry attribution is a lookup table and not a render prop.
@@ -323,7 +327,7 @@ On a phone the sidebar becomes a focus-trapped drawer behind the hamburger. It o
 
 ## Labels and translations
 
-Each labelled component takes `labels?: Partial<XLabels>`, shallow-merged per key over complete English defaults (`defaultChatComposerLabels`, `defaultConversationListLabels`, ...); three deliberate exceptions carry their strings as plain props instead (`Toast`'s `message`, the icons' `ariaLabel`, `useFocusGroups`' `announce` - [the design notes](./docs/design-notes.md) § Labels). A label that interpolates a value is a function - `deleteConversation: (title: string) => string` - never a template string with placeholders, so word order and plural rules stay with whoever writes the string.
+Each labelled component takes `labels?: Partial<XLabels>`, shallow-merged per key over complete English defaults (`defaultChatComposerLabels`, `defaultConversationListLabels`, ...). Five components require `labels` instead, because a key of theirs has no honest English default: `ChatMessageList` (`aiDisclosure`), `IconButton` (`accessibleName`), `TextField` (`fieldLabel`), `Dialog` (`dialogTitle`) and `ConfirmDialog` (`dialogTitle`, `confirmAction`); the rest of their keys still default, and `IconButton` and `TextField` ship no defaults object. Three deliberate exceptions carry their strings as plain props instead (`Toast`'s `message`, the icons' `ariaLabel`, `useFocusGroups`' `announce` - [the design notes](./docs/design-notes.md) § Labels). A label that interpolates a value is a function - `deleteConversation: (title: string) => string` - never a template string with placeholders, so word order and plural rules stay with whoever writes the string.
 
 Translating the package to another language therefore means supplying your reviewed catalogue through those props. bowman-ui ships no locale files and no i18n runtime on purpose (see [the design notes](./docs/design-notes.md) § Labels): the consumer app is the only place the copy can be reviewed. A full catalogue is a typed object handed over as slices - the label types are exported, so a missing key is a compile error. The Spanish wording below is illustrative, not a reviewed translation (the demo app itself ships English-only; a real catalogue belongs to the consumer app that can review it):
 
@@ -378,7 +382,7 @@ There is no brand mark in the set. A consumer who wants one supplies it through 
 Five hooks ship beside the components, each pure (no console, no network, no storage except `useSidebarState`):
 
 ```tsx
-useFocusGroups(); // F6 / Shift+F6 cycles focus through [data-focus-group] sections, by data-focus-group-order then DOM order
+useFocusGroups(); // F6 / Shift+F6 cycles focus through [data-focus-group] sections, by data-focus-group-order then DOM order; inside an aria-modal element F6 is left alone
 <header data-focus-group="header" data-focus-group-order="0">...</header>
 <main data-focus-group="main" data-focus-group-order="1">...</main>
 
@@ -392,6 +396,166 @@ const animationDuration = prefersReducedMotion ? 0 : 300;
 const debouncedQuery = useDebounce(query, 300);
 
 const { isOpen, setIsOpen, toggle, open, close, isHydrated } = useSidebarState("chat", { storagePrefix: "olt-" }); // stored under `${storagePrefix}${key}`; cross-tab writes apply until the first local set
+```
+
+## Forms, dialogs and notices
+
+Six components serve the screens beside the chat - an admin page, a settings page, a confirmation
+before a destructive action - with two additions to existing ones. Each takes no `className`, no
+`style` and no render prop, and each user-visible string rides in `labels`.
+
+`ButtonVariant` gains `danger`, a solid red fill for the one action on a screen that destroys
+something; `Button` and `IconButton` both take it. `SearchField` gains an optional `onSubmit`: with
+it, the leading icon becomes a submit button named by `labels.submitSearch` (default `"Submit
+search"`), and Enter in the input submits; without it, `SearchField` renders as before and leaves
+Enter to the browser.
+
+```tsx
+<Button variant="danger" onClick={deleteProject}>Delete project</Button>
+
+// Enter or the button calls runSearch(value); an Enter that commits an IME composition does not
+<SearchField value={query} onChange={setQuery} onSubmit={runSearch} />
+```
+
+### TextField
+
+A labelled, controlled text input. `labels` is required and has no defaults object: `fieldLabel` is
+the visible label and the input's accessible name, `fieldHint` renders under the input, and a
+non-empty `fieldError` is the invalid state - it sets `aria-invalid`, a danger border and a polite
+live region the error is announced from. Props: `value`, `onChange` (the raw value), `type`
+(`"text"`, `"email"`, `"url"` or `"tel"`), `required`, `disabled`, `autoComplete`, `spellCheck`,
+`name`. The ref reaches the input. `required` draws no marker; put one in `fieldLabel`.
+
+```tsx
+<TextField
+  value={email}
+  onChange={setEmail}
+  type="email"
+  required
+  labels={{
+    fieldLabel: "Email (required)",
+    fieldHint: "We never share it.",
+    fieldError: emailError,
+  }}
+/>
+```
+
+### Dialog
+
+A modal panel with `role="dialog"` and `aria-modal`, portalled out of the page. `labels.dialogTitle`
+is required and is the heading and the accessible name; `closeDialog` names the close button
+(default `"Close"`). Props: `open`, `onClose` (Escape and the close button), `children`, `footer`
+(actions after the body), `returnFocusRef` and `container`. Opening moves focus to the first control
+in `children`, else the scrolling body when it overflows with nothing focusable in it, else the
+first control in the footer, else the close button; Tab and Shift+Tab stay inside; a click on the
+overlay does nothing. Closing or unmounting returns focus to `returnFocusRef.current`, else the
+element that held focus before the dialog opened - pass `returnFocusRef`, a stable `useRef` on a
+focusable element that stays, when the action removes that element. Leave `autoFocus` off
+`children`, since the trap already focuses the first control; if a child does use it, pass
+`returnFocusRef`, because React applies `autoFocus` before the trap records the element to return
+to. A body that overflows with nothing focusable in it becomes focusable, so a keyboard user can
+scroll it. A `<form>` in `children` should call `event.stopPropagation()` beside
+`event.preventDefault()` in its `onSubmit`: React's `submit` bubbles along the component tree
+through the portal, so without it a form the `Dialog` is rendered inside submits too.
+
+The panel portals into `document.body` by default. A theme set on a wrapper (`.custom-theme`,
+`[data-tenant="acme"]`, see [Theming](#theming)) stops at the portal, so pass that wrapper, or an
+element inside it, as `container`: the wrapper's `--bowman-*` values and a class-based `dark` reach
+the panel. The container and its ancestors must not carry a `transform`, `filter` or other property
+that makes them a fixed element's containing block, nor a `z-index` stacking context, and
+`container` must stay the same while the dialog is open. Open one modal at a time: close
+`AppShell`'s mobile drawer before opening a dialog from it.
+
+```tsx
+const [themeRoot, setThemeRoot] = useState<HTMLDivElement | null>(null);
+
+<div className="custom-theme" ref={setThemeRoot}>
+  {themeRoot && (
+    <Dialog
+      open={open}
+      onClose={() => setOpen(false)}
+      container={themeRoot} // the panel reads the wrapper's --bowman-* values
+      labels={{ dialogTitle: "Project settings" }}
+      footer={
+        <Button variant="primary" onClick={save}>
+          Save
+        </Button>
+      }
+    >
+      <TextField value={name} onChange={setName} labels={{ fieldLabel: "Name" }} />
+    </Dialog>
+  )}
+</div>;
+```
+
+### ConfirmDialog
+
+A `role="alertdialog"` confirmation built on the same panel, with every `Dialog` behaviour above and
+no close button. `labels.dialogTitle` and `labels.confirmAction` (the action, never "OK") are
+required; `cancelAction` (default `"Cancel"`) and `confirmBusy` (default `"Working, please wait"`)
+default. Props: `open`, `onConfirm`, `onCancel` (the cancel button and Escape), `description` (prose
+read as the dialog's description), `children` (any fields), `confirmDisabled`, `busy`,
+`returnFocusRef`, `container`. The body is a form, so the `danger` confirm button or Enter in a
+field calls `onConfirm`, never while `confirmDisabled` or `busy` holds. Opening focuses the first
+field, else the overflowing body, else Cancel - never the confirm button. While `busy` holds, both
+buttons are disabled, Escape does nothing, focus moves to the panel if it sat on a disabled button,
+and `confirmBusy` is announced through a status region.
+
+```tsx
+<ConfirmDialog
+  open={confirming}
+  onConfirm={deleteProject}
+  onCancel={() => setConfirming(false)}
+  busy={deleting}
+  returnFocusRef={addProjectRef} // a button that stays; the delete button leaves with the project
+  labels={{ dialogTitle: "Delete project?", confirmAction: "Delete project" }}
+  description="Its conversations are deleted too. This cannot be undone."
+/>
+```
+
+### Notice
+
+An inline notice for a condition the page shows, not a transient toast. `tone` is `info`, `success`,
+`warning` or `error`: it picks the icon and colours only the icon and a left border, while the text
+stays on the surface roles. `info` and `success` render with `role="status"`, `warning` and `error`
+with `role="alert"`, so a condition shown from the first render that asks nothing of the user is
+`info`. Props: `tone`, `heading`, `children`, `onDismiss`, `labels`. With `onDismiss`, a dismiss
+button named by `labels.dismissNotice` (default `"Dismiss"`) renders; `Notice` keeps no open state,
+so the consumer stops rendering it, and moves focus to an element that stays before it does.
+
+```tsx
+<Notice tone="warning" heading="Quota almost used" onDismiss={hideQuotaNotice}>
+  You have used 90% of this month's requests.
+</Notice>
+```
+
+### KeyValueList
+
+A `<dl>` of label and value pairs, `inline` (side by side, the default) or `stacked`. It takes no
+strings of its own, no handler and no hook, so it renders in a server component. An empty `pairs`
+renders nothing.
+
+```tsx
+<KeyValueList
+  pairs={[
+    { key: "plan", label: "Plan", value: "Team" },
+    { key: "seats", label: "Seats", value: 12 },
+  ]}
+/>
+```
+
+### Card
+
+A surface with an optional `heading` (an `<h3>` on a static card). With `onSelect` the whole card is
+one `<button>` with the package's focus ring, named by its heading and described by its content;
+`disabled` then applies. A selectable card's content must be phrasing content - text, inline
+elements, icons - with no control and no `KeyValueList` inside. The ref reaches the `<div>` or the
+`<button>`.
+
+```tsx
+<Card heading="Acme workspace" onSelect={() => openWorkspace("acme")}>
+  12 members, 48 conversations
+</Card>
 ```
 
 ## Development
@@ -414,7 +578,7 @@ Two TypeScript installs exist on purpose: `typescript` (~6.x) feeds the lint sta
 
 ## Accessibility
 
-The components carry the roles, names and live regions described above, and the test suite checks that markup. What no test can check is what a screen reader actually says: [docs/accessibility/README.md](./docs/accessibility/README.md) is the procedure for a human to find out, and `docs/accessibility/` is where the dated record goes. No record has been committed yet, so the announced behaviour is documented, not verified by a listener. A record is welcome from anyone who runs the pass; CI validates its shape.
+The components carry the roles, names and live regions described above, and the test suite checks that markup. The chat demo's Playwright suite also runs an axe scan (`@axe-core/playwright`) over the documentation pages of the form, dialog and notice components, in every documented state, light and dark, in Chromium and WebKit, against the WCAG 2.2 AA rules. What no test can check is what a screen reader actually says: [docs/accessibility/README.md](./docs/accessibility/README.md) is the procedure for a human to find out, and `docs/accessibility/` is where the dated record goes. No record has been committed yet, so the announced behaviour is documented, not verified by a listener. A record is welcome from anyone who runs the pass; CI validates its shape.
 
 ## Security
 

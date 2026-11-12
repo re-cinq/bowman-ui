@@ -29,7 +29,7 @@ type for the consumer and is never rendered, and `data` is
 (default `"This card could not be shown"`) and the three feedback keys, which
 default to `ChatMessage`'s. `ChatMessageList` gains `describeCard` and nothing
 else, and its labels gain `card` and `cardUnavailable`
-([validated by ChatCard's sentinel labels cover every defaultChatCardLabels key @5802b4b2](../../tests/labelled-exports.test.tsx#L637),
+([validated by ChatCard's sentinel labels cover every defaultChatCardLabels key @5802b4b2](../../tests/labelled-exports.test.tsx#L735),
 [validated by ChatMessageListProps gains attribution and describeCard and nothing else @c928b884](../../tests/chat-message-list-dist.test.ts#L42)).
 
 ## Behaviour

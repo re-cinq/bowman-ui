@@ -57,16 +57,24 @@ exports entry for a consumer ([validated by each built hook and ErrorBoundary op
   focus is inside, and pull focus back to an end when it sits outside the open trap (the
   2026-08-26 review's modal-only hardening), Escape closes, and focus returns to the trigger ref
   or the previously active element
-  ([validated by focuses the first focusable element when opened @88c2e5f9](../../tests/useFocusTrap.test.tsx#L65),
-  [validated by Tab on the last element wraps to the first @77102a40](../../tests/useFocusTrap.test.tsx#L71),
-  [validated by Shift+Tab on the first element wraps to the last @ece39e41](../../tests/useFocusTrap.test.tsx#L80), [validated by Tab in the middle of the list is not intercepted @ffe0bca8](../../tests/useFocusTrap.test.tsx#L89),
-  [validated by Shift+Tab in the middle of the list is not intercepted @19fc1cac](../../tests/useFocusTrap.test.tsx#L134),
-  [validated by Tab while focus sits outside the open trap pulls it to the first element @f5f8ac6b](../../tests/useFocusTrap.test.tsx#L207),
-  [validated by Shift+Tab while focus sits outside the open trap pulls it to the last element @f8683715](../../tests/useFocusTrap.test.tsx#L215),
-  [validated by Escape calls onClose @03a2527a](../../tests/useFocusTrap.test.tsx#L107),
-  [validated by closing returns focus to the trigger ref when one is given @aed68688](../../tests/useFocusTrap.test.tsx#L117),
-  [validated by closing returns focus to the previously active element without a trigger ref @279280ed](../../tests/useFocusTrap.test.tsx#L125),
-  [validated by `closing returns focus to a previously active <svg tabindex="0"> without a trigger ref` @bd707c95](../../tests/useFocusTrap.test.tsx#L235)).
+  ([validated by focuses the first focusable element when opened @88c2e5f9](../../tests/useFocusTrap.test.tsx#L94),
+  [validated by Tab on the last element wraps to the first @77102a40](../../tests/useFocusTrap.test.tsx#L100),
+  [validated by Shift+Tab on the first element wraps to the last @ece39e41](../../tests/useFocusTrap.test.tsx#L109), [validated by Tab in the middle of the list is not intercepted @ffe0bca8](../../tests/useFocusTrap.test.tsx#L118),
+  [validated by Shift+Tab in the middle of the list is not intercepted @19fc1cac](../../tests/useFocusTrap.test.tsx#L163),
+  [validated by Tab while focus sits outside the open trap pulls it to the first element @f5f8ac6b](../../tests/useFocusTrap.test.tsx#L235),
+  [validated by Shift+Tab while focus sits outside the open trap pulls it to the last element @f8683715](../../tests/useFocusTrap.test.tsx#L243),
+  [validated by Escape calls onClose @03a2527a](../../tests/useFocusTrap.test.tsx#L136),
+  [validated by closing returns focus to the trigger ref when one is given @aed68688](../../tests/useFocusTrap.test.tsx#L146),
+  [validated by closing returns focus to the previously active element without a trigger ref @279280ed](../../tests/useFocusTrap.test.tsx#L154),
+  [validated by `closing returns focus to a previously active <svg tabindex="0"> without a trigger ref` @bd707c95](../../tests/useFocusTrap.test.tsx#L383)).
+- `useFocusTrap` gains three behaviours for modal panels, under
+  [specs/bowman-ui-form-dialog-notice/spec.md](../bowman-ui-form-dialog-notice/spec.md), its
+  signature unchanged: an open container with nothing focusable inside, which carries a
+  `tabindex` and passes the visibility check, takes focus itself and Tab and Shift+Tab are
+  prevented, pulling escaped focus back to it, while a container without a `tabindex` still
+  leaves Tab alone; with focus on the container itself, Tab moves to the first element and
+  Shift+Tab to the last; and unmounting while open returns focus as closing does, skipping a
+  return target that is no longer connected, on close as on unmount ([validated by an empty container without a tabindex leaves Tab handling alone @49cfd3ce](../../tests/useFocusTrap.test.tsx#L251), [validated by an empty container with a tabindex takes focus on open and Tab from it is prevented @813cc857](../../tests/useFocusTrap.test.tsx#L262), [validated by an empty container with a tabindex that fails the visibility check takes no focus and leaves Tab alone @34858645](../../tests/useFocusTrap.test.tsx#L271), [validated by Tab with focus escaped from an empty focusable container is prevented and pulls focus back to the container @ac9e7de5](../../tests/useFocusTrap.test.tsx#L285), [validated by Tab from the focused container itself reaches the first element @a65768b2](../../tests/useFocusTrap.test.tsx#L294), [validated by Shift+Tab from the focused container itself reaches the last element @cdf7f8ae](../../tests/useFocusTrap.test.tsx#L302), [validated by unmounting while open returns focus to the element that held it before opening @52422c57](../../tests/useFocusTrap.test.tsx#L310), [validated by unmounting while open returns focus to the latest trigger ref when one is given @9e74453b](../../tests/useFocusTrap.test.tsx#L325), [validated by a close returns focus once and a later unmount while closed returns it no more @767b09a9](../../tests/useFocusTrap.test.tsx#L339), [validated by a new triggerRef while open never returns focus @84ab1609](../../tests/useFocusTrap.test.tsx#L350), [validated by a return target removed before the close is skipped and focus stays where it was @e3a91e71](../../tests/useFocusTrap.test.tsx#L368)).
 - `useFocusGroups({announce})` — the hardcoded English `Moved to ${groupName}` and the Tailwind
   `sr-only` class are both gone from the contract: `announce` maps a group name to the
   announcement (English default preserved, `null` suppresses), and the live region is hidden
@@ -79,6 +87,10 @@ exports entry for a consumer ([validated by each built hook and ErrorBoundary op
   [validated by F6 follows data-focus-group-order, not DOM order @5d3836b0](../../tests/useFocusGroups.test.tsx#L53),
   [validated by F6 wraps forward past the last group and Shift+F6 wraps backward past the first @da279fe6](../../tests/useFocusGroups.test.tsx#L61),
   [validated by equal orders fall back to DOM order, so the first F6 lands on the second group @48c46ffc](../../tests/useFocusGroups.test.tsx#L75)).
+- `useFocusGroups` and an open modal — while focus sits inside an `aria-modal="true"` element,
+  F6 is left alone - focus stays and the event is not prevented - so it never reaches a page group
+  behind an open modal (specs/bowman-ui-form-dialog-notice/spec.md § `useFocusTrap`)
+  ([validated by F6 with focus inside an aria-modal container leaves focus put and the event unprevented @11b810c7](../../tests/useFocusGroups.test.tsx#L249)).
 - `ErrorBoundary` — the `console.error` call is gone: `onError` is the only reporting channel,
   and rendering a thrown error writes nothing to the console and nothing to localStorage — the
   GDPR zero-retention rider on the error text. The three English strings became
@@ -109,7 +121,7 @@ exports entry for a consumer ([validated by each built hook and ErrorBoundary op
   `--bowman-danger` glyph - rather than the `red-*` palette classes, the circle's dark fill
   joining the collapsed `rgba()` soft-dark fallback per § Theming decision 6
   ([validated by the error icon circle and glyph read the danger role, not the red palette classes @8de62178](../../tests/ErrorBoundary.test.tsx#L91),
-  [readers@bc8f1dea](../../tests/theming-tokens-dist.test.ts#L346)).
+  [readers@bc8f1dea](../../tests/theming-tokens-dist.test.ts#L381)).
 
 No built file reads `process.env`, and no `NEXT_PUBLIC_FLAG_ANIMATIONS`
 string survives in `src/`

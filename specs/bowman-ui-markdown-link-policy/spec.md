@@ -194,8 +194,8 @@ renders as alt text
 - **The factory sits in the `labelsProp` partition bucket** with its own
   sentinel harness and key-coverage test (docs/design-notes.md § Labels records the
   shape; Toast's closed-list precedent)
-  ([validated by createMarkdownComponents' sentinel labels cover every defaultMarkdownComponentsLabels key @ef7d65f5](../../tests/labelled-exports.test.tsx#L667),
-  [harness@ed7ced4b](../../tests/labelled-exports.test.tsx#L538)).
+  ([validated by createMarkdownComponents' sentinel labels cover every defaultMarkdownComponentsLabels key @ef7d65f5](../../tests/labelled-exports.test.tsx#L765),
+  [harness@ed7ced4b](../../tests/labelled-exports.test.tsx#L585)).
 
   `ChatMessage`'s sentinel harness renders a numeric-text link so the notice
   label reaches the checked DOM.

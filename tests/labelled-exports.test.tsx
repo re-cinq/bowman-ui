@@ -1,4 +1,4 @@
-import { fireEvent, render } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import ReactMarkdown from "react-markdown";
@@ -10,13 +10,17 @@ import {
   ChatComposer,
   ChatMessage,
   ChatMessageList,
+  ConfirmDialog,
   ConversationList,
+  Dialog,
   ErrorBoundary,
   IconButton,
   InlineThinkingIndicator,
+  Notice,
   PlusIcon,
   PromptChips,
   SearchField,
+  TextField,
   ThinkingIndicator,
   ThinkingTrace,
   ToolActivity,
@@ -28,9 +32,12 @@ import {
   defaultChatComposerLabels,
   defaultChatMessageLabels,
   defaultChatMessageListLabels,
+  defaultConfirmDialogLabels,
   defaultConversationListLabels,
+  defaultDialogLabels,
   defaultErrorBoundaryLabels,
   defaultInlineThinkingIndicatorLabels,
+  defaultNoticeLabels,
   defaultPromptChipsLabels,
   defaultSearchFieldLabels,
   defaultThinkingIndicatorLabels,
@@ -45,12 +52,16 @@ import type {
   ChatComposerLabels,
   ChatMessageLabels,
   ChatMessageListLabels,
+  ConfirmDialogLabels,
   ConversationListLabels,
+  DialogLabels,
   ErrorBoundaryLabels,
   IconButtonLabels,
   InlineThinkingIndicatorLabels,
+  NoticeLabels,
   PromptChipsLabels,
   SearchFieldLabels,
+  TextFieldLabels,
   ThinkingChatEntry,
   ThinkingIndicatorLabels,
   ThinkingTraceLabels,
@@ -67,9 +78,11 @@ import {
 // exports carry no strings and are excluded by design. A new export lands in
 // exactly one bucket:
 //   labelsProp     - takes labels?: Partial<XLabels> over English defaults
-//                    (ChatMessageList's and IconButton's labels props are
-//                    required - aiDisclosure and accessibleName have no
-//                    default - but the shape is the same)
+//                    (the labels props of ChatMessageList, IconButton,
+//                    TextField, Dialog and ConfirmDialog are required -
+//                    aiDisclosure, accessibleName, fieldLabel, dialogTitle
+//                    and confirmAction have no default - but the shape is
+//                    the same)
 //   stringPropOnly - takes its strings through a dedicated prop (the three
 //                    grandfathered shapes: icons' ariaLabel, useFocusGroups'
 //                    announce, Toast's message)
@@ -94,6 +107,10 @@ const labelsProp = [
   "PromptChips",
   "SearchField",
   "createMarkdownComponents",
+  "TextField",
+  "Dialog",
+  "ConfirmDialog",
+  "Notice",
 ];
 
 const stringPropOnly = [
@@ -150,6 +167,11 @@ const noStrings = [
   "defaultChatCardLabels",
   "defaultPromptChipsLabels",
   "defaultSearchFieldLabels",
+  "KeyValueList",
+  "Card",
+  "defaultDialogLabels",
+  "defaultConfirmDialogLabels",
+  "defaultNoticeLabels",
 ];
 
 // `export type { ... }` never matches: "type" sits between "export" and "{".
@@ -309,7 +331,32 @@ const promptChipsSentinels = {
 const searchFieldSentinels = {
   searchInput: "⟦searchInput⟧",
   searchPlaceholder: "⟦searchPlaceholder⟧",
+  submitSearch: "⟦submitSearch⟧",
 } satisfies Required<SearchFieldLabels>;
+
+// TextField ships no defaults object, as IconButton does not: its coverage
+// check pins the key list itself, the required fieldLabel and both optional keys.
+const textFieldSentinels = {
+  fieldLabel: "⟦fieldLabel⟧",
+  fieldHint: "⟦fieldHint⟧",
+  fieldError: "⟦fieldError⟧",
+} satisfies Required<TextFieldLabels>;
+
+const dialogSentinels = {
+  dialogTitle: "⟦dialogTitle⟧",
+  closeDialog: "⟦closeDialog⟧",
+} satisfies Required<DialogLabels>;
+
+const confirmDialogSentinels = {
+  dialogTitle: "⟦confirmDialogTitle⟧",
+  confirmAction: "⟦confirmAction⟧",
+  cancelAction: "⟦cancelAction⟧",
+  confirmBusy: "⟦confirmBusy⟧",
+} satisfies Required<ConfirmDialogLabels>;
+
+const noticeSentinels = {
+  dismissNotice: "⟦dismissNotice⟧",
+} satisfies Required<NoticeLabels>;
 
 // The fixture content carries no run of three Latin letters, so everything
 // user-shaped the harness renders (content, "LM" initials) passes the
@@ -583,8 +630,59 @@ const sentinelHarnesses: Record<
   SearchField: {
     sentinels: Object.values(searchFieldSentinels),
     renderContainer: () =>
-      render(<SearchField value="4711" onChange={() => {}} labels={searchFieldSentinels} />)
-        .container,
+      render(
+        <SearchField
+          value="4711"
+          onChange={() => {}}
+          onSubmit={() => {}}
+          labels={searchFieldSentinels}
+        />
+      ).container,
+  },
+  TextField: {
+    sentinels: Object.values(textFieldSentinels),
+    renderContainer: () =>
+      render(<TextField value="4711" onChange={() => {}} labels={textFieldSentinels} />).container,
+  },
+  // The dialogs portal out of the render container, so each harness returns
+  // its own panel, found by role and sentinel title, never document.body.
+  Dialog: {
+    sentinels: Object.values(dialogSentinels),
+    renderContainer: () => {
+      render(
+        <Dialog open onClose={() => {}} labels={dialogSentinels} footer={<span>4712</span>}>
+          {numericContent}
+        </Dialog>
+      );
+
+      return screen.getByRole("dialog", { name: dialogSentinels.dialogTitle });
+    },
+  },
+  ConfirmDialog: {
+    sentinels: Object.values(confirmDialogSentinels),
+    renderContainer: () => {
+      render(
+        <ConfirmDialog
+          open
+          busy
+          onConfirm={() => {}}
+          onCancel={() => {}}
+          labels={confirmDialogSentinels}
+          description={numericContent}
+        />
+      );
+
+      return screen.getByRole("alertdialog", { name: confirmDialogSentinels.dialogTitle });
+    },
+  },
+  Notice: {
+    sentinels: Object.values(noticeSentinels),
+    renderContainer: () =>
+      render(
+        <Notice tone="warning" heading="4711" onDismiss={() => {}} labels={noticeSentinels}>
+          {numericContent}
+        </Notice>
+      ).container,
   },
 };
 
@@ -684,6 +782,26 @@ describe("the sentinel render check", () => {
     expect(Object.keys(searchFieldSentinels).sort()).toEqual(
       Object.keys(defaultSearchFieldLabels).sort()
     );
+  });
+
+  it("TextField's sentinel labels are exactly fieldLabel, fieldHint and fieldError", () => {
+    expect(Object.keys(textFieldSentinels)).toEqual(["fieldLabel", "fieldHint", "fieldError"]);
+  });
+
+  it("Dialog's sentinel labels cover every defaultDialogLabels key plus the required dialogTitle", () => {
+    expect(Object.keys(dialogSentinels).sort()).toEqual(
+      [...Object.keys(defaultDialogLabels), "dialogTitle"].sort()
+    );
+  });
+
+  it("ConfirmDialog's sentinel labels cover every defaultConfirmDialogLabels key plus the required dialogTitle and confirmAction", () => {
+    expect(Object.keys(confirmDialogSentinels).sort()).toEqual(
+      [...Object.keys(defaultConfirmDialogLabels), "dialogTitle", "confirmAction"].sort()
+    );
+  });
+
+  it("Notice's sentinel labels cover every defaultNoticeLabels key", () => {
+    expect(Object.keys(noticeSentinels).sort()).toEqual(Object.keys(defaultNoticeLabels).sort());
   });
 
   it("no run of three Latin letters survives outside the sentinels for any labelsProp member", () => {

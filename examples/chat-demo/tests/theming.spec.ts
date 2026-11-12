@@ -1,8 +1,12 @@
 // The theming tokens (issue 210), proved in a real Chromium: a consumer
 // that sets nothing gets the palette colour the library shipped with, a consumer that sets every
 // --bowman-* property on a wrapper (src/custom-theme.css) gets the wrapper's colours, and both are
-// measured at a visible site of the chat screen for every token the installed stylesheet declares,
-// under the light and the dark scheme, in WebKit too. A colour is never compared to a pinned oklch
+// measured at a visible site for every token the installed stylesheet declares, under the light
+// and the dark scheme, in WebKit too. Every token has its site on the chat screen but the nine the
+// form, dialog and notice components added (issue 415) - the danger fill and the info and warning
+// tones, which the chat screen has no honest place for - and those are measured on their
+// documentation pages instead, by docs.spec.ts over tests/helpers/docsTokenPages.ts, under the
+// defaults and inside the pages' page-local wrapper. A colour is never compared to a pinned oklch
 // string: a probe painted with the expected value gives the engine's own serialisation
 // (tests/helpers/colors.ts), and every read polls past transition-colors.
 
@@ -20,6 +24,7 @@ import {
   computedPaletteColor,
   serialisedColor,
 } from "./helpers/colors";
+import { docsThemedPages, docsTokenPages } from "./helpers/docsTokenPages";
 import {
   click,
   copperlineValues,
@@ -398,10 +403,23 @@ const assistantEntryCount = initialEntriesByConversation[conversations[0].id].fi
   (entry) => entry.role === "assistant"
 ).length;
 
-test("the chat matrix reaches every token the installed stylesheet declares, and the wrapper sets the same set", () => {
-  const declared = [...declaredFallbacks.keys()].sort();
+const docsSites = docsTokenPages.flatMap((page) => page.sites);
 
-  expect(tokensMeasuredBy(chatSites)).toEqual(declared);
+// The pages whose tokens the chat screen has no site for (decision 19 of issue 415).
+const formDialogNoticeSites = docsTokenPages
+  .filter((page) => ["confirm-dialog", "notice"].includes(page.componentId))
+  .flatMap((page) => page.sites);
+
+test("the chat matrix and the documentation pages together reach exactly every token the installed stylesheet declares, the chat lacking only the confirm-dialog and notice pages' tokens, which the wrapper run reaches too, and the wrapper sets the same set", () => {
+  const declared = [...declaredFallbacks.keys()].sort();
+  const chatTokens = new Set(tokensMeasuredBy(chatSites));
+  const chatLacks = declared.filter((token) => !chatTokens.has(token));
+
+  expect(tokensMeasuredBy([...chatSites, ...docsSites])).toEqual(declared);
+  expect(chatLacks).toEqual(tokensMeasuredBy(formDialogNoticeSites));
+  expect(tokensMeasuredBy(docsThemedPages.flatMap((page) => page.sites))).toEqual(
+    expect.arrayContaining(chatLacks)
+  );
   expect([...copperlineValues.keys()].sort()).toEqual(declared);
 });
 

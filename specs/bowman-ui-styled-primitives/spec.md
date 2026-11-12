@@ -27,27 +27,28 @@ the four keyframes and the stylesheet tests are unchanged
 
 Four components, two defaults objects and nine types, all from the package root
 ([validated by @3c9682f2](../../tests/public-api.test.ts#L40), [L46@1a95e338](../../tests/public-api.test.ts#L46),
-[validated by is frozen and equals { suggestedPrompts: "Suggested prompts" } @57036184](../../tests/PromptChips.test.tsx#L127), [validated by defaultSearchFieldLabels is frozen and equals { searchInput: "Search", searchPlaceholder: "Search..." } @dd98595f](../../tests/SearchField.test.tsx#L106)).
+[validated by is frozen and equals { suggestedPrompts: "Suggested prompts" } @57036184](../../tests/PromptChips.test.tsx#L127), [validated by defaultSearchFieldLabels is frozen and equals { searchInput: "Search", searchPlaceholder: "Search...", submitSearch: "Submit search" } @c472eff1](../../tests/SearchField.test.tsx#L199)).
 Every value export lands in one bucket of `tests/labelled-exports.test.tsx`
-([validated by labelsProp, stringPropOnly and noStrings together are exactly src/index.ts's value exports @55e0da40](../../tests/labelled-exports.test.tsx#L165)). The `labelsProp` bucket holds
+([validated by labelsProp, stringPropOnly and noStrings together are exactly src/index.ts's value exports @55e0da40](../../tests/labelled-exports.test.tsx#L187)). The `labelsProp` bucket holds
 `IconButton`, `PromptChips` and `SearchField`, with a sentinel harness each
-([validated by @4a070485](../../tests/labelled-exports.test.tsx#L93),
-[L94@daef69b6](../../tests/labelled-exports.test.tsx#L94),
-[L95@5fd828bb](../../tests/labelled-exports.test.tsx#L95),
-[validated by IconButton's sentinel labels are exactly the one required key accessibleName @5ffa4440](../../tests/labelled-exports.test.tsx#L673),
-[validated by PromptChips' sentinel labels cover every defaultPromptChipsLabels key @621a2f48](../../tests/labelled-exports.test.tsx#L677),
-[validated by SearchField's sentinel labels cover every defaultSearchFieldLabels key @45ff9aa9](../../tests/labelled-exports.test.tsx#L683),
-[validated by no run of three Latin letters survives outside the sentinels for any labelsProp member @ffb54b18](../../tests/labelled-exports.test.tsx#L689)). The `noStrings` bucket holds `Button`,
+([validated by @4a070485](../../tests/labelled-exports.test.tsx#L106),
+[L107@daef69b6](../../tests/labelled-exports.test.tsx#L107),
+[L108@5fd828bb](../../tests/labelled-exports.test.tsx#L108),
+[validated by IconButton's sentinel labels are exactly the one required key accessibleName @5ffa4440](../../tests/labelled-exports.test.tsx#L771),
+[validated by PromptChips' sentinel labels cover every defaultPromptChipsLabels key @621a2f48](../../tests/labelled-exports.test.tsx#L775),
+[validated by SearchField's sentinel labels cover every defaultSearchFieldLabels key @45ff9aa9](../../tests/labelled-exports.test.tsx#L781),
+[validated by no run of three Latin letters survives outside the sentinels for any labelsProp member @ffb54b18](../../tests/labelled-exports.test.tsx#L807)). The `noStrings` bucket holds `Button`,
 `defaultPromptChipsLabels` and `defaultSearchFieldLabels`
-([validated by](../../tests/labelled-exports.test.tsx#L138),
-[L151@cd574397](../../tests/labelled-exports.test.tsx#L151),
-[L152@c98f1259](../../tests/labelled-exports.test.tsx#L152)). The `stringPropOnly` list stays at its three
-closed members ([validated by labelsProp, stringPropOnly and noStrings together are exactly src/index.ts's value exports @55e0da40](../../tests/labelled-exports.test.tsx#L165)).
+([validated by](../../tests/labelled-exports.test.tsx#L155),
+[L168@cd574397](../../tests/labelled-exports.test.tsx#L168),
+[L169@c98f1259](../../tests/labelled-exports.test.tsx#L169)). The `stringPropOnly` list stays at its three
+closed members ([validated by labelsProp, stringPropOnly and noStrings together are exactly src/index.ts's value exports @55e0da40](../../tests/labelled-exports.test.tsx#L187)).
 
 ### `Button`
 
 ```ts
-export type ButtonVariant = "primary" | "secondary" | "ghost";
+/** "danger" joined the union with specs/bowman-ui-form-dialog-notice/spec.md. */
+export type ButtonVariant = "primary" | "secondary" | "ghost" | "danger";
 export type ButtonSize = "sm" | "md";
 
 export interface ButtonProps {
@@ -67,9 +68,12 @@ export interface ButtonProps {
 export const Button: ForwardRefExoticComponent<ButtonProps & RefAttributes<HTMLButtonElement>>;
 ```
 
+The union's fourth member, `danger`, a solid fill for the one action on a screen that destroys
+something, is pinned in [specs/bowman-ui-form-dialog-notice/spec.md](../bowman-ui-form-dialog-notice/spec.md), which also adds it to `IconButton` ([validated by variant="danger" on Button and IconButton carries the --bowman-danger-fill fill and hover and --bowman-text-on-danger text @ab5aa400](../../tests/Button.test.tsx#L147), [validated by a disabled danger Button or IconButton renders the native attribute and never reaches onClick @dd0af3c7](../../tests/Button.test.tsx#L159)).
+
 - Renders one `<button>` with `type` defaulting to `"button"`, the `children` as its accessible
-  name, and the `ref` forwarded to that element ([validated by `renders one <button type="button"> whose accessible name is the children "Ny samtale"` @85244768](../../tests/Button.test.tsx#L26),
-  [validated by type="submit" renders type="submit" @9a107474](../../tests/Button.test.tsx#L33), [validated by `the ref reaches the <button> element` @76ae0373](../../tests/Button.test.tsx#L43)).
+  name, and the `ref` forwarded to that element ([validated by `renders one <button type="button"> whose accessible name is the children "Ny samtale"` @85244768](../../tests/Button.test.tsx#L27),
+  [validated by type="submit" renders type="submit" @9a107474](../../tests/Button.test.tsx#L34), [validated by `the ref reaches the <button> element` @76ae0373](../../tests/Button.test.tsx#L44)).
 - `variant` picks the look: `primary` is the composer send button's accent fill (the
   `ACCENT_BG` and `ACCENT_BG_HOVER` token strings from `src/theme/tokens.ts`, reading
   `--bowman-accent` and `--bowman-accent-hover`, with the `TEXT_ON_ACCENT` string reading
@@ -80,25 +84,25 @@ export const Button: ForwardRefExoticComponent<ButtonProps & RefAttributes<HTMLB
   the `FOCUS_RING_COLOR` token string, reading `--bowman-focus-ring`) and the
   `disabled:cursor-not-allowed disabled:opacity-50` pair ([validated
   by](../../tests/Button.test.tsx#L96),
-  [validated by variant="primary" carries the --bowman-accent background and hover, --bowman-text-on-accent text and no border-slate-200 @98b3781e](../../tests/Button.test.tsx#L96), [validated by variant="ghost" reads --bowman-text-secondary, its hover reads --bowman-text-strong, beside --bowman-surface-hover with neither a border token nor the --bowman-accent background @273e2213](../../tests/Button.test.tsx#L113),
-  [validated by every variant keeps focus:ring-2 ring-offset-2 beside the --bowman-focus-ring and --bowman-ring-offset colours and carries the disabled pair @59bf81c0](../../tests/Button.test.tsx#L123)).
+  [validated by variant="primary" carries the --bowman-accent background and hover, --bowman-text-on-accent text and no border-slate-200 @98b3781e](../../tests/Button.test.tsx#L97), [validated by variant="ghost" reads --bowman-text-secondary, its hover reads --bowman-text-strong, beside --bowman-surface-hover with neither a border token nor the --bowman-accent background @273e2213](../../tests/Button.test.tsx#L114),
+  [validated by every variant keeps focus:ring-2 ring-offset-2 beside the --bowman-focus-ring and --bowman-ring-offset colours and carries the disabled pair @59bf81c0](../../tests/Button.test.tsx#L124)).
 - `ghost`'s hover text and the `SearchField` input read `--bowman-text-strong`
   (docs/design-notes.md § Theming decision 6), so a consumer recolours the emphasised text on
   both with the theme rather than the fixed slate they carried before
-  ([validated by variant="ghost" reads --bowman-text-secondary, its hover reads --bowman-text-strong, beside --bowman-surface-hover with neither a border token nor the --bowman-accent background @3ff5ea71](../../tests/Button.test.tsx#L110), [validated by the input reads the strong text token, so a consumer recolours the query text with the theme @33b271c4](../../tests/SearchField.test.tsx#L123)).
+  ([validated by variant="ghost" reads --bowman-text-secondary, its hover reads --bowman-text-strong, beside --bowman-surface-hover with neither a border token nor the --bowman-accent background @3ff5ea71](../../tests/Button.test.tsx#L111), [validated by the input reads the strong text token, so a consumer recolours the query text with the theme @33b271c4](../../tests/SearchField.test.tsx#L217)).
 - `size` picks the padding and type scale: `md` is `px-4 py-2.5 text-sm`, `sm` is
-  `px-3 py-1.5 text-xs` ([validated by @a999edc8](../../tests/Button.test.tsx#L143),
-  [L150@9338a074](../../tests/Button.test.tsx#L150)).
+  `px-3 py-1.5 text-xs` ([validated by @a999edc8](../../tests/Button.test.tsx#L187),
+  [L194@9338a074](../../tests/Button.test.tsx#L194)).
 - `icon`, when given, renders before the text with `h-4 w-4` at `md` and `h-3.5 w-3.5` at `sm`;
   a package icon rendered this way carries `aria-hidden="true"` because it receives no
-  `ariaLabel` ([validated by `icon={PlusIcon} at md renders an aria-hidden <svg class="h-4 w-4"> before the text "Ny samtale"` @9e79a803](../../tests/Button.test.tsx#L163),
-  [L183@4877b3b2](../../tests/Button.test.tsx#L183),
-  [validated by with icon omitted no svg renders and the button holds only the text @94bb244c](../../tests/Button.test.tsx#L193)).
+  `ariaLabel` ([validated by `icon={PlusIcon} at md renders an aria-hidden <svg class="h-4 w-4"> before the text "Ny samtale"` @9e79a803](../../tests/Button.test.tsx#L207),
+  [L227@4877b3b2](../../tests/Button.test.tsx#L227),
+  [validated by with icon omitted no svg renders and the button holds only the text @94bb244c](../../tests/Button.test.tsx#L237)).
 - `onClick` receives the click event; `disabled` renders the native attribute and the click never
-  fires ([validated by clicking "Ny samtale" calls onClick once with the click event @07bf0cd1](../../tests/Button.test.tsx#L57), [validated by disabled renders the native attribute and the click never reaches onClick @61123d4e](../../tests/Button.test.tsx#L69)).
+  fires ([validated by clicking "Ny samtale" calls onClick once with the click event @07bf0cd1](../../tests/Button.test.tsx#L58), [validated by disabled renders the native attribute and the click never reaches onClick @61123d4e](../../tests/Button.test.tsx#L70)).
 - `Button` renders no string of its own - its text is `children` - so it sits in `noStrings` and
-  takes no `labels` prop ([validated by](../../tests/labelled-exports.test.tsx#L138),
-  [validated by labelsProp, stringPropOnly and noStrings together are exactly src/index.ts's value exports @55e0da40](../../tests/labelled-exports.test.tsx#L165)).
+  takes no `labels` prop ([validated by](../../tests/labelled-exports.test.tsx#L155),
+  [validated by labelsProp, stringPropOnly and noStrings together are exactly src/index.ts's value exports @55e0da40](../../tests/labelled-exports.test.tsx#L187)).
 
 ### `IconButton`
 
@@ -141,13 +145,13 @@ export const IconButton: ForwardRefExoticComponent<
 - `labels` is required and `IconButtonLabels` has no defaults object: the accessible name is the
   component's only string and no English default may stand in for it, the same reasoning as
   `aiDisclosure` (docs/design-notes.md § Labels decision 5). Omitting `labels` is a compile
-  error against the built package ([validated by IconButton's sentinel labels are exactly the one required key accessibleName @5ffa4440](../../tests/labelled-exports.test.tsx#L673),
+  error against the built package ([validated by IconButton's sentinel labels are exactly the one required key accessibleName @5ffa4440](../../tests/labelled-exports.test.tsx#L771),
   [L55@578e2ae7](../../tests/types/primitives-type-assertions.tsx#L55),
   [validated by tsc accepts primitives-type-assertions.tsx against dist via the '.' exports entry, pinning every @ts-expect-error fixture @5f78b662](../../tests/primitives-dist.test.ts#L42)).
 - The accessible name goes through `labels`, never a string prop, so `IconButton` is a
   `labelsProp` member and the closed `stringPropOnly` list is untouched
-  ([validated by @4a070485](../../tests/labelled-exports.test.tsx#L93),
-  [validated by no run of three Latin letters survives outside the sentinels for any labelsProp member @ffb54b18](../../tests/labelled-exports.test.tsx#L689)).
+  ([validated by @4a070485](../../tests/labelled-exports.test.tsx#L106),
+  [validated by no run of three Latin letters survives outside the sentinels for any labelsProp member @ffb54b18](../../tests/labelled-exports.test.tsx#L807)).
 
 ### `PromptChips`
 
@@ -196,14 +200,19 @@ export interface SearchFieldLabels {
   /** The input's accessible name - a real label, never the placeholder. */
   searchInput: string;
   searchPlaceholder: string;
+  /** The submit button's accessible name, read only when `onSubmit` is given. */
+  submitSearch: string;
 }
 
-export const defaultSearchFieldLabels: Readonly<Required<SearchFieldLabels>>; // "Search", "Search..."
+// "Search", "Search...", "Submit search"
+export const defaultSearchFieldLabels: Readonly<Required<SearchFieldLabels>>;
 
 export interface SearchFieldProps {
   value: string;
   /** Receives the input's new value verbatim - untrimmed, a controlled input's contract. */
   onChange: (value: string) => void;
+  /** Runs the search on Enter or the submit button; without it, no button renders. */
+  onSubmit?: (value: string) => void;
   disabled?: boolean;
   labels?: Partial<SearchFieldLabels>;
 }
@@ -213,12 +222,15 @@ export const SearchField: ForwardRefExoticComponent<
 >;
 ```
 
+`onSubmit` and the `submitSearch` key it reads are pinned in [specs/bowman-ui-form-dialog-notice/spec.md](../bowman-ui-form-dialog-notice/spec.md); without `onSubmit`,
+`SearchField` renders what this section describes ([validated by renders no button without onSubmit - no clear control and no submit @a47ff0b5](../../tests/SearchField.test.tsx#L76), [validated by without onSubmit, Enter on the input is not prevented, so a consumer's own form still submits @cfc9ed0c](../../tests/SearchField.test.tsx#L82), [validated by without onSubmit, the input keeps the leading-icon padding pl-9 pr-3 @2b1336a8](../../tests/SearchField.test.tsx#L88), [validated by with onSubmit, a ghost size="sm" IconButton named "Submit search" replaces the leading icon at the trailing edge @fb034417](../../tests/SearchField.test.tsx#L96), [validated by defaultSearchFieldLabels is frozen and equals { searchInput: "Search", searchPlaceholder: "Search...", submitSearch: "Submit search" } @c472eff1](../../tests/SearchField.test.tsx#L199)).
+
 - Renders a wrapper `<div class="relative">` holding a decorative `SearchIcon` (absolutely
   positioned at the left, `pointer-events-none`, `aria-hidden`) and one `<input type="search">`
   named by `searchInput` through `aria-label`, with `searchPlaceholder` as its placeholder and
   the `ref` forwarded to the input ([validated by `renders one <input type="search"> named "Search" with placeholder "Search..." by default` @dd7180cf](../../tests/SearchField.test.tsx#L16),
   [validated by `the SearchIcon is an aria-hidden, pointer-events-none absolute <svg> inside a relative wrapper` @50597927](../../tests/SearchField.test.tsx#L64), [validated by `the forwarded ref reaches the <input>` @8a1a68d3](../../tests/SearchField.test.tsx#L54),
-  [validated by labels={{ searchInput: "Søg i samtaler", searchPlaceholder: "Søg..." }} renders both overrides with no "Search" left in the DOM @00f2bd62](../../tests/SearchField.test.tsx#L84), [validated by labels={{ searchInput: undefined }} falls back to the "Search" default @41ebc09e](../../tests/SearchField.test.tsx#L100)).
+  [validated by labels={{ searchInput: "Søg i samtaler", searchPlaceholder: "Søg..." }} renders both overrides with no "Search" left in the DOM @00f2bd62](../../tests/SearchField.test.tsx#L177), [validated by labels={{ searchInput: undefined }} falls back to the "Search" default @41ebc09e](../../tests/SearchField.test.tsx#L193)).
 - The input is controlled: it renders `value`, and every change calls `onChange` with the
   input's new value verbatim. `type="search"` brings the browser's own clear control, which
   empties the controlled field through `onChange("")` in Chromium and WebKit alike;
@@ -226,11 +238,12 @@ export const SearchField: ForwardRefExoticComponent<
   the demo's `search-field` documentation page (issue 151)
   ([validated by value="4711" renders as the input's value @c5fa5032](../../tests/SearchField.test.tsx#L25),
   [validated by a change to " Hvor " calls onChange once with " Hvor " untrimmed @b77368a3](../../tests/SearchField.test.tsx#L31),
-  [browser@fe193eeb](../../examples/chat-demo/tests/docs.spec.ts#L196)).
+  [browser@fe193eeb](../../examples/chat-demo/tests/docs.spec.ts#L213)).
 - `disabled` renders the native attribute ([validated by disabled renders the native disabled attribute @6c07bf8e](../../tests/SearchField.test.tsx#L42),
   [validated by the input is enabled when disabled is omitted @75ffe78a](../../tests/SearchField.test.tsx#L48)).
-- No clear button, no submit, no debounce: filtering as the user types is the consumer's, and
-  `useDebounce` already ships for it ([validated by renders no button - no clear control and no submit @4b1b51c6](../../tests/SearchField.test.tsx#L76)).
+- No clear button and no debounce; a submit button only with `onSubmit`
+  ([specs/bowman-ui-form-dialog-notice/spec.md](../bowman-ui-form-dialog-notice/spec.md)):
+  filtering as the user types is the consumer's, and `useDebounce` already ships for it ([validated by renders no button without onSubmit - no clear control and no submit @a47ff0b5](../../tests/SearchField.test.tsx#L76)).
 
 ## Conventions every primitive follows
 
@@ -241,7 +254,7 @@ export const SearchField: ForwardRefExoticComponent<
 - `Button`, `IconButton` and `SearchField` are `forwardRef` components (decision 4: no cleanup
   rewrites `forwardRef` away), so a consumer can focus the control - a "jump to latest" button,
   a search box behind a keyboard shortcut - without reaching into the DOM
-  ([validated by `the ref reaches the <button> element` @76ae0373](../../tests/Button.test.tsx#L43), [validated by `the ref reaches the <button> element` @76ae0373](../../tests/IconButton.test.tsx#L42),
+  ([validated by `the ref reaches the <button> element` @76ae0373](../../tests/Button.test.tsx#L44), [validated by `the ref reaches the <button> element` @76ae0373](../../tests/IconButton.test.tsx#L42),
   [validated by `the forwarded ref reaches the <input>` @8a1a68d3](../../tests/SearchField.test.tsx#L54)).
 - No primitive takes `className`, `style` or a render prop. Layout is the wrapper's: a `Button`
   in a `flex flex-col` sidebar column stretches to the column's width on its own, and a floating
@@ -283,13 +296,13 @@ by](../../tests/public-api.test.ts#L40),
    fifth case), and the chat-demo's sign-out footer button, a control the issue did not
    enumerate - and a bordered `secondary` there reads as chrome. One `ButtonVariant` union
    serves both components so a consumer never learns two
-   vocabularies ([validated by variant="ghost" reads --bowman-text-secondary, its hover reads --bowman-text-strong, beside --bowman-surface-hover with neither a border token nor the --bowman-accent background @273e2213](../../tests/Button.test.tsx#L113),
+   vocabularies ([validated by variant="ghost" reads --bowman-text-secondary, its hover reads --bowman-text-strong, beside --bowman-surface-hover with neither a border token nor the --bowman-accent background @273e2213](../../tests/Button.test.tsx#L114),
    [validated by variant="ghost" reads --bowman-text-secondary and --bowman-surface-hover and no border class at all @36d993c6](../../tests/IconButton.test.tsx#L99),
    [L48@c5aebd49](../../tests/types/primitives-type-assertions.tsx#L48)).
 2. **`IconButton` ships no `defaultIconButtonLabels`.** Its one key is required, so the defaults
    object would be an empty frozen object exported for ceremony. `IconButton` therefore joins
    `ChatMessageList` as a component whose `labels` prop is itself required; docs/design-notes.md
-   § Labels records both ([validated by IconButton's sentinel labels are exactly the one required key accessibleName @5ffa4440](../../tests/labelled-exports.test.tsx#L673),
+   § Labels records both ([validated by IconButton's sentinel labels are exactly the one required key accessibleName @5ffa4440](../../tests/labelled-exports.test.tsx#L771),
    [L55@578e2ae7](../../tests/types/primitives-type-assertions.tsx#L55),
    [validated by tsc accepts primitives-type-assertions.tsx against dist via the '.' exports entry, pinning every @ts-expect-error fixture @5f78b662](../../tests/primitives-dist.test.ts#L42)).
 3. **The `prompts` slot stays `ReactNode`.** Folding the chips into `ChatMessageList` (a
@@ -308,7 +321,9 @@ by](../../tests/public-api.test.ts#L40),
    reflects ([validated by a change to " Hvor " calls onChange once with " Hvor " untrimmed @b77368a3](../../tests/SearchField.test.tsx#L31)).
 6. **`Text` and layout primitives are refused**, as the issue says: the greeting and the sidebar
    footer are consumer prose, and a layout primitive would decide spacing the consumer's page
-   already decides.
+   already decides. `Card` narrows the refusal: it decides one inner padding and nothing about
+   the page - no grid, no gap, no width - and ships for a whole surface that is one button, with
+   one accessible name and the package's focus ring ([specs/bowman-ui-form-dialog-notice/spec.md](../bowman-ui-form-dialog-notice/spec.md)) ([validated by `with onSelect and a heading, one left-aligned <button type=button> is named by the heading and described by the body` @25410157](../../tests/Card.test.tsx#L52), [validated by `carries the shared offset ring beside ring-offset-2, a SURFACE_HOVER hover and no shadow` @112b46d0](../../tests/Card.test.tsx#L79)).
 
 ## Out of scope
 

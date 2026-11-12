@@ -5,6 +5,8 @@ import {
   ChatMessageList,
   CopyIcon,
   IconWrapper,
+  KeyValueList,
+  Notice,
   SendIcon,
   type ChatAttribution,
 } from "@re-cinq/bowman-ui";
@@ -12,6 +14,8 @@ import {
   fixtureAiDisclosure,
   fixtureAssistantEntry,
   fixtureEntries,
+  fixtureNoticeText,
+  fixtureOrderPairs,
   fixturePersonaId,
   fixturePersonaName,
   fixtureUserEntry,
@@ -38,6 +42,9 @@ export default function Page() {
       </IconWrapper>
       <ChatMessage entry={fixtureUserEntry} userInitials={fixtureUserInitials} />
       <ChatMessage entry={fixtureAssistantEntry} userInitials={fixtureUserInitials} />
+      {/* KeyValueList carries no directive; Notice is a client file rendered without onDismiss. */}
+      <KeyValueList pairs={fixtureOrderPairs} />
+      <Notice tone="info">{fixtureNoticeText}</Notice>
       <ChatMessageList
         entries={fixtureEntries}
         userInitials={fixtureUserInitials}

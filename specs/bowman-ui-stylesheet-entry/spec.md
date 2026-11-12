@@ -32,7 +32,7 @@ markdown element styling, the `bowman-sr-only` rule and an unconditional
 reduced-motion rule
 ([validated by declares exactly the four keyframes bowman-fade-in, bowman-toast-fade-in, bowman-fade-dot and bowman-pulse-subtle @4d80b735](../../tests/styles.test.ts#L32),
 [validated by pairs each keyframe with a utility rule of the same name @6d6dbb26](../../tests/styles.test.ts#L43),
-[validated by styles.css declares the bowman-sr-only rule the markdown notice, Toast, ConversationList, ChatComposer and useFocusGroups depend on @badbc1ac](../../tests/styles.test.ts#L156)). All class and
+[validated by styles.css declares the bowman-sr-only rule the markdown notice, Toast, ConversationList, ChatComposer, ConfirmDialog and useFocusGroups depend on @888966ba](../../tests/styles.test.ts#L156)). All class and
 keyframe names carry the `bowman-` prefix so they cannot collide with a
 consumer's own `animate-*` utilities; the issue prescribed `.bowman-fade-in`
 for the split fade and the other three follow the same convention
@@ -41,7 +41,7 @@ unlayered, so they win on plain specificity without depending on a
 consumer's `@layer` order. Since issue 210 the copied `dist/styles.css` opens with a
 comment block declaring, one line per `--bowman-*` theming token, that token and
 its default
-([validated by dist/styles.css opens with one comment line per token, each stating its default @87f73091](../../tests/theming-tokens-dist.test.ts#L290)). The 50 % stop of
+([validated by dist/styles.css opens with one comment line per token, each stating its default @87f73091](../../tests/theming-tokens-dist.test.ts#L325)). The 50 % stop of
 `bowman-pulse-subtle` reads `--bowman-accent-glow` and `--bowman-pulse-outline` with today's
 literals as fallbacks - the zero stop stays literal
 ([validated by @4b32990f](../../tests/styles.test.ts#L72)).

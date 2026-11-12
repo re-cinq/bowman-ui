@@ -163,4 +163,18 @@ if [ -z "$EXPORT_COUNT" ] || [ "$EXPORT_COUNT" -lt 40 ]; then
   exit 1
 fi
 
+echo "==> Asserting the response bytes contain the KeyValueList and the info Notice"
+# The dl opens straight onto the first pair's row, so the grep proves the structure, not a stray tag.
+if ! grep -Eq '<dl[^>]*><div[^>]*><dt[^>]*>Order</dt>' "$RESPONSE_FILE"; then
+  echo "the / response bytes contain no server-rendered KeyValueList dl" >&2
+  exit 1
+fi
+# The notice's own text, reached from its role="status" through markup alone, so another status
+# element on the page cannot satisfy it. The text mirrors fixtureNoticeText in src/fixtures.ts.
+NOTICE_TEXT="Order VN-7305-KP now arrives on Friday at no charge"
+if ! grep -Eq "role=\"status\"[^>]*>(<[^>]*>)*$NOTICE_TEXT<" "$RESPONSE_FILE"; then
+  echo "the / response bytes contain no role=\"status\" Notice holding its text" >&2
+  exit 1
+fi
+
 echo "==> RSC fixture check passed"

@@ -43,10 +43,10 @@ Have these in hand; each is asked for below.
    file fails with "no `---` front-matter block". If that happens, do not
    trust `git checkout -- <file>` to restore a clean copy - git sees the file
    as unchanged after normalisation; delete it and check it out again.
-5. About two to three hours for a first run - the seven rows are around 30
-   minutes of listening; the rest is setup, fourteen verbatim transcriptions,
-   and the optional local-only sub-steps. A repeat run against an unchanged
-   surface is about 30 minutes.
+5. Time for a first run: the nine rows' listening, setup, eighteen verbatim
+   transcriptions, and the optional local-only sub-steps. No minute figure is
+   given until a timed run of A8 and A9 sets one; a repeat run against an
+   unchanged surface takes less, the setup being done.
 
 ## Stacks
 
@@ -97,8 +97,15 @@ installs. Two surfaces satisfy that; use the first unless a sub-step below says
 built by `.github/workflows/pages.yml` from the packed tarball, exactly the way
 `scripts/consumer-app.sh` builds the local copy. The `?view=chat` suffix
 matters: the bare URL serves the component documentation, whose example
-transcript carries a different disclosure sentence, and a transcription taken
-there is of the wrong page.
+transcript carries a different disclosure sentence, and a transcription for
+A1-A7 taken there is of the wrong page.
+
+A8 and A9 are the exception: the chat screen holds neither `ConfirmDialog` nor
+`Notice`, so those two rows run on their documentation pages of the same
+published site,
+<https://re-cinq.github.io/bowman-ui/?view=docs&component=confirm-dialog> (A8)
+and <https://re-cinq.github.io/bowman-ui/?view=docs&component=notice> (A9). A
+transcription for A8 or A9 taken anywhere else is of the wrong page.
 
 **A local build**, needed only for the two local-only sub-steps (A6 step 3 and
 A7b). It requires a clone with Node 22, bash, a completed `npm ci` at the root,
@@ -290,6 +297,48 @@ verdict from A7a and say in the body that A7b was not run.
 Because A7 is answered against `ChatMessage` and `ChatMessageList`, the record's
 `covers` list must include both.
 
+### A8. Is a busy `ConfirmDialog` announced?
+
+`ConfirmDialog` disables both buttons while `busy` holds and moves focus to its
+panel when focus sat on one of them; a `role="status"` region inside the panel,
+empty until then, receives the `confirmBusy` label, `"Working, please wait"` by
+default. No `aria-busy` is set and the spinner is `aria-hidden`, so the status
+message is the only words the busy state has.
+
+1. Open the `ConfirmDialog` documentation page (see
+   [The surface under test](#the-surface-under-test)).
+2. Open the dialog that turns busy from its own trigger, move to its confirm
+   button with Tab, and press Enter, so it turns busy while focus is on the
+   button.
+3. Note what was announced when focus moved to the panel, and whether
+   `"Working, please wait"` was spoken, with its role word.
+4. Close it, open the variant that is already busy when it opens, and note what
+   was announced on opening: the dialog's name, the status message, both or
+   neither.
+
+Record, verbatim and per stack, what was announced in step 3 and in step 4,
+including `nothing`. Tab order inside the dialog is not this row's question;
+the chat demo's Playwright suite checks it.
+
+### A9. Is a `Notice` announced, and is its dismiss button named?
+
+`Notice` renders `info` and `success` with `role="status"` and `warning` and
+`error` with `role="alert"`. A notice mounts with its text already inside the
+region, which some screen readers do not announce, so whether each tone is
+announced is the question. A dismissible notice also carries a dismiss button
+named by `dismissNotice`, `"Dismiss"` by default.
+
+1. Open the `Notice` documentation page (see
+   [The surface under test](#the-surface-under-test)) and listen as it loads.
+2. Show each tone's notice where the page shows it from a trigger, and listen
+   for its text.
+3. Move to the dismissible notice's dismiss button with the virtual cursor and
+   with Tab, and note what was announced.
+
+Record per stack and per tone whether the notice's text was announced when it
+appeared, verbatim, with its role word, and what the dismiss button was
+announced as.
+
 ## The record
 
 The pass writes `docs/accessibility/at-pass-<date>.md`, where `<date>` is the
@@ -319,6 +368,13 @@ covers:
   - src/components/Toast.tsx
   - src/components/ThinkingTrace.tsx
   - src/components/ToolActivity.tsx
+  - src/components/ConfirmDialog.tsx
+  - src/components/ModalPanel.tsx
+  - src/components/Button.tsx
+  - src/hooks/useFocusTrap.ts
+  - src/hooks/focusableSelector.ts
+  - src/components/Notice.tsx
+  - src/components/IconButton.tsx
 stacks:
   - id: voiceover
     screenReader: VoiceOver macOS 26.1
@@ -372,12 +428,24 @@ rows:
   - id: A7
     stack: nvda
     verdict: not-run
+  - id: A8
+    stack: voiceover
+    verdict: pass
+  - id: A8
+    stack: nvda
+    verdict: not-run
+  - id: A9
+    stack: voiceover
+    verdict: pass
+  - id: A9
+    stack: nvda
+    verdict: not-run
 ---
 ```
 
 A stack that was run replaces its `not-run` line with `browser`, `platform`
 and `voice`, and its rows carry real verdicts. One stack, or three, is as
-legal as two: every declared stack needs its seven rows.
+legal as two: every declared stack needs its nine rows.
 
 Required fields:
 
@@ -389,7 +457,7 @@ Required fields:
 | `package` | The package and version listened to: `@re-cinq/bowman-ui@<version>` for a registry install, or `@re-cinq/bowman-ui@main-<sha>` for the published site, which is built from `main` and carries no version                           |
 | `covers`  | Path list; every component a row exercises - see below                                                                                                                                                                             |
 | `stacks`  | One or more entries, each with an `id` slug (lowercase letters, digits, dashes; unique) and `screenReader`, plus `browser`, `platform` and `voice` as run - or `not-run: <why>` instead of those three. At least one entry was run |
-| `rows`    | One entry per row per declared stack: `id` (`A1`..`A7`), `stack` (a stack `id`), `verdict`                                                                                                                                         |
+| `rows`    | One entry per row per declared stack: `id` (`A1`..`A9`), `stack` (a stack `id`), `verdict`                                                                                                                                         |
 
 No placeholder may survive into the front matter. The gate rejects the words
 `TBD`, `TODO`, `FIXME` and `XXX` - whole words, any case, in any value, a
@@ -403,17 +471,23 @@ ancestor of the record's `commit`: editing `ChatMessageList.tsx` mechanically
 invalidates the pass that certified it, and the record says so to whoever runs
 the check until someone listens again.
 
-List every component the rows exercise, which today means all seven above -
+List every file the rows exercise, which today means all fourteen above -
 `ChatMessage.tsx` and `ChatMessageList.tsx` (A1, A7), `ThinkingIndicator.tsx`
-(A2, A3), `ChatComposer.tsx` (A4), `Toast.tsx` (A6), and `ThinkingTrace.tsx`
+(A2, A3), `ChatComposer.tsx` (A4), `Toast.tsx` (A6), `ThinkingTrace.tsx`
 and `ToolActivity.tsx`, which render inside the same transcript the virtual
-cursor walks in A1 and A7. The gate checks the list's shape, not its
-membership; the seven are this document's rule. A path no commit touches - a
-typo - fails `--freshness`, so copy the paths from the block above.
+cursor walks in A1 and A7, then `ConfirmDialog.tsx`, `ModalPanel.tsx`,
+`Button.tsx` (its cancel and danger confirm buttons), `src/hooks/useFocusTrap.ts`
+(whose empty-container branch performs the focus move A8 hears for a dialog
+opened already busy) and `src/hooks/focusableSelector.ts` (whose
+`getFocusableElements` decides that the container is empty) for A8, and
+`Notice.tsx` and `IconButton.tsx` (its dismiss button) for A9. The gate checks
+the list's shape, not its membership; the fourteen are this document's rule. A
+path no commit touches - a typo - fails `--freshness`, so copy the paths from
+the block above.
 
 ### Verdicts
 
-Every row A1 to A7 carries a verdict on every stack, from `pass`, `fail`,
+Every row A1 to A9 carries a verdict on every stack, from `pass`, `fail`,
 `waived` and `not-run`.
 
 - **`fail`** must name either the issue that will fix it (`fixing-issue`, as
@@ -431,7 +505,7 @@ Every row A1 to A7 carries a verdict on every stack, from `pass`, `fail`,
 
 ### The body
 
-Below the front matter, one section per row, headed `## A1` to `## A7` (the
+Below the front matter, one section per row, headed `## A1` to `## A9` (the
 spec links to those anchors), carrying what was actually heard: verbatim
 speech-log lines in quotation marks, the reading order where it matters, the
 stack that produced each, and a plain sentence for any optional sub-step that

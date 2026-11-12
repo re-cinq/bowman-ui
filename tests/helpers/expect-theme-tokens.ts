@@ -209,3 +209,97 @@ export const expectSuccessSoft = (element: Element | null) =>
     "dark:bg-(--bowman-success-soft-dark,rgba(20,83,45,0.3))",
     ["bg-green-100", "dark:bg-green-900/30"]
   );
+
+// The danger fill takes its own roles (form-dialog-notice decision 4): red-600 in both modes,
+// red-700 on hover, and --bowman-text-on-danger, never the accent's text token.
+export const expectDangerFill = (element: Element | null) => {
+  expect(element).toHaveClass(
+    "bg-(--bowman-danger-fill,var(--color-red-600))",
+    "dark:bg-(--bowman-danger-fill-dark,var(--color-red-600))",
+    "hover:bg-(--bowman-danger-fill-hover,var(--color-red-700))",
+    "dark:hover:bg-(--bowman-danger-fill-hover-dark,var(--color-red-700))",
+    "text-(--bowman-text-on-danger,var(--color-white))"
+  );
+  expect(element).not.toHaveClass(
+    "text-(--bowman-text-on-accent,var(--color-white))",
+    "bg-(--bowman-accent,var(--color-blue-500))",
+    "bg-red-600",
+    "text-white"
+  );
+};
+
+// The dialog panel and scrolling body draw the ring only under :focus-visible, so a click
+// that focuses prose draws none, while the colours still ride focus: for dark mode.
+export const expectFocusVisibleRing = (element: Element | null) => {
+  expect(element).toHaveClass(
+    "ring-offset-2",
+    "focus:outline-none",
+    "focus-visible:ring-2",
+    "focus:ring-(--bowman-focus-ring,var(--color-blue-500))",
+    "dark:focus:ring-(--bowman-focus-ring-dark,var(--color-blue-400))"
+  );
+  expectRingOffset(element);
+  expect(element).not.toHaveClass("focus:ring-2");
+  expect(element?.className).not.toMatch(/(^|\s)shadow-/);
+};
+
+export const expectTextMuted = (element: Element | null) =>
+  expectPair(
+    element,
+    "text-(--bowman-text-muted,var(--color-slate-500))",
+    "dark:text-(--bowman-text-muted-dark,var(--color-slate-400))",
+    ["text-slate-500", "dark:text-slate-400"]
+  );
+
+// TextField's border reads the muted-text role (form-dialog-notice decision 21), never BORDER.
+export const expectControlBorder = (element: Element | null) => {
+  expectPair(
+    element,
+    "border-(--bowman-text-muted,var(--color-slate-500))",
+    "dark:border-(--bowman-text-muted-dark,var(--color-slate-400))",
+    ["border-slate-500", "border-(--bowman-border,var(--color-slate-200))"]
+  );
+};
+
+export const expectDangerBorder = (element: Element | null) =>
+  expectPair(
+    element,
+    "border-(--bowman-danger,var(--color-red-600))",
+    "dark:border-(--bowman-danger-dark,var(--color-red-400))",
+    ["border-red-600", "border-(--bowman-text-muted,var(--color-slate-500))"]
+  );
+
+const TONE_ROLES = {
+  info: ["--bowman-info", "var(--color-blue-600)", "--bowman-info-dark", "var(--color-blue-400)"],
+  success: [
+    "--bowman-success",
+    "var(--color-green-600)",
+    "--bowman-success-dark",
+    "var(--color-green-400)",
+  ],
+  warning: [
+    "--bowman-warning",
+    "var(--color-amber-700)",
+    "--bowman-warning-dark",
+    "var(--color-amber-300)",
+  ],
+  error: [
+    "--bowman-danger",
+    "var(--color-red-600)",
+    "--bowman-danger-dark",
+    "var(--color-red-400)",
+  ],
+} as const;
+
+// A notice's tone colours its icon, through currentColor, and its 4px left border only.
+export const expectToneColour = (element: Element | null, tone: keyof typeof TONE_ROLES) => {
+  const [light, lightFallback, dark, darkFallback] = TONE_ROLES[tone];
+
+  expect(element).toHaveClass(
+    "border-l-4",
+    `text-(${light},${lightFallback})`,
+    `border-l-(${light},${lightFallback})`,
+    `dark:text-(${dark},${darkFallback})`,
+    `dark:border-l-(${dark},${darkFallback})`
+  );
+};

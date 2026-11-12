@@ -62,7 +62,7 @@ toast a consumer forgets to unmount occupies the
   acceptance criteria assert the PR's `git diff --stat` touches no file
   there. `ToastProps` remains `message`, `onClose`, `duration`; `Toast`
   remains in the `stringPropOnly` list; the partition test passes
-  unchanged ([validated by labelsProp, stringPropOnly and noStrings together are exactly src/index.ts's value exports @55e0da40](../../tests/labelled-exports.test.tsx#L165)).
+  unchanged ([validated by labelsProp, stringPropOnly and noStrings together are exactly src/index.ts's value exports @55e0da40](../../tests/labelled-exports.test.tsx#L187)).
 - The 2000ms default: 015's characterization suite pins it (uncalled at
   1999ms, called once at 2000ms) and removing it is not this issue's call
   ([validated by with no duration prop, onClose is uncalled at 1999ms and called once at 2000ms @ce612efd](../../tests/Toast.test.tsx#L51)).

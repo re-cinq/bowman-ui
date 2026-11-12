@@ -115,13 +115,13 @@ shipped layout since 022
 ## Carried across mechanically
 
 - `ThinkingIndicator` joins the `labelsProp` partition bucket with a sentinel
-  harness ([validated by labelsProp, stringPropOnly and noStrings together are exactly src/index.ts's value exports @55e0da40](../../tests/labelled-exports.test.tsx#L165),
-  [validated by no run of three Latin letters survives outside the sentinels for any labelsProp member @ffb54b18](../../tests/labelled-exports.test.tsx#L689)).
+  harness ([validated by labelsProp, stringPropOnly and noStrings together are exactly src/index.ts's value exports @55e0da40](../../tests/labelled-exports.test.tsx#L187),
+  [validated by no run of three Latin letters survives outside the sentinels for any labelsProp member @ffb54b18](../../tests/labelled-exports.test.tsx#L807)).
   - The partition test still asserts the full barrel, which `ThinkingDots`
     never enters.
   - The `thinkingRegion` sentinel lands in `aria-label`, one of the seven
     checked attributes
-    ([validated by no run of three Latin letters survives outside the sentinels for any labelsProp member @ffb54b18](../../tests/labelled-exports.test.tsx#L689)).
+    ([validated by no run of three Latin letters survives outside the sentinels for any labelsProp member @ffb54b18](../../tests/labelled-exports.test.tsx#L807)).
 - No `@clerk`, `swr`, `next-intl`, `next/` or `@/` import in
   either new file, and every relative import ends in `.js`
   ([validated by neither file imports @clerk, swr, next-intl, next/ or @/ and every relative import ends in .js @61758928](../../tests/ThinkingIndicator.test.tsx#L107)).
