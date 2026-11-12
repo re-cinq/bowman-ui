@@ -1,4 +1,4 @@
-import type { AssistantChatEntry, UserChatEntry } from "@re-cinq/bowman-ui";
+import type { AssistantChatEntry, KeyValuePair, UserChatEntry } from "@re-cinq/bowman-ui";
 
 export const fixtureUserInitials = "KT";
 
@@ -36,3 +36,11 @@ export const fixtureEntries: ReadonlyArray<UserChatEntry | AssistantChatEntry> =
   fixtureAssistantEntry,
   fixturePersonaEntry,
 ];
+
+// scripts/rsc-fixture.sh greps the response for the first pair's label and for this text.
+export const fixtureOrderPairs: readonly KeyValuePair[] = [
+  { key: "order", label: "Order", value: "VN-7305-KP" },
+  { key: "delivery", label: "Delivery", value: "Friday at 09:15" },
+];
+
+export const fixtureNoticeText = "Order VN-7305-KP now arrives on Friday at no charge";

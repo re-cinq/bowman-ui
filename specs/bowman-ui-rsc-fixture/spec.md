@@ -70,7 +70,14 @@ carries no `"use client"`
 ([validated by](../../examples/rsc-fixture/app/page.tsx#L2)), and renders
 `023`'s `ChatMessage` - a `"use client"` file in `dist/` - as a child of the
 server page, the legal direction of the boundary
-([validated by @474da2d8](../../examples/rsc-fixture/app/page.tsx#L39)). Neither page
+([validated by @474da2d8](../../examples/rsc-fixture/app/page.tsx#L39)). It also renders a
+`KeyValueList`, whose built file carries no directive, and an `info` `Notice` without
+`onDismiss`, a `"use client"` file handed only its tone and its text
+([validated by](../../examples/rsc-fixture/app/page.tsx#L46)), and the script asserts the
+response holds the `<dl>` opening onto its first pair's `<dt>`
+([validated by](../../scripts/rsc-fixture.sh#L168)) and the notice's `role="status"` reaching
+the notice's own text through markup alone, so another status element on the page cannot stand
+in for it ([validated by](../../scripts/rsc-fixture.sh#L175)). Neither page
 carries a directive, and no file above them does; the script asserts it
 (`test -f` first, so a moved file cannot pass vacuously) over
 `app/layout.tsx`, `app/page.tsx` and `src/fixtures.ts` on every run rather
