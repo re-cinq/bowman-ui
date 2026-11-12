@@ -1054,9 +1054,13 @@ cannot pass a function across the client boundary - `AppShell`
 `assistantMessageFrom` label, and on `ChatMessageList` alone `renderEntryFooter`, `describeTool` and `describeCard`),
 `ConversationList` (`renderLink`, `onSelect`, `onDelete`, the
 `deleteConversation` label), `ErrorBoundary` (`onError`), `PromptChips`
-(`onPick`), `SearchField` (`onChange`), `Toast` (`onClose`) and
-`ToolActivity` (`describeTool`) accept function-valued props, so an App Router
-consumer supplies those props from a `"use client"` file. Functions are the
+(`onPick`), `SearchField` (`onChange`, `onSubmit`), `TextField` (`onChange`),
+`Dialog` (`onClose`), `ConfirmDialog` (`onConfirm`, `onCancel`), `Notice`
+(`onDismiss`), `Card` (`onSelect`), `Toast` (`onClose`) and `ToolActivity`
+(`describeTool`) accept function-valued props, and `Dialog` and
+`ConfirmDialog` also take `container`, a DOM element, and `returnFocusRef`, a
+ref object, which cannot cross either, so an App Router consumer supplies
+those props from a `"use client"` file. Functions are the
 case the fixture exercises; the constraint is React's serialization boundary,
 which rejects any non-serializable prop the same way. The fixture's
 `app/compose/page.tsx` ships under `"use client"` for exactly this reason,

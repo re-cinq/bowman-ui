@@ -782,6 +782,9 @@ them moves with it. Every other existing test passes unchanged.
 - tests/fixtures/public-api.json gains the new names (§ The published surface) and
   tests/fixtures/forward-ref-components.json gains `TextField` and `Card`; the header comment of
   tests/forward-ref-components.test.ts speaks of a ninth forwardRef component.
+- tests/icons.test.tsx "no file outside an explicit allowlist declares a name string member":
+  its allowlist gains src/components/TextField.tsx, whose `name?: string` prop is the input's
+  native form-field name, not an icon lookup.
 - tests/check-at-pass.test.ts: its hard-coded `rowIds` list, which mirrors
   `scripts/check-at-pass.mjs`'s unexported `ROWS`, gains A8 and A9 (§ Accessibility checks).
 - examples/chat-demo/tests/docs.spec.ts: `docsTokenPages` gains the new pages' token sites and moves
