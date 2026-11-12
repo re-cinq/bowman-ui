@@ -397,7 +397,7 @@ statement below runs in both engines.
   [validated by under prefers-reduced-motion the settled title lands at once, every character opaque and nothing clipped @f52dbea2](../../examples/chat-demo/tests/docs.spec.ts#L511)).
 - At a phone width the documentation's own drawer opens from the hamburger and a nav anchor -
   the `renderNavLink` seam - loads that component's page
-  ([validated by the hamburger opens the drawer and a nav anchor loads that component's page @552869c6](../../examples/chat-demo/tests/docs.spec.ts#L815)).
+  ([validated by the hamburger opens the drawer and a nav anchor loads that component's page @552869c6](../../examples/chat-demo/tests/docs.spec.ts#L826)).
 - The documentation pages carry token sites the chat has none of, measured under both schemes:
   the danger family on the error boundary's icon, the thinking dots and indicator circle, the
   tool name and arguments, the trace content, the search field's frame, icon and ring, the row

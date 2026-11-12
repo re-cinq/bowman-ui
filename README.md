@@ -450,8 +450,11 @@ in `children`, else the scrolling body when it overflows with nothing focusable 
 first control in the footer, else the close button; Tab and Shift+Tab stay inside; a click on the
 overlay does nothing. Closing or unmounting returns focus to `returnFocusRef.current`, else the
 element that held focus before the dialog opened - pass `returnFocusRef`, a stable `useRef` on a
-focusable element that stays, when the action removes that element. A body that overflows with
-nothing focusable in it becomes focusable, so a keyboard user can scroll it.
+focusable element that stays, when the action removes that element. Leave `autoFocus` off
+`children`, since the trap already focuses the first control; if a child does use it, pass
+`returnFocusRef`, because React applies `autoFocus` before the trap records the element to return
+to. A body that overflows with nothing focusable in it becomes focusable, so a keyboard user can
+scroll it.
 
 The panel portals into `document.body` by default. A theme set on a wrapper (`.custom-theme`,
 `[data-tenant="acme"]`, see [Theming](#theming)) stops at the portal, so pass that wrapper, or an

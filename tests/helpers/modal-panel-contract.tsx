@@ -194,6 +194,16 @@ export const describeModalPanelContract = ({ role, title, renderModal }: ModalCo
       expect(onEscape).toHaveBeenCalledTimes(1);
     });
 
+    it("a mousedown on the overlay is prevented and focus stays put; one inside the panel is not", () => {
+      render(renderModal({ open: true, onEscape: () => {}, children: field }));
+      const input = screen.getByRole("textbox");
+
+      expect(fireEvent.mouseDown(panelOf().parentElement as HTMLElement)).toBe(false);
+      expect(input).toHaveFocus();
+      expect(fireEvent.mouseDown(panelOf())).toBe(true);
+      expect(fireEvent.mouseDown(input)).toBe(true);
+    });
+
     it("closing returns focus to the element that held it before opening", () => {
       const { rerender } = openFromOpener({ children: field });
 
@@ -217,22 +227,30 @@ export const describeModalPanelContract = ({ role, title, renderModal }: ModalCo
       opener.remove();
     });
 
-    it("closing returns focus to returnFocusRef.current when given", () => {
+    const expectFocusReturnsToRef = (children: ReactNode) => {
       const returnFocusRef = createRef<HTMLElement | null>();
       const target = document.createElement("button");
 
       document.body.append(target);
       returnFocusRef.current = target;
-      const { rerender } = openFromOpener({ children: field, returnFocusRef });
+      const { rerender } = openFromOpener({ children, returnFocusRef });
 
       rerender(
         <Opener open={false} returnFocusRef={returnFocusRef}>
-          {field}
+          {children}
         </Opener>
       );
 
       expect(target).toHaveFocus();
       target.remove();
+    };
+
+    it("closing returns focus to returnFocusRef.current when given", () => {
+      expectFocusReturnsToRef(field);
+    });
+
+    it("with an autoFocus child, closing returns focus to returnFocusRef.current", () => {
+      expectFocusReturnsToRef(<input aria-label="Navn 4711" autoFocus />);
     });
 
     it("a body that does not overflow carries no tabindex, role or aria-labelledby", () => {

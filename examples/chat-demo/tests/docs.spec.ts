@@ -724,6 +724,17 @@ test.describe("the form, dialog and notice pages", () => {
     expect(await styleOf(panel, "boxShadow")).toBe("none");
   });
 
+  test("a click on the overlay outside the default Dialog keeps it open and focus inside the panel", async ({
+    page,
+  }) => {
+    await page.goto(docsUrl("dialog"));
+    const panel = await openFrom(page, "default");
+
+    await page.mouse.click(5, 5);
+    await expect(panel).toBeVisible();
+    expect(await panel.evaluate((element) => element.contains(document.activeElement))).toBe(true);
+  });
+
   test("the overflowing Dialog body is a named, focusable region that takes initial focus", async ({
     page,
   }) => {
