@@ -73,11 +73,11 @@ server page, the legal direction of the boundary
 ([validated by @474da2d8](../../examples/rsc-fixture/app/page.tsx#L43)). It also renders a
 `KeyValueList`, whose built file carries no directive, and an `info` `Notice` without
 `onDismiss`, a `"use client"` file handed only its tone and its text
-([validated by](../../examples/rsc-fixture/app/page.tsx#L46)), and the script asserts the
+([validated by @a7c7c3bd](../../examples/rsc-fixture/app/page.tsx#L46)), and the script asserts the
 response holds the `<dl>` opening onto its first pair's `<dt>`
-([validated by](../../scripts/rsc-fixture.sh#L168)) and the notice's `role="status"` reaching
+([validated by @99edb3da](../../scripts/rsc-fixture.sh#L168)) and the notice's `role="status"` reaching
 the notice's own text through markup alone, so another status element on the page cannot stand
-in for it ([validated by](../../scripts/rsc-fixture.sh#L175)). Neither page
+in for it ([validated by @e344daae](../../scripts/rsc-fixture.sh#L175)). Neither page
 carries a directive, and no file above them does; the script asserts it
 (`test -f` first, so a moved file cannot pass vacuously) over
 `app/layout.tsx`, `app/page.tsx` and `src/fixtures.ts` on every run rather
@@ -133,7 +133,7 @@ mechanically with
 `AppSidebar`, `Button`, `ChatComposer`, `ChatMessage`, `ChatMessageList`,
 `ConversationList`, `ErrorBoundary`, `IconButton`, `PromptChips`,
 `SearchField`, `Toast`, `ToolActivity`
-([validated by](../../docs/design-notes.md#L962)), and the same sentence appears in
+([validated by @0332f50f](../../docs/design-notes.md#L962)), and the same sentence appears in
 the README ([validated by @11afad50](../../README.md#L226)). `app/client/page.tsx` is
 the control: the same composition under `"use client"`, building green, so
 the rejection is attributable to the boundary and not to the components
