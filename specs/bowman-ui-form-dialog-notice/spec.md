@@ -47,7 +47,8 @@ save these deviations, each argued where it applies:
   the typing the plan's five required-labels components and its optional field hint and error need.
   § Theming decisions 6, 11 and 12 also change: decision 6's palette-mapped list gains the dialog
   overlay, decision 11's `buttonStyles.ts` imports gain the danger strings, and decision 12 gains
-  the muted role's first border use (decision 21) and two more `FOCUS_RING` importers (§ Theming).
+  the muted role's first border use (decision 21), one more `FOCUS_RING` importer and a second
+  fragment, `FOCUS_VISIBLE_RING`, for the dialog panel (§ Theming).
 - `Dialog` and `ConfirmDialog` take a `container` prop, because the plan's theming floor - a
   consumer's `--bowman-*` overrides reach every component - would otherwise fail for a dialog
   portalled out of a wrapper-scoped theme (decision 22).
@@ -59,8 +60,8 @@ save these deviations, each argued where it applies:
   holds its look unchanged; `TextField` meets it (§ Out of scope).
 - The assistive-technology pass gains two rows, A8 and A9, where the plan keeps its procedure as it
   is (§ Accessibility checks).
-- The axe scans cover each page's states area and an open dialog's panel, not the whole page, so the
-  plan's "0 automated accessibility violations in every documented state" is measured on the
+- The axe scans cover each page's variant figures and an open dialog's panel, not the whole page, so
+  the plan's "0 automated accessibility violations in every documented state" is measured on the
   components, not the documentation chrome around them (§ Accessibility checks).
 
 "Styled" keeps its § Styled primitives meaning: Tailwind v4 utility class names in the built file,
@@ -273,12 +274,24 @@ export const Dialog: (props: DialogProps) => ReactElement | null;
   holding one panel with `role="dialog"`, `aria-modal="true"`, `tabIndex={-1}` and `aria-labelledby`
   pointing at an `<h2>` holding `labels.dialogTitle`. The panel takes focus when it holds nothing
   focusable, when a `ConfirmDialog` turns busy, and when the scrolling body stops overflowing while
-  it holds focus (below), so it carries `FOCUS_RING` beside `ring-offset-2`, as the scrolling body
-  does, rather than the browser's default outline. When the close button renders, the `<h2>` carries
-  trailing padding wider than the close button, so a long title wraps before it reaches the button
-  in the panel's corner. The portal appends the overlay as the target's last child. Into
-  `document.body` that is after the page, so the overlay paints above `AppShell`'s drawer and
-  `Toast`, which also sit at `z-50` and win ties by document order.
+  it holds focus (below), so it carries `FOCUS_VISIBLE_RING` beside `ring-offset-2`, as the
+  scrolling body does, rather than the browser's default outline. `FOCUS_VISIBLE_RING` is a second
+  fragment in src/theme/focusRing.ts, `focus:outline-none focus-visible:ring-2` beside the same
+  `FOCUS_RING_COLOR` and `RING_OFFSET` as `FOCUS_RING`: the colours still ride `focus:`, a superset
+  of `:focus-visible`, so dark mode and the `--bowman-focus-ring` overrides reach it, but the ring
+  is drawn only under `:focus-visible`. The panel's `tabIndex={-1}` makes a mouse click on any prose
+  inside it focus the panel, and the `focus:`-based `FOCUS_RING` would then ring the whole panel;
+  under `:focus-visible` a click draws nothing, while focus the trap moves in after a keyboard open,
+  and a busy `ConfirmDialog` entered by Enter, still shows the ring. A new fragment, not
+  `ErrorBoundary`'s `FOCUS_VISIBLE_RING_COLOR`, because that string has no dark variant
+  (docs/design-notes.md § Theming, the `--bowman-focus-ring-dark` row) and `RING_OFFSET` is read by
+  the focus-ring module alone (§ Theming decision 12). jsdom matches no `:focus-visible`, so a
+  chat-demo Playwright test, in Chromium and WebKit, opens the `Dialog` page's dialog, clicks its
+  description and asserts the panel holds focus with a computed `box-shadow` of `none`. When the
+  close button renders, the `<h2>` carries trailing padding wider than the close button, so a long
+  title wraps before it reaches the button in the panel's corner. The portal appends the overlay as
+  the target's last child. Into `document.body` that is after the page, so the overlay paints above
+  `AppShell`'s drawer and `Toast`, which also sit at `z-50` and win ties by document order.
 - A consumer whose theme is set on a wrapper - README § Theming's `.custom-theme` or
   `[data-tenant="acme"]` - passes that wrapper, or an element inside it, as `container`, so the
   wrapper's `--bowman-*` values and, under a class-based `dark:` variant, its `dark` class reach the
@@ -318,35 +331,36 @@ export const Dialog: (props: DialogProps) => ReactElement | null;
   the barrel exports neither.
 - While the body overflows and holds no focusable element, it carries `tabIndex={0}`,
   `role="region"` and `aria-labelledby` pointing at the `<h2>`, so a keyboard user can reach and
-  scroll it (WCAG 2.1.1); otherwise it carries none of them. It always carries the shared
-  `FOCUS_RING` classes beside `ring-offset-2`, which stays at each site (docs/design-notes.md
-  § Theming decision 12), inert while it cannot take focus, and the panel clips nothing, so the
-  offset ring is never cut by the panel's rounded corners. With a focusable element in it, a user
-  reaches its content by tabbing through its controls instead (decision 23). The body is the scroll
-  container, so it clips what its children paint past its edges; it carries its own padding of at
-  least `p-1` (4px), no less than a ring's 2px plus its 2px offset, since the scroller clips at its
-  padding edge, with the panel's padding outside it, so the focus rings of the controls in
-  `children` - a `w-full` `TextField` at either side, the first or last control at the top or
-  bottom - are never cut. A layout effect compares `scrollHeight` with `clientHeight` and sets or
-  removes the three attributes on the node itself; it depends on the trap's container ref, which
-  `exhaustive-deps` cannot tell is stable, and on a named `portalOpen` value, `open && isClient`,
-  named because `exhaustive-deps` flags an expression written in the array. It depends on
-  `portalOpen` because `ModalPanel` stays mounted while the body exists only while the portal
-  renders, so it runs, and attaches its observer, on the commit that first renders the body, after a
-  closed mount or hydration as on a first open render. It also re-runs from a `ResizeObserver`,
-  where one exists, watching both the body and an inner wrapper around its content: once the body
-  reaches its height cap its own box stops changing while its content still grows, as when a
-  disclosure in `children` opens without re-rendering `ModalPanel`. It writes them without a
-  re-render, so they are in place before the trap's open effect looks for a first focusable element.
-  When the body stops overflowing while it holds focus - a prose-only dialog after the viewport
-  grows - the effect first moves focus to the panel, then removes the attributes, so the browser's
-  focus fixup never drops focus to `<body>` outside the modal; a stubbed-heights test focuses the
-  overflowing body, makes it fit, fires the observer and asserts the panel holds focus. An
-  overflowing prose-only body is therefore the first focusable element and takes initial focus.
-  jsdom lays nothing out and has no `ResizeObserver`, so its tests stub the two heights and, for the
-  branch where one exists, a `ResizeObserver` whose callback they fire for each of the two watched
-  elements, keeping the 100% branch floor. One test mounts the dialog closed with overflowing
-  stubbed heights, opens it and asserts the body carries `tabindex="0"`.
+  scroll it (WCAG 2.1.1); otherwise it carries none of them. It always carries the panel's
+  `FOCUS_VISIBLE_RING` classes beside `ring-offset-2`, which stays at each site
+  (docs/design-notes.md § Theming decision 12), so a click inside it draws no ring either, inert
+  while it cannot take focus, and the panel clips nothing, so the offset ring is never cut by the
+  panel's rounded corners. With a focusable element in it, a user reaches its content by tabbing
+  through its controls instead (decision 23). The body is the scroll container, so it clips what its
+  children paint past its edges; it carries its own padding of at least `p-1` (4px), no less than a
+  ring's 2px plus its 2px offset, since the scroller clips at its padding edge, with the panel's
+  padding outside it, so the focus rings of the controls in `children` - a `w-full` `TextField` at
+  either side, the first or last control at the top or bottom - are never cut. A layout effect
+  compares `scrollHeight` with `clientHeight` and sets or removes the three attributes on the node
+  itself; it depends on the trap's container ref, which `exhaustive-deps` cannot tell is stable, and
+  on a named `portalOpen` value, `open && isClient`, named because `exhaustive-deps` flags an
+  expression written in the array. It depends on `portalOpen` because `ModalPanel` stays mounted
+  while the body exists only while the portal renders, so it runs, and attaches its observer, on the
+  commit that first renders the body, after a closed mount or hydration as on a first open render.
+  It also re-runs from a `ResizeObserver`, where one exists, watching both the body and an inner
+  wrapper around its content: once the body reaches its height cap its own box stops changing while
+  its content still grows, as when a disclosure in `children` opens without re-rendering
+  `ModalPanel`. It writes them without a re-render, so they are in place before the trap's open
+  effect looks for a first focusable element. When the body stops overflowing while it holds focus -
+  a prose-only dialog after the viewport grows - the effect first moves focus to the panel, then
+  removes the attributes, so the browser's focus fixup never drops focus to `<body>` outside the
+  modal; a stubbed-heights test focuses the overflowing body, makes it fit, fires the observer and
+  asserts the panel holds focus. An overflowing prose-only body is therefore the first focusable
+  element and takes initial focus. jsdom lays nothing out and has no `ResizeObserver`, so its tests
+  stub the two heights and, for the branch where one exists, a `ResizeObserver` whose callback they
+  fire for each of the two watched elements, keeping the 100% branch floor. One test mounts the
+  dialog closed with overflowing stubbed heights, opens it and asserts the body carries
+  `tabindex="0"`.
 - On the server and during hydration an open `Dialog` renders nothing, and it portals on the first
   client render after: the client check reads `useSyncExternalStore` with a server snapshot of
   `false`, so markup never mismatches and no `typeof window` guard is written. The server snapshot
@@ -745,7 +759,8 @@ them moves with it. Every other existing test passes unchanged.
   above records.
 - tests/theming-tokens-dist.test.ts: its `EXPECTED_FALLBACKS` and `NEUTRAL_ROLE_READERS` maps and
   its `FOCUS_RING` reader list grow, and the `it()` titled "exactly the five offset-ring components"
-  is retitled for seven, as § Theming below lists.
+  is retitled for six and also pins `FOCUS_VISIBLE_RING`'s composition and its one importer, as
+  § Theming below lists.
 - examples/chat-demo/tests/theming.spec.ts: "the chat matrix reaches every token the installed
   stylesheet declares, and the wrapper sets the same set" is retitled and widened to accept the nine
   new tokens' sites on the documentation pages (decision 19); its header comment, and the theming
@@ -893,7 +908,9 @@ token set, or the suite reds:
   info and warning colours too;
 - docs/design-notes.md § Theming decision 12, which names the `FOCUS_RING` module's "five
   importers - `AppShell`, `AppSidebar`, `ConversationList`, `PromptChips` and `buttonStyles`", gains
-  `Card` and `ModalPanel` as the sixth and seventh;
+  `Card` as the sixth, and records `FOCUS_VISIBLE_RING` beside it: the same two imports, a
+  `focus-visible:` ring, and `ModalPanel` as its only importer, for the panel and scrolling body a
+  mouse click can focus;
 - `specs/bowman-ui-theming-tokens/spec.md`: its four spelled counts and its group breakdown; its
   § Semantic colour roles, which names only the danger and success roles, gains the danger-fill,
   info and warning roles; its § What stays palette-mapped gains the dialog overlay beside the mobile
@@ -919,11 +936,15 @@ token set, or the suite reds:
     today; `DANGER_BORDER` and `CONTROL_BORDER` with `TextField`; and `INFO_TONE`, `SUCCESS_TONE`,
     `WARNING_TONE` and `DANGER_TONE`, which read `--bowman-info`, `--bowman-success`,
     `--bowman-warning` and `--bowman-danger` as icon and border colours, with `Notice`;
-- the `FOCUS_RING` readers: `Card` and `ModalPanel`, for its panel and focusable scrolling body,
-  make seven offset-ring importers, so the test's reader list and its `it()` title ("exactly the
-  five offset-ring components"), the titled link to it in specs/bowman-ui-theming-tokens/spec.md,
-  and CLAUDE.md's "imported by five files (four components and `buttonStyles.ts`)", which becomes
-  "seven files (six components and `buttonStyles.ts`)", move with it;
+- the `FOCUS_RING` readers: `Card` makes six offset-ring importers, and `ModalPanel`, for its panel
+  and focusable scrolling body, imports `FOCUS_VISIBLE_RING` instead, so the test's reader list and
+  its `it()` title ("exactly the five offset-ring components"), the titled link to it in
+  specs/bowman-ui-theming-tokens/spec.md, and CLAUDE.md's "imported by five files (four components
+  and `buttonStyles.ts`)", which becomes "six files (five components and `buttonStyles.ts`)" and
+  names `FOCUS_VISIBLE_RING` and its one importer, `ModalPanel`, move with it. The test also asserts
+  that dist/theme/focusRing.js composes `FOCUS_VISIBLE_RING` from the same two imports and that
+  `ModalPanel` alone imports it; its `includes("FOCUS_RING")` reader scan does not match
+  `FOCUS_VISIBLE_RING`, so the two lists stay apart, and `RING_OFFSET`'s empty component pin holds;
 - examples/chat-demo/tests/theming.spec.ts, which measures every declared token at a visible site in
   a real browser, under both schemes and in WebKit too, and today requires every site to be on the
   chat screen (decision 19).
@@ -945,10 +966,13 @@ WCAG 2.2 AA is the floor. Three layers prove it, and none is a reviewer's sign-o
   `search-field` page with `onSubmit`. It runs in a real browser, so it measures contrast, including
   the `danger` fill, and its `scrollable-region-focusable` rule checks the overflowing body; the
   target is zero violations under the WCAG 2.2 AA rule tags in every state. Each scan is limited
-  with `AxeBuilder.include()` to the page's states area and, while a dialog is open, its panel,
-  `[role="dialog"], [role="alertdialog"]`, which portals outside that area, so the documentation
-  chrome around them - a `CodeBlock` whose long usage line scrolls sideways
-  (examples/chat-demo/src/docs/DocsUi.tsx) - is not what is measured.
+  with `AxeBuilder.include()` to the page's variant figures, `[data-doc-variant]`
+  (examples/chat-demo/src/docs/ComponentDocPage.tsx), and, while a dialog is open, its panel,
+  `[role="dialog"], [role="alertdialog"]`, which portals outside them, so the documentation chrome
+  around them - a `CodeBlock` whose long usage line scrolls sideways
+  (examples/chat-demo/src/docs/DocsUi.tsx), as the § Usage section's is - is not what is measured.
+  The § Usage example sits beside that `CodeBlock` and is not scanned, so every state listed above,
+  the default one included, is a variant figure of its own (§ Documentation).
 - Keyboard use is checked by hand against each page.
 
 specs/bowman-ui-assistive-technology-pass/spec.md keeps its manual screen-reader procedure, and its
@@ -1247,7 +1271,7 @@ with this spec.
     browsers cover natively and the one axe's `scrollable-region-focusable` flags. A body that
     always took focus would sit first in DOM order and take initial focus from the first field,
     against decision 12. Its name is the dialog's heading, the one name the body has, and its ring
-    is the shared `FOCUS_RING`.
+    is the panel's `FOCUS_VISIBLE_RING`.
 
 ## Out of scope
 
@@ -1271,13 +1295,14 @@ composition in a field inside a dialog also closes the dialog.
 ## Documentation
 
 The chat-demo's documentation app gains one page per new component, each showing every state the
-accessibility checks run against, the `Dialog` page including one whose body overflows; each open
-dialog state sits behind its own trigger, so at most one dialog is open at a time (decision 11), and
-the `ConfirmDialog` and `Notice` pages carry the themed variant decision 19 measures. The `danger`
+accessibility checks run against as a variant, a `default` variant included, since the scans read
+only the variant figures, the `Dialog` page including one whose body overflows; each open dialog
+state sits behind its own trigger, so at most one dialog is open at a time (decision 11), and the
+`ConfirmDialog` and `Notice` pages carry the themed variant decision 19 measures. The `danger`
 variant gets no page of its own: the `ConfirmDialog` page's confirm button is the danger `Button`,
 and that page also shows it on its own, at rest, hovered and disabled, beside a `danger`
 `IconButton` in the same three states, so the token matrix and the axe run reach it there. The
-existing `search-field` page gains a state with `onSubmit`, so the submit button is shown and
+existing `search-field` page gains an `on-submit` variant, so the submit button is shown and
 scanned; its props table in examples/chat-demo/src/docs/propDocs.ts gains `onSubmit`, and its
 purpose text in examples/chat-demo/src/docs/componentDocs.tsx, "A controlled search input with a
 leading icon", says the icon becomes a submit button with `onSubmit`. The `use-focus-trap` entry in
