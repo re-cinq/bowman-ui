@@ -1,9 +1,9 @@
 # bowman-ui form, dialog and notice primitives
 
-| Field  | Value          |
-| ------ | -------------- |
-| Issue  | none filed yet |
-| Status | Draft          |
+| Field  | Value                 |
+| ------ | --------------------- |
+| Issue  | re-cinq/bowman-ui#415 |
+| Status | Draft                 |
 
 Every screen a consumer builds beside the chat - an admin page, a settings page, a confirmation step
 before a destructive action - needs a labelled text field, a modal dialog, an inline notice and a
