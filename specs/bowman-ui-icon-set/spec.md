@@ -15,7 +15,7 @@ enumerated by name so a dropped icon fails the build rather than the consumer
 byte-for-byte, asserted attribute-by-attribute against a golden-master
 fixture copy rather than by `outerHTML` string - attribute order in `outerHTML`
 follows JSX order and changes when the element moves into `IconWrapper`
-([validated by @310f2b03](../../tests/icons.test.tsx#L165), oracle at
+([validated by @310f2b03](../../tests/icons.test.tsx#L167), oracle at
 [tests/fixtures/golden-icons.tsx](../../tests/fixtures/golden-icons.tsx)).
 
 ## IconWrapper is the render path
@@ -29,24 +29,24 @@ PURE-annotated calls accordingly
 ([validated by @7b06dc18](../../tests/icons.test.tsx#L66)). The factory stamps each
 icon's own `displayName` and `Function.name`, the two properties React
 DevTools and ErrorBoundary componentStack frames read component names from
-([validated by @9e062957](../../tests/icons.test.tsx#L338)). Each root
+([validated by @9e062957](../../tests/icons.test.tsx#L340)). Each root
 `<svg>` carries
 `fill="none"`, `viewBox="0 0 24 24"` and, for the 23, `stroke="currentColor"`.
 `forwardRef` stays exactly as-is per
 docs/design-notes.md decision 4 - rewriting it away would turn the `^19.0.0` peer range from a
 testing claim into a hard React 19 floor; the icons still take no `ref` prop
 ([validated by tsc accepts icon-type-assertions.tsx against dist via the '.' exports entry @2d24baec](../../tests/icons-dist.test.ts#L51),
-[L139@310f2b03](../../tests/icons.test.tsx#L139),
-[L149@cf59f97b](../../tests/icons.test.tsx#L149),
-[validated by IconWrapper is a forwardRef<SVGSVGElement, ...> component in src/icons/Icon.tsx - never ref-as-prop @95ba3009](../../tests/icons.test.tsx#L352),
-[validated by a ref passed to IconWrapper reaches the root <svg> @d2b072cd](../../tests/icons.test.tsx#L359)).
+[L141@310f2b03](../../tests/icons.test.tsx#L141),
+[L151@cf59f97b](../../tests/icons.test.tsx#L151),
+[validated by IconWrapper is a forwardRef<SVGSVGElement, ...> component in src/icons/Icon.tsx - never ref-as-prop @95ba3009](../../tests/icons.test.tsx#L354),
+[validated by a ref passed to IconWrapper reaches the root <svg> @d2b072cd](../../tests/icons.test.tsx#L361)).
 
 `LoadingIcon` is the explicit exception and keeps its own `<svg>`:
 `IconWrapper` hardcodes `stroke="currentColor"` on the root, which would put a
 stroke on the deliberately strokeless spinner path, and `LoadingIcon` composes
 its `className` (`` `animate-spin ${className || ""}` ``) rather than passing
-it through ([validated by `renders its own strokeless <svg>: no root stroke, animate-spin, fill=currentColor path without stroke` @7cf73792](../../tests/icons.test.tsx#L281),
-[validated by composes className after animate-spin @b7234639](../../tests/icons.test.tsx#L293)). The would-be regression is pinned: no root `stroke` attribute,
+it through ([validated by `renders its own strokeless <svg>: no root stroke, animate-spin, fill=currentColor path without stroke` @7cf73792](../../tests/icons.test.tsx#L283),
+[validated by composes className after animate-spin @b7234639](../../tests/icons.test.tsx#L295)). The would-be regression is pinned: no root `stroke` attribute,
 `class` containing `animate-spin`, `<path fill="currentColor">` with no stroke.
 `animate-spin` is a Tailwind
 core utility, not one of the four keyframes the package stylesheet ships (019's three plus
@@ -55,10 +55,10 @@ lands in `src/styles.css`; a consumer's Tailwind build generates it by scanning 
 `LoadingIcon`'s English `ariaLabel` default `"Loading"`
 is the icon set's only user-visible string, prop-overridable per
 call site; the icon set needs no `labels` prop and the `labels` issue does
-not touch it ([validated by has default ariaLabel 'Loading' @7d0d969e](../../tests/icons.test.tsx#L257),
-[validated by accepts custom ariaLabel @899ca956](../../tests/icons.test.tsx#L262),
-[validated by has animation class @f99244cd](../../tests/icons.test.tsx#L274),
-[validated by src/styles.css gains no rule for animate-spin - it is Tailwind's core utility @25b76a5b](../../tests/icons.test.tsx#L131)).
+not touch it ([validated by has default ariaLabel 'Loading' @7d0d969e](../../tests/icons.test.tsx#L259),
+[validated by accepts custom ariaLabel @899ca956](../../tests/icons.test.tsx#L264),
+[validated by has animation class @f99244cd](../../tests/icons.test.tsx#L276),
+[validated by src/styles.css gains no rule for animate-spin - it is Tailwind's core utility @25b76a5b](../../tests/icons.test.tsx#L133)).
 
 ## The public props type: `IconProps`
 
@@ -89,21 +89,21 @@ ships `dist/icons/Icon.{js,d.ts}` and `dist/icons/index.{js,d.ts}`
 The tested accessibility behaviour holds for every icon: no label →
 `aria-hidden="true"` and no
 `role`; a label → `aria-hidden="false"`, `role="img"`, `aria-label` set
-([validated by @97eea666](../../tests/icons.test.tsx#L178),
-[L196@2767e51a](../../tests/icons.test.tsx#L196),
-[L212@472e3fa8](../../tests/icons.test.tsx#L212),
-[L223@532553f9](../../tests/icons.test.tsx#L223),
-[L234@69715c2b](../../tests/icons.test.tsx#L234),
-[L245@b8375a85](../../tests/icons.test.tsx#L245)). The
+([validated by @97eea666](../../tests/icons.test.tsx#L180),
+[L198@2767e51a](../../tests/icons.test.tsx#L198),
+[L214@472e3fa8](../../tests/icons.test.tsx#L214),
+[L225@532553f9](../../tests/icons.test.tsx#L225),
+[L236@69715c2b](../../tests/icons.test.tsx#L236),
+[L247@b8375a85](../../tests/icons.test.tsx#L247)). The
 `getAttribute`-based class assertions work around `SVGAnimatedString`
-([validated by has animation class @f99244cd](../../tests/icons.test.tsx#L274),
-[validated by applies className to svg element @da72535a](../../tests/icons.test.tsx#L329)).
+([validated by has animation class @f99244cd](../../tests/icons.test.tsx#L276),
+[validated by applies className to svg element @da72535a](../../tests/icons.test.tsx#L331)).
 
 `strokeWidth` defaults to `2` and reaches both the `<svg>` and the `<path>`.
 `<SearchIcon strokeWidth={1.5} />` renders `stroke-width="1.5"` on the path
-([validated by @c17e77f3](../../tests/icons.test.tsx#L308)). `DatabaseIcon` defaults to
-`1.5` ([validated by @a365d120](../../tests/icons.test.tsx#L314),
-[validated by `uses default strokeWidth of 2 on both the <svg> and the <path>` @36c4c909](../../tests/icons.test.tsx#L301)).
+([validated by @c17e77f3](../../tests/icons.test.tsx#L310)). `DatabaseIcon` defaults to
+`1.5` ([validated by @a365d120](../../tests/icons.test.tsx#L316),
+[validated by `uses default strokeWidth of 2 on both the <svg> and the <path>` @36c4c909](../../tests/icons.test.tsx#L303)).
 
 ## No brand mark ships
 
@@ -113,7 +113,7 @@ path, `strokeWidth` ignored), and docs/design-notes.md decision 3 forbids a bund
 mark. `grep -rn "LogoIcon" src/` returns nothing
 ([validated by grep for "LogoIcon" in src/ returns nothing @a89a0ad4](../../tests/icons.test.tsx#L71)). The README points a
 consumer wanting a brand mark at the `assistantAvatar` slot from `docs/design-notes.md`
-([validated by README points a consumer wanting a brand mark at the assistantAvatar slot @5cafe8ab](../../tests/icons.test.tsx#L106)).
+([validated by README points a consumer wanting a brand mark at the assistantAvatar slot @5cafe8ab](../../tests/icons.test.tsx#L108)).
 
 ## Client boundary
 
@@ -122,6 +122,6 @@ client-only React API. `scripts/check-client-directives.mjs`
 passes against every file under `src/icons/`, per docs/design-notes.md
 decision 1
 ([validated by exits zero against src/ and dist/ @9fb125f7](../../tests/client-directives.test.ts#L90),
-[validated by no file under src/icons carries "use client" @f17fda4f](../../tests/icons.test.tsx#L125)).
+[validated by no file under src/icons carries "use client" @f17fda4f](../../tests/icons.test.tsx#L127)).
 Every relative import under `src/icons/` ends in `.js` and no file contains
-`"@/` ([validated by every relative import under src/icons ends in .js and no file contains "@/ @37e39e34](../../tests/icons.test.tsx#L113)).
+`"@/` ([validated by every relative import under src/icons ends in .js and no file contains "@/ @37e39e34](../../tests/icons.test.tsx#L115)).

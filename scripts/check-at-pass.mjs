@@ -10,7 +10,7 @@
 //
 // --structure validates the newest docs/accessibility/at-pass-*.md: every
 // required front-matter field present, at least one stack actually run, every
-// row A1-A7 carrying a verdict on every declared stack, `not-run` on a run
+// row A1-A9 carrying a verdict on every declared stack, `not-run` on a run
 // stack's row only with a reason and on a not-run stack's rows only,
 // every `fail` naming a fixing issue or an accepting person, every `waived`
 // carrying waived-by and an unexpired expires, and no placeholder left behind.
@@ -36,7 +36,7 @@ import { join, resolve } from "node:path";
 import process from "node:process";
 import { splitArgs } from "./lib/cli-args.mjs";
 
-const ROWS = ["A1", "A2", "A3", "A4", "A5", "A6", "A7"];
+const ROWS = ["A1", "A2", "A3", "A4", "A5", "A6", "A7", "A8", "A9"];
 const STACK_ID = /^[a-z][a-z0-9-]*$/;
 const NOT_RUN_STACK_FIELD = "not-run";
 const VERDICTS = ["pass", "fail", "waived", "not-run"];

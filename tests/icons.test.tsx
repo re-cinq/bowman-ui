@@ -91,6 +91,8 @@ describe("the icon set inventory", () => {
     const allowedNameFieldFiles = [
       resolve(process.cwd(), "src/components/ChatMessage.tsx"),
       resolve(process.cwd(), "src/components/ChatMessageList.tsx"),
+      // TextField's name is the input's native form-field name, not an icon lookup.
+      resolve(process.cwd(), "src/components/TextField.tsx"),
     ].sort();
     const hits = listFiles(resolve(process.cwd(), "src"))
       .filter((file) => {

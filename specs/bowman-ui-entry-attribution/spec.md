@@ -142,21 +142,21 @@ sentinel values as `Object.values(...)`, which is `string[]` only while every
 label is a string; with a function label present the harness lists the
 computed sentinel beside the plain ones, exactly as `029`'s
 `ConversationList` harness already did, through a shared `plainSentinels`
-filter ([validated by no run of three Latin letters survives outside the sentinels for any labelsProp member @ffb54b18](../../tests/labelled-exports.test.tsx#L689)). The
+filter ([validated by no run of three Latin letters survives outside the sentinels for any labelsProp member @ffb54b18](../../tests/labelled-exports.test.tsx#L807)). The
 `ChatMessage` harness renders an `assistantName` and the `ChatMessageList`
 harness renders a persona'd entry with a matching `attribution` row, so the
 label is covered through both paths and a hardcoded string on either cannot
 hide from the Latin-run check
-([validated by @de67545f](../../tests/labelled-exports.test.tsx#L214),
-[L362@d4936833](../../tests/labelled-exports.test.tsx#L362),
-[L412@da319e68](../../tests/labelled-exports.test.tsx#L412)).
+([validated by @de67545f](../../tests/labelled-exports.test.tsx#L236),
+[L409@d4936833](../../tests/labelled-exports.test.tsx#L409),
+[L459@da319e68](../../tests/labelled-exports.test.tsx#L459)).
 
 `ChatAttribution` is a **type-only** export, so it appears in none of the
 export-partition buckets: `labelsProp`, `stringPropOnly` and `noStrings`
 together must equal the barrel's _value_ exports exactly, and adding a type
 name to any bucket fails that test rather than satisfying it. The rule is
 recorded where a future reader will look for it
-([validated by @3f040ee0](../../tests/labelled-exports.test.tsx#L77)).
+([validated by @3f040ee0](../../tests/labelled-exports.test.tsx#L90)).
 
 ## The public-API snapshot
 

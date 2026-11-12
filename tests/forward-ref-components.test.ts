@@ -7,7 +7,7 @@ import { listFiles } from "./helpers/source-hygiene.js";
  * cleanup may rewrite it away. Issue 133 showed that a ref-as-prop rewrite keeps
  * every behavioural ref test green under React 19, so the idiom is pinned here on
  * the built package for every ref-taking component at once. The fixture is the
- * closed list, name to declaring file: a seventh forwardRef component, or one
+ * closed list, name to declaring file: a ninth forwardRef component, or one
  * fewer, is a deliberate edit of tests/fixtures/forward-ref-components.json.
  */
 const FORWARD_REF = Symbol.for("react.forward_ref");

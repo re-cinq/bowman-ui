@@ -57,16 +57,16 @@ exports entry for a consumer ([validated by each built hook and ErrorBoundary op
   focus is inside, and pull focus back to an end when it sits outside the open trap (the
   2026-08-26 review's modal-only hardening), Escape closes, and focus returns to the trigger ref
   or the previously active element
-  ([validated by focuses the first focusable element when opened @88c2e5f9](../../tests/useFocusTrap.test.tsx#L65),
-  [validated by Tab on the last element wraps to the first @77102a40](../../tests/useFocusTrap.test.tsx#L71),
-  [validated by Shift+Tab on the first element wraps to the last @ece39e41](../../tests/useFocusTrap.test.tsx#L80), [validated by Tab in the middle of the list is not intercepted @ffe0bca8](../../tests/useFocusTrap.test.tsx#L89),
-  [validated by Shift+Tab in the middle of the list is not intercepted @19fc1cac](../../tests/useFocusTrap.test.tsx#L134),
-  [validated by Tab while focus sits outside the open trap pulls it to the first element @f5f8ac6b](../../tests/useFocusTrap.test.tsx#L207),
-  [validated by Shift+Tab while focus sits outside the open trap pulls it to the last element @f8683715](../../tests/useFocusTrap.test.tsx#L215),
-  [validated by Escape calls onClose @03a2527a](../../tests/useFocusTrap.test.tsx#L107),
-  [validated by closing returns focus to the trigger ref when one is given @aed68688](../../tests/useFocusTrap.test.tsx#L117),
-  [validated by closing returns focus to the previously active element without a trigger ref @279280ed](../../tests/useFocusTrap.test.tsx#L125),
-  [validated by `closing returns focus to a previously active <svg tabindex="0"> without a trigger ref` @bd707c95](../../tests/useFocusTrap.test.tsx#L235)).
+  ([validated by focuses the first focusable element when opened @88c2e5f9](../../tests/useFocusTrap.test.tsx#L78),
+  [validated by Tab on the last element wraps to the first @77102a40](../../tests/useFocusTrap.test.tsx#L84),
+  [validated by Shift+Tab on the first element wraps to the last @ece39e41](../../tests/useFocusTrap.test.tsx#L93), [validated by Tab in the middle of the list is not intercepted @ffe0bca8](../../tests/useFocusTrap.test.tsx#L102),
+  [validated by Shift+Tab in the middle of the list is not intercepted @19fc1cac](../../tests/useFocusTrap.test.tsx#L147),
+  [validated by Tab while focus sits outside the open trap pulls it to the first element @f5f8ac6b](../../tests/useFocusTrap.test.tsx#L219),
+  [validated by Shift+Tab while focus sits outside the open trap pulls it to the last element @f8683715](../../tests/useFocusTrap.test.tsx#L227),
+  [validated by Escape calls onClose @03a2527a](../../tests/useFocusTrap.test.tsx#L120),
+  [validated by closing returns focus to the trigger ref when one is given @aed68688](../../tests/useFocusTrap.test.tsx#L130),
+  [validated by closing returns focus to the previously active element without a trigger ref @279280ed](../../tests/useFocusTrap.test.tsx#L138),
+  [validated by `closing returns focus to a previously active <svg tabindex="0"> without a trigger ref` @bd707c95](../../tests/useFocusTrap.test.tsx#L367)).
 - `useFocusGroups({announce})` — the hardcoded English `Moved to ${groupName}` and the Tailwind
   `sr-only` class are both gone from the contract: `announce` maps a group name to the
   announcement (English default preserved, `null` suppresses), and the live region is hidden
@@ -109,7 +109,7 @@ exports entry for a consumer ([validated by each built hook and ErrorBoundary op
   `--bowman-danger` glyph - rather than the `red-*` palette classes, the circle's dark fill
   joining the collapsed `rgba()` soft-dark fallback per § Theming decision 6
   ([validated by the error icon circle and glyph read the danger role, not the red palette classes @8de62178](../../tests/ErrorBoundary.test.tsx#L91),
-  [readers@bc8f1dea](../../tests/theming-tokens-dist.test.ts#L346)).
+  [readers@bc8f1dea](../../tests/theming-tokens-dist.test.ts#L381)).
 
 No built file reads `process.env`, and no `NEXT_PUBLIC_FLAG_ANIMATIONS`
 string survives in `src/`

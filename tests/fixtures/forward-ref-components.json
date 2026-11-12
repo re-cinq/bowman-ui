@@ -1,8 +1,10 @@
 {
   "Button": "src/components/Button.tsx",
+  "Card": "src/components/Card.tsx",
   "ChatComposer": "src/components/ChatComposer.tsx",
   "ChatMessageList": "src/components/ChatMessageList.tsx",
   "IconButton": "src/components/IconButton.tsx",
   "IconWrapper": "src/icons/Icon.tsx",
-  "SearchField": "src/components/SearchField.tsx"
+  "SearchField": "src/components/SearchField.tsx",
+  "TextField": "src/components/TextField.tsx"
 }

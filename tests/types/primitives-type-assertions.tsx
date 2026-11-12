@@ -21,7 +21,7 @@ import {
 
 const completeDefaults = defaultSearchFieldLabels satisfies Readonly<Required<SearchFieldLabels>>;
 
-// @ts-expect-error -- an object missing searchPlaceholder is not a
+// @ts-expect-error -- an object missing searchPlaceholder and submitSearch is not a
 // Readonly<Required<SearchFieldLabels>>: a key added without a default
 // fails npm run typecheck.
 const incompleteDefaults: Readonly<Required<SearchFieldLabels>> = {
