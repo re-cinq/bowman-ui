@@ -27,7 +27,7 @@ and heard a named string; written by anything other than that person it is a
 false compliance artifact, and this repository going public makes it a
 published one. The issue's criteria that require the dated record - the record
 itself, its front matter of real versions, the verbatim transcriptions in
-A1-A7 - are owed by the human runner, not by this change.
+A1-A9 - are owed by the human runner, not by this change.
 
 The scaffolding is built so that the absence is loud rather than quiet:
 `check-at-pass.mjs --freshness` fails with no record present - it is the check
@@ -67,7 +67,7 @@ under-count a stream that did emit 24.
 
 ## The procedure
 
-`docs/accessibility/README.md` is the pass itself: the stacks, seven rows with
+`docs/accessibility/README.md` is the pass itself: the stacks, nine rows with
 reproduction steps against the demo's English catalogue, the record format, and
 the GDPR rule.
 
@@ -94,8 +94,9 @@ on it is then `not-run` without a reason of its own
 The pass runs against the demo's English catalogue, and the record names the
 voice actually used. The record transcribes verbatim and judges nothing. The
 published site is the default surface; a local build is needed only for the two
-optional local-only sub-steps. Expected runtime is two to three hours for a
-first run and about 30 minutes for a repeat against an unchanged surface.
+optional local-only sub-steps, and A8 and A9 run on the `ConfirmDialog` and `Notice`
+documentation pages of the same published site, since the chat screen holds neither. No
+runtime figure is given until a timed run of A8 and A9 sets one.
 
 ## What the pass will answer
 
@@ -105,7 +106,7 @@ hear a screen reader, so the evidence for each is a human's verbatim
 transcription in `docs/accessibility/at-pass-<date>.md`, and this spec says
 plainly that the file is owed rather than pretending otherwise.
 
-<!-- eslint-disable re-lint/no-dead-md-links -- the seven links below point at the at-pass record a human writes after the pass; the file is owed, not missing -->
+<!-- eslint-disable re-lint/no-dead-md-links -- the nine links below point at the at-pass record a human writes after the pass; the file is owed, not missing -->
 
 1. **A1.** What each stack announces when a streamed answer completes under
    `role="log"` / `aria-live="off"` - transcribed verbatim, including `nothing`
@@ -136,6 +137,16 @@ plainly that the file is owed rather than pretending otherwise.
    and once with two personas in view, against the name line `121` added to
    `ChatMessage`
    ([validated by](../../docs/accessibility/at-pass-<date>.md#A7)).
+8. **A8.** What each stack announces when a `ConfirmDialog` turns busy with
+   focus on its confirm button, and when one opens already busy - the focus move
+   to its panel and the `confirmBusy` status message - transcribed verbatim,
+   including `nothing`, under
+   [specs/bowman-ui-form-dialog-notice/spec.md](../bowman-ui-form-dialog-notice/spec.md)
+   ([validated by](../../docs/accessibility/at-pass-<date>.md#A8)).
+9. **A9.** Whether a `Notice` mounted with its text is announced, in each tone,
+   `role="status"` for `info` and `success` and `role="alert"` for `warning` and
+   `error`, and what a dismissible notice's dismiss button is announced as
+   ([validated by](../../docs/accessibility/at-pass-<date>.md#A9)).
 
 <!-- eslint-enable re-lint/no-dead-md-links -->
 
@@ -226,7 +237,7 @@ The attribution change (issue 121) recorded that a future AT-pass record
 must list `ChatMessage.tsx` and `ChatMessageList.tsx` in its `covers` set and
 must postdate that merge, re-answering A7 with two personas rendered. Both are
 folded into `docs/accessibility/README.md`: the `covers` guidance names all
-seven components the rows exercise with both of those first, and A7 is split
+fourteen files the rows exercise, two of them in `src/hooks/`, with both of those first, and A7 is split
 into A7a (as shipped, one voice) and A7b (a local, uncommitted `attribution`
 map with two personas, reverted afterwards because committing it changes the
 articles' accessible names and breaks the demo's Playwright counts).
@@ -241,14 +252,14 @@ articles' accessible names and breaks the demo's Playwright counts).
   names themselves in it and no name is asserted on this issue's own authority
   ([validated by a missing required field exits 1 naming the field @3912ae21](../../tests/check-at-pass.test.ts#L171)).
 - **KU-22, which accessibility standard applies.** None has been named. This is
-  seven checks against three named promises, not a WCAG or EN 301 549
+  nine checks against three named promises, not a WCAG or EN 301 549
   conformance audit, and `docs/accessibility/README.md` claims neither. Naming
   a standard is a decision for `001`'s ADR, not for this change.
 
 ## Premise discrepancies
 
 - The issue's acceptance criteria include the dated record, its front matter of
-  real versions and the verbatim A1-A7 transcriptions. Those are not delivered
+  real versions and the verbatim A1-A9 transcriptions. Those are not delivered
   here and cannot honestly be: see "What is deliberately absent". The issue
   stays open after this merge for that reason.
 - The issue's "Why" routes `027`'s composer auto-resize to this pass; its own
@@ -279,7 +290,7 @@ articles' accessible names and breaks the demo's Playwright counts).
 
 Fixing anything the pass finds (each `fail` routes to its own issue against the
 shipping component); an automated scanner such as `axe-core`, which would catch
-contrast and attribute defects and answer none of A1-A7; WCAG or EN 301 549
+contrast and attribute defects and answer none of A1-A9; WCAG or EN 301 549
 conformance as a whole; colour contrast, keyboard-only navigation and reduced
 motion, which a browser measures without an assistive technology; the app shell
 and mobile drawer, since a focus trap does not trap a virtual cursor; and the
