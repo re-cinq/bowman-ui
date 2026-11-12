@@ -7,10 +7,11 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
 import {
   defaultAppShellLabels,
-  defaultAppSidebarLabels,
   defaultChatMessageLabels,
+  defaultConfirmDialogLabels,
   defaultConversationListLabels,
-  defaultErrorBoundaryLabels,
+  defaultNoticeLabels,
+  defaultSearchFieldLabels,
   defaultThinkingIndicatorLabels,
   defaultToolActivityLabels,
 } from "@re-cinq/bowman-ui";
@@ -19,14 +20,23 @@ import { docsLabels } from "../src/docs-labels";
 import { staticDemoNote } from "../src/staticDemoNote";
 import { styleOf } from "./helpers/colors";
 import {
+  docsRun,
+  docsThemedPages,
+  docsTokenPages,
+  docsUrl,
+  exampleListOf,
+  exampleNavOf,
+  throwButtons,
+  variantOf,
+  type DocsTokenPage,
+} from "./helpers/docsTokenPages";
+import {
+  copperlineValues,
   declaredFallbacks,
   expectSite,
-  focus,
-  hover,
   pollWindowMs,
   type ColorScheme,
-  type ThemeRun,
-  type TokenSite,
+  type TokenValues,
 } from "./helpers/tokens";
 
 // Kept as a literal rather than imported: importing the docs registry would
@@ -44,6 +54,12 @@ const componentIds = [
   "error-boundary",
   "conversation-list",
   "search-field",
+  "text-field",
+  "dialog",
+  "confirm-dialog",
+  "notice",
+  "key-value-list",
+  "card",
   "app-sidebar",
   "app-shell",
   "icons",
@@ -241,299 +257,50 @@ test.describe("the search field page", () => {
   });
 });
 
-const docsUrl = (componentId: string): string => `/?view=docs&component=${componentId}`;
-
-const variantOf = (page: Page, id: string): Locator => page.locator(`[data-doc-variant="${id}"]`);
-
-const alertOf = (page: Page): Locator => page.getByRole("alert").first();
-
-// The example's field is the first searchbox on its page; the variants follow it.
-const searchInputOf = (page: Page): Locator =>
-  page.getByRole("searchbox", { name: searchFieldLabels.searchInput }).first();
-
-// The docs shell carries a nav of its own, so the example's is the one inside main.
-const exampleNavOf = (page: Page): Locator =>
-  page.getByRole("main").getByRole("navigation", { name: defaultAppSidebarLabels.mainNavigation });
-
-const exampleListOf = (page: Page): Locator =>
-  page.getByRole("list", { name: defaultConversationListLabels.conversations }).first();
-
-const throwButtons = (page: Page): Locator =>
-  page.getByRole("button", { name: "Throw during render" });
-
 const settledTitle = "Gift wrapping for a first edition";
 
-// The token sites the documentation pages add to the chat matrix in theming.spec.ts: the danger
-// family on the error icon, the thinking dots and every text tier at a site the chat has none of.
-const docsTokenPages: ReadonlyArray<{ componentId: string; sites: ReadonlyArray<TokenSite> }> = [
+// Two matrices over the same sites helper: the defaults on every docs page, and the Copperline
+// Bicycles values inside the ConfirmDialog and Notice pages' page-local .custom-theme wrapper,
+// the docs view's stand-in for the chat screen's ?theme= parameter (decision 19 of issue 415).
+const docsMatrices: ReadonlyArray<{
+  describe: (scheme: ColorScheme) => string;
+  title: (componentId: string) => string;
+  values: TokenValues;
+  pages: ReadonlyArray<DocsTokenPage>;
+}> = [
   {
-    componentId: "error-boundary",
-    sites: [
-      {
-        token: "--bowman-danger",
-        site: "the error icon glyph",
-        property: "color",
-        locate: (page) => alertOf(page).locator("svg"),
-        act: (_glyph, page) => throwButtons(page).first().click(),
-      },
-      {
-        token: "--bowman-danger-soft",
-        site: "the error icon circle",
-        property: "backgroundColor",
-        locate: (page) => alertOf(page).locator("svg").locator(".."),
-      },
-      {
-        token: "--bowman-text-strong",
-        site: "the error heading",
-        property: "color",
-        locate: (page) => alertOf(page).getByRole("heading", { level: 2 }),
-      },
-      {
-        token: "--bowman-text-secondary",
-        site: "the error description",
-        property: "color",
-        locate: (page) => alertOf(page).getByText(defaultErrorBoundaryLabels.description),
-      },
-    ],
+    describe: (scheme) => `the documentation pages' token sites under the ${scheme} scheme`,
+    title: (componentId) => `the ${componentId} page paints its tokens`,
+    values: declaredFallbacks,
+    pages: docsTokenPages,
   },
   {
-    componentId: "thinking-indicator",
-    sites: [
-      {
-        token: "--bowman-accent",
-        site: "a thinking dot",
-        property: "backgroundColor",
-        locate: (page) => page.locator(".bowman-fade-dot").first(),
-        ignoresScheme: true,
-      },
-      {
-        token: "--bowman-accent-border",
-        site: "the indicator's circle",
-        property: "borderColor",
-        locate: (page) => page.locator(".bowman-pulse-subtle").first(),
-      },
-      {
-        token: "--bowman-accent-soft",
-        site: "the indicator's circle",
-        property: "backgroundColor",
-        locate: (page) => page.locator(".bowman-pulse-subtle").first(),
-      },
-      {
-        token: "--bowman-text-muted",
-        site: "the thinking label",
-        property: "color",
-        locate: (page) =>
-          page
-            .getByRole("status", { name: defaultThinkingIndicatorLabels.thinkingRegion })
-            .first()
-            .getByText(defaultThinkingIndicatorLabels.thinking),
-      },
-    ],
-  },
-  {
-    componentId: "tool-activity",
-    sites: [
-      {
-        token: "--bowman-text-muted",
-        site: "the tool headline",
-        property: "color",
-        locate: (page) =>
-          variantOf(page, "default").getByText(defaultToolActivityLabels.activityDone),
-      },
-      {
-        token: "--bowman-text-secondary",
-        site: "the tool name",
-        property: "color",
-        locate: (page) => variantOf(page, "tool-name").locator("code"),
-      },
-      {
-        token: "--bowman-text-body",
-        site: "the expanded arguments",
-        property: "color",
-        locate: (page) => variantOf(page, "tool-input").locator("pre"),
-      },
-    ],
-  },
-  {
-    componentId: "thinking-trace",
-    sites: [
-      {
-        token: "--bowman-text-muted",
-        site: "the trace summary",
-        property: "color",
-        locate: (page) => variantOf(page, "expanded").locator("summary"),
-      },
-      {
-        token: "--bowman-text-secondary",
-        site: "the expanded trace content",
-        property: "color",
-        locate: (page) => variantOf(page, "expanded").locator("details > div"),
-      },
-    ],
-  },
-  {
-    componentId: "search-field",
-    sites: [
-      {
-        token: "--bowman-surface",
-        site: "the search input",
-        property: "backgroundColor",
-        locate: searchInputOf,
-      },
-      {
-        token: "--bowman-border",
-        site: "the search input",
-        property: "borderColor",
-        locate: searchInputOf,
-      },
-      {
-        token: "--bowman-text-strong",
-        site: "the search input",
-        property: "color",
-        locate: searchInputOf,
-      },
-      {
-        token: "--bowman-text-subtle",
-        site: "the search icon",
-        property: "color",
-        locate: (page) => searchInputOf(page).locator("..").locator("svg"),
-      },
-      {
-        token: "--bowman-focus-ring",
-        site: "the focused search input's ring",
-        property: "boxShadow",
-        locate: searchInputOf,
-        act: focus,
-      },
-    ],
-  },
-  {
-    componentId: "conversation-list",
-    sites: [
-      {
-        token: "--bowman-text-body",
-        site: "a row title",
-        property: "color",
-        locate: (page) => exampleListOf(page).locator('[aria-current="page"] span').first(),
-      },
-      {
-        token: "--bowman-text-muted",
-        site: "a row timestamp",
-        property: "color",
-        locate: (page) => exampleListOf(page).getByText("today 09:14"),
-      },
-      {
-        token: "--bowman-text-subtle",
-        site: "the empty-state hint",
-        property: "color",
-        locate: (page) =>
-          variantOf(page, "empty").getByText(defaultConversationListLabels.noConversations),
-      },
-    ],
-  },
-  {
-    componentId: "app-sidebar",
-    sites: [
-      {
-        token: "--bowman-active",
-        site: "the active nav item",
-        property: "backgroundColor",
-        locate: (page) => exampleNavOf(page).getByRole("button", { name: "Chat" }),
-      },
-      {
-        token: "--bowman-text-strong",
-        site: "the active nav item",
-        property: "color",
-        locate: (page) => exampleNavOf(page).getByRole("button", { name: "Chat" }),
-      },
-      {
-        token: "--bowman-text-body",
-        site: "the brand row",
-        property: "color",
-        locate: (page) =>
-          page.getByRole("main").getByRole("complementary").first().getByText("Marginalia Books"),
-      },
-      {
-        token: "--bowman-text-secondary",
-        site: "the inactive nav item",
-        property: "color",
-        locate: (page) => exampleNavOf(page).getByRole("button", { name: "Settings" }),
-      },
-      {
-        token: "--bowman-surface-hover",
-        site: "the hovered inactive nav item",
-        property: "backgroundColor",
-        locate: (page) => exampleNavOf(page).getByRole("button", { name: "Settings" }),
-        act: hover,
-      },
-      {
-        token: "--bowman-text-strong",
-        site: "the hovered inactive nav item",
-        property: "color",
-        locate: (page) => exampleNavOf(page).getByRole("button", { name: "Settings" }),
-      },
-    ],
-  },
-  {
-    componentId: "chat-message",
-    sites: [
-      {
-        token: "--bowman-text-strong",
-        site: "the message body",
-        property: "color",
-        locate: (page) => variantOf(page, "markdown").getByRole("article"),
-      },
-      {
-        token: "--bowman-text-secondary",
-        site: "the assistant name",
-        property: "color",
-        locate: (page) => variantOf(page, "named").getByText("Marginalia Orders"),
-      },
-      {
-        token: "--bowman-control-hover",
-        site: "the hovered thumbs-up",
-        property: "backgroundColor",
-        locate: (page) =>
-          variantOf(page, "markdown").getByRole("button", {
-            name: defaultChatMessageLabels.feedbackPositive,
-          }),
-        act: hover,
-      },
-      {
-        token: "--bowman-focus-ring",
-        site: "the focused article's ring",
-        property: "boxShadow",
-        locate: (page) => variantOf(page, "markdown").getByRole("article"),
-        act: focus,
-      },
-    ],
+    describe: (scheme) => `the documentation pages' themed wrappers under the ${scheme} scheme`,
+    title: (componentId) =>
+      `the ${componentId} page's themed variant paints the wrapper's tokens inside the wrapper`,
+    values: copperlineValues,
+    pages: docsThemedPages,
   },
 ];
 
-const docsRun = (scheme: ColorScheme, url: string): ThemeRun => ({
-  title: "the documentation pages",
-  url,
-  themeName: docsLabels.title,
-  values: declaredFallbacks,
-  scheme,
-});
-
 for (const scheme of ["light", "dark"] as const) {
-  test.describe(`the documentation pages' token sites under the ${scheme} scheme`, () => {
-    test.use({ colorScheme: scheme });
+  for (const matrix of docsMatrices) {
+    test.describe(matrix.describe(scheme), () => {
+      test.use({ colorScheme: scheme });
 
-    for (const { componentId, sites } of docsTokenPages) {
-      test(`the ${componentId} page paints its tokens`, async ({ page }) => {
-        const run = docsRun(scheme, docsUrl(componentId));
+      for (const { componentId, sites } of matrix.pages) {
+        test(matrix.title(componentId), async ({ page }) => {
+          const run = docsRun(scheme, docsUrl(componentId), matrix.values);
 
-        await page.goto(run.url);
+          await page.goto(run.url);
 
-        for (const site of sites) {
-          await expectSite(page, run, site);
-        }
-      });
-    }
-  });
+          for (const site of sites) {
+            await expectSite(page, run, site);
+          }
+        });
+      }
+    });
+  }
 }
 
 test.describe("component states", () => {
@@ -843,6 +610,177 @@ test.describe("component states", () => {
     await page.getByRole("link", { name: docsLabels.backToIndex }).click();
     await expect(page).not.toHaveURL(/component=/);
     await expect(page.getByRole("heading", { name: docsLabels.title, level: 1 })).toBeVisible();
+  });
+});
+
+// The form, dialog and notice pages (issue 415): what jsdom cannot show - implicit submission on
+// Enter, the browser's focus fixup when a focused button turns disabled, and :focus-visible.
+const openPanel = (page: Page): Locator => page.locator('[role="dialog"], [role="alertdialog"]');
+
+const openFrom = async (page: Page, variant: string): Promise<Locator> => {
+  await variantOf(page, variant).getByRole("button").first().click();
+  const panel = openPanel(page);
+
+  await expect(panel).toBeVisible();
+  // The trap moves focus in from an effect after the panel paints; wait for it, so a test's own
+  // focus move is never overtaken by the initial one.
+  await expect
+    .poll(() => panel.evaluate((element) => element.contains(document.activeElement)))
+    .toBe(true);
+
+  return panel;
+};
+
+const confirmationsOf = (page: Page, variant: string): Locator =>
+  variantOf(page, variant).locator("[data-confirmations]");
+
+test.describe("the form, dialog and notice pages", () => {
+  test("Enter in a TextField among a ConfirmDialog's children confirms once and closes it", async ({
+    page,
+  }) => {
+    await page.goto(docsUrl("confirm-dialog"));
+    const panel = await openFrom(page, "with-field");
+    const field = panel.getByRole("textbox");
+
+    await expect(field).toBeFocused();
+    await field.fill("Ordered the wrong edition");
+    await field.press("Enter");
+    await expect(openPanel(page)).toHaveCount(0);
+    await expect(confirmationsOf(page, "with-field")).toHaveAttribute("data-confirmations", "1");
+  });
+
+  test("with confirmDisabled, Enter in the TextField does not confirm until the typed reference matches", async ({
+    page,
+  }) => {
+    await page.goto(docsUrl("confirm-dialog"));
+    const panel = await openFrom(page, "confirm-disabled");
+    const field = panel.getByRole("textbox");
+
+    await expect(field).toBeFocused();
+    await field.fill("MB-4821");
+    await field.press("Enter");
+    await expect(panel.locator('button[type="submit"]')).toBeDisabled();
+    await expect(panel).toBeVisible();
+    await expect(confirmationsOf(page, "confirm-disabled")).toHaveAttribute(
+      "data-confirmations",
+      "0"
+    );
+
+    await field.fill("MB-4821-XQ");
+    await field.press("Enter");
+    await expect(openPanel(page)).toHaveCount(0);
+    await expect(confirmationsOf(page, "confirm-disabled")).toHaveAttribute(
+      "data-confirmations",
+      "1"
+    );
+  });
+
+  // Enter, not a click: WebKit on macOS does not focus a clicked button, so a click could leave
+  // focus on the panel without the busy layout effect ever running.
+  test("Enter on the focused confirm button turns the dialog busy and moves focus to the panel, never to <body>", async ({
+    page,
+  }) => {
+    await page.goto(docsUrl("confirm-dialog"));
+    const panel = await openFrom(page, "busy");
+    const confirm = panel.locator('button[type="submit"]');
+
+    await confirm.focus();
+    await expect(confirm).toBeFocused();
+    // A focusout with no relatedTarget is focus leaving for nothing - the browser's fixup to <body>.
+    await page.evaluate(() => {
+      const record = window as unknown as { focusLostToBody: number };
+
+      record.focusLostToBody = 0;
+      document.addEventListener(
+        "focusout",
+        (event) => {
+          if (event.relatedTarget === null) {
+            record.focusLostToBody += 1;
+          }
+        },
+        true
+      );
+    });
+    await page.keyboard.press("Enter");
+
+    await expect(panel.getByRole("status")).toHaveText(defaultConfirmDialogLabels.confirmBusy);
+    await expect(confirm).toBeDisabled();
+    await expect(panel).toBeFocused();
+    expect(
+      await page.evaluate(() => (window as unknown as { focusLostToBody: number }).focusLostToBody)
+    ).toBe(0);
+    expect(await page.evaluate(() => document.activeElement === document.body)).toBe(false);
+  });
+
+  test("clicking the default Dialog's prose focuses the panel and draws no ring", async ({
+    page,
+  }) => {
+    await page.goto(docsUrl("dialog"));
+    const panel = await openFrom(page, "default");
+
+    await panel.getByText("Orders placed before 14:00").click();
+    await expect(panel).toBeFocused();
+    expect(await styleOf(panel, "boxShadow")).toBe("none");
+  });
+
+  test("the overflowing Dialog body is a named, focusable region that takes initial focus", async ({
+    page,
+  }) => {
+    await page.goto(docsUrl("dialog"));
+    const panel = await openFrom(page, "overflowing");
+    const body = panel.getByRole("region", { name: "Returns terms" });
+
+    await expect(body).toBeFocused();
+    await expect(body).toHaveAttribute("tabindex", "0");
+  });
+
+  test("the themed ConfirmDialog portals into its wrapper, and closing returns focus to its trigger", async ({
+    page,
+  }) => {
+    await page.goto(docsUrl("confirm-dialog"));
+    const wrapper = variantOf(page, "themed").locator("[data-theme-wrapper]");
+    const trigger = wrapper.getByRole("button").first();
+    const panel = openPanel(page);
+
+    // Opened from the keyboard: WebKit does not focus a clicked button, so a click leaves the trap
+    // nothing to return focus to.
+    await trigger.focus();
+    await page.keyboard.press("Enter");
+    await expect(wrapper.getByRole("alertdialog")).toHaveCount(1);
+    await expect(
+      panel.getByRole("button", { name: defaultConfirmDialogLabels.cancelAction })
+    ).toBeFocused();
+    await page.keyboard.press("Escape");
+    await expect(openPanel(page)).toHaveCount(0);
+    await expect(trigger).toBeFocused();
+  });
+
+  test("dismissing the notice moves focus to the button that stays, which shows it again", async ({
+    page,
+  }) => {
+    await page.goto(docsUrl("notice"));
+    const figure = variantOf(page, "dismissible");
+    const restore = figure.getByRole("button", { name: "Show the notice again" });
+
+    await figure.getByRole("button", { name: defaultNoticeLabels.dismissNotice }).click();
+    await expect(figure.getByRole("status")).toHaveCount(0);
+    await expect(restore).toBeFocused();
+    await restore.click();
+    await expect(figure.getByRole("status")).toContainText("Draft saved");
+  });
+
+  test("the search field's on-submit variant runs the search on Enter and on its submit button", async ({
+    page,
+  }) => {
+    await page.goto(docsUrl("search-field"));
+    const figure = variantOf(page, "on-submit");
+    const input = figure.getByRole("searchbox", { name: searchFieldLabels.searchInput });
+
+    await input.press("Enter");
+    await expect(figure).toContainText("Last search: atlas");
+    await input.fill("first edition");
+    await figure.getByRole("button", { name: defaultSearchFieldLabels.submitSearch }).click();
+    await expect(figure).toContainText("Last search: first edition");
   });
 });
 
