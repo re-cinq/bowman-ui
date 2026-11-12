@@ -246,6 +246,35 @@ describe("useFocusGroups", () => {
     expect(notPrevented).toBe(true);
   });
 
+  it("F6 with focus inside an aria-modal container leaves focus put and the event unprevented", () => {
+    const WithModal = () => {
+      useFocusGroups();
+
+      return (
+        <>
+          <main data-focus-group="main">
+            <button>main action</button>
+          </main>
+          <div role="dialog" aria-modal="true" aria-label="Modal">
+            <button>modal action</button>
+          </div>
+        </>
+      );
+    };
+
+    render(<WithModal />);
+
+    const modalButton = screen.getByRole("button", { name: "modal action" });
+
+    modalButton.focus();
+
+    const notPrevented = fireEvent.keyDown(modalButton, { key: "F6" });
+
+    expect(notPrevented).toBe(true);
+    expect(modalButton).toHaveFocus();
+    expect(screen.queryByRole("status")).not.toBeInTheDocument();
+  });
+
   it("two mounted instances announce one F6 press exactly once", () => {
     const Twice = () => {
       useFocusGroups();

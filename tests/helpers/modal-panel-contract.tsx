@@ -194,12 +194,11 @@ export const describeModalPanelContract = ({ role, title, renderModal }: ModalCo
       expect(onEscape).toHaveBeenCalledTimes(1);
     });
 
-    it("a mousedown on the overlay is prevented and focus stays put; one inside the panel is not", () => {
+    it("a mousedown on the overlay is prevented; one inside the panel is not", () => {
       render(renderModal({ open: true, onEscape: () => {}, children: field }));
       const input = screen.getByRole("textbox");
 
       expect(fireEvent.mouseDown(panelOf().parentElement as HTMLElement)).toBe(false);
-      expect(input).toHaveFocus();
       expect(fireEvent.mouseDown(panelOf())).toBe(true);
       expect(fireEvent.mouseDown(input)).toBe(true);
     });

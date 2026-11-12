@@ -382,7 +382,7 @@ There is no brand mark in the set. A consumer who wants one supplies it through 
 Five hooks ship beside the components, each pure (no console, no network, no storage except `useSidebarState`):
 
 ```tsx
-useFocusGroups(); // F6 / Shift+F6 cycles focus through [data-focus-group] sections, by data-focus-group-order then DOM order
+useFocusGroups(); // F6 / Shift+F6 cycles focus through [data-focus-group] sections, by data-focus-group-order then DOM order; inside an aria-modal element F6 is left alone
 <header data-focus-group="header" data-focus-group-order="0">...</header>
 <main data-focus-group="main" data-focus-group-order="1">...</main>
 
@@ -454,7 +454,9 @@ focusable element that stays, when the action removes that element. Leave `autoF
 `children`, since the trap already focuses the first control; if a child does use it, pass
 `returnFocusRef`, because React applies `autoFocus` before the trap records the element to return
 to. A body that overflows with nothing focusable in it becomes focusable, so a keyboard user can
-scroll it.
+scroll it. A `<form>` in `children` should call `event.stopPropagation()` beside
+`event.preventDefault()` in its `onSubmit`: React's `submit` bubbles along the component tree
+through the portal, so without it a form the `Dialog` is rendered inside submits too.
 
 The panel portals into `document.body` by default. A theme set on a wrapper (`.custom-theme`,
 `[data-tenant="acme"]`, see [Theming](#theming)) stops at the portal, so pass that wrapper, or an
@@ -495,9 +497,9 @@ default. Props: `open`, `onConfirm`, `onCancel` (the cancel button and Escape), 
 read as the dialog's description), `children` (any fields), `confirmDisabled`, `busy`,
 `returnFocusRef`, `container`. The body is a form, so the `danger` confirm button or Enter in a
 field calls `onConfirm`, never while `confirmDisabled` or `busy` holds. Opening focuses the first
-field, else Cancel - never the confirm button. While `busy` holds, both buttons are disabled, Escape
-does nothing, focus moves to the panel if it sat on a disabled button, and `confirmBusy` is
-announced through a status region.
+field, else the overflowing body, else Cancel - never the confirm button. While `busy` holds, both
+buttons are disabled, Escape does nothing, focus moves to the panel if it sat on a disabled button,
+and `confirmBusy` is announced through a status region.
 
 ```tsx
 <ConfirmDialog

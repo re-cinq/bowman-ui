@@ -46,6 +46,11 @@ export function useFocusGroups(options: FocusGroupsOptions = {}): void {
         return;
       }
 
+      // An open modal owns the keyboard: F6 must not move focus to a page group behind it.
+      if (document.activeElement?.closest('[aria-modal="true"]')) {
+        return;
+      }
+
       const groups = getFocusGroups();
 
       if (groups.length === 0) {

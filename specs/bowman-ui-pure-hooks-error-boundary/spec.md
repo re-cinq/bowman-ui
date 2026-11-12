@@ -87,6 +87,10 @@ exports entry for a consumer ([validated by each built hook and ErrorBoundary op
   [validated by F6 follows data-focus-group-order, not DOM order @5d3836b0](../../tests/useFocusGroups.test.tsx#L53),
   [validated by F6 wraps forward past the last group and Shift+F6 wraps backward past the first @da279fe6](../../tests/useFocusGroups.test.tsx#L61),
   [validated by equal orders fall back to DOM order, so the first F6 lands on the second group @48c46ffc](../../tests/useFocusGroups.test.tsx#L75)).
+- `useFocusGroups` and an open modal — while focus sits inside an `aria-modal="true"` element,
+  F6 is left alone - focus stays and the event is not prevented - so it never reaches a page group
+  behind an open modal (specs/bowman-ui-form-dialog-notice/spec.md § `useFocusTrap`)
+  ([validated by F6 with focus inside an aria-modal container leaves focus put and the event unprevented @11b810c7](../../tests/useFocusGroups.test.tsx#L249)).
 - `ErrorBoundary` — the `console.error` call is gone: `onError` is the only reporting channel,
   and rendering a thrown error writes nothing to the console and nothing to localStorage — the
   GDPR zero-retention rider on the error text. The three English strings became

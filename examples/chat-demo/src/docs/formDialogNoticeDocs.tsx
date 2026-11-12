@@ -158,6 +158,8 @@ function FormInBodyDialog() {
             className="flex flex-col gap-4"
             onSubmit={(event) => {
               event.preventDefault();
+              // A submit bubbles through the portal, so stop it reaching a form the Dialog sits in.
+              event.stopPropagation();
               setRenamed(title);
               close();
             }}

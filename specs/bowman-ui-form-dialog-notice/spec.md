@@ -341,7 +341,7 @@ export const Dialog: (props: DialogProps) => ReactElement | null;
   `getFocusableElements`, `FOCUSABLE_SELECTOR` filtered by visibility (src/hooks/useFocusTrap.ts),
   moves into the internal src/hooks/focusableSelector.ts beside the selector, and both the trap and
   `ModalPanel` import it, so a body whose only control is `display:none` counts as empty for both;
-  the barrel exports neither ([validated by `an overflowing prose-only body becomes a focusable region named by the <h2> and takes initial focus` @4bb41ddd](../../tests/helpers/modal-panel-contract.tsx#L264), [validated by an empty container with a tabindex that fails the visibility check takes no focus and leaves Tab alone @34858645](../../tests/useFocusTrap.test.tsx#L271), [validated by @3c9682f2](../../tests/public-api.test.ts#L40)).
+  the barrel exports neither ([validated by `an overflowing prose-only body becomes a focusable region named by the <h2> and takes initial focus` @4bb41ddd](../../tests/helpers/modal-panel-contract.tsx#L263), [validated by an empty container with a tabindex that fails the visibility check takes no focus and leaves Tab alone @34858645](../../tests/useFocusTrap.test.tsx#L271), [validated by @3c9682f2](../../tests/public-api.test.ts#L40)).
 - While the body overflows and holds no focusable element, it carries `tabIndex={0}`,
   `role="region"` and `aria-labelledby` pointing at the `<h2>`, so a keyboard user can reach and
   scroll it (WCAG 2.1.1); otherwise it carries none of them. It always carries the panel's
@@ -373,7 +373,7 @@ export const Dialog: (props: DialogProps) => ReactElement | null;
   stub the two heights and, for the branch where one exists, a `ResizeObserver` whose callback they
   fire for each of the two watched elements, keeping the 100% branch floor. One test mounts the
   dialog closed with overflowing stubbed heights, opens it and asserts the body carries
-  `tabindex="0"` ([validated by a body that does not overflow carries no tabindex, role or aria-labelledby @2f1e7879](../../tests/helpers/modal-panel-contract.tsx#L256), [validated by `an overflowing prose-only body becomes a focusable region named by the <h2> and takes initial focus` @4bb41ddd](../../tests/helpers/modal-panel-contract.tsx#L264), [validated by an overflowing body that holds a control takes no tabindex, and the control takes focus @538cbd09](../../tests/helpers/modal-panel-contract.tsx#L275), [validated by mounted closed with overflowing heights and then opened, the body carries tabindex=0 @008e97bc](../../tests/helpers/modal-panel-contract.tsx#L301), [validated by a ResizeObserver watches the body and its inner wrapper, re-evaluating on each, and disconnects on close @9481d39e](../../tests/helpers/modal-panel-contract.tsx#L312), [validated by when the focused body stops overflowing, the panel takes focus before the attributes go @24e42e17](../../tests/helpers/modal-panel-contract.tsx#L337), [validated by the overflowing Dialog body is a named, focusable region that takes initial focus @621d4eb8](../../examples/chat-demo/tests/docs.spec.ts#L738)).
+  `tabindex="0"` ([validated by a body that does not overflow carries no tabindex, role or aria-labelledby @2f1e7879](../../tests/helpers/modal-panel-contract.tsx#L255), [validated by `an overflowing prose-only body becomes a focusable region named by the <h2> and takes initial focus` @4bb41ddd](../../tests/helpers/modal-panel-contract.tsx#L263), [validated by an overflowing body that holds a control takes no tabindex, and the control takes focus @538cbd09](../../tests/helpers/modal-panel-contract.tsx#L274), [validated by mounted closed with overflowing heights and then opened, the body carries tabindex=0 @008e97bc](../../tests/helpers/modal-panel-contract.tsx#L300), [validated by a ResizeObserver watches the body and its inner wrapper, re-evaluating on each, and disconnects on close @9481d39e](../../tests/helpers/modal-panel-contract.tsx#L311), [validated by when the focused body stops overflowing, the panel takes focus before the attributes go @24e42e17](../../tests/helpers/modal-panel-contract.tsx#L336), [validated by the overflowing Dialog body is a named, focusable region that takes initial focus @621d4eb8](../../examples/chat-demo/tests/docs.spec.ts#L738)).
 - On the server and during hydration an open `Dialog` renders nothing, and it portals on the first
   client render after: the client check reads `useSyncExternalStore` with a server snapshot of
   `false`, so markup never mismatches and no `typeof window` guard is written. The server snapshot
@@ -384,13 +384,13 @@ export const Dialog: (props: DialogProps) => ReactElement | null;
   then hydrates that markup with `hydrateRoot`, and asserts the panel appears and focus moves inside
   it, to its first control; a mismatch would trip tests/setup.ts's `console.error` trap. The trap is
   armed with `open && isClient`, so an open `Dialog` hydrated from the server still moves focus into
-  its panel once the panel exists ([validated by an open dialog renders nothing on the server, then hydrates without mismatch, portals and moves focus to its first control @fb419fd5](../../tests/helpers/modal-panel-contract.tsx#L359), [validated by @bb94a4d9](../../tests/Dialog.test.tsx#L17), [validated by @bb94a4d9](../../tests/ConfirmDialog.test.tsx#L55)).
+  its panel once the panel exists ([validated by an open dialog renders nothing on the server, then hydrates without mismatch, portals and moves focus to its first control @fb419fd5](../../tests/helpers/modal-panel-contract.tsx#L358), [validated by @bb94a4d9](../../tests/Dialog.test.tsx#L17), [validated by @bb94a4d9](../../tests/ConfirmDialog.test.tsx#L55)).
 - The panel traps focus through the shipped `useFocusTrap`: opening moves focus to the first
   focusable element in DOM order, Tab and Shift+Tab wrap inside it, and Escape calls `onClose` ([validated by opening focuses the first control in children, and Tab from the last control wraps inside @3c9d6e80](../../tests/helpers/modal-panel-contract.tsx#L170), [validated by Escape calls the dismiss callback once, and a click on the overlay calls nothing @3f3c04b1](../../tests/helpers/modal-panel-contract.tsx#L184), [validated by @bb94a4d9](../../tests/Dialog.test.tsx#L17)).
 - The DOM order is the `<h2>`, `children`, `footer`, then the close button, which CSS places in the
   panel's corner. Opening therefore focuses the first control in `children`, else the overflowing
   body when it is focusable (above), else the first control in `footer`, and the close button only
-  when none of those holds ([validated by the close button is a ghost IconButton named "Close", last in DOM order, and calls onClose @d54326b8](../../tests/Dialog.test.tsx#L49), [validated by with nothing focusable in children or footer, opening focuses the close button @030a7e12](../../tests/Dialog.test.tsx#L80), [validated by with no control in children, opening focuses the first control in footer, not the close button @ccb6e3e3](../../tests/Dialog.test.tsx#L90), [validated by opening focuses the first control in children, and Tab from the last control wraps inside @3c9d6e80](../../tests/helpers/modal-panel-contract.tsx#L170), [validated by `an overflowing prose-only body becomes a focusable region named by the <h2> and takes initial focus` @4bb41ddd](../../tests/helpers/modal-panel-contract.tsx#L264)).
+  when none of those holds ([validated by the close button is a ghost IconButton named "Close", last in DOM order, and calls onClose @d54326b8](../../tests/Dialog.test.tsx#L49), [validated by with nothing focusable in children or footer, opening focuses the close button @030a7e12](../../tests/Dialog.test.tsx#L80), [validated by with no control in children, opening focuses the first control in footer, not the close button @ccb6e3e3](../../tests/Dialog.test.tsx#L90), [validated by opening focuses the first control in children, and Tab from the last control wraps inside @3c9d6e80](../../tests/helpers/modal-panel-contract.tsx#L170), [validated by `an overflowing prose-only body becomes a focusable region named by the <h2> and takes initial focus` @4bb41ddd](../../tests/helpers/modal-panel-contract.tsx#L263)).
 - Closing - `open` turning false - and unmounting while open both return focus to
   `returnFocusRef.current` when given, else to the element that held focus before the dialog opened.
   `returnFocusRef` must stay the same object while the dialog is open - a `useRef`, never an inline
@@ -398,18 +398,19 @@ export const Dialog: (props: DialogProps) => ReactElement | null;
   effect, which records an element inside the panel as the one to return to and moves focus back to
   the first control on every render. A consumer whose confirmed action removes that element, such as
   the delete button of a deleted row, passes `returnFocusRef`, because focus sent to a detached node
-  lands on `<body>` ([validated by closing returns focus to the element that held it before opening @5eefe5f5](../../tests/helpers/modal-panel-contract.tsx#L207), [validated by unmounting while open returns focus to the element that held it before opening @52422c57](../../tests/helpers/modal-panel-contract.tsx#L216), [validated by closing returns focus to returnFocusRef.current when given @2b9ccd40](../../tests/helpers/modal-panel-contract.tsx#L248), [validated by a return target removed before the close is skipped and focus stays where it was @e3a91e71](../../tests/useFocusTrap.test.tsx#L368)).
+  lands on `<body>` ([validated by closing returns focus to the element that held it before opening @5eefe5f5](../../tests/helpers/modal-panel-contract.tsx#L206), [validated by unmounting while open returns focus to the element that held it before opening @52422c57](../../tests/helpers/modal-panel-contract.tsx#L215), [validated by closing returns focus to returnFocusRef.current when given @2b9ccd40](../../tests/helpers/modal-panel-contract.tsx#L247), [validated by a return target removed before the close is skipped and focus stays where it was @e3a91e71](../../tests/useFocusTrap.test.tsx#L368)).
 - `children` should not use `autoFocus`: the trap already focuses the first control. A consumer
   whose `children` do must pass `returnFocusRef`, because React applies `autoFocus` during the
   commit, before the trap's effect records the element to return to, so the trap records the
   auto-focused control inside the panel, which is detached on close and skipped, and focus lands on
-  `<body>` ([validated by with an autoFocus child, closing returns focus to returnFocusRef.current @900bd525](../../tests/helpers/modal-panel-contract.tsx#L252)).
+  `<body>` ([validated by with an autoFocus child, closing returns focus to returnFocusRef.current @900bd525](../../tests/helpers/modal-panel-contract.tsx#L251)).
 - The close button is a `ghost` `IconButton` with `CloseIcon`, as `Notice`'s dismiss button is,
   named by `labels.closeDialog` (default `"Close"`), which calls `onClose` ([validated by the close button is a ghost IconButton named "Close", last in DOM order, and calls onClose @d54326b8](../../tests/Dialog.test.tsx#L49), [validated by labels={{ closeDialog: "Luk" }} names the close button @283038b4](../../tests/Dialog.test.tsx#L70)).
 - A click on the overlay outside the panel does nothing: it calls no callback, and focus stays on
   the element in the panel that held it, because the overlay's own `mousedown` is prevented; a
   `mousedown` inside the panel keeps its default, so fields and buttons still take focus and text
-  can still be selected ([validated by Escape calls the dismiss callback once, and a click on the overlay calls nothing @3f3c04b1](../../tests/helpers/modal-panel-contract.tsx#L184), [validated by a mousedown on the overlay is prevented and focus stays put; one inside the panel is not @85284bdf](../../tests/helpers/modal-panel-contract.tsx#L197), [validated by a click on the overlay outside the default Dialog keeps it open and focus inside the panel @18a6dfd7](../../examples/chat-demo/tests/docs.spec.ts#L727), [validated by @bb94a4d9](../../tests/Dialog.test.tsx#L17)).
+  can still be selected. jsdom never moves focus on a synthetic `mousedown`, so the unit test pins
+  only which `mousedown` is prevented, and the browser test pins where focus stays ([validated by Escape calls the dismiss callback once, and a click on the overlay calls nothing @3f3c04b1](../../tests/helpers/modal-panel-contract.tsx#L184), [validated by a mousedown on the overlay is prevented; one inside the panel is not @81fec88c](../../tests/helpers/modal-panel-contract.tsx#L197), [validated by a click on the overlay outside the default Dialog keeps it open and focus inside the panel @18a6dfd7](../../examples/chat-demo/tests/docs.spec.ts#L727), [validated by @bb94a4d9](../../tests/Dialog.test.tsx#L17)).
 - `footer`, when given, renders after `children` in a right-aligned row ([validated by footer renders after children in a right-aligned row @d557060e](../../tests/Dialog.test.tsx#L105), [validated by without footer, no footer row renders and no form wraps the body @755150e4](../../tests/Dialog.test.tsx#L125)).
 - A `footer` button cannot submit a `<form>` in `children`: `Button` takes no `form` attribute, and
   only `ConfirmDialog` gets `ModalPanel`'s form wrapper. A `Dialog` whose content is a form
@@ -417,6 +418,11 @@ export const Dialog: (props: DialogProps) => ReactElement | null;
   save button calls the consumer's own handler through `onClick`, with the footer kept in view; or
   the form and its buttons both sit in `children`, so Enter in a field submits it, at the cost of
   the buttons scrolling with the body ([validated by without footer, no footer row renders and no form wraps the body @755150e4](../../tests/Dialog.test.tsx#L125)).
+- A `<form>` in `children` should call `event.stopPropagation()` beside `event.preventDefault()`
+  in its `onSubmit`. React's synthetic `submit` bubbles along the component tree, through the
+  portal, and `ModalPanel` stops it only for `ConfirmDialog`'s own form, so a `Dialog` rendered
+  inside an outer `<form onSubmit>` otherwise fires both handlers on one Enter. The chat-demo's
+  form-in-body example does so ([validated by a form in children submits an outer form through the portal unless its onSubmit stops it @e5c51065](../../tests/Dialog.test.tsx#L137)).
 
 ### `ConfirmDialog`
 
@@ -484,7 +490,7 @@ export const ConfirmDialog: (props: ConfirmDialogProps) => ReactElement | null;
   a control there would sit first in DOM order and take initial focus, and its label would be read
   as part of the dialog's description.
 - Opening focuses the first control in `children`, else the overflowing body when it is focusable,
-  else the cancel button - never the confirm button ([validated by opening with no control in children focuses the cancel button, never confirm @33a9c48c](../../tests/ConfirmDialog.test.tsx#L176), [validated by opening focuses the first control in children, and Tab from the last control wraps inside @3c9d6e80](../../tests/helpers/modal-panel-contract.tsx#L170), [validated by `an overflowing prose-only body becomes a focusable region named by the <h2> and takes initial focus` @4bb41ddd](../../tests/helpers/modal-panel-contract.tsx#L264)).
+  else the cancel button - never the confirm button ([validated by opening with no control in children focuses the cancel button, never confirm @33a9c48c](../../tests/ConfirmDialog.test.tsx#L176), [validated by opening focuses the first control in children, and Tab from the last control wraps inside @3c9d6e80](../../tests/helpers/modal-panel-contract.tsx#L170), [validated by `an overflowing prose-only body becomes a focusable region named by the <h2> and takes initial focus` @4bb41ddd](../../tests/helpers/modal-panel-contract.tsx#L263)).
 - The form carries `noValidate`, so a `required` or typed `TextField` among `children` never raises
   the browser's own validation bubble, which would block `submit` and show a message in the
   browser's language rather than the consumer's; validation stays the consumer's, shown through
@@ -630,7 +636,11 @@ specs/bowman-ui-pure-hooks-error-boundary/spec.md pins, and gains three, which t
   summary inside a closed `<details>` stays a stop; the content the closed element hides stays out,
   through the visibility check. The selector is the shared one, so it widens for its other readers
   too: `useFocusGroups`' F6 move and `ErrorBoundary`'s recovery focus now land on such an element
-  when it is the first in their group or recovered children ([validated by `a <details> summary is a trap stop: Shift+Tab from it wraps to the last, Tab from the last wraps to it` @35f45f31](../../tests/useFocusTrap.test.tsx#L401), [validated by matches a details' first summary, an editing host, controlled media and a frame, and not their opted-out variants @afc8d40e](../../tests/useFocusTrap.test.tsx#L415), [validated by `an overflowing body holding only a <details> summary is not empty: no tabindex, and the summary takes focus` @56842a84](../../tests/helpers/modal-panel-contract.tsx#L283), [validated by `Tab and Shift+Tab reach a <details> summary in the Dialog body, and Enter and Space toggle it` @f74993be](../../examples/chat-demo/tests/docs.spec.ts#L749)).
+  when it is the first in their group or recovered children ([validated by `a <details> summary is a trap stop: Shift+Tab from it wraps to the last, Tab from the last wraps to it` @35f45f31](../../tests/useFocusTrap.test.tsx#L401), [validated by matches a details' first summary, an editing host, controlled media and a frame, and not their opted-out variants @afc8d40e](../../tests/useFocusTrap.test.tsx#L415), [validated by `an overflowing body holding only a <details> summary is not empty: no tabindex, and the summary takes focus` @56842a84](../../tests/helpers/modal-panel-contract.tsx#L282), [validated by `Tab and Shift+Tab reach a <details> summary in the Dialog body, and Enter and Space toggle it` @f74993be](../../examples/chat-demo/tests/docs.spec.ts#L749)).
+- `useFocusTrap` ignores F6, so `useFocusGroups` leaves F6 alone while focus sits inside an
+  `aria-modal="true"` element - a `Dialog`, a `ConfirmDialog` or `AppShell`'s drawer: it neither
+  moves focus nor prevents the event, and a page group behind the modal stays out of reach until
+  it closes ([validated by F6 with focus inside an aria-modal container leaves focus put and the event unprevented @11b810c7](../../tests/useFocusGroups.test.tsx#L249)).
 
 ### `Notice`
 
@@ -1094,7 +1104,7 @@ added exports, added props, the added label key and the added variant, so this s
 release. `.specify/spec.md` § API Stability calls signature alterations and TypeScript changes to
 props breaking; the package already reads that as removals and narrowings, not additions a consumer
 may have to supply, as v0.3.0 shipped `ChatComposerLabels`' required `composerBusyHint` in a minor
-release, and this spec follows that reading. Four changes a consumer can still feel are accepted
+release, and this spec follows that reading. Five changes a consumer can still feel are accepted
 and named in the release notes:
 
 - `ButtonVariant` gains `"danger"`, so a consumer's exhaustive `Record<ButtonVariant, …>` or
@@ -1111,6 +1121,9 @@ and named in the release notes:
 - `FOCUSABLE_SELECTOR` counts natively tabbable `<summary>`, editing-host, controlled-media and
   `<iframe>` elements, so the public `useFocusTrap` and `useFocusGroups` hooks and `ErrorBoundary`'s
   recovery focus may now stop on one where they skipped it before (the `useFocusTrap` section) ([validated by `a <details> summary is a trap stop: Shift+Tab from it wraps to the last, Tab from the last wraps to it` @35f45f31](../../tests/useFocusTrap.test.tsx#L401), [validated by matches a details' first summary, an editing host, controlled media and a frame, and not their opted-out variants @afc8d40e](../../tests/useFocusTrap.test.tsx#L415)).
+- The public `useFocusGroups` hook leaves F6 alone while focus sits inside an `aria-modal="true"`
+  element, so F6 no longer moves focus from an open modal to a page group behind it, and
+  the browser's own F6 runs there instead (the `useFocusTrap` section) ([validated by F6 with focus inside an aria-modal container leaves focus put and the event unprevented @11b810c7](../../tests/useFocusGroups.test.tsx#L249)).
 
 The prose that spells the surface moves with it in the same pull request: `.specify/spec.md`'s "66
 named value exports: 17 components, … 14 label-defaults objects … plus 57 type exports"
@@ -1331,7 +1344,7 @@ with this spec.
     browsers cover natively and the one axe's `scrollable-region-focusable` flags. A body that
     always took focus would sit first in DOM order and take initial focus from the first field,
     against decision 12. Its name is the dialog's heading, the one name the body has, and its ring
-    is the panel's `FOCUS_VISIBLE_RING` ([validated by `the panel and the scrolling body carry FOCUS_VISIBLE_RING beside ring-offset-2 and no shadow, and the body pads p-1` @0a1a4b9d](../../tests/helpers/modal-panel-contract.tsx#L162), [validated by `an overflowing prose-only body becomes a focusable region named by the <h2> and takes initial focus` @4bb41ddd](../../tests/helpers/modal-panel-contract.tsx#L264), [validated by an overflowing body that holds a control takes no tabindex, and the control takes focus @538cbd09](../../tests/helpers/modal-panel-contract.tsx#L275), [validated by the overflowing Dialog body is a named, focusable region that takes initial focus @621d4eb8](../../examples/chat-demo/tests/docs.spec.ts#L738)).
+    is the panel's `FOCUS_VISIBLE_RING` ([validated by `the panel and the scrolling body carry FOCUS_VISIBLE_RING beside ring-offset-2 and no shadow, and the body pads p-1` @0a1a4b9d](../../tests/helpers/modal-panel-contract.tsx#L162), [validated by `an overflowing prose-only body becomes a focusable region named by the <h2> and takes initial focus` @4bb41ddd](../../tests/helpers/modal-panel-contract.tsx#L263), [validated by an overflowing body that holds a control takes no tabindex, and the control takes focus @538cbd09](../../tests/helpers/modal-panel-contract.tsx#L274), [validated by the overflowing Dialog body is a named, focusable region that takes initial focus @621d4eb8](../../examples/chat-demo/tests/docs.spec.ts#L738)).
 
 ## Out of scope
 

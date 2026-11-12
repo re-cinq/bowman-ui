@@ -133,4 +133,32 @@ describe("Dialog", () => {
     expect(panel.querySelector(".justify-end")).toBeNull();
     expect(panel.querySelector("form")).toBeNull();
   });
+
+  it("a form in children submits an outer form through the portal unless its onSubmit stops it", () => {
+    const outerSubmit = vi.fn((event: { preventDefault: () => void }) => event.preventDefault());
+    const renderNested = (stop: boolean) => (
+      <form onSubmit={outerSubmit}>
+        <Dialog open onClose={vi.fn()} labels={{ dialogTitle: title }}>
+          <form
+            aria-label="inner"
+            onSubmit={(event) => {
+              event.preventDefault();
+
+              if (stop) {
+                event.stopPropagation();
+              }
+            }}
+          />
+        </Dialog>
+      </form>
+    );
+    const { rerender } = render(renderNested(false));
+
+    fireEvent.submit(screen.getByRole("form", { name: "inner" }));
+    expect(outerSubmit).toHaveBeenCalledTimes(1);
+
+    rerender(renderNested(true));
+    fireEvent.submit(screen.getByRole("form", { name: "inner" }));
+    expect(outerSubmit).toHaveBeenCalledTimes(1);
+  });
 });
