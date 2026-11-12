@@ -10,6 +10,7 @@ import {
   defaultChatMessageLabels,
   defaultConfirmDialogLabels,
   defaultConversationListLabels,
+  defaultDialogLabels,
   defaultNoticeLabels,
   defaultSearchFieldLabels,
   defaultThinkingIndicatorLabels,
@@ -732,6 +733,28 @@ test.describe("the form, dialog and notice pages", () => {
 
     await expect(body).toBeFocused();
     await expect(body).toHaveAttribute("tabindex", "0");
+  });
+
+  test("Tab and Shift+Tab reach a <details> summary in the Dialog body, and Enter and Space toggle it", async ({
+    page,
+  }) => {
+    await page.goto(docsUrl("dialog"));
+    const panel = await openFrom(page, "with-disclosure");
+    const summary = panel.locator("summary");
+    const close = panel.getByRole("button", { name: defaultDialogLabels.closeDialog });
+    const details = panel.locator("details");
+
+    // Only the trap's own wraps are pressed: WebKit on macOS skips buttons on a native Tab.
+    await expect(summary).toBeFocused();
+    await page.keyboard.press("Shift+Tab");
+    await expect(close).toBeFocused();
+    await page.keyboard.press("Tab");
+    await expect(summary).toBeFocused();
+
+    await page.keyboard.press("Enter");
+    await expect(details).toHaveAttribute("open", "");
+    await page.keyboard.press("Space");
+    await expect(details).not.toHaveAttribute("open");
   });
 
   test("the themed ConfirmDialog portals into its wrapper, and closing returns focus to its trigger", async ({

@@ -1,5 +1,6 @@
 import { useRef, type RefObject } from "react";
 import { fireEvent, render, screen } from "@testing-library/react";
+import { FOCUSABLE_SELECTOR } from "../src/hooks/focusableSelector.js";
 import { useFocusTrap } from "../src/hooks/useFocusTrap.js";
 import { stubFocusEnvironment } from "./helpers/focus-environment.js";
 
@@ -50,6 +51,21 @@ const OpenTrap = ({ triggerRef }: { triggerRef: RefObject<HTMLElement | null> })
   return (
     <div ref={containerRef}>
       <button>first</button>
+    </div>
+  );
+};
+
+// A trap whose only stops are a <details> disclosure's summary and, after it, one button.
+const DisclosureTrap = () => {
+  const containerRef = useFocusTrap<HTMLDivElement>(true, () => {});
+
+  return (
+    <div ref={containerRef}>
+      <details>
+        <summary>Mehr 4711</summary>
+        <p>Inhalt 4711</p>
+      </details>
+      <button>after</button>
     </div>
   );
 };
@@ -380,5 +396,50 @@ describe("useFocusTrap", () => {
     activeElement.mockRestore();
 
     expect(() => rerender(<Harness isOpen={false} onClose={vi.fn()} />)).not.toThrow();
+  });
+
+  it("a <details> summary is a trap stop: Shift+Tab from it wraps to the last, Tab from the last wraps to it", () => {
+    render(<DisclosureTrap />);
+    const summary = screen.getByText("Mehr 4711");
+    const after = screen.getByRole("button", { name: "after" });
+
+    expect(summary).toHaveFocus();
+    expect(fireEvent.keyDown(document, { key: "Tab", shiftKey: true })).toBe(false);
+    expect(after).toHaveFocus();
+    expect(fireEvent.keyDown(document, { key: "Tab" })).toBe(false);
+    expect(summary).toHaveFocus();
+  });
+});
+
+describe("FOCUSABLE_SELECTOR", () => {
+  it("matches a details' first summary, an editing host, controlled media and a frame, and not their opted-out variants", () => {
+    render(
+      <div data-testid="kinds">
+        <details>
+          <summary data-match="yes">first</summary>
+          <summary data-match="no">second</summary>
+        </details>
+        <details>
+          <summary tabIndex={-1} data-match="no">
+            skipped
+          </summary>
+        </details>
+        <div contentEditable suppressContentEditableWarning data-match="yes" />
+        <div contentEditable="false" data-match="no" />
+        <div contentEditable tabIndex={-1} suppressContentEditableWarning data-match="no" />
+        <audio controls data-match="yes" />
+        <audio data-match="no" />
+        <video controls data-match="yes" />
+        <video controls tabIndex={-1} data-match="no" />
+        <iframe title="frame 4711" data-match="yes" />
+        <iframe title="skipped frame 4711" tabIndex={-1} data-match="no" />
+        <summary data-match="no">loose</summary>
+      </div>
+    );
+    const verdicts = [...screen.getByTestId("kinds").querySelectorAll<HTMLElement>("[data-match]")];
+
+    for (const element of verdicts) {
+      expect(element.matches(FOCUSABLE_SELECTOR)).toBe(element.dataset.match === "yes");
+    }
   });
 });

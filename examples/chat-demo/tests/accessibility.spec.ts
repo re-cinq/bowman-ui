@@ -60,6 +60,7 @@ const busyStatus = (page: Page) => page.locator(openPanels).getByRole("status");
 const openStates: ReadonlyArray<OpenState> = [
   { componentId: "dialog", variant: "default" },
   { componentId: "dialog", variant: "overflowing" },
+  { componentId: "dialog", variant: "with-disclosure" },
   { componentId: "dialog", variant: "footer-save", knownLightDefect: primaryButtonContrast },
   { componentId: "dialog", variant: "form-in-body", knownLightDefect: primaryButtonContrast },
   { componentId: "dialog", variant: "container" },

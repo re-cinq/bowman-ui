@@ -504,6 +504,24 @@ export const formDialogNoticeDocs: ReadonlyArray<ComponentDoc> = [
         ),
       },
       {
+        id: "with-disclosure",
+        caption:
+          "A <details> disclosure in the body: its summary is a stop in the trapped Tab order",
+        node: (
+          <Opener
+            trigger="Open the shipping options"
+            render={(open, close) => (
+              <Dialog open={open} onClose={close} labels={{ dialogTitle: "Shipping options" }}>
+                <details className="rounded-md">
+                  <summary className="cursor-pointer font-medium">Express delivery</summary>
+                  <p className="mt-2">An invented courier brings the order the next working day.</p>
+                </details>
+              </Dialog>
+            )}
+          />
+        ),
+      },
+      {
         id: "footer-save",
         caption: "A form saved from the footer: the save button's onClick, the footer in view",
         node: <FooterSaveDialog />,

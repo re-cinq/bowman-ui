@@ -262,6 +262,24 @@ export const describeModalPanelContract = ({ role, title, renderModal }: ModalCo
       expect(screen.getByRole("textbox")).toHaveFocus();
     });
 
+    it("an overflowing body holding only a <details> summary is not empty: no tabindex, and the summary takes focus", () => {
+      heights.overflowing = true;
+      render(
+        renderModal({
+          open: true,
+          onEscape: () => {},
+          children: (
+            <details>
+              <summary>Mehr 4711</summary>
+            </details>
+          ),
+        })
+      );
+
+      expect(bodyOf()).not.toHaveAttribute("tabindex");
+      expect(screen.getByText("Mehr 4711")).toHaveFocus();
+    });
+
     it("mounted closed with overflowing heights and then opened, the body carries tabindex=0", () => {
       heights.overflowing = true;
       const { rerender } = render(

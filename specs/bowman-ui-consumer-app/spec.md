@@ -337,7 +337,7 @@ in `specs/bowman-ui-theming-tokens/spec.md`, the reveals in
   and the engine's native clear control empties the controlled field through
   `onChange("")` in both engines; `Escape` does so in Chromium only, and the
   test asserts that WebKit leaves the value (issue 218)
-  ([validated by typing narrows the example's count, the native clear control empties the field through onChange, and Escape does so in Chromium only @fe193eeb](../../examples/chat-demo/tests/docs.spec.ts#L212)).
+  ([validated by typing narrows the example's count, the native clear control empties the field through onChange, and Escape does so in Chromium only @fe193eeb](../../examples/chat-demo/tests/docs.spec.ts#L213)).
 
 Each of these was shown red against a deliberately broken condition before
 this record (the unpin removed, the reveal classes dropped, the skip link's
@@ -376,28 +376,28 @@ statement below runs in both engines.
   its busy, disabled and grown variants, the search field's filled and disabled variants, the
   sidebar example's `aria-current`, the shell example's desktop copy, the inline indicator, the
   toast example, the consumer-supplied fallback, the icon set and the back link
-  ([validated by the tool activity variants render the safe headline, the pending tense, the opted-in name, the expanded JSON and the caller's sentences @49e7631e](../../examples/chat-demo/tests/docs.spec.ts#L307),
-  [validated by the thinking trace stays collapsed until its summary is clicked, streams its dots in the summary, and the expanded variant is open @407af9e6](../../examples/chat-demo/tests/docs.spec.ts#L329),
-  [validated by the chat message variants render the markdown table, the policy-allowed link, no action row while streaming, the named article and the footer @4262cdff](../../examples/chat-demo/tests/docs.spec.ts#L346),
-  [validated by the chat message list variants render every role with its persona, the busy status with a pending tool row, and the empty greeting @8a53d9db](../../examples/chat-demo/tests/docs.spec.ts#L373),
-  [validated by the composer example takes a draft through the ref handle and reports the sent text, and the busy, disabled and grown variants show their states @16982847](../../examples/chat-demo/tests/docs.spec.ts#L400),
-  [validated by the conversation list example moves the current mark on select, removes a row on delete, and the loading and empty variants render their states @548c6346](../../examples/chat-demo/tests/docs.spec.ts#L437),
-  [validated by the search field variants carry the filled value and the disabled state @e159cb8d](../../examples/chat-demo/tests/docs.spec.ts#L527),
-  [validated by the sidebar example moves aria-current to the clicked nav item and draws an icon in each @65a1ffc8](../../examples/chat-demo/tests/docs.spec.ts#L536),
-  [validated by the shell example renders the desktop copy of its sidebar and the inline thinking indicator its label and dots @29d2b773](../../examples/chat-demo/tests/docs.spec.ts#L553),
-  [validated by the toast example shows the pill, announces the message in its live region, and dismisses itself @6da9ffb7](../../examples/chat-demo/tests/docs.spec.ts#L565),
-  [validated by the consumer-supplied fallback replaces the built-in alert, retry button included @1c5868e5](../../examples/chat-demo/tests/docs.spec.ts#L582),
-  [validated by the icons page lists the whole set, every glyph aria-hidden beside its name @83433c87](../../examples/chat-demo/tests/docs.spec.ts#L595),
-  [validated by the back link on a component page returns to the index @a6221f90](../../examples/chat-demo/tests/docs.spec.ts#L607)).
+  ([validated by the tool activity variants render the safe headline, the pending tense, the opted-in name, the expanded JSON and the caller's sentences @49e7631e](../../examples/chat-demo/tests/docs.spec.ts#L308),
+  [validated by the thinking trace stays collapsed until its summary is clicked, streams its dots in the summary, and the expanded variant is open @407af9e6](../../examples/chat-demo/tests/docs.spec.ts#L330),
+  [validated by the chat message variants render the markdown table, the policy-allowed link, no action row while streaming, the named article and the footer @4262cdff](../../examples/chat-demo/tests/docs.spec.ts#L347),
+  [validated by the chat message list variants render every role with its persona, the busy status with a pending tool row, and the empty greeting @8a53d9db](../../examples/chat-demo/tests/docs.spec.ts#L374),
+  [validated by the composer example takes a draft through the ref handle and reports the sent text, and the busy, disabled and grown variants show their states @16982847](../../examples/chat-demo/tests/docs.spec.ts#L401),
+  [validated by the conversation list example moves the current mark on select, removes a row on delete, and the loading and empty variants render their states @548c6346](../../examples/chat-demo/tests/docs.spec.ts#L438),
+  [validated by the search field variants carry the filled value and the disabled state @e159cb8d](../../examples/chat-demo/tests/docs.spec.ts#L528),
+  [validated by the sidebar example moves aria-current to the clicked nav item and draws an icon in each @65a1ffc8](../../examples/chat-demo/tests/docs.spec.ts#L537),
+  [validated by the shell example renders the desktop copy of its sidebar and the inline thinking indicator its label and dots @29d2b773](../../examples/chat-demo/tests/docs.spec.ts#L554),
+  [validated by the toast example shows the pill, announces the message in its live region, and dismisses itself @6da9ffb7](../../examples/chat-demo/tests/docs.spec.ts#L566),
+  [validated by the consumer-supplied fallback replaces the built-in alert, retry button included @1c5868e5](../../examples/chat-demo/tests/docs.spec.ts#L583),
+  [validated by the icons page lists the whole set, every glyph aria-hidden beside its name @83433c87](../../examples/chat-demo/tests/docs.spec.ts#L596),
+  [validated by the back link on a component page returns to the index @a6221f90](../../examples/chat-demo/tests/docs.spec.ts#L608)).
 - The conversation list example gains a button that gives the placeholder row its real title -
   the producer's move the typewriter waits for - so the animation runs in a real browser: the
   hidden span carries the settled title at once, the visible span clips mid-animation and ends
   settled, and under `prefers-reduced-motion` it lands at once with nothing clipped
-  ([validated by settling the placeholder title runs the typewriter: the visible title clips mid-animation and ends settled at the new title @8a13f2f6](../../examples/chat-demo/tests/docs.spec.ts#L487),
-  [validated by under prefers-reduced-motion the settled title lands at once, every character opaque and nothing clipped @f52dbea2](../../examples/chat-demo/tests/docs.spec.ts#L510)).
+  ([validated by settling the placeholder title runs the typewriter: the visible title clips mid-animation and ends settled at the new title @8a13f2f6](../../examples/chat-demo/tests/docs.spec.ts#L488),
+  [validated by under prefers-reduced-motion the settled title lands at once, every character opaque and nothing clipped @f52dbea2](../../examples/chat-demo/tests/docs.spec.ts#L511)).
 - At a phone width the documentation's own drawer opens from the hamburger and a nav anchor -
   the `renderNavLink` seam - loads that component's page
-  ([validated by the hamburger opens the drawer and a nav anchor loads that component's page @552869c6](../../examples/chat-demo/tests/docs.spec.ts#L792)).
+  ([validated by the hamburger opens the drawer and a nav anchor loads that component's page @552869c6](../../examples/chat-demo/tests/docs.spec.ts#L815)).
 - The documentation pages carry token sites the chat has none of, measured under both schemes:
   the danger family on the error boundary's icon, the thinking dots and indicator circle, the
   tool name and arguments, the trace content, the search field's frame, icon and ring, the row
@@ -407,7 +407,7 @@ statement below runs in both engines.
   alone, save a page-local wrapper on those two pages whose run measures their sites against the
   Copperline values, so for every other site the proof that it reads `var(--bowman-...)` rather
   than a hardcoded light/dark pair is the chat matrix's Copperline runs, never a documentation
-  page ([docsTokenPages@354cfe12](../../examples/chat-demo/tests/helpers/docsTokenPages.ts#L95), [validated by @e45eed6e](../../examples/chat-demo/tests/docs.spec.ts#L292)).
+  page ([docsTokenPages@354cfe12](../../examples/chat-demo/tests/helpers/docsTokenPages.ts#L95), [validated by @e45eed6e](../../examples/chat-demo/tests/docs.spec.ts#L293)).
 
 Out of the demo's reach, and left so: `Button`, `IconButton` and `PromptChips` have no
 documentation page and no chat-screen site, so no browser measures them; the demo does not
@@ -448,7 +448,7 @@ first run and are recorded rather than hidden:
   expects `""` after `Escape` in Chromium and the typed value in WebKit - an
   executable record of issue 218 that goes red the day the engines agree,
   where a skip would decay silently
-  ([validated by typing narrows the example's count, the native clear control empties the field through onChange, and Escape does so in Chromium only @fe193eeb](../../examples/chat-demo/tests/docs.spec.ts#L212)).
+  ([validated by typing narrows the example's count, the native clear control empties the field through onChange, and Escape does so in Chromium only @fe193eeb](../../examples/chat-demo/tests/docs.spec.ts#L213)).
 
 The cost is one more browser download with its OS packages and a second pass
 of the suite in the `consumer` job and in publish's `verify`, both of which
