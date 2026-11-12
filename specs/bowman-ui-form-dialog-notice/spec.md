@@ -294,13 +294,14 @@ export const Dialog: (props: DialogProps) => ReactElement | null;
   the focus-ring module alone (§ Theming decision 12). jsdom matches no `:focus-visible`, so a
   chat-demo Playwright test, in Chromium and WebKit, opens the `Dialog` page's `default` variant,
   whose body holds prose only and does not overflow, so the body takes no `tabIndex`, clicks that
-  prose and asserts the panel holds focus with a computed `box-shadow` of `none`. The panel and the
-  scrolling body carry no `shadow-*` utility: Tailwind v4's `ring-offset-2` sets
-  `--tw-ring-offset-shadow` at rest, which any `shadow-*` composes into `box-shadow`, so a panel
-  shadow would draw the 2px offset ring unfocused and fail that test. When the close button renders,
-  the `<h2>` carries trailing padding wider than the close button, so a long title wraps before it
-  reaches the button in the panel's corner. The portal appends the overlay as the target's last
-  child. Into `document.body` that is after the page, so the overlay paints above `AppShell`'s
+  prose and asserts the panel holds focus with a computed `box-shadow` of `none`. No `ring-offset-2`
+  site this spec adds - the panel, the scrolling body, the selectable `Card` - carries a `shadow-*`
+  utility: Tailwind v4's `ring-offset-2` sets `--tw-ring-offset-shadow` at rest, which any
+  `shadow-*` composes into `box-shadow`, so a shadow would draw the 2px offset ring unfocused,
+  plainly visible in the dark scheme, and on the panel fail that test. When the close button
+  renders, the `<h2>` carries trailing padding wider than the close button, so a long title wraps
+  before it reaches the button in the panel's corner. The portal appends the overlay as the target's
+  last child. Into `document.body` that is after the page, so the overlay paints above `AppShell`'s
   drawer and `Toast`, which also sit at `z-50` and win ties by document order.
 - A consumer whose theme is set on a wrapper - README § Theming's `.custom-theme` or
   `[data-tenant="acme"]` - passes that wrapper, or an element inside it, as `container`, so the
@@ -599,15 +600,16 @@ specs/bowman-ui-pure-hooks-error-boundary/spec.md pins, and gains three, which t
   test, which removes the target before closing and asserts focus stays where it was, covers the
   branch rather than proving a change in behaviour. tests/useFocusTrap.test.tsx also gains a test
   for each widened behaviour: Tab and Shift+Tab from the focused container reach the first and last
-  element; Tab on an empty trap while the container itself holds focus is prevented and focus stays
-  on it; unmounting while open returns focus to the opener; and a cleanup caused by `isOpen` or
-  `triggerRef` changing returns focus at most once, on the close itself. `AppShell` unmounting with
-  its drawer open - tests/AppShell.test.tsx does it - is the one existing caller this reaches. React
-  detaches the hamburger's ref before the cleanup runs, so the target falls back to the element that
-  held focus when the drawer opened: the detached hamburger, which is skipped, or `<body>` when the
-  test opened the drawer by `fireEvent.click` without focusing it, which takes focus harmlessly.
-  Under React's development StrictMode, the simulated unmount returns focus and the re-run open
-  effect moves it back into the container.
+  element; the `tabIndex={-1}` empty-trap test the first bullet of this section names covers Tab
+  while the container itself holds focus, so no second one is written; unmounting while open returns
+  focus to the opener; and a cleanup caused by `isOpen` or `triggerRef` changing returns focus at
+  most once, on the close itself. `AppShell` unmounting with its drawer open -
+  tests/AppShell.test.tsx does it - is the one existing caller this reaches. React detaches the
+  hamburger's ref before the cleanup runs, so the target falls back to the element that held focus
+  when the drawer opened: the detached hamburger, which is skipped, or `<body>` when the test opened
+  the drawer by `fireEvent.click` without focusing it, which takes focus harmlessly. Under React's
+  development StrictMode, the simulated unmount returns focus and the re-run open effect moves it
+  back into the container.
 
 ### `Notice`
 
@@ -722,16 +724,17 @@ export const Card: ForwardRefExoticComponent<CardProps & RefAttributes<HTMLEleme
   inherits the page's colour, as the `Dialog` panel's does not.
 - With `onSelect` the whole card renders as one `<button type="button">`, left-aligned, with the
   shared offset ring, `FOCUS_RING` from `src/theme/focusRing.ts` beside `ring-offset-2`, which stays
-  at each site (docs/design-notes.md § Theming decision 12), and a `--bowman-surface-hover` hover.
-  With a `heading`, the button is named by it through `aria-labelledby` and described by `children`,
-  wrapped in a `<span>`, through `aria-describedby`, so a long body never becomes the name; without
-  one, its accessible name is its content. The plan names the card from its visible content; naming
-  it from the heading alone, when there is one, is a deliberate deviation (decision 7): a screen
-  reader then reads a short name and the body after it, not the whole card as one name. Its
-  `heading` and `children` must be phrasing content only - text, inline elements, icons - with no
-  interactive element, because a `<button>` may hold nothing else: no `<p>`, no `<div>`, and no
-  `KeyValueList`, whose `<dl>` belongs in a static card. A click or Enter or Space calls `onSelect`;
-  `disabled` renders the native attribute and the call never fires, and the card takes `Button`'s
+  at each site (docs/design-notes.md § Theming decision 12), no `shadow-*` utility (the `ModalPanel`
+  section gives the reason), and a `--bowman-surface-hover` hover. With a `heading`, the button is
+  named by it through `aria-labelledby` and described by `children`, wrapped in a `<span>`, through
+  `aria-describedby`, so a long body never becomes the name; without one, its accessible name is its
+  content. The plan names the card from its visible content; naming it from the heading alone, when
+  there is one, is a deliberate deviation (decision 7): a screen reader then reads a short name and
+  the body after it, not the whole card as one name. Its `heading` and `children` must be phrasing
+  content only - text, inline elements, icons - with no interactive element, because a `<button>`
+  may hold nothing else: no `<p>`, no `<div>`, and no `KeyValueList`, whose `<dl>` belongs in a
+  static card. A click or Enter or Space calls `onSelect`; `disabled` renders the native attribute
+  and the call never fires, and the card takes `Button`'s
   `disabled:cursor-not-allowed disabled:opacity-50` pair with no hover surface.
 - The `ref` reaches the `<div>` or the `<button>`; it is typed `HTMLElement`, and each branch
   attaches it with a cast to its own element's ref type.
@@ -831,11 +834,11 @@ them moves with it. Every other existing test passes unchanged.
   one `it()` without cleanup, so `document.body` would still hold the earlier harnesses' text and
   fail it. Their behaviour tests call `stubFocusEnvironment` (tests/helpers/focus-environment.ts):
   jsdom 30 has no `checkVisibility` and reports a null `offsetParent`, so without the stub every
-  control reads as hidden and the trap's empty-container branch would focus the panel instead. The
-  portal, trap, focus-return and hydration assertions both components share live in one routine in
-  tests/helpers/, which tests/Dialog.test.tsx and tests/ConfirmDialog.test.tsx each call with their
-  own render, so the copy-paste gate at min-tokens 50 finds no clone (docs/design-notes.md § Lint
-  guardrails decision 12).
+  control and the panel itself read as hidden, so the trap finds nothing to focus and the focus
+  assertions fail. The portal, trap, focus-return and hydration assertions both components share
+  live in one routine in tests/helpers/, which tests/Dialog.test.tsx and
+  tests/ConfirmDialog.test.tsx each call with their own render, so the copy-paste gate at
+  min-tokens 50 finds no clone (docs/design-notes.md § Lint guardrails decision 12).
 - tests/labelled-exports.test.tsx gains one key-coverage `it()` per new labelled component, in the
   shapes the file already uses: `TextField`'s sentinels are exactly `fieldLabel`, `fieldHint` and
   `fieldError`, as `IconButton`'s are exactly its one required key, because it ships no defaults
@@ -985,22 +988,23 @@ WCAG 2.2 AA is the floor. Three layers prove it, and none is a reviewer's sign-o
   `test.use({ colorScheme })` as the docs token matrix does (examples/chat-demo/tests/docs.spec.ts),
   so the dark fallbacks and the themed variants' dark values are scanned too. A hovered state is
   scanned by hovering it: the run hovers each `danger` `Button` and `IconButton` figure on the
-  `ConfirmDialog` page and scans that figure again, so the white-on-hover-fill pair is measured, not
-  only tabulated. Each scan is limited with `AxeBuilder.include()`: while no dialog is open, to the
-  page's variant figures, `[data-doc-variant]` (examples/chat-demo/src/docs/ComponentDocPage.tsx);
-  while one is open, to its panel alone, `[role="dialog"], [role="alertdialog"]`, which usually
-  portals outside them; the themed variant's portals into its own wrapper inside a figure, which the
-  panel-only scope covers the same way. The page behind an open dialog is not scanned: the
-  `bg-black/50` overlay dims it, which axe's contrast rule would blend into the background but not
-  the text, and `aria-modal` takes it out of the accessibility tree; the closed scan already covers
-  the figures and their triggers. Either way the documentation chrome around them - a `CodeBlock`
-  whose long usage line scrolls sideways (examples/chat-demo/src/docs/DocsUi.tsx), as the § Usage
-  section's is - is not what is measured. The § Usage example sits beside that `CodeBlock` and is
-  not scanned, so every state listed above, the default one included, is a variant figure of its own
-  (§ Documentation). axe's `color-contrast` rule measures text only; the 3:1 non-text contrast of
-  the focus rings, the `Notice` tone icons and borders and `TextField`'s border rests on the
-  measurements in § Theming and the token matrix, as the `CONTROL_BORDER` bullet records for that
-  border.
+  `ConfirmDialog` page, waits until the button's computed `backgroundColor` equals the hover fill,
+  as examples/chat-demo/tests/theming.spec.ts polls past `transition-colors`, and scans that figure
+  again, so the white-on-hover-fill pair is measured, not only tabulated. Each scan is limited with
+  `AxeBuilder.include()`: while no dialog is open, to the page's variant figures,
+  `[data-doc-variant]` (examples/chat-demo/src/docs/ComponentDocPage.tsx); while one is open, to its
+  panel alone, `[role="dialog"], [role="alertdialog"]`, which usually portals outside them; the
+  themed variant's portals into its own wrapper inside a figure, which the panel-only scope covers
+  the same way. The page behind an open dialog is not scanned: the `bg-black/50` overlay dims it,
+  which axe's contrast rule would blend into the background but not the text, and `aria-modal` takes
+  it out of the accessibility tree; the closed scan already covers the figures and their triggers.
+  Either way the documentation chrome around them - a `CodeBlock` whose long usage line scrolls
+  sideways (examples/chat-demo/src/docs/DocsUi.tsx), as the § Usage section's is - is not what is
+  measured. The § Usage example sits beside that `CodeBlock` and is not scanned, so every state
+  listed above, the default one included, is a variant figure of its own (§ Documentation). axe's
+  `color-contrast` rule measures text only; the 3:1 non-text contrast of the focus rings, the
+  `Notice` tone icons and borders and `TextField`'s border rests on the measurements in § Theming
+  and the token matrix, as the `CONTROL_BORDER` bullet records for that border.
 - Keyboard use is checked by hand against each page.
 
 specs/bowman-ui-assistive-technology-pass/spec.md keeps its manual screen-reader procedure, and its
