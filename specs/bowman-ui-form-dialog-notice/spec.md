@@ -286,12 +286,16 @@ export const Dialog: (props: DialogProps) => ReactElement | null;
   `ErrorBoundary`'s `FOCUS_VISIBLE_RING_COLOR`, because that string has no dark variant
   (docs/design-notes.md § Theming, the `--bowman-focus-ring-dark` row) and `RING_OFFSET` is read by
   the focus-ring module alone (§ Theming decision 12). jsdom matches no `:focus-visible`, so a
-  chat-demo Playwright test, in Chromium and WebKit, opens the `Dialog` page's dialog, clicks its
-  description and asserts the panel holds focus with a computed `box-shadow` of `none`. When the
-  close button renders, the `<h2>` carries trailing padding wider than the close button, so a long
-  title wraps before it reaches the button in the panel's corner. The portal appends the overlay as
-  the target's last child. Into `document.body` that is after the page, so the overlay paints above
-  `AppShell`'s drawer and `Toast`, which also sit at `z-50` and win ties by document order.
+  chat-demo Playwright test, in Chromium and WebKit, opens the `Dialog` page's `default` variant,
+  whose body holds prose only and does not overflow, so the body takes no `tabIndex`, clicks that
+  prose and asserts the panel holds focus with a computed `box-shadow` of `none`. The panel and the
+  scrolling body carry no `shadow-*` utility: Tailwind v4's `ring-offset-2` sets
+  `--tw-ring-offset-shadow` at rest, which any `shadow-*` composes into `box-shadow`, so a panel
+  shadow would draw the 2px offset ring unfocused and fail that test. When the close button renders,
+  the `<h2>` carries trailing padding wider than the close button, so a long title wraps before it
+  reaches the button in the panel's corner. The portal appends the overlay as the target's last
+  child. Into `document.body` that is after the page, so the overlay paints above `AppShell`'s
+  drawer and `Toast`, which also sit at `z-50` and win ties by document order.
 - A consumer whose theme is set on a wrapper - README § Theming's `.custom-theme` or
   `[data-tenant="acme"]` - passes that wrapper, or an element inside it, as `container`, so the
   wrapper's `--bowman-*` values and, under a class-based `dark:` variant, its `dark` class reach the
@@ -910,11 +914,15 @@ token set, or the suite reds:
   importers - `AppShell`, `AppSidebar`, `ConversationList`, `PromptChips` and `buttonStyles`", gains
   `Card` as the sixth, and records `FOCUS_VISIBLE_RING` beside it: the same two imports, a
   `focus-visible:` ring, and `ModalPanel` as its only importer, for the panel and scrolling body a
-  mouse click can focus;
+  mouse click can focus; and its `--bowman-focus-ring` and `--bowman-focus-ring-dark` rows name
+  `ModalPanel`'s `focus-visible:ring` beside `ErrorBoundary`'s, which keeps no dark ring;
 - `specs/bowman-ui-theming-tokens/spec.md`: its four spelled counts and its group breakdown; its
   § Semantic colour roles, which names only the danger and success roles, gains the danger-fill,
   info and warning roles; its § What stays palette-mapped gains the dialog overlay beside the mobile
-  overlay; and the new reading sites join the ones its intro says it pins;
+  overlay, and its first bullet, which names the width and outline classes `focus:ring-2`,
+  `ring-offset-2` and `focus:outline-none` and says the outline and width ride in `FOCUS_RING` at
+  the offset-ring sites, names `FOCUS_VISIBLE_RING` and its `focus-visible:ring-2` at the
+  `ModalPanel` sites; and the new reading sites join the ones its intro says it pins;
 - `.specify/spec.md`, CLAUDE.md invariant 13 ("Exactly 44"), README.md's three spelled counts,
   `examples/chat-demo/README.md`, `examples/chat-demo/src/themes.tsx` and
   `examples/chat-demo/src/docs/ThemingSection.tsx`'s two;
@@ -941,9 +949,11 @@ token set, or the suite reds:
   its `it()` title ("exactly the five offset-ring components"), the titled link to it in
   specs/bowman-ui-theming-tokens/spec.md, and CLAUDE.md's "imported by five files (four components
   and `buttonStyles.ts`)", which becomes "six files (five components and `buttonStyles.ts`)" and
-  names `FOCUS_VISIBLE_RING` and its one importer, `ModalPanel`, move with it. The test also asserts
-  that dist/theme/focusRing.js composes `FOCUS_VISIBLE_RING` from the same two imports and that
-  `ModalPanel` alone imports it; its `includes("FOCUS_RING")` reader scan does not match
+  names `FOCUS_VISIBLE_RING` and its one importer, `ModalPanel`, move with it; CLAUDE.md invariant
+  13's "composes the shared focus-ring fragment from two of them" and src/theme/focusRing.ts's
+  one-line header, "The offset sites' shared ring fragment", both name the two fragments. The test
+  also asserts that dist/theme/focusRing.js composes `FOCUS_VISIBLE_RING` from the same two imports
+  and that `ModalPanel` alone imports it; its `includes("FOCUS_RING")` reader scan does not match
   `FOCUS_VISIBLE_RING`, so the two lists stay apart, and `RING_OFFSET`'s empty component pin holds;
 - examples/chat-demo/tests/theming.spec.ts, which measures every declared token at a visible site in
   a real browser, under both schemes and in WebKit too, and today requires every site to be on the
