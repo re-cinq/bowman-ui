@@ -497,19 +497,21 @@ export const ConfirmDialog: (props: ConfirmDialogProps) => ReactElement | null;
   the dialog mounts open and busy, the layout effect focuses the panel first and the trap records
   it, a detached target on close that the skip in the `useFocusTrap` section passes over, leaving
   focus on `<body>` as it would have been anyway. A dialog mounted closed and busy and opened later
-  does not re-run the effect, since `busy` has not changed, so the trap records `<body>` itself,
-  with the same outcome. A field in `children` that held focus when Enter set `busy` keeps it. A
-  jsdom test opens a dialog busy, closes it and asserts focus returns to the opener; another sets
-  `busy` with focus in a field and asserts the field keeps focus; a third sets `busy` with nothing
-  focused, `document.activeElement` being `<body>`, and a fourth stubs `document.activeElement` to
-  null, and both assert the panel takes focus. Four more cover the rest of the guard: with focus on
-  the confirm button, setting `busy` moves it to the panel; with focus on a disabled element outside
-  the panel, it stays put; setting `busy` while the dialog is closed moves nothing; and clearing
-  `busy` moves nothing. Each arm of the guard then has a test and the 100% branch floor holds. The
-  guard's conditions exceed `bowman/max-boolean-operators`' two at an inline site, so they live in a
-  named predicate whose return the rule exempts. No ref crosses the component boundary: a `panelRef`
-  prop written by `ModalPanel` would fail `bowman/no-prop-mutation` (docs/design-notes.md § Lint
-  guardrails), and `forwardRef` is allowed only in the fixture's exported components
+  re-runs the effect, since `portalOpen` changed, but sees no transition, because the
+  previous-`busy` ref is updated on every run, open or closed, before the `portalOpen` guard
+  returns; so the trap records `<body>` itself, with the same outcome. A field in `children` that
+  held focus when Enter set `busy` keeps it. A jsdom test opens a dialog busy, closes it and asserts
+  focus returns to the opener; another sets `busy` with focus in a field and asserts the field keeps
+  focus; a third sets `busy` with nothing focused, `document.activeElement` being `<body>`, and a
+  fourth stubs `document.activeElement` to null, and both assert the panel takes focus. Four more
+  cover the rest of the guard: with focus on the confirm button, setting `busy` moves it to the
+  panel; with focus on a disabled element outside the panel, it stays put; setting `busy` while the
+  dialog is closed moves nothing; and clearing `busy` moves nothing. Each arm of the guard then has
+  a test and the 100% branch floor holds. The guard's conditions exceed
+  `bowman/max-boolean-operators`' two at an inline site, so they live in a named predicate whose
+  return the rule exempts. No ref crosses the component boundary: a `panelRef` prop written by
+  `ModalPanel` would fail `bowman/no-prop-mutation` (docs/design-notes.md § Lint guardrails), and
+  `forwardRef` is allowed only in the fixture's exported components
   (tests/forward-ref-components.test.ts). The layout effect runs after React sets `disabled` and
   before the browser's focus fixup moves focus to `<body>`, while the button is still
   `document.activeElement`. Leaving `busy` leaves focus on the panel, where the next Tab reaches the
@@ -537,12 +539,15 @@ specs/bowman-ui-pure-hooks-error-boundary/spec.md pins, and gains three, which t
   the page would be prevented, a keyboard trap (WCAG 2.1.2). tests/useFocusTrap.test.tsx's "an empty
   container leaves Tab handling alone", whose container carries no `tabIndex`, already pins that
   case and keeps passing; it is retitled to name the missing `tabindex` and gains an assertion that
-  the event's `defaultPrevented` is false, and a new test opens a trap over an empty container whose
-  `checkVisibility` is stubbed to false and asserts the same. When focus has escaped the container,
-  a prevented Tab also moves it back to the container, as the non-empty branch pulls escaped focus
-  back to an end today (src/hooks/useFocusTrap.ts), so focus is never left stranded outside the
-  modal. A trap whose container is null - its ref not yet attached while `isOpen` holds - returns
-  before `preventDefault`, so Tab is left alone and the page stays keyboard-usable:
+  the event's `defaultPrevented` is false, and a new test opens a trap over an empty container
+  rendered with the `Harness`'s new `tabIndex={-1}` option below, so only the visibility check can
+  fail, stubs its `checkVisibility` to false and asserts the same. When focus has escaped the
+  container, a prevented Tab also moves it back to the container, as the non-empty branch pulls
+  escaped focus back to an end today (src/hooks/useFocusTrap.ts), so focus is never left stranded
+  outside the modal; a new test opens an empty trap with the `tabIndex={-1}` option, focuses a
+  button outside it, presses Tab and asserts the event is prevented and the container holds focus. A
+  trap whose container is null - its ref not yet attached while `isOpen` holds - returns before
+  `preventDefault`, so Tab is left alone and the page stays keyboard-usable:
   tests/useFocusTrap.test.tsx's "a never-attached container ref yields no focusable elements and no
   crash" presses Tab on such a trap and gains an assertion that the event's `defaultPrevented` is
   false beside its existing one that focus stays on `<body>` (see "Existing tests that change"). A
