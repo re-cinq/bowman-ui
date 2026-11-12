@@ -13,35 +13,44 @@
 /* --bowman-active: var(--color-slate-100) - active conversation row, active sidebar item */
 /* --bowman-active-dark: var(--color-slate-800) - active conversation row, active sidebar item (dark) */
 /* --bowman-pulse-outline: rgba(59, 130, 246, 0.5) - bowman-pulse-subtle outline */
-/* --bowman-surface: var(--color-white) - panel, sidebar, drawer, composer, search field, prompt chip and secondary button background */
+/* --bowman-surface: var(--color-white) - panel, sidebar, drawer, composer, search and text field, prompt chip, secondary button, dialog panel, notice and card background */
 /* --bowman-surface-dark: var(--color-slate-900) - the same surfaces (dark) */
-/* --bowman-surface-hover: var(--color-slate-50) - sidebar item, conversation row, prompt chip, secondary and ghost button hover */
+/* --bowman-surface-hover: var(--color-slate-50) - sidebar item, conversation row, prompt chip, secondary and ghost button, selectable card hover */
 /* --bowman-surface-hover-dark: var(--color-slate-800) - the same hovers (dark) */
 /* --bowman-control-hover: var(--color-slate-100) - drawer and menu buttons, copy and feedback controls hover */
 /* --bowman-control-hover-dark: var(--color-slate-800) - the same control hovers (dark) */
-/* --bowman-border: var(--color-slate-200) - panel, sidebar, composer, search field, prompt chip, secondary button and disclosure borders */
+/* --bowman-border: var(--color-slate-200) - panel, sidebar, composer, search field, prompt chip, secondary button, disclosure, dialog panel, notice and card borders */
 /* --bowman-border-dark: var(--color-slate-800) - the same borders (dark) */
 /* --bowman-ring-offset: var(--color-white) - every focus ring's offset colour */
 /* --bowman-ring-offset-dark: var(--color-slate-900) - the same offsets (dark) */
-/* --bowman-text-strong: var(--color-slate-900) - textarea, search input, active nav item, error heading, message body, plus nav/ghost hover and skip-link focus (light) */
+/* --bowman-text-strong: var(--color-slate-900) - textarea, search and text input, field label, active nav item, error heading, message body, dialog, notice and card heading, key-value value, plus nav/ghost hover and skip-link focus (light) */
 /* --bowman-text-strong-dark: var(--color-slate-100) - the same strong text (dark) */
-/* --bowman-text-body: var(--color-slate-700) - conversation title, prompt chip, secondary button and tool chip text */
+/* --bowman-text-body: var(--color-slate-700) - conversation title, prompt chip, secondary button, tool chip, dialog, notice and card body text */
 /* --bowman-text-body-dark: var(--color-slate-200) - the same text (dark) */
 /* --bowman-text-secondary: var(--color-slate-600) - drawer buttons, sidebar item, ghost button, error body text, assistant name, thinking-trace content, tool name */
 /* --bowman-text-secondary-dark: var(--color-slate-400) - the same text (dark) */
-/* --bowman-text-muted: var(--color-slate-500) - timestamps, disclosure band, thinking and tool labels */
+/* --bowman-text-muted: var(--color-slate-500) - timestamps, disclosure band, thinking and tool labels, text field hint and border, key-value term */
 /* --bowman-text-muted-dark: var(--color-slate-400) - the same labels (dark) */
 /* --bowman-text-subtle: var(--color-slate-400) - faint timestamps, empty-state hints, search icon, placeholders */
 /* --bowman-text-subtle-dark: var(--color-slate-500) - the same hints and placeholders (dark) */
 /* --bowman-text-on-accent: var(--color-white) - send button, primary Button/IconButton text */
-/* --bowman-danger: var(--color-red-600) - selected thumbs-down and error-icon glyph text, delete-button hover (light) */
+/* --bowman-danger: var(--color-red-600) - selected thumbs-down and error-icon glyph text, delete-button hover, text field error text and border, error notice tone (light) */
 /* --bowman-danger-dark: var(--color-red-400) - the same danger text (dark) */
 /* --bowman-danger-soft: var(--color-red-100) - selected thumbs-down chip and error-icon circle background (light) */
 /* --bowman-danger-soft-dark: rgba(127, 29, 29, 0.3) - the same danger surfaces (dark) */
-/* --bowman-success: var(--color-green-600) - copied check mark and selected thumbs-up text (light) */
+/* --bowman-success: var(--color-green-600) - copied check mark and selected thumbs-up text, success notice tone (light) */
 /* --bowman-success-dark: var(--color-green-400) - the same success text (dark) */
 /* --bowman-success-soft: var(--color-green-100) - selected thumbs-up fill (light) */
 /* --bowman-success-soft-dark: rgba(20,83,45,0.3) - the same fill (dark) */
+/* --bowman-danger-fill: var(--color-red-600) - danger Button/IconButton fill (light) */
+/* --bowman-danger-fill-dark: var(--color-red-600) - the same fill (dark) */
+/* --bowman-danger-fill-hover: var(--color-red-700) - danger Button/IconButton hover (light) */
+/* --bowman-danger-fill-hover-dark: var(--color-red-700) - the same hover (dark) */
+/* --bowman-text-on-danger: var(--color-white) - danger Button/IconButton text */
+/* --bowman-info: var(--color-blue-600) - info notice icon and left border (light) */
+/* --bowman-info-dark: var(--color-blue-400) - the same icon and border (dark) */
+/* --bowman-warning: var(--color-amber-700) - warning notice icon and left border (light) */
+/* --bowman-warning-dark: var(--color-amber-300) - the same icon and border (dark) */
 
 @keyframes bowman-fade-in {
   from {

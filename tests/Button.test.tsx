@@ -5,10 +5,11 @@
  */
 import { fireEvent, render, screen } from "@testing-library/react";
 import { createRef, type MouseEvent as ReactMouseEvent } from "react";
-import { Button, PlusIcon } from "../src/index.js";
+import { Button, IconButton, PlusIcon } from "../src/index.js";
 import { expectClickEventDelivered } from "./helpers/click-event.js";
 import {
   expectBorder,
+  expectDangerFill,
   expectFocusRing,
   expectPrimaryAccentFill,
   expectRingOffset,
@@ -123,8 +124,11 @@ describe("Button", () => {
           <Button variant="primary">Ny samtale</Button>
           <Button variant="secondary">Ny samtale</Button>
           <Button variant="ghost">Ny samtale</Button>
+          <Button variant="danger">Ny samtale</Button>
         </>
       );
+
+      expect(screen.getAllByRole("button")).toHaveLength(4);
 
       for (const button of screen.getAllByRole("button")) {
         expectFocusRing(button);
@@ -136,6 +140,46 @@ describe("Button", () => {
           "disabled:opacity-50"
         );
       }
+    });
+  });
+
+  describe("the danger variant", () => {
+    it('variant="danger" on Button and IconButton carries the --bowman-danger-fill fill and hover and --bowman-text-on-danger text', () => {
+      render(
+        <>
+          <Button variant="danger">Slet 4711</Button>
+          <IconButton variant="danger" icon={PlusIcon} labels={{ accessibleName: "Slet 4712" }} />
+        </>
+      );
+
+      expectDangerFill(screen.getByRole("button", { name: "Slet 4711" }));
+      expectDangerFill(screen.getByRole("button", { name: "Slet 4712" }));
+    });
+
+    it("a disabled danger Button or IconButton renders the native attribute and never reaches onClick", () => {
+      const onClick = vi.fn();
+
+      render(
+        <>
+          <Button variant="danger" disabled onClick={onClick}>
+            Slet 4711
+          </Button>
+          <IconButton
+            variant="danger"
+            disabled
+            onClick={onClick}
+            icon={PlusIcon}
+            labels={{ accessibleName: "Slet 4712" }}
+          />
+        </>
+      );
+
+      for (const button of screen.getAllByRole("button")) {
+        expect(button).toBeDisabled();
+        fireEvent.click(button);
+      }
+
+      expect(onClick).not.toHaveBeenCalled();
     });
   });
 

@@ -60,3 +60,20 @@ export const SUCCESS =
   "text-(--bowman-success,var(--color-green-600)) dark:text-(--bowman-success-dark,var(--color-green-400))";
 export const SUCCESS_SOFT =
   "bg-(--bowman-success-soft,var(--color-green-100)) dark:bg-(--bowman-success-soft-dark,rgba(20,83,45,0.3))";
+export const DANGER_FILL =
+  "bg-(--bowman-danger-fill,var(--color-red-600)) dark:bg-(--bowman-danger-fill-dark,var(--color-red-600))";
+export const DANGER_FILL_HOVER =
+  "hover:bg-(--bowman-danger-fill-hover,var(--color-red-700)) dark:hover:bg-(--bowman-danger-fill-hover-dark,var(--color-red-700))";
+export const TEXT_ON_DANGER = "text-(--bowman-text-on-danger,var(--color-white))";
+export const CONTROL_BORDER =
+  "border-(--bowman-text-muted,var(--color-slate-500)) dark:border-(--bowman-text-muted-dark,var(--color-slate-400))";
+export const DANGER_BORDER =
+  "border-(--bowman-danger,var(--color-red-600)) dark:border-(--bowman-danger-dark,var(--color-red-400))";
+export const INFO_TONE =
+  "text-(--bowman-info,var(--color-blue-600)) border-l-(--bowman-info,var(--color-blue-600)) dark:text-(--bowman-info-dark,var(--color-blue-400)) dark:border-l-(--bowman-info-dark,var(--color-blue-400))";
+export const SUCCESS_TONE =
+  "text-(--bowman-success,var(--color-green-600)) border-l-(--bowman-success,var(--color-green-600)) dark:text-(--bowman-success-dark,var(--color-green-400)) dark:border-l-(--bowman-success-dark,var(--color-green-400))";
+export const WARNING_TONE =
+  "text-(--bowman-warning,var(--color-amber-700)) border-l-(--bowman-warning,var(--color-amber-700)) dark:text-(--bowman-warning-dark,var(--color-amber-300)) dark:border-l-(--bowman-warning-dark,var(--color-amber-300))";
+export const DANGER_TONE =
+  "text-(--bowman-danger,var(--color-red-600)) border-l-(--bowman-danger,var(--color-red-600)) dark:text-(--bowman-danger-dark,var(--color-red-400)) dark:border-l-(--bowman-danger-dark,var(--color-red-400))";

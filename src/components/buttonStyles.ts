@@ -2,16 +2,19 @@ import {
   ACCENT_BG,
   ACCENT_BG_HOVER,
   BORDER,
+  DANGER_FILL,
+  DANGER_FILL_HOVER,
   SURFACE,
   SURFACE_HOVER,
   TEXT_BODY,
   TEXT_ON_ACCENT,
+  TEXT_ON_DANGER,
   TEXT_SECONDARY,
   TEXT_STRONG_HOVER,
 } from "../theme/tokens.js";
 import { FOCUS_RING } from "../theme/focusRing.js";
 
-export type ButtonVariant = "primary" | "secondary" | "ghost";
+export type ButtonVariant = "primary" | "secondary" | "ghost" | "danger";
 export type ButtonSize = "sm" | "md";
 
 const focusRingClassNames = `ring-offset-2 ${FOCUS_RING}`;
@@ -23,6 +26,7 @@ export const buttonVariantClassNames: Readonly<Record<ButtonVariant, string>> = 
   primary: `${ACCENT_BG} ${TEXT_ON_ACCENT} ${ACCENT_BG_HOVER}`,
   secondary: `border ${BORDER} ${SURFACE} ${TEXT_BODY} ${SURFACE_HOVER}`,
   ghost: `${TEXT_SECONDARY} ${SURFACE_HOVER} ${TEXT_STRONG_HOVER}`,
+  danger: `${DANGER_FILL} ${TEXT_ON_DANGER} ${DANGER_FILL_HOVER}`,
 });
 
 export const buttonSizeClassNames: Readonly<Record<ButtonSize, string>> = Object.freeze({

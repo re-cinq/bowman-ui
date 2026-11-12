@@ -212,7 +212,7 @@ title>]` link follows its `it()`; every other link is mapped through the cited f
     fails on any other ref. Never `npm publish`, `npm stage approve` for a run you did not
     review, or `npm version` by hand. Never push to `main` — guard-main-pushes.yml opens a security issue,
     because push access to `main` is transitively npm-publish access.
-13. **Theming tokens** (docs/design-notes.md § Theming). Exactly 44 `--bowman-*` custom
+13. **Theming tokens** (docs/design-notes.md § Theming). Exactly 53 `--bowman-*` custom
     properties, read only through `var()` fallbacks that equal today's palette — no `:root`
     block, no `@theme`. The token class strings live once in the internal `src/theme/tokens.ts`;
     `src/theme/focusRing.ts` composes the shared focus-ring fragment from two of them and
