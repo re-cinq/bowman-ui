@@ -46,6 +46,8 @@ interface OpenState {
   reach?: (page: Page) => Promise<void>;
   /** A defect outside this change that axe reports in the light scheme, expected to fail until fixed. */
   knownLightDefect?: string;
+  /** Busy is a timed demo action, so the state is re-checked after the scan, never assumed. */
+  holdsBusy?: boolean;
 }
 
 // The primary Button's resting fill is --bowman-accent's blue-500 under white text, 3.68:1 against
@@ -65,6 +67,7 @@ const openStates: ReadonlyArray<OpenState> = [
   {
     componentId: "confirm-dialog",
     variant: "busy",
+    holdsBusy: true,
     reach: async (page) => {
       await page.locator(openPanels).locator('button[type="submit"]').click();
       await expect(busyStatus(page)).not.toBeEmpty();
@@ -73,6 +76,7 @@ const openStates: ReadonlyArray<OpenState> = [
   {
     componentId: "confirm-dialog",
     variant: "opened-busy",
+    holdsBusy: true,
     reach: (page) => expect(busyStatus(page)).not.toBeEmpty(),
   },
   { componentId: "confirm-dialog", variant: "with-field" },
@@ -111,17 +115,24 @@ for (const scheme of ["light", "dark"] as const) {
       });
     }
 
-    for (const { componentId, variant, reach, knownLightDefect } of openStates) {
+    for (const { componentId, variant, reach, knownLightDefect, holdsBusy } of openStates) {
       test(`the ${componentId} page's ${variant} dialog, open, has no WCAG 2.2 AA violations`, async ({
         page,
       }) => {
         test.fail(scheme === "light" && knownLightDefect !== undefined, knownLightDefect);
+
         await page.goto(docsUrl(componentId));
         await variantOf(page, variant).getByRole("button").first().click();
         await expect(page.locator(openPanels)).toHaveCount(1);
         await reach?.(page);
 
         await expectNoViolations(page, openPanels);
+
+        // axe schedules its own work on timers, so the clock is not paused; a scan that outlasted the
+        // demo's busy action measured the wrong state and fails here instead of passing.
+        if (holdsBusy) {
+          await expect(busyStatus(page)).not.toBeEmpty({ timeout: 0 });
+        }
       });
     }
 

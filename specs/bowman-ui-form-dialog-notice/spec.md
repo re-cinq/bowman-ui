@@ -884,7 +884,7 @@ Nine `--bowman-*` custom properties join the 44, for 53, each read only through 
 | `--bowman-warning-dark`           | `var(--color-amber-300)` | warning icon and border (dark)  |
 
 Every pair a component renders text on meets WCAG 2.2 AA's 4.5:1 and every icon, tone border and
-focus indicator meets the 3:1 non-text minimum, in both themes ([validated by @f85cc2ec](../../examples/chat-demo/tests/accessibility.spec.ts#L104), [validated by @e7fcfaa5](../../examples/chat-demo/tests/accessibility.spec.ts#L115), [validated by @5fbb4b7b](../../examples/chat-demo/tests/accessibility.spec.ts#L129)). The table in
+focus indicator meets the 3:1 non-text minimum, in both themes ([validated by @f85cc2ec](../../examples/chat-demo/tests/accessibility.spec.ts#L108), [validated by @e7fcfaa5](../../examples/chat-demo/tests/accessibility.spec.ts#L119), [validated by @5fbb4b7b](../../examples/chat-demo/tests/accessibility.spec.ts#L140)). The table in
 docs/design-notes.md § Theming records no ratio, so § Theming gains a paragraph holding the measured pairs below in the same
 pull request. Measured from Tailwind v4's palette for the fallbacks:
 
@@ -941,7 +941,7 @@ token set, or the suite reds: ([validated by dist/styles.css opens with one comm
   `examples/chat-demo/src/docs/ThemingSection.tsx`'s two ([validated by CLAUDE.md invariant 13 states the same token count as the stylesheet's declaration block @2d9f9be0](../../tests/theming-tokens-dist.test.ts#L483), [validated by the spelled token counts in docs/design-notes.md § Theming, .specify/spec.md, the theming spec, README.md and the demo sources equal the declaration block @2a3da4c8](../../tests/theming-tokens-dist.test.ts#L491)).
 - `examples/chat-demo/src/custom-theme.css`, which must set all 53 tokens, not only spell the count;
   the axe run scans the themed variants (decision 19), so its values for the nine new tokens must
-  clear the same minimums as the table above in both schemes ([validated by examples/chat-demo/src/custom-theme.css sets exactly the declared tokens @b80f4a7d](../../tests/theming-tokens-dist.test.ts#L525), [validated by @f85cc2ec](../../examples/chat-demo/tests/accessibility.spec.ts#L104)).
+  clear the same minimums as the table above in both schemes ([validated by examples/chat-demo/src/custom-theme.css sets exactly the declared tokens @b80f4a7d](../../tests/theming-tokens-dist.test.ts#L525), [validated by @f85cc2ec](../../examples/chat-demo/tests/accessibility.spec.ts#L108)).
 - the test's `EXPECTED_FALLBACKS` map, which gains the nine tokens with their fallbacks in
   declaration order ([validated by each token falls back to the same palette value at every site, matching the declared default @8ec9e511](../../tests/theming-tokens-dist.test.ts#L352)).
 - the test's `NEUTRAL_ROLE_READERS` map, which pins each class string to the built files that import
@@ -1009,7 +1009,7 @@ WCAG 2.2 AA is the floor. Three layers prove it, and none is a reviewer's sign-o
   listed above, the default one included, is a variant figure of its own (§ Documentation). axe's
   `color-contrast` rule measures text only; the 3:1 non-text contrast of the focus rings, the
   `Notice` tone icons and borders and `TextField`'s border rests on the measurements in § Theming
-  and the token matrix, as the `CONTROL_BORDER` bullet records for that border ([validated by @f85cc2ec](../../examples/chat-demo/tests/accessibility.spec.ts#L104), [validated by @e7fcfaa5](../../examples/chat-demo/tests/accessibility.spec.ts#L115), [validated by @5fbb4b7b](../../examples/chat-demo/tests/accessibility.spec.ts#L129)).
+  and the token matrix, as the `CONTROL_BORDER` bullet records for that border ([validated by @f85cc2ec](../../examples/chat-demo/tests/accessibility.spec.ts#L108), [validated by @e7fcfaa5](../../examples/chat-demo/tests/accessibility.spec.ts#L119), [validated by @5fbb4b7b](../../examples/chat-demo/tests/accessibility.spec.ts#L140)).
 - Keyboard use is checked by hand against each page.
 
 specs/bowman-ui-assistive-technology-pass/spec.md keeps its manual screen-reader procedure, and its
@@ -1335,14 +1335,14 @@ The chat-demo's documentation app gains one page per new component, each showing
 accessibility checks run against as a variant, a `default` variant included, since the scans read
 only the variant figures, the `Dialog` page including one whose body overflows; each open dialog
 state sits behind its own trigger, so at most one dialog is open at a time (decision 11), and the
-`ConfirmDialog` and `Notice` pages carry the themed variant decision 19 measures ([validated by bare / renders the index with the hero image and every component link @fc8a9ee5](../../examples/chat-demo/tests/docs.spec.ts#L85), [validated by every component page renders its purpose, import, usage, props and states @5b9e2905](../../examples/chat-demo/tests/docs.spec.ts#L128), [validated by @f85cc2ec](../../examples/chat-demo/tests/accessibility.spec.ts#L104)). The `danger`
+`ConfirmDialog` and `Notice` pages carry the themed variant decision 19 measures ([validated by bare / renders the index with the hero image and every component link @fc8a9ee5](../../examples/chat-demo/tests/docs.spec.ts#L85), [validated by every component page renders its purpose, import, usage, props and states @5b9e2905](../../examples/chat-demo/tests/docs.spec.ts#L128), [validated by @f85cc2ec](../../examples/chat-demo/tests/accessibility.spec.ts#L108)). The `danger`
 variant gets no page of its own: the `ConfirmDialog` page's confirm button is the danger `Button`,
 and that page also shows it on its own, at rest, hovered and disabled, beside a `danger`
-`IconButton` in the same three states, so the token matrix and the axe run reach it there ([validated by @5fbb4b7b](../../examples/chat-demo/tests/accessibility.spec.ts#L129), [validated by @e45eed6e](../../examples/chat-demo/tests/docs.spec.ts#L292)). The
+`IconButton` in the same three states, so the token matrix and the axe run reach it there ([validated by @5fbb4b7b](../../examples/chat-demo/tests/accessibility.spec.ts#L140), [validated by @e45eed6e](../../examples/chat-demo/tests/docs.spec.ts#L292)). The
 existing `search-field` page gains an `on-submit` variant, so the submit button is shown and
 scanned; its props table in examples/chat-demo/src/docs/propDocs.ts gains `onSubmit`, and its
 purpose text in examples/chat-demo/src/docs/componentDocs.tsx, "A controlled search input with a
-leading icon", says the icon becomes a submit button with `onSubmit` ([validated by the search field's on-submit variant runs the search on Enter and on its submit button @d4ea6e61](../../examples/chat-demo/tests/docs.spec.ts#L772), [validated by @f85cc2ec](../../examples/chat-demo/tests/accessibility.spec.ts#L104)). The `use-focus-trap` entry in
+leading icon", says the icon becomes a submit button with `onSubmit` ([validated by the search field's on-submit variant runs the search on Enter and on its submit button @d4ea6e61](../../examples/chat-demo/tests/docs.spec.ts#L772), [validated by @f85cc2ec](../../examples/chat-demo/tests/accessibility.spec.ts#L108)). The `use-focus-trap` entry in
 examples/chat-demo/src/docs/overview.ts, "AppShell uses it for the mobile drawer", names `Dialog`
 and `ConfirmDialog` beside it.
 

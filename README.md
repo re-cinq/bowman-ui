@@ -446,11 +446,12 @@ A modal panel with `role="dialog"` and `aria-modal`, portalled out of the page. 
 is required and is the heading and the accessible name; `closeDialog` names the close button
 (default `"Close"`). Props: `open`, `onClose` (Escape and the close button), `children`, `footer`
 (actions after the body), `returnFocusRef` and `container`. Opening moves focus to the first control
-in `children`, then the footer, then the close button; Tab and Shift+Tab stay inside; a click on the
+in `children`, else the scrolling body when it overflows with nothing focusable in it, else the
+first control in the footer, else the close button; Tab and Shift+Tab stay inside; a click on the
 overlay does nothing. Closing or unmounting returns focus to `returnFocusRef.current`, else the
-element that held focus before the dialog opened - pass `returnFocusRef`, a stable `useRef`, when
-the action removes that element. A body that overflows with nothing focusable in it becomes
-focusable, so a keyboard user can scroll it.
+element that held focus before the dialog opened - pass `returnFocusRef`, a stable `useRef` on a
+focusable element that stays, when the action removes that element. A body that overflows with
+nothing focusable in it becomes focusable, so a keyboard user can scroll it.
 
 The panel portals into `document.body` by default. A theme set on a wrapper (`.custom-theme`,
 `[data-tenant="acme"]`, see [Theming](#theming)) stops at the portal, so pass that wrapper, or an
@@ -497,7 +498,7 @@ announced through a status region.
   onConfirm={deleteProject}
   onCancel={() => setConfirming(false)}
   busy={deleting}
-  returnFocusRef={projectListRef} // the delete button leaves with the project
+  returnFocusRef={addProjectRef} // a button that stays; the delete button leaves with the project
   labels={{ dialogTitle: "Delete project?", confirmAction: "Delete project" }}
   description="Its conversations are deleted too. This cannot be undone."
 />
