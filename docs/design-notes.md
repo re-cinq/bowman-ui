@@ -201,6 +201,10 @@ Decisions:
    are lint-banned as prop names). Each component co-locates its type
    `XLabels` and `defaultXLabels: Readonly<Required<XLabels>>`, so a key added
    without a default is a compile error rather than `undefined` in the DOM.
+   A component with required keys (decision 5) types its defaults over the
+   defaulted keys alone, `Readonly<Required<Pick<XLabels, …>>>`, as
+   `defaultDialogLabels` and `defaultConfirmDialogLabels` are, or over an
+   `Omit`, as `defaultChatMessageListLabels` is (issue 415).
    The merge helper is
    `resolveLabels<T extends object>(defaults: Required<T>, overrides?: Partial<T>): Required<T>`
    - a shallow merge that treats an explicit `undefined` override the same as
@@ -213,7 +217,11 @@ Decisions:
    its children's - no nesting, no deep merge, no context provider. Key names
    are therefore unique across the package by _concept_, not by component: two
    different "close" actions become `closeMenu` and `dismissToast`, never two
-   keys both named `close`.
+   keys both named `close`. A component that wraps `IconButton` is the
+   exception: `IconButton.accessibleName` names one instance, so `SearchField`,
+   `Dialog` and `Notice` each feed it from a concept-named key of their own -
+   `submitSearch`, `closeDialog`, `dismissNotice` - rather than taking the
+   union, which would hand three different buttons one key (issue 415).
 4. **A label that interpolates a value is a function** -
    `deletedCount: (count: number) => string` - never a template string with
    placeholders. Word order and plural rules differ across languages, and a
@@ -222,7 +230,11 @@ Decisions:
    generalises to every interpolated label.
 5. **A label may be declared required** - present in `XLabels`, absent from
    `defaultXLabels` - when a plausible English default would itself be the
-   defect. Enforcement of all of the above is static and at test time (the
+   defect. A label may also be declared optional with no default - absent
+   from `defaultXLabels`, optional in `XLabels` - when the thing it names is
+   not always there: `TextFieldLabels`' `fieldHint` and `fieldError` are the
+   first, and an absent `fieldError` is the valid state (issue 415).
+   Enforcement of all of the above is static and at test time (the
    export-partition test, the sentinel render test, and the
    `no-restricted-syntax`/`no-restricted-imports` entries in
    `eslint.config.mjs`), never a runtime console warning: the package writes
@@ -240,9 +252,13 @@ typed
 `IconButton` (§ Styled primitives) is the second component whose `labels`
 prop is required, typed `labels: IconButtonLabels`: its single key
 `accessibleName` is required, so no `defaultIconButtonLabels` ships; nothing
-of that name exists, and an empty frozen object would be ceremony. Decision
-2's optional `labels?` shape reads subject to these two exceptions; every
-other key still defaults per key.
+of that name exists, and an empty frozen object would be ceremony. Issue 415
+adds three more: `TextField`, typed `labels: TextFieldLabels`, whose required
+`fieldLabel` has no meaningful default, so no `defaultTextFieldLabels` ships;
+`Dialog`, whose `dialogTitle` is required; and `ConfirmDialog`, whose
+`dialogTitle` and `confirmAction` are required. Each dialog defaults the rest
+of its keys. Decision 2's optional `labels?` shape reads subject to these five
+exceptions; every other key still defaults per key.
 
 **The three `stringPropOnly` exceptions** (every other string-carrying export
 takes `labels`):
@@ -583,6 +599,35 @@ no strategy of its own; a consumer setting `--bowman-accent` alone re-themes
 light mode and leaves dark mode on its blue-600 fallback until it also sets
 `--bowman-accent-dark`.
 
+**Measured contrast.** The table above records no ratio, so the pairs the
+form, dialog and notice components (issue 415) paint are measured here, from
+Tailwind v4's palette for the fallbacks. Every text pair meets WCAG 2.2 AA
+(4.5:1) and every icon, tone border, control border and focus ring the 3:1
+non-text minimum, in both modes. A consumer who overrides a token owns the
+ratio it produces.
+
+| Pair                                                     | Light   | Dark    | Minimum |
+| -------------------------------------------------------- | ------- | ------- | ------- |
+| `TEXT_ON_DANGER` on `DANGER_FILL`                        | 4.76:1  | 4.76:1  | 4.5:1   |
+| `TEXT_ON_DANGER` on `DANGER_FILL_HOVER`                  | 6.42:1  | 6.42:1  | 4.5:1   |
+| `DANGER` (`TextField` error text) on surface             | 4.76:1  | 6.17:1  | 4.5:1   |
+| `TEXT_MUTED` (`TextField` hint) on surface               | 4.77:1  | 6.79:1  | 4.5:1   |
+| `TEXT_STRONG` (`TextField` label and input text)         | 17.84:1 | 16.28:1 | 4.5:1   |
+| `CONTROL_BORDER` (`TextField` border)                    | 4.77:1  | 6.79:1  | 3:1     |
+| `DANGER_BORDER` (invalid `TextField` border)             | 4.76:1  | 6.17:1  | 3:1     |
+| `TEXT_BODY` (panel, card and notice body) on surface     | 10.34:1 | 14.49:1 | 4.5:1   |
+| `TEXT_STRONG` (panel, card and notice heading)           | 17.84:1 | 16.28:1 | 4.5:1   |
+| `TEXT_BODY` on `SURFACE_HOVER` (hovered card body)       | 9.88:1  | 11.90:1 | 4.5:1   |
+| `TEXT_STRONG` on `SURFACE_HOVER` (hovered heading)       | 17.05:1 | 13.37:1 | 4.5:1   |
+| `TEXT_MUTED` (`KeyValueList` term)                       | 4.77:1  | 6.79:1  | 4.5:1   |
+| `TEXT_STRONG` (`KeyValueList` value)                     | 17.84:1 | 16.28:1 | 4.5:1   |
+| `info` icon and border on surface                        | 5.26:1  | 6.77:1  | 3:1     |
+| `success` icon and border on surface                     | 3.22:1  | 10.05:1 | 3:1     |
+| `warning` icon and border on surface                     | 5.05:1  | 12.34:1 | 3:1     |
+| `error` icon and border on surface                       | 4.76:1  | 6.17:1  | 3:1     |
+| `TEXT_SECONDARY` (ghost close, dismiss and submit icons) | 7.56:1  | 6.79:1  | 3:1     |
+| `FOCUS_RING_COLOR` on its `RING_OFFSET`                  | 3.76:1  | 6.77:1  | 3:1     |
+
 Decisions:
 
 1. **Defaults live only in `var()` fallbacks; the stylesheet declares no
@@ -668,7 +713,9 @@ Decisions:
    `dark:bg-slate-700`, `bg-slate-100` / `dark:bg-slate-800`), the inverse
    surfaces of `Toast` and `ErrorBoundary`'s retry button (`bg-slate-900` /
    `dark:bg-slate-100`, deferred with their text per issue 105 below), the
-   mobile overlay (`bg-black`), the `border-slate-300` / `dark:border-slate-600`
+   mobile overlay (`bg-black`), the `Dialog` and `ConfirmDialog` overlay's
+   dim (`bg-black/50`, the drawer backdrop's utility, issue 415), the
+   `border-slate-300` / `dark:border-slate-600`
    dividers, `ChatMessage`'s `dark:ring-offset-slate-950` and the skip link's
    focus surface (`focus:bg-white` / `dark:focus:bg-slate-900`). Ring width,
    offset and outline classes beside each colour token stay at every site
@@ -804,9 +851,13 @@ Decisions:
     first with their own `focus:ring-blue-500` string in `buttonStyles.ts`,
     and whichever of the two features merged second owed the other the
     tokens; this one did. `buttonStyles.ts` now imports `ACCENT_BG`,
-    `ACCENT_BG_HOVER` and `FOCUS_RING_COLOR` from the tokens module, so the
-    primary variant is the send button's fill and every primitive's ring is
-    `--bowman-focus-ring`. The dist test's "no bare `blue-` utility survives"
+    `ACCENT_BG_HOVER`, `BORDER`, `DANGER_FILL`, `DANGER_FILL_HOVER`,
+    `SURFACE`, `SURFACE_HOVER`, `TEXT_BODY`, `TEXT_ON_ACCENT`,
+    `TEXT_ON_DANGER`, `TEXT_SECONDARY` and `TEXT_STRONG_HOVER` from the tokens
+    module and `FOCUS_RING` from `src/theme/focusRing.ts` (decision 12), so
+    the primary variant is the send button's fill, the `danger` variant
+    (issue 415) reads its own fill, hover and text tokens, and every
+    primitive's ring is `--bowman-focus-ring`. The dist test's "no bare `blue-` utility survives"
     assertion therefore scans every built component, not a named list.
 
 12. **The neutral roles are named for what a designer overrides, not for a
@@ -837,11 +888,25 @@ Decisions:
     because it is not adjacent to the fragment everywhere, so every rendered
     class string is byte-identical. `RING_OFFSET` is read by that module alone
     (its component pin in the dist test is empty), and the same test pins the
-    module's two imports and its five importers - `AppShell`, `AppSidebar`,
-    `ConversationList`, `PromptChips` and `buttonStyles` - so a site drifting
-    back to a spelled-out ring is still a test failure. `ChatMessage`'s
+    module's two imports and its six importers - `AppShell`, `AppSidebar`,
+    `Card`, `ConversationList`, `PromptChips` and `buttonStyles` - so a site
+    drifting back to a spelled-out ring is still a test failure. `ChatMessage`'s
     page-ground rings, `SearchField` and the skip link share no offset and stay
     as they are.
+    Amended under issue 415: the same module composes a second fragment,
+    `FOCUS_VISIBLE_RING` - `focus:outline-none focus-visible:ring-2` beside the
+    same two imports - for the dialog panel and its scrolling body, which a
+    mouse click can focus through their `tabIndex`. The colours still ride
+    `focus:`, so dark mode and the `--bowman-focus-ring` overrides reach it,
+    but the ring draws only under `:focus-visible`. `ModalPanel` is its only
+    importer, and the dist test pins that too. Also under issue 415,
+    `TextField`'s border reads `--bowman-text-muted`, the muted role's first
+    use as a border colour, through the `CONTROL_BORDER` class string, which
+    declares no token: `--bowman-border` is a divider colour at about 1.2:1,
+    below the 3:1 a text input's boundary needs, and the muted role is the
+    lightest that clears it in both modes. A consumer who recolours muted
+    text recolours every `TextField` border with it; a dedicated
+    control-border token is a follow-up should that coupling bite.
 13. **The dark offset rides `dark:focus:`, not `dark:` alone.** A `focus:`
     utility selects at `(0,2,0)`; a `dark:` utility rides only a media query at
     `(0,1,0)`, so with `focus:ring-offset-(--bowman-ring-offset,...)` beside
@@ -856,12 +921,15 @@ Decisions:
 
 ## Styled primitives
 
-`Button`, `IconButton`, `PromptChips` and `SearchField` are a closed set of
-styled controls for the slots every consumer otherwise fills by hand - the
-`prompts` slot, the composer's `attachSlot`, `AppSidebar`'s children and
-`footer` (issue 43). `specs/bowman-ui-styled-primitives/spec.md` pins the
-signatures and the tests; this section records the decisions, so no cleanup
-PR reverses them.
+`Button`, `IconButton`, `PromptChips`, `SearchField`, `TextField`, `Dialog`,
+`ConfirmDialog`, `Notice`, `KeyValueList` and `Card` are a closed set of ten
+styled components. The first four fill the slots every consumer otherwise
+fills by hand - the `prompts` slot, the composer's `attachSlot`,
+`AppSidebar`'s children and `footer` (issue 43); the other six serve the
+screens beside the chat - an admin page, a settings page, a confirmation
+before a destructive action (issue 415). `specs/bowman-ui-styled-primitives/spec.md`
+and `specs/bowman-ui-form-dialog-notice/spec.md` pin the signatures and the
+tests; this section records the decisions, so no cleanup PR reverses them.
 
 - **"Styled" means Tailwind utility class names in the built file**, exactly
   as for every other component: the consumer's own Tailwind v4 build
@@ -879,11 +947,12 @@ PR reverses them.
   wrapper: a `Button` in a `flex flex-col` sidebar column stretches to the
   column on its own, and a floating "jump to latest" `IconButton` is
   positioned by the element wrapped around it. This is § Toast's stance
-  ("takes no `className`") applied to four more components; a consumer
-  needing a different shape renders its own element. The compile-time pin is
-  `tests/types/primitives-type-assertions.tsx`.
-- **One `ButtonVariant` union of three - `primary`, `secondary`, `ghost` -
-  shared by `Button` and `IconButton`.** The issue proposed two. `ghost`
+  ("takes no `className`") applied to ten more components; a consumer
+  needing a different shape renders its own element. The compile-time pins
+  are `tests/types/primitives-type-assertions.tsx` and
+  `tests/types/form-dialog-notice-type-assertions.tsx`.
+- **One `ButtonVariant` union of four - `primary`, `secondary`, `ghost`,
+  `danger` - shared by `Button` and `IconButton`.** The issue proposed two. `ghost`
   exists because two controls need a borderless look - the attach control
   inside the composer's dashed footer row (the issue's fifth case) and the
   chat-demo's sign-out footer button, a control the issue did not enumerate -
@@ -892,18 +961,23 @@ PR reverses them.
   left-aligned sidebar control is the consumer's own element: the chat-demo
   follow-up must not expect `Button` to replace the sign-out button as-is.
   One union serves both components so a consumer never learns two
-  vocabularies. The variant, size and icon class maps live once, in the
+  vocabularies. `danger` (issue 415) is a solid fill for the one action on a
+  screen that destroys something, on its own fill and text tokens (§ Theming);
+  `ConfirmDialog`'s confirm button is always `danger`. The variant, size and
+  icon class maps live once, in the
   private `src/components/buttonStyles.ts`: the barrel does not export it,
   and it carries no `"use client"` because it has no handler and no hook
-  (decision 1), so the built `buttonStyles.js` stays server-safe while the
-  four component files open with the directive.
+  (decision 1), so the built `buttonStyles.js` stays server-safe while nine
+  of the ten styled component files open with the directive. `KeyValueList`
+  takes no handler and calls no hook, so it carries none.
 - **`IconButton`'s accessible name is a required label, never a string
   prop.** `labels: IconButtonLabels`, whose one key `accessibleName` is
   required, keeps `IconButton` in the `labelsProp` partition and the closed
   `stringPropOnly` list at three. An icon-only button without a name is the
   defect, so no English default stands in for it and no
-  `defaultIconButtonLabels` ships - the second required-`labels` exception
-  § Labels records.
+  `defaultIconButtonLabels` ships - the second of the five required-`labels`
+  exceptions § Labels records. `TextField` follows it with a required
+  `fieldLabel` and no defaults object (issue 415).
 - **`PromptChips` is the intended content of `ChatMessageList`'s `prompts`
   slot, and the slot stays `ReactNode`.** Folding the chips into the list - a
   `prompts: string[]` plus an `onPromptPick` - would break the slot's type
@@ -913,18 +987,28 @@ PR reverses them.
   nothing, so the slot can be filled unconditionally.
 - **`SearchField` reports the raw value.** A controlled input that trimmed on
   the way out would fight the caret; `ChatComposer` trims because it clears,
-  `SearchField` reflects. It ships no clear button, no submit and no debounce:
+  `SearchField` reflects. It ships no clear button and no debounce:
   filtering as the user types is the consumer's, and `useDebounce` already
-  exists for it. It is the first shipped component to render `SearchIcon`; no
-  icon is added for the primitives and the set stays at 23 (decision 2).
-- **`Button`, `IconButton` and `SearchField` are `forwardRef` components**
-  under decision 4, so a consumer can focus a control - a "jump to latest"
+  exists for it. An optional `onSubmit` (issue 415) adds a submit button,
+  named by the `submitSearch` key, and runs the search on Enter; without it
+  `SearchField` renders exactly what it did before, because some searches -
+  a server query, a paid lookup - cannot run on every keystroke. It is the
+  first shipped component to render `SearchIcon`; no icon is added for the
+  primitives and the set stays at 23 (decision 2).
+- **`Button`, `IconButton`, `SearchField`, `TextField` and `Card` are
+  `forwardRef` components** under decision 4, so a consumer can focus a control - a "jump to latest"
   button, a search box behind a keyboard shortcut - without reaching into the
   DOM. `PromptChips` is a plain function component: a chip group has no one
-  element to hand back.
+  element to hand back. `Dialog`, `ConfirmDialog`, `Notice` and
+  `KeyValueList` forward no ref either: the trap decides where a dialog's
+  focus goes, and a notice's dismiss button exists only to remove it.
 - **`Text`/`Typography` and layout primitives are refused.** The greeting and
   the sidebar footer are consumer prose, and a layout primitive would decide
-  spacing the consumer's page already decides.
+  spacing the consumer's page already decides. `Card` (issue 415) narrows the
+  refusal: it decides one inner padding and nothing about the page - no grid,
+  no gap, no width - and ships for what a consumer gets wrong by hand, a whole
+  surface that is one button with one accessible name and the package's
+  focus ring.
 
 ## RSC fixture
 
@@ -1103,8 +1187,9 @@ Decisions:
    opacity per character) and `ThinkingDots` (the per-dot stagger is data,
    one delay per dot). Visually hidden text is one stylesheet rule,
    `.bowman-sr-only` in `src/styles.css`, shared by the markdown notice, the
-   `Toast` live region, `ConversationList`'s plain title and
-   `useFocusGroups`' announcement region; issue 5 retired the three inline
+   `Toast` live region, `ConversationList`'s plain title,
+   `useFocusGroups`' announcement region, the `ChatComposer` busy hint and
+   `ConfirmDialog`'s busy status region (issue 415); issue 5 retired the three inline
    copies and with them the "works with no consumer stylesheet" argument,
    since README already requires `./styles.css` of every consumer. The one
    other hiding idiom is `AppShell`'s skip link, which uses Tailwind's
