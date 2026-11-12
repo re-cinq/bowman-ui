@@ -13,7 +13,7 @@ chat screen in a real Chromium and a real WebKit. It proves what no jsdom test c
 package's eight major components in one document, compiled by a real Tailwind v4
 build, laid out by a real browser. The whole proof is one command,
 `npm run consumer` ([validated by @6fffc2af](../../package.json#L55)), documented in the
-README's Worked consumer section ([validated by @5c232a3d](../../README.md#L203)).
+README's Worked consumer section ([validated by @5c232a3d](../../README.md#L204)).
 
 Anchor caveat: `re-lint-reanchor` tracks every `(../)+path#Lnn` link, so this
 spec's links into `examples/`, `package.json` files, workflow files and root config files are
