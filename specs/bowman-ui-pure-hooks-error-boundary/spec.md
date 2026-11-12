@@ -67,6 +67,14 @@ exports entry for a consumer ([validated by each built hook and ErrorBoundary op
   [validated by closing returns focus to the trigger ref when one is given @aed68688](../../tests/useFocusTrap.test.tsx#L130),
   [validated by closing returns focus to the previously active element without a trigger ref @279280ed](../../tests/useFocusTrap.test.tsx#L138),
   [validated by `closing returns focus to a previously active <svg tabindex="0"> without a trigger ref` @bd707c95](../../tests/useFocusTrap.test.tsx#L367)).
+- `useFocusTrap` gains three behaviours for modal panels, under
+  [specs/bowman-ui-form-dialog-notice/spec.md](../bowman-ui-form-dialog-notice/spec.md), its
+  signature unchanged: an open container with nothing focusable inside, which carries a
+  `tabindex` and passes the visibility check, takes focus itself and Tab and Shift+Tab are
+  prevented, pulling escaped focus back to it, while a container without a `tabindex` still
+  leaves Tab alone; with focus on the container itself, Tab moves to the first element and
+  Shift+Tab to the last; and unmounting while open returns focus as closing does, skipping a
+  return target that is no longer connected, on close as on unmount.
 - `useFocusGroups({announce})` — the hardcoded English `Moved to ${groupName}` and the Tailwind
   `sr-only` class are both gone from the contract: `announce` maps a group name to the
   announcement (English default preserved, `null` suppresses), and the live region is hidden

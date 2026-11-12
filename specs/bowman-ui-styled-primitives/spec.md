@@ -47,7 +47,8 @@ closed members ([validated by labelsProp, stringPropOnly and noStrings together 
 ### `Button`
 
 ```ts
-export type ButtonVariant = "primary" | "secondary" | "ghost";
+/** "danger" joined the union with specs/bowman-ui-form-dialog-notice/spec.md. */
+export type ButtonVariant = "primary" | "secondary" | "ghost" | "danger";
 export type ButtonSize = "sm" | "md";
 
 export interface ButtonProps {
@@ -66,6 +67,9 @@ export interface ButtonProps {
 
 export const Button: ForwardRefExoticComponent<ButtonProps & RefAttributes<HTMLButtonElement>>;
 ```
+
+The union's fourth member, `danger`, a solid fill for the one action on a screen that destroys
+something, is pinned in [specs/bowman-ui-form-dialog-notice/spec.md](../bowman-ui-form-dialog-notice/spec.md), which also adds it to `IconButton`.
 
 - Renders one `<button>` with `type` defaulting to `"button"`, the `children` as its accessible
   name, and the `ref` forwarded to that element ([validated by `renders one <button type="button"> whose accessible name is the children "Ny samtale"` @85244768](../../tests/Button.test.tsx#L27),
@@ -196,14 +200,19 @@ export interface SearchFieldLabels {
   /** The input's accessible name - a real label, never the placeholder. */
   searchInput: string;
   searchPlaceholder: string;
+  /** The submit button's accessible name, read only when `onSubmit` is given. */
+  submitSearch: string;
 }
 
-export const defaultSearchFieldLabels: Readonly<Required<SearchFieldLabels>>; // "Search", "Search..."
+// "Search", "Search...", "Submit search"
+export const defaultSearchFieldLabels: Readonly<Required<SearchFieldLabels>>;
 
 export interface SearchFieldProps {
   value: string;
   /** Receives the input's new value verbatim - untrimmed, a controlled input's contract. */
   onChange: (value: string) => void;
+  /** Runs the search on Enter or the submit button; without it, no button renders. */
+  onSubmit?: (value: string) => void;
   disabled?: boolean;
   labels?: Partial<SearchFieldLabels>;
 }
@@ -212,6 +221,9 @@ export const SearchField: ForwardRefExoticComponent<
   SearchFieldProps & RefAttributes<HTMLInputElement>
 >;
 ```
+
+`onSubmit` and the `submitSearch` key it reads are pinned in [specs/bowman-ui-form-dialog-notice/spec.md](../bowman-ui-form-dialog-notice/spec.md); without `onSubmit`,
+`SearchField` renders what this section describes.
 
 - Renders a wrapper `<div class="relative">` holding a decorative `SearchIcon` (absolutely
   positioned at the left, `pointer-events-none`, `aria-hidden`) and one `<input type="search">`
@@ -309,7 +321,9 @@ by](../../tests/public-api.test.ts#L40),
    reflects ([validated by a change to " Hvor " calls onChange once with " Hvor " untrimmed @b77368a3](../../tests/SearchField.test.tsx#L31)).
 6. **`Text` and layout primitives are refused**, as the issue says: the greeting and the sidebar
    footer are consumer prose, and a layout primitive would decide spacing the consumer's page
-   already decides.
+   already decides. `Card` narrows the refusal: it decides one inner padding and nothing about
+   the page - no grid, no gap, no width - and ships for a whole surface that is one button, with
+   one accessible name and the package's focus ring ([specs/bowman-ui-form-dialog-notice/spec.md](../bowman-ui-form-dialog-notice/spec.md)).
 
 ## Out of scope
 

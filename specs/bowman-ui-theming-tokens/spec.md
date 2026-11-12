@@ -13,7 +13,9 @@ property read through a `var()` whose fallback is the palette value the site pai
 so a consumer overriding nothing sees today's look byte for byte and a consumer setting a
 handful of properties re-themes every site at once. The decision record lives in
 docs/design-notes.md § Theming; this file pins the fifty-three names, their fallbacks, every site
-that reads them, and the tests.
+that reads them, and the tests. The sites include those of the form, dialog and notice components,
+[specs/bowman-ui-form-dialog-notice/spec.md](../bowman-ui-form-dialog-notice/spec.md): the `danger` `Button` and `IconButton`, the `Dialog` and `ConfirmDialog` panel, `TextField`,
+`Notice`, `KeyValueList` and `Card`.
 
 ## The tokens
 
@@ -204,7 +206,11 @@ utility fails ([validated by each neutral role constant is imported by exactly t
 Beside the danger role, two success roles carry a status meaning rather than neutral chrome (docs/design-notes.md
 § Theming decision 6): `--bowman-success` and `--bowman-success-soft`, each with a `-dark` twin.
 Their fallbacks equal today's green palette, and the soft fill's dark fallback is a literal `rgba()`
-because a `/30` alpha modifier cannot ride a token.
+because a `/30` alpha modifier cannot ride a token. Three more roles carry a status meaning under
+[specs/bowman-ui-form-dialog-notice/spec.md](../bowman-ui-form-dialog-notice/spec.md), none with a `-soft` surface: the danger fill, `--bowman-danger-fill` and
+`--bowman-danger-fill-hover` with `-dark` twins and `--bowman-text-on-danger` with none, for the
+`danger` `Button` and `IconButton`; `--bowman-info` and `--bowman-warning` with `-dark` twins, for
+the `info` and `warning` `Notice` icon and left border.
 
 - The copied check mark and the selected thumbs-up read `--bowman-success` for their text, and the
   selected thumbs-up reads `--bowman-success-soft` for its fill; `ChatMessage` is the only component
@@ -217,14 +223,16 @@ because a `/30` alpha modifier cannot ride a token.
 - The ring width, offset and outline classes - `focus:ring-2`, `ring-offset-2`,
   `focus:outline-none` - render at every site untouched beside the colour tokens; at the offset-ring
   sites the outline and width ride in `FOCUS_RING` (`src/theme/focusRing.ts`, issue 155) with
-  `ring-offset-2` left in place ([validated by the wrapper keeps focus-within:ring-2 beside the --bowman-focus-ring /50 ring and the --bowman-accent-glow shadow @2f544532](../../tests/ChatComposer.test.tsx#L346),
+  `ring-offset-2` left in place, and at the `ModalPanel` sites, the dialog panel and its scrolling
+  body, in `FOCUS_VISIBLE_RING`, whose width is `focus-visible:ring-2`, so a mouse click that
+  focuses them draws no ring ([validated by the wrapper keeps focus-within:ring-2 beside the --bowman-focus-ring /50 ring and the --bowman-accent-glow shadow @2f544532](../../tests/ChatComposer.test.tsx#L346),
   [validated by every variant keeps focus:ring-2 ring-offset-2 beside the --bowman-focus-ring and --bowman-ring-offset colours and carries the disabled pair @512e1f83](../../tests/Button.test.tsx#L121), [validated by a chip keeps focus:ring-2 ring-offset-2 focus:outline-none beside the --bowman-focus-ring and --bowman-ring-offset colours @ca657257](../../tests/PromptChips.test.tsx#L134),
   [validated by `dist/theme/focusRing.js composes FOCUS_RING and FOCUS_VISIBLE_RING from the tokens module's ring colour and offset, exactly the six offset-ring components import FOCUS_RING, and ModalPanel alone imports FOCUS_VISIBLE_RING` @6a7f5e79](../../tests/theming-tokens-dist.test.ts#L447)).
 - Every neutral site that matches a role pair on one side only keeps its palette classes on
   both sides, so no site is half-themed: the shell ground and main region, the avatar circles'
   rest state, the user avatar and code chips, the inverse surfaces of `Toast` and
-  `ErrorBoundary`'s retry button, the mobile overlay, the
-  `border-slate-300` dividers, `ChatMessage`'s `dark:ring-offset-slate-950` and the
+  `ErrorBoundary`'s retry button, the mobile overlay, the `Dialog` and `ConfirmDialog` overlay's
+  `bg-black/50` dim beside it, the `border-slate-300` dividers, `ChatMessage`'s `dark:ring-offset-slate-950` and the
   `ConversationList` badge and user-avatar label text that keep slate-600 / slate-300 on their
   own slate chips - the full
   list is docs/design-notes.md § Theming decision 6.
