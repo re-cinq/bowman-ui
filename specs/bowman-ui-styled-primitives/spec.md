@@ -69,7 +69,7 @@ export const Button: ForwardRefExoticComponent<ButtonProps & RefAttributes<HTMLB
 ```
 
 The union's fourth member, `danger`, a solid fill for the one action on a screen that destroys
-something, is pinned in [specs/bowman-ui-form-dialog-notice/spec.md](../bowman-ui-form-dialog-notice/spec.md), which also adds it to `IconButton`.
+something, is pinned in [specs/bowman-ui-form-dialog-notice/spec.md](../bowman-ui-form-dialog-notice/spec.md), which also adds it to `IconButton` ([validated by variant="danger" on Button and IconButton carries the --bowman-danger-fill fill and hover and --bowman-text-on-danger text @ab5aa400](../../tests/Button.test.tsx#L147), [validated by a disabled danger Button or IconButton renders the native attribute and never reaches onClick @dd0af3c7](../../tests/Button.test.tsx#L159)).
 
 - Renders one `<button>` with `type` defaulting to `"button"`, the `children` as its accessible
   name, and the `ref` forwarded to that element ([validated by `renders one <button type="button"> whose accessible name is the children "Ny samtale"` @85244768](../../tests/Button.test.tsx#L27),
@@ -223,7 +223,7 @@ export const SearchField: ForwardRefExoticComponent<
 ```
 
 `onSubmit` and the `submitSearch` key it reads are pinned in [specs/bowman-ui-form-dialog-notice/spec.md](../bowman-ui-form-dialog-notice/spec.md); without `onSubmit`,
-`SearchField` renders what this section describes.
+`SearchField` renders what this section describes ([validated by renders no button without onSubmit - no clear control and no submit @a47ff0b5](../../tests/SearchField.test.tsx#L76), [validated by without onSubmit, Enter on the input is not prevented, so a consumer's own form still submits @cfc9ed0c](../../tests/SearchField.test.tsx#L82), [validated by without onSubmit, the input keeps the leading-icon padding pl-9 pr-3 @2b1336a8](../../tests/SearchField.test.tsx#L88), [validated by with onSubmit, a ghost size="sm" IconButton named "Submit search" replaces the leading icon at the trailing edge @fb034417](../../tests/SearchField.test.tsx#L96), [validated by defaultSearchFieldLabels is frozen and equals { searchInput: "Search", searchPlaceholder: "Search...", submitSearch: "Submit search" } @c472eff1](../../tests/SearchField.test.tsx#L199)).
 
 - Renders a wrapper `<div class="relative">` holding a decorative `SearchIcon` (absolutely
   positioned at the left, `pointer-events-none`, `aria-hidden`) and one `<input type="search">`
@@ -238,7 +238,7 @@ export const SearchField: ForwardRefExoticComponent<
   the demo's `search-field` documentation page (issue 151)
   ([validated by value="4711" renders as the input's value @c5fa5032](../../tests/SearchField.test.tsx#L25),
   [validated by a change to " Hvor " calls onChange once with " Hvor " untrimmed @b77368a3](../../tests/SearchField.test.tsx#L31),
-  [browser@fe193eeb](../../examples/chat-demo/tests/docs.spec.ts#L196)).
+  [browser@fe193eeb](../../examples/chat-demo/tests/docs.spec.ts#L212)).
 - `disabled` renders the native attribute ([validated by disabled renders the native disabled attribute @6c07bf8e](../../tests/SearchField.test.tsx#L42),
   [validated by the input is enabled when disabled is omitted @75ffe78a](../../tests/SearchField.test.tsx#L48)).
 - No clear button and no debounce; a submit button only with `onSubmit`
@@ -323,7 +323,7 @@ by](../../tests/public-api.test.ts#L40),
    footer are consumer prose, and a layout primitive would decide spacing the consumer's page
    already decides. `Card` narrows the refusal: it decides one inner padding and nothing about
    the page - no grid, no gap, no width - and ships for a whole surface that is one button, with
-   one accessible name and the package's focus ring ([specs/bowman-ui-form-dialog-notice/spec.md](../bowman-ui-form-dialog-notice/spec.md)).
+   one accessible name and the package's focus ring ([specs/bowman-ui-form-dialog-notice/spec.md](../bowman-ui-form-dialog-notice/spec.md)) ([validated by `with onSelect and a heading, one left-aligned <button type=button> is named by the heading and described by the body` @25410157](../../tests/Card.test.tsx#L52), [validated by `carries the shared offset ring beside ring-offset-2, a SURFACE_HOVER hover and no shadow` @112b46d0](../../tests/Card.test.tsx#L79)).
 
 ## Out of scope
 
