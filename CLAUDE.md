@@ -18,7 +18,7 @@ it — doc prose and the code have drifted in places.
   invariant traces to a numbered decision or named section here. When code and prose disagree,
   docs/design-notes.md wins.
 - **.specify/spec.md** — the repo-level spec.
-- **specs/<slug>/spec.md** — 30 feature specs. Statements cite their validating test with a
+- **specs/<slug>/spec.md** — 33 feature specs. Statements cite their validating test with a
   trailing `([validated by](../../tests/X.test.tsx#Lnn))` parenthetical (AGENTS.md § Spec Test Links).
 - **AGENTS.md** — commit / PR / branch conventions (Conventional Commits, scope = component
   area, imperative lowercase subject ≤ 50 chars, branch `<type>/<scope>-<description>`) and the
@@ -100,15 +100,20 @@ title>]` link follows its `it()`; every other link is mapped through the cited f
 - `src/theme/tokens.ts` — the internal theming-token class strings, one `export const` per
   string; imported by the components, never exported from the barrel (invariant 13).
 - `src/theme/focusRing.ts` — `FOCUS_RING`, the offset focus-ring fragment composed from two token
-  constants; imported by five files (four components and `buttonStyles.ts`), never exported from the
-  barrel.
-- `src/components/` — 19 `.tsx` (AppShell, AppSidebar, Button, ChatCard, ChatComposer,
-  ChatMessage, ChatMessageList, ConversationList, ErrorBoundary, FeedbackButtons, IconButton,
-  InlineThinkingIndicator, PromptChips, SearchField, ThinkingDots, ThinkingIndicator,
-  ThinkingTrace, Toast, ToolActivity) plus `buttonStyles.ts`, the one private, non-exported
-  class-map module (shared by Button and IconButton; no `"use client"`). `FeedbackButtons` is
-  internal too: the thumbs ChatMessage and ChatCard share, never exported from the barrel.
-- `src/hooks/` — `focusableSelector` + `focusWithTransientTabIndex` (the internal
+  constants, imported by six files (five components and `buttonStyles.ts`), and
+  `FOCUS_VISIBLE_RING`, its `focus-visible:` twin from the same two constants, imported by
+  `ModalPanel` alone; never exported from the barrel.
+- `src/components/` — 26 `.tsx` (AppShell, AppSidebar, Button, Card, ChatCard, ChatComposer,
+  ChatMessage, ChatMessageList, ConfirmDialog, ConversationList, Dialog, ErrorBoundary,
+  FeedbackButtons, IconButton, InlineThinkingIndicator, KeyValueList, ModalPanel, Notice,
+  PromptChips, SearchField, TextField, ThinkingDots, ThinkingIndicator, ThinkingTrace, Toast,
+  ToolActivity) plus `buttonStyles.ts`, the one private, non-exported class-map module (shared by
+  Button, IconButton and ConfirmDialog; no `"use client"`). `FeedbackButtons` and `ModalPanel` are
+  internal too, never exported from the barrel: `FeedbackButtons` is the thumbs ChatMessage and
+  ChatCard share, `ModalPanel` the portal, overlay, panel and focus trap Dialog and ConfirmDialog
+  share.
+- `src/hooks/` — `focusableSelector` (with `getFocusableElements`, the visibility-filtered
+  query useFocusTrap and ModalPanel share) + `focusWithTransientTabIndex` (the internal
   transient-`tabindex="-1"` focus primitive shared by useFocusGroups and ErrorBoundary) + 5
   hooks (useDebounce, useFocusGroups, useFocusTrap, useReducedMotion, useSidebarState).
 - `src/icons/` — `Icon.tsx` primitive + `index.tsx` (24 icons; see invariant 9).
@@ -136,8 +141,10 @@ title>]` link follows its `it()`; every other link is mapped through the cited f
 1. **Labels convention** (docs/design-notes.md § Labels). User-visible/assistive strings are
    `labels?: Partial<XLabels>` merged over `Readonly<Required<XLabels>>` defaults via
    `resolveLabels`; interpolating labels are functions, never placeholder strings.
-   `ChatMessageList.labels` is REQUIRED — `aiDisclosure` has no default (EU AI Act) — and so is
-   `IconButton.labels` (`accessibleName`, no defaults object). The
+   `ChatMessageList.labels` is REQUIRED — `aiDisclosure` has no default (EU AI Act) — and so are
+   `IconButton.labels` (`accessibleName`, no defaults object), `TextField.labels` (`fieldLabel`,
+   no defaults object; `fieldHint`/`fieldError` optional, no default), `Dialog.labels`
+   (`dialogTitle`) and `ConfirmDialog.labels` (`dialogTitle`, `confirmAction`) — five in all. The
    `stringPropOnly` set is a CLOSED list of exactly three (the icons' `ariaLabel`,
    `useFocusGroups`' `announce`, `Toast`'s `message`); a fourth requires amending docs/design-notes.md in
    the same PR. Enforced by tests/labelled-exports.test.tsx (three-way partition equal to
@@ -149,7 +156,7 @@ title>]` link follows its `it()`; every other link is mapped through the cited f
    presentational components carry it as a recorded exception. Enforced by
    scripts/check-client-directives.mjs + the rsc-fixture build.
 3. **Closed public API.** tests/public-api.test.ts asserts the built exports exactly equal the
-   committed snapshot tests/fixtures/public-api.json — currently 66 runtime + 57 type names; the
+   committed snapshot tests/fixtures/public-api.json — currently 75 runtime + 70 type names; the
    two `it()` titles derive their counts from that fixture. NEVER regenerate the snapshot to make
    the test pass; a removal or rename is a breaking major.
 4. **GDPR no-egress.** `src/` writes nothing to the console and performs no network egress
@@ -215,8 +222,8 @@ title>]` link follows its `it()`; every other link is mapped through the cited f
 13. **Theming tokens** (docs/design-notes.md § Theming). Exactly 53 `--bowman-*` custom
     properties, read only through `var()` fallbacks that equal today's palette — no `:root`
     block, no `@theme`. The token class strings live once in the internal `src/theme/tokens.ts`;
-    `src/theme/focusRing.ts` composes the shared focus-ring fragment from two of them and
-    declares no token (§ Theming decision 12).
+    `src/theme/focusRing.ts` composes the two focus-ring fragments, `FOCUS_RING` and
+    `FOCUS_VISIBLE_RING`, from two of them and declares no token (§ Theming decision 12).
     Enforced by tests/theming-tokens-dist.test.ts (the stylesheet comment block, the design-notes
     table, the dist reads, the count above and the count spelled in design-notes § Theming, the
     theming spec and .specify/spec.md must agree, so bump the count in the same PR).
