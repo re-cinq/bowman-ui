@@ -384,7 +384,7 @@ export const Dialog: (props: DialogProps) => ReactElement | null;
   then hydrates that markup with `hydrateRoot`, and asserts the panel appears and focus moves inside
   it, to its first control; a mismatch would trip tests/setup.ts's `console.error` trap. The trap is
   armed with `open && isClient`, so an open `Dialog` hydrated from the server still moves focus into
-  its panel once the panel exists ([validated by an open dialog renders nothing on the server, then hydrates without mismatch, portals and moves focus to its first control @fb419fd5](../../tests/helpers/modal-panel-contract.tsx#L316), [validated by @bb94a4d9](../../tests/Dialog.test.tsx#L17), [validated by @bb94a4d9](../../tests/ConfirmDialog.test.tsx#L55)).
+  its panel once the panel exists ([validated by an open dialog renders nothing on the server, then hydrates without mismatch, portals and moves focus to its first control @fb419fd5](../../tests/helpers/modal-panel-contract.tsx#L323), [validated by @bb94a4d9](../../tests/Dialog.test.tsx#L17), [validated by @bb94a4d9](../../tests/ConfirmDialog.test.tsx#L55)).
 - The panel traps focus through the shipped `useFocusTrap`: opening moves focus to the first
   focusable element in DOM order, Tab and Shift+Tab wrap inside it, and Escape calls `onClose` ([validated by opening focuses the first control in children, and Tab from the last control wraps inside @3c9d6e80](../../tests/helpers/modal-panel-contract.tsx#L170), [validated by Escape calls the dismiss callback once, and a click on the overlay calls nothing @3f3c04b1](../../tests/helpers/modal-panel-contract.tsx#L184), [validated by @bb94a4d9](../../tests/Dialog.test.tsx#L17)).
 - The DOM order is the `<h2>`, `children`, `footer`, then the close button, which CSS places in the

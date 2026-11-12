@@ -471,7 +471,11 @@ const [themeRoot, setThemeRoot] = useState<HTMLDivElement | null>(null);
       onClose={() => setOpen(false)}
       container={themeRoot} // the panel reads the wrapper's --bowman-* values
       labels={{ dialogTitle: "Project settings" }}
-      footer={<Button onClick={save}>Save</Button>}
+      footer={
+        <Button variant="primary" onClick={save}>
+          Save
+        </Button>
+      }
     >
       <TextField value={name} onChange={setName} labels={{ fieldLabel: "Name" }} />
     </Dialog>

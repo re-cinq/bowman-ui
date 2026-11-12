@@ -306,9 +306,16 @@ export const describeModalPanelContract = ({ role, title, renderModal }: ModalCo
 
       expect(bodyOf()).toHaveFocus();
 
+      const body = bodyOf();
+      const tabIndexAtPanelFocus: Array<boolean | undefined> = [];
+
+      panelOf().addEventListener("focus", () =>
+        tabIndexAtPanelFocus.push(body?.hasAttribute("tabindex"))
+      );
       heights.overflowing = false;
       act(() => observers[0].callback());
 
+      expect(tabIndexAtPanelFocus).toEqual([true]);
       expect(panelOf()).toHaveFocus();
       expect(bodyOf()).not.toHaveAttribute("tabindex");
     });
