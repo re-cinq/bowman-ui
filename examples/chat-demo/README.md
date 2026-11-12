@@ -51,6 +51,19 @@ state captions - is English, like the whole demo. The page chrome around it
 (navigation, headings, table column names) has its own label source,
 `src/docs-labels.ts`, separate from the chat screen's `src/labels.ts`.
 
+The pages of the form, dialog and notice components - `TextField`, `Dialog`,
+`ConfirmDialog`, `Notice`, `KeyValueList` and `Card`, registered from
+`src/docs/formDialogNoticeDocs.tsx` - show every state as a figure of its own,
+the default one included, and open each dialog state from its own trigger, so
+at most one dialog is ever open. `tests/accessibility.spec.ts` runs axe
+(`@axe-core/playwright`) under the WCAG 2.2 AA rule tags against them and the
+`SearchField` page, in both colour schemes and both browsers: the variant
+figures while no dialog is open, and only the open panel while one is. The
+`ConfirmDialog` and `Notice` pages each carry a variant inside a page-local
+`.custom-theme` wrapper, the `ConfirmDialog` portalled into it through
+`container`, which `tests/docs.spec.ts` measures against the Copperline values,
+since `?theme=` applies to the chat view only.
+
 `src/App.tsx` renders the chat only for `?view=chat`; every other URL - bare
 `/` and the `?view=docs` alias included - renders the documentation.
 

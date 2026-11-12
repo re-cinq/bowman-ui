@@ -20,12 +20,18 @@ import type {
   ChatCardProps,
   ChatComposerProps,
   ChatMessageListProps,
+  CardProps,
   ChatMessageProps,
+  ConfirmDialogProps,
   ConversationListProps,
+  DialogProps,
   ErrorBoundaryProps,
   IconProps,
   InlineThinkingIndicatorProps,
+  KeyValueListProps,
+  NoticeProps,
   SearchFieldProps,
+  TextFieldProps,
   ThinkingIndicatorProps,
   ThinkingTraceProps,
   ToastProps,
@@ -384,19 +390,241 @@ export const searchFieldPropDocs = {
     description:
       "Receives the new value verbatim, untrimmed - including the empty string the browser's native clear control produces.",
   },
+  onSubmit: {
+    type: "(value: string) => void",
+    required: false,
+    description:
+      "Runs the search with the current value on Enter or the submit button, which replaces the leading icon; Enter is then kept from submitting a form around the field. Without it no button renders and Enter is left to the browser.",
+  },
+  disabled: {
+    type: "boolean",
+    required: false,
+    default: "false",
+    description: "Disables and dims the input, and the submit button with it.",
+  },
+  labels: {
+    type: "Partial<SearchFieldLabels>",
+    required: false,
+    default: "defaultSearchFieldLabels",
+    description: "Overrides the accessible name, the placeholder and the submit button's name.",
+  },
+} satisfies Record<keyof SearchFieldProps, PropDoc>;
+
+export const textFieldPropDocs = {
+  value: {
+    type: "string",
+    required: true,
+    description: "The controlled value; the field keeps no state of its own.",
+  },
+  onChange: {
+    type: "(value: string) => void",
+    required: true,
+    description: "Receives the new value verbatim, untrimmed.",
+  },
+  labels: {
+    type: "TextFieldLabels",
+    required: true,
+    description:
+      "fieldLabel is the visible label and the accessible name; fieldHint and fieldError, both optional, render under the input, and a non-empty fieldError is the invalid state.",
+  },
+  type: {
+    type: '"text" | "email" | "url" | "tel"',
+    required: false,
+    default: '"text"',
+    description: "The native input type.",
+  },
+  required: {
+    type: "boolean",
+    required: false,
+    default: "false",
+    description: "The native attribute, with no visible marker: put the marker in fieldLabel.",
+  },
   disabled: {
     type: "boolean",
     required: false,
     default: "false",
     description: "Disables and dims the input.",
   },
-  labels: {
-    type: "Partial<SearchFieldLabels>",
+  autoComplete: {
+    type: "string",
     required: false,
-    default: "defaultSearchFieldLabels",
-    description: "Overrides the accessible name and the placeholder.",
+    description: "The native autocomplete token, such as email or name.",
   },
-} satisfies Record<keyof SearchFieldProps, PropDoc>;
+  spellCheck: {
+    type: "boolean",
+    required: false,
+    description: "The native spellcheck attribute.",
+  },
+  name: {
+    type: "string",
+    required: false,
+    description: "The native name, for a form that reads its fields by name.",
+  },
+} satisfies Record<keyof TextFieldProps, PropDoc>;
+
+const returnFocusRefDoc: PropDoc = {
+  type: "RefObject<HTMLElement | null>",
+  required: false,
+  description:
+    "Where focus returns on close; by default the element that held focus before opening. Keep the same useRef object while open, and pass it when the confirmed action removes the opener.",
+};
+
+const containerDoc: PropDoc = {
+  type: "Element | null",
+  required: false,
+  default: "document.body",
+  description:
+    "The portal's target, such as a themed wrapper, so its --bowman-* values reach the panel. Keep it the same while open; null portals to document.body.",
+};
+
+export const dialogPropDocs = {
+  open: {
+    type: "boolean",
+    required: true,
+    description: "Renders the dialog; false renders nothing. The consumer holds the open state.",
+  },
+  onClose: {
+    type: "() => void",
+    required: true,
+    description: "Called on Escape and on the close button; a click on the overlay does nothing.",
+  },
+  labels: {
+    type: 'Partial<DialogLabels> & Required<Pick<DialogLabels, "dialogTitle">>',
+    required: true,
+    description:
+      "dialogTitle is the heading and the accessible name; closeDialog names the close button.",
+  },
+  children: {
+    type: "ReactNode",
+    required: true,
+    description: "The body, which scrolls when the panel reaches its height cap.",
+  },
+  footer: {
+    type: "ReactNode",
+    required: false,
+    description:
+      "Actions in a right-aligned row after the body, kept in view while the body scrolls.",
+  },
+  returnFocusRef: returnFocusRefDoc,
+  container: containerDoc,
+} satisfies Record<keyof DialogProps, PropDoc>;
+
+export const confirmDialogPropDocs = {
+  open: {
+    type: "boolean",
+    required: true,
+    description: "Renders the dialog; false renders nothing. The consumer holds the open state.",
+  },
+  onConfirm: {
+    type: "() => void",
+    required: true,
+    description:
+      "Called once on the confirm button or Enter in a field, never while confirmDisabled or busy holds.",
+  },
+  onCancel: {
+    type: "() => void",
+    required: true,
+    description: "Called on the cancel button and on Escape, never while busy holds.",
+  },
+  labels: {
+    type: 'Partial<ConfirmDialogLabels> & Required<Pick<ConfirmDialogLabels, "dialogTitle" | "confirmAction">>',
+    required: true,
+    description:
+      "dialogTitle names the dialog, confirmAction is the confirm button's text - the action, never OK - and cancelAction and confirmBusy have defaults.",
+  },
+  description: {
+    type: "ReactNode",
+    required: true,
+    description: "What confirming does, read as the dialog's description; prose only, no controls.",
+  },
+  children: {
+    type: "ReactNode",
+    required: false,
+    description: "Any fields the confirmation needs, after the description; the first takes focus.",
+  },
+  confirmDisabled: {
+    type: "boolean",
+    required: false,
+    default: "false",
+    description:
+      "Disables the confirm button, and with it Enter, until the consumer's check passes.",
+  },
+  busy: {
+    type: "boolean",
+    required: false,
+    default: "false",
+    description:
+      "Disables both buttons and Escape, shows a spinner beside the action and announces confirmBusy.",
+  },
+  returnFocusRef: returnFocusRefDoc,
+  container: containerDoc,
+} satisfies Record<keyof ConfirmDialogProps, PropDoc>;
+
+export const noticePropDocs = {
+  tone: {
+    type: '"info" | "success" | "warning" | "error"',
+    required: true,
+    description:
+      'The icon, the left border\'s colour and the role: role="status" for info and success, role="alert" for warning and error.',
+  },
+  heading: {
+    type: "ReactNode",
+    required: false,
+    description: "A bold line before the text; not a heading element.",
+  },
+  children: { type: "ReactNode", required: true, description: "The notice's text." },
+  onDismiss: {
+    type: "() => void",
+    required: false,
+    description:
+      "Renders a dismiss button that calls it; move focus to a control that stays, then stop rendering the notice.",
+  },
+  labels: {
+    type: "Partial<NoticeLabels>",
+    required: false,
+    default: "defaultNoticeLabels",
+    description: "Overrides the dismiss button's accessible name.",
+  },
+} satisfies Record<keyof NoticeProps, PropDoc>;
+
+export const keyValueListPropDocs = {
+  pairs: {
+    type: "readonly KeyValuePair[]",
+    required: true,
+    description: "One dt and dd per pair, in order, keyed by key; an empty array renders nothing.",
+  },
+  layout: {
+    type: '"inline" | "stacked"',
+    required: false,
+    default: '"inline"',
+    description: "inline puts each value beside its label, stacked puts it under the label.",
+  },
+} satisfies Record<keyof KeyValueListProps, PropDoc>;
+
+export const cardPropDocs = {
+  heading: {
+    type: "ReactNode",
+    required: false,
+    description: "An h3 on a static card; on a selectable card a bold line that names the button.",
+  },
+  children: {
+    type: "ReactNode",
+    required: true,
+    description:
+      "The body; phrasing content only on a selectable card, where it describes the button.",
+  },
+  onSelect: {
+    type: "() => void",
+    required: false,
+    description: "Makes the whole card one button that calls it on a click, Enter or Space.",
+  },
+  disabled: {
+    type: "boolean",
+    required: false,
+    default: "false",
+    description: "Disables a selectable card; a static card ignores it.",
+  },
+} satisfies Record<keyof CardProps, PropDoc>;
 
 export const errorBoundaryPropDocs = {
   children: { type: "ReactNode", required: true, description: "The subtree being guarded." },

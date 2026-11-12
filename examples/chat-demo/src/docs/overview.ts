@@ -22,7 +22,7 @@ export const hookNotes: ReadonlyArray<ApiNote> = [
     id: "use-focus-trap",
     name: "useFocusTrap",
     summary:
-      "Traps focus inside a container while it is open, closes it on Escape and returns focus to the trigger. Modal only: while open, a Tab pressed anywhere outside pulls focus back in, so it is wrong for a popover or a toolbar. AppShell uses it for the mobile drawer.",
+      "Traps focus inside a container while it is open, closes it on Escape and returns focus to the trigger. Modal only: while open, a Tab pressed anywhere outside pulls focus back in, so it is wrong for a popover or a toolbar. AppShell uses it for the mobile drawer, and Dialog and ConfirmDialog for their panels.",
     snippet: `const triggerRef = useRef<HTMLButtonElement>(null);
 const drawerRef = useFocusTrap(isOpen, close, triggerRef);
 return <div ref={drawerRef}>...</div>;`,

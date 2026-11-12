@@ -84,6 +84,7 @@ import {
   docsUserEntry,
   docsUserInitials,
 } from "./fixtures";
+import { formDialogNoticeDocs } from "./formDialogNoticeDocs";
 import {
   appShellPropDocs,
   appSidebarPropDocs,
@@ -176,6 +177,20 @@ function CustomFallbackBoundary() {
     >
       <BreakOnDemand broken={broken} onBreak={() => setBroken(true)} />
     </ErrorBoundary>
+  );
+}
+
+function SubmittingSearch() {
+  const [query, setQuery] = useState("atlas");
+  const [searched, setSearched] = useState<string | null>(null);
+
+  return (
+    <div className="flex flex-col gap-3">
+      <SearchField value={query} onChange={setQuery} onSubmit={setSearched} />
+      <p className="text-sm text-slate-600 dark:text-slate-400">
+        Last search: {searched ?? "none yet"}
+      </p>
+    </div>
   );
 }
 
@@ -510,7 +525,7 @@ export const componentDocs: ReadonlyArray<ComponentDoc> = [
     id: "search-field",
     name: "SearchField",
     purpose:
-      'A controlled search input with a leading icon and a real accessible name - the label, never the placeholder. It is type="search", so the browser adds its native clear control, and whatever the browser hands back - the empty string from that control included - reaches onChange verbatim and untrimmed. It keeps no state of its own; pair it with whatever filters your list.',
+      'A controlled search input with a leading icon, which becomes a submit button when onSubmit is given, and a real accessible name - the label, never the placeholder. It is type="search", so the browser adds its native clear control, and whatever the browser hands back - the empty string from that control included - reaches onChange verbatim and untrimmed. With onSubmit, Enter and the button run the search with the current value. It keeps no state of its own; pair it with whatever filters your list, as you type, on submit, or both.',
     importLine: 'import { SearchField } from "@re-cinq/bowman-ui";',
     Example: SearchFieldExample,
     exampleSource: searchFieldSource,
@@ -527,8 +542,14 @@ export const componentDocs: ReadonlyArray<ComponentDoc> = [
         caption: "disabled: dimmed, no input",
         node: <SearchField value="" onChange={ignore} disabled />,
       },
+      {
+        id: "on-submit",
+        caption: "onSubmit: the leading icon becomes a submit button, and Enter runs the search",
+        node: <SubmittingSearch />,
+      },
     ],
   },
+  ...formDialogNoticeDocs,
   {
     id: "app-sidebar",
     name: "AppSidebar",
