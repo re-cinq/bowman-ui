@@ -46,10 +46,9 @@ it("renders the transcript without crashing when Chrome translation mutates the 
       <ChatMessageList
         entries={[
           {
-            type: "user",
             id: "1",
             role: "user",
-            text: "My first message",
+            content: "My first message",
           },
         ]}
         userInitials="LM"

@@ -6,7 +6,7 @@
 
 ## Done when these pass
 
-- [ ] **renders the transcript without crashing when Chrome translation mutates the empty state** — validates that wrapping the `greeting` text node in translation tags does not crash React when the component rerenders with entries.
+- [x] **renders the transcript without crashing when Chrome translation mutates the empty state** — validates that wrapping the `greeting` text node in translation tags does not crash React when the component rerenders with entries.
   `tests/ChatMessageList.acceptance.test.tsx`
 
 ## Facets
