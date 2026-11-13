@@ -320,12 +320,18 @@ export const ChatMessageList = forwardRef<ChatMessageListHandle, ChatMessageList
           className="min-h-0 flex-1 overflow-y-auto"
         >
           {showEmptyState ? (
-            <div className="flex h-full flex-col items-center justify-center gap-6 px-4">
+            <div
+              key="empty"
+              className="flex h-full flex-col items-center justify-center gap-6 px-4"
+            >
               {greeting}
               {prompts}
             </div>
           ) : (
-            <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-4 py-6">
+            <div
+              key="transcript"
+              className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-4 py-6"
+            >
               {entries.map(renderRow)}
               {busy && (
                 <ThinkingIndicator
