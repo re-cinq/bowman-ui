@@ -11,7 +11,7 @@
 
 ## Facets
 
-- [ ] Add distinct keys or use different element types for the empty state container and the transcript container in `ChatMessageList`.
+- [x] Add distinct keys or use different element types for the empty state container and the transcript container in `ChatMessageList`.
 
 ## Out of scope
 
