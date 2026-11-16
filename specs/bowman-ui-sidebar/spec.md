@@ -81,13 +81,12 @@ sentinel render with both labels set to sentinels
 4. **The middle region is `children`, wrapped in
    `relative flex min-h-0 flex-1 flex-col overflow-y-auto`.** The sidebar supplies
    growth and scrolling regardless of what's passed in - an unsized child is
-   the one that grows, pinned by the wrapper's class list
-   ([validated by children render inside a wrapper carrying flex min-h-0 flex-1 flex-col overflow-y-auto, so an unsized child is the one that grows @cdab0c76](../../tests/AppSidebar.test.tsx#L221)).
-   The `relative` establishes the wrapper as the containing block for
-   `position: absolute` descendants - including every `.bowman-sr-only` label
-   in the scroll list - so the overflow container clips them and the document
-   does not grow beyond the viewport
-   ([validated by the children scroll region carries relative so position: absolute sr-only descendants are clipped by the overflow container, not the page](../../tests/AppSidebar.test.tsx#L236)).
+   the one that grows, pinned by the wrapper's class list. The `relative` establishes
+   the wrapper as the containing block for `position: absolute` descendants -
+   including every `.bowman-sr-only` label in the scroll list - so the overflow
+   container clips them and the document does not grow beyond the viewport
+   ([validated by children render inside a wrapper carrying flex min-h-0 flex-1 flex-col overflow-y-auto, so an unsized child is the one that grows @cdab0c76](../../tests/AppSidebar.test.tsx#L221),
+   [validated by the children scroll region carries relative so position: absolute sr-only descendants are clipped by the overflow container, not the page](../../tests/AppSidebar.test.tsx#L236)).
 
    The region owns its text colour: it reads `--bowman-text-body`, so
    plain-string children read on the dark surface instead of inheriting the
