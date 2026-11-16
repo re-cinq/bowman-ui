@@ -317,7 +317,7 @@ export const ChatMessageList = forwardRef<ChatMessageListHandle, ChatMessageList
           aria-live="off"
           aria-label={resolved.transcript}
           onScroll={handleScroll}
-          className="min-h-0 flex-1 overflow-y-auto"
+          className="relative min-h-0 flex-1 overflow-y-auto"
         >
           {showEmptyState ? (
             <div

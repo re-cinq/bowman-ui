@@ -14,7 +14,7 @@
 ## Facets
 
 - [x] Add `relative` positioning to the scrolling container in `AppSidebar`.
-- [ ] Add `relative` positioning to the scrolling container in `ChatMessageList`.
+- [x] Add `relative` positioning to the scrolling container in `ChatMessageList`.
 
 ## Out of scope
 

@@ -102,7 +102,7 @@ value ([validated by no built component carries a --bowman- literal; the class s
 - `ThinkingDots` read `--bowman-accent` for every dot, in both modes, and keep doing so under
   `reducedMotion` in `ThinkingTrace` and `ChatMessageList`
   ([validated by true keeps the three dots but strips the bowman-fade-dot animation class @d5bb9fd3](../../tests/ThinkingTrace.test.tsx#L114),
-  [validated by forwards reducedMotion, stripping the streaming dots' animation class @16eddd32](../../tests/ChatMessageList.test.tsx#L1255)).
+  [validated by forwards reducedMotion, stripping the streaming dots' animation class @16eddd32](../../tests/ChatMessageList.test.tsx#L1260)).
 - Every focus ring keeps its `focus:ring-2` width class beside the `--bowman-focus-ring`
   colour, light and dark: `ChatMessage`'s article, copy button and thumb buttons,
   `ConversationList`'s row link and delete button, every `AppSidebar` item, and `AppShell`'s

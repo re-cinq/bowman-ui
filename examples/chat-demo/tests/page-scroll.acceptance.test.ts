@@ -1,4 +1,12 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
+
+async function assertPageDoesNotScroll(page: Page): Promise<void> {
+  const isPageScrollable = await page.evaluate(() => {
+    return document.documentElement.scrollHeight > document.documentElement.clientHeight;
+  });
+
+  expect(isPageScrollable).toBe(false);
+}
 
 test.describe("Page scroll leak", () => {
   test("ConversationList does not stretch the page when overflowing the sidebar", async ({
@@ -21,11 +29,7 @@ test.describe("Page scroll leak", () => {
       }
     });
 
-    const isPageScrollable = await page.evaluate(() => {
-      return document.documentElement.scrollHeight > document.documentElement.clientHeight;
-    });
-
-    expect(isPageScrollable).toBe(false);
+    await assertPageDoesNotScroll(page);
   });
 
   test("ChatMessageList does not stretch the page when overflowing the viewport", async ({
@@ -48,10 +52,6 @@ test.describe("Page scroll leak", () => {
       }
     });
 
-    const isPageScrollable = await page.evaluate(() => {
-      return document.documentElement.scrollHeight > document.documentElement.clientHeight;
-    });
-
-    expect(isPageScrollable).toBe(false);
+    await assertPageDoesNotScroll(page);
   });
 });
