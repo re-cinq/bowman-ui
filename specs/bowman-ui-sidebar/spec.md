@@ -79,34 +79,39 @@ sentinel render with both labels set to sentinels
      ([validated by an item with icon: ChatIcon renders that component with className "h-5 w-5" @1f6ba148](../../tests/AppSidebar.test.tsx#L202),
      [validated by `an item without icon renders its label and no <svg>` @10a21262](../../tests/AppSidebar.test.tsx#L212)).
 4. **The middle region is `children`, wrapped in
-   `flex min-h-0 flex-1 flex-col overflow-y-auto`.** The sidebar supplies
+   `relative flex min-h-0 flex-1 flex-col overflow-y-auto`.** The sidebar supplies
    growth and scrolling regardless of what's passed in - an unsized child is
    the one that grows, pinned by the wrapper's class list
    ([validated by children render inside a wrapper carrying flex min-h-0 flex-1 flex-col overflow-y-auto, so an unsized child is the one that grows @cdab0c76](../../tests/AppSidebar.test.tsx#L221)).
+   The `relative` establishes the wrapper as the containing block for
+   `position: absolute` descendants - including every `.bowman-sr-only` label
+   in the scroll list - so the overflow container clips them and the document
+   does not grow beyond the viewport
+   ([validated by the children scroll region carries relative so position: absolute sr-only descendants are clipped by the overflow container, not the page](../../tests/AppSidebar.test.tsx#L236)).
 
    The region owns its text colour: it reads `--bowman-text-body`, so
    plain-string children read on the dark surface instead of inheriting the
-   page colour ([validated by the children scroll region carries the body text token, so plain-string children read on the dark surface @b45219a8](../../tests/AppSidebar.test.tsx#L277)).
+   page colour ([validated by the children scroll region carries the body text token, so plain-string children read on the dark surface @b45219a8](../../tests/AppSidebar.test.tsx#L289)).
 
 5. **The footer is one `footer?: ReactNode` slot inside a single `border-t`
    region, not four named slots.** User menu, org switcher, language picker
    and sign-in are all consumer-specific; a support customer has none of
    them. `footer` present renders exactly one `border-t` region; omitted,
-   no such region ([validated by `footer={<button>Log ud</button>} renders that node inside exactly one border-t region` @15f8b795](../../tests/AppSidebar.test.tsx#L236),
-   [validated by footer omitted renders no border-t region @15515f62](../../tests/AppSidebar.test.tsx#L245)).
+   no such region ([validated by `footer={<button>Log ud</button>} renders that node inside exactly one border-t region` @15f8b795](../../tests/AppSidebar.test.tsx#L248),
+   [validated by footer omitted renders no border-t region @15515f62](../../tests/AppSidebar.test.tsx#L257)).
 
    The region owns its text colour: it reads `--bowman-text-body`, so a
    plain-string footer reads on the dark surface instead of inheriting the page
-   colour ([validated by the footer region carries the body text token, so a plain-string footer reads on the dark surface @b0f9ec6f](../../tests/AppSidebar.test.tsx#L286)).
+   colour ([validated by the footer region carries the body text token, so a plain-string footer reads on the dark surface @b0f9ec6f](../../tests/AppSidebar.test.tsx#L298)).
 
 6. **The brand is a slot inside the bordered top row; omitted, no row
    renders at all** - no `h-14` row and no `border-b` above the navigation
-   ([validated by `brand={<span>Acme Support</span>} renders it inside the bordered top row` @aff85efc](../../tests/AppSidebar.test.tsx#L251),
-   [validated by brand omitted renders no top row and no border-b above the navigation @79aa1ee1](../../tests/AppSidebar.test.tsx#L261)).
+   ([validated by `brand={<span>Acme Support</span>} renders it inside the bordered top row` @aff85efc](../../tests/AppSidebar.test.tsx#L263),
+   [validated by brand omitted renders no top row and no border-b above the navigation @79aa1ee1](../../tests/AppSidebar.test.tsx#L273)).
 
    The row owns its text colour: it reads `--bowman-text-body`, so a
    plain-string brand reads on the dark surface instead of inheriting the page
-   colour ([validated by the brand row carries the body text token, so a plain-string brand reads on the dark surface @f8556e9e](../../tests/AppSidebar.test.tsx#L268)).
+   colour ([validated by the brand row carries the body text token, so a plain-string brand reads on the dark surface @f8556e9e](../../tests/AppSidebar.test.tsx#L280)).
 
    The active nav item reads `--bowman-text-strong` for its label and an inactive
    item takes the role's `hover:` variant (docs/design-notes.md § Theming decision 6),
@@ -134,7 +139,7 @@ and customer names (`003-support-conversation-data-flow-record`). The
 component calls no `console.*`, no `fetch`, no `navigator.sendBeacon` and no
 `localStorage` or `sessionStorage`, and stores nothing outside React state -
 asserted by a source grep
-([validated by `GDPR: the file calls no console.*, localStorage, sessionStorage, fetch, sendBeacon or analytics` @5cccffbb](../../tests/AppSidebar.test.tsx#L301)). The suite-wide
+([validated by `GDPR: the file calls no console.*, localStorage, sessionStorage, fetch, sendBeacon or analytics` @5cccffbb](../../tests/AppSidebar.test.tsx#L313)). The suite-wide
 console spy stays at zero calls ([spy@9d11c821](../../tests/setup.ts#L58)).
 
 ## Build contract
@@ -145,7 +150,7 @@ The file imports nothing from `@clerk`, `swr`, `next-intl`, `next/`,
 and ships with its `.d.ts`
 ([validated by dist/components/AppSidebar.js opens with "use client"; as its first statement @c78a01a5](../../tests/app-sidebar-dist.test.ts#L10),
 [validated by npm pack --dry-run ships dist/components/AppSidebar.js with its d.ts @6625bda3](../../tests/app-sidebar-dist.test.ts#L14),
-[validated by no @clerk, swr, next-intl, next/, @/ or lucide-react import, and every relative import ends in .js @9265fdb1](../../tests/AppSidebar.test.tsx#L305)). A key added to
+[validated by no @clerk, swr, next-intl, next/, @/ or lucide-react import, and every relative import ends in .js @9265fdb1](../../tests/AppSidebar.test.tsx#L317)). A key added to
 `AppSidebarLabels` without a default cannot satisfy
 `Readonly<Required<AppSidebarLabels>>`
 ([validated by @48e50be3](../../tests/types/app-sidebar-type-assertions.tsx#L19)).
