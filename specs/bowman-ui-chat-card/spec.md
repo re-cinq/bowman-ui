@@ -23,11 +23,11 @@ type for the consumer and is never rendered, and `data` is
 `kind` does not compile, and a card accepts no `persona`
 ([validated by tsc accepts chat-type-assertions.ts, proving a sixth role, a card without kind and a streamless assistant entry fail to typecheck @055e76f7](../../tests/types/chat.test.ts#L76)).
 
-`ChatCardProps` carries `entry`, `describeCard`, `showFeedback` (default
+`ChatCardProps` carries `entry`, `describeCard`, `describeCardName`, `showFeedback` (default
 `true`, as on `ChatMessage`), `labels` and `onFeedback`. `ChatCardLabels` is
 `card` (the article's accessible name, default `"Card"`), `cardUnavailable`
 (default `"This card could not be shown"`) and the three feedback keys, which
-default to `ChatMessage`'s. `ChatMessageList` gains `describeCard` and nothing
+default to `ChatMessage`'s. `ChatMessageList` gains `describeCard`, `describeCardName` and nothing
 else, and its labels gain `card` and `cardUnavailable`
 ([validated by ChatCard's sentinel labels cover every defaultChatCardLabels key @5802b4b2](../../tests/labelled-exports.test.tsx#L735),
 [validated by ChatMessageListProps gains attribution and describeCard and nothing else @c928b884](../../tests/chat-message-list-dist.test.ts#L42)).
@@ -62,6 +62,15 @@ else, and its labels gain `card` and `cardUnavailable`
   follow the `labels` given to `ChatCard` or to `ChatMessageList`
   ([validated by names the article and the fallback from the labels it is given @8566fa53](../../tests/ChatCard.test.tsx#L84),
   [validated by names each card and its fallback from the list's labels and shows no thumbs with showFeedback false @0dcaf54e](../../tests/ChatMessageList.test.tsx#L1178)).
+- **`describeCardName` overrides the accessible name per entry.** When
+  `describeCardName` is supplied and returns a string, that string becomes the
+  article's `aria-label`; when it is absent or returns `undefined`, the
+  article keeps `labels.card`. Two cards of different kinds in one list
+  carry different names when the callback distinguishes them
+  ([validated by carries the name from describeCardName when provided](../../tests/chat-card-name.acceptance.test.tsx#L20),
+  [validated by keeps labels.card when describeCardName is absent or returns undefined](../../tests/chat-card-name.acceptance.test.tsx#L28),
+  [validated by assigns different names to different cards in a ChatMessageList](../../tests/chat-card-name.acceptance.test.tsx#L39),
+  [validated by falls back to labels.card for ChatMessageList when describeCardName returns undefined](../../tests/chat-card-name.acceptance.test.tsx#L56)).
 - **Cards sit in transcript order.** `ChatMessageList` renders each card
   entry where it falls, after the tool row that produced it
   ([validated by renders a question, a tool row and two cards, each drawing its describeCard body, in transcript order @21fe3375](../../tests/ChatMessageList.test.tsx#L1133)).

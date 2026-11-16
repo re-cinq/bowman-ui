@@ -29,6 +29,8 @@ export interface ChatCardProps {
   entry: CardChatEntry;
   /** The card's body, from the consumer's own reading of entry.data; without it, or when it returns null or undefined, the cardUnavailable label shows. */
   describeCard?: (entry: CardChatEntry) => ReactNode;
+  /** The article's accessible name for this entry; falls back to labels.card when absent or when it returns undefined. */
+  describeCardName?: (entry: CardChatEntry) => string | undefined;
   /** Shows the thumb buttons, rating this card alone. Default true, as on ChatMessage. */
   showFeedback?: boolean;
   /** Overrides the component's strings; English defaults apply per key. */
@@ -40,11 +42,13 @@ export interface ChatCardProps {
 export function ChatCard({
   entry,
   describeCard,
+  describeCardName,
   showFeedback = true,
   labels,
   onFeedback,
 }: ChatCardProps) {
   const resolved = resolveLabels(defaultChatCardLabels, labels);
+  const articleName = describeCardName?.(entry) ?? resolved.card;
   // Keyed by entry.id, as ChatMessage keys its own: a card handed another entry starts unrated.
   const [feedbackId, setFeedbackId] = useState<{ id: string; type: FeedbackType } | null>(null);
   const pressed = feedbackId?.id === entry.id ? feedbackId.type : null;
@@ -56,7 +60,7 @@ export function ChatCard({
 
   return (
     <article
-      aria-label={resolved.card}
+      aria-label={articleName}
       className={`group flex w-full flex-col gap-2 rounded-xl border ${BORDER} ${SURFACE} p-4 text-sm ${TEXT_STRONG}`}
     >
       <div className="min-w-0 break-words">{describeCard?.(entry) ?? resolved.cardUnavailable}</div>

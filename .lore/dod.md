@@ -17,9 +17,9 @@
 
 ## Facets
 
-- [ ] Add `describeCardName` to `ChatCardProps` and use it for the article name
-- [ ] Add `describeCardName` to `ChatMessageListProps` and pass it to `ChatCard`
-- [ ] Document `describeCardName` in the README
+- [x] Add `describeCardName` to `ChatCardProps` and use it for the article name
+- [x] Add `describeCardName` to `ChatMessageListProps` and pass it to `ChatCard`
+- [x] Document `describeCardName` in the README
 
 ## Out of scope
 
