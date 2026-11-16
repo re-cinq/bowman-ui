@@ -67,10 +67,10 @@ else, and its labels gain `card` and `cardUnavailable`
   article's `aria-label`; when it is absent or returns `undefined`, the
   article keeps `labels.card`. Two cards of different kinds in one list
   carry different names when the callback distinguishes them
-  ([validated by carries the name from describeCardName when provided](../../tests/chat-card-name.acceptance.test.tsx#L20),
-  [validated by keeps labels.card when describeCardName is absent or returns undefined](../../tests/chat-card-name.acceptance.test.tsx#L28),
-  [validated by assigns different names to different cards in a ChatMessageList](../../tests/chat-card-name.acceptance.test.tsx#L39),
-  [validated by falls back to labels.card for ChatMessageList when describeCardName returns undefined](../../tests/chat-card-name.acceptance.test.tsx#L56)).
+  ([validated by carries the name from describeCardName when provided](../../tests/chat-card-name.acceptance.test.tsx#L30),
+  [validated by keeps labels.card when describeCardName is absent or returns undefined](../../tests/chat-card-name.acceptance.test.tsx#L38),
+  [validated by assigns different names to different cards in a ChatMessageList](../../tests/chat-card-name.acceptance.test.tsx#L49),
+  [validated by falls back to labels.card for ChatMessageList when describeCardName returns undefined](../../tests/chat-card-name.acceptance.test.tsx#L59)).
 - **Cards sit in transcript order.** `ChatMessageList` renders each card
   entry where it falls, after the tool row that produced it
   ([validated by renders a question, a tool row and two cards, each drawing its describeCard body, in transcript order @21fe3375](../../tests/ChatMessageList.test.tsx#L1133)).

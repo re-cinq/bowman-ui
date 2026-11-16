@@ -16,6 +16,16 @@ const deliveryCard: CardChatEntry = {
   data: { shipmentReference: "SHP" },
 };
 
+const renderList = (describeCardName: (entry: CardChatEntry) => string | undefined) =>
+  render(
+    <ChatMessageList
+      entries={[invoiceCard, deliveryCard]}
+      describeCardName={describeCardName}
+      userInitials="U"
+      labels={{ aiDisclosure: "ai" }}
+    />
+  );
+
 describe("ChatCard accessible name", () => {
   it("carries the name from describeCardName when provided", () => {
     const describeCardName = (entry: CardChatEntry) =>
@@ -40,14 +50,7 @@ describe("ChatCard accessible name", () => {
     const describeCardName = (entry: CardChatEntry) =>
       entry.kind === "invoice_card" ? "Invoice 123" : "Delivery 456";
 
-    render(
-      <ChatMessageList
-        entries={[invoiceCard, deliveryCard]}
-        describeCardName={describeCardName}
-        userInitials="U"
-        labels={{ aiDisclosure: "ai" }}
-      />
-    );
+    renderList(describeCardName);
 
     expect(screen.getByRole("article", { name: "Invoice 123" })).toBeInTheDocument();
     expect(screen.getByRole("article", { name: "Delivery 456" })).toBeInTheDocument();
@@ -57,17 +60,9 @@ describe("ChatCard accessible name", () => {
     const describeCardName = (entry: CardChatEntry) =>
       entry.kind === "invoice_card" ? "Invoice 123" : undefined;
 
-    render(
-      <ChatMessageList
-        entries={[invoiceCard, deliveryCard]}
-        describeCardName={describeCardName}
-        userInitials="U"
-        labels={{ aiDisclosure: "ai" }}
-      />
-    );
+    renderList(describeCardName);
 
     expect(screen.getByRole("article", { name: "Invoice 123" })).toBeInTheDocument();
-    // Delivery card should have the default card label
     expect(screen.getAllByRole("article", { name: defaultChatCardLabels.card })).toHaveLength(1);
   });
 });
