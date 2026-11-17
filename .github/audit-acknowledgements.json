@@ -1,1 +1,93 @@
-[]
+[
+  {
+    "advisory": "GHSA-fc5q-39xc-vjpf",
+    "package": "@parcel/watcher",
+    "why": "Build and test tooling only. picomatch is reached through Vite, Vitest, @vitest/coverage-v8, the Tailwind CLI, @parcel/watcher, micromatch, tinyglobby, fdir and the ESLint plugins, which match glob patterns from this repository's own configuration, never input from a user. The lockfile marks it dev-only, so the published package does not depend on it. No fixed picomatch exists: 4.0.7 is the latest release and the advisory names no patched version. Recheck by the expiry, or as soon as a fixed picomatch is released.",
+    "expires": "2026-12-17",
+    "acknowledged_by": "Saad"
+  },
+  {
+    "advisory": "GHSA-fc5q-39xc-vjpf",
+    "package": "@stylistic/eslint-plugin",
+    "why": "Build and test tooling only. picomatch is reached through Vite, Vitest, @vitest/coverage-v8, the Tailwind CLI, @parcel/watcher, micromatch, tinyglobby, fdir and the ESLint plugins, which match glob patterns from this repository's own configuration, never input from a user. The lockfile marks it dev-only, so the published package does not depend on it. No fixed picomatch exists: 4.0.7 is the latest release and the advisory names no patched version. Recheck by the expiry, or as soon as a fixed picomatch is released.",
+    "expires": "2026-12-17",
+    "acknowledged_by": "Saad"
+  },
+  {
+    "advisory": "GHSA-fc5q-39xc-vjpf",
+    "package": "@tailwindcss/cli",
+    "why": "Build and test tooling only. picomatch is reached through Vite, Vitest, @vitest/coverage-v8, the Tailwind CLI, @parcel/watcher, micromatch, tinyglobby, fdir and the ESLint plugins, which match glob patterns from this repository's own configuration, never input from a user. The lockfile marks it dev-only, so the published package does not depend on it. No fixed picomatch exists: 4.0.7 is the latest release and the advisory names no patched version. Recheck by the expiry, or as soon as a fixed picomatch is released.",
+    "expires": "2026-12-17",
+    "acknowledged_by": "Saad"
+  },
+  {
+    "advisory": "GHSA-fc5q-39xc-vjpf",
+    "package": "@typescript-eslint/typescript-estree",
+    "why": "Build and test tooling only. picomatch is reached through Vite, Vitest, @vitest/coverage-v8, the Tailwind CLI, @parcel/watcher, micromatch, tinyglobby, fdir and the ESLint plugins, which match glob patterns from this repository's own configuration, never input from a user. The lockfile marks it dev-only, so the published package does not depend on it. No fixed picomatch exists: 4.0.7 is the latest release and the advisory names no patched version. Recheck by the expiry, or as soon as a fixed picomatch is released.",
+    "expires": "2026-12-17",
+    "acknowledged_by": "Saad"
+  },
+  {
+    "advisory": "GHSA-fc5q-39xc-vjpf",
+    "package": "@vitejs/plugin-react",
+    "why": "Build and test tooling only. picomatch is reached through Vite, Vitest, @vitest/coverage-v8, the Tailwind CLI, @parcel/watcher, micromatch, tinyglobby, fdir and the ESLint plugins, which match glob patterns from this repository's own configuration, never input from a user. The lockfile marks it dev-only, so the published package does not depend on it. No fixed picomatch exists: 4.0.7 is the latest release and the advisory names no patched version. Recheck by the expiry, or as soon as a fixed picomatch is released.",
+    "expires": "2026-12-17",
+    "acknowledged_by": "Saad"
+  },
+  {
+    "advisory": "GHSA-fc5q-39xc-vjpf",
+    "package": "@vitest/coverage-v8",
+    "why": "Build and test tooling only. picomatch is reached through Vite, Vitest, @vitest/coverage-v8, the Tailwind CLI, @parcel/watcher, micromatch, tinyglobby, fdir and the ESLint plugins, which match glob patterns from this repository's own configuration, never input from a user. The lockfile marks it dev-only, so the published package does not depend on it. No fixed picomatch exists: 4.0.7 is the latest release and the advisory names no patched version. Recheck by the expiry, or as soon as a fixed picomatch is released.",
+    "expires": "2026-12-17",
+    "acknowledged_by": "Saad"
+  },
+  {
+    "advisory": "GHSA-fc5q-39xc-vjpf",
+    "package": "fdir",
+    "why": "Build and test tooling only. picomatch is reached through Vite, Vitest, @vitest/coverage-v8, the Tailwind CLI, @parcel/watcher, micromatch, tinyglobby, fdir and the ESLint plugins, which match glob patterns from this repository's own configuration, never input from a user. The lockfile marks it dev-only, so the published package does not depend on it. No fixed picomatch exists: 4.0.7 is the latest release and the advisory names no patched version. Recheck by the expiry, or as soon as a fixed picomatch is released.",
+    "expires": "2026-12-17",
+    "acknowledged_by": "Saad"
+  },
+  {
+    "advisory": "GHSA-fc5q-39xc-vjpf",
+    "package": "micromatch",
+    "why": "Build and test tooling only. picomatch is reached through Vite, Vitest, @vitest/coverage-v8, the Tailwind CLI, @parcel/watcher, micromatch, tinyglobby, fdir and the ESLint plugins, which match glob patterns from this repository's own configuration, never input from a user. The lockfile marks it dev-only, so the published package does not depend on it. No fixed picomatch exists: 4.0.7 is the latest release and the advisory names no patched version. Recheck by the expiry, or as soon as a fixed picomatch is released.",
+    "expires": "2026-12-17",
+    "acknowledged_by": "Saad"
+  },
+  {
+    "advisory": "GHSA-fc5q-39xc-vjpf",
+    "package": "picomatch",
+    "why": "Build and test tooling only. picomatch is reached through Vite, Vitest, @vitest/coverage-v8, the Tailwind CLI, @parcel/watcher, micromatch, tinyglobby, fdir and the ESLint plugins, which match glob patterns from this repository's own configuration, never input from a user. The lockfile marks it dev-only, so the published package does not depend on it. No fixed picomatch exists: 4.0.7 is the latest release and the advisory names no patched version. Recheck by the expiry, or as soon as a fixed picomatch is released.",
+    "expires": "2026-12-17",
+    "acknowledged_by": "Saad"
+  },
+  {
+    "advisory": "GHSA-fc5q-39xc-vjpf",
+    "package": "tinyglobby",
+    "why": "Build and test tooling only. picomatch is reached through Vite, Vitest, @vitest/coverage-v8, the Tailwind CLI, @parcel/watcher, micromatch, tinyglobby, fdir and the ESLint plugins, which match glob patterns from this repository's own configuration, never input from a user. The lockfile marks it dev-only, so the published package does not depend on it. No fixed picomatch exists: 4.0.7 is the latest release and the advisory names no patched version. Recheck by the expiry, or as soon as a fixed picomatch is released.",
+    "expires": "2026-12-17",
+    "acknowledged_by": "Saad"
+  },
+  {
+    "advisory": "GHSA-fc5q-39xc-vjpf",
+    "package": "vite",
+    "why": "Build and test tooling only. picomatch is reached through Vite, Vitest, @vitest/coverage-v8, the Tailwind CLI, @parcel/watcher, micromatch, tinyglobby, fdir and the ESLint plugins, which match glob patterns from this repository's own configuration, never input from a user. The lockfile marks it dev-only, so the published package does not depend on it. No fixed picomatch exists: 4.0.7 is the latest release and the advisory names no patched version. Recheck by the expiry, or as soon as a fixed picomatch is released.",
+    "expires": "2026-12-17",
+    "acknowledged_by": "Saad"
+  },
+  {
+    "advisory": "GHSA-fc5q-39xc-vjpf",
+    "package": "vitest",
+    "why": "Build and test tooling only. picomatch is reached through Vite, Vitest, @vitest/coverage-v8, the Tailwind CLI, @parcel/watcher, micromatch, tinyglobby, fdir and the ESLint plugins, which match glob patterns from this repository's own configuration, never input from a user. The lockfile marks it dev-only, so the published package does not depend on it. No fixed picomatch exists: 4.0.7 is the latest release and the advisory names no patched version. Recheck by the expiry, or as soon as a fixed picomatch is released.",
+    "expires": "2026-12-17",
+    "acknowledged_by": "Saad"
+  },
+  {
+    "advisory": "GHSA-g3hv-75wg-m249",
+    "package": "@typescript-eslint/typescript-estree",
+    "why": "Lint tooling only. eslint, typescript-eslint and eslint-plugin-sonarjs use minimatch on file patterns from this repository's own configuration, never input from a user, and the published package does not depend on it. The fix is minimatch 11.0.1, but they require minimatch ^10, whose latest release (10.2.6) is affected, so no fix fits their ranges. Recheck by the expiry, or when they accept minimatch 11.",
+    "expires": "2026-12-17",
+    "acknowledged_by": "Saad"
+  }
+]
