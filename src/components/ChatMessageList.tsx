@@ -101,6 +101,8 @@ export interface ChatMessageListProps {
   toolIcon?: ReactNode;
   /** Draws a card entry's body; the list frames it, rates it per card and never prints entry.data itself. */
   describeCard?: (entry: CardChatEntry) => ReactNode;
+  /** The article's accessible name per card entry; falls back to labels.card when absent or when it returns undefined. */
+  describeCardName?: (entry: CardChatEntry) => string | undefined;
   /** Mounts a ThinkingTrace per thinking entry; off by default, see design-notes § Thinking trace. */
   showThinking?: boolean;
   onCopy?: (text: string, entryId: string) => void;
@@ -169,6 +171,7 @@ export const ChatMessageList = forwardRef<ChatMessageListHandle, ChatMessageList
       showToolInput,
       toolIcon,
       describeCard,
+      describeCardName,
       showThinking = false,
       onCopy,
       onFeedback,
@@ -278,6 +281,7 @@ export const ChatMessageList = forwardRef<ChatMessageListHandle, ChatMessageList
             key={entry.id}
             entry={entry}
             describeCard={describeCard}
+            describeCardName={describeCardName}
             showFeedback={showFeedback}
             labels={resolved}
             onFeedback={onFeedback}

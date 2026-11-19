@@ -94,7 +94,7 @@ union and replaced this issue's `@ts-expect-error` with a positive assertion
 over the same thinking-entry array
 ([validated by @f69f2bbb](../../tests/types/chat-message-list-type-assertions.tsx#L49),
 compiled by
-[chat-message-list-dist@4628ba7b](../../tests/chat-message-list-dist.test.ts#L85)). The
+[chat-message-list-dist@4628ba7b](../../tests/chat-message-list-dist.test.ts#L86)). The
 map dispatches on `role`: a tool entry renders `ToolActivity`, everything else
 `ChatMessage`, array order preserved. `busy` makes only a trailing tool entry
 pending; a non-trailing one stays done. `describeTool`, `showToolName`,

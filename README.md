@@ -271,6 +271,26 @@ entries
 />
 ```
 
+When a transcript holds more than one kind of card, give each its own accessible name with `describeCardName`; it receives the same `CardChatEntry` and returns a string or `undefined` to fall back to the `labels.card` default:
+
+```tsx
+<ChatMessageList
+  entries={entries}
+  userInitials="AB"
+  labels={{ aiDisclosure: "You are chatting with an AI assistant" }}
+  describeCard={(entry) =>
+    entry.kind === "delivery_card" ? <DeliveryCard {...entry.data} /> : null
+  }
+  describeCardName={(entry) =>
+    entry.kind === "invoice_card"
+      ? "Invoice"
+      : entry.kind === "delivery_card"
+        ? "Delivery"
+        : undefined
+  }
+/>
+```
+
 The components own no scroll position: keeping the transcript pinned to the newest message while a reply streams is the consumer's job.
 
 ## Links in model output

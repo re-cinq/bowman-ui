@@ -71,7 +71,7 @@ defaults object cannot satisfy `Readonly<Required<ChatMessageListLabels>>`
 ([validated by @83a1bc29](../../tests/types/chat-message-list-type-assertions.tsx#L90),
 [no-default@c3241974](../../tests/types/chat-message-list-type-assertions.tsx#L53),
 compiled by
-[chat-message-list-dist@4628ba7b](../../tests/chat-message-list-dist.test.ts#L85)).
+[chat-message-list-dist@4628ba7b](../../tests/chat-message-list-dist.test.ts#L86)).
 Passing only `aiDisclosure` resolves every other label to its English
 default ([validated by labels with only aiDisclosure resolves every other label to its default @de1b8ea0](../../tests/ChatMessageList.test.tsx#L238)).
 
@@ -213,8 +213,8 @@ list.
   ([validated by calls no console, localStorage, sessionStorage, fetch, sendBeacon or scrollIntoView @9c451bd2](../../tests/ChatMessageList.test.tsx#L983)).
 - `dist/components/ChatMessageList.js` opens with `"use client";` as its
   first statement per 018 decision 1, and ships with its `.d.ts` in the
-  pack ([validated by dist/components/ChatMessageList.js opens with "use client"; as its first statement @8651c267](../../tests/chat-message-list-dist.test.ts#L77),
-  [pack@e83ec8a6](../../tests/chat-message-list-dist.test.ts#L81)).
+  pack ([validated by dist/components/ChatMessageList.js opens with "use client"; as its first statement @8651c267](../../tests/chat-message-list-dist.test.ts#L78),
+  [pack@e83ec8a6](../../tests/chat-message-list-dist.test.ts#L82)).
 - `ChatMessageList` sits in the `labelsProp` partition bucket with a
   sentinel harness that renders a user entry, a thinking entry with
   `showThinking` on, a linked assistant entry and the busy indicator, then
