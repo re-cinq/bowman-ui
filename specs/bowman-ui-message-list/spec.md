@@ -194,23 +194,26 @@ default ([validated by labels with only aiDisclosure resolves every other label 
 ## Layout
 
 The root is `flex min-h-0 flex-1 flex-col` and the region
-`overflow-y-auto` with a `max-w-3xl` column at `gap-6` rhythm. Without
+`relative overflow-y-auto` with a `max-w-3xl` column at `gap-6` rhythm. Without
 `min-h-0` a flex child never shrinks and the region never scrolls, so the
 parent must be a bounded flex column - recorded as docs/design-notes.md's
 `## Layout` section, the note every consumer reads before mounting the
-list.
+list. The `relative` class gives the scroll region a containing block for
+its absolutely positioned `bowman-sr-only` descendants; without it, those
+hidden labels extend past the scroll boundary and lengthen the page
+([validated by the scroll region is relatively positioned so its sr-only descendants stay clipped inside it](../../tests/ChatMessageList.test.tsx#L965)).
 
 ## Mechanical invariants
 
 - No `@clerk`, `swr`, `next-intl`, `next/`, `@/` or
   `lucide-react` import, and every relative import ends in `.js`
-  ([validated by imports no @clerk, swr, next-intl, next/, @/ or lucide-react and every relative import ends in .js @60807840](../../tests/ChatMessageList.test.tsx#L972)).
+  ([validated by imports no @clerk, swr, next-intl, next/, @/ or lucide-react and every relative import ends in .js @60807840](../../tests/ChatMessageList.test.tsx#L977)).
 - **GDPR.** The rendered entries are customer questions carrying booking
   identifiers and names. The component references no `console.`,
   `localStorage`, `sessionStorage`, `fetch`, `sendBeacon` - nor
   `scrollIntoView`; the suite-wide console and network traps in
   `tests/setup.ts` hold every test of this component to zero calls
-  ([validated by calls no console, localStorage, sessionStorage, fetch, sendBeacon or scrollIntoView @9c451bd2](../../tests/ChatMessageList.test.tsx#L983)).
+  ([validated by calls no console, localStorage, sessionStorage, fetch, sendBeacon or scrollIntoView @9c451bd2](../../tests/ChatMessageList.test.tsx#L988)).
 - `dist/components/ChatMessageList.js` opens with `"use client";` as its
   first statement per 018 decision 1, and ships with its `.d.ts` in the
   pack ([validated by dist/components/ChatMessageList.js opens with "use client"; as its first statement @8651c267](../../tests/chat-message-list-dist.test.ts#L77),

@@ -87,13 +87,13 @@ compiled by
 `showThinking` gates the mount, not the visibility, and defaults `false`: with
 the flag absent, `[user, thinking, assistant]` renders no `<details>` and none
 of the thinking content while the user and assistant entries render unchanged
-([validated by showThinking absent leaves the user and assistant entries untouched @be6ec745](../../tests/ChatMessageList.test.tsx#L1212),
-[validated by showThinking absent renders no details and none of the thinking content @ba0bba5e](../../tests/ChatMessageList.test.tsx#L1202)). With it true the same
+([validated by showThinking absent leaves the user and assistant entries untouched @be6ec745](../../tests/ChatMessageList.test.tsx#L1217),
+[validated by showThinking absent renders no details and none of the thinking content @ba0bba5e](../../tests/ChatMessageList.test.tsx#L1207)). With it true the same
 array renders exactly one collapsed `ThinkingTrace` between them.
 `reducedMotion` forwards to the trace, as does the resolved `thinkingTrace`
-label ([validated by forwards the resolved thinkingTrace label so a Danish catalogue reaches the trace @01f4ac9e](../../tests/ChatMessageList.test.tsx#L1270),
-[validated by showThinking true renders one collapsed trace between the two messages @489e7f4e](../../tests/ChatMessageList.test.tsx#L1224),
-[validated by forwards reducedMotion, stripping the streaming dots' animation class @16eddd32](../../tests/ChatMessageList.test.tsx#L1255)).
+label ([validated by forwards the resolved thinkingTrace label so a Danish catalogue reaches the trace @01f4ac9e](../../tests/ChatMessageList.test.tsx#L1275),
+[validated by showThinking true renders one collapsed trace between the two messages @489e7f4e](../../tests/ChatMessageList.test.tsx#L1229),
+[validated by forwards reducedMotion, stripping the streaming dots' animation class @16eddd32](../../tests/ChatMessageList.test.tsx#L1260)).
 
 `ChatMessageListLabels` gains `thinkingTrace` as a defaulted key, colliding
 with no key of `ChatMessageLabels`, `ThinkingIndicatorLabels` (`thinking`,
@@ -106,7 +106,7 @@ key.
 A reasoning trace is not a disclosure and does not substitute for one: a list
 holding a single thinking entry with `showThinking` true still renders the
 `aiDisclosure` band
-([validated by a list holding a single thinking entry with showThinking still renders the aiDisclosure band @729cecae](../../tests/ChatMessageList.test.tsx#L1242)).
+([validated by a list holding a single thinking entry with showThinking still renders the aiDisclosure band @729cecae](../../tests/ChatMessageList.test.tsx#L1247)).
 
 ## GDPR
 

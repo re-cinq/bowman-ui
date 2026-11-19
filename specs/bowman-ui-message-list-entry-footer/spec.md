@@ -89,7 +89,7 @@ unchanged.
   rerender without the prop leaves no footer behind. The
   suite-wide `console` and network traps in `tests/setup.ts` hold every one
   of these tests to zero calls
-  ([validated by names renderEntryFooter three times - declaration, destructure, ChatMessage footer - and stores it nowhere @b4a02645](../../tests/ChatMessageList.test.tsx#L989),
+  ([validated by names renderEntryFooter three times - declaration, destructure, ChatMessage footer - and stores it nowhere @b4a02645](../../tests/ChatMessageList.test.tsx#L994),
   [validated by the returned node is not retained: a rerender without the prop leaves no footer @619e1a3c](../../tests/ChatMessageList.test.tsx#L489)).
 
 ## Not in scope
