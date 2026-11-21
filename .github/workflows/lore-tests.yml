@@ -73,6 +73,7 @@ name: Lore Test Report
 on:
   push:
     branches: [main]
+  pull_request:
   workflow_dispatch:
 
 # One in-flight run per ref, as ci.yml records. On main it also serialises the
