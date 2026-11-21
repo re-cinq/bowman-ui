@@ -6,19 +6,19 @@ on:
   push:
     branches: [main]
     paths:
-      - 'CLAUDE.md'
-      - 'AGENTS.md'
-      - 'adrs/**'
-      - 'runbooks/**'
-      - 'specs/**'
-      - 'teams/**'
-      - '.specify/**'
+      - "CLAUDE.md"
+      - "AGENTS.md"
+      - "adrs/**"
+      - "runbooks/**"
+      - "specs/**"
+      - "teams/**"
+      - ".specify/**"
 
 jobs:
   ingest:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 2
 
@@ -122,7 +122,7 @@ jobs:
     steps:
       # Full history: the delta is a diff against the last commit Lore
       # ingested, which a shallow clone cannot reach.
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
           persist-credentials: false
