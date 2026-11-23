@@ -176,9 +176,9 @@ it("keeps both scripts byte-identical to the HAL Engine commit their one header 
   expect(copies).toEqual([
     {
       header: expect.stringContaining(
-        "copied unmodified from re-cinq/HALEngine@8712723846c2 scripts/check-audit.mjs"
+        "copied unmodified from re-cinq/HALEngine@cd0047b48846 scripts/check-audit.mjs"
       ),
-      sha256: "cadb369b9b5bea03f814f9724c414ca876e50af23b41f7a4ed02776791aa2aa7",
+      sha256: "8bb4c7c01aecb811562231da68735e26a79dbf1eecc3cabfb345d79c69616536",
     },
     {
       header: expect.stringContaining(
