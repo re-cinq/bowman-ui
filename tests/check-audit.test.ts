@@ -355,3 +355,112 @@ it("names the dependencies the project and its workspaces declare that pull a tr
     explained: "explain\nnode_modules/deep\n--json\n",
   });
 });
+
+// npm hands an inherited advisory to dependents in whatever order its lookups finish, so one run can name a dependent the next leaves out.
+const globAdvisory = {
+  source: 2,
+  name: "tiny-glob",
+  title: "ReDoS through repeated globs",
+  url: "https://github.com/advisories/GHSA-2222-2222-2222",
+  severity: "high",
+};
+
+const vulnerableGlob = (effects: string[]) => ({
+  name: "tiny-glob",
+  severity: "high",
+  isDirect: false,
+  via: [globAdvisory],
+  range: "<=4.0.7",
+  nodes: ["node_modules/tiny-glob"],
+  effects,
+});
+
+const auditOf = (vulnerabilities: object, high: number) =>
+  JSON.stringify({
+    vulnerabilities,
+    metadata: { vulnerabilities: { critical: 0, high, moderate: 0, low: 0 } },
+  });
+
+const inherited = auditOf(
+  {
+    "tiny-glob": vulnerableGlob(["test-runner"]),
+    "test-runner": {
+      name: "test-runner",
+      severity: "high",
+      isDirect: true,
+      via: ["tiny-glob"],
+      range: "*",
+      nodes: ["node_modules/test-runner"],
+      effects: [],
+    },
+  },
+  2
+);
+
+const filedAgainst = { ...acknowledgement("GHSA-2222-2222-2222"), package: "tiny-glob" };
+
+const lockfile = (dir: string, copies: object): void => {
+  writeFileSync(
+    join(dir, "package-lock.json"),
+    JSON.stringify({ lockfileVersion: 3, packages: copies })
+  );
+};
+
+it("exits 0 on a dependent when the acknowledgement names the package the advisory is filed against and every copy is dev-only", () => {
+  const dir = workspace(inherited);
+
+  acknowledge(dir, [filedAgainst]);
+  lockfile(dir, {
+    "node_modules/tiny-glob": { version: "4.0.7", dev: true },
+    "node_modules/test-runner": { version: "1.0.0", dev: true },
+  });
+
+  expect(run(dir)).toMatchObject({ status: 0 });
+});
+
+it("still exits 1 on the dependent when one installed copy of that package is not dev-only", () => {
+  const dir = workspace(inherited);
+
+  acknowledge(dir, [filedAgainst]);
+  lockfile(dir, {
+    "node_modules/tiny-glob": { version: "4.0.7", dev: true },
+    "node_modules/server/node_modules/tiny-glob": { version: "4.0.7" },
+  });
+
+  expect(run(dir)).toMatchObject({
+    status: 1,
+    stderr: expect.stringContaining("high: test-runner"),
+  });
+});
+
+it("still exits 1 on the dependent when no lockfile shows the copies are dev-only", () => {
+  const dir = workspace(inherited);
+
+  acknowledge(dir, [filedAgainst]);
+
+  expect(run(dir)).toMatchObject({
+    status: 1,
+    stderr: expect.stringContaining("high: test-runner"),
+  });
+});
+
+it("keeps an acknowledgement for a dependent that a run leaves out while the advisory is still reported", () => {
+  const dir = workspace(auditOf({ "tiny-glob": vulnerableGlob([]) }, 1));
+
+  acknowledge(dir, [filedAgainst, { ...filedAgainst, package: "test-runner" }]);
+
+  expect(run(dir)).toMatchObject({ status: 0 });
+});
+
+it("reports an acknowledgement as stale once its advisory blocks nothing", () => {
+  const dir = workspace(critical);
+
+  acknowledge(dir, [acknowledgement("GHSA-9999-9999-9999"), filedAgainst]);
+
+  expect(run(dir)).toMatchObject({
+    status: 1,
+    stderr: expect.stringContaining(
+      'acceptance for GHSA-2222-2222-2222 in "tiny-glob" matches no current advisory'
+    ),
+  });
+});
