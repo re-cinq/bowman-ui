@@ -1,4 +1,4 @@
-# lore-ingest-version: 9
+# lore-ingest-version: 10
 # The curl hardening (auth-file token, status handling, body prefixing) lives in
 # scripts/lore-post.sh, shared by the ingest job below. See issue #38.
 # LORE_INGEST_URL is a repository secret, not a variable, although it holds no
@@ -24,6 +24,7 @@
 name: Lore Context Ingest
 
 on:
+  workflow_dispatch:
   push:
     branches: [main]
     paths:
@@ -73,11 +74,15 @@ jobs:
           # pipefail: a failed git diff (say, an unreachable before) must go
           # red, not let jq turn it into an empty list and a green skip.
           set -euo pipefail
-          # push is the only trigger, so BEFORE is a commit or, on branch
-          # creation, all zeros: diff the empty tree then, so a recreated main
-          # ingests its whole corpus rather than its last commit.
-          if [ "${BEFORE}" = "0000000000000000000000000000000000000000" ]; then
+          # Branch creation sets BEFORE to all zeros, and workflow_dispatch
+          # leaves BEFORE and AFTER empty: diff the empty tree against HEAD
+          # then, so a manual run or a recreated main ingests its whole corpus
+          # rather than its last commit.
+          if [ -z "${BEFORE}" ] || [ "${BEFORE}" = "0000000000000000000000000000000000000000" ]; then
             BEFORE=$(git hash-object -t tree /dev/null)
+          fi
+          if [ -z "${AFTER}" ]; then
+            AFTER=HEAD
           fi
           # --no-renames: a moved file must arrive as its old path (a delete)
           # plus its new path, or the old path's chunks outlive the file.
