@@ -50,7 +50,7 @@ else, and its labels gain `card` and `cardUnavailable`
   `showFeedback={false}` renders no thumbs
   ([validated by starts unrated when handed card c2 after card c1 was rated up @bd665a2b](../../tests/ChatCard.test.tsx#L66),
   [validated by rates card c1 up through onFeedback, presses that thumb and shows the notice @f32f8e6a](../../tests/ChatCard.test.tsx#L36),
-  [validated by rates card c2 alone through onFeedback with its own id @e707a681](../../tests/ChatMessageList.test.tsx#L1158),
+  [validated by rates card c2 alone through onFeedback with its own id @e707a681](../../tests/ChatMessageList.test.tsx#L1163),
   [validated by renders no thumbs when showFeedback is false @ebef23ea](../../tests/ChatCard.test.tsx#L78)).
 - **The thumbs row reveals like `ChatMessage`'s.** Where the pointer can
   hover, the row is `opacity-0` at rest and shows on hover or when focus
@@ -61,7 +61,7 @@ else, and its labels gain `card` and `cardUnavailable`
 - **Strings come from the labels.** The article's name and the fallback
   follow the `labels` given to `ChatCard` or to `ChatMessageList`
   ([validated by names the article and the fallback from the labels it is given @8566fa53](../../tests/ChatCard.test.tsx#L84),
-  [validated by names each card and its fallback from the list's labels and shows no thumbs with showFeedback false @0dcaf54e](../../tests/ChatMessageList.test.tsx#L1178)).
+  [validated by names each card and its fallback from the list's labels and shows no thumbs with showFeedback false @0dcaf54e](../../tests/ChatMessageList.test.tsx#L1183)).
 - **Cards sit in transcript order.** `ChatMessageList` renders each card
   entry where it falls, after the tool row that produced it
-  ([validated by renders a question, a tool row and two cards, each drawing its describeCard body, in transcript order @21fe3375](../../tests/ChatMessageList.test.tsx#L1133)).
+  ([validated by renders a question, a tool row and two cards, each drawing its describeCard body, in transcript order @21fe3375](../../tests/ChatMessageList.test.tsx#L1138)).

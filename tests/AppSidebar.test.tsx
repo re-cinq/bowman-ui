@@ -233,6 +233,18 @@ describe("AppSidebar", () => {
       expect(screen.getByRole("complementary", { name: "Sidebar" })).toContainElement(wrapper);
     });
 
+    it("the children scroll region carries relative so position: absolute sr-only descendants are clipped by the overflow container, not the page", () => {
+      render(
+        <AppSidebar>
+          <span data-testid="scroll-child">content</span>
+        </AppSidebar>
+      );
+
+      const wrapper = screen.getByTestId("scroll-child").parentElement as HTMLElement;
+
+      expect(wrapper.classList).toContain("relative");
+    });
+
     it("footer={<button>Log ud</button>} renders that node inside exactly one border-t region", () => {
       const { container } = render(<AppSidebar footer={<button type="button">Log ud</button>} />);
 

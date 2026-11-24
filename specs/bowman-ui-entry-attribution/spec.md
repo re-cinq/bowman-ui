@@ -207,7 +207,7 @@ component calls `console.*`, `localStorage`, `sessionStorage`, `fetch` or
 `navigator.sendBeacon`, and `tests/setup.ts` fails any test whose render
 touched the console or the network
 ([validated by `GDPR: neither file calls console.*, localStorage, sessionStorage, fetch or sendBeacon` @5dd2da55](../../tests/ChatMessage.test.tsx#L749),
-[the list @9c451bd2](../../tests/ChatMessageList.test.tsx#L983)).
+[the list @9c451bd2](../../tests/ChatMessageList.test.tsx#L988)).
 
 ## Gates
 

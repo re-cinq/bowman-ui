@@ -961,6 +961,11 @@ describe("ChatMessageList", () => {
       );
       expect(regionOf().querySelectorAll('[aria-live="polite"]')).toHaveLength(1);
     });
+
+    it("the scroll region is relatively positioned so its sr-only descendants stay clipped inside it", () => {
+      render(<ChatMessageList entries={twoEntries} userInitials="LM" labels={{ aiDisclosure }} />);
+      expect(screen.getByRole("log").className).toContain("relative");
+    });
   });
 
   describe("the source files (grep acceptance criteria)", () => {

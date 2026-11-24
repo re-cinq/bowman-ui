@@ -102,7 +102,7 @@ value ([validated by no built component carries a --bowman- literal; the class s
 - `ThinkingDots` read `--bowman-accent` for every dot, in both modes, and keep doing so under
   `reducedMotion` in `ThinkingTrace` and `ChatMessageList`
   ([validated by true keeps the three dots but strips the bowman-fade-dot animation class @d5bb9fd3](../../tests/ThinkingTrace.test.tsx#L114),
-  [validated by forwards reducedMotion, stripping the streaming dots' animation class @16eddd32](../../tests/ChatMessageList.test.tsx#L1255)).
+  [validated by forwards reducedMotion, stripping the streaming dots' animation class @16eddd32](../../tests/ChatMessageList.test.tsx#L1260)).
 - Every focus ring keeps its `focus:ring-2` width class beside the `--bowman-focus-ring`
   colour, light and dark: `ChatMessage`'s article, copy button and thumb buttons,
   `ConversationList`'s row link and delete button, every `AppSidebar` item, and `AppShell`'s
@@ -164,9 +164,9 @@ utility fails ([validated by each neutral role constant is imported by exactly t
   [validated by the drawer close-button row carries the body text token, so plain-string drawer content reads on the dark surface @67513c61](../../tests/AppShell.test.tsx#L531),
   [validated by the main region carries the body text token, so plain-string content reads on the dark surface @6f7072e6](../../tests/AppShell.test.tsx#L539),
   [validated by the desktop rail and the mobile drawer wrappers carry the body text token, so plain-string renderSidebar content reads on the dark surface @107087e4](../../tests/AppShell.test.tsx#L548),
-  [validated by the brand row carries the body text token, so a plain-string brand reads on the dark surface @f8556e9e](../../tests/AppSidebar.test.tsx#L268),
-  [validated by the children scroll region carries the body text token, so plain-string children read on the dark surface @b45219a8](../../tests/AppSidebar.test.tsx#L277),
-  [validated by the footer region carries the body text token, so a plain-string footer reads on the dark surface @b0f9ec6f](../../tests/AppSidebar.test.tsx#L286)).
+  [validated by the brand row carries the body text token, so a plain-string brand reads on the dark surface @f8556e9e](../../tests/AppSidebar.test.tsx#L280),
+  [validated by the children scroll region carries the body text token, so plain-string children read on the dark surface @b45219a8](../../tests/AppSidebar.test.tsx#L289),
+  [validated by the footer region carries the body text token, so a plain-string footer reads on the dark surface @b0f9ec6f](../../tests/AppSidebar.test.tsx#L298)).
 - The `ChatComposer` textarea, `SearchField` input, `ErrorBoundary` heading, active `AppSidebar`
   nav item and `ChatMessage` message body read `--bowman-text-strong`; the nav item and ghost
   `Button` hover and the focused `AppShell` skip link read the same role through its `hover:` and
