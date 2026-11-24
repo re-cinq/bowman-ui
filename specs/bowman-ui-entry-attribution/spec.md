@@ -50,7 +50,7 @@ in this package - so the member list is read from
 `dist/index.d.ts` is asserted separately to export the name. The criterion's
 other half, that `dist/index.d.ts` carries no `describeAssistant`,
 `renderAttribution` or `renderEntry`, is asserted literally on both files
-([validated by dist/index.d.ts declares no describeAssistant, renderAttribution or renderEntry @d9292a8d](../../tests/chat-message-list-dist.test.ts#L70)).
+([validated by dist/index.d.ts declares no describeAssistant, renderAttribution or renderEntry @d9292a8d](../../tests/chat-message-list-dist.test.ts#L71)).
 
 `ChatMessageListProps` gains `attribution?: Readonly<Record<string, ChatAttribution>>`
 and nothing else; the built member list is pinned in full order, so a second
@@ -72,7 +72,7 @@ prop smuggled in with it fails. `ChatMessage` gains exactly one prop,
    ([validated by @e2bcd51f](../../tests/types/chat-message-list-type-assertions.tsx#L35),
    [the prop @eefbcd85](../../tests/types/chat-message-list-type-assertions.tsx#L97),
    compiled by
-   [chat-message-list-dist@4628ba7b](../../tests/chat-message-list-dist.test.ts#L85)).
+   [chat-message-list-dist@4628ba7b](../../tests/chat-message-list-dist.test.ts#L86)).
 2. **The list resolves, the message renders.** `ChatMessageList` performs the
    lookup per entry - `entry.persona ? attribution?.[entry.persona] : undefined`,
    written as a pure `attributionFor` helper outside the component because a

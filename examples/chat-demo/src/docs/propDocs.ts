@@ -203,6 +203,12 @@ export const chatMessageListPropDocs = {
     description:
       "Draws each card entry's body inside the ChatCard frame; null or absent shows the cardUnavailable label.",
   },
+  describeCardName: {
+    type: "(entry: CardChatEntry) => string | undefined",
+    required: false,
+    description:
+      "The article's accessible name per card entry; falls back to labels.card when absent or when it returns undefined.",
+  },
   showThinking: {
     type: "boolean",
     required: false,
@@ -262,6 +268,12 @@ export const chatCardPropDocs = {
     required: false,
     description:
       "Draws the body from the consumer's own reading of entry.data. Absent, or returning null, shows the cardUnavailable label; the library never prints data.",
+  },
+  describeCardName: {
+    type: "(entry: CardChatEntry) => string | undefined",
+    required: false,
+    description:
+      "The article's accessible name for this entry; falls back to labels.card when absent or when it returns undefined.",
   },
   showFeedback: {
     type: "boolean",
