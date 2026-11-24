@@ -361,7 +361,7 @@ describe("the graph job's fetch step", () => {
   });
 
   it("fails and leaves no executable when the binary does not match its checksum", () => {
-    const { result, workDir } = runFetchStep({ CURL_STUB_BODY: "not a checksum list" });
+    const { result, workDir } = runFetchStep({ CURL_STUB_BODY: `${"0".repeat(64)}  linux-amd64` });
 
     expect(result.status).not.toBe(0);
     expect(existsSync(join(workDir, "lore-code-trace"))).toBe(false);
