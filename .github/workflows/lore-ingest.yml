@@ -1,133 +1,155 @@
-# lore-ingest-version: 9
-# The curl hardening (auth-file token, status handling, body prefixing) lives in
-# scripts/lore-post.sh, shared by the ingest job below. See issue #38.
-# LORE_INGEST_URL is a repository secret, not a variable, although it holds no
-# credential: the runner prints every step's env block in the public log and
-# masks only secrets, and the endpoint's hostname has no business in a public
-# log. The template's `vars.` form is a deliberate per-repo deviation, kept on
-# both jobs.
-# The changed-files step diffs the whole push (before..after over a full
-# checkout, scoped to the trigger's paths) where the template diffs HEAD~1,
-# which sees only the last commit of a rebase merge. See issue #136; a
-# template regen must keep it, and the two blocks below.
-# tests/** and examples/chat-demo/tests/** ride along in both lists: Lore's
-# spec-coverage validator resolves every spec's [validated by] link against the
-# chunked test files, so a test file has to be re-ingested whenever it changes,
-# or else a re-anchored spec is judged against a stale copy (issue #252; the
-# unscoped diff that #136 replaced had been posting them as a side effect). A
-# template regen must keep both entries too.
-# Version 8 of the template groups the graph job alone; the workflow-level
-# group below already runs one upload at a time and also keeps the ingest job
-# in push order, so it stays. The fetch runs curl without -S, unlike the
-# template: curl's error for a failed connection names the bare host, which the
-# mask on the secret's full URL does not cover. A template regen must keep both.
+# lore-ingest-version: 11
 name: Lore Context Ingest
 
 on:
+  workflow_dispatch:
   push:
     branches: [main]
     paths:
-      - "CLAUDE.md"
-      - "AGENTS.md"
-      - "adrs/**"
-      - "runbooks/**"
-      - "specs/**"
-      - "teams/**"
-      - ".specify/**"
-      - "tests/**"
-      - "examples/chat-demo/tests/**"
+      - 'CLAUDE.md'
+      - 'AGENTS.md'
+      - 'adrs/**'
+      - 'runbooks/**'
+      - 'specs/**'
+      - 'teams/**'
+      - '.specify/**'
 
-# One run at a time, in push order, so a slow run for an older push cannot
-# ingest stale content after a newer push's run. GitHub queues only the newest
-# pending run per group: a third quick push cancels the second's run, and that
-# push's CLAUDE.md, AGENTS.md, .specify and test-file deltas wait for their next
-# touch (specs and adrs self-heal: the graph job's delta is diffed from the
-# last commit Lore ingested, not from the cancelled run's own push, so the
-# next run picks them up).
-concurrency:
-  group: lore-ingest
-  cancel-in-progress: false
-
-# actions/checkout fetches with github.token even with persist-credentials
-# false, and on a public repo contents: read grants nothing anonymous access
-# lacks, so this is the sibling workflows' floor rather than `{}`.
 permissions:
   contents: read
+  id-token: write
 
 jobs:
   ingest:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@v4
         with:
-          # before..after needs the push's whole history, not the tip's parent.
-          fetch-depth: 0
-          persist-credentials: false
+          fetch-depth: 2
 
       - name: Get changed files
         id: changes
-        env:
-          BEFORE: ${{ github.event.before }}
-          AFTER: ${{ github.event.after }}
         run: |
-          # pipefail: a failed git diff (say, an unreachable before) must go
-          # red, not let jq turn it into an empty list and a green skip.
-          set -euo pipefail
-          # push is the only trigger, so BEFORE is a commit or, on branch
-          # creation, all zeros: diff the empty tree then, so a recreated main
-          # ingests its whole corpus rather than its last commit.
-          if [ "${BEFORE}" = "0000000000000000000000000000000000000000" ]; then
-            BEFORE=$(git hash-object -t tree /dev/null)
+          if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ]; then
+            # A dispatch run has no diff to read: it posts every tracked file
+            # under the push paths above (keep the two lists identical).
+            FILES=$(git ls-files -- 'CLAUDE.md' 'AGENTS.md' 'adrs/**' 'runbooks/**' 'specs/**' 'teams/**' '.specify/**' | jq -R -s -c 'split("\n") | map(select(. != ""))')
+          else
+            # --no-renames: a moved file must arrive as its old path (a delete)
+            # plus its new path, or the old path's chunks outlive the file.
+            FILES=$(git diff --name-only --no-renames HEAD~1 HEAD | jq -R -s -c 'split("\n") | map(select(. != ""))')
           fi
-          # --no-renames: a moved file must arrive as its old path (a delete)
-          # plus its new path, or the old path's chunks outlive the file.
-          # The pathspec mirrors on.push.paths: without it a whole-tree diff
-          # would post src/ paths to the doc store.
-          FILES=$(git diff --name-only --no-renames "${BEFORE}" "${AFTER}" \
-            -- CLAUDE.md AGENTS.md adrs runbooks specs teams .specify tests examples/chat-demo/tests \
-            | jq -R -s -c 'split("\n") | map(select(. != ""))')
           echo "files=${FILES}" >> "$GITHUB_OUTPUT"
 
       - name: Notify Lore to ingest
         if: steps.changes.outputs.files != '[]'
         env:
-          LORE_INGEST_TOKEN: ${{ secrets.LORE_INGEST_TOKEN }}
-          LORE_INGEST_URL: ${{ secrets.LORE_INGEST_URL }}
+          LORE_CI_AUTH: identity
+          LORE_INGEST_URL: ${{ secrets.LORE_INGEST_URL || vars.LORE_INGEST_URL || vars.LORE_API_URL }}
           FILES: ${{ steps.changes.outputs.files }}
         run: |
-          bash scripts/lore-post.sh /api/ingest \
-            "{\"files\": ${FILES}, \"repo\": \"${{ github.repository }}\", \"commit\": \"${{ github.sha }}\"}" \
-            "context was NOT ingested"
+          # Misconfiguration (unset URL) is a hard error - a missing var must
+          # never silently fall back and report success.
+          if [ -z "${LORE_INGEST_URL}" ]; then
+            echo "::error::LORE_INGEST_URL repository variable or secret is not set - context was NOT ingested"
+            exit 1
+          fi
+          if [ "${LORE_CI_AUTH}" = "identity" ]; then
+            # GitHub vouches for this run: trade its request token for an
+            # identity token whose audience is this install's address.
+            OIDC_RESPONSE=$(curl -fsS --get \
+              -H "Authorization: Bearer ${ACTIONS_ID_TOKEN_REQUEST_TOKEN}" \
+              --data-urlencode "audience=${LORE_INGEST_URL}" \
+              "${ACTIONS_ID_TOKEN_REQUEST_URL}") || {
+              echo "::error::GitHub did not issue an identity token (is id-token: write granted?) - context was NOT ingested"
+              exit 1
+            }
+            LORE_IDENTITY_TOKEN=$(printf '%s' "${OIDC_RESPONSE}" | jq -r '.value // empty')
+            if [ -z "${LORE_IDENTITY_TOKEN}" ]; then
+              echo "::error::GitHub's identity token response held no token - context was NOT ingested"
+              exit 1
+            fi
+          fi
+          # The Authorization header rides in a file so the token never
+          # appears on the curl command line (readable in the process table
+          # for the request duration; the env var stays readable to same-uid
+          # processes, so this narrows the exposure, not eliminates it).
+          AUTH_FILE="$(mktemp)"
+          BODY_FILE="$(mktemp)"
+          trap 'rm -f "${AUTH_FILE}" "${BODY_FILE}"' EXIT
+          printf 'Authorization: Bearer %s\n' "${LORE_IDENTITY_TOKEN}" > "${AUTH_FILE}"
+          # Capture the HTTP status instead of curl -f: a blanket warning once
+          # masked a permanent 401 (unset token) as transient for a repo's
+          # entire history. curl exits non-zero here only when no HTTP
+          # response arrived, where -w prints 000.
+          CURL_EXIT=0
+          HTTP_STATUS=$(curl -s -o "${BODY_FILE}" -w "%{http_code}" -X POST \
+            -H @"${AUTH_FILE}" \
+            -H "Content-Type: application/json" \
+            -d "{
+              \"files\": ${FILES},
+              \"repo\": \"${{ github.repository }}\",
+              \"commit\": \"${{ github.sha }}\"
+            }" \
+            "${LORE_INGEST_URL}/api/ingest") || CURL_EXIT=$?
+          echo "Lore ingest endpoint returned HTTP ${HTTP_STATUS:-000} (curl exit ${CURL_EXIT})"
+          # Prefix each body line with '| ': the runner strips leading
+          # whitespace before parsing ::workflow-commands::, so only a
+          # non-whitespace prefix stops a response body from forging one. The
+          # echo keeps the annotations below on a fresh line even when the
+          # body has no trailing newline.
+          head -c 4096 "${BODY_FILE}" | sed 's/^/| /'
+          echo
+          # A URL that cannot be parsed (exit 3) or resolved (exit 6) is a
+          # misconfigured LORE_INGEST_URL, not a transient blip - hard-fail
+          # like the unset checks above. TLS failures (exit 35/51/60) stay in
+          # the warn arm below: cert rotation windows are genuinely transient.
+          if [ "${CURL_EXIT}" = "3" ] || [ "${CURL_EXIT}" = "6" ]; then
+            echo "::error::curl could not reach ${LORE_INGEST_URL} (exit ${CURL_EXIT}) - context was NOT ingested"
+            exit 1
+          fi
+          case "${HTTP_STATUS}" in
+            2??)
+              ;;
+            5??|408|429|000|"")
+              # Server-side trouble, throttling, or a network blip is
+              # plausibly transient - warn and rely on the next doc push to
+              # retry. This workflow runs on push to main and never blocks a
+              # merge.
+              echo "::warning::Lore ingest endpoint returned HTTP ${HTTP_STATUS:-000} (transient - next doc push retries)"
+              ;;
+            *)
+              # Anything else (4xx auth/config, unexpected redirects) is
+              # permanent - a retry will not fix it, so fail the run.
+              echo "::error::Lore ingest endpoint returned HTTP ${HTTP_STATUS} - context was NOT ingested"
+              exit 1
+              ;;
+          esac
 
-  # Posts the changed specs and ADRs as a delta through lore-code-trace
-  # instead of asking Lore to clone this repo. The checkout
-  # pin and secret-only URL match the ingest job above (deliberate per-repo
-  # deviations, documented at the top of this file).
   graph:
     runs-on: ubuntu-latest
+    # One upload at a time: a delta is a diff from the last commit Lore ingested,
+    # so a second one beside it repeats the work and aborts its graph writes. A
+    # newer push replaces a queued run, and its diff covers the one it replaced.
+    concurrency:
+      group: lore-graph-projection
+      cancel-in-progress: false
     steps:
       # Full history: the delta is a diff against the last commit Lore
       # ingested, which a shallow clone cannot reach.
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
           persist-credentials: false
 
       - name: Fetch lore-code-trace
         env:
-          LORE_INGEST_TOKEN: ${{ secrets.LORE_INGEST_TOKEN }}
-          LORE_INGEST_URL: ${{ secrets.LORE_INGEST_URL }}
+          LORE_CI_AUTH: identity
+          LORE_INGEST_URL: ${{ secrets.LORE_INGEST_URL || vars.LORE_INGEST_URL || vars.LORE_API_URL }}
         run: |
           # Misconfiguration (unset URL) is a hard error - a missing var must
           # never silently fall back and report success.
           if [ -z "${LORE_INGEST_URL}" ]; then
-            echo "::error::LORE_INGEST_URL repository secret is not set - specs and ADRs were NOT projected"
-            exit 1
-          fi
-          # Same class of misconfiguration: an unset token means every POST is
-          # rejected with 401, which must never pass as a green run.
-          if [ -z "${LORE_INGEST_TOKEN}" ]; then
-            echo "::error::LORE_INGEST_TOKEN repository secret is not set - specs and ADRs were NOT projected"
+            echo "::error::LORE_INGEST_URL repository variable or secret is not set - specs and ADRs were NOT projected"
             exit 1
           fi
           # The binary that posts the delta is served by Lore itself, so it
@@ -138,7 +160,7 @@ jobs:
           # doc push, which diffs from the last commit Lore ingested and so
           # catches up.
           for artifact in linux-amd64 checksums.txt; do
-            if ! curl -fsL --connect-timeout 20 --retry 6 --retry-delay 30 --retry-all-errors "${LORE_INGEST_URL}/dist/lore-code-trace/${artifact}" -o "${artifact}"; then
+            if ! curl -fsSL --connect-timeout 20 --retry 6 --retry-delay 30 --retry-all-errors "${LORE_INGEST_URL}/dist/lore-code-trace/${artifact}" -o "${artifact}"; then
               echo "::warning::lore-code-trace (${artifact}) could not be fetched from Lore - specs and ADRs were NOT projected (transient - next doc push retries)"
               rm -f linux-amd64 checksums.txt
               exit 0
@@ -155,8 +177,8 @@ jobs:
       - name: Project specs and ADRs into the graph
         if: hashFiles('lore-code-trace') != ''
         env:
-          LORE_INGEST_TOKEN: ${{ secrets.LORE_INGEST_TOKEN }}
-          LORE_API_URL: ${{ secrets.LORE_INGEST_URL }}
+          LORE_CI_AUTH: identity
+          LORE_API_URL: ${{ secrets.LORE_INGEST_URL || vars.LORE_INGEST_URL || vars.LORE_API_URL }}
         run: |
           # A binary older than the docs subcommand ignores the argument and
           # runs the repository's tests instead. Printing the selection proves
